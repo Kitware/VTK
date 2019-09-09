@@ -37,7 +37,7 @@ void vtkStreamerBase::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamerBase::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkStreamerBase::ProcessRequest(vtkInformation* request,
                                     vtkInformationVector** inputVector,
                                     vtkInformationVector* outputVector)
 {

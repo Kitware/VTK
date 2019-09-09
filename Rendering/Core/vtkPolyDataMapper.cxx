@@ -84,7 +84,7 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector*)
 {
@@ -249,7 +249,7 @@ void vtkPolyDataMapper::Update()
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataMapper::Update(int port, vtkInformationVector* requests)
+vtkTypeBool vtkPolyDataMapper::Update(int port, vtkInformationVector* requests)
 {
   if (this->Static)
   {
@@ -259,7 +259,7 @@ int vtkPolyDataMapper::Update(int port, vtkInformationVector* requests)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataMapper::Update(vtkInformation* requests)
+vtkTypeBool vtkPolyDataMapper::Update(vtkInformation* requests)
 {
   if (this->Static)
   {

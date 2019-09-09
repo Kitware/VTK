@@ -123,7 +123,7 @@ void vtkExternalLight::SetExponent(double exp)
 }
 
 //-----------------------------------------------------------------------------
-void vtkExternalLight::SetPositional(int p)
+void vtkExternalLight::SetPositional(vtkTypeBool p)
 {
   this->Superclass::SetPositional(p);
   this->PositionalSet = true;

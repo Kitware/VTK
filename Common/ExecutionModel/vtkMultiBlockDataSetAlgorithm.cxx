@@ -71,7 +71,7 @@ vtkDataObject* vtkMultiBlockDataSetAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiBlockDataSetAlgorithm::ProcessRequest(
+vtkTypeBool vtkMultiBlockDataSetAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

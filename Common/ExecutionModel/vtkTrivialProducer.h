@@ -43,7 +43,7 @@ public:
    * output data object is never modified, but it is queried to
    * fulfill requests.
    */
-  int ProcessRequest(vtkInformation*,
+  vtkTypeBool ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
                              vtkInformationVector*) override;
 

@@ -208,7 +208,7 @@ public:
   vtkGetMacro(OutputPointsPrecision,int);
   //@}
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkConnectivityFilter();

@@ -65,7 +65,7 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

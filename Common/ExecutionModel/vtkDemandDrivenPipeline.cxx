@@ -157,7 +157,7 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
 
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
                                             vtkInformationVector** inInfoVec,
                                             vtkInformationVector* outInfoVec)
 {
@@ -304,13 +304,13 @@ void vtkDemandDrivenPipeline::ResetPipelineInformation(int,
 }
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::Update()
+vtkTypeBool vtkDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
 }
 
 //----------------------------------------------------------------------------
-int vtkDemandDrivenPipeline::Update(int port)
+vtkTypeBool vtkDemandDrivenPipeline::Update(int port)
 {
   if(!this->UpdateInformation())
   {

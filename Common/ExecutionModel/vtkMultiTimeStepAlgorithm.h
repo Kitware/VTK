@@ -97,7 +97,7 @@ protected:
     return 1;
   }
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool CacheData;
   unsigned int NumberOfCacheEntries;

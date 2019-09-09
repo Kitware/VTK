@@ -712,7 +712,7 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* newExecutive)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkAlgorithm::ProcessRequest(vtkInformation* request,
                                  vtkCollection* inInfo,
                                  vtkInformationVector* outInfo)
 {
@@ -741,7 +741,7 @@ int vtkAlgorithm::ProcessRequest(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessRequest(vtkInformation* /* request */,
+vtkTypeBool vtkAlgorithm::ProcessRequest(vtkInformation* /* request */,
                                  vtkInformationVector**,
                                  vtkInformationVector*)
 {
@@ -1488,7 +1488,7 @@ void vtkAlgorithm::Update(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::Update(int port, vtkInformationVector* requests)
+vtkTypeBool vtkAlgorithm::Update(int port, vtkInformationVector* requests)
 {
   vtkStreamingDemandDrivenPipeline* sddp =
     vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
@@ -1503,7 +1503,7 @@ int vtkAlgorithm::Update(int port, vtkInformationVector* requests)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::Update(vtkInformation* requests)
+vtkTypeBool vtkAlgorithm::Update(vtkInformation* requests)
 {
   vtkNew<vtkInformationVector> reqs;
   reqs->SetInformationObject(0, requests);

@@ -164,7 +164,7 @@ void vtkPythonAlgorithm::SetNumberOfOutputPorts(int n)
   this->Superclass::SetNumberOfOutputPorts(n);
 }
 
-int vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkPythonAlgorithm::ProcessRequest(vtkInformation* request,
                                        vtkInformationVector** inInfo,
                                        vtkInformationVector* outInfo)
 {

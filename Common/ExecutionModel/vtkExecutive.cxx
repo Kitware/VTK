@@ -308,7 +308,7 @@ void vtkExecutive::ReportReferences(vtkGarbageCollector* collector)
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::Update()
+vtkTypeBool vtkExecutive::Update()
 {
   if (this->Algorithm->GetNumberOfOutputPorts())
   {
@@ -318,7 +318,7 @@ int vtkExecutive::Update()
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::Update(int)
+vtkTypeBool vtkExecutive::Update(int)
 {
   vtkErrorMacro("This class does not implement Update.");
   return 0;
@@ -533,7 +533,7 @@ vtkDataObject* vtkExecutive::GetInputData
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkExecutive::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inInfo,
                                  vtkInformationVector* outInfo)
 {

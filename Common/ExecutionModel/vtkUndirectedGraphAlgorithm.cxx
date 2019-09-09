@@ -47,7 +47,7 @@ void vtkUndirectedGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkUndirectedGraphAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkUndirectedGraphAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

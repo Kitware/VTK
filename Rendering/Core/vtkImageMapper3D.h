@@ -178,7 +178,7 @@ protected:
   /**
    * Handle requests from the pipeline executive.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo) override;
 

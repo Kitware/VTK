@@ -56,7 +56,7 @@ void vtkPieceRequestFilter::SetInputData(int index, vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
-int vtkPieceRequestFilter::ProcessRequest(
+vtkTypeBool vtkPieceRequestFilter::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

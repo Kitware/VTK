@@ -80,7 +80,7 @@ const char* vtkXMLTableWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLTableWriter::ProcessRequest(
+vtkTypeBool vtkXMLTableWriter::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 

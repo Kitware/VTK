@@ -122,7 +122,7 @@ vtkDataObject* vtkPointSetAlgorithm::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetAlgorithm::ProcessRequest(
+vtkTypeBool vtkPointSetAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

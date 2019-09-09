@@ -430,7 +430,7 @@ vtkMTimeType vtkTransformToGrid::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-int vtkTransformToGrid::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkTransformToGrid::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {

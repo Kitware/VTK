@@ -78,7 +78,7 @@ vtkPolyData* vtkPolyDataAlgorithm::GetPolyDataInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

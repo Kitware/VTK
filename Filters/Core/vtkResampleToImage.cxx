@@ -76,7 +76,7 @@ vtkImageData* vtkResampleToImage::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-int vtkResampleToImage::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkResampleToImage::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {

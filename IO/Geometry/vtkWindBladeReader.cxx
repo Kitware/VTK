@@ -188,7 +188,7 @@ vtkWindBladeReader::~vtkWindBladeReader()
 }
 
 //----------------------------------------------------------------------------
-int vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
+vtkTypeBool vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
                                        vtkInformationVector** inputVector,
                                        vtkInformationVector* outputVector)
 {

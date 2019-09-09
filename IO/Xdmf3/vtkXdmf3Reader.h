@@ -174,7 +174,7 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   //Overridden to handle RDO requests the way we need to
-  int ProcessRequest(vtkInformation *, vtkInformationVector **,
+  vtkTypeBool ProcessRequest(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;
 
   //Overridden to create the correct vtkDataObject subclass for the file.

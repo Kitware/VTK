@@ -143,7 +143,7 @@ int vtkStringToCategory::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkStringToCategory::ProcessRequest(
+vtkTypeBool vtkStringToCategory::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

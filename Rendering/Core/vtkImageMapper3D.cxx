@@ -129,7 +129,7 @@ void vtkImageMapper3D::Render(vtkRenderer *, vtkImageSlice *)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageMapper3D::ProcessRequest(
+vtkTypeBool vtkImageMapper3D::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

@@ -96,7 +96,7 @@ protected:
 
   friend class vtkInformationEnsembleMemberRequestKey;
 
-  int ProcessRequest(vtkInformation *request,
+  vtkTypeBool ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector) override;
   int FillOutputPortInformation(int, vtkInformation*) override;

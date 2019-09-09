@@ -618,7 +618,7 @@ int vtkSMPContourGrid::FillOutputPortInformation(
 }
 
 //-----------------------------------------------------------------------------
-int vtkSMPContourGrid::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkSMPContourGrid::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {

@@ -42,7 +42,7 @@ void vtkAnnotationLayersAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkAnnotationLayersAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkAnnotationLayersAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

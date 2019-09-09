@@ -243,7 +243,7 @@ public:
   int Write();
 
   // See the vtkAlgorithm for a description of what these do
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector) override;
 

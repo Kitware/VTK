@@ -90,7 +90,7 @@ vtkPointSet* vtkXMLUnstructuredDataWriter::GetInputAsPointSet()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
                                                  vtkInformationVector** inputVector,
                                                  vtkInformationVector* outputVector)
 {

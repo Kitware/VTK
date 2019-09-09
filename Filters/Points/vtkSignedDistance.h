@@ -151,7 +151,7 @@ public:
   void EndAppend();
 
   // See the vtkAlgorithm for a description of what these do
-  int ProcessRequest(vtkInformation*,
+  vtkTypeBool ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
                      vtkInformationVector*) override;
 

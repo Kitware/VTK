@@ -129,8 +129,7 @@ void vtkTrivialProducer::FillOutputDataInformation(vtkDataObject* output,
 }
 
 //----------------------------------------------------------------------------
-int
-vtkTrivialProducer::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkTrivialProducer::ProcessRequest(vtkInformation* request,
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector)
 {

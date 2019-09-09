@@ -64,7 +64,7 @@ protected:
   vtkHyperTreeGridCellCenters();
   ~vtkHyperTreeGridCellCenters() override;
 
-  int ProcessRequest( vtkInformation* request,
+  vtkTypeBool ProcessRequest( vtkInformation* request,
                       vtkInformationVector** inputVector,
                       vtkInformationVector* outputVector ) override;
   int FillInputPortInformation( int, vtkInformation* ) override;

@@ -78,7 +78,7 @@ vtkStructuredGrid* vtkStructuredGridAlgorithm::GetStructuredGridInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkStructuredGridAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

@@ -294,7 +294,7 @@ int vtkPassArrays::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkPassArrays::ProcessRequest(
+vtkTypeBool vtkPassArrays::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

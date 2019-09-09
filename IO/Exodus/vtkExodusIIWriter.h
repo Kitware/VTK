@@ -283,7 +283,7 @@ protected:
   char *StrDupWithNew (const char *s);
   void StringUppercase (std::string& str);
 
-  int ProcessRequest (vtkInformation* request,
+  vtkTypeBool ProcessRequest (vtkInformation* request,
                       vtkInformationVector** inputVector,
                       vtkInformationVector* outputVector) override;
 

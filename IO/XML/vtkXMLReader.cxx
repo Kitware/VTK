@@ -1886,7 +1886,7 @@ void vtkXMLReader::UpdateProgressDiscrete(float progress)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkXMLReader::ProcessRequest(vtkInformation* request,
  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->CurrentOutputInformation = outputVector->GetInformationObject(0);

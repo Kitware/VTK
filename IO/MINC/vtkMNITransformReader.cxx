@@ -951,7 +951,7 @@ int vtkMNITransformReader::ReadFile()
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITransformReader::ProcessRequest(vtkInformation *request,
+vtkTypeBool vtkMNITransformReader::ProcessRequest(vtkInformation *request,
                                     vtkInformationVector **inputVector,
                                     vtkInformationVector *outputVector)
 {

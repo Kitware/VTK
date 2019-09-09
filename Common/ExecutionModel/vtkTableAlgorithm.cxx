@@ -48,7 +48,7 @@ void vtkTableAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkTableAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkTableAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

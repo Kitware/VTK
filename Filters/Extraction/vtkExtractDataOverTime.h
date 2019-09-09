@@ -60,7 +60,7 @@ protected:
   int RequestInformation( vtkInformation *request,
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
-  int ProcessRequest(vtkInformation*,
+  vtkTypeBool ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
                      vtkInformationVector*) override;
 

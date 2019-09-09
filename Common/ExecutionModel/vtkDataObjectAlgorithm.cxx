@@ -76,7 +76,7 @@ vtkDataObject* vtkDataObjectAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkDataObjectAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

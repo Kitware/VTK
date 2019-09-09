@@ -76,7 +76,7 @@ vtkDataObject* vtkPiecewiseFunctionAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkPiecewiseFunctionAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkPiecewiseFunctionAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

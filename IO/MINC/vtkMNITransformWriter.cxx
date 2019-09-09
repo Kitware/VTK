@@ -522,7 +522,7 @@ int vtkMNITransformWriter::WriteFile()
 }
 
 //-------------------------------------------------------------------------
-int vtkMNITransformWriter::ProcessRequest(vtkInformation *request,
+vtkTypeBool vtkMNITransformWriter::ProcessRequest(vtkInformation *request,
                                     vtkInformationVector **inputVector,
                                     vtkInformationVector *outputVector)
 {

@@ -281,7 +281,7 @@ void vtkImageResliceMapper::Update()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::Update(
+vtkTypeBool vtkImageResliceMapper::Update(
   int port, vtkInformationVector*)
 {
   // One can't really make requests of a mapper so default to regular
@@ -291,7 +291,7 @@ int vtkImageResliceMapper::Update(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::Update(vtkInformation*)
+vtkTypeBool vtkImageResliceMapper::Update(vtkInformation*)
 {
   // One can't really make requests of a mapper so default to regular
   // update.
@@ -300,7 +300,7 @@ int vtkImageResliceMapper::Update(vtkInformation*)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageResliceMapper::ProcessRequest(
+vtkTypeBool vtkImageResliceMapper::ProcessRequest(
   vtkInformation* request, vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

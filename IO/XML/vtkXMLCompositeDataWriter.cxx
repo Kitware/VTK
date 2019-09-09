@@ -134,7 +134,7 @@ void vtkXMLCompositeDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLCompositeDataWriter::ProcessRequest(
+vtkTypeBool vtkXMLCompositeDataWriter::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

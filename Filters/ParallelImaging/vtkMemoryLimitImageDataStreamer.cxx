@@ -44,8 +44,7 @@ void vtkMemoryLimitImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int
-vtkMemoryLimitImageDataStreamer
+vtkTypeBool vtkMemoryLimitImageDataStreamer
 ::ProcessRequest(vtkInformation* request,
                  vtkInformationVector** inputVector,
                  vtkInformationVector* outputVector)

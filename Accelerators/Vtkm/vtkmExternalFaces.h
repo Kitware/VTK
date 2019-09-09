@@ -68,7 +68,7 @@ protected:
   int FillInputPortInformation(int, vtkInformation *) override;
   int FillOutputPortInformation(int, vtkInformation *) override;
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**,
+  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**,
                      vtkInformationVector*) override;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);

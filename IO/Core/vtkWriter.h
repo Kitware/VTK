@@ -84,7 +84,7 @@ protected:
   vtkWriter();
   ~vtkWriter() override;
 
-  int ProcessRequest(vtkInformation *request,
+  vtkTypeBool ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector) override;
   virtual int RequestData(vtkInformation *request,

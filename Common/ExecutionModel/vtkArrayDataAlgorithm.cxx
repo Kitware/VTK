@@ -48,7 +48,7 @@ void vtkArrayDataAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkArrayDataAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkArrayDataAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

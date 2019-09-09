@@ -127,7 +127,7 @@ void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline
+vtkTypeBool vtkStreamingDemandDrivenPipeline
 ::ProcessRequest(vtkInformation* request,
                  vtkInformationVector** inInfoVec,
                  vtkInformationVector* outInfoVec)
@@ -383,19 +383,19 @@ int vtkStreamingDemandDrivenPipeline
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update()
+vtkTypeBool vtkStreamingDemandDrivenPipeline::Update()
 {
   return this->Superclass::Update();
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update(int port)
+vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port)
 {
   return this->Update(port, nullptr);
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::Update(int port,
+vtkTypeBool vtkStreamingDemandDrivenPipeline::Update(int port,
                                              vtkInformationVector* requests)
 {
   if(!this->UpdateInformation())
@@ -442,7 +442,7 @@ int vtkStreamingDemandDrivenPipeline::Update(int port,
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
+vtkTypeBool vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 {
   this->UpdateInformation();
   // if we have an output then set the UE to WE for it

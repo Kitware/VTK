@@ -78,7 +78,7 @@ int vtkExtractDataOverTime::RequestInformation(
 
 
 //----------------------------------------------------------------------------
-int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
                                            vtkInformationVector** inputVector,
                                            vtkInformationVector* outputVector)
 {

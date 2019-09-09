@@ -70,7 +70,7 @@ vtkDataObject* vtkHierarchicalBoxDataSetAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkHierarchicalBoxDataSetAlgorithm::ProcessRequest(
+vtkTypeBool vtkHierarchicalBoxDataSetAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

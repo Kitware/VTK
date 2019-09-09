@@ -163,7 +163,7 @@ public:
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetPositional(int) override;
+  void SetPositional(vtkTypeBool) override;
 
   //@{
   /**

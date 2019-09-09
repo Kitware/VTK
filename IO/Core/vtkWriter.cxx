@@ -76,7 +76,7 @@ int vtkWriter::Write()
   return (this->GetErrorCode() == vtkErrorCode::NoError);
 }
 
-int vtkWriter::ProcessRequest(vtkInformation *request,
+vtkTypeBool vtkWriter::ProcessRequest(vtkInformation *request,
                               vtkInformationVector **inputVector,
                               vtkInformationVector *outputVector)
 {

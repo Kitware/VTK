@@ -47,7 +47,7 @@ void vtkGraphAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkGraphAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkGraphAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

@@ -91,7 +91,7 @@ int vtkImageAlgorithm::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {

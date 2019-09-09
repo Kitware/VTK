@@ -290,7 +290,7 @@ public:
   //
   // The usual suspects
   //
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
                      vtkInformationVector* outputVector) override;
 

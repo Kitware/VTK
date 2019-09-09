@@ -102,7 +102,7 @@ protected:
   vtkGenerateIndexArray();
   ~vtkGenerateIndexArray() override;
 
-  int ProcessRequest(
+  vtkTypeBool ProcessRequest(
     vtkInformation* request,
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

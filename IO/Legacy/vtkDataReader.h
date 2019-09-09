@@ -572,7 +572,7 @@ protected:
    */
   int DecodeString(char *resname, const char* name);
 
-  int ProcessRequest(vtkInformation *, vtkInformationVector **,
+  vtkTypeBool ProcessRequest(vtkInformation *, vtkInformationVector **,
                              vtkInformationVector *) override;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *)

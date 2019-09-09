@@ -246,7 +246,7 @@ protected:
   int InputStringLength;
   int InputStringPos;
 
-  int ProcessRequest(vtkInformation *request,
+  vtkTypeBool ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
     vtkInformationVector *outputVector) override;
   virtual int RequestDataObjectInternal(vtkInformationVector *outputVector);

@@ -351,7 +351,7 @@ void vtkRendererSource::RequestInformation (
 }
 
 //----------------------------------------------------------------------------
-int vtkRendererSource::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkRendererSource::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
 {

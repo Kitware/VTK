@@ -152,7 +152,7 @@ vtkDataObject* vtkDataSetAlgorithm::GetInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataSetAlgorithm::ProcessRequest(
+vtkTypeBool vtkDataSetAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

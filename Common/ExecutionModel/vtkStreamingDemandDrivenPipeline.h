@@ -54,7 +54,7 @@ public:
    * Generalized interface for asking the executive to fulfill update
    * requests.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo) override;
 
@@ -62,9 +62,9 @@ public:
   /**
    * Bring the outputs up-to-date.
    */
-  int Update() override;
-  int Update(int port) override;
-  virtual int UpdateWholeExtent();
+  vtkTypeBool Update() override;
+  vtkTypeBool Update(int port) override;
+  virtual vtkTypeBool UpdateWholeExtent();
   //@}
 
   /**
@@ -89,7 +89,7 @@ public:
    * Available requests include UPDATE_PIECE_NUMBER(), UPDATE_NUMBER_OF_PIECES()
    * UPDATE_EXTENT() etc etc.
    */
-  virtual int Update(int port, vtkInformationVector* requests);
+  virtual vtkTypeBool Update(int port, vtkInformationVector* requests);
 
   /**
    * Propagate the update request from the given output port back

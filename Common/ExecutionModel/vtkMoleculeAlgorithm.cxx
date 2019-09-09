@@ -79,7 +79,7 @@ vtkMolecule* vtkMoleculeAlgorithm::GetMoleculeInput(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkMoleculeAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkMoleculeAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

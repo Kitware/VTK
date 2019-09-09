@@ -56,7 +56,7 @@ public:
    * Generalized interface for asking the executive to fulfill update
    * requests.
    */
-  int ProcessRequest(vtkInformation* request,
+  vtkTypeBool ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo) override;
 
@@ -75,8 +75,8 @@ public:
    * Bring the algorithm's outputs up-to-date.  Returns 1 for success
    * and 0 for failure.
    */
-  int Update() override;
-  int Update(int port) override;
+  vtkTypeBool Update() override;
+  vtkTypeBool Update(int port) override;
   //@}
 
   //@{

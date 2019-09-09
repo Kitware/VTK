@@ -55,7 +55,7 @@ bool vtkMultiTimeStepAlgorithm::IsInCache(double time, size_t& idx)
 }
 
 //----------------------------------------------------------------------------
-int vtkMultiTimeStepAlgorithm::ProcessRequest(
+vtkTypeBool vtkMultiTimeStepAlgorithm::ProcessRequest(
   vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

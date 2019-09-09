@@ -42,7 +42,7 @@ void vtkSelectionAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkSelectionAlgorithm::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkSelectionAlgorithm::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {

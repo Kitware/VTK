@@ -5415,7 +5415,7 @@ void vtkExodusIIReader::SetXMLFileName( const char* fname )
 
 
 //----------------------------------------------------------------------------
-int vtkExodusIIReader::ProcessRequest(vtkInformation* request,
+vtkTypeBool vtkExodusIIReader::ProcessRequest(vtkInformation* request,
                                         vtkInformationVector** inputVector,
                                         vtkInformationVector* outputVector)
 {

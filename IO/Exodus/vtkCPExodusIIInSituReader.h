@@ -82,7 +82,7 @@ protected:
   vtkCPExodusIIInSituReader();
   ~vtkCPExodusIIInSituReader() override;
 
-  int ProcessRequest(vtkInformation *request,
+  vtkTypeBool ProcessRequest(vtkInformation *request,
                      vtkInformationVector **inputVector,
                      vtkInformationVector *outputVector) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
