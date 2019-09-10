@@ -118,6 +118,7 @@ int TestPBRMapping(int argc, char* argv[])
   delete[] colname;
 
   vtkNew<vtkTexture> albedo;
+  albedo->UseSRGBColorSpaceOn();
   albedo->InterpolateOn();
   albedo->SetInputConnection(albedoReader->GetOutputPort());
 
