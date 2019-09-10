@@ -343,6 +343,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         {
           this->TextureObject->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
           this->TextureObject->SetMaxLevel(levels - 1);
+          this->TextureObject->SetMaximumAnisotropicFiltering(
+            this->MaximumAnisotropicFiltering);
           this->TextureObject->SendParameters();
           glGenerateMipmap(this->TextureObject->GetTarget());
         }

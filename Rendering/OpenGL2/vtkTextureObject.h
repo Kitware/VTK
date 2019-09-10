@@ -632,6 +632,16 @@ public:
 
   //@{
   /**
+   * Set/Get the maximum anisotropic filtering to use. 1.0 means use no
+   * anisotropic filtering. The default value is 1.0 and a high value would
+   * be 16. This might not be supported on all machines.
+   */
+  vtkSetMacro(MaximumAnisotropicFiltering, float);
+  vtkGetMacro(MaximumAnisotropicFiltering, float);
+  //@}
+
+  //@{
+  /**
    * Query and return maximum texture size (dimension) supported by the
    * OpenGL driver for a particular context. It should be noted that this
    * size does not consider the internal format of the texture and therefore
@@ -781,6 +791,8 @@ protected:
   unsigned int Depth;
   unsigned int Samples;
   bool UseSRGBColorSpace;
+
+  float MaximumAnisotropicFiltering;
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum

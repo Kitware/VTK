@@ -228,6 +228,7 @@ vtkTextureObject::vtkTextureObject()
   this->BorderColor[1] = 0.0f;
   this->BorderColor[2] = 0.0f;
   this->BorderColor[3] = 0.0f;
+  this->MaximumAnisotropicFiltering = 1.0;
   this->BufferObject = nullptr;
   this->UseSRGBColorSpace = false;
 
@@ -572,6 +573,20 @@ void vtkTextureObject::SendParameters()
           this->Target,
           GL_TEXTURE_COMPARE_MODE,
           GL_NONE);
+  }
+#endif
+
+          // if mipmaps are requested also turn on anisotropic if available
+#ifdef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+  if (GLEW_EXT_texture_filter_anisotropic)
+  {
+    float aniso = 0.0f;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    if (aniso > this->MaximumAnisotropicFiltering)
+    {
+      aniso = this->MaximumAnisotropicFiltering;
+    }
+    glTexParameterf(this->Target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
   }
 #endif
 
