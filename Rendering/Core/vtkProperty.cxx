@@ -396,6 +396,7 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   case VTK_FLAT: os << "VTK_FLAT\n"; break;
   case VTK_GOURAUD: os << "VTK_GOURAUD\n"; break;
   case VTK_PHONG: os << "VTK_PHONG\n"; break;
+  case VTK_PBR: os << "VTK_PBR\n"; break;
   default: os << "unknown\n";
   }
   os << indent << "Opacity: " << this->Opacity << "\n";
@@ -438,4 +439,13 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
 
  os << indent << "MaterialName: " <<
    (this->MaterialName? this->MaterialName:"(none)") << endl;
+
+  os << indent << "Color: (" << this->Color[0] << ", "
+    << this->Color[1] << ", " << this->Color[2] << ")" << endl;
+  os << indent << "EmissiveFactor: (" << this->EmissiveFactor[0] << ", "
+    << this->EmissiveFactor[1] << ", " << this->EmissiveFactor[2] << ")" << endl;
+  os << indent << "NormalScale: " << this->NormalScale  << endl;
+  os << indent << "OcclusionStrength: " << this->OcclusionStrength << endl;
+  os << indent << "Metallic: " << this->Metallic << endl;
+  os << indent << "Roughness: " << this->Roughness << endl;
 }
