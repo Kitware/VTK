@@ -138,6 +138,17 @@ public:
 
   //@{
   /**
+   * Set/Get the maximum anisotropic filtering to use. 1.0 means use no
+   * anisotropic filtering. The default value is 4.0 and a high value would
+   * be 16. This setting is only applied when mipmaps are used. This might
+   * not be supported on all machines.
+   */
+  vtkSetMacro(MaximumAnisotropicFiltering, float);
+  vtkGetMacro(MaximumAnisotropicFiltering, float);
+  //@}
+
+  //@{
+  /**
    * Force texture quality to 16-bit or 32-bit.
    * This might not be supported on all machines.
    */
@@ -302,6 +313,7 @@ protected:
   }
 
   bool Mipmap;
+  float MaximumAnisotropicFiltering;
   vtkTypeBool Repeat;
   vtkTypeBool EdgeClamp;
   vtkTypeBool Interpolate;

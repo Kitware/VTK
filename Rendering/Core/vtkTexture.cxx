@@ -39,6 +39,7 @@ vtkTexture::vtkTexture()
   this->Repeat = 1;
   this->Interpolate = 0;
   this->EdgeClamp = 0;
+  this->MaximumAnisotropicFiltering = 4.0;
   this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
   this->PremultipliedAlpha = false;
   this->CubeMap = false;
@@ -145,6 +146,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "MaximumAnisotropicFiltering: " << this->MaximumAnisotropicFiltering << "\n";
   os << indent << "Mipmap: " << (this->Mipmap ? "On\n" : "Off\n");
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
   os << indent << "Repeat:      " << (this->Repeat ? "On\n" : "Off\n");
