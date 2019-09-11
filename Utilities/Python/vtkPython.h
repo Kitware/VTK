@@ -111,6 +111,7 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #define PyGILState_Release(state) (state)=((PyGILState_STATE)0)
 #endif
 
+#ifdef __cplusplus
 // Description:
 // RAII class to manage Python threading using GIL (Global Interpreter Lock).
 // GIL is locked at object creation and unlocked at destruction.
@@ -157,6 +158,7 @@ private:
   void operator=(const vtkPythonScopeGilEnsurer&) = delete;
 };
 
+#endif // __cplusplus
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPython.h

@@ -337,7 +337,7 @@ function (_vtk_module_wrap_python_library name)
 "#ifndef ${name}_h
 #define ${name}_h
 
-#include <Python.h>
+#include <vtkPython.h>
 
 #ifdef __cplusplus
 extern \"C\" {
@@ -762,7 +762,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     set(_vtk_python_static_importer_file
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_static_importer_name}.c")
     set(_vtk_python_static_importer_content "// generated file, do not edit!
-#include <Python.h>
+#include <vtkPython.h>
 #include \"${_vtk_python_TARGET_NAME}.h\"
 
 static PyMethodDef Py${_vtk_python_static_importer_name}_Methods[] = {
