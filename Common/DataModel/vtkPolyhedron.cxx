@@ -32,7 +32,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVector.h"
 #include "vtkMath.h"
 
-#include <list>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -2140,41 +2139,6 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
   }
 }
 
-void MergeTriFacePolygons(vtkPolyhedron* cell,
-  unordered_map<vtkIdType, vector<vtkIdType>>& triFacePolygonMap,
-  vector<vector<vtkIdType>>& oririginalFaceTriFaceMap,
-  PointIndexEdgeMultiMap& contourPointEdgeMultiMap,
-  EdgeSet& originalEdges,
-  std::list<std::vector<vtkIdType>>& polygons)
-{
-  // for each *original* face, find the list of triangulated faces
-  // and use these to get the list of polygons on the original face
-  for (auto face : originalFaceTriFaceMap)
-  {
-    const vector<vtkIdType>& triFacesOfOriginalFace = face;
-
-    vector<vector<vtkIdType>> facePolygons;
-    for (const auto& triFace: triFacesOfOriginalFace)
-    {
-      auto at = triFacePolygonMap.find(triFace);
-      if (at != triFacePolygonMap.end())
-      {
-        facePolygons.push_back(at->second);
-      }
-    }
-
-    if (!facePolygons.empty())
-    {
-      vector<vector<vtkIdType>> mergedPolygons;
-      MergeTriFacePolygons(facePolygons, mergedPolygons, originalEdges, contourPointEdgeMultiMap);
-      for (const auto& poly : mergedPolygons)
-      {
-        polygons.push_back(poly);
-      }
-    }
-  }
-}
-
 void vtkPolyhedron::Clip(double value,
   vtkDataArray *pointScalars,
   vtkIncrementalPointLocator *locator,
@@ -2300,13 +2264,13 @@ void vtkPolyhedron::Clip(double value,
     }
   }
 
-  std::list<std::vector<vtkIdType> > polygons;
+  std::vector<std::vector<vtkIdType> > polygons;
   MergeTriFacePolygons(this, triFacePolygonMap, oririginalFaceTriFaceMap, contourPointEdgeMultiMap, originalEdges, polygons);
 
   // next, get the contour polygons.
 
   // inside the callback lambda function defined below, we can only use pointers to capture variables
-  std::list<std::vector<vtkIdType> >* pPolygons = &polygons;
+  std::vector<std::vector<vtkIdType> >* pPolygons = &polygons;
 
   function<void(vtkIdList*)>  cb = [=](vtkIdList* poly)
   {
@@ -2334,7 +2298,7 @@ void vtkPolyhedron::Clip(double value,
     // this list holds the polygons by moving references
     // in the polygons list of polyhedral faces that
     // belong to the polyhedron being built.
-    std::list<std::vector<vtkIdType>> polyhedralFaceList;
+    std::vector<std::vector<vtkIdType>> polyhedralFaceList;
 
     // while one face is added, keep looping all faces that
     // were not yet added. The face last added can make faces that were
