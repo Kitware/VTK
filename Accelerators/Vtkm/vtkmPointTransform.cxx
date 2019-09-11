@@ -139,7 +139,7 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-    vtkm::filter::PointTransform<vtkm::FloatDefault> pointTransform;
+    vtkm::filter::PointTransform pointTransform;
     pointTransform.SetUseCoordinateSystemAsField(true);
     pointTransform.SetTransform(vtkmMatrix);
 
@@ -152,7 +152,7 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->SetNumberOfPoints(pointTransformResult->GetNumberOfTuples());
     newPts->SetData(pointTransformResult);
     output->SetPoints(newPts);
-    newPts->Delete();
+    newPts->FastDelete();
     pointTransformResult->FastDelete();
   }
   catch(const vtkm::cont::Error& e)

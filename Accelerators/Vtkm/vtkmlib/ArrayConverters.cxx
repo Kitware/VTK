@@ -78,13 +78,13 @@ vtkm::cont::Field Convert(vtkmDataArray<T>* input, int association)
   // on if they are a cell or point field.
   if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    return vtkm::cont::Field(input->GetName(), vtkm::cont::Field::Association::POINTS,
-                             input->GetVtkmVariantArrayHandle());
+    return vtkm::cont::make_FieldPoint(input->GetName(),
+                                       input->GetVtkmVariantArrayHandle());
   }
   else if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
-    return vtkm::cont::Field(input->GetName(), vtkm::cont::Field::Association::CELL_SET, "cells",
-                             input->GetVtkmVariantArrayHandle());
+    return vtkm::cont::make_FieldCell(input->GetName(),
+                                      input->GetVtkmVariantArrayHandle());
   }
 
   return vtkm::cont::Field();

@@ -63,17 +63,10 @@ class vtkmGradientFilterPolicy
     using AllCellSetList = tovtkm::CellListAllInVTK;
   };
 
-vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
+inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
 {
   vtkm::cont::DataSet cp;
-  for (vtkm::IdComponent i = 0; i < ds.GetNumberOfCoordinateSystems(); ++i)
-  {
-    cp.AddCoordinateSystem(ds.GetCoordinateSystem(i));
-  }
-  for (vtkm::IdComponent i = 0; i < ds.GetNumberOfCellSets(); ++i)
-  {
-    cp.AddCellSet(ds.GetCellSet(i));
-  }
+  cp.CopyStructure(ds);
   return cp;
 }
 

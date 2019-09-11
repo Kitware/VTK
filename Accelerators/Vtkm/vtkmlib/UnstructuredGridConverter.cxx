@@ -60,7 +60,7 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
     int cellType = input->GetCellType(0); // get the celltype
     vtkm::cont::DynamicCellSet cells =
         ConvertSingleType(input->GetCells(), cellType, numPoints);
-    dataset.AddCellSet(cells);
+    dataset.SetCellSet(cells);
   }
   else
   {
@@ -69,7 +69,7 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
                 input->GetCells(),
                 input->GetCellLocationsArray(),
                 numPoints);
-    dataset.AddCellSet(cells);
+    dataset.SetCellSet(cells);
   }
 
   ProcessFields(input, dataset, fields);

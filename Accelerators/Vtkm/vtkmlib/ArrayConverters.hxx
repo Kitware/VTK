@@ -57,18 +57,15 @@ vtkm::cont::VariantArrayHandle vtkDataArrayToVariantArrayHandle(DataArrayType* i
 template <typename DataArrayType>
 vtkm::cont::Field ConvertPointField(DataArrayType* input)
 {
-  std::string name(input->GetName());
   auto vhandle = vtkDataArrayToVariantArrayHandle(input);
-  return vtkm::cont::Field(name, vtkm::cont::Field::Association::POINTS, vhandle);
+  return vtkm::cont::make_FieldPoint(input->GetName(), vhandle);
 }
 
 template <typename DataArrayType>
 vtkm::cont::Field ConvertCellField(DataArrayType* input)
 {
-  std::string name(input->GetName());
-  std::string cname("cells");
   auto vhandle = vtkDataArrayToVariantArrayHandle(input);
-  return vtkm::cont::Field(name, vtkm::cont::Field::Association::CELL_SET, cname, vhandle);
+  return vtkm::cont::make_FieldCell(input->GetName(), vhandle);
 }
 
 template <typename DataArrayType>

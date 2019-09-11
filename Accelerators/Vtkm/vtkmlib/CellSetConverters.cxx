@@ -98,13 +98,13 @@ vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
   {
   case VTK_LINE:
   {
-    CellSetType c(vtkm::CellShapeTagLine(), "cells");
+    CellSetType c(vtkm::CellShapeTagLine{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_HEXAHEDRON:
   {
-    CellSetType c(vtkm::CellShapeTagHexahedron(), "cells");
+    CellSetType c(vtkm::CellShapeTagHexahedron{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
@@ -131,43 +131,43 @@ vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
     RunReorder run(fixedCells.GetStorage().VTKArray(), cells->GetNumberOfCells());
     vtkm::cont::TryExecute(run, SMPTypes());
 
-    CellSetType c(vtkm::CellShapeTagHexahedron(), "cells");
+    CellSetType c(vtkm::CellShapeTagHexahedron{});
     c.Fill(numberOfPoints, fixedCells);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_QUAD:
   {
-    CellSetType c(vtkm::CellShapeTagQuad(), "cells");
+    CellSetType c(vtkm::CellShapeTagQuad{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_TETRA:
   {
-    CellSetType c(vtkm::CellShapeTagTetra(), "cells");
+    CellSetType c(vtkm::CellShapeTagTetra{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_TRIANGLE:
   {
-    CellSetType c(vtkm::CellShapeTagTriangle(), "cells");
+    CellSetType c(vtkm::CellShapeTagTriangle{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_VERTEX:
   {
-    CellSetType c(vtkm::CellShapeTagVertex(), "cells");
+    CellSetType c(vtkm::CellShapeTagVertex{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_WEDGE:
   {
-    CellSetType c(vtkm::CellShapeTagWedge(), "cells");
+    CellSetType c(vtkm::CellShapeTagWedge{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
   case VTK_PYRAMID:
   {
-    CellSetType c(vtkm::CellShapeTagPyramid(), "cells");
+    CellSetType c(vtkm::CellShapeTagPyramid{});
     c.Fill(numberOfPoints, handle);
     return vtkm::cont::DynamicCellSet(c);
   }
@@ -199,7 +199,7 @@ vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
   auto ls_ptr = static_cast<DATIdType*>(locations);
   vtkm::cont::ArrayHandle<vtkIdType> lhandle = vtkm::cont::make_ArrayHandle(ls_ptr->GetPointer(0), ls_ptr->GetNumberOfTuples());
 
-  vtkm::cont::vtkmCellSetExplicitAOS cellset("cells");
+  vtkm::cont::vtkmCellSetExplicitAOS cellset;
   cellset.Fill(numberOfPoints, thandle, chandle, lhandle);
   return vtkm::cont::DynamicCellSet(cellset);
 }
