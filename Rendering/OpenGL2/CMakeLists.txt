@@ -15,7 +15,7 @@ set(classes
   vtkDepthPeelingPass
   vtkDualDepthPeelingPass
   vtkEDLShading
-  vtkEquirectangularToCubemapTexture
+  vtkEquirectangularToCubeMapTexture
   vtkFramebufferPass
   vtkGaussianBlurPass
   vtkGenericOpenGLRenderWindow

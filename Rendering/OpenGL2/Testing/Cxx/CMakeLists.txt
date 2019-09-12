@@ -13,7 +13,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestDepthPeelingPass.cxx
   TestDepthPeelingPassViewport.cxx
   TestEDLPass.cxx
-  TestEquirectangularToCubemap.cxx
+  TestEquirectangularToCubeMap.cxx
   TestFloor.cxx
   TestFramebufferPass.cxx
   TestFramebufferHDR.cxx

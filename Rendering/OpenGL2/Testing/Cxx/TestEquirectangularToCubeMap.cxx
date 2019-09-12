@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestEquirectangularToCubemap.cxx
+  Module:    TestEquirectangularToCubeMap.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,7 +16,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkEquirectangularToCubemapTexture.h"
+#include "vtkEquirectangularToCubeMapTexture.h"
 #include "vtkJPEGReader.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkRenderWindow.h"
@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkSkybox.h"
 
-int TestEquirectangularToCubemap(int argc, char* argv[])
+int TestEquirectangularToCubeMap(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(400, 400);
@@ -43,7 +43,7 @@ int TestEquirectangularToCubemap(int argc, char* argv[])
   vtkNew<vtkTexture> texture;
   texture->SetInputConnection(reader->GetOutputPort());
 
-  vtkNew<vtkEquirectangularToCubemapTexture> cubemap;
+  vtkNew<vtkEquirectangularToCubeMapTexture> cubemap;
   cubemap->SetInputTexture(vtkOpenGLTexture::SafeDownCast(texture));
 
   vtkNew<vtkSkybox> world;
