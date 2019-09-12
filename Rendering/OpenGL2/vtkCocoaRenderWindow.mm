@@ -342,6 +342,7 @@ void vtkCocoaRenderWindow::MakeCurrent()
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::PushContext()
 {
   NSOpenGLContext *current = [NSOpenGLContext currentContext];
@@ -353,6 +354,7 @@ void vtkCocoaRenderWindow::PushContext()
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::PopContext()
 {
   NSOpenGLContext *current = [NSOpenGLContext currentContext];
@@ -790,7 +792,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
     // default and enables best resolution by default. It does so partly because
     // the system python sets NSHighResolutionCapable in this file:
     // /System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/Info.plist
-    // If you want magnified drawing instead, call GetWantsBestResolution(true)
+    // If you want magnified drawing instead, call SetWantsBestResolution(true)
     bool wantsBest = this->GetWantsBestResolution();
 
     if (this->GetParentId())
@@ -1045,7 +1047,7 @@ void vtkCocoaRenderWindow::Start()
   // the backing sotre may not match the current window
   // no clue what is really going on here but the old code
   // called Initialize every render to do this
-  if((this->OnScreenInitialized) && (this->Mapped))
+  if (this->OnScreenInitialized && this->Mapped)
   {
     // the error "invalid drawable" in the console from this call can appear
     // but only early in the app's lifetime (ie sometime during launch)
@@ -1066,13 +1068,13 @@ void vtkCocoaRenderWindow::Start()
 // Initialize the rendering window.
 void vtkCocoaRenderWindow::Initialize ()
 {
-  if(!this->OnScreenInitialized)
+  if (!this->OnScreenInitialized)
   {
     this->OnScreenInitialized = 1;
     this->CreateAWindow();
   }
 
-  if((this->OnScreenInitialized) && (this->Mapped))
+  if (this->OnScreenInitialized && this->Mapped)
   {
     // the error "invalid drawable" in the console from this call can appear
     // but only early in the app's lifetime (ie sometime during launch)
