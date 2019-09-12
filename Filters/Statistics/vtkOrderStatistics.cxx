@@ -225,7 +225,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
           {
             reading = dvals->GetTuple1( r );
             quantum = mini + std::round( ( reading - mini ) / width ) * width;
-            ++ histogram[static_cast<unsigned long>(quantum)];
+            ++ histogram[quantum];
           }
 
           // Update histogram size for conditional clause
