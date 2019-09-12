@@ -186,6 +186,27 @@ public:
 //-------------------------------------------------------------------------
 int TestTemporalCacheSimple(int , char *[])
 {
+  // test temporal cache with non-temporal data source
+  vtkNew<vtkSphereSource> staticSphereSource;
+  staticSphereSource->Update();
+  vtkPolyData* staticSphere = staticSphereSource->GetOutput();
+  vtkNew<vtkTemporalDataSetCache> staticCache;
+  staticCache->SetInputConnection(staticSphereSource->GetOutputPort());
+
+  // set a time
+  vtkInformation *info = staticCache->GetOutputInformation(0);
+  staticCache->UpdateInformation();
+  info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 0.0);
+
+  staticCache->Update();
+  vtkPolyData* cachedSphere = vtkPolyData::SafeDownCast(staticCache->GetOutputDataObject(0));
+  if (staticSphere->GetNumberOfPoints() != cachedSphere->GetNumberOfPoints() ||
+      staticSphere->GetNumberOfCells() != cachedSphere->GetNumberOfCells())
+  {
+    std::cerr << "Cached sphere does not match input sphere" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   // create temporal fractals
   vtkSmartPointer<vtkTemporalSphereSource> sphere =
     vtkSmartPointer<vtkTemporalSphereSource>::New();
@@ -231,7 +252,7 @@ int TestTemporalCacheSimple(int , char *[])
   iren->SetRenderWindow( renWin );
 
   // ask for some specific data points
-  vtkInformation *info = interp->GetOutputInformation(0);
+  info = interp->GetOutputInformation(0);
   interp->UpdateInformation();
   double time = 0;
   int i;
