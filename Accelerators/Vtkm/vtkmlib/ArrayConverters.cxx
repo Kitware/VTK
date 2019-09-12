@@ -151,8 +151,22 @@ public:
   template <typename T>
   void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagVirtual> handle) const
   {
-    using SOAHandle = vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag>;
     using BasicHandle = vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
+    if(vtkm::cont::IsType<BasicHandle>(handle))
+    {
+      this->operator()( vtkm::cont::Cast<BasicHandle>(handle) );
+    }
+    else
+    {
+      this->Data = make_vtkmDataArray(handle);
+    }
+  }
+
+  template <typename T, int N>
+  void operator()(vtkm::cont::ArrayHandle<vtkm::Vec<T,N>, vtkm::cont::StorageTagVirtual> handle) const
+  {
+    using SOAHandle = vtkm::cont::ArrayHandle<vtkm::Vec<T,N>, vtkm::cont::StorageTagSOA>;
+    using BasicHandle = vtkm::cont::ArrayHandle<vtkm::Vec<T,N>, vtkm::cont::StorageTagBasic>;
     if(vtkm::cont::IsType<SOAHandle>(handle))
     {
       this->operator()( vtkm::cont::Cast<SOAHandle>(handle) );
@@ -183,7 +197,6 @@ public:
     handle.SyncControlArray();
     const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
 
-    //stealing the array clears the delete function, so we need to get the function first.
     //VTK-m allocations are aligned or done with cuda uvm memory so we need to propagate
     //the proper free function to VTK
     auto stolenState = handle.GetStorage().StealArray();
@@ -197,11 +210,28 @@ public:
 
   template <typename T>
   void operator()(
-    vtkm::cont::ArrayHandle<T, tovtkm::vtkSOAArrayContainerTag> handle) const
+    vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagSOA> handle) const
   {
-    // we can grab the already allocated vtk memory
-    this->Data = handle.GetStorage().VTKArray();
-    this->Data->Register(nullptr);
+    // we can steal this array!
+    using Traits = tovtkm::vtkPortalTraits<T>; //Handles Vec<Vec<T,N,N> properly
+    using ValueType = typename Traits::ComponentType;
+    using VTKArrayType = vtkSOADataArrayTemplate<ValueType>;
+
+    VTKArrayType* array = VTKArrayType::New();
+    array->SetNumberOfComponents(Traits::NUM_COMPONENTS);
+
+    handle.SyncControlArray();
+    auto storage = handle.GetStorage();
+    const vtkm::Id size = handle.GetNumberOfValues() * Traits::NUM_COMPONENTS;
+    for(vtkm::IdComponent i=0; i < Traits::NUM_COMPONENTS; ++i)
+    {
+      //steal each component array.
+      auto stolenState = storage.GetArray(i).GetStorage().StealArray();
+      auto stolenMemory = reinterpret_cast<ValueType*>(stolenState.first);
+      array->SetArray(
+      i, stolenMemory, size, true, 0, vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED);
+      array->SetArrayFreeFunction(i, stolenState.second);
+    }
   }
 };
 } // anonymous namespace

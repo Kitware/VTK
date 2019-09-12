@@ -22,25 +22,7 @@
 
 namespace tovtkm
 {
-
 // T extern template instantiations
-VTKM_TEMPLATE_IMPORT_ArrayPortal(char, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::Int8, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::UInt8, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::Int16, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::UInt16, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::Int32, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::UInt32, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::Int64, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::UInt64, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::Float32, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(vtkm::Float64, vtkSOADataArrayTemplate);
-
-#if VTKM_SIZE_LONG_LONG == 8
-VTKM_TEMPLATE_IMPORT_ArrayPortal(long, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_IMPORT_ArrayPortal(unsigned long, vtkSOADataArrayTemplate);
-#endif
-
 template class VTKACCELERATORSVTKM_EXPORT
     vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> const>;
 template class VTKACCELERATORSVTKM_EXPORT

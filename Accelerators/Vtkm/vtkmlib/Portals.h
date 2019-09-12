@@ -143,60 +143,10 @@ private:
 };
 }
 
-#define VTKM_TEMPLATE_EXPORT_ArrayPortal(T, S)                                 \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                    \
-      vtkArrayPortal<const T, S<T>>;                                           \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT vtkArrayPortal<T, S<T>>;    \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                             \
-      vtkArrayPortal<const vtkm::Vec<T, 2>, S<T>>;                             \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                    \
-      vtkArrayPortal<vtkm::Vec<T, 2>, S<T>>;                                   \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                    \
-      vtkArrayPortal<const vtkm::Vec<T, 3>, S<T>>;                             \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                    \
-      vtkArrayPortal<vtkm::Vec<T, 3>, S<T>>;                                   \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                    \
-      vtkArrayPortal<const vtkm::Vec<T, 4>, S<T>>;                             \
-  extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                    \
-      vtkArrayPortal<vtkm::Vec<T, 4>, S<T>>;
-
-#define VTKM_TEMPLATE_IMPORT_ArrayPortal(T, S)                                 \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT vtkArrayPortal<const T, S<T>>;     \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT vtkArrayPortal<T, S<T>>;  \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                           \
-      vtkArrayPortal<const vtkm::Vec<T, 2>, S<T>>;                             \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                           \
-      vtkArrayPortal<vtkm::Vec<T, 2>, S<T>>;                                   \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                           \
-      vtkArrayPortal<const vtkm::Vec<T, 3>, S<T>>;                             \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                           \
-      vtkArrayPortal<vtkm::Vec<T, 3>, S<T>>;                                   \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                           \
-      vtkArrayPortal<const vtkm::Vec<T, 4>, S<T>>;                             \
-  template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT                           \
-      vtkArrayPortal<vtkm::Vec<T, 4>, S<T>>;
-
 #ifndef vtkmlib_Portals_cxx
 #include <vtkm/cont/internal/ArrayPortalFromIterators.h>
 namespace tovtkm {
 // T extern template instantiations
-VTKM_TEMPLATE_EXPORT_ArrayPortal(char, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int8, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt8, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int16, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt16, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int32, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt32, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Int64, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::UInt64, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Float32, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(vtkm::Float64, vtkSOADataArrayTemplate);
-
-#if VTKM_SIZE_LONG_LONG == 8
-VTKM_TEMPLATE_EXPORT_ArrayPortal(long, vtkSOADataArrayTemplate);
-VTKM_TEMPLATE_EXPORT_ArrayPortal(unsigned long, vtkSOADataArrayTemplate);
-#endif
-
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
     vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> const>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT

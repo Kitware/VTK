@@ -22,6 +22,7 @@
 #include "vtkmTags.h"
 
 #include <vtkm/cont/Field.h>
+#include <vtkm/cont/ArrayHandleSOA.h>
 
 #include <type_traits> // for std::underlying_type
 
@@ -39,22 +40,7 @@ class CoordinateSystem;
 namespace tovtkm {
 
 template <typename DataArrayType, vtkm::IdComponent NumComponents>
-struct DataArrayToArrayHandle {
-  using ValueType = typename DataArrayType::ValueType;
-  using VType =
-      typename std::conditional<NumComponents == 1, ValueType,
-                                vtkm::Vec<ValueType, NumComponents>>::type;
-  using TagType =
-      typename tovtkm::ArrayContainerTagType<DataArrayType>::TagType;
-  using StorageType = vtkm::cont::internal::Storage<VType, TagType>;
-  using ArrayHandleType = vtkm::cont::ArrayHandle<VType, TagType>;
-
-  static ArrayHandleType Wrap(DataArrayType *input) {
-    StorageType storage(input);
-    ArrayHandleType handle(storage);
-    return handle;
-  }
-};
+struct DataArrayToArrayHandle;
 
 template <typename T, vtkm::IdComponent NumComponents>
 struct DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, NumComponents> {
@@ -66,11 +52,35 @@ struct DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, NumComponents> {
   using ArrayHandleType =
       vtkm::cont::ArrayHandle<ValueType, vtkm::cont::StorageTagBasic>;
 
-  static ArrayHandleType Wrap(vtkAOSDataArrayTemplate<T> *input) {
-    StorageType storage(reinterpret_cast<ValueType *>(input->GetPointer(0)),
-                        input->GetNumberOfTuples());
-    ArrayHandleType handle(storage);
-    return handle;
+  static ArrayHandleType Wrap(vtkAOSDataArrayTemplate<T> *input)
+  {
+    return vtkm::cont::make_ArrayHandle(
+        reinterpret_cast<ValueType *>(input->GetPointer(0)),
+        input->GetNumberOfTuples());
+  }
+};
+
+template <typename T, vtkm::IdComponent NumComponents>
+struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, NumComponents> {
+  using ValueType = vtkm::Vec<T, NumComponents>;
+  using StorageType =
+      vtkm::cont::internal::Storage<ValueType, vtkm::cont::StorageTagSOA>;
+  using ArrayHandleType =
+      vtkm::cont::ArrayHandle<ValueType, vtkm::cont::StorageTagSOA>;
+
+  static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T> *input)
+  {
+    vtkm::Id numValues = input->GetNumberOfTuples();
+    vtkm::cont::internal::Storage<ValueType, vtkm::cont::StorageTagSOA> storage;
+    for(vtkm::IdComponent i=0; i < NumComponents; ++i)
+    {
+      storage.SetArray(
+          i, vtkm::cont::make_ArrayHandle<T>(
+                 reinterpret_cast<T *>(input->GetComponentArrayPointer(i)),
+                 numValues));
+    }
+
+    return vtkm::cont::ArrayHandleSOA<ValueType>(storage);
   }
 };
 
@@ -81,10 +91,10 @@ struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 1> {
   using ArrayHandleType =
       vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
 
-  static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T> *input) {
-    StorageType storage(input->GetPointer(0), input->GetNumberOfTuples());
-    ArrayHandleType handle(storage);
-    return handle;
+  static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T> *input)
+  {
+    return vtkm::cont::make_ArrayHandle(input->GetComponentArrayPointer(0),
+                                        input->GetNumberOfTuples());
   }
 };
 
