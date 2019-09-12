@@ -32,33 +32,47 @@ namespace vtx
 namespace helper
 {
 
-template <class T, class U>
-std::vector<T> MapKeysToVector(const std::map<T, U> &input) noexcept
+template<class T>
+std::vector<T> StringToVector(const std::string& input) noexcept
 {
-    std::vector<T> keys;
-    keys.reserve(input.size());
+  std::vector<T> output;
+  std::istringstream inputSS(input);
 
-    for (const auto &pair : input)
-    {
-        keys.push_back(pair.first);
-    }
-    return keys;
+  T record;
+  while (inputSS >> record)
+  {
+    output.push_back(record);
+  }
+  return output;
 }
 
-template <class T>
-void Print(const std::vector<T> &input, const std::string &name)
+template<class T, class U>
+std::vector<T> MapKeysToVector(const std::map<T, U>& input) noexcept
 {
-    std::ostringstream oss;
-    size_t i = 0;
+  std::vector<T> keys;
+  keys.reserve(input.size());
 
-    oss << name << " = { ";
-    for (const T in : input)
-    {
-        oss << in << ", ";
-        ++i;
-    }
-    oss << "}  rank : " << MPIGetRank();
-    std::cout << oss.str() << "\n";
+  for (const auto& pair : input)
+  {
+    keys.push_back(pair.first);
+  }
+  return keys;
+}
+
+template<class T>
+void Print(const std::vector<T>& input, const std::string& name)
+{
+  std::ostringstream oss;
+  size_t i = 0;
+
+  oss << name << " = { ";
+  for (const T in : input)
+  {
+    oss << in << ", ";
+    ++i;
+  }
+  oss << "}  rank : " << MPIGetRank();
+  std::cout << oss.str() << "\n";
 }
 
 } // end namespace helper
