@@ -510,7 +510,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
     {
       if (auto dataset = outputPDS->GetPartition(partId))
       {
-        dataset->GetPointData()->RemoveArray(CELL_OWNERSHIP_ARRAYNAME);
+        dataset->GetCellData()->RemoveArray(CELL_OWNERSHIP_ARRAYNAME);
         if (auto arr = dataset->GetCellData()->GetArray(GHOST_CELL_ARRAYNAME))
         {
           arr->SetName(vtkDataSetAttributes::GhostArrayName());
