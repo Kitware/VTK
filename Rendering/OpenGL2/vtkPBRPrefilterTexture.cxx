@@ -49,6 +49,17 @@ void vtkPBRPrefilterTexture::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PrefilterSamples: " << this->PrefilterSamples << endl;
 }
 
+// ---------------------------------------------------------------------------
+// Release the graphics resources used by this texture.
+void vtkPBRPrefilterTexture::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (this->InputCubeMap)
+  {
+    this->InputCubeMap->ReleaseGraphicsResources(win);
+  }
+  this->Superclass::ReleaseGraphicsResources(win);
+}
+
 //------------------------------------------------------------------------------
 void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 {

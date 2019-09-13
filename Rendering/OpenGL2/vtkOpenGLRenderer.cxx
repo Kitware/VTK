@@ -712,6 +712,16 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
   {
     this->ShadowMapPass->ReleaseGraphicsResources(w);
   }
+  if (w && this->EnvMapIrradiance)
+  {
+    this->EnvMapIrradiance->ReleaseGraphicsResources(w);
+  }
+
+  if (w && this->EnvMapPrefiltered)
+  {
+    this->EnvMapPrefiltered->ReleaseGraphicsResources(w);
+  }
+
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
@@ -1045,6 +1055,11 @@ void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB)
     {
       vtkErrorMacro("The environment texture is not a cube map");
     }
+  }
+  else
+  {
+    this->GetEnvMapIrradiance()->SetInputCubeMap(nullptr);
+    this->GetEnvMapPrefiltered()->SetInputCubeMap(nullptr);
   }
 }
 
