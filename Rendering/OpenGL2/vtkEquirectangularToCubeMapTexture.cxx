@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkEquirectangularToCubemapTexture.cxx
+  Module:    vtkEquirectangularToCubeMapTexture.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkEquirectangularToCubemapTexture.h"
+#include "vtkEquirectangularToCubeMapTexture.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
@@ -27,17 +27,17 @@
 
 #include <sstream>
 
-vtkStandardNewMacro(vtkEquirectangularToCubemapTexture);
-vtkCxxSetObjectMacro(vtkEquirectangularToCubemapTexture, InputTexture, vtkOpenGLTexture);
+vtkStandardNewMacro(vtkEquirectangularToCubeMapTexture);
+vtkCxxSetObjectMacro(vtkEquirectangularToCubeMapTexture, InputTexture, vtkOpenGLTexture);
 
 //------------------------------------------------------------------------------
-vtkEquirectangularToCubemapTexture::vtkEquirectangularToCubemapTexture()
+vtkEquirectangularToCubeMapTexture::vtkEquirectangularToCubeMapTexture()
 {
   this->CubeMapOn();
 }
 
 //------------------------------------------------------------------------------
-vtkEquirectangularToCubemapTexture::~vtkEquirectangularToCubemapTexture()
+vtkEquirectangularToCubeMapTexture::~vtkEquirectangularToCubeMapTexture()
 {
   if (this->InputTexture)
   {
@@ -47,7 +47,7 @@ vtkEquirectangularToCubemapTexture::~vtkEquirectangularToCubemapTexture()
 
 // ---------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
-void vtkEquirectangularToCubemapTexture::ReleaseGraphicsResources(vtkWindow *win)
+void vtkEquirectangularToCubeMapTexture::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->InputTexture)
   {
@@ -57,14 +57,14 @@ void vtkEquirectangularToCubemapTexture::ReleaseGraphicsResources(vtkWindow *win
 }
 
 //------------------------------------------------------------------------------
-void vtkEquirectangularToCubemapTexture::PrintSelf(ostream& os, vtkIndent indent)
+void vtkEquirectangularToCubeMapTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "CubemapSize: " << this->CubemapSize << endl;
+  os << indent << "CubeMapSize: " << this->CubeMapSize << endl;
 }
 
 //------------------------------------------------------------------------------
-void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
+void vtkEquirectangularToCubeMapTexture::Load(vtkRenderer* ren)
 {
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   if (!renWin)
@@ -99,7 +99,7 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
     this->TextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->TextureObject->CreateCubeFromRaw(
-      this->CubemapSize, this->CubemapSize, 3, VTK_FLOAT, nullptr);
+      this->CubeMapSize, this->CubeMapSize, 3, VTK_FLOAT, nullptr);
 
     this->RenderWindow = renWin;
 
@@ -121,7 +121,7 @@ void vtkEquirectangularToCubemapTexture::Load(vtkRenderer* ren)
       fbo->AddColorAttachment(i, this->TextureObject, 0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
     }
     fbo->ActivateDrawBuffers(6);
-    fbo->Start(this->CubemapSize, this->CubemapSize);
+    fbo->Start(this->CubeMapSize, this->CubeMapSize);
 
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
