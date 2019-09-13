@@ -87,6 +87,14 @@ public:
   vtkBooleanMacro(ConvertToLinear, bool);
   //@}
 
+  /**
+   * Release any graphics resources that are being consumed by this texture.
+   * The parameter window could be used to determine which graphic
+   * resources to release. Using the same texture object in multiple
+   * render windows is NOT currently supported.
+   */
+  void ReleaseGraphicsResources(vtkWindow*) override;
+
 protected:
   vtkPBRIrradianceTexture() = default;
   ~vtkPBRIrradianceTexture() override;

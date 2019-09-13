@@ -151,6 +151,9 @@ public:
    */
   void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false) override;
 
+  // Method to release graphics resources
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer() override;
@@ -159,9 +162,6 @@ protected:
    * Check the compilation status of some fragment shader source.
    */
   void CheckCompilation(unsigned int fragmentShader);
-
-  // Internal method to release graphics resources in any derived renderers.
-  void ReleaseGraphicsResources(vtkWindow *w) override;
 
   /**
    * Ask all props to update and draw any opaque and translucent

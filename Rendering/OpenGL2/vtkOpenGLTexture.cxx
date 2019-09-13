@@ -91,7 +91,7 @@ void vtkOpenGLTexture::SetTextureObject(vtkTextureObject *textureObject)
     {
       temp->UnRegister(this);
     }
-    this->ExternalTextureObject = true;
+    this->ExternalTextureObject = (textureObject != nullptr);
     this->Modified();
   }
 }
