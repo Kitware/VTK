@@ -41,6 +41,7 @@ set(classes
   vtkPlotPoints
   vtkPlotStacked
   vtkPlotSurface
+  vtkRangeHandlesItem
   vtkScalarsToColorsItem
   vtkScatterPlotMatrix
   )

@@ -21,6 +21,7 @@
 #include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
+#include "vtkRangeHandlesItem.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -56,6 +57,10 @@ int TestColorTransferFunction(int ,  char * [])
   controlPointsItem->SetColorTransferFunction(colorTransferFunction);
   controlPointsItem->SetUserBounds(0., 255., 0., 1.);
   chart->AddPlot(controlPointsItem);
+
+  vtkNew<vtkRangeHandlesItem> rangeHandlesItem;
+  rangeHandlesItem->SetColorTransferFunction(colorTransferFunction);
+  chart->AddPlot(rangeHandlesItem);
 
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(1);
