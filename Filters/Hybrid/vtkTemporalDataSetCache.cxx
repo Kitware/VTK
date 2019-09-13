@@ -270,9 +270,8 @@ int vtkTemporalDataSetCache::RequestData(
   vtkInformationVector *outputVector)
 {
 
-  vtkInformation      *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation     *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject       *output = nullptr;
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   vtkMTimeType outputUpdateTime = outInfo->Get(vtkDataObject::DATA_OBJECT())->GetUpdateTime();
 
@@ -284,40 +283,39 @@ int vtkTemporalDataSetCache::RequestData(
 
   double inTime =  input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
 
-  // // fill in the request by using the cached data and input data
-  // outData->Initialize();
+  vtkSmartPointer<vtkDataObject> output;
 
   // a time should either be in the Cache or in the input
   CacheType::iterator pos = this->Cache.find(upTime);
   if (pos != this->Cache.end())
   {
     vtkDataObject* cachedData = pos->second.second;
-    output = cachedData->NewInstance();
+    output.TakeReference(cachedData->NewInstance());
     output->ShallowCopy(cachedData);
-//  outData->SetTimeStep(0, pos->second.second);
+
     // update the m time in the cache
     pos->second.first = outputUpdateTime;
   }
   // otherwise it better be in the input
   else
   {
-    int found = 0;
     if(input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
     {
       if (inTime == upTime)
       {
-        output = input->NewInstance();
+        output.TakeReference(input->NewInstance());
         output->ShallowCopy(input);
-        found = 1;
       }
     }
-    if (!found)
+    else
     {
+      // just shallow copy input to output
+      output.TakeReference(input->NewInstance());
+      output->ShallowCopy(input);
     }
   }
   // set the data times
   outInfo->Set(vtkDataObject::DATA_OBJECT(),output);
-  output->Delete();
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), upTime);
 
   // now we need to update the cache, based on the new data and the cache
