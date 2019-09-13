@@ -945,7 +945,7 @@ PyObject *vtkPythonArgs::BuildValue(unsigned long long a)
 inline
 PyObject *vtkPythonArgs::BuildBytes(const char *a, size_t n)
 {
-  return PyBytes_FromStringAndSize(a, n);
+  return PyBytes_FromStringAndSize(a, static_cast<Py_ssize_t>(n));
 }
 
 // List of all types for the Array class template:
