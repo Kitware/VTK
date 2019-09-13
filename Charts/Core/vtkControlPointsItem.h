@@ -397,19 +397,6 @@ protected:
 
   //@{
   /**
-   * Transform the mouse event in the control-points space. This is needed when
-   * ColorTransferFunction is using log-scale or shifted/scaled.
-   */
-  virtual void TransformScreenToData(const vtkVector2f& in, vtkVector2f& out);
-  virtual void TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out);
-  virtual void TransformScreenToData(const double inX, const double inY,
-                                     double &outX, double &outY);
-  virtual void TransformDataToScreen(const double inX, const double inY,
-                                     double &outX, double &outY);
-  //@}
-
-  //@{
-  /**
    * Clamp the given 2D pos into the bounds of the function.
    * Return true if the pos has been clamped, false otherwise.
    */

@@ -406,6 +406,19 @@ protected:
    */
   vtkStdString GetNumber(double position, vtkAxis *axis);
 
+  //@{
+  /**
+   * Transform the mouse event in the control-points space. This is needed when
+   * using logScale or shiftscale.
+   */
+  virtual void TransformScreenToData(const vtkVector2f& in, vtkVector2f& out);
+  virtual void TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out);
+  virtual void TransformScreenToData(
+    const double inX, const double inY, double& outX, double& outY);
+  virtual void TransformDataToScreen(
+    const double inX, const double inY, double& outX, double& outY);
+  //@}
+
   /**
    * This object stores the vtkPen that controls how the plot is drawn.
    */

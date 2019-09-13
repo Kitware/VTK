@@ -585,3 +585,68 @@ void vtkPlot::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LegendVisibility: " << this->LegendVisibility << endl;
 }
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformScreenToData(const vtkVector2f& in, vtkVector2f& out)
+{
+  double tmp[2] = { in.GetX(), in.GetY() };
+
+  this->TransformScreenToData(tmp[0], tmp[1], tmp[0], tmp[1]);
+
+  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out)
+{
+  double tmp[2] = { in.GetX(), in.GetY() };
+
+  this->TransformDataToScreen(tmp[0], tmp[1], tmp[0], tmp[1]);
+
+  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformScreenToData(const double inX, const double inY, double& outX, double& outY)
+{
+  // inverse shift/scale from screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  outX = (inX / ss[2]) - ss[0];
+  outY = (inY / ss[3]) - ss[1];
+
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    outX = std::pow(10., outX);
+  }
+  if (logY)
+  {
+    outY = std::pow(10., outY);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::TransformDataToScreen(const double inX, const double inY, double& outX, double& outY)
+{
+  outX = inX;
+  outY = inY;
+
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    outX = std::log10(outX);
+  }
+  if (logY)
+  {
+    outY = std::log10(outY);
+  }
+
+  // now, shift/scale to screen space.
+  const vtkRectd& ss = this->ShiftScale;
+  outX = (outX + ss[0]) * ss[2];
+  outY = (outY + ss[1]) * ss[3];
+}
