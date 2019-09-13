@@ -437,6 +437,8 @@ check_cxx_expression_compiles("std::isnan(0.0)" "cmath" VTK_HAS_STD_ISNAN)
 check_cxx_expression_compiles("std::isinf(0.0)" "cmath" VTK_HAS_STD_ISINF)
 check_cxx_expression_compiles("std::isfinite(0.0)" "cmath" VTK_HAS_STD_ISFINITE)
 
+include(CheckSymbolExists)
+
 # Check C99 <math.h> next, where the C99 standard says these must be.
 # (they will be found even if they are defined as macros)
 check_symbol_exists(isnan "math.h" VTK_HAS_ISNAN)
