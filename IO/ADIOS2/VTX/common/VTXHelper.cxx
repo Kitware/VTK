@@ -271,11 +271,6 @@ std::string SetToCSV(const std::set<std::string>& input) noexcept
   return csv;
 }
 
-// allowed types
-template std::vector<std::size_t> StringToVector<std::size_t>(const std::string&);
-template std::vector<int> StringToVector<int>(const std::string&);
-template std::vector<double> StringToVector<double>(const std::string&);
-
 std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
   return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());

@@ -39,20 +39,6 @@ namespace vtx
 namespace helper
 {
 
-template<class T>
-std::vector<T> StringToVector(const std::string& input) noexcept
-{
-  std::vector<T> output;
-  std::istringstream inputSS(input);
-
-  T record;
-  while (inputSS >> record)
-  {
-    output.push_back(record);
-  }
-  return output;
-}
-
 // TODO: extend other types
 template<>
 vtkSmartPointer<vtkDataArray> NewDataArray<int>()
