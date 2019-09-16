@@ -166,7 +166,8 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
   vtkProp *prop = nullptr;
   while ( (prop = props->GetNextProp(pit)) )
   {
-    if (prop->GetPickable())
+    if (prop->GetPickable() && prop->GetVisibility()
+        && prop->GetUseBounds())
     {
       const double *bnds = prop->GetBounds();
       if (bnds)
