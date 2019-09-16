@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 #include "constants.h"
 #include "chobo/small_vector.hpp"
@@ -74,6 +75,12 @@ class DynamicPoint: public chobo::small_vector<Coordinate_, static_size>
 
         friend
         Coordinate          operator*(const DynamicPoint& x, const DynamicPoint& y)         { Coordinate n = 0; for (size_t i = 0; i < x.dimension(); ++i) n += x[i] * y[i]; return n; }
+
+        friend
+        bool                operator<(const DynamicPoint& x, const DynamicPoint& y)         { return std::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end()); }
+
+        friend
+        bool                operator>(const DynamicPoint& x, const DynamicPoint& y)         { return y < x; }
 
         template<class T, size_t s_>
         friend
