@@ -377,7 +377,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
             (event.eventType == vr::VREvent_ButtonPress ||
              event.eventType == vr::VREvent_ButtonUnpress ||
              event.eventType == vr::VREvent_ButtonTouch ||
-             event.eventType <= vr::VREvent_ButtonUntouch))
+             event.eventType == vr::VREvent_ButtonUntouch))
       {
         this->PointerIndexLookup[pointerIndex] = tdi;
 
