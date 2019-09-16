@@ -400,7 +400,6 @@ protected:
    * Clamp the given 2D pos into the bounds of the function.
    * Return true if the pos has been clamped, false otherwise.
    */
-  virtual bool ClampPos(double pos[2], double bounds[4]);
   bool ClampValidDataPos(double pos[2]);
   bool ClampValidScreenPos(double pos[2]);
   //@}

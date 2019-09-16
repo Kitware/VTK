@@ -388,38 +388,6 @@ bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkControlPointsItem::ClampPos(double pos[2], double bounds[4])
-{
-  if (bounds[1] < bounds[0] || bounds[3] < bounds[2])
-  {
-    // bounds are not valid. Don't clamp.
-    return false;
-  }
-  bool clamped = false;
-  if (pos[0] < bounds[0] || vtkMath::IsNan(pos[0]))
-  {
-    pos[0] = bounds[0];
-    clamped = true;
-  }
-  if (pos[0] > bounds[1])
-  {
-    pos[0] = bounds[1];
-    clamped = true;
-  }
-  if (pos[1] < 0. || vtkMath::IsNan(pos[0]))
-  {
-    pos[1] = 0.;
-    clamped = true;
-  }
-  if (pos[1] > 1.)
-  {
-    pos[1] = 1.;
-    clamped = true;
-  }
-  return clamped;
-}
-
-//-----------------------------------------------------------------------------
 bool vtkControlPointsItem::ClampValidDataPos(double pos[2])
 {
   this->TransformDataToScreen(pos[0], pos[1], pos[0], pos[1]);

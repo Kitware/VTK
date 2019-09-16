@@ -650,3 +650,43 @@ void vtkPlot::TransformDataToScreen(const double inX, const double inY, double& 
   outX = (outX + ss[0]) * ss[2];
   outY = (outY + ss[1]) * ss[3];
 }
+
+//-----------------------------------------------------------------------------
+bool vtkPlot::ClampPos(double pos[2], double bounds[4])
+{
+  if (bounds[1] < bounds[0] || bounds[3] < bounds[2])
+  {
+    // bounds are not valid. Don't clamp.
+    return false;
+  }
+  bool clamped = false;
+  if (pos[0] < bounds[0] || vtkMath::IsNan(pos[0]))
+  {
+    pos[0] = bounds[0];
+    clamped = true;
+  }
+  if (pos[0] > bounds[1])
+  {
+    pos[0] = bounds[1];
+    clamped = true;
+  }
+  if (pos[1] < 0. || vtkMath::IsNan(pos[0]))
+  {
+    pos[1] = 0.;
+    clamped = true;
+  }
+  if (pos[1] > 1.)
+  {
+    pos[1] = 1.;
+    clamped = true;
+  }
+  return clamped;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkPlot::ClampPos(double pos[2])
+{
+  double bounds[4];
+  this->GetBounds(bounds);
+  return vtkPlot::ClampPos(pos, bounds);
+}

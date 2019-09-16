@@ -397,6 +397,15 @@ public:
   virtual vtkVariant GetProperty(const vtkStdString &property);
   //@}
 
+  //@{
+  /**
+   * Clamp the given 2D pos into the provided bounds
+   * Return true if the pos has been clamped, false otherwise.
+   */
+  static bool ClampPos(double pos[2], double bounds[4]);
+  virtual bool ClampPos(double pos[2]);
+  //@}
+
 protected:
   vtkPlot();
   ~vtkPlot() override;
