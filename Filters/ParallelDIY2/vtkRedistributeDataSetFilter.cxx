@@ -15,9 +15,9 @@
 #include "vtkRedistributeDataSetFilter.h"
 
 #include "vtkAppendFilter.h"
-#include "vtkBoxClipDataSet.h"
 #include "vtkCellData.h"
 #include "vtkDIYKdTreeUtilities.h"
+#include "vtkDIYUtilities.h"
 #include "vtkExtractCells.h"
 #include "vtkFieldData.h"
 #include "vtkGenericCell.h"
@@ -31,10 +31,13 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPlane.h"
+#include "vtkPlanes.h"
 #include "vtkPointData.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticCellLinks.h"
+#include "vtkTableBasedClipDataSet.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -172,6 +175,30 @@ std::vector<std::vector<int> > GenerateCellRegions(
 
   return cellRegions;
 }
+
+/**
+ * Clip the dataset by the provided plane using vtkmClip.
+ */
+vtkSmartPointer<vtkUnstructuredGrid> ClipPlane(vtkDataSet* dataset, vtkSmartPointer<vtkPlane> plane)
+{
+  if (!dataset)
+    return nullptr;
+
+  vtkNew<vtkTableBasedClipDataSet> clipper;
+  clipper->SetInputDataObject(dataset);
+  clipper->SetClipFunction(plane);
+  clipper->InsideOutOn();
+  clipper->Update();
+
+  auto clipperOutput = vtkUnstructuredGrid::SafeDownCast(clipper->GetOutputDataObject(0));
+  if (clipperOutput &&
+    (clipperOutput->GetNumberOfCells() > 0 || clipperOutput->GetNumberOfPoints() > 0))
+  {
+    return clipperOutput;
+  }
+  return nullptr;
+}
+
 }
 
 vtkStandardNewMacro(vtkRedistributeDataSetFilter);
@@ -186,6 +213,7 @@ vtkRedistributeDataSetFilter::vtkRedistributeDataSetFilter()
   , UseExplicitCuts(false)
   , ExpandExplicitCuts(true)
   , EnableDebugging(false)
+  , ValidDim{true, true, true}
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
@@ -302,6 +330,7 @@ int vtkRedistributeDataSetFilter::RequestData(
 {
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
   auto outputDO = vtkDataObject::GetData(outputVector, 0);
+  this->MarkValidDimensions(inputDO);
 
   if (this->UseExplicitCuts && this->ExpandExplicitCuts)
   {
@@ -310,7 +339,7 @@ int vtkRedistributeDataSetFilter::RequestData(
     {
       bbox.Inflate(0.1 * bbox.GetDiagonalLength());
     }
-    this->Cuts = vtkRedistributeDataSetFilter::ExpandCuts(this->Cuts, bbox);
+    this->Cuts = vtkRedistributeDataSetFilter::ExpandCuts(this->ExplicitCuts, bbox);
   }
   else if (this->UseExplicitCuts)
   {
@@ -718,20 +747,31 @@ vtkSmartPointer<vtkDataSet> vtkRedistributeDataSetFilter::ClipDataSet(
 {
   assert(dataset != nullptr);
 
-  vtkNew<vtkBoxClipDataSet> clipper;
-  clipper->SetInputDataObject(dataset);
-  clipper->GenerateClipScalarsOff();
-  // there seems to be a bug in vtkBoxClipDataSet (or bad documentation) where
-  // if GenerateClippedOutput is off, then the output clips cells but still
-  // includes both the inside and outside parts of the cell.
-  clipper->GenerateClippedOutputOn();
-
   double bounds[6];
   bbox.GetBounds(bounds);
-  clipper->SetBoxClip(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
-  clipper->Update();
+  vtkNew<vtkPlanes> box_planes;
+  box_planes->SetBounds(bounds);
 
-  auto clipperOutput = vtkUnstructuredGrid::SafeDownCast(clipper->GetOutputDataObject(0));
+  vtkSmartPointer<vtkUnstructuredGrid> clipperOutput;
+  for (int i = 0; i < box_planes->GetNumberOfPlanes(); ++i)
+  {
+    int dim = i / 2;
+    // Only clip if this dimension in the original dataset's bounding box
+    // (before redistribution) had a non-zero length, so we don't accidentally
+    // clip away the full dataset.
+    if (this->ValidDim[dim])
+    {
+      if (!clipperOutput)
+      {
+        clipperOutput = detail::ClipPlane(dataset, box_planes->GetPlane(i));
+      }
+      else
+      {
+        clipperOutput = detail::ClipPlane(clipperOutput, box_planes->GetPlane(i));
+      }
+    }
+  }
+
   if (clipperOutput &&
     (clipperOutput->GetNumberOfCells() > 0 || clipperOutput->GetNumberOfPoints() > 0))
   {
@@ -990,6 +1030,34 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::ExpandCuts(
   }
 
   return result;
+}
+
+//----------------------------------------------------------------------------
+// Determine which dimensions in the initial bounding box (before any inflation
+// of the bounds occurs) has a non-zero length. This is necessary for clipping
+// when the BoundaryMode is set to SPLIT_BOUNDARY_CELLS. Otherwise if a dataset
+// ends up being 2D, performing plane clips on all sides of the bounding box may
+// result in full dataset being clipped away.
+void vtkRedistributeDataSetFilter::MarkValidDimensions(vtkDataObject* inputDO)
+{
+  static const int max_dim = 3;
+  auto bbox = detail::GetBounds(inputDO);
+  auto comm = vtkDIYUtilities::GetCommunicator(this->Controller);
+  vtkDIYUtilities::AllReduce(comm, bbox);
+
+  double len[max_dim];
+  bbox.GetLengths(len);
+  for (int i = 0; i < max_dim; ++i)
+  {
+    if (len[i] <= 0)
+    {
+      this->ValidDim[i] = false;
+    }
+    else
+    {
+      this->ValidDim[i] = true;
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
