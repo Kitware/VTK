@@ -436,7 +436,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
       int n = 0;
 
       // Storage for intersection points
-      double  points[6][3];
+      double  points[8][3];
 
       // Iterate over cell vertices
       for ( int i = 0; i < 8; ++ i )
@@ -473,7 +473,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
       this->ReorderCutPoints( n, points );
 
       // Storage for face vertex IDs
-      vtkIdType ids[6];
+      vtkIdType ids[8];
       for ( int i = 0; i < n; ++ i )
       {
         // Save points and get their IDs
@@ -678,7 +678,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridNo
           } // i
 
           // Append new elements to existing cut element
-          vtkIdType ids[6];
+          vtkIdType ids[8];
           vtkIdType nCells = pd->GetNumberOfCells();
           for ( int i = 0; i < nCells; ++ i )
           {
