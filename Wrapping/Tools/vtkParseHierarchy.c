@@ -1151,7 +1151,7 @@ const char *vtkParseHierarchy_ExpandTypedefsInName(
   char text[128];
   char *cp;
   size_t n, m;
-  const char *newname = name;
+  const char *newname = NULL;
   HierarchyEntry *entry = NULL;
 
   /* note: unlike ExpandTypedefsInValue, this does not yet recurse
@@ -1193,7 +1193,6 @@ const char *vtkParseHierarchy_ExpandTypedefsInName(
     entry = vtkParseHierarchy_FindEntry(info, name);
   }
 
-  newname = NULL;
   if (entry && entry->IsTypedef && entry->Typedef->Class)
   {
     newname = entry->Typedef->Class;

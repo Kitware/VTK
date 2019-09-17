@@ -332,7 +332,7 @@ bool vtkGLTFUtils::ValidateGLBFile(const std::string& magic, uint32_t version, u
   {
     return false;
   }
-  if (chunkInfo.size() <= 0)
+  if (chunkInfo.size() == 0)
   {
     return false;
   }

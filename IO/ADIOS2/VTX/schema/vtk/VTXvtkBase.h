@@ -43,7 +43,7 @@ class VTXvtkBase : public VTXSchema
 {
 public:
   VTXvtkBase(
-    const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
+    const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine);
 
   // can't use = default, due to forward class not defined
   virtual ~VTXvtkBase();
