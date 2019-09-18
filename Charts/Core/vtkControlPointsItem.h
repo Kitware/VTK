@@ -31,13 +31,15 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkCommand.h" // For vtkCommand enum
 #include "vtkPlot.h"
+#include "vtkSmartPointer.h" // for SmartPointer
 #include "vtkVector.h" // For vtkVector2f
 
 class vtkCallbackCommand;
 class vtkContext2D;
+class vtkControlPointsAddPointItem;
+class vtkPiecewisePointHandleItem;
 class vtkPoints2D;
 class vtkTransform2D;
-class vtkPiecewisePointHandleItem;
 
 class VTKCHARTSCORE_EXPORT vtkControlPointsItem: public vtkPlot
 {
@@ -342,6 +344,24 @@ public:
   vtkGetObjectMacro(SelectedPointBrush, vtkBrush);
   //@}
 
+  //@{
+  /**
+   * When enabled, a dedicated item is used to determine if a point should
+   * be added when clicking anywhere.
+   * This item can be recovered with GetAddPointItem and can this be placed
+   * below all other items. False by default.
+   */
+  vtkGetMacro(UseAddPointItem, bool);
+  vtkSetMacro(UseAddPointItem, bool);
+  vtkBooleanMacro(UseAddPointItem, bool);
+  //@}
+
+  /**
+   * Item dedicated to add point, to be added below all other items.
+   * Used only if UseAddPointItem is set to true.
+   */
+  vtkPlot* GetAddPointItem();
+
   /**
    * Recompute the bounds next time they are requested.
    * You shouldn't have to call it but it is provided for rare cases.
@@ -350,19 +370,15 @@ public:
 
   //@{
   /**
-   * Mouse button down event.
+   * Mouse and key events.
    */
   bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
   bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse) override;
-  //@}
-
-  /**
-   * Mouse move event.
-   */
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
-
   bool KeyPressEvent(const vtkContextKeyEvent &key) override;
   bool KeyReleaseEvent(const vtkContextKeyEvent &key) override;
+  //@}
 
 protected:
   vtkControlPointsItem();
@@ -391,7 +407,9 @@ protected:
   //@}
 
   /**
-   * Returns true if the supplied x, y coordinate is on a control point.
+   * Returns true if the supplied x, y are within the bounds or on a control point.
+   * If UseAddPointItem is true,
+   * returns true only if the supplied x, y are on a control point.
    */
   bool Hit(const vtkContextMouseEvent &mouse) override;
 
@@ -424,10 +442,6 @@ protected:
 
   void Stroke(const vtkVector2f& newPos);
   virtual void EditPoint(float vtkNotUsed(tX), float vtkNotUsed(tY));
-  /**
-   * Mouse button release event.
-   */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Generate label for a control point.
@@ -491,6 +505,9 @@ private:
   void      ComputeBounds();
 
   vtkIdType RemovePointId(vtkIdType removedPointId);
+
+  bool UseAddPointItem = false;
+  vtkNew<vtkControlPointsAddPointItem> AddPointItem;
 };
 
 //-----------------------------------------------------------------------------
