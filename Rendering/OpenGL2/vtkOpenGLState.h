@@ -17,12 +17,12 @@
  * @brief   OpenGL state storage
  *
  * vtkOpenGLState is a class designed to keep track of the state of
- * an OpenGL context. Applications using VTK have so much ontrol
+ * an OpenGL context. Applications using VTK have so much control
  * over the rendering process that is can be difficult in VTK code
  * to know if the OpenGL state is correct for your code. The two
  * traditional solutions have been to set everything yourself
  * and to save and restore OpenGL state that you change. The former
- * makes your code work, the latter hels prevent your code from
+ * makes your code work, the latter helps prevent your code from
  * breaking something else. The problem is that the former results
  * in tons of redundant OpenGL calls and the later is done by querying
  * the OpenGL state which can cause a pipeline sync/stall which is
@@ -33,7 +33,7 @@
  * state become no-ops. Queries of state can be done by querying the
  * state stored in this class without impacting the OpenGL driver.
  *
- * To fascilitate saving state and restoring it this class contains
+ * To facilitate saving state and restoring it this class contains
  * a number of nested classes named Scoped<glFunction> that store
  * the state of that glFunction and when they go out of scope they restore
  * it. This is useful when you want to change the OpenGL state and then
@@ -49,7 +49,7 @@
  * } // prior state will be restored here as it goes out of scope
  *
  *
- * You must use this class to make stat changing OpenGL class otherwise the
+ * You must use this class to make state changing OpenGL class otherwise the
  * results will be undefined.
  *
  * For convenience some OpenGL calls that do not impact state are also
@@ -96,6 +96,7 @@ public:
   void vtkglBlendEquation(unsigned int val);
   void vtkglBlendEquationSeparate(unsigned int col, unsigned int alpha);
   void vtkglCullFace(unsigned int val);
+  void vtkglActiveTexture(unsigned int);
   //@}
 
   //@{
@@ -111,6 +112,7 @@ public:
   void ResetGLBlendFuncState();
   void ResetGLBlendEquationState();
   void ResetGLCullFaceState();
+  void ResetGLActiveTexture();
   //@}
 
   //@{
@@ -202,6 +204,9 @@ public:
   class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthFunc
     : public ScopedValue<unsigned int> {
     public: ScopedglDepthFunc(vtkOpenGLState *state); };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglActiveTexture
+    : public ScopedValue<unsigned int> {
+    public: ScopedglActiveTexture(vtkOpenGLState *state); };
 
   class ScopedglEnableDisable
   {
@@ -265,6 +270,7 @@ protected:
       unsigned int BlendEquationValue1;
       unsigned int BlendEquationValue2;
       unsigned int CullFaceMode;
+      unsigned int ActiveTexture;
       std::array<float, 4> ClearColor;
       std::array<unsigned char, 4> ColorMask;
       std::array<int, 4> Viewport;

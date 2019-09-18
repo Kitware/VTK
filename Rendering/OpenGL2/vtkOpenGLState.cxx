@@ -152,6 +152,13 @@ void vtkOpenGLState::CheckState()
     this->ResetGLCullFaceState();
     error = true;
   }
+  ::glGetIntegerv(GL_ACTIVE_TEXTURE, iparams);
+  if (iparams[0] != static_cast<int>(this->CurrentState.ActiveTexture))
+  {
+    vtkGenericWarningMacro("Error in cache state for GL_ACTIVE_TEXTURE");
+    this->ResetGLActiveTexture();
+    error = true;
+  }
   ::glGetIntegerv(GL_DEPTH_FUNC, iparams);
   if (iparams[0] != static_cast<int>(this->CurrentState.DepthFunc))
   {
@@ -319,6 +326,13 @@ vtkOpenGLState::ScopedglBlendFuncSeparate::ScopedglBlendFuncSeparate(vtkOpenGLSt
   this->Method = &vtkOpenGLState::BlendFuncSeparate;
 }
 
+vtkOpenGLState::ScopedglActiveTexture::ScopedglActiveTexture(vtkOpenGLState *s)
+{
+  this->State = s;
+  this->Value = this->State->CurrentState.ActiveTexture;
+  this->Method = &vtkOpenGLState::vtkglActiveTexture;
+}
+
 void vtkOpenGLState::ColorMask(std::array<GLboolean, 4> val)
 {
   this->vtkglColorMask(val[0], val[1], val[2], val[3]);
@@ -483,6 +497,20 @@ void vtkOpenGLState::vtkglCullFace(GLenum val)
     ::glCullFace(val);
   }
   vtkCheckOpenGLErrorsWithStack("glCullFace");
+}
+
+void vtkOpenGLState::vtkglActiveTexture(unsigned int val)
+{
+  vtkOpenGLCheckStateMacro();
+
+#ifndef NO_CACHE
+  if (this->CurrentState.ActiveTexture != val)
+#endif
+  {
+    this->CurrentState.ActiveTexture = val;
+    ::glActiveTexture(val);
+  }
+  vtkCheckOpenGLErrorsWithStack("glActiveTexture");
 }
 
 void vtkOpenGLState::Viewport(std::array<GLint, 4> val)
@@ -982,6 +1010,13 @@ void vtkOpenGLState::ResetGLCullFaceState()
   this->CurrentState.CullFaceMode = static_cast<unsigned int>(iparams);
 }
 
+void vtkOpenGLState::ResetGLActiveTexture()
+{
+  GLint iparams;
+  ::glGetIntegerv(GL_ACTIVE_TEXTURE, &iparams);
+  this->CurrentState.ActiveTexture = static_cast<unsigned int>(iparams);
+}
+
 void vtkOpenGLState::vtkglClear(GLbitfield val)
 {
   ::glClear(val);
@@ -1026,11 +1061,11 @@ void vtkOpenGLState::ActivateTexture(vtkTextureObject *texture)
       return;
     }
     this->TextureResourceIds.insert(std::make_pair(texture, activeUnit));
-    glActiveTexture(GL_TEXTURE0 + activeUnit);
+    this->vtkglActiveTexture(GL_TEXTURE0 + activeUnit);
   }
   else
   {
-    glActiveTexture(GL_TEXTURE0 + found->second);
+    this->vtkglActiveTexture(GL_TEXTURE0 + found->second);
   }
 }
 
