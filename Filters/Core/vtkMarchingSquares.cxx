@@ -265,7 +265,15 @@ int vtkMarchingSquares::RequestData(
     vtkErrorMacro(<<"PointData is nullptr");
     return 1;
   }
-  inScalars=pd->GetScalars();
+  vtkInformationVector *inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if(inArrayVec)
+  { //we have been passed an input array
+    inScalars=this->GetInputArrayToProcess(0,inputVector);
+  }
+else
+  {
+    inScalars=pd->GetScalars();
+  }
   if ( inScalars == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
