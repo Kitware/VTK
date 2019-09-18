@@ -96,6 +96,7 @@ public:
   void vtkglBlendEquation(unsigned int val);
   void vtkglBlendEquationSeparate(unsigned int col, unsigned int alpha);
   void vtkglCullFace(unsigned int val);
+  void vtkglActiveTexture(unsigned int);
   //@}
 
   //@{
@@ -111,6 +112,7 @@ public:
   void ResetGLBlendFuncState();
   void ResetGLBlendEquationState();
   void ResetGLCullFaceState();
+  void ResetGLActiveTexture();
   //@}
 
   //@{
@@ -202,6 +204,9 @@ public:
   class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthFunc
     : public ScopedValue<unsigned int> {
     public: ScopedglDepthFunc(vtkOpenGLState *state); };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglActiveTexture
+    : public ScopedValue<unsigned int> {
+    public: ScopedglActiveTexture(vtkOpenGLState *state); };
 
   class ScopedglEnableDisable
   {
@@ -265,6 +270,7 @@ protected:
       unsigned int BlendEquationValue1;
       unsigned int BlendEquationValue2;
       unsigned int CullFaceMode;
+      unsigned int ActiveTexture;
       std::array<float, 4> ClearColor;
       std::array<unsigned char, 4> ColorMask;
       std::array<int, 4> Viewport;
