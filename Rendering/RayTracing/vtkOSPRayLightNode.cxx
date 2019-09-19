@@ -176,7 +176,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
         pz = p[2];
         }
       float coneAngle = static_cast<float>(light->GetConeAngle());
-      if (coneAngle <= 0.0)
+      if (coneAngle <= 0.0 || coneAngle >= 90.0)
       {
         ospLight = ospNewLight3("PointLight");
       }
