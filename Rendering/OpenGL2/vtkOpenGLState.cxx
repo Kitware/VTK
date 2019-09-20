@@ -1173,6 +1173,7 @@ vtkOpenGLState::vtkOpenGLState()
   this->CurrentState.Scissor[3] = 1;
 
   this->CurrentState.CullFaceMode = GL_BACK;
+  this->CurrentState.ActiveTexture = GL_TEXTURE0;
 
   this->CurrentState.BlendEquationValue1 = GL_FUNC_ADD;
   this->CurrentState.BlendEquationValue2 = GL_FUNC_ADD;
