@@ -89,6 +89,79 @@ public:
   static int GetSamplesPerPixel(vtkRenderer *renderer);
   //@}
 
+  /**
+   * When present on renderer, samples are clamped to this value before they
+   * are accumulated into the framebuffer
+   * default is 2.0
+   */
+  static vtkInformationDoubleKey* MAX_CONTRIBUTION();
+
+  //@{
+  /**
+   * Convenience method to set/get MAX_CONTRIBUTION on a vtkRenderer.
+   */
+  static void SetMaxContribution(double, vtkRenderer *renderer);
+  static double GetMaxContribution(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * When present on renderer, controls the maximum ray recursion depth
+   * default is 20
+   */
+  static vtkInformationIntegerKey* MAX_DEPTH();
+
+  //@{
+  /**
+   * Convenience method to set/get MAX_DEPTH on a vtkRenderer.
+   */
+  static void SetMaxDepth(int, vtkRenderer *renderer);
+  static int GetMaxDepth(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * When present on renderer, sample contributions below this value will be
+   * neglected to speedup rendering
+   * default is 0.01
+   */
+  static vtkInformationDoubleKey* MIN_CONTRIBUTION();
+
+  //@{
+  /**
+   * Convenience method to set/get MIN_CONTRIBUTION on a vtkRenderer.
+   */
+  static void SetMinContribution(double, vtkRenderer *renderer);
+  static double GetMinContribution(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * When present on renderer, controls the ray recursion depth at which to
+   * start Russian roulette termination
+   * default is 5
+   */
+  static vtkInformationIntegerKey* ROULETTE_DEPTH();
+
+  //@{
+  /**
+   * Convenience method to set/get ROULETTE_DEPTH on a vtkRenderer.
+   */
+  static void SetRouletteDepth(int, vtkRenderer *renderer);
+  static int GetRouletteDepth(vtkRenderer *renderer);
+  //@}
+
+  /**
+   * When present on renderer, controls the threshold for adaptive accumulation
+   * default is 0.3
+   */
+  static vtkInformationDoubleKey* VARIANCE_THRESHOLD();
+
+  //@{
+  /**
+   * Convenience method to set/get VARIANCE_THRESHOLD on a vtkRenderer.
+   */
+  static void SetVarianceThreshold(double, vtkRenderer *renderer);
+  static double GetVarianceThreshold(vtkRenderer *renderer);
+  //@}
+
   //@{
   /**
    * When present on renderer, controls the number of ospray render calls
