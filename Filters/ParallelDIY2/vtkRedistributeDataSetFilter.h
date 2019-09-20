@@ -59,6 +59,8 @@
 class vtkMultiProcessController;
 class vtkBoundingBox;
 class vtkPartitionedDataSet;
+class vtkMultiBlockDataSet;
+class vtkMultiPieceDataSet;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkRedistributeDataSetFilter : public vtkDataObjectAlgorithm
 {
@@ -264,16 +266,20 @@ private:
   void operator=(const vtkRedistributeDataSetFilter&) = delete;
 
   bool Redistribute(vtkDataObject* inputDO, vtkPartitionedDataSet* outputPDS,
-    const std::vector<vtkBoundingBox>& cuts);
+    const std::vector<vtkBoundingBox>& cuts, vtkIdType* mb_offset = nullptr);
   bool RedistributeDataSet(
     vtkDataSet* inputDS, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts);
+  int RedistributeMultiBlockDataSet(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
+    vtkIdType* mb_offset = nullptr);
+  int RedistributeMultiPieceDataSet(vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output,
+    vtkIdType* mb_offset = nullptr);
   vtkSmartPointer<vtkDataSet> ClipDataSet(vtkDataSet* dataset, const vtkBoundingBox& bbox);
 
-  bool AssignGlobalPointIds(vtkPartitionedDataSet* pieces, const std::vector<vtkBoundingBox>& cuts);
   void MarkGhostCells(vtkPartitionedDataSet* pieces);
 
-  vtkSmartPointer<vtkPartitionedDataSet> AssignGlobalCellIds(vtkPartitionedDataSet* input);
-  vtkSmartPointer<vtkDataSet> AssignGlobalCellIds(vtkDataSet* input);
+  vtkSmartPointer<vtkPartitionedDataSet> AssignGlobalCellIds(vtkPartitionedDataSet* input,
+    vtkIdType* mb_offset = nullptr);
+  vtkSmartPointer<vtkDataSet> AssignGlobalCellIds(vtkDataSet* input, vtkIdType* mb_offset = nullptr);
 
   std::vector<vtkBoundingBox> ExplicitCuts;
   std::vector<vtkBoundingBox> Cuts;

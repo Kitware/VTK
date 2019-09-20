@@ -161,12 +161,12 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
     return std::vector<vtkBoundingBox>();
   }
 
+  bbox.Inflate(0.1 * bbox.GetDiagonalLength());
+
   if (number_of_partitions == 1)
   {
     return std::vector<vtkBoundingBox>{ bbox };
   }
-
-  bbox.Inflate(0.1 * bbox.GetDiagonalLength());
 
   const int num_cuts = ::nextPowerOf2(number_of_partitions);
   if (num_cuts < comm.size())
@@ -348,7 +348,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
 
 //----------------------------------------------------------------------------
 bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(
-  vtkPartitionedDataSet* parts, vtkMultiProcessController* controller)
+  vtkPartitionedDataSet* parts, vtkMultiProcessController* controller, vtkIdType* mb_offset/*=nullptr*/)
 {
   // We need to generate global cells ids. The algorithm is simple.
   // 1. globally count non-ghost cells and then determine what range of gids
@@ -394,6 +394,18 @@ bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(
   diy::mpi::scan(comm, total_local_cells, global_offset, std::plus<vtkIdType>());
   // convert to exclusive scan since mpi_scan is inclusive.
   global_offset -= total_local_cells;
+
+  // keep track of an additional offset when performing this on multiblock datasets
+  if (mb_offset)
+  {
+    global_offset += *mb_offset;
+
+    // need an Allreduce to get the offset for next time
+    vtkIdType total_global_cells = 0;
+    diy::mpi::all_reduce(comm, total_local_cells, total_global_cells, std::plus<vtkIdType>());
+    (*mb_offset) += total_global_cells;
+  }
+
 
   // compute exclusive scan to determine the global id offsets for each local partition.
   std::vector<vtkIdType> local_cell_offsets(nblocks, 0);
