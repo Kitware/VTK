@@ -890,7 +890,7 @@ int vtkTRUCHASReader::RequestData(
          this->Internals->tmap.begin();
        ttit != this->Internals->tmap.end();)
   {
-    if (ttit->first < reqTime)
+    if (ttit->first <= reqTime)
     {
       tit = ttit;
     }
