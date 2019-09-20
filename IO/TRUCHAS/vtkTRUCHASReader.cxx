@@ -680,11 +680,11 @@ public:
       H5Aclose(attr);
 
       int align = -1;
-      if (!strcmp(alignment, "CELL"))
+      if (!strncmp(alignment, "CELL", 4))
       {
         align = 0;
       }
-      if (!strcmp(alignment, "NODE"))
+      if (!strncmp(alignment, "NODE", 4))
       {
         align = 1;
       }
