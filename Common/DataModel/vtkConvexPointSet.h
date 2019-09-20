@@ -51,11 +51,18 @@ public:
    */
   virtual int HasFixedTopology() {return 0;}
 
+  //@{
   /**
    * See vtkCell3D API for description of these methods.
+   * @warning These method are unimplemented in vtkPolyhedron
    */
-  void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) override {}
-  void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) override {}
+  void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) override {vtkWarningMacro(<< "vtkConvexPointSet::GetEdgePoints Not Implemented");}
+  void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) override {vtkWarningMacro(<< "vtkConvexPointSet::GetFacePoints Not Implemented");}
+  //@}
+
+  /**
+   * See vtkCell3D API for description of this method.
+   */
   double *GetParametricCoords() override;
 
   /**
