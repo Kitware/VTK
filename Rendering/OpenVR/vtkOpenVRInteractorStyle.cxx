@@ -1119,6 +1119,7 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
   {
     this->PickActor->SetPosition(prop->GetPosition());
     this->PickActor->SetScale(prop->GetScale());
+    this->PickActor->SetUserMatrix(prop->GetUserMatrix());
   }
   else
   {

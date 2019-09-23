@@ -18,6 +18,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
+#include <QtWidgets/QWidget>
 
 #include "vtkCallbackCommand.h"
 // #include "vtkCommand.h"
@@ -277,6 +278,10 @@ void vtkQWidgetWidget::SetEnabled(int enabling)
     return;
   }
 
+  if (enabling)
+  {
+    this->Widget->repaint();
+  }
   Superclass::SetEnabled(enabling);
 }
 

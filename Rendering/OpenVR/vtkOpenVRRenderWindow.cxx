@@ -696,6 +696,12 @@ void vtkOpenVRRenderWindow::Initialize (void)
 
   // use right eye render buffer for generic read pixel ops
   this->DefaultFrameBufferId = this->LeftEyeDesc.m_nRenderFramebufferId;
+  this->BackLeftBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+  this->BackRightBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+  this->FrontLeftBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+  this->FrontRightBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+  this->BackBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+  this->FrontBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
 
   if ( !vr::VRCompositor() )
   {
