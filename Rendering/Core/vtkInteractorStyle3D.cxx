@@ -86,13 +86,16 @@ void vtkInteractorStyle3D::PositionProp(vtkEventData *ed)
     trans[i] = wpos[i] - lwpos[i];
   }
 
-  if (this->InteractionProp->GetUserMatrix() != nullptr)
+  if (this->InteractionProp->GetUserTransform() != nullptr)
   {
     vtkTransform *t = this->TempTransform;
     t->PostMultiply();
-    t->SetMatrix(this->InteractionProp->GetUserMatrix());
+    t->Identity();
+    t->Concatenate(this->InteractionProp->GetUserMatrix());
     t->Translate(trans);
-    this->InteractionProp->SetUserMatrix(t->GetMatrix());
+    vtkNew<vtkMatrix4x4> n;
+    n->DeepCopy(t->GetMatrix());
+    this->InteractionProp->SetUserMatrix(n);
   }
   else
   {
@@ -176,13 +179,14 @@ void vtkInteractorStyle3D::Prop3DTransform(vtkProp3D *prop3D,
 
   vtkTransform *newTransform = this->TempTransform;
   newTransform->PostMultiply();
+  newTransform->Identity();
   if (prop3D->GetUserMatrix() != nullptr)
   {
-    newTransform->SetMatrix(prop3D->GetUserMatrix());
+    newTransform->Concatenate(prop3D->GetUserMatrix());
   }
   else
   {
-    newTransform->SetMatrix(oldMatrix);
+    newTransform->Concatenate(oldMatrix);
   }
 
   newTransform->Translate(-(boxCenter[0]), -(boxCenter[1]), -(boxCenter[2]));
@@ -207,7 +211,9 @@ void vtkInteractorStyle3D::Prop3DTransform(vtkProp3D *prop3D,
 
   if (prop3D->GetUserMatrix() != nullptr)
   {
-    prop3D->SetUserMatrix(newTransform->GetMatrix());
+    vtkNew<vtkMatrix4x4> n;
+    n->DeepCopy(newTransform->GetMatrix());
+    prop3D->SetUserMatrix(n);
   }
   else
   {
