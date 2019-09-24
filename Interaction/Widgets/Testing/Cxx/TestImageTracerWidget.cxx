@@ -224,6 +224,7 @@ const char ImageTracerWidgetEventLog[] =
   "MouseMoveEvent 352 147 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 352 148 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 352 149 0 0 0 0 Shift_L\n"
+  "MouseMoveEvent 352 158 0 0 0 0 Shift_L\n"
   "RightButtonReleaseEvent 349 158 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 381 179 0 0 0 0 Shift_L\n"
   "LeftButtonPressEvent 381 179 0 0 0 0 Shift_L\n"
