@@ -1852,6 +1852,7 @@ vtkAssemblyPath* vtkRenderer::PickProp(double selectionX1, double selectionY1,
         if (adepth < closestDepth)
         {
           closestProp = aProp;
+          closestDepth = adepth;
         }
       }
     }
