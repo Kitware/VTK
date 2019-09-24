@@ -1913,11 +1913,11 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
     return;
   }
 
-  glActiveTexture(GL_TEXTURE0 + tunit);
+  this->RenderWindow->GetState()->vtkglActiveTexture(GL_TEXTURE0 + tunit);
 
   vtkVector2f tex(1.0, 1.0);
 
-  // Call this *after* calling glActiveTexture() to ensure the texture
+  // Call this *after* calling vtkglActiveTexture() to ensure the texture
   // is bound to the correct texture unit.
   GLuint index = this->Storage->TextureFromImage(image, tex);
 
