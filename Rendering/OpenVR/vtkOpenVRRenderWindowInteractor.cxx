@@ -286,6 +286,16 @@ void  vtkOpenVRRenderWindowInteractor::StartEventLoop()
   }
 }
 
+void vtkOpenVRRenderWindowInteractor::ProcessEvents()
+{
+  vtkOpenVRRenderWindow *renWin =
+    vtkOpenVRRenderWindow::SafeDownCast(this->RenderWindow);
+
+  vtkRenderer *ren = static_cast<vtkRenderer *>(
+    renWin->GetRenderers()->GetItemAsObject(0));
+  this->DoOneEvent(renWin, ren);
+}
+
 void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, vtkRenderer *ren)
 {
   if (!renWin || !ren)
@@ -800,12 +810,6 @@ void vtkOpenVRRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenVRRenderWindowInteractor::TerminateApp(void)
-{
-  this->Done = true;
 }
 
 //----------------------------------------------------------------------------

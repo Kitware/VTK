@@ -77,6 +77,13 @@ public:
    */
   void TerminateApp() override;
 
+  /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  void ProcessEvents() override;
+
   //@{
   /**
    * Methods to set the default exit method for the class. This method is

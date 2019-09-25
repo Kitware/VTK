@@ -137,6 +137,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->RecognizeGestures = true;
   this->PointersDownCount = 0;
   this->CurrentGesture = vtkCommand::StartEvent;
+  this->Done = false;
 }
 
 //----------------------------------------------------------------------
@@ -230,6 +231,7 @@ void vtkRenderWindowInteractor::Start()
 
   // Pass execution to the subclass which will run the event loop,
   // this will not return until TerminateApp is called.
+  this->Done = false;
   this->StartEventLoop();
 }
 

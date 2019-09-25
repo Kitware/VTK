@@ -48,13 +48,6 @@ public:
    */
   virtual void Initialize();
 
-  /**
-   * OpenVR specific application terminate, calls ClassExitMethod then
-   * calls PostQuitMessage(0) to terminate the application. An application can Specify
-   * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
-   */
-  void TerminateApp(void);
-
   //@{
   /**
    * Methods to set the default exit method for the class. This method is
@@ -82,6 +75,13 @@ public:
   virtual void SetPhysicalScale(double);
   virtual double GetPhysicalScale();
   //@}
+
+  /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  void ProcessEvents() override;
 
   virtual void DoOneEvent(vtkOpenVRRenderWindow *renWin, vtkRenderer *ren);
 
