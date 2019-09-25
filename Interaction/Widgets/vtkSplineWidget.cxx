@@ -967,33 +967,35 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   v[2] = p2[2] - p1[2];
 
   double center[3] = {0.0,0.0,0.0};
-  double avgdist = 0.0;
-  double *prevctr = this->HandleGeometry[0]->GetCenter();
-  double *ctr;
 
-  center[0] += prevctr[0];
-  center[1] += prevctr[1];
-  center[2] += prevctr[2];
-
-  int i;
-  for ( i = 1; i < this->NumberOfHandles; ++i )
+  for (int i = 0; i < this->NumberOfHandles; ++i )
   {
-    ctr = this->HandleGeometry[i]->GetCenter();
+    double *ctr = this->HandleGeometry[i]->GetCenter();
     center[0] += ctr[0];
     center[1] += ctr[1];
     center[2] += ctr[2];
-    avgdist += sqrt(vtkMath::Distance2BetweenPoints(ctr,prevctr));
-    prevctr = ctr;
   }
-
-  avgdist /= this->NumberOfHandles;
-
   center[0] /= this->NumberOfHandles;
   center[1] /= this->NumberOfHandles;
   center[2] /= this->NumberOfHandles;
 
+  double avgdist = 0.0;
+  for (int i = 0; i < this->NumberOfHandles; ++i )
+  {
+    double *ctr = this->HandleGeometry[i]->GetCenter();
+    avgdist += sqrt(vtkMath::Distance2BetweenPoints(ctr,center));
+  }
+  avgdist /= this->NumberOfHandles;
+
   // Compute the scale factor
   double sf = vtkMath::Norm(v) / avgdist;
+
+  // do not let avgdist get below v
+  if (sf > 0.9 && Y <= this->Interactor->GetLastEventPosition()[1])
+  {
+    return;
+  }
+
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
   {
     sf = 1.0 + sf;
@@ -1005,9 +1007,9 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
   // Move the handle points
   double newCtr[3];
-  for ( i = 0; i < this->NumberOfHandles; ++i )
+  for (int i = 0; i < this->NumberOfHandles; ++i )
   {
-    ctr = this->HandleGeometry[i]->GetCenter();
+    double *ctr = this->HandleGeometry[i]->GetCenter();
     for ( int j = 0; j < 3; ++j )
     {
       newCtr[j] = sf * (ctr[j] - center[j]) + center[j];
