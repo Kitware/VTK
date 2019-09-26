@@ -1504,6 +1504,7 @@ void vtkOSPRayPolyDataMapperNode::PopulateCache()
     auto instanceCacheEntry = std::make_shared<vtkOSPRayCacheItemObject>(backend, (OSPObject)instance);
     instanceCacheEntry->size = this->Geometries.size();
     this->InstanceCache->Set(tstep, instanceCacheEntry);
+    ospRelease(instanceModel);
   }
 }
 
