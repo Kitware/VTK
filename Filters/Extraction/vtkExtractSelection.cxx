@@ -512,6 +512,8 @@ void vtkExtractSelection::ExtractSelectedCells(
   originalCellIds->SetName("vtkOriginalCellIds");
   outputCD->AddArray(originalCellIds);
 
+  vtkNew<vtkIdList> cellPts;
+
   for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
   {
     // 1 means selected, 0 means not selected
@@ -520,9 +522,9 @@ void vtkExtractSelection::ExtractSelectedCells(
     cellInside->GetTypedTuple(cellId, &isInside);
     if (isInside)
     {
-      vtkCell* cell = input->GetCell(cellId);
-      vtkIdList* cellPts = cell->GetPointIds();
-      vtkIdType numCellPts = cell->GetNumberOfPoints();
+      input->GetCellPoints(cellId, cellPts);
+      int cellType = input->GetCellType(cellId);
+      vtkIdType numCellPts = cellPts->GetNumberOfIds();
       newCellPts->Reset();
         for (vtkIdType i = 0; i < numCellPts; ++i)
         {
@@ -548,13 +550,13 @@ void vtkExtractSelection::ExtractSelectedCells(
         }
         // special handling for polyhedron cells
         if (vtkUnstructuredGrid::SafeDownCast(input) &&
-            cell->GetCellType() == VTK_POLYHEDRON)
+            cellType == VTK_POLYHEDRON)
         {
           newCellPts->Reset();
           vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
           vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, &pointMap[0]);
         }
-        vtkIdType newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
+        vtkIdType newCellId = output->InsertNextCell(cellType, newCellPts);
         outputCD->CopyData(cd,cellId,newCellId);
         originalCellIds->InsertNextValue(cellId);
     }
