@@ -29,7 +29,7 @@ namespace vtx
 {
 // PUBLIC
 VTXSchema::VTXSchema(
-  const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
   : Type(type)
   , Schema(schema)
   , IO(io)

@@ -41,7 +41,7 @@ const std::map<types::DataSetType, std::string> VTXvtkBase::DataSetTypes = {
 };
 
 VTXvtkBase::VTXvtkBase(
-  const std::string type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
+  const std::string& type, const std::string& schema, adios2::IO& io, adios2::Engine& engine)
   : VTXSchema(type, schema, io, engine)
 {
 }
@@ -69,8 +69,6 @@ bool VTXvtkBase::ReadDataSets(
 
 void VTXvtkBase::InitTimes()
 {
-  bool foundTime = false;
-
   for (types::Piece& piece : this->Pieces)
   {
     for (auto& itDataSet : piece)
@@ -83,7 +81,6 @@ void VTXvtkBase::InitTimes()
           const std::vector<std::string>& vecComponents = itDataArray.second.VectorVariables;
           const std::string& variableName = vecComponents.front();
           GetTimes(variableName);
-          foundTime = true;
           return;
         }
       }
@@ -91,10 +88,7 @@ void VTXvtkBase::InitTimes()
   }
 
   // ADIOS2 will just use steps
-  if (!foundTime)
-  {
-    GetTimes();
-  }
+  GetTimes();
 }
 
 std::string VTXvtkBase::DataSetType(const types::DataSetType type) const noexcept
