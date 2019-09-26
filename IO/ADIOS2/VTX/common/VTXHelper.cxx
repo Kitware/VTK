@@ -323,5 +323,21 @@ vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
   return vtkSmartPointer<vtkIdTypeArray>::New();
 }
 
+std::string GetFileName(const std::string& fileName) noexcept
+{
+  const std::string output =
+    EndsWith(fileName, ".bp.dir") ? fileName.substr(0, fileName.size() - 4) : fileName;
+  return output;
+}
+
+bool EndsWith(const std::string& input, const std::string& ends) noexcept
+{
+  if (input.length() >= ends.length())
+  {
+    return (!input.compare(input.length() - ends.length(), ends.length(), ends));
+  }
+  return false;
+}
+
 } // end helper namespace
 } // end adios2vtk namespace
