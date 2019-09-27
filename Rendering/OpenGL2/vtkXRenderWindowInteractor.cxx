@@ -249,6 +249,16 @@ void vtkXRenderWindowInteractor::BreakLoopFlagOn()
   this->Modified();
 }
 
+void vtkXRenderWindowInteractor::ProcessEvents()
+{
+  XEvent event;
+  while (XtAppPending(vtkXRenderWindowInteractor::App) && this->BreakLoopFlag == 0)
+  {
+    XtAppNextEvent(vtkXRenderWindowInteractor::App, &event);
+    XtDispatchEvent(&event);
+  }
+}
+
 //-------------------------------------------------------------------------
 // This will start up the X event loop. If you
 // call this method it will loop processing X events until the

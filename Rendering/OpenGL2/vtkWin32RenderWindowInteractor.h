@@ -69,6 +69,13 @@ public:
   virtual void Disable() override;
   //@}
 
+  /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  void ProcessEvents() override;
+
   //@{
   /**
    * By default the interactor installs a MessageProc callback which

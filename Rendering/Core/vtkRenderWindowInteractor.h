@@ -106,6 +106,19 @@ public:
   virtual void Start();
 
   /**
+   * Run the event loop and return. This is provided so that you can
+   * implement your own event loop but yet use the vtk event handling as
+   * well.
+   */
+  virtual void ProcessEvents() {};
+
+  /**
+   * Is the interactor loop done
+   */
+  vtkGetMacro(Done, bool);
+  vtkSetMacro(Done, bool);
+
+  /**
    * Enable/Disable interactions.  By default interactors are enabled when
    * initialized.  Initialize() must be called prior to enabling/disabling
    * interaction. These methods are used when a window/widget is being
@@ -249,7 +262,7 @@ public:
    * specified and should be overridden by platform dependent subclasses
    * to provide a termination procedure if one is required.
    */
-  virtual void TerminateApp(void) {}
+  virtual void TerminateApp(void) { this->Done = true; }
 
   //@{
   /**
@@ -798,6 +811,8 @@ protected:
   // Used as a helper object to pick instances of vtkProp
   vtkAbstractPicker     *Picker;
   vtkPickingManager     *PickingManager;
+
+  bool Done;  // is the event loop done running
 
   /**
    * Create default pickingManager. Used to create one when none is specified.

@@ -38,7 +38,6 @@ vtkRenderWindowInteractor3D::vtkRenderWindowInteractor3D()
   this->StartedMessageLoop = 0;
   vtkNew<vtkInteractorStyle3D> style;
   this->SetInteractorStyle(style);
-  this->Done = false;
 }
 
 //----------------------------------------------------------------------------
@@ -65,12 +64,6 @@ void vtkRenderWindowInteractor3D::Disable()
 
   this->Enabled = 0;
   this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkRenderWindowInteractor3D::TerminateApp()
-{
-  this->Done = true;
 }
 
 //----------------------------------------------------------------------------

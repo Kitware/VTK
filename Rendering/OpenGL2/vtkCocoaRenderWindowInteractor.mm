@@ -238,6 +238,18 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
+void vtkCocoaRenderWindowInteractor::ProcessEvents()
+{
+  NSApplication *application = [NSApplication sharedApplication];
+  NSEvent *event = [application nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
+  while (event)
+  {
+    [application sendEvent:event];
+    event = [application nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::StartEventLoop()
 {
   VTKStartNSApplicationEventLoop();
@@ -320,6 +332,7 @@ void vtkCocoaRenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::TerminateApp()
 {
+  this->Done = true;
   VTKStopNSApplicationEventLoop();
 }
 

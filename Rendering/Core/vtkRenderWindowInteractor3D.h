@@ -64,13 +64,6 @@ public:
   void Disable() override;
   //@}
 
-  /**
-   * OpenVR specific application terminate, calls ClassExitMethod then
-   * calls PostQuitMessage(0) to terminate the application. An application can Specify
-   * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
-   */
-  void TerminateApp(void) override;
-
   //@{
   /**
    * With VR we know the world coordinate positions and orientations of events.
@@ -273,11 +266,6 @@ public:
   vtkGetVector3Macro(LastTranslation3D, double);
   //@}
 
-  /**
-   * Is the interactor loop done
-   */
-  vtkGetMacro(Done, bool);
-
 protected:
   vtkRenderWindowInteractor3D();
   ~vtkRenderWindowInteractor3D() override;
@@ -286,8 +274,6 @@ protected:
   int     StartedMessageLoop;
   double Translation3D[3];
   double LastTranslation3D[3];
-
-  bool Done;  // is the event loop done running
 
   double   WorldEventPositions[VTKI_MAX_POINTERS][3];
   double   LastWorldEventPositions[VTKI_MAX_POINTERS][3];

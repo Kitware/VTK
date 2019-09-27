@@ -126,6 +126,23 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
+void vtkWin32RenderWindowInteractor::ProcessEvents()
+{
+  // No need to do anything if this is a 'mapped' interactor
+  if (!this->Enabled || !this->InstallMessageProc)
+  {
+    return;
+  }
+
+  MSG msg;
+  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+}
+
+//----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::StartEventLoop()
 {
   // No need to do anything if this is a 'mapped' interactor
@@ -274,6 +291,8 @@ void vtkWin32RenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::TerminateApp(void)
 {
+  this->Done = true;
+
   // Only post a quit message if Start was called...
   //
   if (this->StartedMessageLoop)
