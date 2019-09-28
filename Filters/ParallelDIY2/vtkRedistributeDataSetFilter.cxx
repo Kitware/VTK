@@ -25,6 +25,8 @@
 #include "vtkInformationVector.h"
 #include "vtkKdNode.h"
 #include "vtkLogger.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -50,6 +52,12 @@ vtkBoundingBox GetBounds(vtkDataObject* dobj)
   {
     double bds[6];
     pds->GetBounds(bds);
+    return vtkBoundingBox(bds);
+  }
+  else if (auto mbds = vtkMultiBlockDataSet::SafeDownCast(dobj))
+  {
+    double bds[6];
+    mbds->GetBounds(bds);
     return vtkBoundingBox(bds);
   }
   else if (auto ds = vtkDataSet::SafeDownCast(dobj))
@@ -194,6 +202,7 @@ vtkRedistributeDataSetFilter::~vtkRedistributeDataSetFilter()
 int vtkRedistributeDataSetFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
@@ -257,10 +266,22 @@ const vtkBoundingBox& vtkRedistributeDataSetFilter::GetExplicitCut(int index) co
 
 //----------------------------------------------------------------------------
 int vtkRedistributeDataSetFilter::RequestDataObject(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  auto outputDO = vtkDataObject::GetData(outputVector, 0);
   auto outInfo = outputVector->GetInformationObject(0);
-  if (!this->PreservePartitionsInOutput && !vtkUnstructuredGrid::GetData(outputVector, 0))
+
+  if (vtkMultiBlockDataSet::SafeDownCast(inputDO))
+  {
+    if (!vtkMultiBlockDataSet::SafeDownCast(outputDO))
+    {
+      auto output = vtkMultiBlockDataSet::New();
+      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
+      output->FastDelete();
+    }
+  }
+  else if (!this->PreservePartitionsInOutput && !vtkUnstructuredGrid::GetData(outputVector, 0))
   {
     auto output = vtkUnstructuredGrid::New();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
@@ -280,6 +301,8 @@ int vtkRedistributeDataSetFilter::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   auto inputDO = vtkDataObject::GetData(inputVector[0], 0);
+  auto outputDO = vtkDataObject::GetData(outputVector, 0);
+
   if (this->UseExplicitCuts && this->ExpandExplicitCuts)
   {
     auto bbox = detail::GetBounds(inputDO);
@@ -297,8 +320,19 @@ int vtkRedistributeDataSetFilter::RequestData(
   {
     this->Cuts = this->GenerateCuts(inputDO);
   }
+  this->UpdateProgress(0.25);
 
-  auto outputDO = vtkDataObject::GetData(outputVector, 0);
+  if (auto inputMBDS = vtkMultiBlockDataSet::SafeDownCast(inputDO))
+  {
+    this->SetProgressShiftScale(0.25, 0.75);
+    auto outputMBDS = vtkMultiBlockDataSet::SafeDownCast(outputDO);
+    if (!outputMBDS)
+    {
+      outputMBDS = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+    }
+    vtkIdType mb_offset = 0;
+    return this->RedistributeMultiBlockDataSet(inputMBDS, outputMBDS, &mb_offset);
+  }
 
   vtkSmartPointer<vtkPartitionedDataSet> parts = vtkPartitionedDataSet::SafeDownCast(outputDO);
   if (!parts)
@@ -306,6 +340,7 @@ int vtkRedistributeDataSetFilter::RequestData(
     parts = vtkSmartPointer<vtkPartitionedDataSet>::New();
   }
 
+  this->SetProgressShiftScale(0.25, 0.5);
   if (!this->Redistribute(inputDO, parts, this->Cuts))
   {
     return 0;
@@ -342,6 +377,8 @@ int vtkRedistributeDataSetFilter::RequestData(
     }
     outputUG->GetFieldData()->PassData(inputDO->GetFieldData());
   }
+  this->SetProgressShiftScale(0.0, 1.0);
+  this->UpdateProgress(1.0);
 
   return 1;
 }
@@ -359,9 +396,11 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::GenerateCuts(vtkDataOb
 
 //----------------------------------------------------------------------------
 bool vtkRedistributeDataSetFilter::Redistribute(
-  vtkDataObject* inputDO, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts)
+  vtkDataObject* inputDO, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts,
+  vtkIdType* mb_offset/*=nullptr*/)
 {
   assert(outputPDS != nullptr);
+  this->UpdateProgress(0.0);
 
   if (auto inputPDS = vtkPartitionedDataSet::SafeDownCast(inputDO))
   {
@@ -373,7 +412,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
     vtkSmartPointer<vtkPartitionedDataSet> xfmedInput;
     if (this->GenerateGlobalCellIds && this->BoundaryMode != SPLIT_BOUNDARY_CELLS)
     {
-      xfmedInput = this->AssignGlobalCellIds(inputPDS);
+      xfmedInput = this->AssignGlobalCellIds(inputPDS, mb_offset);
     }
     else
     {
@@ -455,7 +494,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
     vtkSmartPointer<vtkDataSet> xfmedInput;
     if (this->GenerateGlobalCellIds && this->BoundaryMode != SPLIT_BOUNDARY_CELLS)
     {
-      xfmedInput = this->AssignGlobalCellIds(inputDS);
+      xfmedInput = this->AssignGlobalCellIds(inputDS, mb_offset);
     }
     else
     {
@@ -466,6 +505,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
       return false;
     }
   }
+  this->UpdateProgress(0.5);
 
   switch (this->GetBoundaryMode())
   {
@@ -483,7 +523,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
 
       if (this->GenerateGlobalCellIds)
       {
-        auto result = this->AssignGlobalCellIds(outputPDS);
+        auto result = this->AssignGlobalCellIds(outputPDS, mb_offset);
         outputPDS->ShallowCopy(result);
       }
       break;
@@ -502,6 +542,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
       // nothing to do.
       break;
   }
+  this->UpdateProgress(0.75);
 
   if (!this->EnableDebugging)
   {
@@ -518,7 +559,143 @@ bool vtkRedistributeDataSetFilter::Redistribute(
       }
     }
   }
+  this->UpdateProgress(1.0);
+
   return true;
+}
+
+//----------------------------------------------------------------------------
+int vtkRedistributeDataSetFilter::RedistributeMultiBlockDataSet(
+        vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output, vtkIdType* mb_offset/*=nullptr*/)
+{
+  if (!input || !output)
+  {
+    return 0;
+  }
+
+  output->CopyStructure(input);
+  for (unsigned int block_id = 0; block_id < input->GetNumberOfBlocks(); ++block_id)
+  {
+    auto in_block = input->GetBlock(block_id);
+    auto out_block = output->GetBlock(block_id);
+    if (auto in_mbds = vtkMultiBlockDataSet::SafeDownCast(in_block))
+    {
+      auto out_mbds = vtkMultiBlockDataSet::SafeDownCast(out_block);
+      this->RedistributeMultiBlockDataSet(in_mbds, out_mbds, mb_offset);
+    }
+    else if (auto in_mp = vtkMultiPieceDataSet::SafeDownCast(in_block))
+    {
+      auto out_mp = vtkMultiPieceDataSet::SafeDownCast(out_block);
+      this->RedistributeMultiPieceDataSet(in_mp, out_mp, mb_offset);
+    }
+    else
+    {
+      auto inputDS = vtkDataSet::SafeDownCast(in_block);
+      if (!inputDS)
+      {
+        inputDS = vtkUnstructuredGrid::New();
+      }
+      vtkNew<vtkPartitionedDataSet> parts;
+
+      if (!this->Redistribute(inputDS, parts, this->Cuts, mb_offset))
+      {
+        continue;
+      }
+
+      if (this->PreservePartitionsInOutput)
+      {
+        // have this block remain as a PDS
+        output->SetBlock(block_id, parts);
+      }
+      else
+      {
+        // convert this block to an UG
+        vtkNew<vtkAppendFilter> appender;
+        for (unsigned int cc = 0; cc < parts->GetNumberOfPartitions(); ++cc)
+        {
+          if (auto ds = parts->GetPartition(cc))
+          {
+            appender->AddInputDataObject(ds);
+          }
+        }
+        if (appender->GetNumberOfInputConnections(0) > 0)
+        {
+          appender->Update();
+          output->SetBlock(block_id, appender->GetOutput(0));
+        }
+      }
+    }
+  }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+// only for vtkMultiPieceDataSets that are part of a vtkMultiBlockDataSet
+int vtkRedistributeDataSetFilter::RedistributeMultiPieceDataSet(
+        vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output, vtkIdType* mb_offset/*=nullptr*/)
+{
+  if (!input || !output)
+  {
+    return 0;
+  }
+
+  output->CopyStructure(input);
+
+  // because different ranks may have different numbers of pieces, we combine
+  // into a single unstructured grid before redistributing data
+  vtkNew<vtkAppendFilter> input_appender;
+  vtkNew<vtkUnstructuredGrid> inputUG;
+  for (unsigned int piece_id = 0; piece_id < input->GetNumberOfPieces(); ++piece_id)
+  {
+    if (auto ds = input->GetPiece(piece_id))
+    {
+      input_appender->AddInputDataObject(ds);
+    }
+  }
+  if (input_appender->GetNumberOfInputConnections(0) > 0)
+  {
+    input_appender->Update();
+    inputUG->ShallowCopy(input_appender->GetOutput(0));
+  }
+
+  vtkNew<vtkPartitionedDataSet> parts;
+
+  if (!this->Redistribute(inputUG, parts, this->Cuts, mb_offset))
+  {
+    return 0;
+  }
+
+  if (this->PreservePartitionsInOutput)
+  {
+    // NOTE: Can't remove null partitions because it can result in errors
+    // due to different ranks having different structures; only relevant
+    // when we're working with vtkMultiBlockDataSets
+    output->SetNumberOfPieces(parts->GetNumberOfPartitions());
+    for (unsigned int piece_id = 0; piece_id < output->GetNumberOfPieces(); ++piece_id)
+    {
+      output->SetPiece(piece_id, parts->GetPartition(piece_id));
+    }
+  }
+  else
+  {
+    // convert this block to an UG
+    output->SetNumberOfPieces(1);
+    vtkNew<vtkAppendFilter> appender;
+    for (unsigned int cc = 0; cc < parts->GetNumberOfPartitions(); ++cc)
+    {
+      if (auto ds = parts->GetPartition(cc))
+      {
+        appender->AddInputDataObject(ds);
+      }
+    }
+    if (appender->GetNumberOfInputConnections(0) > 0)
+    {
+      appender->Update();
+      output->SetPiece(0, appender->GetOutput(0));
+    }
+  }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -568,6 +745,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
   vtkDataSet* dataset, const std::vector<vtkBoundingBox>& cuts)
 {
   if (!dataset || cuts.size() == 0 || dataset->GetNumberOfCells() == 0)
+  //        (dataset->GetNumberOfCells() == 0 && dataset->GetNumberOfPoints() == 0))
   {
     vtkNew<vtkPartitionedDataSet> result;
     result->SetNumberOfPartitions(static_cast<unsigned int>(cuts.size()));
@@ -659,19 +837,20 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkDataSet> vtkRedistributeDataSetFilter::AssignGlobalCellIds(vtkDataSet* input)
+vtkSmartPointer<vtkDataSet> vtkRedistributeDataSetFilter::AssignGlobalCellIds(
+  vtkDataSet* input, vtkIdType* mb_offset/*=nullptr*/)
 {
   vtkNew<vtkPartitionedDataSet> pds;
   pds->SetNumberOfPartitions(1);
   pds->SetPartition(0, input);
-  auto output = this->AssignGlobalCellIds(pds);
+  auto output = this->AssignGlobalCellIds(pds, mb_offset);
   assert(output->GetNumberOfPartitions() == 1);
   return output->GetPartition(0);
 }
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::AssignGlobalCellIds(
-  vtkPartitionedDataSet* pieces)
+  vtkPartitionedDataSet* pieces, vtkIdType* mb_offset/*=nullptr*/)
 {
   // if global cell ids are present everywhere, there's nothing to do!
   int missing_gids = 0;
@@ -714,7 +893,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::AssignGloba
     }
   }
 
-  vtkDIYKdTreeUtilities::GenerateGlobalCellIds(result, this->Controller);
+  vtkDIYKdTreeUtilities::GenerateGlobalCellIds(result, this->Controller, mb_offset);
   return result;
 }
 

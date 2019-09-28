@@ -99,7 +99,8 @@ public:
    * implementation and reduces communication.
    */
   static bool GenerateGlobalCellIds(
-    vtkPartitionedDataSet* parts, vtkMultiProcessController* controller);
+    vtkPartitionedDataSet* parts, vtkMultiProcessController* controller,
+    vtkIdType* mb_offset = nullptr);
 
 protected:
   vtkDIYKdTreeUtilities();
