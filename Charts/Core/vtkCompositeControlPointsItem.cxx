@@ -146,12 +146,11 @@ void vtkCompositeControlPointsItem::SetColorTransferFunction(vtkColorTransferFun
   // We need to set the color transfer function here (before
   // Superclass::SetPiecewiseFunction) to be able to have a valid
   // color transfer function for MergeColorTransferFunction().
-  vtkSetObjectBodyMacro(ColorTransferFunction, vtkColorTransferFunction, c);
+  this->Superclass::SetColorTransferFunction(c);
   if (this->PointsFunction == ColorAndOpacityPointsFunction)
   {
     this->SilentMergeTransferFunctions();
   }
-  this->Superclass::SetColorTransferFunction(c);
 }
 
 //-----------------------------------------------------------------------------

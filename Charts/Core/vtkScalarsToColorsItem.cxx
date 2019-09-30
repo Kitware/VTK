@@ -81,44 +81,6 @@ vtkScalarsToColorsItem::~vtkScalarsToColorsItem()
 }
 
 //-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::TransformDataToScreen(
-    const double dataX, const double dataY, double &screenX, double &screenY)
-{
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  screenX = logX ? log10(dataX) : dataX;
-  screenY = logY ? log10(dataY) : dataY;
-
-  // now, shift/scale to screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  screenX = (screenX + ss[0]) * ss[2];
-  screenY = (screenY + ss[1]) * ss[3];
-}
-
-//-----------------------------------------------------------------------------
-void vtkScalarsToColorsItem::TransformScreenToData(
-    const double screenX, const double screenY, double &dataX, double &dataY)
-{
-  // inverse shift/scale from screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  dataX = (screenX / ss[2]) - ss[0];
-  dataY = (screenY / ss[3]) - ss[1];
-
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  if (logX)
-  {
-    dataX = pow(10., dataX);
-  }
-  if (logY)
-  {
-    dataY = pow(10., dataY);
-  }
-}
-
-//-----------------------------------------------------------------------------
 void vtkScalarsToColorsItem::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

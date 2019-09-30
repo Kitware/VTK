@@ -140,11 +140,6 @@ protected:
 
   vtkGetMacro(TextureWidth, int);
 
-  void TransformDataToScreen(const double dataX, const double dataY,
-                             double &screenX, double &screenY);
-  void TransformScreenToData(const double screenX, const double screenY,
-                             double &dataX, double &dataY);
-
   /**
    * Method to configure the plotbar histogram before painting it
    * can be reimplemented by subclasses.

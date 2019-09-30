@@ -38,6 +38,85 @@
 #include <limits>
 
 //-----------------------------------------------------------------------------
+// An internal class that is used as an item
+// to be placed below all other items
+// in order to hit when trying to add a point
+class vtkControlPointsAddPointItem : public vtkPlot
+{
+public:
+  vtkTypeMacro(vtkControlPointsAddPointItem, vtkPlot);
+  static vtkControlPointsAddPointItem* New();
+
+  vtkControlPointsItem* ControlPointsItem;
+
+  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override
+  {
+    return this->ControlPointsItem->MouseEnterEvent(mouse);
+  }
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override
+  {
+    return this->ControlPointsItem->MouseMoveEvent(mouse);
+  }
+  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override
+  {
+    return this->ControlPointsItem->MouseLeaveEvent(mouse);
+  }
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override
+  {
+    return this->ControlPointsItem->MouseButtonPressEvent(mouse);
+  }
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override
+  {
+    return this->ControlPointsItem->MouseButtonReleaseEvent(mouse);
+  }
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse) override
+  {
+    return this->ControlPointsItem->MouseDoubleClickEvent(mouse);
+  }
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override
+  {
+    return this->ControlPointsItem->MouseWheelEvent(mouse, delta);
+  }
+  bool KeyPressEvent(const vtkContextKeyEvent& key) override
+  {
+    return this->ControlPointsItem->KeyPressEvent(key);
+  }
+  bool KeyReleaseEvent(const vtkContextKeyEvent& key) override
+  {
+    return this->ControlPointsItem->KeyReleaseEvent(key);
+  }
+
+protected:
+  vtkControlPointsAddPointItem() = default;
+  ~vtkControlPointsAddPointItem() override = default;
+
+  /**
+   * Returns true if the supplied x, y coordinate is inside the bounds
+   * and UseAddPointItem is true.
+   */
+  bool Hit(const vtkContextMouseEvent& mouse) override
+  {
+    if (this->ControlPointsItem->GetUseAddPointItem())
+    {
+      vtkVector2f vpos = mouse.GetPos();
+      double pos[2];
+      pos[0] = vpos.GetX();
+      pos[1] = vpos.GetY();
+      double bounds[4];
+      this->ControlPointsItem->GetBounds(bounds);
+      return (!this->ControlPointsItem->ClampPos(pos, bounds));
+    }
+    return false;
+  };
+
+private:
+  vtkControlPointsAddPointItem(const vtkControlPointsAddPointItem&) = delete;
+  void operator=(const vtkControlPointsAddPointItem&) = delete;
+};
+
+vtkStandardNewMacro(vtkControlPointsAddPointItem);
+
+//-----------------------------------------------------------------------------
 vtkControlPointsItem::vtkControlPointsItem()
 {
   this->Pen->SetLineType(vtkPen::SOLID_LINE);
@@ -90,6 +169,8 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->ShowLabels = false;
   this->LabelFormat = nullptr;
   this->SetLabelFormat("%.3f, %.3f");
+
+  this->AddPointItem->ControlPointsItem = this;
 }
 
 //-----------------------------------------------------------------------------
@@ -127,6 +208,7 @@ void vtkControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "EndPointsYMovable: " << this->EndPointsYMovable << endl;
   os << indent << "EndPointsRemovable: " << this->EndPointsRemovable << endl;
   os << indent << "ShowLabels: " << this->ShowLabels << endl;
+  os << indent << "UseAddPointItems: " << this->UseAddPointItem << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -360,91 +442,28 @@ void vtkControlPointsItem::ComputePoints()
 }
 
 //-----------------------------------------------------------------------------
-void vtkControlPointsItem::TransformScreenToData(const vtkVector2f& in, vtkVector2f& out)
-{
-  double tmp[2] = { in.GetX(), in.GetY() };
-
-  this->TransformScreenToData(tmp[0], tmp[1], tmp[0], tmp[1]);
-
-  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
-}
-
-//-----------------------------------------------------------------------------
-void vtkControlPointsItem::TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out)
-{
-  double tmp[2] = { in.GetX(), in.GetY() };
-
-  this->TransformDataToScreen(tmp[0], tmp[1], tmp[0], tmp[1]);
-
-  out.Set(static_cast<float>(tmp[0]), static_cast<float>(tmp[1]));
-}
-
-//-----------------------------------------------------------------------------
-void vtkControlPointsItem::TransformScreenToData(
-    const double inX, const double inY, double &outX, double &outY)
-{
-  outX = inX;
-  outY = inY;
-
-  // inverse shift/scale from screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  outX = (outX / ss[2]) - ss[0];
-  outY = (outY / ss[3]) - ss[1];
-
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  if (logX)
-  {
-    outX = std::pow(10., outX);
-  }
-  if (logY)
-  {
-    outY = std::pow(10., outY);
-  }
-}
-
-//-----------------------------------------------------------------------------
-void vtkControlPointsItem::TransformDataToScreen(
-    const double inX, const double inY, double &outX, double &outY)
-{
-  outX = inX;
-  outY = inY;
-
-  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
-
-  if (logX)
-  {
-    outX = std::log10(outX);
-  }
-  if (logY)
-  {
-    outY = std::log10(outY);
-  }
-
-  // now, shift/scale to screen space.
-  const vtkRectd& ss = this->ShiftScale;
-  outX = (outX + ss[0]) * ss[2];
-  outY = (outY + ss[1]) * ss[3];
-}
-
-//-----------------------------------------------------------------------------
 bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
 {
   vtkVector2f vpos = mouse.GetPos();
   double pos[2];
-  pos[0] = vpos.GetX();
-  pos[1] = vpos.GetY();
-  double bounds[4];
-  this->GetBounds(bounds);
-  bool clamped = this->ClampPos(pos, bounds);
-  if (!clamped)
+
+  if (!this->UseAddPointItem)
   {
-    return true;
+    // When not using the add point item,
+    // Hit anywhere within the bounds
+    pos[0] = vpos.GetX();
+    pos[1] = vpos.GetY();
+    double bounds[4];
+    this->GetBounds(bounds);
+    bool clamped = this->ClampPos(pos, bounds);
+    if (!clamped)
+    {
+      return true;
+    }
   }
-  // maybe the cursor is over the first or last point (which could be outside
-  // the bounds because of the screen point size).
+
+  // Hit if the mouse is over a point
+  // Points can be outside of the bounds
   pos[0] = vpos.GetX();
   pos[1] = vpos.GetY();
   for (int i = 0; i < this->GetNumberOfPoints(); ++i)
@@ -455,38 +474,6 @@ bool vtkControlPointsItem::Hit(const vtkContextMouseEvent &mouse)
     }
   }
   return false;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkControlPointsItem::ClampPos(double pos[2], double bounds[4])
-{
-  if (bounds[1] < bounds[0] || bounds[3] < bounds[2])
-  {
-    // bounds are not valid. Don't clamp.
-    return false;
-  }
-  bool clamped = false;
-  if (pos[0] < bounds[0] || vtkMath::IsNan(pos[0]))
-  {
-    pos[0] = bounds[0];
-    clamped = true;
-  }
-  if (pos[0] > bounds[1])
-  {
-    pos[0] = bounds[1];
-    clamped = true;
-  }
-  if (pos[1] < 0. || vtkMath::IsNan(pos[0]))
-  {
-    pos[1] = 0.;
-    clamped = true;
-  }
-  if (pos[1] > 1.)
-  {
-    pos[1] = 1.;
-    clamped = true;
-  }
-  return clamped;
 }
 
 //-----------------------------------------------------------------------------
@@ -1883,4 +1870,10 @@ vtkStdString vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
     delete []buffer;
   }
   return result;
+}
+
+//-----------------------------------------------------------------------------
+vtkPlot* vtkControlPointsItem::GetAddPointItem()
+{
+  return this->AddPointItem;
 }

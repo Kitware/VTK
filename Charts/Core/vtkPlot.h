@@ -397,6 +397,15 @@ public:
   virtual vtkVariant GetProperty(const vtkStdString &property);
   //@}
 
+  //@{
+  /**
+   * Clamp the given 2D pos into the provided bounds
+   * Return true if the pos has been clamped, false otherwise.
+   */
+  static bool ClampPos(double pos[2], double bounds[4]);
+  virtual bool ClampPos(double pos[2]);
+  //@}
+
 protected:
   vtkPlot();
   ~vtkPlot() override;
@@ -405,6 +414,19 @@ protected:
    * Get the properly formatted number for the supplied position and axis.
    */
   vtkStdString GetNumber(double position, vtkAxis *axis);
+
+  //@{
+  /**
+   * Transform the mouse event in the control-points space. This is needed when
+   * using logScale or shiftscale.
+   */
+  virtual void TransformScreenToData(const vtkVector2f& in, vtkVector2f& out);
+  virtual void TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out);
+  virtual void TransformScreenToData(
+    const double inX, const double inY, double& outX, double& outY);
+  virtual void TransformDataToScreen(
+    const double inX, const double inY, double& outX, double& outY);
+  //@}
 
   /**
    * This object stores the vtkPen that controls how the plot is drawn.
