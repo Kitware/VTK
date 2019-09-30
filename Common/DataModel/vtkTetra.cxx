@@ -53,7 +53,6 @@ int vtkTetra::EvaluatePosition(const double x[3], double closestPoint[3],
                               int& subId, double pcoords[3],
                               double& minDist2, double weights[])
 {
-  double pt1[3], pt2[3], pt3[3], pt4[3];
   int i;
   double rhs[3], c1[3], c2[3], c3[3];
   double det, p4;
@@ -61,10 +60,11 @@ int vtkTetra::EvaluatePosition(const double x[3], double closestPoint[3],
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  this->Points->GetPoint(1, pt1);
-  this->Points->GetPoint(2, pt2);
-  this->Points->GetPoint(3, pt3);
-  this->Points->GetPoint(0, pt4);
+  const double *pts = static_cast<double*>(this->Points->GetVoidPointer(0));
+  const double *pt1=pts+3;
+  const double *pt2=pts+6;
+  const double *pt3=pts+9;
+  const double *pt4=pts;
 
   for (i=0; i<3; i++)
   {

@@ -69,15 +69,14 @@
 
 #include "vtkFunctionSet.h"
 
-#include <vector> // STL Header; Required for vector
-
 class vtkDataSet;
-
 class vtkDataArray;
-
 class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractInterpolatedVelocityFieldDataSetsType;
+class vtkFindCellStrategy;
+struct vtkStrategyMap;
+
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 
@@ -138,7 +137,6 @@ public:
   */
   void SelectVectors(int fieldAssociation, const char * fieldName );
 
-
   //@{
   /**
    * Set/Get the flag indicating vector post-normalization (following vector
@@ -181,9 +179,7 @@ public:
   /**
    * Import parameters. Sub-classes can add more after chaining.
    */
-  virtual void CopyParameters( vtkAbstractInterpolatedVelocityField * from )
-    { this->Caching = from->Caching; }
-
+  virtual void CopyParameters( vtkAbstractInterpolatedVelocityField * from );
 
   using Superclass::FunctionValues;
   /**
@@ -203,6 +199,17 @@ public:
    */
   int GetLastWeights( double * w );
   int GetLastLocalCoordinates( double pcoords[3] );
+  //@}
+
+  //@{
+  /**
+   * Set / get the strategy used to perform the FindCell() operation. This
+   * strategy is used when operating on vtkPointSet subclasses. Note if the
+   * input is a composite dataset then the strategy will be used to clone
+   * one strategy per leaf dataset.
+   */
+  virtual void SetFindCellStrategy(vtkFindCellStrategy *);
+  vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
   //@}
 
 protected:
@@ -229,6 +236,10 @@ protected:
   vtkGenericCell * Cell;
   vtkGenericCell * GenCell; // the current cell
 
+  // Define a FindCell() strategy, keep track of the strategies assigned to
+  // each dataset
+  vtkFindCellStrategy *FindCellStrategy;
+  vtkStrategyMap *StrategyMap;
 
   //@{
   /**

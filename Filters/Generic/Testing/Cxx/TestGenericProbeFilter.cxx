@@ -193,7 +193,7 @@ int TestGenericProbeFilter(int argc, char* argv[])
   vtkProbeFilter *stdProbe= vtkProbeFilter::New();
   stdProbe->SetInputConnection(0,tpd->GetOutputPort(0));
   tpd->Delete();
-  stdProbe->SetSource(ds->GetDataSet());
+  stdProbe->SetSourceData(ds->GetDataSet());
 
   stdProbe->Update(); //So that we can call GetRange() on the scalars
 

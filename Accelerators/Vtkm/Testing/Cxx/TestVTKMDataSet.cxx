@@ -192,13 +192,16 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
     // the boundary of those cells
     if (cid1 != cid2)
     {
-      // check if the point is inside or close to the vtkmDataSet found cell
-      vtkCell* cell = dsVtk->GetCell(cid2);
-      double dist2 = 0, pcoords[3], weights[8];
-      if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 0) // outside?
+      if ( cid2 >= 0 )
       {
-        TEST_VERIFY(IsEqualFloat(cell->GetParametricDistance(pcoords), 0.0, 1e-3),
-                    "`FindCell` incorrect result by vtkmDataSet");
+        // check if the point is inside or close to the vtkmDataSet found cell
+        vtkCell* cell = dsVtk->GetCell(cid2);
+        double dist2 = 0, pcoords[3], weights[8];
+        if (cell->EvaluatePosition(x, nullptr, subId, pcoords, dist2, weights) == 0) // outside?
+        {
+          TEST_VERIFY(IsEqualFloat(cell->GetParametricDistance(pcoords), 0.0, 1e-3),
+                      "`FindCell` incorrect result by vtkmDataSet");
+        }
       }
     }
     else if (cid1 == -1)

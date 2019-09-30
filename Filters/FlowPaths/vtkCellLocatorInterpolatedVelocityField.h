@@ -91,6 +91,7 @@ public:
    * Import parameters. Sub-classes can add more after chaining.
    */
   void CopyParameters( vtkAbstractInterpolatedVelocityField * from ) override;
+
   /**
    * Add a dataset coupled with a cell locator (of type vtkAbstractCellLocator)
    * for vector function evaluation. Note the use of a vtkAbstractCellLocator

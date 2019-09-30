@@ -16,10 +16,9 @@
  * @class   vtkPStreamTracer
  * @brief    parallel streamline generators
  *
- * This class implements parallel streamline generators.
- * Note that all processes must have
- * access to the WHOLE seed source, i.e. the source must be identical
- * on all processes.
+ * This class implements parallel streamline generators.  Note that all
+ * processes must have access to the WHOLE seed source, i.e. the source must
+ * be identical on all processes.
  * @sa
  * vtkStreamTracer
 */
@@ -47,9 +46,8 @@ public:
 
   //@{
   /**
-   * Set/Get the controller use in compositing (set to
-   * the global controller by default)
-   * If not using the default, this must be called before any
+   * Set/Get the controller use in compositing (set to the global controller
+   * by default) If not using the default, this must be called before any
    * other methods.
    */
   virtual void SetController(vtkMultiProcessController* controller);
@@ -72,6 +70,7 @@ protected:
   void SetInterpolator(vtkAbstractInterpolatedVelocityField*);
 
   int EmptyData;
+
 private:
   vtkPStreamTracer(const vtkPStreamTracer&) = delete;
   void operator=(const vtkPStreamTracer&) = delete;

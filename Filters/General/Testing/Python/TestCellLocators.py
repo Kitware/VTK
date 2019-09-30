@@ -213,6 +213,7 @@ print("Build OBB Locator: {0}".format(time))
 # Probe the dataset with FindClosestPoint() and time it
 timer.StartTimer()
 for i in range (0,numProbes):
+    print(i)
     obbClosest.SetId(i, locator4.FindCell(ProbeCells.GetPoint(i),0.001,genCell,pc,weights))
 timer.StopTimer()
 opTime = timer.GetElapsedTime()

@@ -22,7 +22,7 @@
 #include "vtkAbstractCellLocator.h"
 #include "vtkSmartPointer.h"
 #include "vtkObjectFactory.h"
-#include "vtkModifiedBSPTree.h"
+#include "vtkStaticCellLocator.h"
 
 vtkStandardNewMacro ( vtkCellLocatorInterpolatedVelocityField );
 vtkCxxSetObjectMacro( vtkCellLocatorInterpolatedVelocityField, CellLocatorPrototype, vtkAbstractCellLocator );
@@ -243,7 +243,7 @@ void vtkCellLocatorInterpolatedVelocityField::AddDataSet( vtkDataSet * dataset )
 
     if ( !this->CellLocatorPrototype )
     {
-      locator = vtkSmartPointer < vtkModifiedBSPTree >::New();
+      locator = vtkSmartPointer < vtkStaticCellLocator >::New();
     }
     else
     {
