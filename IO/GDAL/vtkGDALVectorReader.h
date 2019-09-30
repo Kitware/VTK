@@ -33,6 +33,7 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkIOGDALModule.h" // For export macro
 
+#include <string> // for ivars
 #include <map> // STL required.
 
 class VTKIOGDAL_EXPORT vtkGDALVectorReader : public vtkMultiBlockDataSetAlgorithm
