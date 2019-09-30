@@ -1795,9 +1795,8 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
       PRINT( "Fix Single Point Path")
       AssertEq(traceOut->GetNumberOfPoints(),1); //fix it
       vtkNew<vtkCellArray> newCells;
-      vtkIdType cell;
-      cell = 0;
-      newCells->InsertNextCell(1,&cell);
+      vtkIdType cells[2] = {0, 0};
+      newCells->InsertNextCell(2,cells);
       traceOut->SetLines(newCells);
 
       // Don't forget to add the ReasonForTermination cell array.
@@ -1897,7 +1896,10 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   }
 
   pathCells->Reset();
-  pathCells->InsertNextCell(newPath);
+  if (newPath->GetNumberOfIds() > 1)
+  {
+    pathCells->InsertNextCell(newPath);
+  }
   AssertEq(pathCells->GetNumberOfCells(),1);
   vtkIdType newNumPoints(0);
   pathCells->GetNextCell(newNumPoints,path);
