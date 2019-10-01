@@ -477,15 +477,21 @@ int vtkXMLHyperTreeGridWriter::WriteTrees(vtkIndent indent)
       vtkAbstractArray* a = pd->GetAbstractArray(i);
       vtkAbstractArray* b = a->NewInstance();
       int numberOfComponents = a->GetNumberOfComponents();
-      b->SetNumberOfTuples(numberOfVertices);
       b->SetNumberOfComponents(numberOfComponents);
-      for (int e = 0; e < numberOfComponents*numberOfVertices; e++)
+
+      for (int v = 0; v < numberOfVertices; v++)
       {
         // note - we unravel the array contents which may be interleaved in input array.
         // The reader expect that each grid's data will be contiguous and uses "GlobalOffset"
         // to assemble a big array on the other side.
         // The in memory order of elements then isn't necessarily the same but HTG handles that.
-        b->SetVariantValue(e, a->GetVariantValue(tree->GetGlobalIndexFromLocal(e)));
+
+        int aDataOffset = tree->GetGlobalIndexFromLocal(v) * numberOfComponents;
+        int bDataOffset = v * numberOfComponents;
+        for (int c = 0; c < numberOfComponents; c++)
+        {
+          b->InsertVariantValue(bDataOffset + c, a->GetVariantValue(aDataOffset + c));
+        }
       }
 
       // Write the data or XML description for appended data
@@ -566,12 +572,16 @@ void vtkXMLHyperTreeGridWriter::WritePointDataAppendedArrayDataHelper(vtkAbstrac
 {
   vtkAbstractArray* b = a->NewInstance();
   int numberOfComponents = a->GetNumberOfComponents();
-
   b->SetNumberOfComponents(numberOfComponents);
-  b->SetNumberOfTuples(numberOfVertices);
-  for (int e = 0; e < numberOfComponents*numberOfVertices; e++)
+
+  for (int v = 0; v < numberOfVertices; v++)
   {
-    b->SetVariantValue(e, a->GetVariantValue(tree->GetGlobalIndexFromLocal(e)));
+    int aDataOffset = tree->GetGlobalIndexFromLocal(v) * numberOfComponents;
+    int bDataOffset = v * numberOfComponents;
+    for (int c = 0; c < numberOfComponents; c++)
+    {
+      b->InsertVariantValue(bDataOffset + c, a->GetVariantValue(aDataOffset + c));
+    }
   }
 
   this->WriteArrayAppendedData(
