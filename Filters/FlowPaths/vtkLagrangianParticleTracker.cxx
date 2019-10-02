@@ -1293,7 +1293,7 @@ bool vtkLagrangianParticleTracker::ComputeNextStep(vtkInitialValueProblemSolver*
 {
   // Check for potential manual integration
   double error;
-  if (!this->IntegrationModel->ManualIntegration(xprev, xnext, t, delT, delTActual, minStep,
+  if (!this->IntegrationModel->ManualIntegration(integrator, xprev, xnext, t, delT, delTActual, minStep,
         maxStep, this->IntegrationModel->GetTolerance(), cellLength, error, integrationRes, particle))
   {
     // integrate one step
