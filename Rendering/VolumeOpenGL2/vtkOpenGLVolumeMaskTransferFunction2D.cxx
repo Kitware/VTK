@@ -50,13 +50,18 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
     return;
   }
 
-  std::set<int> labels = prop->GetLabelMapLabels();
   std::fill(this->Table, this->Table + this->TextureWidth * 4, 0.0f);
   for (auto i = 1; i < this->TextureHeight; ++i)
   {
     float* tmpColor = new float[this->TextureWidth * 3];
     std::fill(tmpColor, tmpColor + this->TextureWidth * 3, 1.0f);
     vtkColorTransferFunction* color = prop->GetLabelColor(i);
+    if (!color)
+    {
+      // If no color function is provided for this label, just use the default
+      // color transfer function (i.e. label 0)
+      color = prop->GetRGBTransferFunction();
+    }
     if (color)
     {
       color->GetTable(
@@ -65,6 +70,12 @@ void vtkOpenGLVolumeMaskTransferFunction2D::InternalUpdate(
     float* tmpOpacity = new float[this->TextureWidth];
     std::fill(tmpOpacity, tmpOpacity + this->TextureWidth, 1.0f);
     vtkPiecewiseFunction* opacity = prop->GetLabelScalarOpacity(i);
+    if (!opacity)
+    {
+      // If no opacity function is provided for this label, just use the default
+      // scalar opacity function (i.e. label 0)
+      opacity = prop->GetScalarOpacity();
+    }
     if (opacity)
     {
       opacity->GetTable(
