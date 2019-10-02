@@ -362,7 +362,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   }
 
   // Retrieve material mask
-  this->Mask = input->HasMask() ? input->GetMask() : 0;
+  this->Mask = input->HasMask() ? input->GetMask() : nullptr;
 
   //
   vtkUnsignedCharArray* ghost = nullptr; // DDM input->GetPointGhostArray();
@@ -440,9 +440,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
             << this->Cells->GetNumberOfConnectivityEntries() << std::endl;
 
   this->Points->Delete();
-  this->Points = NULL;
+  this->Points = nullptr;
   this->Cells->Delete();
-  this->Cells = NULL;
+  this->Cells = nullptr;
 
   if (this->Locator)
   {

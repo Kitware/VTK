@@ -5389,7 +5389,7 @@ vtkMTimeType vtkExodusIIReader::GetMetadataMTime()
   } \
   else \
   { \
-    this->propName = 0; \
+    this->propName = nullptr; \
   }
 
 void vtkExodusIIReader::SetFileName( const char* fname )

@@ -160,7 +160,7 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
   this->Points = vtkPoints::New();
 
   // Retrieve material mask
-  this->InMask = this->Input->HasMask() ? this->Input->GetMask() : 0;
+  this->InMask = this->Input->HasMask() ? this->Input->GetMask() : nullptr;
 
   // Iterate over all hyper trees
   vtkIdType index;

@@ -28,18 +28,18 @@ vtkExplicitStructuredGridSurfaceFilter::vtkExplicitStructuredGridSurfaceFilter()
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
 
-  this->OriginalCellIdsName = 0;
+  this->OriginalCellIdsName = nullptr;
   this->SetOriginalCellIdsName("vtkOriginalCellIds");
 
-  this->OriginalPointIdsName = 0;
+  this->OriginalPointIdsName = nullptr;
   this->SetOriginalPointIdsName("vtkOriginalPointIds");
 }
 
 //----------------------------------------------------------------------------
 vtkExplicitStructuredGridSurfaceFilter::~vtkExplicitStructuredGridSurfaceFilter()
 {
-  this->SetOriginalCellIdsName(0);
-  this->SetOriginalPointIdsName(0);
+  this->SetOriginalCellIdsName(nullptr);
+  this->SetOriginalPointIdsName(nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   }
 
   vtkNew<vtkIdList> cellIds;
-  vtkUnsignedCharArray* connectivityFlags = 0;
+  vtkUnsignedCharArray* connectivityFlags = nullptr;
 
   char* facesConnectivityFlagsArrayName = input->GetFacesConnectivityFlagsArrayName();
   if (facesConnectivityFlagsArrayName)

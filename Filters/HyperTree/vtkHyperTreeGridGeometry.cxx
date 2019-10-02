@@ -383,12 +383,12 @@ int vtkHyperTreeGridGeometry::ProcessTrees( vtkHyperTreeGrid* input,
   if ( this->Points )
   {
     this->Points->Delete();
-    this->Points = NULL;
+    this->Points = nullptr;
   }
   if ( this->Cells )
   {
     this->Cells->Delete();
-    this->Cells = NULL;
+    this->Cells = nullptr;
   }
 
   if ( this->Locator )
@@ -517,7 +517,7 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree3D(
 
   //FR Parce que le curseur est un super curseur
   bool pureMask = false;
-  if ( this->Mask != 0 )
+  if ( this->Mask != nullptr )
   {
     // JB Question : que fait le PureMaterialMask quand un masque est mis sur un coarse et pas toutes les filles
     pureMask = this->PureMask->GetValue( cursor->GetGlobalNodeIndex() ) != 0 ;

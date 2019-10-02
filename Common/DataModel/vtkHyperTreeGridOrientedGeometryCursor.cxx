@@ -29,7 +29,7 @@ vtkHyperTreeGridOrientedGeometryCursor* vtkHyperTreeGridOrientedGeometryCursor::
 {
   vtkHyperTreeGridOrientedGeometryCursor* clone = this->NewInstance();
   assert( "post: clone_exists" &&
-          clone != 0 );
+          clone != nullptr );
   // Copy
   clone->Grid = this->Grid;
   clone->Tree = this->Tree;

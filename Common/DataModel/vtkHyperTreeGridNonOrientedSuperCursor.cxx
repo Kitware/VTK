@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright Nonice for more information.
 vtkHyperTreeGridNonOrientedSuperCursor* vtkHyperTreeGridNonOrientedSuperCursor::Clone()
 {
   vtkHyperTreeGridNonOrientedSuperCursor* clone = this->NewInstance();
-  assert("post: clone_exists" && clone != 0);
+  assert("post: clone_exists" && clone != nullptr);
   // Copy
   clone->Grid = this->Grid;
   clone->CentralCursor->Initialize(this->CentralCursor.Get());

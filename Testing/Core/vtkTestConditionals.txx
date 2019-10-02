@@ -88,7 +88,7 @@ inline bool testNotNull(const T& a, const std::string& msg)
     {
     std::cout << msg << ": ";
     }
-  if (a != NULL)
+  if (a != nullptr)
     {
     if (print)
       {

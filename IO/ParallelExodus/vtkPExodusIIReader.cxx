@@ -144,12 +144,12 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->ProcRank = 0;
   this->ProcSize = 1;
   // NB. SetController will initialize ProcSize and ProcRank
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController( vtkMultiProcessController::GetGlobalController() );
-  this->FilePattern = 0;
-  this->CurrentFilePattern = 0;
-  this->FilePrefix = 0;
-  this->CurrentFilePrefix = 0;
+  this->FilePattern = nullptr;
+  this->CurrentFilePattern = nullptr;
+  this->FilePrefix = nullptr;
+  this->CurrentFilePrefix = nullptr;
   this->FileRange[0] = -1;
   this->FileRange[1] = -1;
   this->CurrentFileRange[0] = 0;
@@ -166,9 +166,9 @@ vtkPExodusIIReader::vtkPExodusIIReader()
 //----------------------------------------------------------------------------
 vtkPExodusIIReader::~vtkPExodusIIReader()
 {
-  this->SetController( 0 );
-  this->SetFilePattern( 0 );
-  this->SetFilePrefix( 0 );
+  this->SetController( nullptr );
+  this->SetFilePattern( nullptr );
+  this->SetFilePrefix( nullptr );
 
   // If we've allocated filenames then delete them
   if ( this->FileNames )
@@ -1148,7 +1148,7 @@ static void BroadcastBlockSetInfo( vtkMultiProcessController* controller,
     {
       bsinfo->CachedConnectivity->Delete();
     }
-    bsinfo->CachedConnectivity = 0;
+    bsinfo->CachedConnectivity = nullptr;
     bsinfo->PointMap.clear();
     bsinfo->ReversePointMap.clear();
     controller->Broadcast( &len, 1, 0 );
@@ -1522,8 +1522,8 @@ void vtkPExodusIIReader::Broadcast( vtkMultiProcessController* ctrl )
       delete [] this->FilePrefix;
       //this->SetFilePattern( BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 ); // XXX Bad set
       //this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? &tmp[0] : 0 ); // XXX Bad set
-      this->FilePattern = BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : 0;
-      this->FilePrefix =  BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : 0;
+      this->FilePattern = BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : nullptr;
+      this->FilePrefix =  BroadcastRecvString( ctrl, tmp ) ? vtksys::SystemTools::DuplicateString( &tmp[0] ) : nullptr;
     }
     ctrl->Broadcast( this->FileRange, 2, 0 );
     ctrl->Broadcast( &this->NumberOfFiles, 1, 0 );

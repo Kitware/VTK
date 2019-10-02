@@ -125,7 +125,7 @@ void DICOMParser::CloseFile()
 {
   // Deleting the DataFile closes any previously opened file
   delete this->DataFile;
-  this->DataFile = 0;
+  this->DataFile = nullptr;
 }
 
 DICOMParser::~DICOMParser() {
