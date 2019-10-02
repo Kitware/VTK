@@ -96,8 +96,8 @@ public:
    * dir[3] is NOT normalized.  Valid intersections will only occur between
    * 0<=t<=1.)
    */
-  static char IntersectBox(
-    double bounds[6], const double origin[3], double dir[3], double coord[3], double& t);
+  static char IntersectBox(const double bounds[6], const double origin[3], const double dir[3],
+    double coord[3], double& t);
 
   /**
    * Intersect a line with the box.  Give the endpoints of the line in
@@ -113,6 +113,19 @@ public:
    */
   static int IntersectWithLine(const double bounds[6], const double p1[3], const double p2[3],
     double& t1, double& t2, double x1[3], double x2[3], int& plane1, int& plane2);
+
+  /**
+   * Same method as vtkBox::IntersectWithLine, except that t1 and t2 can be outside of [0,1].
+   * t1 is the distance of x1 to p1 in parametric coordinates, and t2 is the distance of x2 to p1
+   * in parametric coordinates as well.
+   * In vtkBox::IntersectWithInLine, it is assumed that [p1,p2] is a segment, here, it is
+   * assumed that it is a line with no ends.
+   * t1 <= t2, which means that x1 is always "before" x2 on the line parameterized by [p1,p2].
+   * x1 and x2 can be set to nullptr without crash.
+   */
+  static bool IntersectWithInfiniteLine(const double bounds[6], const double p1[3],
+    const double p2[3], double& t1, double& t2, double x1[3], double x2[3], int& plane1,
+    int& plane2);
 
   /**
    * Plane intersection with the box. The plane is infinite in extent and
