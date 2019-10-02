@@ -28,6 +28,7 @@
 #include "vtkTextureObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkOpenGLError.h"
@@ -509,6 +510,8 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkDebugMacro( << "Vector field in image space (target) textureId = "
                  << vector2->GetHandle() << endl );
 
+  vtkOpenGLState *ostate = renWin->GetState();
+  ostate->PushFramebufferBindings();
   vtkOpenGLFramebufferObject *fbo = vtkOpenGLFramebufferObject::New();
   fbo->SetContext(renWin);
   fbo->Bind();
@@ -522,6 +525,7 @@ int vtkStructuredGridLIC2D::RequestData(
 
   if (  !fbo->Start( magWidth, magHeight )  )
   {
+    ostate->PopFramebufferBindings();
     fbo->Delete();
     vector2->Delete();
     pointBus->Delete();
@@ -599,6 +603,7 @@ int vtkStructuredGridLIC2D::RequestData(
     delete this->LICProgram;
     this->LICProgram = nullptr;
 
+    ostate->PopFramebufferBindings();
     fbo->Delete();
     vector2->Delete();
     internal->Delete();
@@ -646,6 +651,7 @@ int vtkStructuredGridLIC2D::RequestData(
     delete this->LICProgram;
     this->LICProgram = nullptr;
 
+    ostate->PopFramebufferBindings();
     fbo->Delete();
     vector2->Delete();
     internal->Delete();
@@ -751,6 +757,8 @@ int vtkStructuredGridLIC2D::RequestData(
     }
     ++tz;
   }
+
+  ostate->PopFramebufferBindings();
 
   internal->Delete();
   noiseBus->Delete();

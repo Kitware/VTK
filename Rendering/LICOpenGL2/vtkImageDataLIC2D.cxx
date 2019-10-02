@@ -439,6 +439,7 @@ int vtkImageDataLIC2D::RequestData(
   vtkTextureObject *magVectorTex = vectorTex;
   if (this->Magnification > 1)
   {
+    vtkOpenGLState *ostate = this->Context->GetState();
     magVectorTex = vtkTextureObject::New();
     magVectorTex->SetContext(this->Context);
     magVectorTex->Create2D(magVectorSize[0], magVectorSize[1], 4, VTK_FLOAT, false);
@@ -446,8 +447,8 @@ int vtkImageDataLIC2D::RequestData(
 
     vtkOpenGLFramebufferObject *drawFbo = vtkOpenGLFramebufferObject::New();
     drawFbo->SetContext(this->Context);
-    drawFbo->SaveCurrentBindings();
-    drawFbo->Bind(GL_FRAMEBUFFER);
+    ostate->PushFramebufferBindings();
+    drawFbo->Bind();
     drawFbo->AddColorAttachment(0U, magVectorTex);
     drawFbo->ActivateDrawBuffer(0U);
     //drawFbo->AddColorAttachment(vtkgl::FRAMEBUFFER_EXT, 0U, vectorTex);
@@ -494,7 +495,7 @@ int vtkImageDataLIC2D::RequestData(
     vectorTex->Delete();
     shaderHelper.ReleaseGraphicsResources(this->Context);
 
-    drawFbo->UnBind(GL_FRAMEBUFFER);
+    ostate->PopFramebufferBindings();
     drawFbo->Delete();
   }
 

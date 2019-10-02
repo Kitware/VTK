@@ -1113,12 +1113,10 @@ void vtkOpenGLProjectedTetrahedraMapper::GLSafeUpdateProgress(
   double value, vtkOpenGLRenderWindow* window)
 {
   scoped_annotate annotator("GLSafeUpdateProgress");
-  vtkNew<vtkOpenGLFramebufferObject> fbo;
-  fbo->SetContext(window);
-  fbo->SaveCurrentBindingsAndBuffers();
+  window->GetState()->PushFramebufferBindings();
   // since UpdateProgress may causes GL context changes, we save and restore
   // state.
   this->UpdateProgress(value);
   window->MakeCurrent();
-  fbo->RestorePreviousBindingsAndBuffers();
+  window->GetState()->PopFramebufferBindings();
 }

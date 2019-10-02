@@ -67,26 +67,26 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
         {
           if (ren->GetRenderWindow()->GetDoubleBuffer())
           {
-            glDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
-            glReadBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
+            ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
+            ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
           }
           else
           {
-            glDrawBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
-            glReadBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
+            ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
+            ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
           }
         }
         else
         {
            if (ren->GetRenderWindow()->GetDoubleBuffer())
            {
-            glDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
-            glReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
+            ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
+            ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
            }
           else
           {
-            glDrawBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
-            glReadBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
+            ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
+            ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
           }
         }
         break;
@@ -104,21 +104,21 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   {
     if (ren->GetRenderWindow()->GetDoubleBuffer())
     {
-      glDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
+      ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
 
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      glReadBuffer(static_cast<GLenum>(win->GetBackBuffer()));
+      ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetBackBuffer()));
     }
     else
     {
-      glDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
+      ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
 
       // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      glReadBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
+      ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
     }
   }
 

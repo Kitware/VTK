@@ -15,6 +15,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
 
@@ -25,6 +26,7 @@
 #include <QtGui/QOpenGLFramebufferObject>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QWidget>
+
 
 
 //----------------------------------------------------------------------------
@@ -44,6 +46,9 @@ vtkQWidgetTexture::vtkQWidgetTexture()
     [this] () {
       if (this->Framebuffer)
       {
+        this->Context->MakeCurrent();
+        auto state = this->Context->GetState();
+        state->PushFramebufferBindings();
         this->Framebuffer->bind();
 
         QOpenGLPaintDevice *device = new QOpenGLPaintDevice( this->Framebuffer->size() );
@@ -59,7 +64,7 @@ vtkQWidgetTexture::vtkQWidgetTexture()
         delete device;
 
         // bring vtk state back in sync with Qt state
-        auto state = this->Context->GetState();
+        state->PopFramebufferBindings();
         state->ResetEnumState(GL_BLEND);
         state->ResetEnumState(GL_DEPTH_TEST);
         state->ResetEnumState(GL_SCISSOR_TEST);
@@ -67,9 +72,11 @@ vtkQWidgetTexture::vtkQWidgetTexture()
         state->ResetEnumState(GL_MULTISAMPLE);
 #endif
         state->ResetGLScissorState();
+        state->ResetGLClearColorState();
         state->ResetGLViewportState();
         state->ResetGLDepthFuncState();
         state->ResetGLBlendFuncState();
+        state->ResetFramebufferBindings();
         // reset the depth test to LEQUAL as all vtk classes
         // expect this to be the case when called
         state->vtkglDepthFunc(GL_LEQUAL);

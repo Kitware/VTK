@@ -277,21 +277,21 @@ vtkStandardNewMacro(vtkOpenGLFramebufferObject);
 //----------------------------------------------------------------------------
 vtkOpenGLFramebufferObject::vtkOpenGLFramebufferObject()
 {
+  this->Context = nullptr;
   this->FBOIndex = 0;
 
-  this->PreviousDrawFBO = 0;
-  this->PreviousReadFBO = 0;
   this->DrawBindingSaved = false;
   this->ReadBindingSaved = false;
-
-  this->PreviousDrawBuffer = GL_NONE;
-  this->PreviousReadBuffer = GL_NONE;
   this->DrawBufferSaved= false;
   this->ReadBufferSaved= false;
+
+  this->ActiveReadBuffer = GL_COLOR_ATTACHMENT0;
 
   this->LastSize[0] = this->LastSize[1] = -1;
 
   this->DepthBuffer = new vtkFOInfo;
+
+  this->ActiveBuffers.push_back(0);
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLFramebufferObject>(this,
     &vtkOpenGLFramebufferObject::ReleaseGraphicsResources);
@@ -605,8 +605,7 @@ void vtkOpenGLFramebufferObject::ActivateBuffers()
     count++;
   }
 
-  glDrawBuffers(count, buffers);
-  vtkOpenGLCheckErrorMacro("failed at glDrawBuffers");
+  this->Context->GetState()->vtkDrawBuffers(count, buffers);
 
   delete[] buffers;
 }
@@ -621,140 +620,126 @@ void vtkOpenGLFramebufferObject::ActivateReadBuffer(
       unsigned int colorAtt)
 {
   colorAtt += GL_COLOR_ATTACHMENT0;
-  glReadBuffer((GLenum)colorAtt);
-  vtkOpenGLCheckErrorMacro("failed at glReadBuffer");
+  this->Context->GetState()->vtkReadBuffer((GLenum)colorAtt);
+  this->ActiveReadBuffer = colorAtt;
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::ActivateDrawBuffers(unsigned int num)
 {
+  GLint maxbuffers;
+  glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
+
+  GLenum *buffers = new GLenum[maxbuffers];
+  GLint count=0;
+  for(unsigned int cc=0;
+      cc < num && count < maxbuffers; cc++)
+  {
+    buffers[cc] = GL_COLOR_ATTACHMENT0 + cc;
+    count++;
+  }
+
+  this->Context->GetState()->vtkDrawBuffers(count, buffers);
+  delete[] buffers;
+
   this->ActiveBuffers.clear();
   for (unsigned int cc=0; cc < num; cc++)
   {
     this->ActiveBuffers.push_back(cc);
   }
   this->Modified();
-  this->ActivateBuffers();
+}
+
+unsigned int vtkOpenGLFramebufferObject::GetActiveDrawBuffer(unsigned int id)
+{
+  if (id >= this->ActiveBuffers.size())
+  {
+    return GL_NONE;
+  }
+  return GL_COLOR_ATTACHMENT0 + this->ActiveBuffers[id];
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::ActivateDrawBuffers(unsigned int *ids, int num)
 {
+  GLint maxbuffers;
+  glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
+
+  GLenum *buffers = new GLenum[maxbuffers];
+  GLint count=0;
+  for(unsigned int cc=0;
+      cc < static_cast<unsigned int>(num) && count < maxbuffers; cc++)
+  {
+    buffers[cc] = GL_COLOR_ATTACHMENT0 + ids[cc];
+    count++;
+  }
+
+  this->Context->GetState()->vtkDrawBuffers(count, buffers);
+  delete[] buffers;
+
   this->ActiveBuffers.clear();
   for (int cc=0; cc < num; cc++)
   {
     this->ActiveBuffers.push_back(ids[cc]);
   }
   this->Modified();
-  this->ActivateBuffers();
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::DeactivateDrawBuffers()
 {
   GLenum att = GL_NONE;
-  glDrawBuffers(1, &att);
-  vtkOpenGLCheckErrorMacro("failed at glDrawBuffers(GL_NONE)");
+  this->Context->GetState()->vtkDrawBuffers(1, &att);
+  this->ActiveBuffers.clear();
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::DeactivateReadBuffer()
 {
-  glReadBuffer(GL_NONE);
-  vtkOpenGLCheckErrorMacro("failed at glReadBuffer(GL_NONE)");
+  this->Context->GetState()->vtkReadBuffer(GL_NONE);
+  this->ActiveReadBuffer = GL_NONE;
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLFramebufferObject::SaveCurrentBindings(unsigned int mode)
+void vtkOpenGLFramebufferObject::SaveCurrentBindingsAndBuffers()
+{
+  this->SaveCurrentBindingsAndBuffers(GL_FRAMEBUFFER);
+}
+
+void vtkOpenGLFramebufferObject::SaveCurrentBindingsAndBuffers(unsigned int mode)
 {
   if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
   {
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (int*)&this->PreviousDrawFBO);
+    this->Context->GetState()->PushDrawFramebufferBinding();
     this->DrawBindingSaved = true;
   }
   if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
   {
-    glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, (int*)&this->PreviousReadFBO);
+    this->Context->GetState()->PushReadFramebufferBinding();
     this->ReadBindingSaved = true;
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenGLFramebufferObject::SaveCurrentBindings()
+void vtkOpenGLFramebufferObject::RestorePreviousBindingsAndBuffers()
 {
-  this->SaveCurrentBindings(GL_FRAMEBUFFER);
+  this->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
 }
 
-//----------------------------------------------------------------------------
-void vtkOpenGLFramebufferObject::SaveCurrentBuffers(unsigned int mode)
-{
-  if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
-  {
-#ifdef GL_DRAW_BUFFER
-    glGetIntegerv(GL_DRAW_BUFFER, (int*)&this->PreviousDrawBuffer);
-    this->DrawBufferSaved = true;
-#endif
-  }
-  if (!this->ReadBufferSaved)
-  {
-    glGetIntegerv(GL_READ_BUFFER, (int*)&this->PreviousReadBuffer);
-    this->ReadBufferSaved = true;
-  }
-  if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
-  {
-    glGetIntegerv(GL_READ_BUFFER, (int*)&this->PreviousReadBuffer);
-    this->ReadBufferSaved = true;
-  }
-}
-
-void vtkOpenGLFramebufferObject::SaveCurrentBuffers()
-{
-  this->SaveCurrentBuffers(GL_FRAMEBUFFER);
-}
-
-void vtkOpenGLFramebufferObject::RestorePreviousBindings()
-{
-  this->RestorePreviousBindings(GL_FRAMEBUFFER);
-}
-
-void vtkOpenGLFramebufferObject::RestorePreviousBindings(unsigned int mode)
+void vtkOpenGLFramebufferObject::RestorePreviousBindingsAndBuffers(unsigned int mode)
 {
   if ((mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER) &&
       this->DrawBindingSaved)
   {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->PreviousDrawFBO);
+    this->Context->GetState()->PopDrawFramebufferBinding();
     this->DrawBindingSaved = false;
+    this->DrawBufferSaved = false;
   }
   if ((mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER) &&
        this->ReadBindingSaved)
   {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->PreviousReadFBO);
+    this->Context->GetState()->PopReadFramebufferBinding();
     this->ReadBindingSaved = false;
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLFramebufferObject::RestorePreviousBuffers()
-{
-  this->RestorePreviousBuffers(GL_FRAMEBUFFER);
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLFramebufferObject::RestorePreviousBuffers(unsigned int mode)
-{
-  if (this->DrawBufferSaved &&
-      (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER))
-  {
-    glDrawBuffer((GLenum)this->PreviousDrawBuffer);
-    this->DrawBufferSaved = false;
-    vtkOpenGLCheckErrorMacro("failed at glDrawBuffer");
-  }
-  if (this->ReadBufferSaved &&
-      (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER))
-  {
-    glReadBuffer((GLenum)this->PreviousReadBuffer);
     this->ReadBufferSaved = false;
-    vtkOpenGLCheckErrorMacro("failed at glReadBuffer");
   }
 }
 
@@ -768,7 +753,9 @@ void vtkOpenGLFramebufferObject::Bind(unsigned int mode)
 {
   if(this->FBOIndex != 0)
   {
-    glBindFramebuffer(mode, this->FBOIndex);
+    // note this also changes the draw/read buffers as they are
+    // tied to the binding
+    this->Context->GetState()->vtkBindFramebuffer(mode, this);
   }
 }
 
@@ -777,20 +764,13 @@ void vtkOpenGLFramebufferObject::AttachColorBuffer(unsigned int index)
   if(this->FBOIndex != 0)
   {
     foIter i = this->ColorBuffers.find(index);
+    this->Context->GetState()->PushDrawFramebufferBinding();
+    this->Context->GetState()->vtkBindFramebuffer(GL_DRAW_FRAMEBUFFER, this);
     if (i != this->ColorBuffers.end())
     {
-      int prevBinding;
-      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevBinding);
-      if (prevBinding != static_cast<int>(this->FBOIndex))
-      {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBOIndex);
-      }
       i->second->Attach(GL_DRAW_FRAMEBUFFER);
-      if (prevBinding != static_cast<int>(this->FBOIndex))
-      {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevBinding);
-      }
     }
+    this->Context->GetState()->PopDrawFramebufferBinding();
   }
 }
 
@@ -798,17 +778,10 @@ void vtkOpenGLFramebufferObject::AttachDepthBuffer()
 {
   if(this->FBOIndex != 0)
   {
-    int prevBinding;
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevBinding);
-    if (prevBinding != static_cast<int>(this->FBOIndex))
-    {
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBOIndex);
-    }
+    this->Context->GetState()->PushDrawFramebufferBinding();
+    this->Context->GetState()->vtkBindFramebuffer(GL_DRAW_FRAMEBUFFER, this);
     this->DepthBuffer->Attach(GL_DRAW_FRAMEBUFFER);
-    if (prevBinding != static_cast<int>(this->FBOIndex))
-    {
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevBinding);
-    }
+    this->Context->GetState()->PopDrawFramebufferBinding();
   }
 }
 
@@ -817,9 +790,7 @@ void vtkOpenGLFramebufferObject::UnBind()
 {
   if (this->FBOIndex!=0)
   {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // glDrawBuffer(GL_NONE);
-    // glReadBuffer(GL_NONE);
+    this->Context->GetState()->vtkBindFramebuffer(GL_FRAMEBUFFER, nullptr);
   }
 }
 
@@ -827,15 +798,7 @@ void vtkOpenGLFramebufferObject::UnBind(unsigned int mode)
 {
   if (this->FBOIndex!=0)
   {
-    glBindFramebuffer(mode, 0);
-    if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
-    {
-      glDrawBuffer(GL_NONE);
-    }
-    if (mode == GL_FRAMEBUFFER || mode == GL_READ_FRAMEBUFFER)
-    {
-      glReadBuffer(GL_NONE);
-    }
+    this->Context->GetState()->vtkBindFramebuffer(mode, nullptr);
   }
 }
 
@@ -902,17 +865,10 @@ void vtkOpenGLFramebufferObject::RemoveDepthAttachment()
 {
   if(this->FBOIndex != 0)
   {
-    int prevBinding;
-    glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevBinding);
-    if (prevBinding != static_cast<int>(this->FBOIndex))
-    {
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBOIndex);
-    }
+    this->Context->GetState()->PushDrawFramebufferBinding();
+    this->Context->GetState()->vtkBindFramebuffer(GL_DRAW_FRAMEBUFFER, this);
     this->DepthBuffer->Detach(GL_DRAW_FRAMEBUFFER);
-    if (prevBinding != static_cast<int>(this->FBOIndex))
-    {
-      glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevBinding);
-    }
+    this->Context->GetState()->PopDrawFramebufferBinding();
   }
   delete this->DepthBuffer;
   this->DepthBuffer = new vtkFOInfo;
@@ -988,21 +944,15 @@ void vtkOpenGLFramebufferObject::RemoveColorAttachments(unsigned int num)
 void vtkOpenGLFramebufferObject::RemoveColorAttachment(unsigned int index)
 {
   foIter i = this->ColorBuffers.find(index);
+
   if (i != this->ColorBuffers.end())
   {
     if(this->FBOIndex != 0)
     {
-      int prevBinding;
-      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevBinding);
-      if (prevBinding != static_cast<int>(this->FBOIndex))
-      {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->FBOIndex);
-      }
+      this->Context->GetState()->PushDrawFramebufferBinding();
+      this->Context->GetState()->vtkBindFramebuffer(GL_DRAW_FRAMEBUFFER, this);
       i->second->Detach(GL_DRAW_FRAMEBUFFER);
-      if (prevBinding != static_cast<int>(this->FBOIndex))
-      {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevBinding);
-      }
+      this->Context->GetState()->PopDrawFramebufferBinding();
     }
     delete i->second;
     i->second = nullptr;
@@ -1365,10 +1315,6 @@ void vtkOpenGLFramebufferObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "LastSize : " << this->LastSize[0] << this->LastSize[1]
      << endl;
-  os << indent << "PreviousDrawFBO=" << this->PreviousDrawFBO << endl
-     << indent << "PreviousReadFBO=" << this->PreviousReadFBO << endl
-     << indent << "PreviousDrawBuffer=" << this->PreviousDrawBuffer << endl
-     << indent << "PreviousReadBuffer=" << this->PreviousReadBuffer << endl;
 }
 
 // ----------------------------------------------------------------------------

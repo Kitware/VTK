@@ -20,6 +20,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkRendererCollection.h"
 
 vtkStandardNewMacro(vtkGenericOpenGLRenderWindow);
@@ -111,6 +112,7 @@ void vtkGenericOpenGLRenderWindow::Finalize()
 void vtkGenericOpenGLRenderWindow::Frame()
 {
   this->InvokeEvent(vtkCommand::WindowFrameEvent, nullptr);
+  this->GetState()->ResetFramebufferBindings();
 }
 
 void vtkGenericOpenGLRenderWindow::MakeCurrent()
@@ -278,9 +280,40 @@ int vtkGenericOpenGLRenderWindow::ReadPixels(
 {
   if (this->ReadyForRendering)
   {
+    this->GetState()->ResetFramebufferBindings();
     return this->Superclass::ReadPixels(rect, front, glFormat, glType, data, right);
   }
 
   vtkWarningMacro("`ReadPixels` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
+
+int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
+                                                int y2, unsigned char *data,
+                                                int front, int blend, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    this->GetState()->ResetFramebufferBindings();
+    return this->Superclass::SetRGBACharPixelData(
+      x1, y1, x2, y2, data, front, blend, right);
+  }
+
+  vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
+  return VTK_ERROR;
+}
+
+int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
+                                                int y2, vtkUnsignedCharArray *data,
+                                                int front, int blend, int right)
+{
+  if (this->ReadyForRendering)
+  {
+    this->GetState()->ResetFramebufferBindings();
+    return this->Superclass::SetRGBACharPixelData(
+      x1, y1, x2, y2, data, front, blend, right);
+  }
+
+  vtkWarningMacro("`SetRGBACharPixelData` called before window is ready for rendering; ignoring.");
   return VTK_ERROR;
 }

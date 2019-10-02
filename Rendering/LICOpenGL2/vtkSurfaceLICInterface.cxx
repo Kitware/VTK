@@ -184,17 +184,12 @@ void vtkSurfaceLICInterface::PrepareForGeometry()
   vtkOpenGLState *ostate = this->Internals->Context->GetState();
 
   // save the active fbo and its draw buffer
-  this->PrevDrawBuf = 0;
-  glGetIntegerv(GL_DRAW_BUFFER, &this->PrevDrawBuf);
-
-  this->PrevFbo = 0;
-  glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &this->PrevFbo);
+  ostate->PushFramebufferBindings();
 
   // ------------------------------------------- render geometry, project vectors onto screen, etc
   // setup our fbo
   vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
-  fbo->SaveCurrentBindings();
-  fbo->Bind(GL_FRAMEBUFFER);
+  fbo->Bind();
   fbo->AddDepthAttachment(this->Internals->DepthImage);
   fbo->AddColorAttachment(0U, this->Internals->GeometryImage);
   fbo->AddColorAttachment(1U, this->Internals->VectorImage);
@@ -220,7 +215,6 @@ void vtkSurfaceLICInterface::CompletedGeometry()
   fbo->RemoveColorAttachment(1U);
   fbo->RemoveColorAttachment(2U);
   fbo->DeactivateDrawBuffers();
-  fbo->UnBind(GL_FRAMEBUFFER);
 
   #if vtkSurfaceLICInterfaceDEBUG >= 2
   vtkPainterCommunicator *comm = this->GetCommunicator();
@@ -505,12 +499,12 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
         this->Internals->Viewsize[1]);
 
   vtkOpenGLFramebufferObject *fbo = this->Internals->FBO;
-  fbo->SaveCurrentBindings();
-  fbo->Bind(GL_FRAMEBUFFER);
+  ostate->PushFramebufferBindings();
+  fbo->Bind();
   fbo->InitializeViewport(this->Internals->Viewsize[0], this->Internals->Viewsize[1]);
-  fbo->AddColorAttachment(0U, this->Internals->RGBColorImage);
-  fbo->AddColorAttachment(1U, this->Internals->HSLColorImage);
-  fbo->ActivateDrawBuffers(2U);
+  fbo->AddColorAttachment(0, this->Internals->RGBColorImage);
+  fbo->AddColorAttachment(1, this->Internals->HSLColorImage);
+  fbo->ActivateDrawBuffers(2);
   vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
   // clear the parts of the screen which we will modify
@@ -656,7 +650,7 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
     fbo->DeactivateDrawBuffers();
   }
 
-  fbo->UnBind(GL_FRAMEBUFFER);
+  ostate->PopFramebufferBindings();
 
   #if vtkSurfaceLICInterfaceDEBUG >= 2
   vtkTextureIO::Write(
@@ -675,9 +669,8 @@ void vtkSurfaceLICInterface::CopyToScreen()
       this->Internals->Viewsize[0],
       this->Internals->Viewsize[1]);
 
-  glBindFramebuffer(GL_FRAMEBUFFER, this->PrevFbo);
-  glDrawBuffer(this->PrevDrawBuf);
 
+  ostate->PopFramebufferBindings();
 
   ostate->vtkglDisable(GL_BLEND);
   ostate->vtkglDisable(GL_SCISSOR_TEST);

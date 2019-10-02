@@ -81,44 +81,64 @@ public:
   FrameBufferHelper(EType type, vtkOpenGLRenderWindow* ren,
                     int front, int right)
     : Type(type)
-    , LastFrameBuffer(0)
-    , LastColorBuffer(0)
   {
-    // If offscreen buffers are in use, then use them, otherwise look at if the
-    // default frame-buffer id is provided (which happens when using external
-    // OpenGL context).
-    const unsigned int fb = (ren->GetUseOffScreenBuffers() && ren->GetOffScreenFramebuffer())
-      ? ren->GetOffScreenFramebuffer()->GetFBOIndex() : (ren->GetDefaultFrameBufferId()
-      ? ren->GetDefaultFrameBufferId() : 0);
     const GLint buf = front ?
       (right ? ren->GetFrontRightBuffer() : ren->GetFrontLeftBuffer()) :
       (right ? ren->GetBackRightBuffer() : ren->GetBackLeftBuffer());
-    switch (type)
+
+    this->State = ren->GetState();
+    // If offscreen buffers are in use, then use them, otherwise look at if the
+    // default frame-buffer id is provided (which happens when using external
+    // OpenGL context).
+    if (ren->GetUseOffScreenBuffers() && ren->GetOffScreenFramebuffer())
     {
-      case READ:
+      switch (type)
       {
-        glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&this->LastFrameBuffer));
-#ifdef GL_READ_BUFFER
-        glGetIntegerv(GL_READ_BUFFER, &this->LastColorBuffer);
-#endif
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fb);
-        glReadBuffer(buf);
-      }
-      break;
+        case READ:
+        {
+          this->State->PushReadFramebufferBinding();
+          this->State->vtkBindFramebuffer(GL_READ_FRAMEBUFFER, ren->GetOffScreenFramebuffer());
+          ren->GetOffScreenFramebuffer()->ActivateReadBuffer(buf - GL_COLOR_ATTACHMENT0);
+        }
+        break;
 
-      case DRAW:
+        case DRAW:
+        {
+          this->State->PushDrawFramebufferBinding();
+          this->State->vtkBindFramebuffer(GL_DRAW_FRAMEBUFFER, ren->GetOffScreenFramebuffer());
+          ren->GetOffScreenFramebuffer()->ActivateDrawBuffer(buf - GL_COLOR_ATTACHMENT0);
+        }
+        break;
+
+        default:
+          assert(false);
+      }
+    }
+    else
+    {
+      const unsigned int fb = (ren->GetDefaultFrameBufferId()
+        ? ren->GetDefaultFrameBufferId() : 0);
+      switch (type)
       {
-        glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, reinterpret_cast<GLint*>(&this->LastFrameBuffer));
-#ifdef GL_DRAW_BUFFER
-        glGetIntegerv(GL_DRAW_BUFFER, &this->LastColorBuffer);
-#endif
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
-        glDrawBuffer(buf);
-      }
-      break;
+        case READ:
+        {
+          this->State->PushReadFramebufferBinding();
+          this->State->vtkglBindFramebuffer(GL_READ_FRAMEBUFFER, fb);
+          this->State->vtkglReadBuffer(buf);
+        }
+        break;
 
-      default:
-        assert(false);
+        case DRAW:
+        {
+          this->State->PushDrawFramebufferBinding();
+          this->State->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb);
+          this->State->vtkglDrawBuffer(buf);
+        }
+        break;
+
+        default:
+          assert(false);
+      }
     }
   }
 
@@ -128,19 +148,13 @@ public:
     {
       case READ:
       {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, this->LastFrameBuffer);
-#ifdef GL_READ_BUFFER
-        glReadBuffer(this->LastColorBuffer);
-#endif
+        this->State->PopReadFramebufferBinding();
       }
       break;
 
       case DRAW:
       {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->LastFrameBuffer);
-#ifdef GL_DRAW_BUFFER
-        glDrawBuffer(this->LastColorBuffer);
-#endif
+        this->State->PopDrawFramebufferBinding();
       }
     }
   }
@@ -150,8 +164,7 @@ private:
   void operator=(const FrameBufferHelper&) = delete;
 
   EType Type;
-  GLuint LastFrameBuffer;
-  GLint LastColorBuffer;
+  vtkOpenGLState *State;
 };
 }
 
@@ -303,6 +316,19 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
   this->PushContext();
+
+  // pop the framebuffer stack if needed
+  if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
+  {
+    this->GetState()->PopFramebufferBindings();
+    this->OffScreenFramebufferBound = false;
+    this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
+    this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
+    this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
+    this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
+    this->BackBuffer = static_cast<unsigned int>(GL_BACK);
+    this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
+  }
 
   if (this->OffScreenFramebuffer)
   {
@@ -1242,7 +1268,7 @@ void vtkOpenGLRenderWindow::Start()
   {
     if (!this->OffScreenFramebufferBound)
     {
-      this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
+      this->GetState()->PushFramebufferBindings();
     }
     this->OffScreenFramebuffer->Bind();
     this->OffScreenFramebufferBound = true;
@@ -1264,7 +1290,7 @@ void vtkOpenGLRenderWindow::Start()
 
   if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
   {
-    this->OffScreenFramebuffer->RestorePreviousBindingsAndBuffers();
+    this->GetState()->PopFramebufferBindings();
     this->OffScreenFramebufferBound = false;
     this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
     this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
@@ -1299,34 +1325,34 @@ void vtkOpenGLRenderWindow::StereoUpdate()
   {
     if (this->GetDoubleBuffer())
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
-      glReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
     }
     else
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
-      glReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
     }
   }
   else
   {
     if (this->GetDoubleBuffer())
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
 
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      glReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
     }
     else
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
 
       // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      glReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
     }
   }
 }
@@ -1342,34 +1368,34 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
   {
     if (this->GetDoubleBuffer())
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
-      glReadBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
     }
     else
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetFrontRightBuffer()));
-      glReadBuffer(static_cast<GLenum>(this->GetFrontRightBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetFrontRightBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetFrontRightBuffer()));
     }
   }
   else
   {
     if (this->GetDoubleBuffer())
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
 
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      glReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
     }
     else
     {
-      glDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
 
       // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      glReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
     }
   }
 }

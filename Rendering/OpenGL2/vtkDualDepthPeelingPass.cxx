@@ -1117,7 +1117,6 @@ void vtkDualDepthPeelingPass::Prepare()
   this->VolumetricRenderCount = 0;
 
   // Save the current FBO bindings to restore them later.
-  this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
   this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
 
   // The source front buffer must be initialized, since it simply uses additive

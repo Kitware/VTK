@@ -151,7 +151,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
       if(savedDrawBuffer!=GL_BACK_LEFT)
       {
-        glDrawBuffer(GL_BACK_LEFT);
+        ostate->vtkglDrawBuffer(GL_BACK_LEFT);
       }
       ostate->vtkglDisable(GL_DEPTH_TEST);
       ostate->vtkglDisable(GL_STENCIL_TEST);
@@ -163,7 +163,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
-      glReadBuffer(GL_BACK_LEFT);
+      ostate->vtkglReadBuffer(GL_BACK_LEFT);
 
       // To workaround pixel ownership test,
       // get value from current read buffer at pixel (x,y) instead of just
@@ -177,11 +177,11 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
       if(savedReadBuffer!=GL_BACK_LEFT)
       {
-        glReadBuffer(static_cast<GLenum>(savedReadBuffer));
+        ostate->vtkglReadBuffer(static_cast<GLenum>(savedReadBuffer));
       }
       if(savedDrawBuffer!=GL_BACK_LEFT)
       {
-        glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
+        ostate->vtkglDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
       }
 
       int value=(static_cast<int>(rgb[0])<<16)|(static_cast<int>(rgb[1])<<8)

@@ -61,9 +61,11 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include <array>      // for ivar
-#include <map> // for ivar
+#include <array> // for ivar
+#include <map>   // for ivar
+#include <list> // for ivar
 
+class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 class vtkTextureUnitManager;
@@ -97,6 +99,15 @@ public:
   void vtkglBlendEquationSeparate(unsigned int col, unsigned int alpha);
   void vtkglCullFace(unsigned int val);
   void vtkglActiveTexture(unsigned int);
+
+  void vtkglBindFramebuffer(unsigned int target, unsigned int fb);
+  void vtkglDrawBuffer(unsigned int);
+  void vtkglDrawBuffers(unsigned int n, unsigned int *);
+  void vtkglReadBuffer(unsigned int);
+
+  void vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject *fo);
+  void vtkDrawBuffers(unsigned int n, unsigned int *);
+  void vtkReadBuffer(unsigned int);
   //@}
 
   //@{
@@ -182,6 +193,27 @@ public:
    */
   void VerifyNoActiveTextures();
 
+  //@{
+  /**
+   * Store/Restore the current framebuffer bindings and buffers.
+   */
+  void PushFramebufferBindings() {
+    this->PushDrawFramebufferBinding();
+    this->PushReadFramebufferBinding();
+  }
+  void PushDrawFramebufferBinding();
+  void PushReadFramebufferBinding();
+
+  void PopFramebufferBindings() {
+    this->PopReadFramebufferBinding();
+    this->PopDrawFramebufferBinding();
+  }
+  void PopDrawFramebufferBinding();
+  void PopReadFramebufferBinding();
+
+  void ResetFramebufferBindings();
+  //@}
+
   // Scoped classes you can use to save state
   class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthMask
     : public ScopedValue<unsigned char> {
@@ -261,6 +293,27 @@ protected:
    */
   void CheckState();
 
+  // framebuffers hold state themselves
+  // specifically they hold their draw and read buffers
+  // and when bound they reinstate those buffers
+  class VTKRENDERINGOPENGL2_EXPORT BufferBindingState
+  {
+  public:
+    BufferBindingState();
+    // bool operator==(const BufferBindingState& a, const BufferBindingState& b);
+    // either this holds a vtkOpenGLFramebufferObject
+    vtkOpenGLFramebufferObject *Framebuffer;
+    // or the handle to an unknown OpenGL FO
+    unsigned int Binding;
+    unsigned int ReadBuffer;
+    unsigned int DrawBuffers[10];
+    unsigned int GetBinding();
+    unsigned int GetDrawBuffer(unsigned int);
+    unsigned int GetReadBuffer();
+  };
+  std::list<BufferBindingState> DrawBindings;
+  std::list<BufferBindingState> ReadBindings;
+
   class VTKRENDERINGOPENGL2_EXPORT GLState
   {
     public:
@@ -285,6 +338,8 @@ protected:
       int MaxTextureSize;
       int MajorVersion;
       int MinorVersion;
+      BufferBindingState DrawBinding;
+      BufferBindingState ReadBinding;
       GLState() {
       }
   };
