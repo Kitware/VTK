@@ -245,7 +245,7 @@ int TestLagrangianIntegrationModel(int, char*[])
   double* tmpPt = nullptr;
   double tmpVald = 0;
   int tmpVali = 0;
-  if (odeWavelet->ManualIntegration(tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, 1, tmpVald, tmpVali))
+  if (odeWavelet->ManualIntegration(tmpPt, tmpPt, 0, tmpVald, tmpVald, 0, 0, 0, 1, tmpVald, tmpVali, &part))
   {
     std::cerr << "ManualIntegration should do nothing and return false with matida model" << std::endl;
   }

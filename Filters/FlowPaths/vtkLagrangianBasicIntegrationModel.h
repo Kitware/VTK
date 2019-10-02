@@ -341,7 +341,7 @@ public:
    */
   virtual bool ManualIntegration(double* xcur, double* xnext, double t, double& delT,
     double& delTActual, double minStep, double maxStep, double maxError, double cellLength,
-    double& error, int& integrationResult);
+    double& error, int& integrationResult, vtkLagrangianParticle* particle);
 
   /**
    * Method called by parallel algorithm
