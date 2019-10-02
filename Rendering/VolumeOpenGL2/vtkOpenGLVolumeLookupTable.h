@@ -75,6 +75,16 @@ public:
                       int filterValue,
                       vtkOpenGLRenderWindow* renWin);
 
+  /**
+   * Get access to the texture height used by this object
+   */
+  vtkGetMacro(TextureHeight, int);
+
+  /**
+   * Get access to the texture width used by this object
+   */
+  vtkGetMacro(TextureWidth, int);
+
 protected:
   vtkOpenGLVolumeLookupTable() = default;
   virtual ~vtkOpenGLVolumeLookupTable() override;
