@@ -190,8 +190,13 @@ public:
    * Get/Set the directory containing the LS-Dyna database and determine
    * whether it is valid.
    */
+  virtual void SetDatabaseDirectory( const std::string& );
   virtual void SetDatabaseDirectory( const char* );
-  const char* GetDatabaseDirectory();
+#ifdef VTK_LEGACY_REMOVE
+  std::string GetDatabaseDirectory();
+#else
+  VTK_LEGACY(const char* GetDatabaseDirectory());
+#endif
   int IsDatabaseValid();
   //@}
 
@@ -202,8 +207,13 @@ public:
    * filename you choose is irrelevant -- only the directory name is used.
    * This is done in order to accommodate ParaView.
    */
+  virtual void SetFileName( const std::string& );
   virtual void SetFileName( const char* );
-  const char* GetFileName();
+#ifdef VTK_LEGACY_REMOVE
+  std::string GetFileName();
+#else
+  VTK_LEGACY(const char* GetFileName());
+#endif
   //@}
 
   /**
