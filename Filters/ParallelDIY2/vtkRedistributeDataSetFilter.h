@@ -36,8 +36,7 @@
  * either automatically generated or explicitly specified are to be distributed
  * using `BoundaryMode`. One can choose to assign those cells uniquely to one of
  * those regions or duplicate then on all regions or split the cells (using
- * vtkBoxClipDataSet filter). If splitting is enabled, then current
- * implementation results in tetrahedralization of all cells. When cells are
+ * vtkTableBasedClipDataSet filter). When cells are
  * duplicated along the boundary,  the filter will mark the duplicated cells as
  * `vtkDataSetAttributes::DUPLICATECELL` correctly on all but one of the
  * partitions using the ghost cell array (@sa `vtkDataSetAttributes::GhostArrayName`).
@@ -281,6 +280,8 @@ private:
     vtkIdType* mb_offset = nullptr);
   vtkSmartPointer<vtkDataSet> AssignGlobalCellIds(vtkDataSet* input, vtkIdType* mb_offset = nullptr);
 
+  void MarkValidDimensions(vtkDataObject* inputDO);
+
   std::vector<vtkBoundingBox> ExplicitCuts;
   std::vector<vtkBoundingBox> Cuts;
 
@@ -292,6 +293,7 @@ private:
   bool UseExplicitCuts;
   bool ExpandExplicitCuts;
   bool EnableDebugging;
+  bool ValidDim[3];
 };
 
 #endif
