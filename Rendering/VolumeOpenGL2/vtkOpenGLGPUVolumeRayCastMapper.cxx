@@ -3684,6 +3684,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(
       prog->SetUniformf("in_maskBlendFactor", this->Parent->MaskBlendFactor);
       prog->SetUniformf("in_mask_scale", this->CurrentMask->Scale[0]);
       prog->SetUniformf("in_mask_bias", this->CurrentMask->Bias[0]);
+      prog->SetUniformi("in_labelMapNumLabels",
+                        this->LabelMapTransfer2D->GetTextureHeight() - 1);
     }
   }
 }

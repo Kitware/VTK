@@ -2569,6 +2569,7 @@ namespace vtkvolume
         \nuniform sampler2D in_labelMapTransfer;\
         \nuniform float in_mask_scale;\
         \nuniform float in_mask_bias;\
+        \nuniform int in_labelMapNumLabels;\
         \n"
       );
     }
@@ -2623,6 +2624,17 @@ namespace vtkvolume
         \n  // Get the mask value at this same location\
         \n  vec4 maskValue = texture3D(in_mask, g_dataPos);\
         \n  maskValue.r = maskValue.r * in_mask_scale + in_mask_bias;\
+        \n  // Quantize the height of the labelmap texture over number of labels\
+        \n  if (in_labelMapNumLabels > 0)\
+        \n    {\
+        \n    maskValue.r =\
+        \n      floor(maskValue.r * in_labelMapNumLabels) /\
+        \n      in_labelMapNumLabels;\
+        \n    }\
+        \n  else\
+        \n    {\
+        \n    maskValue.r = 0.0;\
+        \n    }\
         \n  if(maskValue.r == 0.0)\
         \n    {\
         \n    g_srcColor = computeColor(scalar, opacity);\
@@ -2639,8 +2651,7 @@ namespace vtkvolume
         \n                   in_maskBlendFactor * g_srcColor;\
         \n      }\
         \n    }\
-        \n  }"
-      );
+        \n  }");
     }
   }
 
