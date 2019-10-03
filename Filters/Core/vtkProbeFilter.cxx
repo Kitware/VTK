@@ -32,12 +32,15 @@
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkFindCellStrategy.h"
+#include "vtkCellLocatorStrategy.h"
 
 #include <algorithm>
 #include <vector>
 
 vtkStandardNewMacro(vtkProbeFilter);
 vtkCxxSetObjectMacro(vtkProbeFilter, CellLocatorPrototype, vtkAbstractCellLocator);
+vtkCxxSetObjectMacro(vtkProbeFilter, FindCellStrategy, vtkFindCellStrategy);
 
 #define CELL_TOLERANCE_FACTOR_SQR  1e-6
 
@@ -57,7 +60,9 @@ vtkProbeFilter::vtkProbeFilter()
   this->ValidPointMaskArrayName = nullptr;
   this->SetValidPointMaskArrayName("vtkValidPointMask");
   this->CellArrays = new vtkVectorOfArrays();
+
   this->CellLocatorPrototype = nullptr;
+  this->FindCellStrategy = nullptr;
 
   this->PointList = nullptr;
   this->CellList = nullptr;
@@ -78,8 +83,9 @@ vtkProbeFilter::~vtkProbeFilter()
   }
   this->ValidPoints->Delete();
 
-  this->vtkProbeFilter::SetValidPointMaskArrayName(nullptr);
-  this->vtkProbeFilter::SetCellLocatorPrototype(nullptr);
+  this->SetValidPointMaskArrayName(nullptr);
+  this->SetCellLocatorPrototype(nullptr);
+  this->SetFindCellStrategy(nullptr);
 
   delete this->CellArrays;
   delete this->PointList;
@@ -366,9 +372,8 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 }
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
-  int srcIdx,
-  vtkDataSet *source, vtkDataSet *output)
+void vtkProbeFilter::
+ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source, vtkDataSet *output)
 {
   vtkIdType ptId, numPts;
   double x[3], tol2;
@@ -425,15 +430,40 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
   }
 
   // vtkPointSet based datasets do not have an implicit structure to their
-  // points. A cell locator performs better here than using the dataset's
-  // FindCell function. Using its own FindCell method by default.
-  vtkSmartPointer<vtkAbstractCellLocator> cellLocator;
-  if ( (vtkPointSet::SafeDownCast(source) != nullptr) &&
-    (this->CellLocatorPrototype != nullptr) )
+  // points. A locator is needed to accelerate the search for cells, i.e.,
+  // perform the FindCell() operation. Because of backward legacy there are
+  // multiple ways to do this. A vtkFindCellStrategy is preferred, but users
+  // can also directly specify a cell locator (via the cell locator
+  // prototype). If neither of these is specified, then
+  // vtkDataSet::FindCell() is used to accelerate the search.
+  vtkFindCellStrategy *strategy=nullptr;
+  vtkNew<vtkCellLocatorStrategy> cellLocStrategy;
+  vtkPointSet *ps;
+  if ( (ps=vtkPointSet::SafeDownCast(source)) != nullptr )
   {
-    cellLocator.TakeReference(this->CellLocatorPrototype->NewInstance());
-    cellLocator->SetDataSet(source);
-    cellLocator->Update();
+    if ( this->FindCellStrategy != nullptr )
+    {
+      this->FindCellStrategy->Initialize(ps);
+      strategy = this->FindCellStrategy;
+    }
+    else if ( this->CellLocatorPrototype != nullptr )
+    {
+      cellLocStrategy->SetCellLocator(this->CellLocatorPrototype->NewInstance());
+      cellLocStrategy->GetCellLocator()->SetDataSet(source);
+      cellLocStrategy->GetCellLocator()->Update();
+      strategy = static_cast<vtkFindCellStrategy*>(cellLocStrategy.GetPointer());
+      cellLocStrategy->GetCellLocator()->UnRegister(this); //strategy took ownership
+    }
+  }
+
+  // Find the cell that contains xyz and get it
+  if ( strategy == nullptr )
+  {
+    vtkDebugMacro(<< "Using vtkDataSet::FindCell()");
+  }
+  else
+  {
+    vtkDebugMacro(<< "Using strategy: " << strategy->GetClassName());
   }
 
   // Loop over all input points, interpolating source data
@@ -459,9 +489,8 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     // Get the xyz coordinate of the point in the input dataset
     input->GetPoint(ptId, x);
 
-    // Find the cell that contains xyz and get it
-    vtkIdType cellId = (cellLocator.Get() != nullptr) ?
-      cellLocator->FindCell(x, tol2, gcell.GetPointer(), pcoords, weights) :
+    vtkIdType cellId = (strategy != nullptr) ?
+      strategy->FindCell(x, nullptr, gcell.GetPointer(), -1, tol2, subId, pcoords, weights) :
       source->FindCell(x, nullptr, -1, tol2, subId, pcoords, weights);
 
     vtkCell* cell = nullptr;
@@ -510,7 +539,7 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 
 //---------------------------------------------------------------------------
 static void GetPointIdsInRange(double rangeMin, double rangeMax, double start,
-  double stepsize, int numSteps, int &minid, int &maxid)
+                               double stepsize, int numSteps, int &minid, int &maxid)
 {
   if (stepsize == 0)
   {
@@ -531,6 +560,7 @@ static void GetPointIdsInRange(double rangeMin, double rangeMax, double start,
   }
 }
 
+//---------------------------------------------------------------------------
 void vtkProbeFilter::ProbeImagePointsInCell(vtkCell *cell, vtkIdType cellId,
                                             vtkDataSet *source, int srcBlockId,
                                             const double start[3],
@@ -622,6 +652,7 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell *cell, vtkIdType cellId,
   }
 }
 
+//---------------------------------------------------------------------------
 namespace {
 
 class CellStorage
@@ -741,8 +772,9 @@ private:
 };
 
 //----------------------------------------------------------------------------
-void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
-  int srcIdx, vtkDataSet *source, vtkImageData *output)
+void vtkProbeFilter::
+ProbePointsImageData(vtkImageData *input, int srcIdx,
+                     vtkDataSet *source, vtkImageData *output)
 {
   vtkPointData *outPD = output->GetPointData();
   char* maskArray = this->MaskPoints->GetPointer(0);
@@ -772,10 +804,10 @@ void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
 }
 
 //----------------------------------------------------------------------------
-int vtkProbeFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkProbeFilter::
+RequestInformation(vtkInformation *vtkNotUsed(request),
+                   vtkInformationVector **inputVector,
+                   vtkInformationVector *outputVector)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -810,10 +842,10 @@ int vtkProbeFilter::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-int vtkProbeFilter::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkProbeFilter::
+RequestUpdateExtent( vtkInformation *vtkNotUsed(request),
+                     vtkInformationVector **inputVector,
+                     vtkInformationVector *outputVector)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -927,6 +959,10 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
     this->ValidPointMaskArrayName : "vtkValidPointMask") << "\n";
   os << indent << "PassFieldArrays: "
      << (this->PassFieldArrays? "On" : " Off") << "\n";
+
+  os << indent << "FindCellStrategy: "
+     << (this->FindCellStrategy ? this->FindCellStrategy->GetClassName() : "NULL")
+     << "\n";
   os << indent << "CellLocatorPrototype: "
      << (this->CellLocatorPrototype ? this->CellLocatorPrototype->GetClassName() : "NULL")
      << "\n";
