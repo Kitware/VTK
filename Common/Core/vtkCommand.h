@@ -358,7 +358,9 @@
     _vtk_add_event(FifthButtonReleaseEvent)\
     _vtk_add_event(Move3DEvent)\
     _vtk_add_event(Button3DEvent)\
-    _vtk_add_event(TextEvent)
+    _vtk_add_event(TextEvent)\
+    _vtk_add_event(LeftButtonDoubleClickEvent)\
+    _vtk_add_event(RightButtonDoubleClickEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\
