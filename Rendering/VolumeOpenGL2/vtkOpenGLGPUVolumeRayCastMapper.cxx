@@ -3682,13 +3682,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(
                           this->LabelMapGradientOpacity->GetTextureUnit());
       }
       prog->SetUniformf("in_maskBlendFactor", this->Parent->MaskBlendFactor);
-      float maskRange[2] = {0.0f, 1.0f};
-      std::set<int> const labels = prop->GetLabelMapLabels();
-      maskRange[1] = labels.empty() ? 1.0f : *(labels.crbegin());
-      float scale, bias;
-      vtkVolumeTexture::GetScaleAndBias(VTK_UNSIGNED_CHAR, maskRange, scale, bias);
-      prog->SetUniformf("in_mask_scale", scale);
-      prog->SetUniformf("in_mask_bias", bias);
+      prog->SetUniformf("in_mask_scale", this->CurrentMask->Scale[0]);
+      prog->SetUniformf("in_mask_bias", this->CurrentMask->Bias[0]);
+      prog->SetUniformi("in_labelMapNumLabels",
+                        this->LabelMapTransfer2D->GetTextureHeight() - 1);
     }
   }
 }
