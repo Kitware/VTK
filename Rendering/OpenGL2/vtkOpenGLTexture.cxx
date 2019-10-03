@@ -166,6 +166,12 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
     }
 
+    if (this->RenderWindow == nullptr
+        && this->LoadTime.GetMTime() > this->GetMTime())
+    {
+      vtkErrorMacro("A render window was deleted without releasing graphics resources");
+    }
+
     // Need to reload the texture.
     // There used to be a check on the render window's mtime, but
     // this is too broad of a check (e.g. it would cause all textures
@@ -178,7 +184,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         || inputTime > this->LoadTime.GetMTime()
         || (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >
             this->LoadTime.GetMTime())
-        || renWin->GetGenericContext() != this->RenderWindow->GetGenericContext()
+        || (this->RenderWindow == nullptr
+          || renWin->GetGenericContext() != this->RenderWindow->GetGenericContext())
         || renWin->GetContextCreationTime() > this->LoadTime)
     {
       int size[3];
