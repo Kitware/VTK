@@ -2677,13 +2677,12 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
       "${_vtk_hierarchy_depend_hierarchy}")
 
     # Find the hierarchy target of the module.
-    get_property(_vtk_hierarchy_module_is_alias
+    get_property(_vtk_hierarchy_module_is_imported
       TARGET    "${_vtk_hierarchy_depend}"
-      PROPERTY  ALIASED_TARGET
-      SET)
-    # Non-alias target modules are external and should already have their file
+      PROPERTY  IMPORTED)
+    # Imported target modules are external and should already have their file
     # generated.
-    if (NOT _vtk_hierarchy_module_is_alias)
+    if (_vtk_hierarchy_module_is_imported)
       continue ()
     endif ()
 
