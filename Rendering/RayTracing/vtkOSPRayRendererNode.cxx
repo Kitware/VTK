@@ -185,6 +185,11 @@ namespace ospray {
 }
 
 vtkInformationKeyMacro(vtkOSPRayRendererNode, SAMPLES_PER_PIXEL, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_CONTRIBUTION, Double);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_DEPTH, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, MIN_CONTRIBUTION, Double);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, ROULETTE_DEPTH, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, VARIANCE_THRESHOLD, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_FRAMES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
@@ -506,6 +511,141 @@ int vtkOSPRayRendererNode::GetSamplesPerPixel(vtkRenderer *renderer)
     return (info->Get(vtkOSPRayRendererNode::SAMPLES_PER_PIXEL()));
   }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetMaxContribution(double value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::MAX_CONTRIBUTION(), value);
+}
+
+//----------------------------------------------------------------------------
+double vtkOSPRayRendererNode::GetMaxContribution(vtkRenderer *renderer)
+{
+  constexpr double DEFAULT_MAX_CONTRIBUTION = 2.0;
+  if (!renderer)
+  {
+    return DEFAULT_MAX_CONTRIBUTION;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::MAX_CONTRIBUTION()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::MAX_CONTRIBUTION()));
+  }
+  return DEFAULT_MAX_CONTRIBUTION;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetMaxDepth(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::MAX_DEPTH(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetMaxDepth(vtkRenderer *renderer)
+{
+  constexpr int DEFAULT_MAX_DEPTH = 20;
+  if (!renderer)
+  {
+    return DEFAULT_MAX_DEPTH;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::MAX_DEPTH()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::MAX_DEPTH()));
+  }
+  return DEFAULT_MAX_DEPTH;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetMinContribution(double value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::MIN_CONTRIBUTION(), value);
+}
+
+//----------------------------------------------------------------------------
+double vtkOSPRayRendererNode::GetMinContribution(vtkRenderer *renderer)
+{
+  constexpr double DEFAULT_MIN_CONTRIBUTION = 0.01;
+  if (!renderer)
+  {
+    return DEFAULT_MIN_CONTRIBUTION;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::MIN_CONTRIBUTION()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::MIN_CONTRIBUTION()));
+  }
+  return DEFAULT_MIN_CONTRIBUTION;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetRouletteDepth(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::ROULETTE_DEPTH(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetRouletteDepth(vtkRenderer *renderer)
+{
+  constexpr int DEFAULT_ROULETTE_DEPTH = 5;
+  if (!renderer)
+  {
+    return DEFAULT_ROULETTE_DEPTH;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::ROULETTE_DEPTH()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::ROULETTE_DEPTH()));
+  }
+  return DEFAULT_ROULETTE_DEPTH;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetVarianceThreshold(double value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::VARIANCE_THRESHOLD(), value);
+}
+
+//----------------------------------------------------------------------------
+double vtkOSPRayRendererNode::GetVarianceThreshold(vtkRenderer *renderer)
+{
+  constexpr int DEFAULT_VARIANCE_THRESHOLD = 0.3;
+  if (!renderer)
+  {
+    return DEFAULT_VARIANCE_THRESHOLD;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::VARIANCE_THRESHOLD()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::VARIANCE_THRESHOLD()));
+  }
+  return DEFAULT_VARIANCE_THRESHOLD;
 }
 
 //----------------------------------------------------------------------------
@@ -1054,9 +1194,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
     oRenderer = this->ORenderer;
     }
-    ospSet1f(this->ORenderer, "maxContribution", 2.f);
-    ospSet1f(this->ORenderer, "minContribution", 0.01f);
-    ospSet1f(this->ORenderer, "varianceThreshold", 0.3f);
+
+    ospSet1f(this->ORenderer, "maxContribution", this->GetMaxContribution(ren));
+    ospSet1f(this->ORenderer, "minContribution", this->GetMinContribution(ren));
+    ospSet1i(this->ORenderer, "maxDepth", this->GetMaxDepth(ren));
+    ospSet1i(this->ORenderer, "rouletteDepth", this->GetRouletteDepth(ren));
+    ospSet1f(this->ORenderer, "varianceThreshold", this->GetVarianceThreshold(ren));
     ospCommit(this->ORenderer);
 
     int viewportOrigin[2];
