@@ -17,9 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-// We use the Schwarz Counter idiom to make sure that GlobalTimeStamp
-// is initialized before any other class uses it.
-
 #include "vtkAtomicTypes.h"
 
 //-------------------------------------------------------------------------
