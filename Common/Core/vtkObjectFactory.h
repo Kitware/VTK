@@ -281,7 +281,7 @@ private:
   void operator=(const vtkObjectFactory&) = delete;
 };
 
-// Implementation detail for Schwartz counter idiom.
+// Implementation detail for Schwarz counter idiom.
 class VTKCOMMONCORE_EXPORT vtkObjectFactoryRegistryCleanup
 {
 public:
