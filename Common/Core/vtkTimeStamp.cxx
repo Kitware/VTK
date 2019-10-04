@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-#include "vtkAtomicTypes.h"
+#include <atomic>
 
 //-------------------------------------------------------------------------
 vtkTimeStamp* vtkTimeStamp::New()
@@ -51,9 +51,9 @@ void vtkTimeStamp::Modified()
   //
   // Good luck!
 #if defined(VTK_USE_64BIT_TIMESTAMPS) || VTK_SIZEOF_VOID_P == 8
-  static vtkAtomicUInt64 GlobalTimeStamp(0);
+  static std::atomic<uint64_t> GlobalTimeStamp(0U);
 #else
-  static vtkAtomicUInt32 GlobalTimeStamp(0);
+  static std::atomic<uint32_t> GlobalTimeStamp(0U);
 #endif
   this->ModifiedTime = (vtkMTimeType)++GlobalTimeStamp;
 }
