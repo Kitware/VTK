@@ -434,6 +434,14 @@ public:
    */
   virtual void InsertSeedData(vtkLagrangianParticle* particle, vtkFieldData* data);
 
+  /**
+   * Method to be reimplemented if needed in inherited classes.
+   * Allows a inherited class to take action just before a particle is deleted
+   * This can be practical when working with vtkLagrangianParticle::TemporaryUserData.
+   * This can be called with not fully initialized particle.
+   */
+  virtual void ParticleAboutToBeDeleted(vtkLagrangianParticle* vtkNotUsed(particle)) {}
+
 protected:
   vtkLagrangianBasicIntegrationModel();
   ~vtkLagrangianBasicIntegrationModel() override;
