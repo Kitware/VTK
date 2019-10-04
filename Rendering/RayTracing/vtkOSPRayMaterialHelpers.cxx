@@ -244,6 +244,16 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
           }
         }
         break;
+        case vtkOSPRayMaterialLibrary::ParameterType::VEC2:
+        {
+          auto values = ml->GetDoubleShaderVariable(nickname, param.first);
+          if (values.size() == 2)
+          {
+            std::vector<float> fvalues(values.begin(), values.end());
+            ospSet2f(oMaterial, param.first.c_str(), fvalues[0], fvalues[1]);
+          }
+        }
+        break;
         case vtkOSPRayMaterialLibrary::ParameterType::VEC3:
         case vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB:
         {
@@ -252,6 +262,17 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
           {
             std::vector<float> fvalues(values.begin(), values.end());
             ospSet3fv(oMaterial, param.first.c_str(), fvalues.data());
+          }
+        }
+        break;
+        case vtkOSPRayMaterialLibrary::ParameterType::VEC4:
+        {
+          auto values = ml->GetDoubleShaderVariable(nickname, param.first);
+          if (values.size() == 4)
+          {
+            std::vector<float> fvalues(values.begin(), values.end());
+            ospSet4f(oMaterial, param.first.c_str(),
+                     fvalues[0], fvalues[1], fvalues[2], fvalues[3]);
           }
         }
         break;

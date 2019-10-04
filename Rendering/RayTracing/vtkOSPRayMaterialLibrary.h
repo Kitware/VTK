@@ -166,7 +166,9 @@ public:
     VEC3,
     COLOR_RGB,
     BOOLEAN,
-    TEXTURE
+    TEXTURE,
+    VEC2,
+    VEC4
   };
 
   using ParametersMap = std::map<std::string, ParameterType>;
