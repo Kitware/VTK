@@ -32,6 +32,7 @@ vtkDistancePolyDataFilter::vtkDistancePolyDataFilter() : vtkPolyDataAlgorithm()
   this->SignedDistance = 1;
   this->NegateDistance = 0;
   this->ComputeSecondDistance = 1;
+  this->ComputeCellCenterDistance = 1;
 
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(2);
@@ -110,30 +111,33 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
   mesh->GetPointData()->SetActiveScalars( "Distance" );
 
   // Calculate distance from cell centers.
-  int numCells = mesh->GetNumberOfCells();
-
-  vtkDoubleArray* cellArray = vtkDoubleArray::New();
-  cellArray->SetName( "Distance" );
-  cellArray->SetNumberOfComponents( 1 );
-  cellArray->SetNumberOfTuples( numCells );
-
-  for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+  if (this->ComputeCellCenterDistance)
   {
-    vtkCell *cell = mesh->GetCell( cellId );
-    int subId;
-    double pcoords[3], x[3], weights[256];
+    int numCells = mesh->GetNumberOfCells();
 
-    cell->GetParametricCenter( pcoords );
-    cell->EvaluateLocation( subId, pcoords, x, weights );
+    vtkDoubleArray* cellArray = vtkDoubleArray::New();
+    cellArray->SetName( "Distance" );
+    cellArray->SetNumberOfComponents( 1 );
+    cellArray->SetNumberOfTuples( numCells );
 
-    double val = imp->EvaluateFunction( x );
-    double dist = SignedDistance ? (NegateDistance ? -val : val) : fabs(val);
-    cellArray->SetValue( cellId, dist );
+    for (vtkIdType cellId = 0; cellId < numCells; cellId++)
+    {
+      vtkCell *cell = mesh->GetCell( cellId );
+      int subId;
+      double pcoords[3], x[3], weights[256];
+
+      cell->GetParametricCenter( pcoords );
+      cell->EvaluateLocation( subId, pcoords, x, weights );
+
+      double val = imp->EvaluateFunction( x );
+      double dist = SignedDistance ? (NegateDistance ? -val : val) : fabs(val);
+      cellArray->SetValue( cellId, dist );
+    }
+
+    mesh->GetCellData()->AddArray( cellArray );
+    cellArray->Delete();
+    mesh->GetCellData()->SetActiveScalars("Distance");
   }
-
-  mesh->GetCellData()->AddArray( cellArray );
-  cellArray->Delete();
-  mesh->GetCellData()->SetActiveScalars("Distance");
 
   imp->Delete();
 
@@ -157,4 +161,5 @@ void vtkDistancePolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SignedDistance: " << this->SignedDistance << "\n";
   os << indent << "NegateDistance: " << this->NegateDistance << "\n";
   os << indent << "ComputeSecondDistance: " << this->ComputeSecondDistance << "\n";
+  os << indent << "ComputeCellCenterDistance: " << this->ComputeCellCenterDistance << "\n";
 }
