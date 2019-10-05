@@ -73,7 +73,7 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
 {
   vtkDebugMacro(<<"Start vtkDistancePolyDataFilter::GetPolyDataDistance");
 
-  if (mesh->GetNumberOfPolys() == 0 || mesh->GetNumberOfPoints() == 0)
+  if (mesh->GetNumberOfCells() == 0 || mesh->GetNumberOfPoints() == 0)
   {
     vtkErrorMacro(<<"No points/cells to operate on");
     return;
