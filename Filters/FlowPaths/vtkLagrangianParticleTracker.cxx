@@ -96,6 +96,7 @@ struct IntegratingFunctor
         this->Tracker->ParticleCounter;
       this->Tracker->UpdateProgress(progress);
 
+      this->Tracker->IntegrationModel->ParticleAboutToBeDeleted(particle);
       delete particle;
     }
   }
@@ -350,6 +351,7 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
     {
       vtkLagrangianParticle* particle = particlesQueue.front();
       particlesQueue.pop();
+      this->IntegrationModel->ParticleAboutToBeDeleted(particle);
       delete particle;
     }
   }
@@ -910,6 +912,7 @@ void vtkLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* vtkNo
     }
     else
     {
+      this->IntegrationModel->ParticleAboutToBeDeleted(particle);
       delete particle;
     }
   }
@@ -1008,6 +1011,7 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
         std::lock_guard<std::mutex> guard(this->InteractionOutputMutex);
         this->InsertInteractionOutputPoint(
           interactionParticle, interactedSurfaceFlaxIndex, interactionOutput);
+        this->IntegrationModel->ParticleAboutToBeDeleted(interactionParticle);
         delete interactionParticle;
         interactionParticle = nullptr;
       }
@@ -1028,6 +1032,7 @@ int vtkLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integr
         this->InsertInteractionOutputPoint(item.second, item.first, interactionOutput);
 
         // the pass through particles needs to be deleted
+        this->IntegrationModel->ParticleAboutToBeDeleted(item.second);
         delete item.second;
       }
 
@@ -1293,8 +1298,8 @@ bool vtkLagrangianParticleTracker::ComputeNextStep(vtkInitialValueProblemSolver*
 {
   // Check for potential manual integration
   double error;
-  if (!this->IntegrationModel->ManualIntegration(xprev, xnext, t, delT, delTActual, minStep,
-        maxStep, this->IntegrationModel->GetTolerance(), cellLength, error, integrationRes))
+  if (!this->IntegrationModel->ManualIntegration(integrator, xprev, xnext, t, delT, delTActual, minStep,
+        maxStep, this->IntegrationModel->GetTolerance(), cellLength, error, integrationRes, particle))
   {
     // integrate one step
     integrationRes = integrator->ComputeNextStep(xprev, xnext, t, delT, delTActual, minStep,

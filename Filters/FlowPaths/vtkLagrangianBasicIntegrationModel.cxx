@@ -1582,11 +1582,13 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
 }
 
 //---------------------------------------------------------------------------
-bool vtkLagrangianBasicIntegrationModel::ManualIntegration(double* vtkNotUsed(xcur),
+bool vtkLagrangianBasicIntegrationModel::ManualIntegration(
+  vtkInitialValueProblemSolver* vtkNotUsed(integrator), double* vtkNotUsed(xcur),
   double* vtkNotUsed(xnext), double vtkNotUsed(t), double& vtkNotUsed(delT),
   double& vtkNotUsed(delTActual), double vtkNotUsed(minStep), double vtkNotUsed(maxStep),
   double vtkNotUsed(maxError), double vtkNotUsed(cellLength),
-  double& vtkNotUsed(error), int& vtkNotUsed(integrationResult))
+  double& vtkNotUsed(error), int& vtkNotUsed(integrationResult),
+  vtkLagrangianParticle* vtkNotUsed(particle))
 {
   return false;
 }
