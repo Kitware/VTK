@@ -424,7 +424,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeBegin(
 
   this->ProjectionMatrix->SetMatrix(*matrix);
 
-  glDrawBuffer(GL_BACK_LEFT);
+  ostate->vtkglDrawBuffer(GL_BACK_LEFT);
   ostate->vtkglClearColor(0.0,0.0,0.0,0.0); // id=0 means no hit, just background
   ostate->vtkglClear(GL_COLOR_BUFFER_BIT);
   ostate->vtkglDisable(GL_STENCIL_TEST);

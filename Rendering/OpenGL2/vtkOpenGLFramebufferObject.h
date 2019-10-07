@@ -218,40 +218,10 @@ public:
   /**
    * Store/Restore the current framebuffer bindings and buffers.
    */
-  void SaveCurrentBindings();
-  void SaveCurrentBindings(unsigned int mode);
-  void SaveCurrentBindingsAndBuffers() {
-    this->SaveCurrentBuffers();
-    this->SaveCurrentBindings();
-  }
-  void SaveCurrentBindingsAndBuffers(unsigned int mode) {
-    this->SaveCurrentBuffers(mode);
-    this->SaveCurrentBindings(mode);
-  }
-  void RestorePreviousBindings();
-  void RestorePreviousBindings(unsigned int mode);
-  void RestorePreviousBindingsAndBuffers() {
-    this->RestorePreviousBindings();
-    this->RestorePreviousBuffers();
-  }
-  void RestorePreviousBindingsAndBuffers(unsigned int mode) {
-    this->RestorePreviousBindings(mode);
-    this->RestorePreviousBuffers(mode);
-  }
-  //@}
-
-  //@{
-  /**
-   * Store the current draw and read buffers. When restored
-   * only the buffers matching mode are modified.
-   * GetDrawMode() -> glDrawBuffer
-   * GetReadMode() -> glReadBuffer
-   * GetBothMode() -> both
-   */
-  void SaveCurrentBuffers();
-  void SaveCurrentBuffers(unsigned int mode);
-  void RestorePreviousBuffers();
-  void RestorePreviousBuffers(unsigned int mode);
+  void SaveCurrentBindingsAndBuffers();
+  void SaveCurrentBindingsAndBuffers(unsigned int mode);
+  void RestorePreviousBindingsAndBuffers();
+  void RestorePreviousBindingsAndBuffers(unsigned int mode);
   //@}
 
   //@{
@@ -286,6 +256,9 @@ public:
   void DeactivateDrawBuffers();
   void DeactivateReadBuffer();
   //@}
+
+  vtkGetMacro(ActiveReadBuffer, unsigned int);
+  unsigned int GetActiveDrawBuffer(unsigned int id);
 
   /**
    * Renders a quad at the given location with pixel coordinates. This method
@@ -561,17 +534,14 @@ protected:
 
   unsigned int FBOIndex;
 
-  unsigned int PreviousDrawFBO;
-  unsigned int PreviousReadFBO;
   bool DrawBindingSaved;
   bool ReadBindingSaved;
-  unsigned int PreviousDrawBuffer;
-  unsigned int PreviousReadBuffer;
   bool DrawBufferSaved;
   bool ReadBufferSaved;
 
   int LastSize[2];
   std::vector<unsigned int> ActiveBuffers;
+  unsigned int ActiveReadBuffer;
 
   vtkFOInfo *DepthBuffer;
   std::map<unsigned int, vtkFOInfo *> ColorBuffers;

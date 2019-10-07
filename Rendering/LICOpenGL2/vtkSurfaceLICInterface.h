@@ -587,10 +587,6 @@ protected:
 
   vtkSurfaceLICHelper* Internals;
 
-  // save the active fbo and its draw buffer
-  int PrevDrawBuf;
-  int PrevFbo;
-
 private:
   vtkSurfaceLICInterface(const vtkSurfaceLICInterface&) = delete;
   void operator=(const vtkSurfaceLICInterface&) = delete;

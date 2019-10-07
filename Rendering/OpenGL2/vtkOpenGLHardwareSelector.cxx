@@ -103,12 +103,15 @@ void vtkOpenGLHardwareSelector::PostCapturePass(int pass)
 //----------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::BeginSelection()
 {
-  // render normally to set the zbuffer
-  if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-  {
     vtkOpenGLRenderWindow *rwin =
       static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
     vtkOpenGLState *ostate = rwin->GetState();
+
+  ostate->ResetFramebufferBindings();
+
+  // render normally to set the zbuffer
+  if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
 
     // Disable multisample, and blending before writing the zbuffer
 #ifdef GL_MULTISAMPLE

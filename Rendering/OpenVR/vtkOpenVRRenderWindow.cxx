@@ -503,13 +503,14 @@ void vtkOpenVRRenderWindow::Render()
       vr::k_unMaxTrackedDeviceCount, nullptr, 0 );
   }
 
+  this->MakeCurrent();
   this->GetState()->ResetGLViewportState();
   this->vtkRenderWindow::Render();
 }
 
 void vtkOpenVRRenderWindow::StereoUpdate()
 {
-  glBindFramebuffer( GL_FRAMEBUFFER, this->GetLeftRenderBufferId());
+  this->GetState()->vtkglBindFramebuffer( GL_FRAMEBUFFER, this->GetLeftRenderBufferId());
 }
 
 void vtkOpenVRRenderWindow::StereoMidpoint()
@@ -521,8 +522,8 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
 
   if ( this->HMD && this->SwapBuffers ) // picking does not swap and we don't show it
   {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->LeftEyeDesc.m_nRenderFramebufferId);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->LeftEyeDesc.m_nResolveFramebufferId );
+    this->GetState()->vtkglBindFramebuffer(GL_READ_FRAMEBUFFER, this->LeftEyeDesc.m_nRenderFramebufferId);
+    this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->LeftEyeDesc.m_nResolveFramebufferId );
 
     glBlitFramebuffer(0, 0, this->Size[0], this->Size[1],
       0, 0, this->Size[0], this->Size[1],
@@ -532,7 +533,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
     vr::Texture_t leftEyeTexture = {(void*)(long)this->LeftEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
   }
-  glBindFramebuffer( GL_FRAMEBUFFER, this->GetRightRenderBufferId());
+  this->GetState()->vtkglBindFramebuffer( GL_FRAMEBUFFER, this->GetRightRenderBufferId());
 }
 
 void  vtkOpenVRRenderWindow::StereoRenderComplete()
@@ -555,8 +556,8 @@ void  vtkOpenVRRenderWindow::StereoRenderComplete()
   // for now as fast as possible
   if ( this->HMD && this->SwapBuffers) // picking does not swap and we don't show it
   {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, this->RightEyeDesc.m_nRenderFramebufferId );
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->RightEyeDesc.m_nResolveFramebufferId );
+    this->GetState()->vtkglBindFramebuffer(GL_READ_FRAMEBUFFER, this->RightEyeDesc.m_nRenderFramebufferId );
+    this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->RightEyeDesc.m_nResolveFramebufferId );
 
     glBlitFramebuffer(0, 0, this->Size[0], this->Size[1],
       0, 0, this->Size[0], this->Size[1],
@@ -577,7 +578,7 @@ void vtkOpenVRRenderWindow::Frame(void)
 bool vtkOpenVRRenderWindow::CreateFrameBuffer( int nWidth, int nHeight, FramebufferDesc &framebufferDesc )
 {
   glGenFramebuffers(1, &framebufferDesc.m_nRenderFramebufferId );
-  glBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nRenderFramebufferId);
+  this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nRenderFramebufferId);
 
   glGenRenderbuffers(1, &framebufferDesc.m_nDepthBufferId);
   glBindRenderbuffer(GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId);
@@ -605,7 +606,7 @@ bool vtkOpenVRRenderWindow::CreateFrameBuffer( int nWidth, int nHeight, Framebuf
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferDesc.m_nRenderTextureId, 0);
   }
   glGenFramebuffers(1, &framebufferDesc.m_nResolveFramebufferId );
-  glBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nResolveFramebufferId);
+  this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nResolveFramebufferId);
 
   glGenTextures(1, &framebufferDesc.m_nResolveTextureId );
   glBindTexture(GL_TEXTURE_2D, framebufferDesc.m_nResolveTextureId );
@@ -621,7 +622,7 @@ bool vtkOpenVRRenderWindow::CreateFrameBuffer( int nWidth, int nHeight, Framebuf
     return false;
   }
 
-  glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+  this->GetState()->vtkglBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
   return true;
 }

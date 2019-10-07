@@ -301,7 +301,7 @@ void vtkCompositeSurfaceLICMapper::Render(
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
-  fbo->SaveCurrentBindingsAndBuffers();
+  ostate->PushFramebufferBindings();
 
   // allocate rendering resources, initialize or update
   // textures and shaders.
@@ -326,5 +326,5 @@ void vtkCompositeSurfaceLICMapper::Render(
   // ----------------------------------------------- depth test and copy to screen
   this->LICInterface->CopyToScreen();
 
-  fbo->RestorePreviousBindingsAndBuffers();
+  ostate->PopFramebufferBindings();
 }

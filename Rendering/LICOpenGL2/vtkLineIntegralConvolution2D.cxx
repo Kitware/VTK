@@ -433,7 +433,7 @@ public:
   // Description:
   // Setup read/write from/to the active lic/seed buffer texture pair
   // for LIC pass.
-  void AttachLICBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void AttachLICBuffers(vtkOpenGLFramebufferObject *fbo)
   {
     // activate read textures
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
@@ -459,17 +459,13 @@ public:
           0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebuffereadTexture2D");
 
-    GLenum atts[2] = {
-          GL_COLOR_ATTACHMENT0,
-          GL_COLOR_ATTACHMENT1
-          };
-    glDrawBuffers(2, atts);
+    fbo->ActivateDrawBuffers(2);
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Remove input/output buffers used for computing the LIC.
-  void DettachLICBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachLICBuffers(vtkOpenGLFramebufferObject *fbo)
   {
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
     glFramebufferTexture2D(
@@ -487,8 +483,7 @@ public:
           0U,
           0);
 
-    GLenum atts[1] = {GL_NONE};
-    glDrawBuffers(1, atts);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
 
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
@@ -498,7 +493,7 @@ public:
 
   // Description:
   // Attach read/write buffers for transform pass.
-  void AttachImageVectorBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void AttachImageVectorBuffer(vtkOpenGLFramebufferObject *fbo)
   {
     this->VectorTexture->Activate();
 
@@ -510,14 +505,13 @@ public:
           0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    GLenum atts[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, atts);
+    fbo->ActivateDrawBuffers(1);
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Attach read/write buffers for transform pass.
-  void DettachImageVectorBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachImageVectorBuffer(vtkOpenGLFramebufferObject *fbo)
   {
     this->VectorTexture->Deactivate();
 
@@ -528,14 +522,13 @@ public:
       0U,
       0);
 
-    GLenum atts[1] = {GL_NONE};
-    glDrawBuffers(1, atts);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Attach read/write buffers for EE pass.
-  void AttachEEBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void AttachEEBuffer(vtkOpenGLFramebufferObject *fbo)
   {
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
     readTex[0]->Activate();
@@ -548,8 +541,7 @@ public:
           0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    GLenum atts[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, atts);
+    fbo->ActivateDrawBuffers(1);
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
 
     DEBUG3CheckFrameBufferStatusMacro(GL_DRAW_FRAMEBUFFER);
@@ -557,7 +549,7 @@ public:
 
   // Description:
   // Attach read/write buffers for EE pass.
-  void DettachEEBuffer(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachEEBuffer(vtkOpenGLFramebufferObject *fbo)
   {
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
     readTex[0]->Deactivate();
@@ -569,15 +561,14 @@ public:
           0U,
           0);
 
-    GLenum atts[1] = {GL_NONE};
-    glDrawBuffers(1, atts);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
   }
 
   // Description:
   // Deactivates and removes all read/write buffers that were in
   // use during the run, restoring a pristine FBO/texture unit state.
-  void DettachBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
+  void DettachBuffers(vtkOpenGLFramebufferObject *fbo)
   {
     glFramebufferTexture2D(
           GL_DRAW_FRAMEBUFFER,
@@ -595,8 +586,7 @@ public:
           0);
     vtkOpenGLStaticCheckErrorMacro("failed at glFramebufferTexture2D");
 
-    GLenum none = GL_NONE;
-    glDrawBuffers(1, &none);
+    fbo->DeactivateDrawBuffers();
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");
 
     // deactivate all textures?
@@ -1505,8 +1495,8 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   noiseBoundsPt1[1] = ((float)noiseTexSize[1]+1.0f)/((float)inputTexSize[1]);
 
   // bind our fbo
-  this->FBO->SaveCurrentBindings();
-  this->FBO->Bind(GL_FRAMEBUFFER);
+  ostate->PushFramebufferBindings();
+  this->FBO->Bind();
   this->FBO->InitializeViewport(computeTexSize[0], computeTexSize[1]);
 
   // initialize the buffer manager. Textures are assigned
@@ -2080,7 +2070,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   }
 
   bufs.DettachBuffers(this->FBO);
-  this->FBO->UnBind(GL_FRAMEBUFFER);
+  ostate->PopFramebufferBindings();
 
   vtkTextureObject *outputTex = bufs.GetLastLICBuffer();
   outputTex->Register(nullptr);

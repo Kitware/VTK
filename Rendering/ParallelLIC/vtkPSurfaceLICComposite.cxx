@@ -1364,7 +1364,7 @@ int vtkPSurfaceLICComposite::Gather(
           false);
   }
 
-  this->FBO->SaveCurrentBindings();
+  this->FBO->SaveCurrentBindingsAndBuffers();
   this->FBO->Bind(GL_FRAMEBUFFER);
   this->FBO->AddColorAttachment(0U, newImage);
   this->FBO->ActivateDrawBuffer(0U);

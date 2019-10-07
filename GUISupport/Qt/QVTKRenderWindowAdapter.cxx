@@ -235,6 +235,7 @@ public:
     else
     {
       this->FBO->bind();
+      this->RenderWindow->GetState()->ResetFramebufferBindings();
     }
   }
 
@@ -325,7 +326,7 @@ public:
     }
   }
 
-  bool blit(unsigned int targetId, int targetAttachement, const QRect& targetRect, bool left)
+  bool blit(unsigned int targetId, int targetAttachment, const QRect& targetRect, bool left)
   {
     QVTKInternalsDebugMacro("blit");
     if (!this->Context || !this->FBO)
@@ -339,11 +340,13 @@ public:
     }
 
     f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetId);
-    f->glDrawBuffer(targetAttachement);
+    f->glDrawBuffer(targetAttachment);
 
     f->glBindFramebuffer(GL_READ_FRAMEBUFFER, this->FBO->handle());
     f->glReadBuffer(
       left ? this->RenderWindow->GetFrontLeftBuffer() : this->RenderWindow->GetFrontRightBuffer());
+
+    this->RenderWindow->GetState()->ResetFramebufferBindings();
 
     GLboolean scissorTest = f->glIsEnabled(GL_SCISSOR_TEST);
     if (scissorTest == GL_TRUE)
@@ -576,9 +579,10 @@ void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
     renWin->SetFrontRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
     renWin->SetBackRightBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
   }
+  renWin->OpenGLInitState();
   this->FBO->bind();
   renWin->SetDefaultFrameBufferId(this->FBO->handle());
-  renWin->OpenGLInitState();
+  renWin->GetState()->ResetFramebufferBindings();
 }
 
 //-----------------------------------------------------------------------------

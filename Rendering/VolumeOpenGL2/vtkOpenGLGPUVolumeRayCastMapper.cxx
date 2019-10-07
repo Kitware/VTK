@@ -1631,7 +1631,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginImageSample(
   if (xySampleDist != 1.f && this->InitializeImageSampleFBO(ren))
   {
     this->ImageSampleFBO->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
-    this->ImageSampleFBO->DeactivateDrawBuffers();
     this->ImageSampleFBO->Bind(GL_DRAW_FRAMEBUFFER);
     this->ImageSampleFBO->ActivateDrawBuffers(
       static_cast<unsigned int>(this->NumImageSampleDrawBuffers));
