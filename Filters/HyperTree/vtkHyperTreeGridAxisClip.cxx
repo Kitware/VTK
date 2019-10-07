@@ -344,7 +344,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   this->CurrentId = 0;
 
   // Retrieve material mask
-  this->InMask = input->HasMask() ? input->GetMask() : 0;
+  this->InMask = input->HasMask() ? input->GetMask() : nullptr;
 
   // Storage for Cartesian indices
   unsigned int cart[3];

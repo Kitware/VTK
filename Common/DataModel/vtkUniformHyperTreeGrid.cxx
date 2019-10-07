@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkUniformHyperTreeGrid);
 // Helper macros to quickly fetch a HT at a given index or iterator
 #define GetHyperTreeFromOtherMacro(_obj_, _index_)                                                 \
   (static_cast<vtkHyperTree*>(                                                                     \
-    _obj_->HyperTrees.find(_index_) != _obj_->HyperTrees.end() ? _obj_->HyperTrees[_index_] : 0))
+    _obj_->HyperTrees.find(_index_) != _obj_->HyperTrees.end() ? _obj_->HyperTrees[_index_] : nullptr))
 #define GetHyperTreeFromThisMacro(_index_) GetHyperTreeFromOtherMacro(this, _index_)
 
 //-----------------------------------------------------------------------------

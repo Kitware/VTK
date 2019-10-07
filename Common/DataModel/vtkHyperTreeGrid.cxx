@@ -734,7 +734,7 @@ unsigned int vtkHyperTreeGrid::GetNumberOfLevels()
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   this->InitializeTreeIterator(it);
   vtkHyperTree* tree = nullptr;
-  while ((tree = it.GetNextTree()) != 0)
+  while ((tree = it.GetNextTree()) != nullptr)
   {
     const vtkIdType nl = tree->GetNumberOfLevels();
     if (nl > nLevels)

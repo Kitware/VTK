@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkHyperTreeGridEvaluateCoarse);
 vtkHyperTreeGridEvaluateCoarse::vtkHyperTreeGridEvaluateCoarse()
 {
   this->Operator = vtkHyperTreeGridEvaluateCoarse::OPERATOR_DON_T_CHANGE;
-  this->Mask = 0;
+  this->Mask = nullptr;
 
   this->Default = 0.;
 
@@ -83,7 +83,7 @@ int vtkHyperTreeGridEvaluateCoarse::ProcessTrees( vtkHyperTreeGrid* input,
     return 1;
   }
 
-  this->Mask = output->HasMask() ? output->GetMask() : 0;
+  this->Mask = output->HasMask() ? output->GetMask() : nullptr;
 
   this->BranchFactor = output->GetBranchFactor();
   this->Dimension = output->GetDimension();

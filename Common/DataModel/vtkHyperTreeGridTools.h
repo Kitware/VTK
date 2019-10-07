@@ -24,7 +24,7 @@ namespace hypertreegrid {
 template < class T >
 bool HasTree( const T & e )
 {
-  return e.GetTree() != 0;
+  return e.GetTree() != nullptr;
 }
 
 }// namespace hypertreegrid

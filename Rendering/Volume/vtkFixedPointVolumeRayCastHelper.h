@@ -936,7 +936,7 @@
   unsigned short tmp[4];
 
 #define VTKKWRCHelper_InitializeCompositeOneGOTrilin()          \
-  unsigned char  *magPtrABCD = 0, *magPtrEFGH = 0;              \
+  unsigned char  *magPtrABCD = nullptr, *magPtrEFGH = nullptr;  \
   unsigned short  mag;                                          \
   unsigned int    mA=0,mB=0,mC=0,mD=0,mE=0,mF=0,mG=0,mH=0;
 

@@ -146,7 +146,7 @@ void vtkCollisionDetectionFilter::SetInputData(int idx, vtkPolyData *input)
   vtkSmartPointer<vtkTrivialProducer> inputProducer =
     vtkSmartPointer<vtkTrivialProducer>::New();
   inputProducer->SetOutput(input);
-  this->SetNthInputConnection(idx, 0, input ? inputProducer->GetOutputPort() : 0);
+  this->SetNthInputConnection(idx, 0, input ? inputProducer->GetOutputPort() : nullptr);
 }
 
 //----------------------------------------------------------------------------
