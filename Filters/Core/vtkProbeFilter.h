@@ -33,7 +33,34 @@
  * rendering techniques can be used to visualize the results. Another example:
  * a line or curve can be used to probe data to produce x-y plots along
  * that line or curve.
-*/
+ *
+ * @warning
+ * A critical algorithmic component of vtkProbeFilter is the manner in which
+ * it finds the cell containing a probe point. By default, the
+ * vtkDataSet::FindCell() method is used, which in turn uses a
+ * vtkPointLocator to perform an accelerated search. However, using a
+ * vtkPointLocator may fail to identify an enclosing cell in some cases. A
+ * more robust but slower approach is to use a vtkCellLocator to perform the
+ * the FindCell() operation (via specification of the
+ * CellLocatorPrototype). Finally, more advanced searches can be configured
+ * by specifying an instance of vtkFindCellStrategy. (Note: image data
+ * probing never uses a locator since finding a containing cell is a simple,
+ * fast operation. This specifying a vtkFindCellStrategy or cell locator
+ * prototype has no effect.)
+ *
+ * @warning
+ * The vtkProbeFilter, once it finds the cell containing a query point, uses
+ * the cell's interpolation functions to perform the interpolate / compute
+ * the point attributes. Note that other interpolation processes with
+ * different kernels are available: vtkPointInterpolator and
+ * vtkSPHInterpolator. vtkPointInterpolator supports a variety of generalized
+ * kernels, while vtkSPHInterpolator supports a variety of SPH interpolation
+ * kernels.
+ *
+ * @sa
+ * vtkFindCellStrategy vtkPointLocator vtkCellLocator vtkStaticPointLocator
+ * vtkStaticCellLocator vtkPointInterpolator vtkSPHInterpolator
+ */
 
 #ifndef vtkProbeFilter_h
 #define vtkProbeFilter_h
@@ -48,7 +75,7 @@ class vtkCharArray;
 class vtkIdTypeArray;
 class vtkImageData;
 class vtkPointData;
-class vtkStaticCellLocator;
+class vtkFindCellStrategy;
 
 class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
@@ -174,8 +201,23 @@ public:
 
   //@{
   /**
-   * Set/Get the prototype cell locator to use for probing the source dataset.
-   * By default, vtkDataSet::FindCell is called.
+   * Set / get the strategy used to perform the FindCell() operation. When
+   * specified, the strategy is used in preference to a cell locator
+   * prototype. When neither a strategy or cell locator prototype is defined,
+   * then the vtkDataSet::FindCell() method is used.
+   */
+  virtual void SetFindCellStrategy(vtkFindCellStrategy *);
+  vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the prototype cell locator to perform the FindCell() operation.
+   * (A prototype is used as an object factory to instantiate an instance of
+   * the prototype to perform the FindCell() operation). If a prototype, and
+   * a vtkFindCellStrategy are not defined, the vtkDataSet::FindCell() is
+   * used. If a vtkFindCellStrategy is not defined, then the prototype is
+   * used.
    */
    virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
    vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
@@ -238,10 +280,13 @@ protected:
   vtkIdTypeArray *ValidPoints;
   vtkCharArray* MaskPoints;
 
+  // Support various methods to support the FindCell() operation
   vtkAbstractCellLocator* CellLocatorPrototype;
+  vtkFindCellStrategy *FindCellStrategy;
 
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;
+
 private:
   vtkProbeFilter(const vtkProbeFilter&) = delete;
   void operator=(const vtkProbeFilter&) = delete;
