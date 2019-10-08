@@ -17,6 +17,7 @@
 
 #include "vtkGLTFUtils.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkTransform.h"
 #include "vtk_jsoncpp.h"
 #include "vtksys/SystemTools.hxx"
@@ -852,14 +853,19 @@ bool vtkGLTFDocumentLoaderInternals::LoadNode(
     }
     if (vtkGLTFUtils::GetFloatArray(root["rotation"], node.InitialRotation))
     {
+      float rotationLengthSquared = 0;
       for (float rotationValue : node.InitialRotation)
       {
-        if (rotationValue < -1 || rotationValue > 1)
+        rotationLengthSquared += rotationValue * rotationValue;
+      }
+      if (!vtkMathUtilities::NearlyEqual<float>(rotationLengthSquared, 1))
+      {
+        vtkWarningWithObjectMacro(this->Self,
+          "Invalid node.rotation value. Using normalized rotation for node " << node.Name);
+        float rotationLength = sqrt(rotationLengthSquared);
+        for (float& rotationValue : node.InitialRotation)
         {
-          vtkWarningWithObjectMacro(this->Self,
-            "Invalid node.rotation value. Using default rotation for node " << node.Name);
-          node.InitialRotation.clear();
-          break;
+          rotationValue /= rotationLength;
         }
       }
       if (node.InitialRotation.size() !=
