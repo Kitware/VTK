@@ -2441,7 +2441,7 @@ template <typename Handler, typename Char> struct id_adapter {
 template <bool IS_CONSTEXPR, typename Char, typename Handler>
 FMT_CONSTEXPR void parse_format_string(basic_string_view<Char> format_str,
                                        Handler&& handler) {
-  struct writer {
+  struct pfs_writer {
     FMT_CONSTEXPR void operator()(const Char* begin, const Char* end) {
       if (begin == end) return;
       for (;;) {
@@ -2597,9 +2597,9 @@ void handle_dynamic_spec(Spec& value, arg_ref<typename Context::char_type> ref,
 }  // namespace internal
 
 template <typename Range>
-using basic_writer FMT_DEPRECATED = internal::basic_writer<Range>;
-using writer FMT_DEPRECATED = internal::writer;
-using wwriter FMT_DEPRECATED =
+using basic_writer FMT_DEPRECATED_ALIAS = internal::basic_writer<Range>;
+using writer FMT_DEPRECATED_ALIAS = internal::writer;
+using wwriter FMT_DEPRECATED_ALIAS =
     internal::basic_writer<internal::buffer_range<wchar_t>>;
 
 /** The default argument formatter. */
