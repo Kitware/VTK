@@ -582,7 +582,7 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
 #endif
   {
     this->CurrentState.DrawBinding.DrawBuffers[0] = val;
-    ::glDrawBuffer(val);
+    ::glDrawBuffers(1, this->CurrentState.DrawBinding.DrawBuffers);
   }
 
   // change all stack entries for the same framebuffer
@@ -1259,7 +1259,9 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow *)
 
   ::glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->CurrentState.DrawBinding.GetBinding());
   ::glBindFramebuffer(GL_READ_FRAMEBUFFER, this->CurrentState.ReadBinding.GetBinding());
-  ::glDrawBuffer(this->CurrentState.DrawBinding.GetDrawBuffer(0));
+  unsigned int vals[1];
+  vals[0] = this->CurrentState.DrawBinding.GetDrawBuffer(0);
+  ::glDrawBuffers(1, vals);
   ::glReadBuffer(this->CurrentState.ReadBinding.GetReadBuffer());
 }
 
