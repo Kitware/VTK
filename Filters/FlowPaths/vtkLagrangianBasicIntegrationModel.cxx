@@ -578,18 +578,6 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
     return;
   }
 
-  // Threadsafe initial dummy calls
-  double x[3];
-  dataset->GetPoint(0, x);
-
-  vtkNew<vtkGenericCell> cell;
-  dataset->GetCell(0, cell);
-
-  int subId;
-  double pcoords[3];
-  std::vector<double> weights(dataset->GetMaxCellSize());
-  dataset->FindCell(x, nullptr, cell, 0, 0, subId, pcoords, weights.data());
-
   // There seems to be some kind of problem with the garbage collector
   // and the referencing of datasets and locators.
   // In order to avoid leaks we shallow copy the dataset.
@@ -626,6 +614,22 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(
     locator->CacheCellBoundsOn();
     locator->AutomaticOn();
     locator->BuildLocator();
+  }
+  else
+  {
+    // for non-vtkPointSet vtkDataSet, we are using their internal locator
+    // It is required to do a findCell call before the threaded code
+    // so the locator is built first.
+    double x[3];
+    dataset->GetPoint(0, x);
+
+    vtkNew<vtkGenericCell> cell;
+    dataset->GetCell(0, cell);
+
+    int subId;
+    double pcoords[3];
+    std::vector<double> weights(dataset->GetMaxCellSize());
+    dataset->FindCell(x, nullptr, cell, 0, 0, subId, pcoords, weights.data());
   }
 
   // Add locator
