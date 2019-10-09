@@ -148,8 +148,8 @@ struct Profiler
     void    operator<<(std::string name)        { enter(name); }
     void    operator>>(std::string name)        { exit(name); }
 
-    void    enter(std::string name)             { total << name; }
-    void    exit(std::string name)              { total >> name; }
+    void    enter(std::string name)             {}
+    void    exit(std::string name)              {}
 
     void    output(std::ostream& out, std::string = "") const
     {

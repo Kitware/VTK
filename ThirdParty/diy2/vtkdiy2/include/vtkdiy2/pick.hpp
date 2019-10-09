@@ -177,7 +177,7 @@ in(const RegularLink<Bounds>& link,  //!< neighbors
         neigh_bounds = link.bounds(n);
 
     // wrap neighbor bounds, if necessary, otherwise bounds will be unchanged
-    wrap_bounds(neigh_bounds, link.wrap(n), domain, link.dimension());
+    wrap_bounds(neigh_bounds, link.wrap(n), domain);
 
     if (distance(neigh_bounds, p) == 0)
         *out++ = n;
