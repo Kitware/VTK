@@ -357,7 +357,8 @@ int vtkRedistributeDataSetFilter::RequestData(
     auto outputMBDS = vtkMultiBlockDataSet::SafeDownCast(outputDO);
     if (!outputMBDS)
     {
-      outputMBDS = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+      vtkLogF(ERROR, "output should be a vtkMultiBlockDataSet");
+      return 0;
     }
     vtkIdType mb_offset = 0;
     return this->RedistributeMultiBlockDataSet(inputMBDS, outputMBDS, &mb_offset);
@@ -619,11 +620,8 @@ int vtkRedistributeDataSetFilter::RedistributeMultiBlockDataSet(
     }
     else
     {
+      // It's okay for inputDS to be null. Redistribute() should appropriately handle this.
       auto inputDS = vtkDataSet::SafeDownCast(in_block);
-      if (!inputDS)
-      {
-        inputDS = vtkUnstructuredGrid::New();
-      }
       vtkNew<vtkPartitionedDataSet> parts;
 
       if (!this->Redistribute(inputDS, parts, this->Cuts, mb_offset))
