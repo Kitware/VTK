@@ -52,11 +52,7 @@
 // color
 #define BLUE_WATER
 
-// Fluid mapper, need to be global static to control parameters interactively
-static vtkNew<vtkOpenGLFluidMapper> g_FluidMapper;
-
 // Global variables for particle data
-static vtkNew<vtkActor> g_Dragon;
 static vtkNew<vtkPoints> g_Points;
 constexpr static double g_DragonPos[3]{ 2, -0.5, 3 };
 
@@ -64,7 +60,7 @@ constexpr static float g_ParticleRadius = 0.03f;
 
 //-----------------------------------------------------------------------------
 // Enable this for interactive demonstration
-// #define INTERACTIVE_DEMO
+//#define INTERACTIVE_DEMO
 #ifdef INTERACTIVE_DEMO
 #include "TestFluidDemo.cxx"
 #endif
@@ -93,14 +89,16 @@ int TestFluidMapper(int argc, char* argv[])
 
   vtkNew<vtkPolyDataMapper> dragonMapper;
   dragonMapper->SetInputConnection(reader->GetOutputPort());
-  g_Dragon->SetMapper(dragonMapper);
-  g_Dragon->SetScale(20, 20, 20);
-  g_Dragon->SetPosition(g_DragonPos[0], g_DragonPos[1], g_DragonPos[2]);
-  g_Dragon->GetProperty()->SetDiffuseColor(0.780392, 0.568627, 0.113725);
-  g_Dragon->GetProperty()->SetSpecular(1.0);
-  g_Dragon->GetProperty()->SetSpecularPower(80.0);
-  g_Dragon->GetProperty()->SetDiffuse(0.7);
-  renderer->AddActor(g_Dragon);
+
+  vtkNew<vtkActor> dragon;
+  dragon->SetMapper(dragonMapper);
+  dragon->SetScale(20, 20, 20);
+  dragon->SetPosition(g_DragonPos[0], g_DragonPos[1], g_DragonPos[2]);
+  dragon->GetProperty()->SetDiffuseColor(0.780392, 0.568627, 0.113725);
+  dragon->GetProperty()->SetSpecular(1.0);
+  dragon->GetProperty()->SetSpecularPower(80.0);
+  dragon->GetProperty()->SetDiffuse(0.7);
+  renderer->AddActor(dragon);
 
   //------------------------------------------------------------
   vtkSmartPointer<vtkPBRIrradianceTexture> irradiance = renderer->GetEnvMapIrradiance();
@@ -177,10 +175,13 @@ int TestFluidMapper(int argc, char* argv[])
 
   vtkNew<vtkPolyData> pointData;
   pointData->SetPoints(g_Points);
-  g_FluidMapper->SetInputData(pointData);
+
+  vtkNew<vtkOpenGLFluidMapper> fluidMapper;
+  fluidMapper->SetInputData(pointData);
 
 #ifdef INTERACTIVE_DEMO
-  setupInteractiveDemo(renderWindow, renderer, iren, pointData);
+  setupInteractiveDemo(renderWindow, renderer, iren, pointData,
+                       dragon, fluidMapper);
 #else
   renderWindow->SetSize(400, 400);
   const float spacing = 0.1f;
@@ -206,71 +207,71 @@ int TestFluidMapper(int argc, char* argv[])
   // Set the radius of the rendered spheres to be 2 times larger than the actual
   // sphere radius This is necessary to fuse the gaps between particles and
   // obtain a smooth surface
-  g_FluidMapper->SetParticleRadius(g_ParticleRadius * 3.0f);
+  fluidMapper->SetParticleRadius(g_ParticleRadius * 3.0f);
 
   // Set the number of iterations to filter the depth surface
   // This is an optional parameter, default value is 3
   // Usually set this to around 3-5
   // Too many filter iterations will over-smooth the surface
-  g_FluidMapper->SetSurfaceFilterIterations(3);
+  fluidMapper->SetSurfaceFilterIterations(3);
 
   // Set the filter radius for smoothing the depth surface
   // This is an optional parameter, default value is 5
-  g_FluidMapper->SetSurfaceFilterRadius(5);
+  fluidMapper->SetSurfaceFilterRadius(5);
 
   // Set the filtering method, it's up to personal choice
   // This is an optional parameter, default value is NarrowRange, other value is
   // BilateralGaussian
-  g_FluidMapper->SetSurfaceFilterMethod(
+  fluidMapper->SetSurfaceFilterMethod(
     vtkOpenGLFluidMapper::FluidSurfaceFilterMethod::NarrowRange);
 
   // Set the display method, from transparent volume to opaque surface etc
   // Default value is TransparentFluidVolume
-  g_FluidMapper->SetDisplayMode(
+  fluidMapper->SetDisplayMode(
     vtkOpenGLFluidMapper::FluidDisplayMode::TransparentFluidVolume);
 
 #ifdef BLUE_WATER
   // Set the volume attenuation color (color that will be absorbed
   // exponentially through the fluid volume) (below is the attenuation color
   // that will produce blue volume fluid)
-  g_FluidMapper->SetAttenuationColor(0.8f, 0.2f, 0.15f);
+  fluidMapper->SetAttenuationColor(0.8f, 0.2f, 0.15f);
 
   // Set the attenuation scale, which will be multiplied with the
   // attenuation color Default value is 1.0
-  g_FluidMapper->SetAttenuationScale(1.0f);
+  fluidMapper->SetAttenuationScale(1.0f);
 #else // Not BLUE_WATER
   // This is blood
-  g_FluidMapper->SetAttenuationColor(0.2f, 0.95f, 0.95f);
-  g_FluidMapper->SetAttenuationScale(3.0f);
+  fluidMapper->SetAttenuationColor(0.2f, 0.95f, 0.95f);
+  fluidMapper->SetAttenuationScale(3.0f);
 #endif
 
   // Set the surface color (applicable only if the display mode is
   // <Filter/Unfiltered>OpaqueSurface)
-  g_FluidMapper->SetOpaqueColor(0.0f, 0.0f, 0.9f);
+  fluidMapper->SetOpaqueColor(0.0f, 0.0f, 0.9f);
 
   // Set the particle color power and scale
   // (applicable only if there is color data for each point)
   // The particle color is then recomputed as newColor = pow(oldColor, power) *
   // scale
-  g_FluidMapper->SetParticleColorPower(0.1f);
-  g_FluidMapper->SetParticleColorScale(0.57f);
+  fluidMapper->SetParticleColorPower(0.1f);
+  fluidMapper->SetParticleColorScale(0.57f);
 
   // Set the additional reflection parameter, to add more light reflecting off
   // the surface Default value is 0.0
-  g_FluidMapper->SetAdditionalReflection(0.0f);
+  fluidMapper->SetAdditionalReflection(0.0f);
 
   // Set the refractive index (1.33 for water)
   // Default value is 1.33
-  g_FluidMapper->SetRefractiveIndex(1.33f);
+  fluidMapper->SetRefractiveIndex(1.33f);
 
   // Set the refraction scale, this will explicity change the amount of
   // refraction Default value is 1
-  g_FluidMapper->SetRefractionScale(0.07f);
+  fluidMapper->SetRefractionScale(0.07f);
 
   // <========== end parameters turning for fluid mapper
 
   vtkNew<vtkVolume> vol;
-  vol->SetMapper(g_FluidMapper);
+  vol->SetMapper(fluidMapper);
   renderer->AddVolume(vol);
   //------------------------------------------------------------
   vtkNew<vtkTimerLog> timer;

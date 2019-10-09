@@ -61,38 +61,43 @@ static vtkNew<vtkFloatArray> g_Colors;
 // Pause/resume animation by pressing spacebar
 // Press 'd' to change display mode
 // Press 'm' to change filter method
-void keypressFunc(vtkObject* caller, unsigned long, void*, void*)
+void keypressFunc(vtkObject* caller, unsigned long vtkNotUsed(eventId),
+                  void* clientData, void* vtkNotUsed(callData))
 {
   const auto iren = static_cast<vtkRenderWindowInteractor*>(caller);
+  auto fluidMapper = static_cast<vtkOpenGLFluidMapper*>(clientData);
   if (iren->GetKeyCode() == ' ')
   {
     g_Animation = !g_Animation;
   }
   else if (iren->GetKeyCode() == 'd')
   {
-    auto mode = static_cast<int>(g_FluidMapper->GetDisplayMode());
+    auto mode = static_cast<int>(fluidMapper->GetDisplayMode());
     mode = (mode + 1) % vtkOpenGLFluidMapper::NumDisplayModes;
-    g_FluidMapper->SetDisplayMode(
+    fluidMapper->SetDisplayMode(
       static_cast<vtkOpenGLFluidMapper::FluidDisplayMode>(mode));
     static_cast<vtkRenderWindowInteractor*>(caller)->Render();
   }
   else if (iren->GetKeyCode() == 'm')
   {
-    auto filter = static_cast<int>(g_FluidMapper->GetSurfaceFilterMethod());
+    auto filter = static_cast<int>(fluidMapper->GetSurfaceFilterMethod());
     filter = (filter + 1) % vtkOpenGLFluidMapper::NumFilterMethods;
-    g_FluidMapper->SetSurfaceFilterMethod(
+    fluidMapper->SetSurfaceFilterMethod(
       static_cast<vtkOpenGLFluidMapper::FluidSurfaceFilterMethod>(filter));
     static_cast<vtkRenderWindowInteractor*>(caller)->Render();
   }
 }
 
 // Update particle animation data
-void updateFunc(vtkObject* caller, unsigned long, void*, void*)
+void updateFunc(vtkObject* caller, unsigned long vtkNotUsed(eventId),
+                void* clientData, void* vtkNotUsed(callData))
 {
   if (!g_Animation)
   {
     return;
   }
+
+  auto dragon = static_cast<vtkActor*>(clientData);
 
   // Max number of particle layers in x dimension
   constexpr static uint32_t maxLayers =
@@ -167,10 +172,10 @@ void updateFunc(vtkObject* caller, unsigned long, void*, void*)
   lastX += g_Spacing * stepRatio;
 
 #ifdef ANIMATE_DRAGON
-  g_Dragon->SetPosition(g_DragonPos[0],
-                        g_DragonPos[1] +
-                          static_cast<double>(std::cos(waveSpeed * t)) * 0.5,
-                        g_DragonPos[2]);
+  dragon->SetPosition(g_DragonPos[0],
+                      g_DragonPos[1] +
+                        static_cast<double>(std::cos(waveSpeed * t)) * 0.5,
+                      g_DragonPos[2]);
 #endif
 
   // Append one more layer
@@ -225,10 +230,12 @@ void setupInteractiveDemo(
   vtkRenderer *renderer,
   vtkRenderWindowInteractor *iren,
 #ifdef VERTEX_COLOR
-  vtkPolyData *pointData
+  vtkPolyData *pointData,
 #else
-  vtkPolyData *
+  vtkPolyData *vtkNotUsed(pointData),
 #endif
+  vtkActor* dragon,
+  vtkOpenGLFluidMapper* fluidMapper
   )
 {
   //------------------------------------------------------------
@@ -270,7 +277,9 @@ void setupInteractiveDemo(
   vtkNew<vtkCallbackCommand> updateCallback;
   vtkNew<vtkCallbackCommand> keypressCallback;
   updateCallback->SetCallback(updateFunc);
+  updateCallback->SetClientData(dragon);
   keypressCallback->SetCallback(keypressFunc);
+  keypressCallback->SetClientData(fluidMapper);
 
   iren->AddObserver(vtkCommand::TimerEvent, updateCallback);
   iren->AddObserver(vtkCommand::KeyPressEvent, keypressCallback);
