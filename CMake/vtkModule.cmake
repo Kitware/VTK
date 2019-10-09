@@ -3800,7 +3800,7 @@ set(_vtk_module_find_package_components_required)
 while (_vtk_module_find_package_components_to_check)
   list(GET _vtk_module_find_package_components_to_check 0 _vtk_module_component)
   list(REMOVE_AT _vtk_module_find_package_components_to_check 0)
-  if (\"${_vtk_module_component}\" IN_LIST _vtk_module_find_package_components_checked)
+  if (_vtk_module_component IN_LIST _vtk_module_find_package_components_checked)
     continue ()
   endif ()
   list(APPEND _vtk_module_find_package_components_checked
