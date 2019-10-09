@@ -1719,8 +1719,7 @@ function (_vtk_module_export_properties)
       "Exporting properties requires an install file to write to.")
   endif ()
 
-  get_property(_vtk_export_properties_target_name GLOBAL
-    PROPERTY "_vtk_module_${_vtk_export_properties_MODULE}_target_name")
+  _vtk_module_real_target(_vtk_export_properties_target_name "${_vtk_export_properties_MODULE}")
 
   foreach (_vtk_export_properties_global IN LISTS _vtk_export_properties_FROM_GLOBAL_PROPERTIES)
     get_property(_vtk_export_properties_is_set GLOBAL
@@ -1767,7 +1766,7 @@ function (_vtk_module_export_properties)
 
   foreach (_vtk_export_properties_split IN LISTS _vtk_export_properties_SPLIT_INSTALL_PROPERTIES)
     get_property(_vtk_export_properties_is_set
-      TARGET    "${_vtk_export_properties_MODULE}"
+      TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}"
       SET)
     if (NOT _vtk_export_properties_is_set)
