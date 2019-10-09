@@ -1707,7 +1707,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       bool normalTex = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
         return tex.second == "normalTex";
       }) != textures.end();
-      if (normalTex && this->VBOs->GetNumberOfComponents("tangentMC") == 3)
+      if (normalTex
+        && this->VBOs->GetNumberOfComponents("tangentMC") == 3
+        && !this->DrawingEdgesOrVertices)
       {
         vtkShaderProgram::Substitute(VSSource,
           "//VTK::Normal::Dec",
