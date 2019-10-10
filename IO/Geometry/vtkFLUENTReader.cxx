@@ -541,6 +541,8 @@ bool vtkFLUENTReader::OpenDataFile(const char *filename)
 
   if (this->FluentDataFile->fail())
   {
+    vtkErrorMacro("Could not open data file " << dfilename << "associated with cas file "
+                  << filename << ". Please verify the cas and dat files have the same base name.");
     return false;
   }
   else
