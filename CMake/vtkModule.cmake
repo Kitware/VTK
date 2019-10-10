@@ -1873,7 +1873,7 @@ have reasonable defaults if not specified.
   * `TEST_INPUT_DATA_DIRECTORY`: (Defaults to
     `${CMAKE_CURRENT_SOURCE_DIR}/Data`) The directory which will contain data
     for use by tests.
-  * `TEST_OUTPUTPUT_DATA_DIRECTORY`: (Defaults to
+  * `TEST_OUTPUT_DATA_DIRECTORY`: (Defaults to
     `${CMAKE_CURRENT_BINARY_DIR}/Data`) The directory which will contain data
     for use by tests.
   * `TEST_OUTPUT_DIRECTORY`: (Defaults to
