@@ -285,9 +285,9 @@ struct vtkCellProcessor
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell) = 0;
-  virtual void FindClosestPoint(const double x[3], double closestPoint[3],
-                                vtkGenericCell *cell, vtkIdType &cellId,
-                                int &subId, double& dist2) = 0;
+  virtual vtkIdType FindClosestPointWithinRadius(const double x[3], double radius,
+    double closestPoint[3], vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2,
+    int& inside) = 0;
 
   // Convenience for computing
   virtual int IsEmpty(vtkIdType binId) = 0;
@@ -370,9 +370,8 @@ struct CellProcessor : public vtkCellProcessor
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell) override;
-  void FindClosestPoint(const double x[3], double closestPoint[3],
-                                vtkGenericCell *cell, vtkIdType &cellId,
-                                int &subId, double& dist2) override;
+  vtkIdType FindClosestPointWithinRadius(const double x[3], double radius, double closestPoint[3],
+    vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2, int& inside) override;
   int IsEmpty(vtkIdType binId) override
   {
     return ( this->GetNumberOfIds(static_cast<T>(binId)) > 0 ? 0 : 1 );
@@ -976,10 +975,10 @@ double Distance2ToBounds(const double x[3], double bounds[6])
 
 //-----------------------------------------------------------------------------
 // Return closest point (if any) AND the cell on which this closest point lies
-template <typename T> void CellProcessor<T>::
-FindClosestPoint(const double x[3], double closestPoint[3],
-                    vtkGenericCell *cell, vtkIdType &closestCellId,
-                    int &closestSubId, double& minDist2)
+template<typename T>
+vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], double radius,
+  double closestPoint[3], vtkGenericCell* cell, vtkIdType& closestCellId, int& closestSubId,
+  double& minDist2, int& inside)
 {
   std::vector<bool> binHasBeenQueued(this->NumBins, false);
   std::vector<bool> cellHasBeenVisited(this->NumCells, false);
@@ -988,6 +987,7 @@ FindClosestPoint(const double x[3], double closestPoint[3],
   double distance2ToCellBounds, dist2;
   int subId;
   int ijk[3];
+  vtkIdType retVal = 0;
 
   using node = std::pair<double, vtkIdType>;
   std::priority_queue< node, std::vector<node>, std::greater<node> > queue;
@@ -998,7 +998,7 @@ FindClosestPoint(const double x[3], double closestPoint[3],
   binHasBeenQueued[binId] = true;
 
   // distance to closest point
-  minDist2 = VTK_DOUBLE_MAX;
+  minDist2 = radius * radius;
 
   while (!queue.empty())
   {
@@ -1056,6 +1056,8 @@ FindClosestPoint(const double x[3], double closestPoint[3],
 
           if (stat != -1 && dist2 < minDist2)
           {
+            retVal = 1;
+            inside = stat;
             minDist2 = dist2;
             closestCellId = cellId;
             closestSubId = subId;
@@ -1107,8 +1109,7 @@ FindClosestPoint(const double x[3], double closestPoint[3],
       }
     }
   }
-
-  // any post-processing? don't think so.
+  return retVal;
 }
 
 //-----------------------------------------------------------------------------
@@ -1357,12 +1358,25 @@ FindClosestPoint(const double x[3], double closestPoint[3],
          vtkGenericCell *cell, vtkIdType &cellId,
          int &subId, double& dist2)
 {
+  int inside;
+  double radius = vtkMath::Inf();
+  double point[3] = { x[0], x[1], x[2] };
+  this->FindClosestPointWithinRadius(
+    point, radius, closestPoint, cell, cellId, subId, dist2, inside);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkStaticCellLocator::FindClosestPointWithinRadius(double x[3], double radius,
+  double closestPoint[3], vtkGenericCell* cell, vtkIdType& cellId, int& subId, double& dist2,
+  int& inside)
+{
   this->BuildLocator();
   if ( ! this->Processor )
   {
-    return;
+    return 0;
   }
-  this->Processor->FindClosestPoint(x,closestPoint,cell,cellId,subId,dist2);
+  return this->Processor->FindClosestPointWithinRadius(
+    x, radius, closestPoint, cell, cellId, subId, dist2, inside);
 }
 
 //-----------------------------------------------------------------------------
