@@ -16,26 +16,31 @@ if (NOT WIN32)
 endif ()
 
 if (_MySQL_use_pkgconfig)
-  pkg_check_modules(_mariadb "mariadb" QUIET IMPORTED_TARGET)
+  pkg_check_modules(_libmariadb "libmariadb" QUIET IMPORTED_TARGET)
   unset(_mysql_target)
-  if (NOT _mariadb_FOUND)
-    pkg_check_modules(_mysql "mysql" QUIET IMPORTED_TARGET)
-    if (_mysql_FOUND)
-      set(_mysql_target "_mysql")
-    endif ()
+  if (_libmariadb_FOUND)
+    set(_mysql_target "_libmariadb")
   else ()
-    set(_mysql_target "_mariadb")
-    if (_mariadb_VERSION VERSION_LESS 10.4)
-      get_property(_include_dirs
-        TARGET    "PkgConfig::_mariadb"
-        PROPERTY  "INTERFACE_INCLUDE_DIRECTORIES")
-      # Remove "${prefix}/mariadb/.." from the interface since it breaks other
-      # projects.
-      list(FILTER _include_dirs EXCLUDE REGEX "\\.\\.")
-      set_property(TARGET "PkgConfig::_mariadb"
-        PROPERTY
-          "INTERFACE_INCLUDE_DIRECTORIES" "${_include_dirs}")
-      unset(_include_dirs)
+    pkg_check_modules(_mariadb "mariadb" QUIET IMPORTED_TARGET)
+    if (NOT _mariadb_FOUND)
+      pkg_check_modules(_mysql "mysql" QUIET IMPORTED_TARGET)
+      if (_mysql_FOUND)
+        set(_mysql_target "_mysql")
+      endif ()
+    else ()
+      set(_mysql_target "_mariadb")
+      if (_mariadb_VERSION VERSION_LESS 10.4)
+        get_property(_include_dirs
+          TARGET    "PkgConfig::_mariadb"
+          PROPERTY  "INTERFACE_INCLUDE_DIRECTORIES")
+        # Remove "${prefix}/mariadb/.." from the interface since it breaks other
+        # projects.
+        list(FILTER _include_dirs EXCLUDE REGEX "\\.\\.")
+        set_property(TARGET "PkgConfig::_mariadb"
+          PROPERTY
+            "INTERFACE_INCLUDE_DIRECTORIES" "${_include_dirs}")
+        unset(_include_dirs)
+      endif ()
     endif ()
   endif ()
 
