@@ -1865,17 +1865,20 @@ have reasonable defaults if not specified.
   * `INSTALL_EXPORT`: (Defaults to `""`) If non-empty, targets will be added to
     the given export. The export will also be installed as part of this build
     command.
+  * `TEST_DIRECTORY_NAME`: (Defaults to `Testing`) The name of the testing
+    directory to look for in each module. Set to `NONE` to disable automatic
+    test management.
   * `TEST_DATA_TARGET`: (Defaults to `<PACKAGE>-data`) The target to add
     testing data download commands to.
   * `TEST_INPUT_DATA_DIRECTORY`: (Defaults to
     `${CMAKE_CURRENT_SOURCE_DIR}/Data`) The directory which will contain data
     for use by tests.
-  * `TEST_OUTPUTPUT_DATA_DIRECTORY`: (Defaults to
+  * `TEST_OUTPUT_DATA_DIRECTORY`: (Defaults to
     `${CMAKE_CURRENT_BINARY_DIR}/Data`) The directory which will contain data
     for use by tests.
   * `TEST_OUTPUT_DIRECTORY`: (Defaults to
-    `${CMAKE_BINARY_DIR}/Testing/Temporary`) The directory which tests may
-    write any output files to.
+    `${CMAKE_BINARY_DIR}/<TEST_DIRECTORY_NAME>/Temporary`) The directory which
+    tests may write any output files to.
 
 The remaining arguments control where to install files related to the build.
 See CMake documentation for the difference between `ARCHIVE`, `LIBRARY`, and
@@ -1920,6 +1923,7 @@ function (vtk_module_build)
     HIERARCHY_DESTINATION)
   set(_vtk_build_test_arguments
     # Testing
+    TEST_DIRECTORY_NAME
     TEST_DATA_TARGET
     TEST_INPUT_DATA_DIRECTORY
     TEST_OUTPUT_DATA_DIRECTORY
@@ -1983,6 +1987,10 @@ function (vtk_module_build)
       "Building with kits was requested, but no kits were specified.")
   endif ()
 
+  if (NOT DEFINED _vtk_build_TEST_DIRECTORY_NAME)
+    set(_vtk_build_TEST_DIRECTORY_NAME "Testing")
+  endif ()
+
   if (NOT DEFINED _vtk_build_TEST_DATA_TARGET)
     set(_vtk_build_TEST_DATA_TARGET "${_vtk_build_PACKAGE}-data")
   endif ()
@@ -1996,7 +2004,7 @@ function (vtk_module_build)
   endif ()
 
   if (NOT DEFINED _vtk_build_TEST_OUTPUT_DIRECTORY)
-    set(_vtk_build_TEST_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Testing/Temporary")
+    set(_vtk_build_TEST_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_TEST_DIRECTORY_NAME}/Temporary")
   endif ()
 
   if (NOT DEFINED _vtk_build_HEADERS_COMPONENT)
@@ -2334,14 +2342,16 @@ function (vtk_module_build)
     get_property(_vtk_build_module_file GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_test}_file")
 
-    get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
-    file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
-    if (EXISTS "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/Testing")
-      get_property(_vtk_build_test_labels GLOBAL
-        PROPERTY  "_vtk_module_${_vtk_build_test}_test_labels")
-      add_subdirectory(
-        "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/Testing"
-        "${CMAKE_BINARY_DIR}/${_vtk_build_module_subdir}/Testing")
+    if (NOT _vtk_build_TEST_DIRECTORY_NAME STREQUAL "NONE")
+      get_filename_component(_vtk_build_module_dir "${_vtk_build_module_file}" DIRECTORY)
+      file(RELATIVE_PATH _vtk_build_module_subdir "${CMAKE_SOURCE_DIR}" "${_vtk_build_module_dir}")
+      if (EXISTS "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/${_vtk_build_TEST_DIRECTORY_NAME}")
+        get_property(_vtk_build_test_labels GLOBAL
+          PROPERTY  "_vtk_module_${_vtk_build_test}_test_labels")
+        add_subdirectory(
+          "${CMAKE_SOURCE_DIR}/${_vtk_build_module_subdir}/${_vtk_build_TEST_DIRECTORY_NAME}"
+          "${CMAKE_BINARY_DIR}/${_vtk_build_module_subdir}/${_vtk_build_TEST_DIRECTORY_NAME}")
+      endif ()
     endif ()
   endforeach ()
 
