@@ -208,13 +208,10 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
   renderer->SetBackground(0.2, 0.2, 0.5);
 
   // Setup the value pass
-  //int const RenderingMode = vtkValuePass::INVERTIBLE_LUT;
-  int const RenderingMode = vtkValuePass::FLOATING_POINT;
   int const comp = 0;
 
   vtkSmartPointer<vtkValuePass> valuePass =
     vtkSmartPointer<vtkValuePass>::New();
-  valuePass->SetRenderingMode(RenderingMode);
   valuePass->SetInputComponentToProcess(comp);
   // Initial data mode
   valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA,
@@ -242,66 +239,61 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
   glRenderer->SetPass(cameraPass);
   window->Render();
 
-  // Check whether the RenderingMode change (this could happen due to a lack of
-  // extension/context support
-  if (valuePass->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
-  {
-    // Render point data images
-    std::vector<vtkSmartPointer<vtkImageData> > colorImagesPoint;
-    RenderComponentImages(colorImagesPoint, window, renderer, valuePass,
-      VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, "elevationVector");
+  // Render point data images
+  std::vector<vtkSmartPointer<vtkImageData> > colorImagesPoint;
+  RenderComponentImages(colorImagesPoint, window, renderer, valuePass,
+                        VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, "elevationVector");
 
-    // Render cell data images
-   std::vector<vtkSmartPointer<vtkImageData> > colorImagesCell;
-    RenderComponentImages(colorImagesCell, window, renderer, valuePass,
-      VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, "elevationVector");
+  // Render cell data images
+  std::vector<vtkSmartPointer<vtkImageData> > colorImagesCell;
+  RenderComponentImages(colorImagesCell, window, renderer, valuePass,
+                        VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, "elevationVector");
 
-    ////// Render results on-screen
-    renderer->RemoveActor(actor);
+  ////// Render results on-screen
+  renderer->RemoveActor(actor);
 
-    // Add image actors to display the point dataArray's components
-    vtkSmartPointer<vtkImageActor> ia_x = vtkSmartPointer<vtkImageActor>::New();
-    ia_x->GetMapper()->SetInputData(colorImagesPoint.at(0));
-    renderer->AddActor(ia_x);
+  // Add image actors to display the point dataArray's components
+  vtkSmartPointer<vtkImageActor> ia_x = vtkSmartPointer<vtkImageActor>::New();
+  ia_x->GetMapper()->SetInputData(colorImagesPoint.at(0));
+  renderer->AddActor(ia_x);
 
-    vtkSmartPointer<vtkImageActor> ia_y = vtkSmartPointer<vtkImageActor>::New();
-    ia_y->RotateX(90);
-    ia_y->GetMapper()->SetInputData(colorImagesPoint.at(1));
-    renderer->AddActor(ia_y);
+  vtkSmartPointer<vtkImageActor> ia_y = vtkSmartPointer<vtkImageActor>::New();
+  ia_y->RotateX(90);
+  ia_y->GetMapper()->SetInputData(colorImagesPoint.at(1));
+  renderer->AddActor(ia_y);
 
-    vtkSmartPointer<vtkImageActor> ia_z = vtkSmartPointer<vtkImageActor>::New();
-    ia_z->RotateY(-90);
-    ia_z->GetMapper()->SetInputData(colorImagesPoint.at(2));
-    renderer->AddActor(ia_z);
+  vtkSmartPointer<vtkImageActor> ia_z = vtkSmartPointer<vtkImageActor>::New();
+  ia_z->RotateY(-90);
+  ia_z->GetMapper()->SetInputData(colorImagesPoint.at(2));
+  renderer->AddActor(ia_z);
 
-    // Add image actors to display cell dataArray's components
-    vtkSmartPointer<vtkImageActor> iacell_x = vtkSmartPointer<vtkImageActor>::New();
-    iacell_x->SetPosition(-500, 600, 600);
-    iacell_x->GetMapper()->SetInputData(colorImagesCell.at(0));
-    renderer->AddActor(iacell_x);
+  // Add image actors to display cell dataArray's components
+  vtkSmartPointer<vtkImageActor> iacell_x = vtkSmartPointer<vtkImageActor>::New();
+  iacell_x->SetPosition(-500, 600, 600);
+  iacell_x->GetMapper()->SetInputData(colorImagesCell.at(0));
+  renderer->AddActor(iacell_x);
 
-    vtkSmartPointer<vtkImageActor> iacell_y = vtkSmartPointer<vtkImageActor>::New();
-    iacell_y->RotateX(90);
-    iacell_y->SetPosition(-500, 600, 600);
-    iacell_y->GetMapper()->SetInputData(colorImagesCell.at(1));
-    renderer->AddActor(iacell_y);
+  vtkSmartPointer<vtkImageActor> iacell_y = vtkSmartPointer<vtkImageActor>::New();
+  iacell_y->RotateX(90);
+  iacell_y->SetPosition(-500, 600, 600);
+  iacell_y->GetMapper()->SetInputData(colorImagesCell.at(1));
+  renderer->AddActor(iacell_y);
 
-    vtkSmartPointer<vtkImageActor> iacell_z = vtkSmartPointer<vtkImageActor>::New();
-    iacell_z->RotateY(-90);
-    iacell_z->SetPosition(-500, 600, 600);
-    iacell_z->GetMapper()->SetInputData(colorImagesCell.at(2));
-    renderer->AddActor(iacell_z);
+  vtkSmartPointer<vtkImageActor> iacell_z = vtkSmartPointer<vtkImageActor>::New();
+  iacell_z->RotateY(-90);
+  iacell_z->SetPosition(-500, 600, 600);
+  iacell_z->GetMapper()->SetInputData(colorImagesCell.at(2));
+  renderer->AddActor(iacell_z);
 
-    // Adjust viewpoint
-    vtkCamera* cam = renderer->GetActiveCamera();
-    cam->SetPosition(2, 2, 2);
-    cam->SetFocalPoint(0, 0, 1);
-    renderer->ResetCamera();
+  // Adjust viewpoint
+  vtkCamera* cam = renderer->GetActiveCamera();
+  cam->SetPosition(2, 2, 2);
+  cam->SetFocalPoint(0, 0, 1);
+  renderer->ResetCamera();
 
-    // Use the default pass to render the colored image.
-    glRenderer->SetPass(nullptr);
-    window->Render();
-  }
+  // Use the default pass to render the colored image.
+  glRenderer->SetPass(nullptr);
+  window->Render();
 
   // initialize render loop
   int retVal = vtkRegressionTestImage(window);
