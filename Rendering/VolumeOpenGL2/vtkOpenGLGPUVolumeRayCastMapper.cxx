@@ -1735,13 +1735,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
   if (this->Parent->ImageSampleDistance != 1.f)
   {
     this->ImageSampleFBO->DeactivateDrawBuffers();
-    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(
-      GL_DRAW_FRAMEBUFFER);
     if (this->RenderPassAttached)
     {
       this->ImageSampleFBO->ActivateDrawBuffers(
         static_cast<unsigned int>(this->NumImageSampleDrawBuffers));
     }
+    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(
+      GL_DRAW_FRAMEBUFFER);
 
     // Render the contents of ImageSampleFBO as a quad to intermix with the
     // rest of the scene.
