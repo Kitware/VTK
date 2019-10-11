@@ -570,7 +570,9 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
 {
   vtkOpenGLCheckStateMacro();
 
-  if (this->CurrentState.DrawBinding.Framebuffer && val < GL_COLOR_ATTACHMENT0)
+  if ((this->CurrentState.DrawBinding.Framebuffer ||
+       this->CurrentState.DrawBinding.Binding) && val < GL_COLOR_ATTACHMENT0
+       && val != GL_NONE)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
@@ -607,7 +609,9 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int *vals)
     return;
   }
 
-  if (this->CurrentState.DrawBinding.Framebuffer && vals[0] < GL_COLOR_ATTACHMENT0)
+  if ((this->CurrentState.DrawBinding.Framebuffer ||
+       this->CurrentState.DrawBinding.Binding) && vals[0] < GL_COLOR_ATTACHMENT0
+       && vals[0] != GL_NONE)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
@@ -653,7 +657,10 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int *vals)
   vtkCheckOpenGLErrorsWithStack("glDrawBuffers");
 }
 
-void vtkOpenGLState::vtkDrawBuffers(unsigned int count, unsigned int *vals)
+void vtkOpenGLState::vtkDrawBuffers(
+  unsigned int count,
+  unsigned int *vals,
+  vtkOpenGLFramebufferObject *fo)
 {
   vtkOpenGLCheckStateMacro();
 
@@ -668,6 +675,12 @@ void vtkOpenGLState::vtkDrawBuffers(unsigned int count, unsigned int *vals)
     vtkGenericWarningMacro(
       "A vtkOpenGLFramebufferObject is not currently bound. This method should only"
       " be called from vtkOpenGLFramebufferObject.");
+  }
+
+  if (fo != this->CurrentState.DrawBinding.Framebuffer)
+  {
+    vtkGenericWarningMacro(
+      "Attempt to set draw buffers from a Framebuffer Object that is not bound.");
   }
 
 #ifndef NO_CACHE
@@ -696,7 +709,9 @@ void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
 {
   vtkOpenGLCheckStateMacro();
 
-  if (this->CurrentState.ReadBinding.Framebuffer && val < GL_COLOR_ATTACHMENT0)
+  if ((this->CurrentState.ReadBinding.Framebuffer ||
+       this->CurrentState.ReadBinding.Binding) && val < GL_COLOR_ATTACHMENT0
+       && val != GL_NONE)
   {
     vtkGenericWarningMacro(
       "A vtkOpenGLFramebufferObject is currently bound but a hardware draw bufer was requested.");
@@ -723,7 +738,7 @@ void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
   vtkCheckOpenGLErrorsWithStack("glReadBuffer");
 }
 
-void vtkOpenGLState::vtkReadBuffer(unsigned int val)
+void vtkOpenGLState::vtkReadBuffer(unsigned int val, vtkOpenGLFramebufferObject *fo)
 {
   vtkOpenGLCheckStateMacro();
 
@@ -733,6 +748,12 @@ void vtkOpenGLState::vtkReadBuffer(unsigned int val)
     vtkGenericWarningMacro(
       "A vtkOpenGLFramebufferObject is not currently bound. This method should only"
       " be called from vtkOpenGLFramebufferObject.");
+  }
+
+  if (fo != this->CurrentState.ReadBinding.Framebuffer)
+  {
+    vtkGenericWarningMacro(
+      "Attempt to set read buffer from a Framebuffer Object that is not bound.");
   }
 
 #ifndef NO_CACHE

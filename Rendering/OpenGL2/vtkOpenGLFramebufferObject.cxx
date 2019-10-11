@@ -605,7 +605,7 @@ void vtkOpenGLFramebufferObject::ActivateBuffers()
     count++;
   }
 
-  this->Context->GetState()->vtkDrawBuffers(count, buffers);
+  this->Context->GetState()->vtkDrawBuffers(count, buffers, this);
 
   delete[] buffers;
 }
@@ -620,7 +620,7 @@ void vtkOpenGLFramebufferObject::ActivateReadBuffer(
       unsigned int colorAtt)
 {
   colorAtt += GL_COLOR_ATTACHMENT0;
-  this->Context->GetState()->vtkReadBuffer((GLenum)colorAtt);
+  this->Context->GetState()->vtkReadBuffer((GLenum)colorAtt, this);
   this->ActiveReadBuffer = colorAtt;
 }
 
@@ -639,7 +639,7 @@ void vtkOpenGLFramebufferObject::ActivateDrawBuffers(unsigned int num)
     count++;
   }
 
-  this->Context->GetState()->vtkDrawBuffers(count, buffers);
+  this->Context->GetState()->vtkDrawBuffers(count, buffers, this);
   delete[] buffers;
 
   this->ActiveBuffers.clear();
@@ -674,7 +674,7 @@ void vtkOpenGLFramebufferObject::ActivateDrawBuffers(unsigned int *ids, int num)
     count++;
   }
 
-  this->Context->GetState()->vtkDrawBuffers(count, buffers);
+  this->Context->GetState()->vtkDrawBuffers(count, buffers, this);
   delete[] buffers;
 
   this->ActiveBuffers.clear();
@@ -689,14 +689,14 @@ void vtkOpenGLFramebufferObject::ActivateDrawBuffers(unsigned int *ids, int num)
 void vtkOpenGLFramebufferObject::DeactivateDrawBuffers()
 {
   GLenum att = GL_NONE;
-  this->Context->GetState()->vtkDrawBuffers(1, &att);
+  this->Context->GetState()->vtkDrawBuffers(1, &att, this);
   this->ActiveBuffers.clear();
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::DeactivateReadBuffer()
 {
-  this->Context->GetState()->vtkReadBuffer(GL_NONE);
+  this->Context->GetState()->vtkReadBuffer(GL_NONE, this);
   this->ActiveReadBuffer = GL_NONE;
 }
 

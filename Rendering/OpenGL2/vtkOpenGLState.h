@@ -106,8 +106,8 @@ public:
   void vtkglReadBuffer(unsigned int);
 
   void vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject *fo);
-  void vtkDrawBuffers(unsigned int n, unsigned int *);
-  void vtkReadBuffer(unsigned int);
+  void vtkDrawBuffers(unsigned int n, unsigned int *, vtkOpenGLFramebufferObject *);
+  void vtkReadBuffer(unsigned int, vtkOpenGLFramebufferObject *);
   //@}
 
   //@{
