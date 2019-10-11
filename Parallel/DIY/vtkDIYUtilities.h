@@ -131,7 +131,7 @@ struct Serialization<vtkDataSet*>
 };
 }
 
-// Implementation detail for Schwartz counter idiom.
+// Implementation detail for Schwarz counter idiom.
 class VTKPARALLELDIY_EXPORT vtkDIYUtilitiesCleanup
 {
 public:
