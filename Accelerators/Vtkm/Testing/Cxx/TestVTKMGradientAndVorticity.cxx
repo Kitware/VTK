@@ -30,6 +30,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+#include <vtkm/testing/Testing.h>
 #include <vector>
 
 #define VTK_CREATE(type, var)                                   \
@@ -38,32 +39,6 @@
 namespace
 {
   double Tolerance = 0.00001;
-
-  bool ArePointsWithinTolerance(double v1, double v2)
-  {
-    if(v1 == v2 || fabs(v1)+fabs(v2) < Tolerance)
-    {
-      return true;
-    }
-
-    if(v1 == 0.0)
-    {
-      if(fabs(v2) < Tolerance)
-      {
-        return true;
-      }
-      std::cout << fabs(v2) << " (fabs(v2)) should be less than "
-           << Tolerance << std::endl;
-      return false;
-    }
-    if(fabs(v1/v2) < Tolerance)
-    {
-      return true;
-    }
-    std::cout << fabs(v1/v2) << " (fabs(v1/v2)) should be less than "
-         << Tolerance << std::endl;
-    return false;
-  }
 
 //-----------------------------------------------------------------------------
   void CreateCellData(vtkDataSet* grid, int numberOfComponents, int offset,
@@ -182,19 +157,19 @@ namespace
     {
       double* g = gradients->GetTuple(i);
       double* v = vorticity->GetTuple(i);
-      if(!ArePointsWithinTolerance(v[0], g[7]-g[5]))
+      if(!test_equal(v[0], g[7]-g[5]))
       {
         vtkGenericWarningMacro("Bad vorticity[0] value " << v[0] << " " <<
                                g[7]-g[5] << " difference is " << (v[0]-g[7]+g[5]));
         return 0;
       }
-      else if(!ArePointsWithinTolerance(v[1], g[2]-g[6]))
+      else if(!test_equal(v[1], g[2]-g[6]))
       {
         vtkGenericWarningMacro("Bad vorticity[1] value " << v[1] << " " <<
                                g[2]-g[6] << " difference is " << (v[1]-g[2]+g[6]));
         return 0;
       }
-      else if(!ArePointsWithinTolerance(v[2], g[3]-g[1]))
+      else if(!test_equal(v[2], g[3]-g[1]))
       {
         vtkGenericWarningMacro("Bad vorticity[2] value " << v[2] << " " <<
                                g[3]-g[1] << " difference is " << (v[2]-g[3]+g[1]));
@@ -231,7 +206,7 @@ namespace
                            (g[6]+g[2])*(g[6]+g[2]) +
                            (g[7]+g[5])*(g[7]+g[5]) ) );
 
-      if(!ArePointsWithinTolerance(qc, t1 - t2))
+      if(!test_equal(qc, t1 - t2))
       {
         vtkGenericWarningMacro("Bad Q-criterion value " << qc << " " <<
                                t1-t2 << " difference is " << (qc-t1+t2));
@@ -259,7 +234,7 @@ namespace
       double div = divergence->GetValue(i);
       double gValue = g[0]+g[4]+g[8];
 
-      if(!ArePointsWithinTolerance(div, gValue))
+      if(!test_equal(div, gValue))
       {
         vtkGenericWarningMacro("Bad divergence value " << div << " " <<
                                gValue << " difference is " << (div-gValue));

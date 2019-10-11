@@ -27,7 +27,6 @@
 #include "vtkmConfig.h" // For template export
 #include "vtkGenericDataArray.h"
 
-#include <vtkm/BaseComponent.h> // For vtkm::BaseComponent
 #include <vtkm/cont/ArrayHandle.h> // For vtkm::cont::ArrayHandle
 #include <vtkm/cont/VariantArrayHandle.h> // For vtkm::cont::VariantArrayHandle
 #include <vtkm/ListTag.h> // For vtkm::ListTagBase
@@ -98,10 +97,10 @@ private:
 
 //=============================================================================
 template <typename T, typename S>
-inline vtkmDataArray<typename vtkm::BaseComponent<T>::Type>*
+inline vtkmDataArray<typename vtkm::VecTraits<T>::BaseComponentType>*
 make_vtkmDataArray(const vtkm::cont::ArrayHandle<T, S>& ah)
 {
-  auto ret = vtkmDataArray<typename vtkm::BaseComponent<T>::Type>::New();
+  auto ret = vtkmDataArray<typename vtkm::VecTraits<T>::BaseComponentType>::New();
   ret->SetVtkmArrayHandle(ah);
   return ret;
 }

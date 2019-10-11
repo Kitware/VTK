@@ -48,7 +48,6 @@ public:
     , IndexOffsets()
     , ReverseConnectivityBuilt(false)
     , RConn()
-    , RNumIndices()
     , RIndexOffsets()
     , NumberOfPoints(0)
   {
@@ -65,7 +64,6 @@ public:
     , IndexOffsets(src.IndexOffsets)
     , ReverseConnectivityBuilt(src.ReverseConnectivityBuilt)
     , RConn(src.RConn)
-    , RNumIndices(src.RNumIndices)
     , RIndexOffsets(src.RIndexOffsets)
     , NumberOfPoints(src.NumberOfPoints)
   {
@@ -79,7 +77,6 @@ public:
     this->IndexOffsets = src.IndexOffsets;
     this->ReverseConnectivityBuilt = src.ReverseConnectivityBuilt;
     this->RConn = src.RConn;
-    this->RNumIndices = src.RNumIndices;
     this->RIndexOffsets = src.RIndexOffsets;
     this->NumberOfPoints = src.NumberOfPoints;
     return *this;
@@ -182,7 +179,6 @@ public:
     this->Connectivity.ReleaseResourcesExecution();
     this->IndexOffsets.ReleaseResourcesExecution();
     this->RConn.ReleaseResourcesExecution();
-    this->RNumIndices.ReleaseResourcesExecution();
     this->RIndexOffsets.ReleaseResourcesExecution();
   }
 
@@ -198,7 +194,6 @@ private:
   //      code refactoring in vtk-m
   mutable bool ReverseConnectivityBuilt;
   mutable vtkm::cont::ArrayHandle<vtkm::Id> RConn;
-  mutable vtkm::cont::ArrayHandle<vtkm::IdComponent> RNumIndices;
   mutable vtkm::cont::ArrayHandle<vtkm::Id> RIndexOffsets;
   mutable vtkm::Id NumberOfPoints;
 
