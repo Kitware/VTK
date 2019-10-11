@@ -60,6 +60,8 @@ int TestColorTransferFunction(int ,  char * [])
 
   vtkNew<vtkRangeHandlesItem> rangeHandlesItem;
   rangeHandlesItem->SetColorTransferFunction(colorTransferFunction);
+  // Use very large handles to make sure the test fails if the handles fail to render
+  rangeHandlesItem->SetHandleWidth(40.0);
   chart->AddPlot(rangeHandlesItem);
 
   // Finally render the scene and compare the image to a reference image

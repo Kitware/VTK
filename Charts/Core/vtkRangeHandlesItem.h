@@ -24,6 +24,7 @@
  * It emits a StartInteractionEvent when starting to interact with a handle,
  * an InteractionEvent when interacting with a handle and an EndInteractionEvent
  * when releasing a handle.
+ * It emits a LeftMouseButtonDoubleClickEvent when double clicked.
  *
  * @sa
  * vtkControlPointsItem
@@ -35,6 +36,7 @@
 #define vtkRangeHandlesItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkCommand.h"          // For vtkCommand enum
 #include "vtkPlot.h"
 
 class vtkColorTransferFunction;
@@ -79,8 +81,17 @@ public:
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);
   //@}
 
+  //@{
   /**
-   * Compute the handles draw range
+   * Set/Get the handles width in pixels.
+   * Default is 2.
+   */
+  vtkSetMacro(HandleWidth, float);
+  vtkGetMacro(HandleWidth, float);
+  //@}
+
+  /**
+   * Compute the handles draw range by using the handle width and the transfer function
    */
   void ComputeHandlesDrawRange();
 
@@ -102,6 +113,7 @@ protected:
   bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
   bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse) override;
   //@}
 
   /**
@@ -116,21 +128,32 @@ protected:
    */
   void SetActiveHandlePosition(double position);
 
+  /**
+   * Internal method to check if the active handle have
+   * actually been moved.
+   */
+  bool IsActiveHandleMoved(double tolerance);
+
+  /**
+   * Set the cursor shape
+   */
+  void SetCursor(int cursor);
+
 private:
   vtkRangeHandlesItem(const vtkRangeHandlesItem&) = delete;
   void operator=(const vtkRangeHandlesItem&) = delete;
 
   vtkColorTransferFunction* ColorTransferFunction = nullptr;
 
+  float HandleWidth = 2;
   float HandleDelta = 0;
   float LeftHandleDrawRange[2] = { 0, 0 };
   float RightHandleDrawRange[2] = { 0, 0 };
   int ActiveHandle = NO_HANDLE;
   int HoveredHandle = NO_HANDLE;
-  int PreviousHoveredHandle = NO_HANDLE;
   double ActiveHandlePosition = 0;
   double ActiveHandleRangeValue = 0;
-  vtkNew<vtkBrush> ActiveHandleBrush;
+  vtkNew<vtkBrush> HighlightBrush;
   vtkNew<vtkBrush> RangeLabelBrush;
 };
 
