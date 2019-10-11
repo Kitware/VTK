@@ -469,9 +469,6 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
     idx[0] = 1; idx[1] = 2;
   }
 
-  spacing[0] = x1[idx[0]] - x0[idx[0]];
-  spacing[1] = x2[idx[1]] - x0[idx[1]];
-
   // get derivatives in r-s directions
   this->InterpolationDerivs(pcoords, functionDerivs);
 
