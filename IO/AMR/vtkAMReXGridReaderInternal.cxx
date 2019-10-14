@@ -1072,7 +1072,7 @@ int vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, in
     is >> c; // read '('
     for (int ee = 0; ee < this->Header->dim; ++ee)
     {
-      is >> boxArray[3 * dd + ee];
+      is >> boxArray[this->Header->dim * dd + ee];
       if (ee < (this->Header->dim - 1))
       {
         is >> c; // read ','
@@ -1091,7 +1091,7 @@ int vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, in
   int numberOfPoints = 1;
   for (int i = 0; i < this->Header->dim; ++i)
   {
-    boxArrayDim[i] = ((boxArray[3 * 1 + i] - boxArray[3 * 0 + i]) + 1);
+    boxArrayDim[i] = ((boxArray[this->Header->dim * 1 + i] - boxArray[this->Header->dim * 0 + i]) + 1);
     numberOfPoints *= boxArrayDim[i];
   }
   if (debugReader)
@@ -1105,7 +1105,7 @@ void vtkAMReXGridReaderInternal::PrintBoxArray(int* boxArray)
   std::cout << "(";
   for (int space = 0; space < this->Header->dim; ++space)
   {
-    std::cout << boxArray[0 * 3 + space];
+    std::cout << boxArray[0 * this->Header->dim + space];
     if (space < (this->Header->dim - 1))
       std::cout << ",";
   }
@@ -1113,7 +1113,7 @@ void vtkAMReXGridReaderInternal::PrintBoxArray(int* boxArray)
   std::cout << "(";
   for (int space = 0; space < this->Header->dim; ++space)
   {
-    std::cout << boxArray[1 * 3 + space];
+    std::cout << boxArray[1 * this->Header->dim + space];
     if (space < (this->Header->dim - 1))
       std::cout << ",";
   }
@@ -1121,7 +1121,7 @@ void vtkAMReXGridReaderInternal::PrintBoxArray(int* boxArray)
   std::cout << "(";
   for (int space = 0; space < this->Header->dim; ++space)
   {
-    std::cout << boxArray[2 * 3 + space];
+    std::cout << boxArray[2 * this->Header->dim + space];
     if (space < (this->Header->dim - 1))
       std::cout << ",";
   }
