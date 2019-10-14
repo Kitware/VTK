@@ -251,7 +251,14 @@ int vtkAMRBaseReader::RequestInformation(
 
   this->Superclass::RequestInformation( rqst, inputVector, outputVector );
 
-  this->Metadata = vtkOverlappingAMR::New();
+  if (this->Metadata == nullptr)
+  {
+    this->Metadata = vtkOverlappingAMR::New();
+  }
+  else
+  {
+    this->Metadata->Initialize();
+  }
   this->FillMetaData( );
   vtkInformation* info = outputVector->GetInformationObject(0);
   assert( "pre: output information object is nullptr" && (info != nullptr) );
