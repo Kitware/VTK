@@ -235,11 +235,13 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
       vtkNew<vtkOpenGLFramebufferObject> fbo;
       fbo->SetContext(renWin);
-      fbo->SaveCurrentBindingsAndBuffers();
-      fbo->Bind();
 
       for (unsigned int mip = 0; mip < this->PrefilterLevels; mip++)
       {
+        // intentionaly save/restore to flush buffers between passes
+        // due to OSX nvidia issue
+        fbo->SaveCurrentBindingsAndBuffers();
+        fbo->Bind();
         fbo->RemoveColorAttachments(6);
         for (int i = 0; i < 6; i++)
         {
@@ -254,9 +256,9 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
         quadHelper.Program->SetUniformf("roughness", roughness);
 
         quadHelper.Render();
-      }
 
-      fbo->RestorePreviousBindingsAndBuffers();
+        fbo->RestorePreviousBindingsAndBuffers();
+      }
 
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }
