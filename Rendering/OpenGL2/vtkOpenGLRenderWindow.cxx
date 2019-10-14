@@ -1338,12 +1338,12 @@ void vtkOpenGLRenderWindow::StereoUpdate()
   {
     if (this->GetDoubleBuffer())
     {
-      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
 
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
     }
     else
     {
@@ -1381,21 +1381,21 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
   {
     if (this->GetDoubleBuffer())
     {
-      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
 
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
     }
     else
     {
-      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+      this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
 
       // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetFrontBuffer()));
+      this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetFrontLeftBuffer()));
     }
   }
 }
