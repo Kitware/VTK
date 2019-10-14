@@ -206,6 +206,11 @@ protected:
       std::stack<vtkColor3d> SpecularColor;
   };
 
+  bool RecursiveHasTranslucentGeometry(
+    vtkDataObject *dobj, unsigned int &flat_index);
+  vtkStateStorage TranslucentState;
+  bool HasTranslucentGeometry;
+
   void BuildRenderValues(vtkRenderer *renderer,
     vtkActor *actor,
     vtkDataObject *dobj,

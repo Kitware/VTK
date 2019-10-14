@@ -1291,12 +1291,120 @@ bool vtkCompositePolyDataMapper2::HasOpaqueGeometry()
   return true;
 }
 
+bool vtkCompositePolyDataMapper2::RecursiveHasTranslucentGeometry(
+  vtkDataObject *dobj,
+  unsigned int &flat_index)
+{
+  vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDataDisplayAttributes();
+  bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
+  if (overrides_visibility)
+  {
+    if (!cda->GetBlockVisibility(dobj))
+    {
+      return false;
+    }
+  }
+  bool overrides_opacity = (cda && cda->HasBlockOpacity(dobj));
+  if (overrides_opacity)
+  {
+    if (cda->GetBlockOpacity(dobj) < 1.0)
+    {
+      return true;
+    }
+  }
+
+  // Advance flat-index. After this point, flat_index no longer points to this
+  // block.
+  flat_index++;
+
+  auto dObjTree = vtkDataObjectTree::SafeDownCast(dobj);
+  if (dObjTree)
+  {
+    using Opts = vtk::DataObjectTreeOptions;
+    for (vtkDataObject *child : vtk::Range(dObjTree, Opts::None))
+    {
+      if (!child)
+      {
+        ++flat_index;
+      }
+      else
+      {
+        if (this->RecursiveHasTranslucentGeometry(child, flat_index))
+        {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  vtkPolyData *pd = vtkPolyData::SafeDownCast(dobj);
+  // if we think it is opaque check the scalars
+  if (this->ScalarVisibility)
+  {
+    vtkScalarsToColors* lut = this->GetLookupTable();
+    int cellFlag;
+    vtkDataArray* scalars = this->GetScalars(pd,
+      this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+      this->ArrayName, cellFlag);
+    if (lut->IsOpaque(scalars, this->ColorMode, this->ArrayComponent) == 0)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 //-----------------------------------------------------------------------------
 // simple tests, the mapper is tolerant of being
 // called both on opaque and translucent
 bool vtkCompositePolyDataMapper2::HasTranslucentPolygonalGeometry()
 {
-  return true;
+  // Make sure that we have been properly initialized.
+  if (this->GetInputAlgorithm() == nullptr)
+  {
+    return false;
+  }
+
+  if (!this->Static)
+  {
+    this->InvokeEvent(vtkCommand::StartEvent,nullptr);
+    this->GetInputAlgorithm()->Update();
+    this->InvokeEvent(vtkCommand::EndEvent,nullptr);
+  }
+
+  if (this->GetInputDataObject(0, 0) == nullptr)
+  {
+    return false;
+  }
+
+  // rebuild the render values if needed
+  vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDataDisplayAttributes();
+  vtkScalarsToColors* lut = this->ScalarVisibility ?
+    this->GetLookupTable() : nullptr;
+
+  this->TempState.Clear();
+  this->TempState.Append(cda ? cda->GetMTime() : 0, "cda mtime");
+  this->TempState.Append(lut ? lut->GetMTime() : 0, "lut mtime");
+  this->TempState.Append(this->GetInputDataObject(0, 0)->GetMTime(), "input mtime");
+  if (this->TranslucentState != this->TempState)
+  {
+    this->TranslucentState = this->TempState;
+    if (lut)
+    {
+      // Ensure that the lookup table is built
+      lut->Build();
+    }
+
+    // Push base-values on the state stack.
+    unsigned int flat_index = 0;
+    this->HasTranslucentGeometry =
+      this->RecursiveHasTranslucentGeometry(
+        this->GetInputDataObject(0, 0), flat_index);
+  }
+
+  return this->HasTranslucentGeometry;
 }
 
 //----------------------------------------------------------------------------
