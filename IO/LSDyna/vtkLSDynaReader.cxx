@@ -715,6 +715,11 @@ int vtkLSDynaReader::CanReadFile( const char* fname )
   return result > 0; // -1 and 0 are both problems, 1 indicates success.
 }
 
+void vtkLSDynaReader::SetDatabaseDirectory( const std::string& f )
+{
+  this->SetDatabaseDirectory(f.c_str());
+}
+
 void vtkLSDynaReader::SetDatabaseDirectory( const char* f )
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting DatabaseDirectory to " << f );
@@ -739,14 +744,28 @@ void vtkLSDynaReader::SetDatabaseDirectory( const char* f )
   }
 }
 
+#if defined(VTK_LEGACY_REMOVE)
+std::string vtkLSDynaReader::GetDatabaseDirectory()
+{
+  return this->P->Fam.GetDatabaseDirectory();
+}
+#else
 const char* vtkLSDynaReader::GetDatabaseDirectory()
 {
-  return this->P->Fam.GetDatabaseDirectory().c_str();
+  static thread_local std::string surrogate;
+  surrogate = this->GetDatabaseDirectory();
+  return surrogate.c_str();
 }
+#endif
 
 int vtkLSDynaReader::IsDatabaseValid()
 {
   return this->P->FileIsValid;
+}
+
+void vtkLSDynaReader::SetFileName( const std::string& f )
+{
+  this->SetFileName(f.c_str());
 }
 
 void vtkLSDynaReader::SetFileName( const char* f )
@@ -789,13 +808,20 @@ void vtkLSDynaReader::SetFileName( const char* f )
   }
 }
 
+#if defined(VTK_LEGACY_REMOVE)
+std::string vtkLSDynaReader::GetFileName()
+{
+  std::string filename = this->P->Fam.GetDatabaseDirectory() + "/d3plot";
+  return filename;
+}
+#else
 const char* vtkLSDynaReader::GetFileName()
 {
-  // This is completely thread UNsafe. But what to do?
-  static std::string filenameSurrogate;
-  filenameSurrogate = this->P->Fam.GetDatabaseDirectory() + "/d3plot";
-  return filenameSurrogate.c_str();
+  static thread_local std::string surrogate;
+  surrogate = this->P->Fam.GetDatabaseDirectory() + "/d3plot";
+  return surrogate.c_str();
 }
+#endif
 
 char* vtkLSDynaReader::GetTitle()
 {
