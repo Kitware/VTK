@@ -312,9 +312,6 @@ void vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight::PrintSelf(ostream& o
 vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight::
   ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight()
 {
-#ifndef NDEBUG
-  std::cerr << "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight:" << std::endl;
-#endif
 }
 
 //-----------------------------------------------------------------------------

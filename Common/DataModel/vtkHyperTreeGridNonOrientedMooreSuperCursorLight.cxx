@@ -372,9 +372,6 @@ void vtkHyperTreeGridNonOrientedMooreSuperCursorLight::PrintSelf(ostream& os, vt
 vtkHyperTreeGridNonOrientedMooreSuperCursorLight::
   ~vtkHyperTreeGridNonOrientedMooreSuperCursorLight()
 {
-#ifndef NDEBUG
-  std::cerr << "vtkHyperTreeGridNonOrientedMooreSuperCursorLight:" << std::endl;
-#endif
 }
 
 //-----------------------------------------------------------------------------

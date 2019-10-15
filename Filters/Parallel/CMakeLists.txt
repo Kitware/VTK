@@ -11,6 +11,7 @@ set(classes
   vtkExtractPolyDataPiece
   vtkExtractUnstructuredGridPiece
   vtkExtractUserDefinedPiece
+  vtkHyperTreeGridGhostCellsGenerator
   vtkIntegrateAttributes
   vtkPCellDataToPointData
   vtkPExtractDataArraysOverTime
