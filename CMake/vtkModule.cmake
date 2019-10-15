@@ -3915,12 +3915,26 @@ while (_vtk_module_find_package_components_to_check)
   string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depends \"\${_vtk_module_find_package_depends}\")
   list(APPEND _vtk_module_find_package_components_to_check
     \${_vtk_module_find_package_depends})
+
+  get_property(_vtk_module_find_package_kit
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_kit\")
+  if (_vtk_module_find_package_kit)
+    get_property(_vtk_module_find_package_kit_modules
+      TARGET    \"\${_vtk_module_find_package_kit}\"
+      PROPERTY  \"INTERFACE_vtk_kit_kit_modules\")
+    string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_kit_modules \"\${_vtk_module_find_package_kit_modules}\")
+    list(APPEND _vtk_module_find_package_components_to_check
+      \${_vtk_module_find_package_kit_modules})
+  endif ()
 endwhile ()
 unset(_vtk_module_find_package_component_target)
 unset(_vtk_module_find_package_components_to_check)
 unset(_vtk_module_find_package_components_checked)
 unset(_vtk_module_component)
 unset(_vtk_module_find_package_depends)
+unset(_vtk_module_find_package_kit)
+unset(_vtk_module_find_package_kit_modules)
 
 if (_vtk_module_find_package_components)
   list(REMOVE_DUPLICATES _vtk_module_find_package_components)
