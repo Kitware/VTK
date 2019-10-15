@@ -47,11 +47,13 @@ if (_MySQL_use_pkgconfig)
   set(MySQL_FOUND 0)
   if (_mysql_target)
     set(MySQL_FOUND 1)
-    add_library(MySQL::MySQL INTERFACE IMPORTED)
-    target_link_libraries(MySQL::MySQL
-      INTERFACE "PkgConfig::${_mysql_target}")
     set(MySQL_INCLUDE_DIRS ${${_mysql_target}_INCLUDE_DIRS})
     set(MySQL_LIBRARIES ${${_mysql_target}_LINK_LIBRARIES})
+    if (NOT TARGET MySQL::MySQL)
+      add_library(MySQL::MySQL INTERFACE IMPORTED)
+      target_link_libraries(MySQL::MySQL
+        INTERFACE "PkgConfig::${_mysql_target}")
+    endif ()
   endif ()
   unset(_mysql_target)
 else ()
@@ -97,12 +99,14 @@ else ()
     REQUIRED_VARS MySQL_INCLUDE_DIR MySQL_LIBRARY)
 
   if (MySQL_FOUND)
-    add_library(MySQL::MySQL UNKNOWN IMPORTED)
-    set_target_properties(MySQL::MySQL PROPERTIES
-      IMPORTED_LOCATION "${MySQL_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${MySQL_INCLUDE_DIR}")
     set(MySQL_INCLUDE_DIRS "${MySQL_INCLUDE_DIR}")
     set(MySQL_LIBRARIES "${MySQL_LIBRARY}")
+    if (NOT TARGET MySQL::MySQL)
+      add_library(MySQL::MySQL UNKNOWN IMPORTED)
+      set_target_properties(MySQL::MySQL PROPERTIES
+      IMPORTED_LOCATION "${MySQL_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${MySQL_INCLUDE_DIR}")
+    endif ()
   endif ()
 endif ()
 unset(_MySQL_use_pkgconfig)
