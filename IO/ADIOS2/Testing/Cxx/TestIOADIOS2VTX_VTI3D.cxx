@@ -30,6 +30,7 @@
 #include "vtkADIOS2VTXReader.h"
 
 #include <algorithm> //std::equal
+#include <array>
 #include <iostream>
 #include <numeric> //std::iota
 #include <string>
@@ -258,26 +259,26 @@ int TestIOADIOS2VTX_VTI3D(int argc, char* argv[])
   const adios2::Dims shape{ static_cast<size_t>(size) * count[0], count[1], count[2] };
 
   char* filePath;
+  std::string fileName;
 
-  // schema as file in bp dir without time
-  filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp3/heat3D_1.bp");
-  lf_DoTest(filePath, steps);
+  const std::vector<std::string> directories = { "bp3", "bp4" };
+  constexpr std::array<unsigned int, 4> ids = { 1, 2, 3, 4 };
 
-  // schema as attribute in bp file
-  filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp3/heat3D_2.bp");
-  lf_DoTest(filePath, steps);
+  for (const std::string& dir : directories)
+  {
+    // 3D tests
+    for (const auto id : ids)
+    {
+      fileName = "Data/ADIOS2/vtx/" + dir + "/heat3D_" + std::to_string(id) + ".bp";
+      filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName.c_str());
+      lf_DoTest(filePath, steps);
+    }
 
-  // schema as file in bp dir
-  filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp3/heat3D_3.bp");
-  lf_DoTest(filePath, steps);
-
-  // schema for point data
-  filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp3/heat3D_4.bp");
-  lf_DoTest(filePath, steps);
-
-  // cell data from 1D arrays
-  filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp3/heat1D_1.bp");
-  lf_DoTest(filePath, steps);
+    // 1D tests
+    fileName = "Data/ADIOS2/vtx/" + dir + "/heat3D_1.bp";
+    filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName.c_str());
+    lf_DoTest(filePath, steps);
+  }
 
   mpiController->Finalize();
   return 0;

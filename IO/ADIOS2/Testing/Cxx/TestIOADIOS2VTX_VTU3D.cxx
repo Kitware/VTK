@@ -234,7 +234,8 @@ namespace
 {
 
 void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const int rank,
-  const bool isAttribute, const bool /*hasTime*/, const bool unsignedType)
+  const bool isAttribute, const bool /*hasTime*/, const bool unsignedType,
+  const std::string& engineType)
 {
     const std::string unstructureGridSchema = R"(
         <VTKFile type="UnstructuredGrid">
@@ -259,7 +260,7 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
 
     std::vector<double> sol(45);
 
-    adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
+    adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF, engineType);
 
     for (size_t s = 0; s < steps; ++s)
     {
@@ -295,7 +296,11 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
 
     if (!isAttribute && rank == 0)
     {
-      std::ofstream fxml(fileName + ".dir/vtk.xml", ofstream::out);
+      const std::string vtkFileName = vtksys::SystemTools::FileIsDirectory(fileName)
+        ? fileName + "/vtk.xml"
+        : fileName + ".dir/vtk.xml";
+
+      std::ofstream fxml(vtkFileName, ofstream::out);
       fxml << unstructureGridSchema << "\n";
       fxml.close();
     }
@@ -332,17 +337,24 @@ int TestIOADIOS2VTX_VTU3D(int argc, char* argv[])
   const int rank = MPIGetRank();
   const size_t steps = 3;
 
-  const std::string fileName = "ex2_mfem.bp";
+  vtksys::SystemTools::MakeDirectory("bp3");
+  vtksys::SystemTools::MakeDirectory("bp4");
 
-  // schema as attribute in bp file
-  WriteBPFile3DVars(fileName, steps, rank, false, true, true);
-  lf_DoTest(fileName, steps);
-  vtksys::SystemTools::RemoveADirectory(fileName + ".dir");
-  vtksys::SystemTools::RemoveFile(fileName);
+  const std::vector<std::string> engineTypes = { "bp3", "bp4" };
+  std::string fileName;
 
-  // schema as file in bp dir
-  WriteBPFile3DVars(fileName, steps, rank, false, false, false);
-  lf_DoTest(fileName, steps);
+  for (const std::string& engineType : engineTypes)
+  {
+    // schema as attribute in bp file
+    fileName = engineType + "/ex2_mfem_1.bp";
+    WriteBPFile3DVars(fileName, steps, rank, false, true, true, engineType);
+    lf_DoTest(fileName, steps);
+
+    // schema as file in bp directory
+    fileName = engineType + "/ex2_mfem_2.bp";
+    WriteBPFile3DVars(fileName, steps, rank, false, false, false, engineType);
+    lf_DoTest(fileName, steps);
+  }
 
   mpiController->Finalize();
   return 0;

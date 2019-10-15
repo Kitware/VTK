@@ -180,10 +180,36 @@ adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape);
 template<class T, class U>
 std::vector<T> MapKeysToVector(const std::map<T, U>& input) noexcept;
 
+/**
+ * Print a vector with an associated name. For debugging purposes.
+ * @param input vector data
+ * @param name input name
+ */
 template<class T>
 void Print(const std::vector<T>& input, const std::string& name);
 
+/**
+ * Linear index for a point within a box with shape dimensions from zero origin
+ * @param shape input shape box
+ * @param point input point
+ * @return linearized point inside shape
+ */
 size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noexcept;
+
+/**
+ * Set the appropriate file name based on recognized user input
+ * @param fileName input from user selected file
+ * @return
+ */
+std::string GetFileName(const std::string& fileName) noexcept;
+
+/**
+ * Check if input ends with a certain (ends) string
+ * @param input string input
+ * @param ends ending string to check in input
+ * @return  true: input ends with "ends", false: it doesn't end with ends
+ */
+bool EndsWith(const std::string& input, const std::string& ends) noexcept;
 
 } // end namespace helper
 } // end namespace vtx
