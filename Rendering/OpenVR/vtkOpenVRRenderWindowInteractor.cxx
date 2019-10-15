@@ -465,18 +465,18 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
                   ed->SetAction(vtkEventDataAction::Release);
                 }
               }
+              vr::VRControllerState_t cstate;
+              pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
+              for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
+              {
+                if (pHMD->GetInt32TrackedDeviceProperty(tdi,
+                  static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
+                  == axisType)
+                {
+                  ed->SetTrackPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
+                }
+              }
             }
-            // vr::VRControllerState_t cstate;
-            // pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
-            // for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
-            // {
-            //   if (pHMD->GetInt32TrackedDeviceProperty(tdi,
-            //     static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
-            //     == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
-            //   {
-            //     ed->SetTrackPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
-            //   }
-            // }
             break;
           case vr::EVRButtonId::k_EButton_Grip:
             ed->SetInput(vtkEventDataDeviceInput::Grip);
