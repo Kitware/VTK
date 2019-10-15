@@ -177,9 +177,29 @@ while (_vtk_components_to_check)
     continue ()
   endif ()
 
-  get_property(_vtk_dependencies
+  get_property(_vtk_public_dependencies
     TARGET    "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}"
     PROPERTY  "INTERFACE_vtk_module_depends")
+  get_property(_vtk_private_dependencies
+    TARGET    "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}"
+    PROPERTY  "INTERFACE_vtk_module_private_depends")
+  get_property(_vtk_optional_dependencies
+    TARGET    "${CMAKE_FIND_PACKAGE_NAME}::${_vtk_component}"
+    PROPERTY  "INTERFACE_vtk_module_optional_depends")
+  set(_vtk_dependencies
+    ${_vtk_public_dependencies}
+    ${_vtk_private_dependencies})
+  foreach (_vtk_optional_dependency IN LISTS _vtk_optional_dependencies)
+    if (TARGET "${_vtk_optional_dependency}")
+      list(APPEND _vtk_dependencies
+        "${_vtk_optional_dependency}")
+    endif ()
+  endforeach ()
+  unset(_vtk_public_dependencies)
+  unset(_vtk_private_dependencies)
+  unset(_vtk_optional_dependency)
+  unset(_vtk_optional_dependencies)
+
   string(REPLACE "${CMAKE_FIND_PACKAGE_NAME}::" "" _vtk_dependencies "${_vtk_dependencies}")
   set(_vtk_all_dependencies_checked TRUE)
   foreach (_vtk_dependency IN LISTS _vtk_dependencies)
