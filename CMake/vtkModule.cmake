@@ -963,12 +963,13 @@ use in wrapping code to more easily access them.
 #]==]
 
 #[==[.md INTERNAL
-### The real target for a module
+### The real target for a module or kit
 
 Sometimes the actual, core target for a module is required (e.g., setting
 CMake-level target properties or install rules). The `_vtk_module_real_target`
-function finds the real target for a module. This only works for modules which
-are built in the current tree.
+and `_vtk_module_real_target_kit` functions find the real target for a module
+or kit. This only works for modules or kits which are built in the current
+tree.
 #]==]
 
 function (_vtk_module_real_target var module)
@@ -1017,6 +1018,37 @@ function (_vtk_module_real_target var module)
     message(FATAL_ERROR
       "Failed to determine the real target for the `${module}` "
       "module.${_vtk_real_target_msg}")
+  endif ()
+
+  set("${var}"
+    "${_vtk_real_target_res}"
+    PARENT_SCOPE)
+endfunction ()
+
+function (_vtk_module_real_target_kit var kit)
+  if (ARGN)
+    message(FATAL_ERROR
+      "Unparsed arguments for _vtk_module_real_target_kit: ${ARGN}.")
+  endif ()
+
+  set(_vtk_real_target_res "")
+  if (TARGET "${kit}")
+    get_property(_vtk_real_target_imported
+      TARGET    "${kit}"
+      PROPERTY  IMPORTED)
+    if (_vtk_real_target_imported)
+      set(_vtk_real_target_res "${kit}")
+    endif ()
+  endif ()
+
+  if (NOT _vtk_real_target_res)
+    get_property(_vtk_real_target_res GLOBAL
+      PROPERTY "_vtk_kit_${kit}_target_name")
+  endif ()
+
+  if (NOT _vtk_real_target_res)
+    message(FATAL_ERROR
+      "Failed to determine the real target for the `${kit}` kit.")
   endif ()
 
   set("${var}"
