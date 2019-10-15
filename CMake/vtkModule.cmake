@@ -3919,6 +3919,22 @@ while (_vtk_module_find_package_components_to_check)
   string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depends \"\${_vtk_module_find_package_depends}\")
   list(APPEND _vtk_module_find_package_components_to_check
     \${_vtk_module_find_package_depends})
+  get_property(_vtk_module_find_package_depends
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_private_depends\")
+  string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depends \"\${_vtk_module_find_package_depends}\")
+  list(APPEND _vtk_module_find_package_components_to_check
+    \${_vtk_module_find_package_depends})
+  get_property(_vtk_module_find_package_depends
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_optional_depends\")
+  foreach (_vtk_module_find_package_depend IN LISTS _vtk_module_find_package_depends)
+    if (TARGET \"\${_vtk_module_find_package_depend}\")
+      string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depend \"\${_vtk_module_find_package_depend}\")
+      list(APPEND _vtk_module_find_package_components_to_check
+        \"\${_vtk_module_find_package_depend}\")
+    endif ()
+  endforeach ()
 
   get_property(_vtk_module_find_package_kit
     TARGET    \"\${_vtk_module_find_package_component_target}\"
@@ -3936,6 +3952,7 @@ unset(_vtk_module_find_package_component_target)
 unset(_vtk_module_find_package_components_to_check)
 unset(_vtk_module_find_package_components_checked)
 unset(_vtk_module_component)
+unset(_vtk_module_find_package_depend)
 unset(_vtk_module_find_package_depends)
 unset(_vtk_module_find_package_kit)
 unset(_vtk_module_find_package_kit_modules)
