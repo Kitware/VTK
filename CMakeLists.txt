@@ -402,11 +402,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
   @ONLY)
 
-cmake_dependent_option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF
-  # The `vtk_module_export_find_packages` function doesn't take kits into
-  # account when determining which find modules are required. Until that logic
-  # is implemented, examples will be disabled.
-  "NOT VTK_ENABLE_KITS" OFF)
+option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF)
 if (VTK_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif ()
