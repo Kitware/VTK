@@ -2291,8 +2291,10 @@ function (vtk_module_build)
           INSTALL_FILE  "${_vtk_build_properties_install_file}"
           MODULE        "${_vtk_build_module}"
           FROM_GLOBAL_PROPERTIES
-            # Export the public dependencies of a module.
+            # Export the dependencies of a module.
             depends
+            private_depends
+            optional_depends
             # The library name of the module.
             library_name
           PROPERTIES
@@ -2326,8 +2328,10 @@ function (vtk_module_build)
         FROM_GLOBAL_PROPERTIES
           # Export whether the module should be excluded from wrapping or not.
           exclude_wrap
-          # Export the public dependencies of a module.
+          # Export the dependencies of a module.
           depends
+          private_depends
+          optional_depends
           # Export what modules are implemented by the module.
           implements
           # Export whether the module contains autoinit logic.
