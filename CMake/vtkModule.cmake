@@ -2312,6 +2312,13 @@ function (vtk_module_build)
           hierarchy)
       endif ()
 
+      set(_vtk_build_properties_kit_properties)
+      if (_vtk_build_BUILD_WITH_KITS)
+        list(APPEND _vtk_build_properties_kit_properties
+          # Export the kit membership of a module.
+          kit)
+      endif ()
+
       _vtk_module_export_properties(
         BUILD_FILE    "${_vtk_build_properties_build_file}"
         INSTALL_FILE  "${_vtk_build_properties_install_file}"
@@ -2327,6 +2334,7 @@ function (vtk_module_build)
           implementable
           # The library name of the module.
           library_name
+          ${_vtk_build_properties_kit_properties}
         PROPERTIES
           # Export whether the module needs autoinit logic handled.
           INTERFACE_vtk_module_needs_autoinit
@@ -2336,6 +2344,18 @@ function (vtk_module_build)
           # Set the properties which differ between build and install trees.
           ${_vtk_build_split_properties})
     endforeach ()
+
+    if (_vtk_build_BUILD_WITH_KITS)
+      foreach (_vtk_build_kit IN LISTS _vtk_build_KITS)
+        _vtk_module_export_properties(
+          BUILD_FILE    "${_vtk_build_properties_build_file}"
+          INSTALL_FILE  "${_vtk_build_properties_install_file}"
+          KIT           "${_vtk_build_kit}"
+          FROM_GLOBAL_PROPERTIES
+            # Export the list of modules in the kit.
+            kit_modules)
+      endforeach ()
+    endif ()
 
     set(_vtk_build_namespace)
     if (_vtk_build_TARGET_NAMESPACE)
