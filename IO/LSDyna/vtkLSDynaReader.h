@@ -153,6 +153,7 @@
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include <string> // for method signature
 
 class LSDynaMetaData;
 class vtkLSDynaPartCollection;
