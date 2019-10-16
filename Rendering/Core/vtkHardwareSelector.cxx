@@ -704,12 +704,13 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     }
 
     int composite_id = this->Convert(display_position,
-      this->PixBuffer[COMPOSITE_INDEX_PASS]);
+      this->PixBuffer[COMPOSITE_INDEX_PASS]) - ID_OFFSET;
     if (composite_id < 0 || composite_id > 0xffffff)
     {
-      composite_id = 0;
+      // the pixel did not hit any composite
+      return PixelInformation();
     }
-    info.CompositeID = static_cast<unsigned int>(composite_id - ID_OFFSET);
+    info.CompositeID = static_cast<unsigned int>(composite_id);
 
     int low24 = this->Convert(display_position, this->PixBuffer[CELL_ID_LOW24]);
     int high24 = this->Convert(display_position, this->PixBuffer[CELL_ID_HIGH24]);
