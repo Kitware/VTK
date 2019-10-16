@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkIVWriter);
 
@@ -36,7 +37,7 @@ void vtkIVWriter::WriteData()
   }
 
   // try opening the files
-  fp = fopen(this->FileName, "w");
+  fp = vtksys::SystemTools::Fopen(this->FileName, "w");
   if (!fp)
   {
     vtkErrorMacro(<< "unable to open OpenInventor file: " << this->FileName);

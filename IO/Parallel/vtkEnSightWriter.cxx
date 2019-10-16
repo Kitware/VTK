@@ -27,6 +27,8 @@
 
 #include "vtkEnSightWriter.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include "vtkToolkits.h" // for VTK_USE_PARALLEL
 #ifdef VTK_USE_PARALLEL
 #include "vtkMultiProcessController.h"
@@ -1045,7 +1047,7 @@ void vtkEnSightWriter::SanitizeFileName(char* name)
 //----------------------------------------------------------------------------
 FILE* vtkEnSightWriter::OpenFile(char* name)
 {
-  FILE* fd = fopen(name, "wb");
+  FILE* fd = vtksys::SystemTools::Fopen(name, "wb");
 
   if (fd == nullptr)
   {

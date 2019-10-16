@@ -39,6 +39,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
 #include "vtkSMPTools.h"
@@ -2556,11 +2557,11 @@ int vtkMultiBlockPLOT3DReader::OpenFileForDataRead(void*& fp, const char* fname)
 {
   if (this->BinaryFile)
   {
-    fp = fopen(fname, "rb");
+    fp = vtksys::SystemTools::Fopen(fname, "rb");
   }
   else
   {
-    fp = fopen(fname, "r");
+    fp = vtksys::SystemTools::Fopen(fname, "r");
   }
   if (fp == nullptr)
   {
@@ -2580,11 +2581,11 @@ int vtkMultiBlockPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
 {
   if (this->BinaryFile)
   {
-    fp = fopen(fname, "rb");
+    fp = vtksys::SystemTools::Fopen(fname, "rb");
   }
   else
   {
-    fp = fopen(fname, "r");
+    fp = vtksys::SystemTools::Fopen(fname, "r");
   }
   if (fp == nullptr)
   {

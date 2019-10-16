@@ -34,6 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -386,7 +387,7 @@ int vtkWindBladeReader::RequestData(vtkInformation* reqInfo,
     std::ostringstream fileName;
     vtkStructuredGrid* field = this->GetFieldOutput();
     this->InitFieldData(outVector, fileName, field);
-    this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
+    this->Internal->FilePtr = vtksys::SystemTools::Fopen(fileName.str(), "rb");
     if (this->Internal->FilePtr == nullptr)
     {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
@@ -720,7 +721,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
   fileName << this->RootDirectory << "/" << this->DataDirectory << "/" << this->DataBaseName
            << this->TimeStepFirst;
 
-  this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
+  this->Internal->FilePtr = vtksys::SystemTools::Fopen(fileName.str(), "rb");
 
   if (this->Internal->FilePtr == nullptr)
   {
@@ -944,7 +945,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
 
   int blockSize = this->Dimension[0] * this->Dimension[1];
   float* topoData = new float[blockSize];
-  FILE* filePtr = fopen(fileName.str().c_str(), "rb");
+  FILE* filePtr = vtksys::SystemTools::Fopen(fileName.str(), "rb");
 
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET); // Fortran byte count
   if (fread(topoData, sizeof(float), blockSize, filePtr) != static_cast<size_t>(blockSize))

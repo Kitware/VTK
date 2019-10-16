@@ -161,7 +161,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(
   int i, npts;
   char tag[80];
 
-  if ((file = fopen(filename, "r")) == nullptr)
+  if ((file = vtksys::SystemTools::Fopen(filename, "r")) == nullptr)
   {
     std::cerr << "ERROR: Can't open file: " << filename << std::endl;
     return nullptr;

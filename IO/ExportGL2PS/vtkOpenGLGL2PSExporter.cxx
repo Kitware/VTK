@@ -22,6 +22,7 @@
 #include "vtkOpenGLGL2PSHelper.h"
 #include "vtkRenderWindow.h"
 #include "vtkWindowToImageFilter.h"
+#include <vtksys/SystemTools.hxx>
 
 #include "vtk_gl2ps.h"
 
@@ -60,7 +61,7 @@ void vtkOpenGLGL2PSExporter::WriteData()
   {
     fname << ".gz";
   }
-  FILE* file = fopen(fname.str().c_str(), "wb");
+  FILE* file = vtksys::SystemTools::Fopen(fname.str(), "wb");
   if (!file)
   {
     vtkErrorMacro("Unable to open file: " << fname.str());

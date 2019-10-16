@@ -26,8 +26,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVersion.h"
+#include <vtksys/SystemTools.hxx>
 
-#include "vtksys/SystemTools.hxx"
 #include <sstream>
 
 // Header for NIFTI
@@ -672,7 +672,7 @@ int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
-    ufile = fopen(hdrname, "wb");
+    ufile = vtksys::SystemTools::Fopen(hdrname, "wb");
   }
 
   if (!file && !ufile)
@@ -736,7 +736,7 @@ int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       fclose(ufile);
-      ufile = fopen(imgname, "wb");
+      ufile = vtksys::SystemTools::Fopen(imgname, "wb");
     }
   }
 

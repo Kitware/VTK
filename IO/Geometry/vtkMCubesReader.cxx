@@ -24,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -100,7 +101,7 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro(<< "Please specify input FileName");
     return 0;
   }
-  if ((fp = fopen(this->FileName, "rb")) == nullptr)
+  if ((fp = vtksys::SystemTools::Fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;

@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkBYUReader);
 
@@ -54,7 +55,7 @@ vtkBYUReader::~vtkBYUReader()
 int vtkBYUReader::CanReadFile(const char* filename)
 {
   int result;
-  FILE* fp = fopen(filename, "r");
+  FILE* fp = vtksys::SystemTools::Fopen(filename, "r");
   if (fp == nullptr)
     return 0;
 
@@ -96,7 +97,7 @@ int vtkBYUReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro(<< "No GeometryFileName specified!");
     return 0;
   }
-  if ((geomFp = fopen(this->GeometryFileName, "r")) == nullptr)
+  if ((geomFp = vtksys::SystemTools::Fopen(this->GeometryFileName, "r")) == nullptr)
   {
     vtkErrorMacro(<< "Geometry file: " << this->GeometryFileName << " not found");
     return 0;
@@ -264,7 +265,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation* outInfo)
 
   if (this->ReadDisplacement && this->DisplacementFileName)
   {
-    if (!(dispFp = fopen(this->DisplacementFileName, "r")))
+    if (!(dispFp = vtksys::SystemTools::Fopen(this->DisplacementFileName, "r")))
     {
       vtkErrorMacro(<< "Couldn't open displacement file");
       return;
@@ -311,7 +312,7 @@ void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation* outInfo)
 
   if (this->ReadScalar && this->ScalarFileName)
   {
-    if (!(scalarFp = fopen(this->ScalarFileName, "r")))
+    if (!(scalarFp = vtksys::SystemTools::Fopen(this->ScalarFileName, "r")))
     {
       vtkErrorMacro(<< "Couldn't open scalar file");
       return;
@@ -358,7 +359,7 @@ void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation* outInfo)
 
   if (this->ReadTexture && this->TextureFileName)
   {
-    if (!(textureFp = fopen(this->TextureFileName, "r")))
+    if (!(textureFp = vtksys::SystemTools::Fopen(this->TextureFileName, "r")))
     {
       vtkErrorMacro(<< "Couldn't open texture file");
       return;

@@ -33,6 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkIVExporter);
 
@@ -99,7 +100,7 @@ void vtkIVExporter::WriteData()
   }
 
   // try opening the files
-  fp = fopen(this->FileName, "w");
+  fp = vtksys::SystemTools::Fopen(this->FileName, "w");
   if (!fp)
   {
     vtkErrorMacro(<< "unable to open OpenInventor file " << this->FileName);

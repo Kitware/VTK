@@ -107,7 +107,7 @@ bool FileStreamReader::open(const char* fileName)
     // we just have peak into the file and see if it has the magic
     // flags or not
     unsigned char magic[2];
-    FILE* ff = fopen(fileName, "rb");
+    FILE* ff = vtksys::SystemTools::Fopen(fileName, "rb");
     size_t count = fread(magic, 1, 2, ff);
     fclose(ff);
 

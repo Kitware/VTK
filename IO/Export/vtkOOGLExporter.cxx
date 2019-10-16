@@ -33,6 +33,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTexture.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkOOGLExporter);
 
@@ -101,7 +102,7 @@ void vtkOOGLExporter::WriteData()
   }
 
   // try opening the files
-  fp = fopen(this->FileName, "w");
+  fp = vtksys::SystemTools::Fopen(this->FileName, "w");
   if (!fp)
   {
     vtkErrorMacro(<< "unable to open Geomview OOGL file " << this->FileName);

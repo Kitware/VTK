@@ -27,6 +27,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <cctype> /* isspace */
@@ -427,7 +428,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 
             // got full path to geometry file
 
-            this->IFile = fopen(sfilename.c_str(), "rb");
+            this->IFile = vtksys::SystemTools::Fopen(sfilename, "rb");
             if (this->IFile == nullptr)
             {
               if (!quiet)
@@ -541,7 +542,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 
         // got full path to geometry file
 
-        this->IFile = fopen(sfilename.c_str(), "rb");
+        this->IFile = vtksys::SystemTools::Fopen(sfilename, "rb");
         if (this->IFile == nullptr)
         {
           if (!quiet)

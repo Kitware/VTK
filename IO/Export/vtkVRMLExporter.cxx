@@ -36,6 +36,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <limits>
 
@@ -102,7 +103,7 @@ void vtkVRMLExporter::WriteData()
   // try opening the files
   if (!this->FilePointer)
   {
-    fp = fopen(this->FileName, "w");
+    fp = vtksys::SystemTools::Fopen(this->FileName, "w");
     if (!fp)
     {
       vtkErrorMacro(<< "unable to open VRML file " << this->FileName);

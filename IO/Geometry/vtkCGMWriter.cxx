@@ -544,7 +544,7 @@ void vtkCGMWriter::WriteData()
   }
 
   // Try opening the file
-  if ((outf = fopen(this->FileName, "wb")) == nullptr)
+  if ((outf = vtksys::SystemTools::Fopen(this->FileName, "wb")) == nullptr)
   {
     vtkErrorMacro(<< "Cannot open CGM file");
     return;

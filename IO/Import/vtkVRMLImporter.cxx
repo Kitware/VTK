@@ -52,6 +52,7 @@
 #include "vtkSystemIncludes.h"
 #include "vtkTransform.h"
 #include "vtkVRML.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <exception>
@@ -166,7 +167,7 @@ int vtkVRMLImporter::OpenImportFile()
     vtkErrorMacro(<< "No file specified!");
     return 0;
   }
-  this->FileFD = fopen(this->FileName, "r");
+  this->FileFD = vtksys::SystemTools::Fopen(this->FileName, "r");
   if (this->FileFD == nullptr)
   {
     vtkErrorMacro(<< "Unable to open file: " << this->FileName);
@@ -260,7 +261,7 @@ int vtkVRMLImporter::ImportBegin()
     // Not sure why I have to do this but its not working when
     // When I use the FileFD file pointer...
     // File existence already checked.
-    this->Parser->yyin = fopen(this->FileName, "r");
+    this->Parser->yyin = vtksys::SystemTools::Fopen(this->FileName, "r");
     if (!this->Parser->yyin)
     {
       throw std::exception();

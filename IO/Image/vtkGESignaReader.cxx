@@ -20,6 +20,7 @@
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 
@@ -27,7 +28,7 @@ vtkStandardNewMacro(vtkGESignaReader);
 
 int vtkGESignaReader::CanReadFile(const char* fname)
 {
-  FILE* fp = fopen(fname, "rb");
+  FILE* fp = vtksys::SystemTools::Fopen(fname, "rb");
   if (!fp)
   {
     return 0;
@@ -58,7 +59,7 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
 
-  FILE* fp = fopen(this->InternalFileName, "rb");
+  FILE* fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
   if (!fp)
   {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
@@ -545,7 +546,7 @@ static void vtkcopygenesisimage(FILE* infp, int width, int height, int compress,
 static void vtkGESignaReaderUpdate2(
   vtkGESignaReader* self, unsigned short* outPtr, int* outExt, vtkIdType*)
 {
-  FILE* fp = fopen(self->GetInternalFileName(), "rb");
+  FILE* fp = vtksys::SystemTools::Fopen(self->GetInternalFileName(), "rb");
   if (!fp)
   {
     return;

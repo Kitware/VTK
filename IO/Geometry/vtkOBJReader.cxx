@@ -24,6 +24,7 @@
 #include <cctype>
 #include <sstream>
 #include <unordered_map>
+#include <vtksys/SystemTools.hxx>
 
 #include "vtkCellData.h"
 #include "vtkStringArray.h"
@@ -121,7 +122,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  FILE* in = fopen(this->FileName, "r");
+  FILE* in = vtksys::SystemTools::Fopen(this->FileName, "r");
 
   if (in == nullptr)
   {
