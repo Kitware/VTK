@@ -199,9 +199,16 @@ size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noex
 /**
  * Set the appropriate file name based on recognized user input
  * @param fileName input from user selected file
- * @return
+ * @return file name to be used by adios2 engine
  */
 std::string GetFileName(const std::string& fileName) noexcept;
+
+/**
+ * Set the appropriate engine type based on recognized user input
+ * @param fileName input from user selected file
+ * @return engine type to be used by adios2 engine
+ */
+std::string GetEngineType(const std::string& fileName) noexcept;
 
 /**
  * Check if input ends with a certain (ends) string

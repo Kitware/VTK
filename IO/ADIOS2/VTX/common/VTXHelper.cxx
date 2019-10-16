@@ -31,6 +31,8 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMultiProcessController.h"
 
+#include <vtksys/SystemTools.hxx>
+
 namespace vtx
 {
 namespace helper
@@ -328,6 +330,12 @@ std::string GetFileName(const std::string& fileName) noexcept
   const std::string output =
     EndsWith(fileName, ".bp.dir") ? fileName.substr(0, fileName.size() - 4) : fileName;
   return output;
+}
+
+std::string GetEngineType(const std::string& fileName) noexcept
+{
+  const std::string engineType = vtksys::SystemTools::FileIsDirectory(fileName) ? "BP4" : "BP3";
+  return engineType;
 }
 
 bool EndsWith(const std::string& input, const std::string& ends) noexcept

@@ -47,8 +47,11 @@ void VTXSchemaManager::Update(
   {
     this->StreamName = streamName;
     this->SchemaName = schemaName;
-    this->IO = this->ADIOS->DeclareIO(this->StreamName);
-    this->Engine = this->IO.Open(helper::GetFileName(this->StreamName), adios2::Mode::Read);
+
+    const std::string fileName = helper::GetFileName(this->StreamName);
+    this->IO = this->ADIOS->DeclareIO(fileName);
+    this->IO.SetEngine(helper::GetEngineType(fileName));
+    this->Engine = this->IO.Open(fileName, adios2::Mode::Read);
     InitReader();
   }
   else
