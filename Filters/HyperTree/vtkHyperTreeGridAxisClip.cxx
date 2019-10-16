@@ -184,26 +184,14 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       // Retrieve geometric origin of input cursor
       const double* origin = cursor->GetOrigin();
 
-      // Decide whether cell is clipped out depending on inside/out flag
-      if (!this->InsideOut)
-      {
-        // Check whether cursor is above hyperplane
-        if (origin[axis] > inter)
-        {
-          return true;
-        }
-      } // if (! this->InsideOut)
-      else
-      {
-        // Retrieve geometric size of input cursor
-        const double* size = cursor->GetSize();
+      // Retrieve geometric size of input cursor
+      const double* size = cursor->GetSize();
 
-        // Check whether cursor is below hyperplane
-        if (origin[axis] + size[axis] < inter)
-        {
-          return true;
-        }
-      } // else
+      // Check whether cursor is below hyperplane
+      if (origin[axis] + size[axis] < inter)
+      {
+        return !this->InsideOut;
+      }
       break;
     } // case PLANE
     case vtkHyperTreeGridAxisClip::BOX:
@@ -223,39 +211,16 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       cMax[1] = cMin[1] + size[1];
       cMax[2] = cMin[2] + size[2];
 
-      for (unsigned int d = 0; d < 3; ++d)
+      if (((cMin[0] >= bMin[0] && cMin[0] <= bMax[0]) || (cMax[0] >= bMin[0] && cMax[0] <= bMax[0]))
+          && ((cMin[1] >= bMin[1] && cMin[1] <= bMax[1]) || (cMax[1] >= bMin[1] && cMax[1] <= bMax[1]))
+          && ((cMin[2] >= bMin[2] && cMin[2] <= bMax[2]) || (cMax[2] >= bMin[2] && cMax[2] <= bMax[2])))
       {
-        // By default assume the cell will be clipped out
-        bool clipped = true;
-
-        // Do not clip cell yet if its lower bound is in prescribed bounds
-        if ((cMin[d] >= bMin[d]) && (cMin[d] <= bMax[d]))
-        {
-          clipped = false;
-        }
-        // Do not clip it either if it contains the prescribed lower bound
-        else if ((bMin[d] >= cMin[d]) && (bMin[d] <= cMax[d]))
-        {
-          clipped = false;
-        }
-
-        // Do not clip cell yet if its upper bound is in prescribed bounds
-        if ((cMax[d] >= bMin[d]) && (cMax[d] <= bMax[d]))
-        {
-          clipped = false;
-        }
-        // Do not clip it either if it contains the prescribed upper bound
-        else if ((bMax[d] >= cMin[d]) && (bMax[d] <= cMax[d]))
-        {
-          clipped = false;
-        }
-
-        // Being clipped in one dimension is sufficient to be clipped for good
-        if (clipped)
-        {
-          return true;
-        }
-      } // d
+        return this->InsideOut;
+      }
+      else
+      {
+        return !this->InsideOut;
+      }
       break;
     } // case BOX
     case vtkHyperTreeGridAxisClip::QUADRIC:
@@ -280,19 +245,19 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
 
         // Evaluate quadric at current vertex
         double qv = this->Quadric->EvaluateFunction(pt);
-        if (qv < 0)
+        if (qv <= 0)
         {
           // Found negative value at this vertex, cell not clipped out
-          return false;
+          return !this->InsideOut;
         }
       } // v
 
       // All quadric values are positive at cell vertices, it is clipped out
-      return true;
+      return this->InsideOut;
     } // case QUADRIC
   }   //  switch (this->ClipType)
 
-  return false;
+  return this->InsideOut;
 }
 
 //-----------------------------------------------------------------------------
