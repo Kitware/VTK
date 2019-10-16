@@ -332,6 +332,34 @@ public:
    */
   virtual double GetPickedZ() { return this->PickedZ; }
 
+  //@{
+  /**
+   * Set/Get the background color of the rendering screen using an rgb color
+   * specification.
+   */
+  vtkSetVector3Macro(EnvBackground, double);
+  vtkGetVector3Macro(EnvBackground, double);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the second background color of the rendering screen
+   * for gradient backgrounds using an rgb color specification.
+   */
+  vtkSetVector3Macro(EnvBackground2, double);
+  vtkGetVector3Macro(EnvBackground2, double);
+  //@}
+  //@{
+  /**
+   * Set/Get whether this viewport should have a gradient background
+   * using the Background (bottom) and Background2 (top) colors.
+   * Default is off.
+   */
+  vtkSetMacro(GradientEnvBackground, bool);
+  vtkGetMacro(GradientEnvBackground, bool);
+  vtkBooleanMacro(GradientEnvBackground, bool);
+  //@}
+
 protected:
   // Create a vtkViewport with a black background, a white ambient light,
   // two-sided lighting turned on, a viewport of (0,0,1,1), and back face
@@ -362,6 +390,10 @@ protected:
   double PixelAspect[2];
   double Center[2];
   bool GradientBackground;
+
+  double EnvBackground[3];
+  double EnvBackground2[3];
+  bool GradientEnvBackground;
 
   int Size[2];
   int Origin[2];

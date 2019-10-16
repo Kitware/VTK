@@ -766,6 +766,19 @@ public:
   virtual void SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB = false);
   //@}
 
+  virtual void SetEnvBackgroundTexture(vtkTexture*);
+  vtkGetObjectMacro(EnvBackgroundTexture, vtkTexture);
+
+  //@{
+  /**
+   * Set/Get whether this viewport should have a textured background.
+   * Default is off.
+   */
+  vtkSetMacro(TexturedEnvBackground, bool);
+  vtkGetMacro(TexturedEnvBackground, bool);
+  vtkBooleanMacro(TexturedEnvBackground, bool);
+  //@}
+
 protected:
   vtkRenderer();
   ~vtkRenderer() override;
@@ -1002,6 +1015,9 @@ protected:
 
   bool UseImageBasedLighting;
   vtkTexture* EnvironmentCubeMap;
+
+  bool TexturedEnvBackground;
+  vtkTexture* EnvBackgroundTexture;
 
 private:
   vtkRenderer(const vtkRenderer&) = delete;

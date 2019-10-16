@@ -193,6 +193,7 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, VIEW_TIME, Double);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, TIME_CACHE_SIZE, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, DENOISER_THRESHOLD, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, ENABLE_DENOISER, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, BACKGROUND_MODE, Integer);
 
 class vtkOSPRayRendererNodeInternals
 {
@@ -209,6 +210,12 @@ public:
     this->lbgcolor2[0] = 0.;
     this->lbgcolor2[1] = 0.;
     this->lbgcolor2[2] = 0.;
+    this->lenvbgcolor1[0] = 0.;
+    this->lenvbgcolor1[1] = 0.;
+    this->lenvbgcolor1[2] = 0.;
+    this->lenvbgcolor2[0] = 0.;
+    this->lenvbgcolor2[1] = 0.;
+    this->lenvbgcolor2[2] = 0.;
     this->lup[0] = 1.;
     this->lup[1] = 0.;
     this->lup[2] = 0.;
@@ -223,33 +230,11 @@ public:
 
   ~vtkOSPRayRendererNodeInternals() {}
 
-  bool CanReuseBG()
+  bool CanReuseBP()
   {
     bool retval = true;
 
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
-    double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
-    if (up)
-    {
-      if (this->lup[0] != up[0] || this->lup[1] != up[1] || this->lup[2] != up[2])
-      {
-        this->lup[0] = up[0];
-        this->lup[1] = up[1];
-        this->lup[2] = up[2];
-        retval = false;
-      }
-    }
-    double* east = vtkOSPRayRendererNode::GetEastPole(ren);
-    if (east)
-    {
-      if (this->least[0] != east[0] || this->least[1] != east[1] || this->least[2] != east[2])
-      {
-        this->least[0] = east[0];
-        this->least[1] = east[1];
-        this->least[2] = east[2];
-        retval = false;
-      }
-    }
     bool usebgtexture = ren->GetTexturedBackground();
     if (this->lusebgtexture != usebgtexture)
     {
@@ -288,10 +273,80 @@ public:
       this->lbgcolor2[2] = nbgcolor2[2];
       retval = false;
     }
+
     return retval;
   }
 
-  bool SetupPathTraceBackground(RTW::Backend* backend)
+  bool CanReuseBG()
+  {
+    bool retval = true;
+
+    vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
+    double* up = vtkOSPRayRendererNode::GetNorthPole(ren);
+    if (up)
+    {
+      if (this->lup[0] != up[0] || this->lup[1] != up[1] || this->lup[2] != up[2])
+      {
+        this->lup[0] = up[0];
+        this->lup[1] = up[1];
+        this->lup[2] = up[2];
+        retval = false;
+      }
+    }
+    double* east = vtkOSPRayRendererNode::GetEastPole(ren);
+    if (east)
+    {
+      if (this->least[0] != east[0] || this->least[1] != east[1] || this->least[2] != east[2])
+      {
+        this->least[0] = east[0];
+        this->least[1] = east[1];
+        this->least[2] = east[2];
+        retval = false;
+      }
+    }
+    bool useenvbgtexture = ren->GetTexturedEnvBackground();
+    if (this->luseenvbgtexture != useenvbgtexture)
+    {
+      this->luseenvbgtexture = useenvbgtexture;
+      retval = false;
+    }
+    vtkTexture* envbgtexture = ren->GetEnvBackgroundTexture();
+    vtkMTimeType envbgttime = 0;
+    if (envbgtexture)
+    {
+      envbgttime = envbgtexture->GetMTime();
+    }
+    if (this->lenvbgtexture != envbgtexture || envbgttime > this->lenvbgttime)
+    {
+      this->lenvbgtexture = envbgtexture;
+      this->lenvbgttime = envbgttime;
+      retval = false;
+    }
+    bool useenvgradient = ren->GetGradientEnvBackground();
+    if (this->luseenvgradient != useenvgradient)
+    {
+      this->luseenvgradient = useenvgradient;
+      retval = false;
+    }
+    double* nenvbgcolor1 = ren->GetEnvBackground();
+    double* nenvbgcolor2 = ren->GetEnvBackground2();
+    if (this->lenvbgcolor1[0] != nenvbgcolor1[0] || this->lenvbgcolor1[1] != nenvbgcolor1[1] ||
+      this->lenvbgcolor1[2] != nenvbgcolor1[2] || this->lenvbgcolor2[0] != nenvbgcolor2[0] ||
+      this->lenvbgcolor2[1] != nenvbgcolor2[1] || this->lenvbgcolor2[2] != nenvbgcolor2[2])
+    {
+      this->lenvbgcolor1[0] = nenvbgcolor1[0];
+      this->lenvbgcolor1[1] = nenvbgcolor1[1];
+      this->lenvbgcolor1[2] = nenvbgcolor1[2];
+      this->lenvbgcolor2[0] = nenvbgcolor2[0];
+      this->lenvbgcolor2[1] = nenvbgcolor2[1];
+      this->lenvbgcolor2[2] = nenvbgcolor2[2];
+      retval = false;
+    }
+
+    return retval;
+  }
+
+  bool SetupPathTraceBackplate(RTW::Backend* backend, OSPRenderer oRenderer)
   {
     vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
     if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
@@ -299,7 +354,9 @@ public:
     {
       return true;
     }
-    bool reuseable = this->CanReuseBG();
+    OSPTexture t2d = nullptr;
+    int nowbgmode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
+    bool reuseable = this->CanReuseBP() && (nowbgmode == this->lbackgroundmode);
     if (!reuseable)
     {
       double* bg1 = ren->GetBackground();
@@ -307,7 +364,7 @@ public:
       int isize = 1;
       int jsize = 1;
       vtkTexture* text = ren->GetBackgroundTexture();
-      if (text && (ren->GetTexturedBackground() || ren->GetUseImageBasedLighting()))
+      if (text && ren->GetTexturedBackground())
       {
         vtkImageData* vColorTextureMap = text->GetInput();
         // todo, fallback to gradient when either of above return nullptr
@@ -336,6 +393,94 @@ public:
       else if (ren->GetGradientBackground())
       {
         double* bg2 = ren->GetBackground2();
+        isize = 256; // todo: configurable
+        jsize = 2;
+        ochars = new unsigned char[isize * jsize * 3];
+        unsigned char* oc = ochars;
+        for (int i = 0; i < isize; i++)
+        {
+          double frac = (double)i / (double)isize;
+          *(oc + 0) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
+          *(oc + 1) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
+          *(oc + 2) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
+          *(oc + 3) = (bg1[0] * (1.0 - frac) + bg2[0] * frac) * 255;
+          *(oc + 4) = (bg1[1] * (1.0 - frac) + bg2[1] * frac) * 255;
+          *(oc + 5) = (bg1[2] * (1.0 - frac) + bg2[2] * frac) * 255;
+          oc += 6;
+        }
+      }
+      else
+      {
+        ochars = new unsigned char[3];
+        ochars[0] = bg1[0] * 255;
+        ochars[1] = bg1[1] * 255;
+        ochars[2] = bg1[2] * 255;
+      }
+
+      t2d = vtkOSPRayMaterialHelpers::NewTexture2D(
+        backend, osp::vec2i{ jsize, isize }, OSP_TEXTURE_RGB8, ochars, 0, 3 * sizeof(char));
+
+      delete[] ochars;
+
+      if (nowbgmode & 0x1)
+      {
+        ospSetData(oRenderer, "backplate", t2d);
+      }
+      else
+      {
+        ospSetData(oRenderer, "backplate", nullptr);
+      }
+    }
+
+    return reuseable;
+  }
+
+  bool SetupPathTraceBackground(RTW::Backend* backend)
+  {
+    vtkRenderer* ren = vtkRenderer::SafeDownCast(this->Owner->GetRenderable());
+    if (std::string(this->Owner->GetRendererType(ren)).find(std::string("pathtracer")) ==
+      std::string::npos)
+    {
+      return true;
+    }
+    int nowbgmode = vtkOSPRayRendererNode::GetBackgroundMode(ren);
+    bool reuseable = this->CanReuseBG() && (nowbgmode == this->lbackgroundmode);
+    if (!reuseable)
+    {
+      double* bg1 = ren->GetEnvBackground();
+      unsigned char* ochars;
+      int isize = 1;
+      int jsize = 1;
+      vtkTexture* text = ren->GetEnvBackgroundTexture();
+      if (text && (ren->GetTexturedEnvBackground() || ren->GetUseImageBasedLighting()))
+      {
+        vtkImageData* vColorTextureMap = text->GetInput();
+        // todo, fallback to gradient when either of above return nullptr
+        // otherwise can't load texture in PV when in OSP::PT mode
+        // todo: this code is duplicated from vtkOSPRayPolyDataMapperNode
+        jsize = vColorTextureMap->GetExtent()[1];
+        isize = vColorTextureMap->GetExtent()[3];
+        unsigned char* ichars = (unsigned char*)vColorTextureMap->GetScalarPointer();
+        ochars = new unsigned char[(isize + 1) * (jsize + 1) * 3];
+        unsigned char* oc = ochars;
+        int comps = vColorTextureMap->GetNumberOfScalarComponents();
+        for (int i = 0; i < isize + 1; i++)
+        {
+          for (int j = 0; j < jsize + 1; j++)
+          {
+            oc[0] = ichars[0];
+            oc[1] = ichars[1];
+            oc[2] = ichars[2];
+            oc += 3;
+            ichars += comps;
+          }
+        }
+        isize++;
+        jsize++;
+      }
+      else if (ren->GetGradientEnvBackground())
+      {
+        double* bg2 = ren->GetEnvBackground2();
         isize = 256; // todo: configurable
         jsize = 2;
         ochars = new unsigned char[isize * jsize * 3];
@@ -390,7 +535,11 @@ public:
       delete[] ochars;
       this->BGLight = ospLight;
     }
-    this->Owner->AddLight(this->BGLight);
+    if (nowbgmode & 0x2)
+    {
+      this->Owner->AddLight(this->BGLight);
+    }
+
     return reuseable;
   }
 
@@ -403,12 +552,19 @@ public:
   bool lusegradient = false;
   double lbgcolor1[3]; // not initializing here bc visstudio2013
   double lbgcolor2[3];
+  bool luseenvbgtexture = false;
+  vtkWeakPointer<vtkTexture> lenvbgtexture = nullptr;
+  vtkMTimeType lenvbgttime = 0;
+  bool luseenvgradient = false;
+  double lenvbgcolor1[3]; // not initializing here bc visstudio2013
+  double lenvbgcolor2[3];
   double lup[3];
   double least[3];
   double LastViewPort[2];
   double LastParallelScale;
   double LastFocalDisk = -1.0;
   double LastFocalDistance = -1.0;
+  int lbackgroundmode = 0;
 
   OSPLight BGLight;
   RTW::Backend* Backend;
@@ -934,6 +1090,32 @@ int vtkOSPRayRendererNode::GetEnableDenoiser(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetBackgroundMode(int value, vtkRenderer* renderer)
+{
+  if (!renderer || value < 0 || value > 3)
+  {
+    return;
+  }
+  vtkInformation* info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::BACKGROUND_MODE(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetBackgroundMode(vtkRenderer* renderer)
+{
+  if (!renderer)
+  {
+    return 1;
+  }
+  vtkInformation* info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::BACKGROUND_MODE()))
+  {
+    return (info->Get(vtkOSPRayRendererNode::BACKGROUND_MODE()));
+  }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -1003,7 +1185,11 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     this->Lights.push_back(ospAmbient);
   }
 
-  bool bgreused = this->Internal->SetupPathTraceBackground(backend);
+  bool bpreused = this->Internal->SetupPathTraceBackplate(backend, oRenderer);
+  bool envreused = this->Internal->SetupPathTraceBackground(backend);
+  this->Internal->lbackgroundmode = vtkOSPRayRendererNode::GetBackgroundMode(
+    static_cast<vtkRenderer*>(this->Renderable)); // save it only once both of the above check
+  bool bgreused = envreused && bpreused;
   ospRelease(this->OLightArray);
   this->OLightArray = ospNewData(
     this->Lights.size(), OSP_OBJECT, (this->Lights.size() ? &this->Lights[0] : nullptr), 0);

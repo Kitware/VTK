@@ -314,6 +314,7 @@ public:
   static int GetDenoiserThreshold(vtkRenderer* renderer);
   //@}
 
+  //@{
   /**
    * Enable denoising (if supported).
    */
@@ -325,6 +326,16 @@ public:
   static int GetEnableDenoiser(vtkRenderer* renderer);
   //@}
 
+  //@{
+  /**
+   * Control use of the path tracer backplate and environmental background.
+   * 0 means neither is shown, 1 (the default) means only backplate is used,
+   * 2 means only the environment is shown, 3 means that both are shown.
+   */
+  static vtkInformationIntegerKey* BACKGROUND_MODE();
+  static void SetBackgroundMode(int, vtkRenderer* renderer);
+  static int GetBackgroundMode(vtkRenderer* renderer);
+  //@}
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode() override;
