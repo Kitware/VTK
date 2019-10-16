@@ -963,12 +963,13 @@ use in wrapping code to more easily access them.
 #]==]
 
 #[==[.md INTERNAL
-### The real target for a module
+### The real target for a module or kit
 
 Sometimes the actual, core target for a module is required (e.g., setting
 CMake-level target properties or install rules). The `_vtk_module_real_target`
-function finds the real target for a module. This only works for modules which
-are built in the current tree.
+and `_vtk_module_real_target_kit` functions find the real target for a module
+or kit. This only works for modules or kits which are built in the current
+tree.
 #]==]
 
 function (_vtk_module_real_target var module)
@@ -1017,6 +1018,37 @@ function (_vtk_module_real_target var module)
     message(FATAL_ERROR
       "Failed to determine the real target for the `${module}` "
       "module.${_vtk_real_target_msg}")
+  endif ()
+
+  set("${var}"
+    "${_vtk_real_target_res}"
+    PARENT_SCOPE)
+endfunction ()
+
+function (_vtk_module_real_target_kit var kit)
+  if (ARGN)
+    message(FATAL_ERROR
+      "Unparsed arguments for _vtk_module_real_target_kit: ${ARGN}.")
+  endif ()
+
+  set(_vtk_real_target_res "")
+  if (TARGET "${kit}")
+    get_property(_vtk_real_target_imported
+      TARGET    "${kit}"
+      PROPERTY  IMPORTED)
+    if (_vtk_real_target_imported)
+      set(_vtk_real_target_res "${kit}")
+    endif ()
+  endif ()
+
+  if (NOT _vtk_real_target_res)
+    get_property(_vtk_real_target_res GLOBAL
+      PROPERTY "_vtk_kit_${kit}_target_name")
+  endif ()
+
+  if (NOT _vtk_real_target_res)
+    message(FATAL_ERROR
+      "Failed to determine the real target for the `${kit}` kit.")
   endif ()
 
   set("${var}"
@@ -1507,7 +1539,8 @@ vial CMake's `find_package` function.
 
 ```
 _vtk_module_export_properties(
-  MODULE        <module>
+  [MODULE       <module>]
+  [KIT          <kit>]
   BUILD_FILE    <path>
   INSTALL_FILE  <path>
   [PROPERTIES               <property>...]
@@ -1515,10 +1548,11 @@ _vtk_module_export_properties(
   [SPLIT_INSTALL_PROPERTIES <property fragment>...])
 ```
 
-The `MODULE`, `BUILD_FILE`, and `INSTALL_FILE` arguments are required. The
-`MODULE` argument holds the name of the module that will have properties
-exported. The `BUILD_FILE` and `INSTALL_FILE` paths are *appended to*. As such,
-when setting up these files, it should be preceded with:
+The `BUILD_FILE` and `INSTALL_FILE` arguments are required. Exactly one of
+`MODULE` and `KIT` is also required. The `MODULE` or `KIT` argument holds the
+name of the module or kit that will have properties exported. The `BUILD_FILE`
+and `INSTALL_FILE` paths are *appended to*. As such, when setting up these
+files, it should be preceded with:
 
 ```cmake
 file(WRITE "${build_file}")
@@ -1695,7 +1729,7 @@ endfunction ()
 function (_vtk_module_export_properties)
   cmake_parse_arguments(_vtk_export_properties
     ""
-    "BUILD_FILE;INSTALL_FILE;MODULE"
+    "BUILD_FILE;INSTALL_FILE;MODULE;KIT"
     "FROM_GLOBAL_PROPERTIES;PROPERTIES;SPLIT_INSTALL_PROPERTIES"
     ${ARGN})
 
@@ -1705,9 +1739,19 @@ function (_vtk_module_export_properties)
       "${_vtk_export_properties_UNPARSED_ARGUMENTS}.")
   endif ()
 
-  if (NOT _vtk_export_properties_MODULE)
+  if (DEFINED _vtk_export_properties_MODULE)
+    if (DEFINED _vtk_export_properties_KIT)
+      message(FATAL_ERROR
+        "Only one of `MODULE` or `KIT` is required to export properties.")
+    endif ()
+    set(_vtk_export_properties_type "module")
+    set(_vtk_export_properties_name "${_vtk_export_properties_MODULE}")
+  elseif (_vtk_export_properties_KIT)
+    set(_vtk_export_properties_type "kit")
+    set(_vtk_export_properties_name "${_vtk_export_properties_KIT}")
+  else ()
     message(FATAL_ERROR
-      "A module is required to export properties.")
+      "A module or kit is required to export properties.")
   endif ()
 
   if (NOT _vtk_export_properties_BUILD_FILE)
@@ -1720,24 +1764,28 @@ function (_vtk_module_export_properties)
       "Exporting properties requires an install file to write to.")
   endif ()
 
-  _vtk_module_real_target(_vtk_export_properties_target_name "${_vtk_export_properties_MODULE}")
+  if (_vtk_export_properties_type STREQUAL "module")
+    _vtk_module_real_target(_vtk_export_properties_target_name "${_vtk_export_properties_name}")
+  elseif (_vtk_export_properties_type STREQUAL "kit")
+    _vtk_module_real_target_kit(_vtk_export_properties_target_name "${_vtk_export_properties_name}")
+  endif ()
 
   foreach (_vtk_export_properties_global IN LISTS _vtk_export_properties_FROM_GLOBAL_PROPERTIES)
     get_property(_vtk_export_properties_is_set GLOBAL
-      PROPERTY  "_vtk_module_${_vtk_export_properties_MODULE}_${_vtk_export_properties_global}"
+      PROPERTY  "_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_name}_${_vtk_export_properties_global}"
       SET)
     if (NOT _vtk_export_properties_is_set)
       continue ()
     endif ()
 
     get_property(_vtk_export_properties_value GLOBAL
-      PROPERTY  "_vtk_module_${_vtk_export_properties_MODULE}_${_vtk_export_properties_global}")
+      PROPERTY  "_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_name}_${_vtk_export_properties_global}")
     set(_vtk_export_properties_set_property
-      "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_global}\" \"${_vtk_export_properties_value}\")\n")
+      "set_property(TARGET \"${_vtk_export_properties_name}\" PROPERTY \"INTERFACE_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_global}\" \"${_vtk_export_properties_value}\")\n")
 
     set_property(TARGET "${_vtk_export_properties_target_name}"
       PROPERTY
-        "INTERFACE_vtk_module_${_vtk_export_properties_global}" "${_vtk_export_properties_value}")
+        "INTERFACE_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_global}" "${_vtk_export_properties_value}")
     file(APPEND "${_vtk_export_properties_BUILD_FILE}"
       "${_vtk_export_properties_set_property}")
     file(APPEND "${_vtk_export_properties_INSTALL_FILE}"
@@ -1757,7 +1805,7 @@ function (_vtk_module_export_properties)
       TARGET    "${_vtk_export_properties_target_name}"
       PROPERTY  "${_vtk_export_properties_target}")
     set(_vtk_export_properties_set_property
-      "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"${_vtk_export_properties_target}\" \"${_vtk_export_properties_value}\")\n")
+      "set_property(TARGET \"${_vtk_export_properties_name}\" PROPERTY \"${_vtk_export_properties_target}\" \"${_vtk_export_properties_value}\")\n")
 
     file(APPEND "${_vtk_export_properties_BUILD_FILE}"
       "${_vtk_export_properties_set_property}")
@@ -1768,7 +1816,7 @@ function (_vtk_module_export_properties)
   foreach (_vtk_export_properties_split IN LISTS _vtk_export_properties_SPLIT_INSTALL_PROPERTIES)
     get_property(_vtk_export_properties_is_set
       TARGET    "${_vtk_export_properties_target_name}"
-      PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}"
+      PROPERTY  "INTERFACE_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_split}"
       SET)
     if (NOT _vtk_export_properties_is_set)
       continue ()
@@ -1776,17 +1824,17 @@ function (_vtk_module_export_properties)
 
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
-      PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}")
+      PROPERTY  "INTERFACE_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_split}")
     set(_vtk_export_properties_set_property
-      "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
+      "set_property(TARGET \"${_vtk_export_properties_name}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
     file(APPEND "${_vtk_export_properties_BUILD_FILE}"
       "${_vtk_export_properties_set_property}")
 
     get_property(_vtk_export_properties_value
       TARGET    "${_vtk_export_properties_target_name}"
-      PROPERTY  "INTERFACE_vtk_module_${_vtk_export_properties_split}_install")
+      PROPERTY  "INTERFACE_vtk_${_vtk_export_properties_type}_${_vtk_export_properties_split}_install")
     set(_vtk_export_properties_set_property
-      "set_property(TARGET \"${_vtk_export_properties_MODULE}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
+      "set_property(TARGET \"${_vtk_export_properties_name}\" PROPERTY \"INTERFACE_vtk_module_${_vtk_export_properties_split}\" \"${_vtk_export_properties_value}\")\n")
     file(APPEND "${_vtk_export_properties_INSTALL_FILE}"
       "${_vtk_export_properties_set_property}")
   endforeach ()
@@ -2243,8 +2291,10 @@ function (vtk_module_build)
           INSTALL_FILE  "${_vtk_build_properties_install_file}"
           MODULE        "${_vtk_build_module}"
           FROM_GLOBAL_PROPERTIES
-            # Export the public dependencies of a module.
+            # Export the dependencies of a module.
             depends
+            private_depends
+            optional_depends
             # The library name of the module.
             library_name
           PROPERTIES
@@ -2264,6 +2314,13 @@ function (vtk_module_build)
           hierarchy)
       endif ()
 
+      set(_vtk_build_properties_kit_properties)
+      if (_vtk_build_BUILD_WITH_KITS)
+        list(APPEND _vtk_build_properties_kit_properties
+          # Export the kit membership of a module.
+          kit)
+      endif ()
+
       _vtk_module_export_properties(
         BUILD_FILE    "${_vtk_build_properties_build_file}"
         INSTALL_FILE  "${_vtk_build_properties_install_file}"
@@ -2271,14 +2328,17 @@ function (vtk_module_build)
         FROM_GLOBAL_PROPERTIES
           # Export whether the module should be excluded from wrapping or not.
           exclude_wrap
-          # Export the public dependencies of a module.
+          # Export the dependencies of a module.
           depends
+          private_depends
+          optional_depends
           # Export what modules are implemented by the module.
           implements
           # Export whether the module contains autoinit logic.
           implementable
           # The library name of the module.
           library_name
+          ${_vtk_build_properties_kit_properties}
         PROPERTIES
           # Export whether the module needs autoinit logic handled.
           INTERFACE_vtk_module_needs_autoinit
@@ -2288,6 +2348,18 @@ function (vtk_module_build)
           # Set the properties which differ between build and install trees.
           ${_vtk_build_split_properties})
     endforeach ()
+
+    if (_vtk_build_BUILD_WITH_KITS)
+      foreach (_vtk_build_kit IN LISTS _vtk_build_KITS)
+        _vtk_module_export_properties(
+          BUILD_FILE    "${_vtk_build_properties_build_file}"
+          INSTALL_FILE  "${_vtk_build_properties_install_file}"
+          KIT           "${_vtk_build_kit}"
+          FROM_GLOBAL_PROPERTIES
+            # Export the list of modules in the kit.
+            kit_modules)
+      endforeach ()
+    endif ()
 
     set(_vtk_build_namespace)
     if (_vtk_build_TARGET_NAMESPACE)
@@ -3847,12 +3919,43 @@ while (_vtk_module_find_package_components_to_check)
   string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depends \"\${_vtk_module_find_package_depends}\")
   list(APPEND _vtk_module_find_package_components_to_check
     \${_vtk_module_find_package_depends})
+  get_property(_vtk_module_find_package_depends
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_private_depends\")
+  string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depends \"\${_vtk_module_find_package_depends}\")
+  list(APPEND _vtk_module_find_package_components_to_check
+    \${_vtk_module_find_package_depends})
+  get_property(_vtk_module_find_package_depends
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_optional_depends\")
+  foreach (_vtk_module_find_package_depend IN LISTS _vtk_module_find_package_depends)
+    if (TARGET \"\${_vtk_module_find_package_depend}\")
+      string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_depend \"\${_vtk_module_find_package_depend}\")
+      list(APPEND _vtk_module_find_package_components_to_check
+        \"\${_vtk_module_find_package_depend}\")
+    endif ()
+  endforeach ()
+
+  get_property(_vtk_module_find_package_kit
+    TARGET    \"\${_vtk_module_find_package_component_target}\"
+    PROPERTY  \"INTERFACE_vtk_module_kit\")
+  if (_vtk_module_find_package_kit)
+    get_property(_vtk_module_find_package_kit_modules
+      TARGET    \"\${_vtk_module_find_package_kit}\"
+      PROPERTY  \"INTERFACE_vtk_kit_kit_modules\")
+    string(REPLACE \"\${CMAKE_FIND_PACKAGE_NAME}::\" \"\" _vtk_module_find_package_kit_modules \"\${_vtk_module_find_package_kit_modules}\")
+    list(APPEND _vtk_module_find_package_components_to_check
+      \${_vtk_module_find_package_kit_modules})
+  endif ()
 endwhile ()
 unset(_vtk_module_find_package_component_target)
 unset(_vtk_module_find_package_components_to_check)
 unset(_vtk_module_find_package_components_checked)
 unset(_vtk_module_component)
+unset(_vtk_module_find_package_depend)
 unset(_vtk_module_find_package_depends)
+unset(_vtk_module_find_package_kit)
+unset(_vtk_module_find_package_kit_modules)
 
 if (_vtk_module_find_package_components)
   list(REMOVE_DUPLICATES _vtk_module_find_package_components)
