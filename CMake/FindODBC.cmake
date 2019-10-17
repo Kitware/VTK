@@ -62,12 +62,14 @@ else ()
     REQUIRED_VARS ODBC_INCLUDE_DIR ODBC_LIBRARY)
 
   if (ODBC_FOUND)
-    add_library(ODBC::ODBC UNKNOWN IMPORTED)
-    set_target_properties(ODBC::ODBC PROPERTIES
-      IMPORTED_LOCATION "${ODBC_LIBRARY}"
-      INTERFACE_INCLUDE_DIRECTORIES "${ODBC_INCLUDE_DIR}")
     set(ODBC_INCLUDE_DIRS "${ODBC_INCLUDE_DIR}")
     set(ODBC_LIBRARIES "${ODBC_LIBRARY}")
+    if (NOT TARGET ODBC::ODBC)
+      add_library(ODBC::ODBC UNKNOWN IMPORTED)
+      set_target_properties(ODBC::ODBC PROPERTIES
+        IMPORTED_LOCATION "${ODBC_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${ODBC_INCLUDE_DIR}")
+    endif ()
   endif ()
 endif ()
 unset(_ODBC_use_pkgconfig)
