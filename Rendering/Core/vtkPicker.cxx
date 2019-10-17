@@ -26,6 +26,7 @@
 #include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkProp3DCollection.h"
 #include "vtkProperty.h"
@@ -392,6 +393,12 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   {
     this->PickPosition[i] = worldCoords[i] / worldCoords[3];
   }
+
+  // For robustness, re-project the point on the focal point plane
+  double planeNormal[3];
+  vtkMath::Subtract(cameraFP, cameraPos, planeNormal);
+  vtkMath::Normalize(planeNormal);
+  vtkPlane::ProjectPoint(this->PickPosition, cameraFP, planeNormal, this->PickPosition);
 
   //  Compute the ray endpoints.  The ray is along the line running from
   //  the camera position to the selection point, starting where this line
