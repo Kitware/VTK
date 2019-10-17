@@ -18,6 +18,7 @@
 #include "vtkCommand.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
@@ -765,6 +766,11 @@ int vtkGLTFReader::RequestInformation(
       vtkErrorMacro("Error loading model metadata from file " << this->FileName);
       return 0;
     }
+
+    vtkNew<vtkEventForwarderCommand> forwarder;
+    forwarder->SetTarget(this);
+    this->Loader->AddObserver(vtkCommand::ProgressEvent, forwarder);
+
     this->CreateAnimationSelection();
     this->CreateSceneNamesArray();
     this->SetCurrentScene(this->Loader->GetInternalModel()->DefaultScene);
