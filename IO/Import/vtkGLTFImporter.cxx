@@ -24,7 +24,6 @@
 #include "vtkImageExtractComponents.h"
 #include "vtkImageResize.h"
 #include "vtkInformation.h"
-#include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -507,8 +506,6 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
     nodeIdStack.push(nodeId);
   }
 
-  double maxIntensity = 0.0;
-
   // Iterate over tree
   while (!nodeIdStack.empty())
   {
@@ -533,7 +530,6 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
           1, 0, 1.0 / (glTFLight.Range * glTFLight.Range * MIN_LIGHT_ATTENUATION));
       }
       light->SetIntensity(glTFLight.Intensity);
-      maxIntensity = std::max(maxIntensity, glTFLight.Intensity);
       switch (glTFLight.Type)
       {
         case vtkGLTFDocumentLoader::Extensions::KHRLightsPunctual::Light::LightType::DIRECTIONAL:
@@ -556,18 +552,6 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
     for (int childNodeId : node.Children)
     {
       nodeIdStack.push(childNodeId);
-    }
-  }
-
-  if (maxIntensity > 1.0)
-  {
-    vtkWarningMacro("Rescaling light intensities because maximum intensity is greater than 1")
-    vtkLightCollection *lc = renderer->GetLights();
-    vtkCollectionSimpleIterator lsit;
-    vtkLight *aLight;
-    for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
-    {
-      aLight->SetIntensity(aLight->GetIntensity() / maxIntensity);
     }
   }
 }
