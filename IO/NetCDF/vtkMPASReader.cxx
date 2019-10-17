@@ -2667,7 +2667,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
   // If the xtime variable exists, use its value at the current timestep:
   std::string time;
   int varid;
-  if ((varid = this->Internals->nc_var_id("xtime")) != -1)
+  if ((varid = this->Internals->nc_var_id("xtime", false)) != -1)
   {
     if (this->Internals->ValidateDimensions(varid, false, 2, "Time", "StrLen"))
     {
