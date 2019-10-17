@@ -18,6 +18,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkBase64Utilities.h"
+#include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoaderInternals.h"
 #include "vtkGLTFUtils.h"
@@ -922,14 +923,17 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
   impl.LoadBuffers(!glbBuffer.empty());
 
   // Read primitive attributes from buffers
-  for (Mesh& mesh : this->InternalModel->Meshes)
+  size_t numberOfMeshes = this->InternalModel->Meshes.size();
+  for (size_t i = 0; i < numberOfMeshes; i++)
   {
-    for (Primitive& primitive : mesh.Primitives)
+    for (Primitive& primitive : this->InternalModel->Meshes[i].Primitives)
     {
       this->ExtractPrimitiveAccessorData(primitive);
     }
+    double progress = (i + 1) / static_cast<double>(numberOfMeshes);
+    this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
   }
-  // Read additionnal buffer data
+  // Read additional buffer data
   if (!this->LoadAnimationData())
   {
     return false;

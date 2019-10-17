@@ -17,6 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkGLTFDocumentLoader.h"
 #include "vtkImageAppendComponents.h"
@@ -332,6 +333,10 @@ int vtkGLTFImporter::ImportBegin()
   this->Textures.clear();
 
   this->Loader = vtkSmartPointer<vtkGLTFDocumentLoader>::New();
+
+  vtkNew<vtkEventForwarderCommand> forwarder;
+  forwarder->SetTarget(this);
+  this->Loader->AddObserver(vtkCommand::ProgressEvent, forwarder);
 
   // Check extension
   std::vector<char> glbBuffer;
