@@ -850,7 +850,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     bool emissive = false;
     toString.clear();
 
-    if (this->HaveTCoords(this->CurrentInput))
+    if (this->HaveTCoords(this->CurrentInput) && !this->DrawingEdgesOrVertices)
     {
       for (auto& t : textures)
       {
