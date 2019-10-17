@@ -329,7 +329,7 @@ vtkValuePass::vtkValuePass()
 : ImplFloat(new vtkInternalsFloat())
 , ImplInv(new vtkInternalsInvertible(this))
 , PassState(new Parameters())
-, RenderingMode(INVERTIBLE_LUT)
+, RenderingMode(FLOATING_POINT)
 {
   this->MultiBlocksArray = nullptr;
 }
@@ -388,9 +388,11 @@ void vtkValuePass::SetInputComponentToProcess(int component)
   }
 }
 
+#if !defined(VTK_LEGACY_REMOVE)
 // ----------------------------------------------------------------------------
 void vtkValuePass::SetScalarRange(double min, double max)
 {
+  VTK_LEGACY_BODY(vtkValuePass::SetScalarRange, "VTK 9.0");
   if ((this->PassState->ScalarRange[0] != min ||
     this->PassState->ScalarRange[1] != max) && min <= max)
   {
@@ -399,6 +401,7 @@ void vtkValuePass::SetScalarRange(double min, double max)
     this->Modified();
   }
 }
+#endif
 
 // ----------------------------------------------------------------------------
 void vtkValuePass::PopulateCellCellMap(const vtkRenderState *s)
@@ -637,12 +640,6 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
   }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
-  if (!this->IsFloatingPointModeSupported())
-    {
-    vtkWarningMacro("Switching to INVERTIBLE_LUT mode.");
-    this->RenderingMode = vtkValuePass::INVERTIBLE_LUT;
-    return false;
-  }
 
   int* size = ren->GetSize();
   // Allocate FBO's Color attachment target
@@ -706,14 +703,17 @@ void vtkValuePass::ReleaseFBO(vtkWindow* win)
 }
 
 //-----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
 bool vtkValuePass::IsFloatingPointModeSupported()
 {
+  VTK_LEGACY_BODY(vtkValuePass::IsFloatihngPointModeSupported, "VTK 9.0");
 #ifdef GL_ES_VERSION_3_0
   return true;
 #else
   return true;
 #endif
 }
+#endif
 
 //------------------------------------------------------------------------------
 vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
@@ -1127,8 +1127,11 @@ vtkAbstractArray* vtkValuePass::GetArrayFromCompositeData(
 }
 
 //-------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
 void vtkValuePass::ColorToValue(unsigned char const* color, double const min,
   double const scale, double& value)
 {
+  VTK_LEGACY_BODY(vtkValuePass::ColorToValue, "VTK 9.0");
   this->ImplInv->ColorToValue(color, min, scale, value);
 }
+#endif

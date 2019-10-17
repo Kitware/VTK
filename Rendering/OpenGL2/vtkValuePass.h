@@ -25,7 +25,9 @@
  * * INVERTIBLE_LUT  Encodes array values as RGB data and renders the result to
  * the default framebuffer.  It uses a texture as a color LUT to map the values
  * to RGB data. Texture size constraints limit its precision (currently 12-bit).
- * The implementation of this mode is in vtkInternalsInvertible.
+ * The implementation of this mode is in vtkInternalsInvertible. This option
+ * is deprecated now that the SGI patent on floating point textures has
+ * expired and Mesa and other OpenGL's always supports it.
  *
  * * FLOATING_POINT  Renders actual array values as floating point data to an
  * internal RGBA32F framebuffer.  This class binds and unbinds the framebuffer
@@ -70,12 +72,14 @@ public:
   vtkTypeMacro(vtkValuePass, vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkSetMacro(RenderingMode, int);
-  vtkGetMacro(RenderingMode, int);
+  // @deprecated As of 9.0, We are moving to only FLOATING_POINT.
+  VTK_LEGACY(vtkSetMacro(RenderingMode, int));
+  VTK_LEGACY(vtkGetMacro(RenderingMode, int));
   void SetInputArrayToProcess(int fieldAssociation, const char *name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldId);
   void SetInputComponentToProcess(int component);
-  void SetScalarRange(double min, double max);
+  // @deprecated As of 9.0, Not needed with FLOATING_POINT.
+  VTK_LEGACY(void SetScalarRange(double min, double max));
 
   /**
    * Perform rendering according to a render state \p s.
@@ -106,17 +110,19 @@ public:
 
   /**
    * Check for extension support.
+   * @deprecated As of 9.0, All platforms support FLOATING_POINT.
    */
-  bool IsFloatingPointModeSupported();
+  VTK_LEGACY(bool IsFloatingPointModeSupported());
 
   void ReleaseGraphicsResources(vtkWindow *win) override;
 
   /**
    * Convert an RGB triplet to a floating point value. This method is exposed
    * as a convenience function for testing (TestValuePass2).
+   * @deprecated As of 9.0, not necessary with FLOATING_POINT.
    */
-  void ColorToValue(unsigned char const* color, double const min, double const scale,
-    double& value);
+  VTK_LEGACY(void ColorToValue(unsigned char const* color, double const min,
+    double const scale, double& value));
 
  protected:
   vtkValuePass();
