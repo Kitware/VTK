@@ -280,6 +280,7 @@ int vtkGenericOpenGLRenderWindow::ReadPixels(
 {
   if (this->ReadyForRendering)
   {
+    this->MakeCurrent();
     this->GetState()->ResetFramebufferBindings();
     return this->Superclass::ReadPixels(rect, front, glFormat, glType, data, right);
   }
@@ -294,6 +295,7 @@ int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 {
   if (this->ReadyForRendering)
   {
+    this->MakeCurrent();
     this->GetState()->ResetFramebufferBindings();
     return this->Superclass::SetRGBACharPixelData(
       x1, y1, x2, y2, data, front, blend, right);
@@ -309,6 +311,7 @@ int vtkGenericOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 {
   if (this->ReadyForRendering)
   {
+    this->MakeCurrent();
     this->GetState()->ResetFramebufferBindings();
     return this->Superclass::SetRGBACharPixelData(
       x1, y1, x2, y2, data, front, blend, right);
