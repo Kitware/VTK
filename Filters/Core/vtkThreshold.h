@@ -194,6 +194,25 @@ public:
   int GetOutputPointsPrecision() const;
   //@}
 
+  //@{
+  /**
+   * Methods used for thresholding. vtkThreshold::Lower returns true if s is lower than threshold,
+   * vtkThreshold::Upper returns true if s is upper than treshold, and vtkThreshold::Between returns
+   * true if s is between two threshold.
+   *
+   * @warning vtkThreshold::Lower and vtkThreshold::Upper use different thresholds which are set
+   * using the methods vtkThreshold::ThresholdByLower and vtkThreshold::ThresholdByUpper respectively.
+   * vtkThreshold::ThresholdBetween sets both thresholds. Do not use those methods without priorly
+   * setting the corresponding threshold.
+   *
+   * @note They are not protected member for inheritance purposes. The addresses of those methods is stored
+   * in one of this class attributes to figure out which version of the threshold to apply, which
+   * are inaccessible if protected.
+   */
+  int Lower(double s) const;
+  int Upper(double s) const;
+  int Between(double s) const;
+  //@}
 protected:
   vtkThreshold();
   ~vtkThreshold() override;
@@ -214,12 +233,7 @@ protected:
   vtkTypeBool UseContinuousCellRange;
   bool   Invert;
 
-  int (vtkThreshold::*ThresholdFunction)(double s);
-
-  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(double s) {return ( s >= this->LowerThreshold ?
-                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+  int (vtkThreshold::*ThresholdFunction)(double s) const;
 
   int EvaluateComponents( vtkDataArray *scalars, vtkIdType id );
   int EvaluateCell( vtkDataArray *scalars, vtkIdList* cellPts, int numCellPts );
