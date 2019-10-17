@@ -275,12 +275,12 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState *s)
   {
     this->Framebuffer = vtkOpenGLFramebufferObject::New();
     this->Framebuffer->SetContext(renWin);
-    this->Framebuffer->SaveCurrentBindingsAndBuffers();
+    this->State->PushFramebufferBindings();
     this->Framebuffer->Bind();
     this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture);
     this->Framebuffer->AddColorAttachment(0, this->TranslucentRGBATexture);
     this->Framebuffer->AddColorAttachment(1, this->TranslucentRTexture);
-    this->Framebuffer->RestorePreviousBindingsAndBuffers();
+    this->State->PopFramebufferBindings();
   }
 
   this->State->vtkglViewport(0, 0,
@@ -289,7 +289,7 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState *s)
   this->State->vtkglDisable(GL_SCISSOR_TEST);
 
   // bind the draw mode but leave read as the previous FO
-  this->Framebuffer->SaveCurrentBindingsAndBuffers();
+  this->State->PushFramebufferBindings();
   this->Framebuffer->Bind(this->Framebuffer->GetDrawMode());
   this->Framebuffer->ActivateDrawBuffers(2);
 
@@ -349,7 +349,7 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState *s)
   this->TranslucentPass->Render(s);
 
   // back to the original FO
-  this->Framebuffer->RestorePreviousBindingsAndBuffers();
+  this->State->PopFramebufferBindings();
 
   this->State->vtkglBlendFuncSeparate(
     GL_ONE_MINUS_SRC_ALPHA,

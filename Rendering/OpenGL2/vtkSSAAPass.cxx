@@ -146,7 +146,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
                           VTK_UNSIGNED_CHAR,false);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  ostate->PushFramebufferBindings();
   vtkRenderState s2(r);
   s2.SetPropArrayAndCount(s->GetPropArray(),s->GetPropArrayCount());
   s2.SetFrameBuffer(this->FrameBufferObject);
@@ -220,8 +220,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
     // restore some state.
-    this->FrameBufferObject->UnBind();
-    this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+    ostate->PopFramebufferBindings();
     return;
   }
 
@@ -245,8 +244,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
 
   // 4. Render in original FB (from renderstate in arg)
 
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  ostate->PopFramebufferBindings();
 
   // to2 is the source
   this->Pass2->Activate();

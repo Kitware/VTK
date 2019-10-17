@@ -149,10 +149,10 @@ void vtkPanoramicProjectionPass::InitOpenGLResources(vtkOpenGLRenderWindow* renW
   {
     this->FrameBufferObject = vtkOpenGLFramebufferObject::New();
     this->FrameBufferObject->SetContext(renWin);
-    this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+    renWin->GetState()->PushFramebufferBindings();
     this->FrameBufferObject->Resize(this->CubeResolution, this->CubeResolution);
     this->FrameBufferObject->AddDepthAttachment();
-    this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+    renWin->GetState()->PopFramebufferBindings();
   }
 }
 
@@ -331,7 +331,7 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
 
   s2.SetFrameBuffer(this->FrameBufferObject);
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PushFramebufferBindings();
   this->FrameBufferObject->Bind();
   this->FrameBufferObject->AddColorAttachment(0, this->CubeMapTexture, 0, faceIndex);
   this->FrameBufferObject->ActivateBuffer(0);
@@ -346,7 +346,7 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
   r->SetUserLightTransform(nullptr);
 
   this->FrameBufferObject->RemoveColorAttachment(0);
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   r->SetActiveCamera(oldCamera);
 }

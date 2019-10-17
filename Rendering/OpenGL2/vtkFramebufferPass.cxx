@@ -142,19 +142,18 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  ostate->PushFramebufferBindings();
   this->RenderDelegate(s,
     this->ViewportWidth, this->ViewportHeight,
     this->ViewportWidth, this->ViewportHeight,
     this->FrameBufferObject,
     this->ColorTexture, this->DepthTexture);
 
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  ostate->PopFramebufferBindings();
 
 
   // now copy the result to the outer FO
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers(
-    this->FrameBufferObject->GetReadMode());
+  ostate->PushReadFramebufferBinding();
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
@@ -171,8 +170,7 @@ void vtkFramebufferPass::Render(const vtkRenderState *s)
     GL_COLOR_BUFFER_BIT,
     GL_LINEAR);
 
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers(
-    this->FrameBufferObject->GetReadMode());
+  ostate->PopReadFramebufferBinding();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

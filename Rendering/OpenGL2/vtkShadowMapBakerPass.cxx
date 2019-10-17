@@ -370,14 +370,14 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       {
         this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
         this->FrameBufferObject->SetContext(context);
-        this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+        context->GetState()->PushFramebufferBindings();
         this->FrameBufferObject->Resize(this->Resolution, this->Resolution);
         this->FrameBufferObject->Bind();
         this->FrameBufferObject->AddDepthAttachment();
       }
       else
       {
-        this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+        context->GetState()->PushFramebufferBindings();
       }
       this->FrameBufferObject->Bind();
       s2.SetFrameBuffer(this->FrameBufferObject);
@@ -537,7 +537,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       this->LastRenderTime.Modified(); // was a BUG
 
       // back to the original frame buffer.
-      this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+      context->GetState()->PopFramebufferBindings();
 
       // Restore real camera.
       r->SetActiveCamera(realCamera);

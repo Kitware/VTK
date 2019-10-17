@@ -217,7 +217,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
 {
   this->PreRender(s);
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PushFramebufferBindings();
   this->FrameBufferObject->Bind();
 
   this->FrameBufferObject->AddColorAttachment(0, this->ColorTexture);
@@ -230,8 +230,7 @@ void vtkSSAOPass::RenderDelegate(const vtkRenderState* s, int w, int h)
   this->DelegatePass->Render(s);
   this->NumberOfRenderedProps += this->DelegatePass->GetNumberOfRenderedProps();
 
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->PostRender(s);
 }
@@ -338,7 +337,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
   int size[2] = { w, h };
   this->SSAOQuadHelper->Program->SetUniform2i("size", size);
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PushFramebufferBindings();
   this->FrameBufferObject->Bind();
 
   this->FrameBufferObject->AddColorAttachment(0, this->SSAOTexture);
@@ -347,8 +346,7 @@ void vtkSSAOPass::RenderSSAO(vtkOpenGLRenderWindow* renWin, vtkMatrix4x4* projec
 
   this->SSAOQuadHelper->Render();
 
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  this->FrameBufferObject->GetContext()->GetState()->PopFramebufferBindings();
 
   this->DepthTexture->Deactivate();
   this->PositionTexture->Deactivate();

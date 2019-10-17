@@ -129,7 +129,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
     vtkOpenGLState::ScopedglEnableDisable dsaver(ostate, GL_DEPTH_TEST);
 
-    this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+    ostate->PushFramebufferBindings();
     this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
                          this->Pass1);
 
@@ -235,8 +235,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
       // restore some state.
-      this->FrameBufferObject->UnBind();
-      this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+      ostate->PopFramebufferBindings();
       return;
     }
 
@@ -327,8 +326,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
     // 4. Render in original FB (from renderstate in arg)
 
-    this->FrameBufferObject->UnBind();
-    this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+    ostate->PopFramebufferBindings();
 
     // to2 is the source
     this->Pass2->Activate();

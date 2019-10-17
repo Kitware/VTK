@@ -1364,7 +1364,8 @@ int vtkPSurfaceLICComposite::Gather(
           false);
   }
 
-  this->FBO->SaveCurrentBindingsAndBuffers();
+  vtkOpenGLState *ostate = this->Context->GetState();
+  ostate->PushFramebufferBindings();
   this->FBO->Bind(GL_FRAMEBUFFER);
   this->FBO->AddColorAttachment(0U, newImage);
   this->FBO->ActivateDrawBuffer(0U);
@@ -1380,7 +1381,6 @@ int vtkPSurfaceLICComposite::Gather(
   // texture to be initialized to 0
   this->FBO->InitializeViewport(winExtSize[0], winExtSize[1]);
 
-  vtkOpenGLState *ostate = this->Context->GetState();
   ostate->vtkglEnable(GL_DEPTH_TEST);
   ostate->vtkglDisable(GL_SCISSOR_TEST);
   ostate->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
@@ -1533,7 +1533,7 @@ int vtkPSurfaceLICComposite::Gather(
   this->FBO->DeactivateDrawBuffers();
   this->FBO->RemoveColorAttachment(0U);
   this->FBO->RemoveDepthAttachment();
-  this->FBO->UnBind(GL_FRAMEBUFFER);
+  ostate->PopFramebufferBindings();
   depthBuf->Delete();
 
   // wait for sends to complete

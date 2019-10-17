@@ -1189,7 +1189,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
   {
     vtkNew<vtkOpenGLFramebufferObject> resolvedFBO;
     resolvedFBO->SetContext(this);
-    resolvedFBO->SaveCurrentBindingsAndBuffers();
+    this->GetState()->PushFramebufferBindings();
     resolvedFBO->PopulateFramebuffer(rect.GetWidth(), rect.GetHeight(),
       /* useTextures = */ true,
       /* numberOfColorAttachments = */ 1,
@@ -1201,7 +1201,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     // PopulateFramebuffer changes active read/write buffer bindings,
     // hence we restore the read buffer bindings to read from the original
     // frame buffer.
-    resolvedFBO->RestorePreviousBindingsAndBuffers(GL_READ_FRAMEBUFFER);
+    this->GetState()->PopReadFramebufferBinding();
 
     // Now blit to resolve the MSAA and get an anti-aliased rendering in
     // resolvedFBO.
@@ -1211,7 +1211,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     // Now make the resolvedFBO the read buffer and read from it.
-    resolvedFBO->SaveCurrentBindingsAndBuffers(GL_READ_FRAMEBUFFER);
+    this->GetState()->PushReadFramebufferBinding();
     resolvedFBO->Bind(GL_READ_FRAMEBUFFER);
     resolvedFBO->ActivateReadBuffer(0);
 
@@ -1220,7 +1220,7 @@ int vtkOpenGLRenderWindow::ReadPixels(
     glReadPixels(0, 0, rect.GetWidth(), rect.GetHeight(), glformat, gltype, data);
 
     // restore bindings and release the resolvedFBO.
-    resolvedFBO->RestorePreviousBindingsAndBuffers();
+    this->GetState()->PopFramebufferBindings();
   }
   else
   {
@@ -1964,7 +1964,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 
     vtkNew<vtkOpenGLFramebufferObject> resolvedFBO;
     resolvedFBO->SetContext(this);
-    resolvedFBO->SaveCurrentBindingsAndBuffers();
+    this->GetState()->PushFramebufferBindings();
     resolvedFBO->PopulateFramebuffer(width, height,
       /* useTextures = */ true,
       /* numberOfColorAttachments = */ 1,
@@ -1976,7 +1976,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
     // PopulateFramebuffer changes active read/write buffer bindings,
     // hence we restore the read buffer bindings to read from the original
     // frame buffer.
-    resolvedFBO->RestorePreviousBindingsAndBuffers(GL_READ_FRAMEBUFFER);
+    this->GetState()->PopReadFramebufferBinding();
 
     // Now blit to resolve the MSAA and get an anti-aliased rendering in
     // resolvedFBO.
@@ -1986,7 +1986,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
     vtkOpenGLFramebufferObject::Blit(srcExtents, destExtents, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     // Now make the resolvedFBO the read buffer and read from it.
-    resolvedFBO->SaveCurrentBindingsAndBuffers(GL_READ_FRAMEBUFFER);
+    this->GetState()->PushReadFramebufferBinding();
     resolvedFBO->Bind(GL_READ_FRAMEBUFFER);
     resolvedFBO->ActivateReadBuffer(0);
 
@@ -1998,7 +1998,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
                   z_data );
 
     // restore bindings and release the resolvedFBO.
-    resolvedFBO->RestorePreviousBindingsAndBuffers();
+    this->GetState()->PopFramebufferBindings();
   }
   else
   {
@@ -2159,7 +2159,7 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
     }
     this->OffScreenFramebuffer = vtkOpenGLFramebufferObject::New();
     this->OffScreenFramebuffer->SetContext(this);
-    this->OffScreenFramebuffer->SaveCurrentBindingsAndBuffers();
+    this->GetState()->PushFramebufferBindings();
     this->OffScreenFramebuffer->PopulateFramebuffer(
       width, height,
       true, // textures
@@ -2167,7 +2167,7 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
       true, 24, // depth buffer 24bit
       0, // no multisample
       this->StencilCapable != 0 ? true : false);
-    this->OffScreenFramebuffer->RestorePreviousBindingsAndBuffers();
+    this->GetState()->PopFramebufferBindings();
   }
   else
   {

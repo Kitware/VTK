@@ -171,7 +171,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
     this->ProjectionFBO->SetContext(renWin);
   }
   s.SetFrameBuffer(this->ProjectionFBO);
-  this->ProjectionFBO->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->ProjectionFBO->Bind();
   // Color texture
   if (this->ProjectionColorTexture == nullptr)
@@ -213,8 +213,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   this->ProjectionDepthTexture->Bind();
   this->ProjectionDepthTexture->SendParameters();
 
-  this->ProjectionFBO->UnBind();
-  this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   //  EDL-RES1 FBO and TEXTURE
   //
@@ -236,13 +235,12 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   {
     this->EDLHighShadeTexture->Create2D(this->W, this->H, 4, VTK_FLOAT, false);
   }
-  this->EDLHighFBO->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->EDLHighFBO->Bind();
   this->EDLHighFBO->AddColorAttachment(0, this->EDLHighShadeTexture);
   this->EDLHighFBO->ActivateDrawBuffer(0);
   this->EDLHighFBO->AddDepthAttachment();
-  this->EDLHighFBO->UnBind();
-  this->EDLHighFBO->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   //  EDL-RES2 FBO and TEXTURE
   //
@@ -278,7 +276,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
     this->EDLLowBlurTexture->Create2D(this->W / EDLLowResFactor, this->H / EDLLowResFactor,
         4, VTK_FLOAT, false);
   }
-  this->EDLLowFBO->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->EDLLowFBO->Bind();
   this->EDLLowFBO->AddColorAttachment(0, this->EDLLowShadeTexture);
   this->EDLLowFBO->ActivateDrawBuffer(0);
@@ -298,8 +296,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState &s)
   this->EDLLowBlurTexture->Bind();
   this->EDLLowBlurTexture->SendParameters();
 
-  this->EDLLowFBO->UnBind();
-  this->EDLLowFBO->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   vtkOpenGLCheckErrorMacro("failed after Initialize");
 }
@@ -376,7 +373,7 @@ bool vtkEDLShading::EDLShadeHigh(
   //
   s.SetFrameBuffer(this->EDLHighFBO);
   this->EDLHighShadeTexture->Activate();
-  this->EDLHighFBO->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->EDLHighFBO->Bind();
   this->EDLHighFBO->AddColorAttachment(0, this->EDLHighShadeTexture);
   this->EDLHighFBO->ActivateDrawBuffer(0);
@@ -439,8 +436,7 @@ bool vtkEDLShading::EDLShadeHigh(
   //
   this->ProjectionDepthTexture->Deactivate();
   this->EDLHighShadeTexture->Deactivate();
-  this->EDLHighFBO->UnBind();
-  this->EDLHighFBO->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   return true; // succeeded
 }
@@ -468,7 +464,7 @@ bool vtkEDLShading::EDLShadeLow(
   this->EDLLowShadeTexture->Activate();
   this->EDLLowShadeTexture->SetLinearMagnification(true);
   this->EDLLowShadeTexture->SendParameters();
-  this->EDLLowFBO->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->EDLLowFBO->Bind();
   this->EDLLowFBO->AddColorAttachment(0, this->EDLLowShadeTexture);
   this->EDLLowFBO->ActivateDrawBuffer(0);
@@ -500,8 +496,7 @@ bool vtkEDLShading::EDLShadeLow(
 
   this->ProjectionDepthTexture->Deactivate();
   this->EDLLowShadeTexture->Deactivate();
-  this->EDLLowFBO->UnBind();
-  this->EDLLowFBO->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   return true; // succeeded
 }
@@ -527,7 +522,7 @@ bool vtkEDLShading::EDLBlurLow(vtkRenderState &s,
   //
   s.SetFrameBuffer(this->EDLLowFBO);
   this->EDLLowBlurTexture->Activate();
-  this->EDLLowFBO->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->EDLLowFBO->Bind();
   this->EDLLowFBO->AddColorAttachment(0, this->EDLLowBlurTexture);
   this->EDLLowFBO->ActivateDrawBuffer(0);
@@ -557,8 +552,7 @@ bool vtkEDLShading::EDLBlurLow(vtkRenderState &s,
   this->EDLLowShadeTexture->Deactivate();
   this->ProjectionDepthTexture->Deactivate();
 
-  this->EDLLowFBO->UnBind();
-  this->EDLLowFBO->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   return EDLIsFiltered;
 }
@@ -699,7 +693,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     this->Zf = zfar;
     this->Zn = znear;
     //cout << " -- ZNEAR/ZFAR : " << Zn << " || " << Zf << endl;
-    this->ProjectionFBO->SaveCurrentBindingsAndBuffers();
+    renWin->GetState()->PushFramebufferBindings();
     this->ProjectionFBO->Bind();
     annotate("Start vtkEDLShading::RenderDelegate");
     this->RenderDelegate(s,this->Width,this->Height,
@@ -719,7 +713,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     annotate("Start vtkEDLShading::ShadeHigh");
     if(! this->EDLShadeHigh(s2,renWin) )
     {
-      this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
+      renWin->GetState()->PopFramebufferBindings();
     }
     annotate("End vtkEDLShading::ShadeHigh");
 #endif // EDL_HIGH_RESOLUTION_ON
@@ -732,7 +726,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     annotate("Start vtkEDLShading::ShadeLow");
     if(! this->EDLShadeLow(s2, renWin) )
     {
-      this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
+      renWin->GetState()->PopFramebufferBindings();
     }
     annotate("End vtkEDLShading::ShadeLow");
     if (this->EDLIsFiltered)
@@ -751,7 +745,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     {
       vtkOpenGLFramebufferObject::SafeDownCast(s->GetFrameBuffer())->Bind();
     }
-    this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
+    renWin->GetState()->PopFramebufferBindings();
 
     annotate("Start vtkEDLShading::Compose");
     if( ! this->EDLCompose(s, renWin))

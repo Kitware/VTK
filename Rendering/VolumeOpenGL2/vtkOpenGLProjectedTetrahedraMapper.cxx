@@ -211,7 +211,7 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer *r)
 
       vtkOpenGLFramebufferObject *fo = this->Framebuffer;
       fo->SetContext(rw);
-      fo->SaveCurrentBindingsAndBuffers();
+      rw->GetState()->PushFramebufferBindings();
 
       const char *desc;
 
@@ -238,22 +238,21 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFOResources(vtkRenderer *r)
         vtkWarningMacro(
           "Missing FBO support. The algorithm may produce visual artifacts.");
         this->CanDoFloatingPointFrameBuffer = false;
-        fo->RestorePreviousBindingsAndBuffers();
+        rw->GetState()->PopFramebufferBindings();
         return false;
       }
-      this->Framebuffer->UnBind();
-      fo->RestorePreviousBindingsAndBuffers();
+      rw->GetState()->PopFramebufferBindings();
       this->CanDoFloatingPointFrameBuffer = true;
     }
     else
     {
       // need resize
       vtkOpenGLFramebufferObject *fo = this->Framebuffer;
-      fo->SaveCurrentBindingsAndBuffers();
+      rw->GetState()->PushFramebufferBindings();
       fo->Bind();
       fo->Resize(size[0], size[1]);
       this->Framebuffer->UnBind();
-      fo->RestorePreviousBindingsAndBuffers();
+      rw->GetState()->PopFramebufferBindings();
     }
     this->CurrentFBOWidth = size[0];
     this->CurrentFBOHeight = size[1];
@@ -519,6 +518,9 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   vtkOpenGLFramebufferObject *fo = nullptr;
 
+  vtkOpenGLState *ostate =
+    static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetState();
+
   // Copy existing Depth/Color buffers to FO
   if (this->UseFloatingPointFrameBuffer
     && this->CanDoFloatingPointFrameBuffer)
@@ -527,7 +529,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     fo = this->Framebuffer;
 
     // bind draw+read to set it up
-    fo->SaveCurrentBindingsAndBuffers();
+    ostate->PushFramebufferBindings();
     fo->Bind(fo->GetDrawMode());
     fo->ActivateDrawBuffer(0);
 
@@ -565,7 +567,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   {
     if (fo)
     {
-      fo->RestorePreviousBindingsAndBuffers();
+      ostate->PopFramebufferBindings();
     }
     return;
   }
@@ -662,13 +664,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
   {
     if (fo)
     {
-      fo->RestorePreviousBindingsAndBuffers();
+      ostate->PopFramebufferBindings();
     }
     return;
   }
 
-  vtkOpenGLState *ostate =
-    static_cast<vtkOpenGLRenderWindow *>(renderer->GetRenderWindow())->GetState();
   ostate->vtkglDepthMask(GL_FALSE);
   ostate->vtkglEnable(GL_DEPTH_TEST);
 
@@ -1086,7 +1086,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     fo->Bind(fo->GetReadMode());
 
     // draw to default fbo
-    fo->RestorePreviousBindingsAndBuffers(fo->GetDrawMode());
+    ostate->PopDrawFramebufferBinding();
 
     // Depth buffer has not changed so only copy color
     glBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
@@ -1096,7 +1096,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
 
     // restore default fbo for both read+draw
-    fo->RestorePreviousBindingsAndBuffers(fo->GetReadMode());
+    ostate->PopReadFramebufferBinding();
   }
 
   // Restore the blend function.

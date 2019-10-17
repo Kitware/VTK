@@ -113,7 +113,7 @@ void vtkEquirectangularToCubeMapTexture::Load(vtkRenderer* ren)
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
-    fbo->SaveCurrentBindingsAndBuffers();
+    state->PushFramebufferBindings();
     fbo->Bind();
 
     for (int i = 0; i < 6; i++)
@@ -164,7 +164,7 @@ void vtkEquirectangularToCubeMapTexture::Load(vtkRenderer* ren)
       this->InputTexture->GetTextureObject()->Deactivate();
     }
     this->TextureObject->Deactivate();
-    fbo->RestorePreviousBindingsAndBuffers();
+    state->PopFramebufferBindings();
     this->LoadTime.Modified();
   }
 

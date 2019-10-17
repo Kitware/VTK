@@ -129,9 +129,9 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(this->RenderWindow);
-  fbo->SaveCurrentBindingsAndBuffers();
-  fbo->Bind();
   vtkOpenGLState *ostate = this->RenderWindow->GetState();
+  ostate->PushFramebufferBindings();
+  fbo->Bind();
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
   fbo->AddColorAttachment(0, outputTex);
@@ -196,7 +196,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   }
 
   inputTex->Deactivate();
-  fbo->RestorePreviousBindingsAndBuffers();
+  ostate->PopFramebufferBindings();
   delete [] ftmp;
 }
 

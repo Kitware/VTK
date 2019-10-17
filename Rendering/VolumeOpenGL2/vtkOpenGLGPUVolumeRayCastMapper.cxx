@@ -1630,7 +1630,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginImageSample(
   float const xySampleDist = this->Parent->ImageSampleDistance;
   if (xySampleDist != 1.f && this->InitializeImageSampleFBO(ren))
   {
-    this->ImageSampleFBO->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+    this->ImageSampleFBO->GetContext()->GetState()->PushDrawFramebufferBinding();
     this->ImageSampleFBO->Bind(GL_DRAW_FRAMEBUFFER);
     this->ImageSampleFBO->ActivateDrawBuffers(
       static_cast<unsigned int>(this->NumImageSampleDrawBuffers));
@@ -1686,8 +1686,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
 
     this->ImageSampleFBO = vtkOpenGLFramebufferObject::New();
     this->ImageSampleFBO->SetContext(win);
-    this->ImageSampleFBO->SaveCurrentBindingsAndBuffers(GL_FRAMEBUFFER);
-    this->ImageSampleFBO->Bind(GL_FRAMEBUFFER);
+    win->GetState()->PushFramebufferBindings();
+    this->ImageSampleFBO->Bind();
     this->ImageSampleFBO->InitializeViewport(
       this->WindowSize[0], this->WindowSize[1]);
 
@@ -1704,7 +1704,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::InitializeImageSampleFBO(
     {
       tex->Deactivate();
     }
-    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(GL_FRAMEBUFFER);
+    win->GetState()->PopFramebufferBindings();
 
     if (!complete)
     {
@@ -1740,14 +1740,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndImageSample(
       this->ImageSampleFBO->ActivateDrawBuffers(
         static_cast<unsigned int>(this->NumImageSampleDrawBuffers));
     }
-    this->ImageSampleFBO->RestorePreviousBindingsAndBuffers(
-      GL_DRAW_FRAMEBUFFER);
+    vtkOpenGLRenderWindow* win =
+      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
+    win->GetState()->PopDrawFramebufferBinding();
 
     // Render the contents of ImageSampleFBO as a quad to intermix with the
     // rest of the scene.
     typedef vtkOpenGLRenderUtilities GLUtil;
-    vtkOpenGLRenderWindow* win =
-      static_cast<vtkOpenGLRenderWindow*>(ren->GetRenderWindow());
 
     if (this->RebuildImageSampleProg)
     {
@@ -1864,11 +1863,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
       this->FBO = vtkOpenGLFramebufferObject::New();
     }
 
-    this->FBO->SetContext(
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    vtkOpenGLRenderWindow *renWin =
+      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    this->FBO->SetContext(renWin);
 
-    this->FBO->SaveCurrentBindingsAndBuffers();
-    this->FBO->Bind(GL_FRAMEBUFFER);
+    renWin->GetState()->PushFramebufferBindings();
+    this->FBO->Bind();
     this->FBO->InitializeViewport(this->WindowSize[0], this->WindowSize[1]);
 
     int depthImageScalarType = this->Parent->GetDepthImageScalarType();
@@ -1889,8 +1889,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
         this->RTTDepthTextureObject = nullptr;
       }
       this->RTTDepthTextureObject = vtkTextureObject::New();
-      this->RTTDepthTextureObject->SetContext(
-        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+      this->RTTDepthTextureObject->SetContext(renWin);
       this->RTTDepthTextureObject->Create2D(this->WindowSize[0],
         this->WindowSize[1],
         1,
@@ -1926,8 +1925,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
     if (!this->RTTDepthBufferTextureObject)
     {
       this->RTTDepthBufferTextureObject = vtkTextureObject::New();
-      this->RTTDepthBufferTextureObject->SetContext(
-        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+      this->RTTDepthBufferTextureObject->SetContext(renWin);
       this->RTTDepthBufferTextureObject->AllocateDepth(
         this->WindowSize[0], this->WindowSize[1], vtkTextureObject::Float32);
       this->RTTDepthBufferTextureObject->Activate();
@@ -1961,7 +1959,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
     this->FBO->RemoveColorAttachment(0U);
     this->FBO->RemoveColorAttachment(1U);
     this->FBO->DeactivateDrawBuffers();
-    this->FBO->RestorePreviousBindingsAndBuffers();
+    this->FBO->GetContext()->GetState()->PopFramebufferBindings();
 
     this->RTTDepthBufferTextureObject->Deactivate();
     this->RTTColorTextureObject->Deactivate();
@@ -1992,18 +1990,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
     this->DPFBO = vtkOpenGLFramebufferObject::New();
   }
 
-  this->DPFBO->SetContext(
-    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  this->DPFBO->SetContext(renWin);
 
-  this->DPFBO->SaveCurrentBindingsAndBuffers();
-  this->DPFBO->Bind(GL_FRAMEBUFFER);
+  renWin->GetState()->PushFramebufferBindings();
+  this->DPFBO->Bind();
   this->DPFBO->InitializeViewport(this->WindowSize[0], this->WindowSize[1]);
 
   if (!this->DPDepthBufferTextureObject || !this->DPColorTextureObject)
   {
     this->DPDepthBufferTextureObject = vtkTextureObject::New();
-    this->DPDepthBufferTextureObject->SetContext(
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    this->DPDepthBufferTextureObject->SetContext(renWin);
     this->DPDepthBufferTextureObject->AllocateDepth(
       this->WindowSize[0], this->WindowSize[1], vtkTextureObject::Native);
     this->DPDepthBufferTextureObject->Activate();
@@ -2016,8 +2014,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
 
     this->DPColorTextureObject = vtkTextureObject::New();
 
-    this->DPColorTextureObject->SetContext(
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    this->DPColorTextureObject->SetContext(renWin);
     this->DPColorTextureObject->Create2D(
       this->WindowSize[0], this->WindowSize[1], 4, VTK_UNSIGNED_CHAR, false);
     this->DPColorTextureObject->Activate();
@@ -2059,11 +2056,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitDepthPass(
   vtkRenderer* vtkNotUsed(ren))
 {
   this->DPFBO->DeactivateDrawBuffers();
-  this->DPFBO->RestorePreviousBindingsAndBuffers();
+  vtkOpenGLState *ostate = this->DPFBO->GetContext()->GetState();
+  ostate->PopFramebufferBindings();
 
   this->DPDepthBufferTextureObject->Deactivate();
   this->DPColorTextureObject->Deactivate();
-  this->DPFBO->GetContext()->GetState()->vtkglDisable(GL_DEPTH_TEST);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
 }
 
 //----------------------------------------------------------------------------
