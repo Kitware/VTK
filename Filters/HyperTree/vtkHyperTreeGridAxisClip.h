@@ -112,9 +112,9 @@ public:
    * When on, a cell is clipped out when its origin + size is below said
    * said plane intercept along the considered direction.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,bool);
+  vtkGetMacro(InsideOut,bool);
+  vtkBooleanMacro(InsideOut,bool);
   //@}
 
   //@{
@@ -197,7 +197,7 @@ protected:
   /**
    * Decide what is inside versus what is out
    */
-  int InsideOut;
+  bool InsideOut;
 
   /**
    * Output material mask constructed by this filter
