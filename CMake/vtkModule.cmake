@@ -2872,13 +2872,13 @@ vtk_module_add_module(<name>
   [TEMPLATES                <template>...]
   [PRIVATE_CLASSES          <class>...]
   [PRIVATE_TEMPLATE_CLASSES <template class>...]
-  [PRIVATE_SOURCES          <source>...]
   [PRIVATE_HEADERS          <header>...]
   [PRIVATE_TEMPLATES        <template>...])
 ```
 
 The `PRIVATE_` arguments are analogous to their non-`PRIVATE_` arguments, but
-the associated files are not installed or available for wrapping.
+the associated files are not installed or available for wrapping (`SOURCES` are
+always private, so there is no `PRIVATE_` variant for that argument).
 
   * `FORCE_STATIC`: For a static library to be created. If not provided,
     `BUILD_SHARED_LIBS` will control the library type.
