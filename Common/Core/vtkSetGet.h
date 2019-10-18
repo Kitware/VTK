@@ -147,6 +147,11 @@ virtual type Get##name () { \
 //
 #define vtkSetStringMacro(name) \
 virtual void Set##name (const char* _arg) \
+  vtkSetStringBodyMacro(name)
+
+// This macro defines a body of set string macro. It can be used either in
+// the header file using vtkSetStringMacro or in the implementation.
+#define vtkSetStringBodyMacro(name) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
   if ( this->name == nullptr && _arg == nullptr) { return;} \
@@ -228,6 +233,21 @@ virtual type Get##name##MaxValue () \
   }
 
 //
+// This macro defines a body of set object macro with
+// a smart pointer class member.
+//
+#define vtkSetSmartPointerBodyMacro(name,type,args)             \
+  {                                                             \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this         \
+                << "): setting " << #name " to " << args );     \
+  if (this->name != args)                                       \
+  {                                                             \
+    this->name = args;                                          \
+    this->Modified();                                           \
+  }                                                             \
+  }
+
+//
 // Set pointer to object; uses vtkObject reference counting methodology.
 // Creates method Set"name"() (e.g., SetPoints()). This macro should
 // be used in the header file.
@@ -236,6 +256,17 @@ virtual type Get##name##MaxValue () \
 virtual void Set##name (type* _arg)             \
 {                                               \
   vtkSetObjectBodyMacro(name,type,_arg);        \
+}
+
+//
+// Set pointer to a smart pointer class member.
+// Creates method Set"name"() (e.g., SetPoints()). This macro should
+// be used in the header file.
+//
+#define vtkSetSmartPointerMacro(name,type)      \
+virtual void Set##name (type* _arg)             \
+{                                               \
+  vtkSetSmartPointerBodyMacro(name,type,_arg);  \
 }
 
 //
@@ -254,6 +285,16 @@ virtual void Set##name (type* _arg)             \
 void class::Set##name (type* _arg)              \
 {                                               \
   vtkSetObjectBodyMacro(name,type,_arg);        \
+}
+
+//
+// Set pointer to smart pointer.
+// This macro is used to define the implementation.
+//
+#define vtkCxxSetSmartPointerMacro(class,name,type)   \
+void class::Set##name (type* _arg)                    \
+{                                                     \
+  vtkSetSmartPointerBodyMacro(name,type,_arg);        \
 }
 
 //
@@ -277,9 +318,17 @@ virtual type *Get##name ()                                              \
 virtual type *Get##name ()                                              \
 {                                                                       \
   vtkDebugMacro(<< this->GetClassName() << " (" << this                 \
-                << "): returning " #name " address " << this->name );   \
+                << "): returning " #name " address "                    \
+                << static_cast<type*>(this->name) );                    \
   return this->name;                                                    \
 }
+
+//
+// Get pointer to object in a smart pointer class member.
+// This is only an alias and is similar to vtkGetObjectMacro.
+//
+#define vtkGetSmartPointerMacro(name,type)  \
+  vtkGetObjectMacro(name,type)
 
 //
 // Create members "name"On() and "name"Off() (e.g., DebugOn() DebugOff()).
