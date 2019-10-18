@@ -113,10 +113,9 @@ void vtkToneMappingPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->RenderDelegate(s, w, h, w, h, this->FrameBufferObject, this->ColorTexture);
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   if (this->QuadHelper &&
     static_cast<unsigned int>(this->ToneMappingType) != this->QuadHelper->ShaderChangeValue)

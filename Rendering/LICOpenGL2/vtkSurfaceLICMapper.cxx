@@ -196,7 +196,7 @@ void vtkSurfaceLICMapper::RenderPiece(
 
   vtkNew<vtkOpenGLFramebufferObject> fbo;
   fbo->SetContext(rw);
-  fbo->SaveCurrentBindingsAndBuffers();
+  ostate->PushFramebufferBindings();
 
   // allocate rendering resources, initialize or update
   // textures and shaders.
@@ -221,7 +221,7 @@ void vtkSurfaceLICMapper::RenderPiece(
   // ----------------------------------------------- depth test and copy to screen
   this->LICInterface->CopyToScreen();
 
-  fbo->RestorePreviousBindingsAndBuffers();
+  ostate->PopFramebufferBindings();
 
   // clear opengl error flags and be absolutely certain that nothing failed.
   vtkOpenGLCheckErrorMacro("failed during surface lic painter");

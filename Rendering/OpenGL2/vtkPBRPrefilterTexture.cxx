@@ -236,7 +236,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
       vtkNew<vtkOpenGLFramebufferObject> fbo;
       fbo->SetContext(renWin);
 
-      fbo->SaveCurrentBindingsAndBuffers();
+      renWin->GetState()->PushFramebufferBindings();
       fbo->Bind();
 
       for (unsigned int mip = 0; mip < this->PrefilterLevels; mip++)
@@ -257,7 +257,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
         quadHelper.Render();
       }
 
-      fbo->RestorePreviousBindingsAndBuffers();
+      renWin->GetState()->PopFramebufferBindings();
 
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }

@@ -190,7 +190,7 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->RenderDelegate(s,
     this->ViewportWidth, this->ViewportHeight,
     this->ViewportWidth, this->ViewportHeight,
@@ -279,11 +279,10 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
       (this->ActiveAccumulationTexture == 0 ? 1 : 0);
   }
 
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   // now copy the result to the outer FO
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers(
-    this->FrameBufferObject->GetReadMode());
+  renWin->GetState()->PushReadFramebufferBinding();
   this->FrameBufferObject->Bind(
     this->FrameBufferObject->GetReadMode());
 
@@ -300,8 +299,7 @@ void vtkSimpleMotionBlurPass::Render(const vtkRenderState *s)
     GL_COLOR_BUFFER_BIT,
     GL_LINEAR);
 
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers(
-    this->FrameBufferObject->GetReadMode());
+  renWin->GetState()->PopReadFramebufferBinding();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

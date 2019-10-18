@@ -159,7 +159,7 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
 
     vtkNew<vtkOpenGLFramebufferObject> fbo;
     fbo->SetContext(renWin);
-    fbo->SaveCurrentBindingsAndBuffers();
+    renWin->GetState()->PushFramebufferBindings();
     fbo->Bind();
 
     if (!quadHelper.Program || !quadHelper.Program->GetCompiled())
@@ -198,7 +198,7 @@ void vtkPBRIrradianceTexture::Load(vtkRenderer* ren)
       }
       this->InputCubeMap->GetTextureObject()->Deactivate();
     }
-    fbo->RestorePreviousBindingsAndBuffers();
+    renWin->GetState()->PopFramebufferBindings();
     this->LoadTime.Modified();
   }
 

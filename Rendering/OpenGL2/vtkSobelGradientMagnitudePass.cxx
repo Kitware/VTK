@@ -154,7 +154,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     this->FrameBufferObject->SetContext(context);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  ostate->PushFramebufferBindings();
   this->RenderDelegate(s,width,height,w,h,this->FrameBufferObject,
                        this->Pass1);
 
@@ -285,8 +285,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
 
     // restore some state.
-    this->FrameBufferObject->UnBind();
-    this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+    ostate->PopFramebufferBindings();
     return;
   }
 
@@ -373,8 +372,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
   // 4. Render in original FB (from renderstate in arg)
 
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  ostate->PopFramebufferBindings();
 
   // has something changed that would require us to recreate the shaders?
   if (!this->Program2)

@@ -1056,7 +1056,7 @@ void vtkDualDepthPeelingPass::InitFramebuffer(const vtkRenderState *s)
                                   s->GetRenderer()->GetRenderWindow()));
 
   // Save the current FBO bindings to restore them later.
-  this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+  this->State->PushDrawFramebufferBinding();
 }
 
 //------------------------------------------------------------------------------
@@ -1165,11 +1165,11 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
   // glBlendEquation = GL_MAX to be used during peeling.
 
   // Copy from the current (default) framebuffer's depth buffer into a texture:
-  this->Framebuffer->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+  this->State->PopDrawFramebufferBinding();
   this->Textures[OpaqueDepth]->CopyFromFrameBuffer(
         this->ViewportX, this->ViewportY, 0, 0,
         this->ViewportWidth, this->ViewportHeight);
-  this->Framebuffer->SaveCurrentBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+  this->State->PushDrawFramebufferBinding();
   this->Framebuffer->Bind(GL_DRAW_FRAMEBUFFER);
 
   // Fill both depth buffers with the opaque fragment depths. InitializeDepth
@@ -1700,7 +1700,7 @@ void vtkDualDepthPeelingPass::Finalize()
   }
 
   this->Framebuffer->UnBind(GL_DRAW_FRAMEBUFFER);
-  this->Framebuffer->RestorePreviousBindingsAndBuffers(GL_DRAW_FRAMEBUFFER);
+  this->State->PopDrawFramebufferBinding();
   this->BlendFinalImage();
 
   // Restore blending parameters:

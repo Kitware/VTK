@@ -127,12 +127,10 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->SetContext(renWin);
   }
 
-  this->FrameBufferObject->SaveCurrentBindingsAndBuffers();
+  renWin->GetState()->PushFramebufferBindings();
   this->RenderDelegate(s,width,height,width,height,this->FrameBufferObject,
                        this->Pass1, this->Pass1Depth);
-
-  this->FrameBufferObject->UnBind();
-  this->FrameBufferObject->RestorePreviousBindingsAndBuffers();
+  renWin->GetState()->PopFramebufferBindings();
 
   // has something changed that would require us to recreate the shader?
   if (!this->QuadHelper)

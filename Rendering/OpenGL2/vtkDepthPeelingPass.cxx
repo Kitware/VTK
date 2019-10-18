@@ -465,7 +465,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     this->Framebuffer = vtkOpenGLFramebufferObject::New();
     this->Framebuffer->SetContext(renWin);
   }
-  this->Framebuffer->SaveCurrentBindingsAndBuffers();
+  this->State->PushFramebufferBindings();
   this->Framebuffer->Bind();
   this->Framebuffer->AddDepthAttachment(this->TranslucentZTexture[0]);
   this->Framebuffer->AddColorAttachment(0,
@@ -616,7 +616,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     this->BlendFinalPeel(renWin);
   }
 
-  this->Framebuffer->RestorePreviousBindingsAndBuffers();
+  this->State->PopFramebufferBindings();
 
 
   // Restore the original viewport and scissor test settings
@@ -634,8 +634,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   //blit if we drew something
   if (this->PeelCount > 1 || this->ColorDrawCount != 0)
   {
-    this->Framebuffer->SaveCurrentBindingsAndBuffers(
-      this->Framebuffer->GetReadMode());
+    this->State->PushReadFramebufferBinding();
     this->Framebuffer->Bind(
       this->Framebuffer->GetReadMode());
 
@@ -648,8 +647,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       GL_COLOR_BUFFER_BIT,
       GL_LINEAR);
 
-    this->Framebuffer->RestorePreviousBindingsAndBuffers(
-      this->Framebuffer->GetReadMode());
+    this->State->PopReadFramebufferBinding();
   }
 
 #ifdef GL_MULTISAMPLE
