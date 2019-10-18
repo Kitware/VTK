@@ -61,11 +61,6 @@ float vtkGenericOpenGLRenderWindow::GetMaximumHardwareLineWidth()
     : this->Superclass::GetMaximumHardwareLineWidth();
 }
 
-void vtkGenericOpenGLRenderWindow::SetFrontBuffer(unsigned int b)
-{
-  this->FrontBuffer = b;
-}
-
 void vtkGenericOpenGLRenderWindow::SetFrontLeftBuffer(unsigned int b)
 {
   this->FrontLeftBuffer = b;
@@ -74,11 +69,6 @@ void vtkGenericOpenGLRenderWindow::SetFrontLeftBuffer(unsigned int b)
 void vtkGenericOpenGLRenderWindow::SetFrontRightBuffer(unsigned int b)
 {
   this->FrontRightBuffer = b;
-}
-
-void vtkGenericOpenGLRenderWindow::SetBackBuffer(unsigned int b)
-{
-  this->BackBuffer = b;
 }
 
 void vtkGenericOpenGLRenderWindow::SetBackLeftBuffer(unsigned int b)

@@ -307,7 +307,6 @@ public:
     vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d", using_double_buffer, this->RenderWindow->GetSwapBuffers());
     if (using_double_buffer)
     {
-      SWAP_BUFFER_IDS(this->RenderWindow, FrontBuffer, BackBuffer);
       SWAP_BUFFER_IDS(this->RenderWindow, FrontLeftBuffer, BackLeftBuffer);
       SWAP_BUFFER_IDS(this->RenderWindow, FrontRightBuffer, BackRightBuffer);
     }
@@ -553,14 +552,12 @@ void QVTKRenderWindowAdapter::QVTKInternals::recreateFBO()
 
   int attachmentIncrement = 0;
   renWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-  renWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
   if (renWin->GetDoubleBuffer())
   {
     this->FBO->addColorAttachment(size);
     attachmentIncrement++;
   }
   renWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
-  renWin->SetBackBuffer(GL_COLOR_ATTACHMENT0 + attachmentIncrement);
 
   if (/*this->Context->format().stereo() &&*/ renWin->GetStereoCapableWindow())
   {
