@@ -217,11 +217,7 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       {
         return this->InsideOut;
       }
-      else
-      {
-        return !this->InsideOut;
-      }
-      break;
+      return !this->InsideOut;
     } // case BOX
     case vtkHyperTreeGridAxisClip::QUADRIC:
     {
@@ -251,9 +247,7 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
           return !this->InsideOut;
         }
       } // v
-
-      // All quadric values are positive at cell vertices, it is clipped out
-      return this->InsideOut;
+      break;
     } // case QUADRIC
   }   //  switch (this->ClipType)
 
