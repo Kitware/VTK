@@ -2893,7 +2893,7 @@ always private, so there is no `PRIVATE_` variant for that argument).
   * `CLASSES`: A list of classes in the module. This is a shortcut for adding
     `<class>.cxx` to `SOURCES` and `<class>.h` to `HEADERS`.
   * `TEMPLATE_CLASSES`: A list of template classes in the module. This is a
-    shortcut for adding `<class>.cxx` to `TEMPLATES` and `<class>.h` to
+    shortcut for adding `<class>.txx` to `TEMPLATES` and `<class>.h` to
     `HEADERS`.
   * `SOURCES`: A list of source files which require compilation.
   * `HEADERS`: A list of header files which will be available for wrapping and
