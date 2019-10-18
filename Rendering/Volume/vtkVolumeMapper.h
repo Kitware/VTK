@@ -112,6 +112,8 @@ public:
     { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
   void SetBlendModeToIsoSurface()
     { this->SetBlendMode( vtkVolumeMapper::ISOSURFACE_BLEND ); }
+  void SetBlendModeToSlice()
+    { this->SetBlendMode( vtkVolumeMapper::SLICE_BLEND ); }
   vtkGetMacro( BlendMode, int );
   //@}
 
@@ -246,7 +248,8 @@ public:
     MINIMUM_INTENSITY_BLEND,
     AVERAGE_INTENSITY_BLEND,
     ADDITIVE_BLEND,
-    ISOSURFACE_BLEND
+    ISOSURFACE_BLEND,
+    SLICE_BLEND
   };
 
 protected:

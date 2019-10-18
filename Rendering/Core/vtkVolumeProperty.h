@@ -55,9 +55,11 @@
 #ifndef vtkVolumeProperty_h
 #define vtkVolumeProperty_h
 
+#include "vtkImplicitFunction.h" // For vtkImplicitFunction
 #include "vtkNew.h" // Needed for vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSmartPointer.h" // Needed for vtkSmartPointer
 
 // STL includes
 #include <set>                      // For labelmap labels set
@@ -405,6 +407,15 @@ public:
    */
   vtkContourValues* GetIsoSurfaceValues();
 
+  //@{
+  /**
+   * Get/Set the function used for slicing.
+   * Currently, only vtkPlane is supported.
+   */
+  vtkSetSmartPointerMacro(SliceFunction, vtkImplicitFunction);
+  vtkGetSmartPointerMacro(SliceFunction, vtkImplicitFunction);
+  //@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * UpdateMTimes performs a Modified() on all TimeStamps.
@@ -589,6 +600,11 @@ protected:
    * Contour values for isosurface blend mode
    */
   vtkNew<vtkContourValues> IsoSurfaceValues;
+
+  /**
+   * Function used for slice
+   */
+  vtkSmartPointer<vtkImplicitFunction> SliceFunction;
 
   /**
    * Label map transfer functions
