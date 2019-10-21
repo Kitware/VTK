@@ -323,7 +323,6 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
 
     builder.Run(this->Connectivity,
                 this->RConn,
-                this->RNumIndices,
                 this->RIndexOffsets,
                 rconnToConnCalc,
                 cellIdCalc,
@@ -331,7 +330,7 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
                 rconnSize,
                 Device{});
 
-    this->NumberOfPoints = this->RIndexOffsets.GetNumberOfValues();
+    this->NumberOfPoints = this->RIndexOffsets.GetNumberOfValues() - 1;
     this->ReverseConnectivityBuilt = true;
   }
 
@@ -339,7 +338,6 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
   //of vertex
   return vtkm::exec::ReverseConnectivityVTK<Device>(
       this->RConn.PrepareForInput(Device()),
-      this->RNumIndices.PrepareForInput(Device()),
       this->RIndexOffsets.PrepareForInput(Device()));
 }
 

@@ -370,8 +370,8 @@ struct MaxCellSize
     result = cellset.GetNumberOfPointsInCell(0);
   }
 
-  template <typename S1, typename S2, typename S3, typename S4>
-  void operator()(const vtkm::cont::CellSetExplicit<S1, S2, S3, S4>& cellset, vtkm::IdComponent& result) const
+  template <typename S1, typename S2, typename S3>
+  void operator()(const vtkm::cont::CellSetExplicit<S1, S2, S3>& cellset, vtkm::IdComponent& result) const
   {
     auto counts = cellset.GetNumIndicesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
     result = vtkm::cont::Algorithm::Reduce(counts, vtkm::IdComponent{0}, vtkm::Maximum{});

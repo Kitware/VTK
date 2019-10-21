@@ -128,10 +128,8 @@ template <typename Device> ReverseConnectivityVTK<Device>::ReverseConnectivityVT
 template <typename Device>
 ReverseConnectivityVTK<Device>::ReverseConnectivityVTK(
     const ConnectivityPortalType& connPortal,
-    const NumIndicesPortalType& numIndicesPortal,
     const IndexOffsetPortalType& indexOffsetPortal)
   : Connectivity(connPortal),
-    NumIndices(numIndicesPortal),
     IndexOffsets(indexOffsetPortal)
 {
 }
@@ -140,7 +138,7 @@ ReverseConnectivityVTK<Device>::ReverseConnectivityVTK(
 template <typename Device>
 vtkm::Id ReverseConnectivityVTK<Device>::GetNumberOfElements() const
 {
-  return this->NumIndices.GetNumberOfValues();
+  return this->IndexOffsets.GetNumberOfValues() - 1;
 }
 
 //------------------------------------------------------------------------------
@@ -148,8 +146,9 @@ template <typename Device>
 typename ReverseConnectivityVTK<Device>::IndicesType
 ReverseConnectivityVTK<Device>::GetIndices(vtkm::Id index) const
 {
-  vtkm::Id offset = this->IndexOffsets.Get(index);
-  vtkm::IdComponent length = this->NumIndices.Get(index);
+  const vtkm::Id offset = this->IndexOffsets.Get(index);
+  const vtkm::Id next = this->IndexOffsets.Get(index+1);
+  vtkm::IdComponent length = static_cast<vtkm::IdComponent>(next - offset);
   return IndicesType(this->Connectivity, length, offset);
 }
 

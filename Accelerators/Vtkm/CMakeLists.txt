@@ -177,7 +177,12 @@ if (MSVC)
     /wd4512
     # Generates numerous warning that implicit constructors can't be
     # constructed. This is understood and we don't care.
-    /wd4510)
+    /wd4510
+    # Generates warnings when decorated names are over 4096 characters
+    # This compiler warning is deprecated and no longer occurs with VS2017+.
+    # So we suppress for VS2015
+    /wd4503
+    )
   set(vtkm_msvc_flags)
   foreach (msvc_warning_flag IN LISTS msvc_warning_flags)
     if (TARGET vtkm::cuda)

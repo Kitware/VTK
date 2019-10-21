@@ -252,7 +252,7 @@ vtkDataArray* Convert(const vtkm::cont::Field& input)
 
   try
   {
-    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(input, policy),
+    vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicyFieldNotActive(input, policy),
                             aConverter);
     data = aConverter.Data;
     if (data)

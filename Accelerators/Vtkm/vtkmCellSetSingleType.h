@@ -54,7 +54,6 @@ public:
     , Connectivity()
     , ReverseConnectivityBuilt(false)
     , RConn()
-    , RNumIndices()
     , RIndexOffsets()
   {
   }
@@ -68,7 +67,6 @@ public:
     , Connectivity()
     , ReverseConnectivityBuilt(false)
     , RConn()
-    , RNumIndices()
     , RIndexOffsets()
   {
   }
@@ -81,7 +79,6 @@ public:
     , Connectivity(src.Connectivity)
     , ReverseConnectivityBuilt(src.ReverseConnectivityBuilt)
     , RConn(src.RConn)
-    , RNumIndices(src.RNumIndices)
     , RIndexOffsets(src.RIndexOffsets)
   {
   }
@@ -95,7 +92,6 @@ public:
     this->ReverseConnectivityBuilt = src.ReverseConnectivityBuilt;
     this->Connectivity = src.Connectivity;
     this->RConn = src.RConn;
-    this->RNumIndices = src.RNumIndices;
     this->RIndexOffsets  = src.RIndexOffsets;
     return *this;
   }
@@ -208,7 +204,6 @@ public:
   {
     this->Connectivity.ReleaseResourcesExecution();
     this->RConn.ReleaseResourcesExecution();
-    this->RNumIndices.ReleaseResourcesExecution();
     this->RIndexOffsets.ReleaseResourcesExecution();
   }
 
@@ -236,7 +231,6 @@ private:
 
   mutable bool ReverseConnectivityBuilt;
   mutable vtkm::cont::ArrayHandle<vtkm::Id> RConn;
-  mutable vtkm::cont::ArrayHandle<vtkm::IdComponent> RNumIndices;
   mutable vtkm::cont::ArrayHandle<vtkm::Id> RIndexOffsets;
 };
 

@@ -142,7 +142,6 @@ private:
 template <typename Device> class VTKM_ALWAYS_EXPORT ReverseConnectivityVTK
 {
   typedef vtkm::cont::ArrayHandle<vtkm::Id> ConnectivityHandleType;
-  typedef vtkm::cont::ArrayHandle<vtkm::IdComponent> NumIndicesHandleType;
   typedef vtkm::cont::ArrayHandle<vtkm::Id> OffsetHandleType;
 
   typedef typename ConnectivityHandleType::template ExecutionTypes<
@@ -150,9 +149,6 @@ template <typename Device> class VTKM_ALWAYS_EXPORT ReverseConnectivityVTK
 
   typedef typename OffsetHandleType::template ExecutionTypes<Device>::PortalConst
           IndexOffsetPortalType;
-
-  typedef typename NumIndicesHandleType::template ExecutionTypes<Device>::PortalConst
-          NumIndicesPortalType;
 
 public:
   typedef typename vtkm::Id SchedulingRangeType;
@@ -163,7 +159,6 @@ public:
 
   VTKM_EXEC_CONT
   ReverseConnectivityVTK(const ConnectivityPortalType& connPortal,
-                            const NumIndicesPortalType& numIndicesPortal,
                             const IndexOffsetPortalType& indexOffsetPortal);
 
   VTKM_EXEC
@@ -186,7 +181,6 @@ public:
 
 private:
   ConnectivityPortalType Connectivity;
-  NumIndicesPortalType NumIndices;
   IndexOffsetPortalType IndexOffsets;
 };
 
