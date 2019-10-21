@@ -2346,6 +2346,10 @@ void vtkPolyhedron::Clip(double value,
             break;
           }
         }
+        if (it == polygons.end())
+        {
+          break;
+        }
         // We did not catch a new polygon, iterating
         if (polygon_it == nextPolygon.end())
         {
