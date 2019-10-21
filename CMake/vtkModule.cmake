@@ -1555,7 +1555,8 @@ _vtk_module_write_import_prefix(<file> <destination>)
 ```
 
 The prefix is available as the `_vtk_module_import_prefix` variable and may be
-used in property values which require it.
+used in property values which require it. Note that the function clears the
+content of the passed path, so this always appears at the top of the file.
 #]==]
 
 function (_vtk_module_set_module_property module)
@@ -1682,7 +1683,7 @@ function (_vtk_module_write_import_prefix file destination)
       "installation prefix.")
   endif ()
 
-  file(APPEND "${file}"
+  file(WRITE "${file}"
     "set(_vtk_module_import_prefix \"\${CMAKE_CURRENT_LIST_DIR}\")\n")
   while (destination)
     get_filename_component(destination "${destination}" DIRECTORY)
@@ -2208,7 +2209,6 @@ function (vtk_module_build)
     set(_vtk_build_properties_build_file "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_properties_filename}")
 
     file(WRITE "${_vtk_build_properties_build_file}")
-    file(WRITE "${_vtk_build_properties_install_file}")
 
     _vtk_module_write_import_prefix(
       "${_vtk_build_properties_install_file}"
@@ -2291,7 +2291,7 @@ function (vtk_module_build)
     export(
       EXPORT    "${_vtk_build_INSTALL_EXPORT}"
       ${_vtk_build_namespace}
-      FILE      "${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_PACKAGE}-targets.cmake")
+      FILE      "${CMAKE_BINARY_DIR}/${_vtk_build_CMAKE_DESTINATION}/${_vtk_build_PACKAGE}-targets.cmake")
     install(
       EXPORT      "${_vtk_build_INSTALL_EXPORT}"
       DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
