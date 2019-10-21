@@ -27,6 +27,7 @@
 #include "vtkPoints.h"
 
 #include "vtk_libproj.h"
+#include <cmath>
 
 vtkStandardNewMacro(vtkGeoTransform);
 vtkCxxSetObjectMacro(vtkGeoTransform, SourceProjection, vtkGeoProjection);
@@ -226,4 +227,49 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
       coord += delta;
     }
   }
+}
+
+int vtkGeoTransform::ComputeUTMZone(double lat, double lon)
+{
+  lat = std::fmod(lat, 90);
+  lon = std::fmod(lon, 180);
+  // UTM is not defined outside of these limits
+  if (lat > 84 || lat < -80)
+  {
+    return 0;
+  }
+  // first special case
+  if (lat >= 72 && lon >= 0 && lon < 42)
+  {
+    if (lon < 9)
+    {
+      return 31;
+    }
+    else if (lon < 21)
+    {
+      return 33;
+    }
+    else if (lon < 33)
+    {
+      return 35;
+    }
+    else
+    {
+      return 37;
+    }
+  }
+  // second special case
+  if (lat >= 56 && lat < 64 && lon >= 0 && lon < 12)
+  {
+    if (lon < 3)
+    {
+      return 31;
+    }
+    else
+    {
+      return 32;
+    }
+  }
+  // general case: zones are 6 degrees, from 1 to 60.
+  return (lon + 180) / 6 + 1;
 }
