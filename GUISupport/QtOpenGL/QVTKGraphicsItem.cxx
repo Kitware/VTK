@@ -78,9 +78,7 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
-    mWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
-    mWin->SetBackBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0);
 
     mConnect->Connect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));

@@ -213,8 +213,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
   this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
   this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
-  this->BackBuffer = static_cast<unsigned int>(GL_BACK);
-  this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
   this->DefaultFrameBufferId = 0;
 
   this->DrawPixelsTextureObject = nullptr;
@@ -239,6 +237,13 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
+  // pop the framebuffer stack if needed
+  if (this->OffScreenFramebufferBound)
+  {
+    this->GetState()->PopFramebufferBindings();
+    this->OffScreenFramebufferBound = false;
+  }
+
   if (this->OffScreenFramebuffer)
   {
     this->OffScreenFramebuffer->Delete();
@@ -318,7 +323,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
   this->PushContext();
 
   // pop the framebuffer stack if needed
-  if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
+  if (this->OffScreenFramebufferBound)
   {
     this->GetState()->PopFramebufferBindings();
     this->OffScreenFramebufferBound = false;
@@ -326,8 +331,6 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
     this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
     this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
     this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
-    this->BackBuffer = static_cast<unsigned int>(GL_BACK);
-    this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
   }
 
   if (this->OffScreenFramebuffer)
@@ -448,7 +451,7 @@ unsigned int vtkOpenGLRenderWindow::GetFrontRightBuffer()
 // It is used by vtkOpenGLCamera.
 unsigned int vtkOpenGLRenderWindow::GetBackBuffer()
 {
-  return this->BackBuffer;
+  return this->BackLeftBuffer;
 }
 
 // ----------------------------------------------------------------------------
@@ -460,7 +463,7 @@ unsigned int vtkOpenGLRenderWindow::GetBackBuffer()
 // It is used by vtkOpenGLCamera.
 unsigned int vtkOpenGLRenderWindow::GetFrontBuffer()
 {
-  return this->FrontBuffer;
+  return this->FrontLeftBuffer;
 }
 
 void vtkOpenGLRenderWindow::SetSize(int a[2])
@@ -708,8 +711,6 @@ bool vtkOpenGLRenderWindow::InitializeFromCurrentContext()
     this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
     this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
     this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
-    this->BackBuffer = static_cast<unsigned int>(GL_BACK);
-    this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
   }
   else
   {
@@ -720,8 +721,6 @@ bool vtkOpenGLRenderWindow::InitializeFromCurrentContext()
 #endif
     this->BackLeftBuffer = static_cast<unsigned int>(attachment);
     this->FrontLeftBuffer = static_cast<unsigned int>(attachment);
-    this->BackBuffer = static_cast<unsigned int>(attachment);
-    this->FrontBuffer = static_cast<unsigned int>(attachment);
     // How to setup BackRightBuffer/FrontRightBuffer correctly? Should we assume
     // GL_COLOR_ATTACHMENT0+1? For now leaving them unchanged.
     //{
@@ -1276,8 +1275,6 @@ void vtkOpenGLRenderWindow::Start()
       static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
     this->BackLeftBuffer  = buffer;
     this->FrontLeftBuffer = buffer;
-    this->BackBuffer      = buffer;
-    this->FrontBuffer     = buffer;
     this->BackRightBuffer  = buffer;
     this->FrontRightBuffer = buffer;
     if (this->OffScreenFramebuffer->GetNumberOfColorAttachments() == 2)
@@ -1296,8 +1293,6 @@ void vtkOpenGLRenderWindow::Start()
     this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
     this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
     this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
-    this->BackBuffer = static_cast<unsigned int>(GL_BACK);
-    this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
   }
 }
 
@@ -2067,7 +2062,6 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
                                            int x2, int y2,
                                            float *buffer )
 {
-//  glDrawBuffer(this->GetBackBuffer());
   vtkOpenGLState *ostate = this->GetState();
   ostate->vtkglDisable( GL_SCISSOR_TEST );
   ostate->vtkglEnable(GL_DEPTH_TEST);

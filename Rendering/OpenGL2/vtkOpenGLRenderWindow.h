@@ -229,19 +229,13 @@ public:
 
   /**
    * Return the OpenGL name of the back left buffer.
-   * It is GL_BACK if GL is bound to the window-system-provided
-   * framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
-   * application-created framebuffer object (GPU-based offscreen rendering)
-   * It is used by vtkOpenGLCamera.
+   * Identical to GetBackLeftBuffer.
    */
   unsigned int GetBackBuffer();
 
   /**
    * Return the OpenGL name of the front left buffer.
-   * It is GL_FRONT if GL is bound to the window-system-provided
-   * framebuffer. It is vtkgl::COLOR_ATTACHMENT0_EXT if GL is bound to an
-   * application-created framebuffer object (GPU-based offscreen rendering)
-   * It is used by vtkOpenGLCamera.
+   * Identical to GetFrontLeftBuffer.
    */
   unsigned int GetFrontBuffer();
 
@@ -515,8 +509,6 @@ protected:
   unsigned int BackRightBuffer;
   unsigned int FrontLeftBuffer;
   unsigned int FrontRightBuffer;
-  unsigned int FrontBuffer;
-  unsigned int BackBuffer;
   unsigned int DefaultFrameBufferId;
 
   /**

@@ -71,10 +71,8 @@ public:
 
   // {@
   //! set the drawing buffers to use
-  void SetFrontBuffer(unsigned int);
   void SetFrontLeftBuffer(unsigned int);
   void SetFrontRightBuffer(unsigned int);
-  void SetBackBuffer(unsigned int);
   void SetBackLeftBuffer(unsigned int);
   void SetBackRightBuffer(unsigned int);
   // }@

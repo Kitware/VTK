@@ -104,21 +104,21 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   {
     if (ren->GetRenderWindow()->GetDoubleBuffer())
     {
-      ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetBackBuffer()));
+      ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
 
       // Reading back buffer means back left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetBackBuffer()));
+      ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetBackLeftBuffer()));
     }
     else
     {
-      ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
+      ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
 
       // Reading front buffer means front left. see OpenGL spec.
       // because one can write to two buffers at a time but can only read from
       // one buffer at a time.
-      ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetFrontBuffer()));
+      ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetFrontLeftBuffer()));
     }
   }
 
