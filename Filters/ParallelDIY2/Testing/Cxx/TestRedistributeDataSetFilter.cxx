@@ -42,7 +42,7 @@
 #include VTK_DIY2(diy/mpi.hpp)
 
 namespace {
-bool ValidateDataset(vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, vtkMPIController* controller)
+bool ValidateDataset(vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, vtkMultiProcessController* controller)
 {
   const int rank = controller->GetLocalProcessId();
   vtkIdType local_cellid_max = 0;
