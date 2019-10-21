@@ -100,7 +100,7 @@ public:
 
   //-----------------------------------------------------------------------------
   vtkIdType GetNearestPoint(
-    const vtkVector2f& point, const vtkVector2f& tol, const vtkRectd ss, vtkVector2f* location)
+    const vtkVector2f& point, const vtkVector2f& tol, const vtkRectd& ss, vtkVector2f* location)
   {
     // Set up our search array, use the STL lower_bound algorithm
     VectorPIMPL::iterator low;
