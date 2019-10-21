@@ -3762,6 +3762,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetAdvancedShaderParameters(
 
     prog->SetUniform1fv("in_isosurfacesValues", nbContours, values.data());
   }
+
+  // Set function attributes for slice blend mode
+  //--------------------------------------------------------------------------
+  if (this->Parent->BlendMode == vtkVolumeMapper::SLICE_BLEND)
+  {
+    vtkPlane* plane = vtkPlane::SafeDownCast(volProperty->GetSliceFunction());
+
+    if (plane)
+    {
+      double planeOrigin[3];
+      double planeNormal[3];
+
+      plane->GetOrigin(planeOrigin);
+      plane->GetNormal(planeNormal);
+
+      prog->SetUniform3f("in_slicePlaneOrigin", planeOrigin);
+      prog->SetUniform3f("in_slicePlaneNormal", planeNormal);
+    }
+  }
 }
 
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::FinishRendering(

@@ -16,6 +16,7 @@
 #ifndef vtkVolumeShaderComposer_h
 #define vtkVolumeShaderComposer_h
 #include <vtkCamera.h>
+#include <vtkImplicitFunction.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
@@ -302,6 +303,31 @@ namespace vtkvolume
         "}\n"
         "#endif\n";
     }
+    else if (glMapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
+    {
+      vtkVolume* vol = inputs.begin()->second.Volume;
+      vtkImplicitFunction* func = vol->GetProperty()->GetSliceFunction();
+
+      if (func && func->IsA("vtkPlane"))
+      {
+        toShaderStr <<
+          "uniform vec3 in_slicePlaneOrigin;\n"
+          "uniform vec3 in_slicePlaneNormal;\n"
+          "vec3 g_intersection;\n"
+          "\n"
+          "float intersectRayPlane(vec3 rayOrigin, vec3 rayDir)\n"
+          "{\n"
+          "  vec4 planeNormal = in_inverseVolumeMatrix[0] * vec4(in_slicePlaneNormal, 0.0);\n"
+          "  float denom = dot(planeNormal.xyz, rayDir);\n"
+          "  if (abs(denom) > 1e-6)\n"
+          "  {\n"
+          "    vec4 planeOrigin = in_inverseVolumeMatrix[0] * vec4(in_slicePlaneOrigin, 1.0);\n"
+          "    return dot(planeOrigin.xyz - rayOrigin, planeNormal.xyz) / denom;\n"
+          "  }\n"
+          "  return -1.0;\n"
+          "}\n";
+      }
+    }
 
     return toShaderStr.str();
   }
@@ -348,28 +374,32 @@ namespace vtkvolume
       );
     }
 
+    shaderStr += std::string("\
+      \n\
+      \n  // Eye position in dataset space\
+      \n  g_eyePosObj = in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0);\
+      \n\
+      \n  // Getting the ray marching direction (in dataset space)\
+      \n  vec3 rayDir = computeRayDirection();\
+      \n\
+      \n  // 2D Texture fragment coordinates [0,1] from fragment coordinates.\
+      \n  // The frame buffer texture has the size of the plain buffer but \
+      \n  // we use a fraction of it. The texture coordinate is less than 1 if\
+      \n  // the reduction factor is less than 1.\
+      \n  // Device coordinates are between -1 and 1. We need texture\
+      \n  // coordinates between 0 and 1. The in_depthSampler\
+      \n  // buffer has the original size buffer.\
+      \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
+      \n                      in_inverseWindowSize;\
+      \n");
+
+    if (mapper->GetBlendMode() != vtkVolumeMapper::SLICE_BLEND)
+    {
       shaderStr += std::string("\
-        \n\
-        \n  // Eye position in dataset space\
-        \n  g_eyePosObj = in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0);\
-        \n\
-        \n  // Getting the ray marching direction (in dataset space);\
-        \n  vec3 rayDir = computeRayDirection();\
-        \n\
         \n  // Multiply the raymarching direction with the step size to get the\
         \n  // sub-step size we need to take at each raymarching step\
         \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
         \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
-        \n\
-        \n  // 2D Texture fragment coordinates [0,1] from fragment coordinates.\
-        \n  // The frame buffer texture has the size of the plain buffer but \
-        \n  // we use a fraction of it. The texture coordinate is less than 1 if\
-        \n  // the reduction factor is less than 1.\
-        \n  // Device coordinates are between -1 and 1. We need texture\
-        \n  // coordinates between 0 and 1. The in_depthSampler\
-        \n  // buffer has the original size buffer.\
-        \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
-        \n                      in_inverseWindowSize;\
         \n\
         \n  if (in_useJittering)\
         \n  {\
@@ -382,8 +412,9 @@ namespace vtkvolume
         \n  }\
         \n  g_rayOrigin += g_rayJitter;\
         \n\
-        \n  // Flag to deternmine if voxel should be considered for the rendering\
+        \n  // Flag to determine if voxel should be considered for the rendering\
         \n  g_skip = false;");
+    }
 
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
     {
@@ -630,7 +661,8 @@ namespace vtkvolume
     // Shading for composite blending only
     int const shadeReqd = volProperty->GetShade() &&
                   (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND ||
-                   mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND);
+                   mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND ||
+                   mapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND);
 
     int const transferMode = volProperty->GetTransferFunctionMode();
 
@@ -1527,7 +1559,16 @@ namespace vtkvolume
                                     int independentComponents = 0)
   {
     auto glMapper = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
-    std::string shaderStr = std::string("\
+
+    std::string shaderStr;
+
+    if (mapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
+    {
+      shaderStr += std::string("\
+        \n    g_dataPos = g_intersection;");
+    }
+
+    shaderStr += std::string("\
       \n    if (!g_skip)\
       \n      {\
       \n      vec4 scalar = texture3D(in_volume[0], g_dataPos);"
@@ -1754,6 +1795,20 @@ namespace vtkvolume
         \n      }\
         \n    }\
         \n#endif");
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
+    {
+      shaderStr += std::string("\
+        \n    // test if the intersection is inside the volume bounds\
+        \n    if(any(greaterThan(g_dataPos - in_texMax[0], vec3(0.0))) ||\
+        \n       any(greaterThan(in_texMin[0] - g_dataPos, vec3(0.0))))\
+        \n    {\
+        \n      discard;\
+        \n    }\
+        \n    float opacity = computeOpacity(scalar);\
+        \n    g_fragColor = computeColor(scalar, opacity);\
+        \n    g_fragColor.rgb *= opacity;\
+        \n    break;");
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
     {
@@ -2097,10 +2152,11 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string TerminationInit(vtkRenderer* vtkNotUsed(ren),
-                              vtkVolumeMapper* vtkNotUsed(mapper),
-                              vtkVolume* vtkNotUsed(vol))
+                              vtkVolumeMapper* mapper,
+                              vtkVolume* vol)
   {
-    return std::string("\
+    std::string shaderStr;
+    shaderStr += std::string("\
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
       \n\
@@ -2120,31 +2176,68 @@ namespace vtkvolume
       \n  // color buffer or max scalar buffer have a reduced size.\
       \n  fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
       \n                 in_inverseOriginalWindowSize;\
-      \n\
-      \n  // Compute max number of iterations it will take before we hit\
-      \n  // the termination point\
-      \n\
-      \n  // Abscissa of the point on the depth buffer along the ray.\
-      \n  // point in texture coordinates\
-      \n  vec4 rayTermination = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
-      \n\
-      \n  // From normalized device coordinates to eye coordinates.\
-      \n  // in_projectionMatrix is inversed because of way VT\
-      \n  // From eye coordinates to texture coordinates\
-      \n  rayTermination = ip_inverseTextureDataAdjusted *\
-      \n                    in_inverseVolumeMatrix[0] *\
-      \n                    in_inverseModelViewMatrix *\
-      \n                    in_inverseProjectionMatrix *\
-      \n                    rayTermination;\
-      \n  g_rayTermination = rayTermination.xyz / rayTermination.w;\
-      \n\
-      \n  // Setup the current segment:\
-      \n  g_dataPos = g_rayOrigin;\
-      \n  g_terminatePos = g_rayTermination;\
-      \n\
-      \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
-      \n                        length(g_dirStep);\
-      \n  g_currentT = 0.0;");
+      \n");
+
+
+    if (mapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
+    {
+      vtkImplicitFunction* sliceFunc = vol->GetProperty()->GetSliceFunction();
+      if (sliceFunc)
+      {
+        if (sliceFunc->IsA("vtkPlane"))
+        {
+          shaderStr += std::string("\
+          \n\
+          \n  // Intersection with plane\
+          \n  float t = intersectRayPlane(g_eyePosObj.xyz, rayDir);\
+          \n  vec4 intersection = vec4(g_eyePosObj.xyz + t * rayDir, 1.0);\
+          \n  g_intersection = (ip_inverseTextureDataAdjusted * intersection).xyz;\
+          \n  vec4 intersWin = in_projectionMatrix * in_modelViewMatrix * in_volumeMatrix[0] * intersection;\
+          \n  intersWin.xyz /= intersWin.w;\
+          \n  intersWin = NDCToWindow(intersWin.x, intersWin.y, intersWin.z);\
+          \n  if(intersWin.z >= l_depthValue.x)\
+          \n  {\
+          \n    discard;\
+          \n  }\
+          \n");
+        }
+        else
+        {
+          vtkErrorWithObjectMacro(sliceFunc,
+            "Implicit function type is not supported by this mapper.");
+        }
+      }
+    }
+    else
+    {
+      shaderStr += std::string("\
+        \n  // Compute max number of iterations it will take before we hit\
+        \n  // the termination point\
+        \n\
+        \n  // Abscissa of the point on the depth buffer along the ray.\
+        \n  // point in texture coordinates\
+        \n  vec4 rayTermination = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
+        \n\
+        \n  // From normalized device coordinates to eye coordinates.\
+        \n  // in_projectionMatrix is inversed because of way VT\
+        \n  // From eye coordinates to texture coordinates\
+        \n  rayTermination = ip_inverseTextureDataAdjusted *\
+        \n                    in_inverseVolumeMatrix[0] *\
+        \n                    in_inverseModelViewMatrix *\
+        \n                    in_inverseProjectionMatrix *\
+        \n                    rayTermination;\
+        \n  g_rayTermination = rayTermination.xyz / rayTermination.w;\
+        \n\
+        \n  // Setup the current segment:\
+        \n  g_dataPos = g_rayOrigin;\
+        \n  g_terminatePos = g_rayTermination;\
+        \n\
+        \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
+        \n                        length(g_dirStep);\
+        \n  g_currentT = 0.0;");
+    }
+
+    return shaderStr;
   }
 
   //--------------------------------------------------------------------------
