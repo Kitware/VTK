@@ -1401,7 +1401,6 @@ function (vtk_module_link module)
   if (_vtk_link_kit AND NOT CMAKE_VERSION VERSION_LESS "3.12")
     foreach (_vtk_link_private IN LISTS _vtk_link_PRIVATE)
       if (NOT TARGET "${_vtk_link_private}")
-        # TODO: Issue a warning.
         continue ()
       endif ()
 
