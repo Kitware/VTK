@@ -653,16 +653,7 @@ function (vtk_module_scan)
         endif ()
 
         # Determine the state of the group.
-        if (VTK_GROUP_ENABLE_${_vtk_scan_group} STREQUAL "DEFAULT")
-          if (_vtk_scan_WANT_BY_DEFAULT)
-            set(_vtk_scan_group_enable WANT)
-          else ()
-            set(_vtk_scan_group_enable DONT_WANT)
-          endif ()
-        else ()
-          set(_vtk_scan_group_enable "${VTK_GROUP_ENABLE_${_vtk_scan_group}}")
-        endif ()
-
+        set(_vtk_scan_group_enable "${VTK_GROUP_ENABLE_${_vtk_scan_group}}")
         if (NOT _vtk_scan_group_enable STREQUAL "DEFAULT")
           set("_vtk_scan_enable_${_vtk_scan_module_name}" "${_vtk_scan_group_enable}")
           _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using group `@_vtk_scan_group@` setting: @_vtk_scan_group_enable@")
