@@ -1489,8 +1489,8 @@ ease use.
 
 There are a number of properties that are used and expected by the core of the
 module system. These are generally module metadata (module dependencies,
-wrappability, etc.). The properties all have the `INTERFACE_vtk_module_` prefix
-mentioned in the previous section.
+whether to wrap or not, etc.). The properties all have the
+`INTERFACE_vtk_module_` prefix mentioned in the previous section.
 
   * `third_party`: If set, the module represents a third party
     dependency and should be treated specially. Third party modules are very
