@@ -87,6 +87,11 @@ struct BlockT
 
   void AddExtracts(vtkPartitionedDataSet* pds)
   {
+    if (!this->Input)
+    {
+      return;
+    }
+
     unsigned int idx = pds->GetNumberOfPartitions();
     for (auto& extract : this->Extracts)
     {
@@ -101,6 +106,11 @@ struct BlockT
 
 void BlockT::GenerateExtracts()
 {
+  if (!this->Input)
+  {
+    return;
+  }
+
   this->Extracts.clear();
   vtkNew<vtkExtractGrid> extractor; // TODO: avoid creating new one on each iteration.
   for (const auto& voi : this->Regions)
@@ -494,6 +504,13 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(), prunePredicate), datasets.end());
 
+  // since we're using collectives, if a rank has no blocks this can fall part
+  // very quickly (see paraview/paraview#19391); hence we add a single block.
+  if (datasets.size() == 0)
+  {
+    datasets.push_back(nullptr);
+  }
+
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(this->GetController());
   const int local_num_blocks = static_cast<int>(datasets.size());
 
@@ -509,12 +526,14 @@ int vtkExtractSubsetWithSeed::RequestData(
   for (size_t lid = 0; lid < gids.size(); ++lid)
   {
     auto block = new BlockT();
-    block->Input = vtkStructuredGrid::SafeDownCast(datasets[lid]);
-    assert(block->Input != nullptr &&
-      vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) == VTK_XYZ_GRID);
-
-    block->CellLocator->SetDataSet(block->Input);
-    block->CellLocator->BuildLocator();
+    if (datasets[lid] != nullptr)
+    {
+      block->Input = vtkStructuredGrid::SafeDownCast(datasets[lid]);
+      assert(block->Input != nullptr &&
+        vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) == VTK_XYZ_GRID);
+      block->CellLocator->SetDataSet(block->Input);
+      block->CellLocator->BuildLocator();
+    }
     master.add(gids[lid], block, new diy::Link);
   }
   vtkLogEndScope("populate master");
@@ -523,13 +542,19 @@ int vtkExtractSubsetWithSeed::RequestData(
   vtkLogStartScope(TRACE, "populate block neighbours");
   std::map<int, std::vector<int> > neighbors;
   diy::all_to_all(master, assigner, [&neighbors](BlockT* b, const diy::ReduceProxy& rp) {
-    double bds[6];
-    b->Input->GetBounds(bds);
-    vtkBoundingBox bbox(bds);
-    bbox.Inflate(0.000001);
+    vtkBoundingBox bbox;
+    if (b->Input)
+    {
+      double bds[6];
+      b->Input->GetBounds(bds);
+      bbox.SetBounds(bds);
+      bbox.Inflate(0.000001);
+    }
 
     if (rp.round() == 0)
     {
+      double bds[6];
+      bbox.GetBounds(bds);
       for (int i = 0; i < rp.out_link().size(); ++i)
       {
         const auto dest = rp.out_link().target(i);
@@ -544,7 +569,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         double in_bds[6];
         rp.dequeue(src, in_bds, 6);
         vtkBoundingBox in_bbx(in_bds);
-        if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
+        if (src.gid != rp.gid() && in_bbx.IsValid() && bbox.IsValid() && in_bbx.Intersects(bbox))
         {
           vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
           neighbors[rp.gid()].push_back(src.gid);
@@ -601,7 +626,8 @@ int vtkExtractSubsetWithSeed::RequestData(
         std::vector<SeedT> seeds;
         if (round == 0)
         {
-          const vtkIdType cellid = b->CellLocator->FindCell(this->GetSeed());
+          const vtkIdType cellid =
+            (b->Input != nullptr) ? b->CellLocator->FindCell(this->GetSeed()) : -1;
           if (cellid >= 0)
           {
             auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
@@ -618,6 +644,8 @@ int vtkExtractSubsetWithSeed::RequestData(
           {
             if (cp.incoming(gid).size() > 0)
             {
+              assert(
+                b->Input != nullptr); // we should not be getting messages if we don't have data!
               std::vector<SeedT> next_seeds;
               cp.dequeue(gid, next_seeds);
               seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
