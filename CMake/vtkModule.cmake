@@ -544,6 +544,31 @@ function (vtk_module_scan)
     _vtk_module_parse_module_args(_vtk_scan_module_name ${_vtk_scan_module_args})
     _vtk_module_debug(module "@_vtk_scan_module_name@ declared by @_vtk_scan_module_file@")
 
+    if (${_vtk_scan_module_name}_THIRD_PARTY)
+      if (_vtk_module_warnings)
+        if (${_vtk_scan_module_name}_EXCLUDE_WRAP)
+          message(WARNING
+            "The third party ${_vtk_scan_module_name} module does not need to "
+            "declare `EXCLUDE_WRAP` also.")
+        endif ()
+      endif ()
+      if (${_vtk_scan_module_name}_IMPLEMENTABLE)
+        message(FATAL_ERROR
+          "The third party ${_vtk_scan_module_name} module may not be "
+          "`IMPLEMENTABLE`.")
+      endif ()
+      if (${_vtk_scan_module_name}_IMPLEMENTS)
+        message(FATAL_ERROR
+          "The third party ${_vtk_scan_module_name} module may not "
+          "`IMPLEMENTS` another module.")
+      endif ()
+      if (${_vtk_scan_module_name}_KIT)
+        message(FATAL_ERROR
+          "The third party ${_vtk_scan_module_name} module may not be part of "
+          "a kit (${${_vtk_scan_module_name}_KIT}).")
+      endif ()
+    endif ()
+
     # Determine whether we should provide a user-visible option for this
     # module.
     set(_vtk_build_use_option 0)
@@ -667,12 +692,6 @@ function (vtk_module_scan)
     endif ()
 
     if (${_vtk_scan_module_name}_KIT)
-      if (${_vtk_scan_module_name}_THIRD_PARTY)
-        message(FATAL_ERROR
-          "The third party module ${_vtk_scan_module_name} may not be part of "
-          "a kit (${${_vtk_scan_module_name}_KIT}).")
-      endif ()
-
       if (NOT ${_vtk_scan_module_name}_KIT IN_LIST _vtk_scan_all_kits)
         message(FATAL_ERROR
           "The ${_vtk_scan_module_name} belongs to the "
