@@ -569,6 +569,14 @@ function (vtk_module_scan)
       endif ()
     endif ()
 
+    if (${_vtk_scan_module_name}_KIT)
+      if (NOT ${_vtk_scan_module_name}_KIT IN_LIST _vtk_scan_all_kits)
+        message(FATAL_ERROR
+          "The ${_vtk_scan_module_name} belongs to the "
+          "${${_vtk_scan_module_name}_KIT} kit, but it has not been scanned.")
+      endif ()
+    endif ()
+
     # Determine whether we should provide a user-visible option for this
     # module.
     set(_vtk_build_use_option 0)
@@ -692,12 +700,6 @@ function (vtk_module_scan)
     endif ()
 
     if (${_vtk_scan_module_name}_KIT)
-      if (NOT ${_vtk_scan_module_name}_KIT IN_LIST _vtk_scan_all_kits)
-        message(FATAL_ERROR
-          "The ${_vtk_scan_module_name} belongs to the "
-          "${${_vtk_scan_module_name}_KIT} kit, but it has not been scanned.")
-      endif ()
-
       _vtk_module_debug(kit "@_vtk_scan_module_name@ belongs to the ${${_vtk_scan_module_name}_KIT} kit")
     endif ()
 
