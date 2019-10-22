@@ -260,6 +260,17 @@ foreach(var
     FILES_MATCHING PATTERN "*.h"
     )
 endforeach()
+file(COPY "${SOURCE_DIR}/CMake"
+  DESTINATION "${INTERMEDIATE_DOX_DIR}"
+  FILES_MATCHING
+  PATTERN "vtkDetectLibraryType.cmake"
+  PATTERN "vtkEncodeString.cmake"
+  PATTERN "vtkHashSource.cmake"
+  PATTERN "vtkModule*.cmake"
+  PATTERN "vtkModuleDebugging.cmake" EXCLUDE
+  PATTERN "vtkModuleRemote.cmake" EXCLUDE
+  PATTERN "vtkObjectFactory.cmake"
+  )
 
 # ----------------------------------------------------------------------------
 # Build the Events invocation list.
