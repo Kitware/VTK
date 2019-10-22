@@ -144,10 +144,10 @@ DESCRIPTION
 GROUPS
   StandAlone
 DEPENDS
-  vtkkwiml
+  VTK::kwiml
 PRIVATE_DEPENDS
-  vtksys
-  vtkutf8
+  VTK::vtksys
+  VTK::utf8
 ```
 
 All values are optional unless otherwise noted. The following arguments are
@@ -242,7 +242,9 @@ Example:
 
 ```
 NAME
-  vtkCommonKit
+  VTK::Common
+LIBRARY_NAME
+  vtkCommon
 DESCRIPTION
   Core utilities for VTK.
 ```
