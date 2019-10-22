@@ -1892,6 +1892,7 @@ vtk_module_build(
   [TARGETS_COMPONENT  <component>]
   [INSTALL_EXPORT     <export>]
 
+  [TEST_DIRECTORY_NAME        <name>]
   [TEST_DATA_TARGET           <target>]
   [TEST_INPUT_DATA_DIRECTORY  <directory>]
   [TEST_OUTPUT_DATA_DIRECTORY <directory>]
