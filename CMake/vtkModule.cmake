@@ -577,6 +577,20 @@ function (vtk_module_scan)
       endif ()
     endif ()
 
+    # Check if the module is visible. Modules which have a failing condition
+    # are basically invisible.
+    if (DEFINED ${_vtk_scan_module_name}_CONDITION)
+      if (NOT (${${_vtk_scan_module_name}_CONDITION}))
+        if (DEFINED "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
+          set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
+            PROPERTY
+              TYPE INTERNAL)
+        endif ()
+        _vtk_module_debug(module "@_vtk_scan_module_name@ hidden by its `CONDITION`")
+        continue ()
+      endif ()
+    endif ()
+
     # Determine whether we should provide a user-visible option for this
     # module.
     set(_vtk_build_use_option 0)
@@ -661,20 +675,6 @@ function (vtk_module_scan)
       set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
         PROPERTY
           TYPE "${_vtk_scan_option_default_type}")
-    endif ()
-
-    # Check if the module is visible. Modules which have a failing condition
-    # are basically invisible.
-    if (DEFINED ${_vtk_scan_module_name}_CONDITION)
-      if (NOT (${${_vtk_scan_module_name}_CONDITION}))
-        if (DEFINED "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
-          set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
-            PROPERTY
-              TYPE INTERNAL)
-        endif ()
-        _vtk_module_debug(module "@_vtk_scan_module_name@ hidden by its `CONDITION`")
-        continue ()
-      endif ()
     endif ()
 
     if (NOT DEFINED "_vtk_scan_enable_${_vtk_scan_module_name}" AND
