@@ -2100,6 +2100,16 @@ function (vtk_module_build)
     set(_vtk_build_TARGETS_COMPONENT "runtime")
   endif ()
 
+  if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_ARCHIVE_DESTINATION}")
+  endif ()
+  if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_LIBRARY_DESTINATION}")
+  endif ()
+  if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_RUNTIME_DESTINATION}")
+  endif ()
+
   if (NOT _vtk_build_MODULES)
     message(FATAL_ERROR
       "No modules given to build.")
