@@ -3276,6 +3276,8 @@ function (vtk_module_add_module name)
 
   set(_vtk_add_module_headers_build)
   set(_vtk_add_module_headers_install)
+  # TODO: Perform this in `vtk_module_install_headers` so that manually
+  # installed headers may participate in wrapping as well.
   foreach (_vtk_add_module_header IN LISTS _vtk_add_module_HEADERS)
     if (IS_ABSOLUTE "${_vtk_add_module_header}")
       list(APPEND _vtk_add_module_headers_build
