@@ -3642,11 +3642,28 @@ function (vtk_module_add_executable name)
   endif ()
 
   if (name STREQUAL _vtk_build_module)
+    get_property(_vtk_add_executable_depends GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_depends")
     get_property(_vtk_add_executable_private_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_private_depends")
     target_link_libraries("${_vtk_add_executable_target_name}"
+      PUBLIC
+        ${_vtk_add_executable_depends}
       PRIVATE
         ${_vtk_add_executable_private_depends})
+    get_property(_vtk_add_executable_optional_depends GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
+    foreach (_vtk_add_executable_optional_depend IN LISTS _vtk_add_executable_optional_depends)
+      string(REPLACE "::" "_" _vtk_add_executable_optional_depend_safe "${_vtk_add_executable_optional_depend}")
+      if (TARGET "${_vtk_add_executable_optional_depend}")
+        set(_vtk_add_executable_have_optional_depend 1)
+      else ()
+        set(_vtk_add_executable_have_optional_depend 0)
+      endif ()
+      target_compile_definitions("${_vtk_add_executable_target_name}"
+        PRIVATE
+          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=${_vtk_add_executable_have_optional_depend}")
+    endforeach ()
   endif ()
 
   set(_vtk_add_executable_property_args)
