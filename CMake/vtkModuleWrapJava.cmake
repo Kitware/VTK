@@ -1,12 +1,15 @@
-#[==[.md
-# `vtkModuleWrapJava`
-
-This module includes logic necessary in order to wrap VTK modules using VTK's
-Java wrapping logic.
+#[==[
+@defgroup module-wrapping-java Module Java CMake APIs
 #]==]
 
-#[==[.md INTERNAL
-## Wrapping a single module
+#[==[
+@file vtkModuleWrapJava.cmake
+@brief APIs for wrapping modules for Java
+#]==]
+
+#[==[
+@ingroup module-impl
+@brief Generate sources for using a module's classes from Java
 
 This function generates the wrapped sources for a module. It places the list of
 generated source files and Java source files in variables named in the second
@@ -151,10 +154,11 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
     PARENT_SCOPE)
 endfunction ()
 
-#[==[.md INTERNAL
-## Generating a Java JNI library
+#[==[
+@ingroup module-impl
+@brief Generate a JNI library for a set of modules
 
-A single JNI library may consist of the Java wrappings of multiple VTK modules.
+A single JNI library may consist of the Java wrappings of multiple modules.
 This is useful for kit-based builds where the modules part of the same kit
 belong to the same JNI library as well.
 
@@ -163,10 +167,10 @@ _vtk_module_wrap_java_library(<name> <module>...)
 ~~~
 
 The first argument is the name of the JNI library. The remaining arguments are
-VTK modules to include in the JNI library.
+modules to include in the JNI library.
 
 The remaining information it uses is assumed to be provided by the
-`vtk_module_wrap_java` function.
+@ref vtk_module_wrap_java function.
 #]==]
 function (_vtk_module_wrap_java_library name)
   set(_vtk_java_library_sources)
@@ -257,8 +261,9 @@ function (_vtk_module_wrap_java_library name)
       VTK::Java)
 endfunction ()
 
-#[==[.md
-## Wrapping a set of VTK modules in Java
+#[==[
+@ingroup module-wrapping-java
+@brief Wrap a set of modules for use in Java
 
 ~~~
 vtk_module_wrap_java(
