@@ -31,6 +31,8 @@ The following variables are provided by this module:
     available components are added to this variable. This may be used in
     `MODULES` arguments in the API (e.g., `vtk_module_autoinit`). All modules
     are also targets and may be linked to using `target_link_libraries`.
+  * `VTK_AUTOINIT_INCLUDE`: The header to include for access to VTK's autoinit
+    support.
 
 For more information about the Python in use by VTK, the `VTK_PYTHON_VERSION`
 variable may be used to query the `find_package(Python)` that VTK performs
@@ -97,6 +99,7 @@ set("${CMAKE_FIND_PACKAGE_NAME}_MAJOR_VERSION" "@VTK_MAJOR_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_MINOR_VERSION" "@VTK_MINOR_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_BUILD_VERSION" "@VTK_BUILD_VERSION@")
 set("${CMAKE_FIND_PACKAGE_NAME}_LEGACY_REMOVE" "@VTK_LEGACY_REMOVE@")
+set("${CMAKE_FIND_PACKAGE_NAME}_AUTOINIT_INCLUDE" "\"vtkAutoInit.h\"")
 
 set("${CMAKE_FIND_PACKAGE_NAME}_AVAILABLE_COMPONENTS" "@vtk_all_components@")
 
