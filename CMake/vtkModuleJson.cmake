@@ -26,11 +26,11 @@ endmacro ()
 Information about the modules built and/or available may be dumped to a JSON
 file.
 
-```
+~~~
 vtk_module_json(
   MODULES   <module>...
   OUTPUT    <path>)
-```
+~~~
 
   * `MODULES`: (Required) The modules to output information for.
   * `OUTPUT`: (Required) A JSON file describing the modules built will
@@ -38,7 +38,7 @@ vtk_module_json(
 
 Example output:
 
-```json
+~~~{.json}
 {
   "modules": [
     {
@@ -75,7 +75,7 @@ Example output:
     }
   ]
 }
-```
+~~~
 #]==]
 function (vtk_module_json)
   cmake_parse_arguments(_vtk_json

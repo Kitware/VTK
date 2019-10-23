@@ -23,9 +23,9 @@ The `_vtk_module_debug` function is provided to assist in debugging. It is
 controlled by the `_vtk_module_log` variable which contains a list of "domains"
 to debug.
 
-```
+~~~
 _vtk_module_debug(<domain> <format>)
-```
+~~~
 
 If the `domain` is enabled for debugging, the `format` argument is configured
 and printed. It should contain `@` variable expansions to replace rather than
@@ -59,10 +59,10 @@ are standalone.
 
 In order to find these files, two functions are available:
 
-```
+~~~
 vtk_module_find_kits(<output> [<directory>...])
 vtk_module_find_modules(<output> [<directory>...])
-```
+~~~
 
 These scan the given directories for the files of the associated name and put
 the paths into the output variable.
@@ -96,9 +96,9 @@ endfunction ()
 Module names may include a namespace. This function splits the name into a
 namespace and target name part.
 
-```
+~~~
 _vtk_module_split_module_name(<NAME> <PREFIX>)
-```
+~~~
 
 The `<PREFIX>_NAMESPACE` and `<PREFIX>_TARGET_NAME` variables will be set in
 the calling scope.
@@ -134,7 +134,7 @@ meaningful within the files.
 
 Example:
 
-```
+~~~
 NAME
   VTK::CommonCore
 LIBRARY_NAME
@@ -148,7 +148,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::vtksys
   VTK::utf8
-```
+~~~
 
 All values are optional unless otherwise noted. The following arguments are
 supported:
@@ -240,14 +240,14 @@ number of objects that linkers need to deal with.
 
 Example:
 
-```
+~~~
 NAME
   VTK::Common
 LIBRARY_NAME
   vtkCommon
 DESCRIPTION
   Core utilities for VTK.
-```
+~~~
 
 All values are optional unless otherwise noted. The following arguments are
 supported:
@@ -336,13 +336,13 @@ function (_vtk_module_verify_enable_value var)
   endif ()
 endfunction ()
 
-#[==[.md
+#[==[
 ## Scanning modules and kits
 
 Once all of the modules and kits have been found, they are scanned to determine
 what modules are enabled or required.
 
-```
+~~~
 vtk_module_scan(
   MODULE_FILES              <file>...
   [KIT_FILES                <file>...]
@@ -355,7 +355,7 @@ vtk_module_scan(
   [WANT_BY_DEFAULT          <ON|OFF>]
   [HIDE_MODULES_FROM_CACHE  <ON|OFF>]
   [ENABLE_TESTS             <ON|OFF|WANT|DEFAULT>])
-```
+~~~
 
 The `MODULE_FILES` and `PROVIDES_MODULES` arguments are required. Modules which
 refer to kits must be scanned at the same time as their kits. This is so that
@@ -396,7 +396,7 @@ example, imagine a project with its source code, third party dependencies, as
 well as some utility modules which should only be built as necessary. Here, the
 project would perform three scans, one for each "grouping" of modules:
 
-```cmake
+~~~{.cmake}
 # Scan our modules first because we need to know what of the other groups we
 # need.
 vtk_module_find_modules(our_modules "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -433,7 +433,7 @@ vtk_module_scan(
 if (required_modules OR unrecognized_modules)
   # Not all of the modules we required were found. This should probably error out.
 endif ()
-```
+~~~
 #]==]
 
 include("${CMAKE_CURRENT_LIST_DIR}/vtkTopologicalSort.cmake")
@@ -1073,23 +1073,23 @@ endfunction ()
 Properties may be set or queried using the `vtk_module_set_property` and
 `vtk_module_get_property` functions.
 
-```
+~~~
 vtk_module_set_properties(<module>
   [<property> <value>]...)
-```
+~~~
 
-```
+~~~
 vtk_module_set_property(<module>
   [APPEND] [APPEND_STRING]
   PROPERTY  <property>
   VALUE     <value>)
-```
+~~~
 
-```
+~~~
 vtk_module_get_property(<module>
   PROPERTY  <property>
   VARIABLE  <variable>)
-```
+~~~
 
 The variable name passed to the `VARIABLE` argument will be unset if the
 property is not set (rather than the empty string).
@@ -1209,9 +1209,9 @@ endfunction ()
 Adds dependencies to a module target. Use instead of CMake's
 `add_dependencies`.
 
-```
+~~~
 vtk_module_depend(<module> <depend>...)
-```
+~~~
 #]==]
 function (vtk_module_depend module)
   _vtk_module_real_target(_vtk_depend_target "${module}")
@@ -1226,13 +1226,13 @@ endfunction ()
 Adds include directories to a module target. Use instead of CMake's
 `target_include_directories`.
 
-```
+~~~
 vtk_module_include(<module>
   [SYSTEM]
   [PUBLIC     <directory>...]
   [PRIVATE    <directory>...]
   [INTERFACE  <directory>...])
-```
+~~~
 #]==]
 function (vtk_module_include module)
   cmake_parse_arguments(_vtk_include
@@ -1268,12 +1268,12 @@ endfunction ()
 Adds compile definitions to a module target. Use instead of CMake's
 `target_compile_definitions`.
 
-```
+~~~
 vtk_module_definitions(<module>
   [PUBLIC     <directory>...]
   [PRIVATE    <directory>...]
   [INTERFACE  <directory>...])
-```
+~~~
 #]==]
 function (vtk_module_definitions module)
   cmake_parse_arguments(_vtk_definitions
@@ -1303,12 +1303,12 @@ endfunction ()
 Adds compile options to a module target. Use instead of CMake's
 `target_compile_options`.
 
-```
+~~~
 vtk_module_compile_options(<module>
   [PUBLIC     <directory>...]
   [PRIVATE    <directory>...]
   [INTERFACE  <directory>...])
-```
+~~~
 #]==]
 function (vtk_module_compile_options module)
   cmake_parse_arguments(_vtk_compile_options
@@ -1338,12 +1338,12 @@ endfunction ()
 Adds compile features to a module target. Use instead of CMake's
 `target_compile_features`.
 
-```
+~~~
 vtk_module_compile_features(<module>
   [PUBLIC     <directory>...]
   [PRIVATE    <directory>...]
   [INTERFACE  <directory>...])
-```
+~~~
 #]==]
 function (vtk_module_compile_features module)
   cmake_parse_arguments(_vtk_compile_features
@@ -1373,12 +1373,12 @@ endfunction ()
 Adds link libraries to a module target. Use instead of CMake's
 `target_link_libraries`.
 
-```
+~~~
 vtk_module_link(<module>
   [PUBLIC     <directory>...]
   [PRIVATE    <directory>...]
   [INTERFACE  <directory>...])
-```
+~~~
 #]==]
 function (vtk_module_link module)
   cmake_parse_arguments(_vtk_link
@@ -1435,12 +1435,12 @@ endfunction ()
 Adds link options to a module target. Use instead of CMake's
 `target_link_options`.
 
-```
+~~~
 vtk_module_link_options(<module>
   [PUBLIC     <directory>...]
   [PRIVATE    <directory>...]
   [INTERFACE  <directory>...])
-```
+~~~
 #]==]
 function (vtk_module_link_options module)
   cmake_parse_arguments(_vtk_link_options
@@ -1531,22 +1531,22 @@ In order to add new module properties to a module, the
 modules built as part of the current project or imported module targets. The
 `INTERFACE_vtk_module_` prefix will automatically be added.
 
-```
+~~~
 _vtk_module_set_module_property(<module>
   [APPEND] [APPEND_STRING]
   PROPERTY  <property>
   VALUE     <value>)
-```
+~~~
 
 The `_vtk_module_get_module_property` function should be used to query these.
 This works for modules built as part of the current project or imported module
 targets.
 
-```
+~~~
 _vtk_module_get_module_property(<module>
   PROPERTY  <property>
   VARIABLE  <variable>)
-```
+~~~
 
 As with `vtk_module_get_property`, the output variable will be unset if the
 property is not set. The property name is automatically prepended with
@@ -1560,7 +1560,7 @@ function supports exporting properties from the build into dependencies via
 target properties which are loaded from a project's config file which is loaded
 vial CMake's `find_package` function.
 
-```
+~~~
 _vtk_module_export_properties(
   [MODULE       <module>]
   [KIT          <kit>]
@@ -1569,7 +1569,7 @@ _vtk_module_export_properties(
   [PROPERTIES               <property>...]
   [FROM_GLOBAL_PROPERTIES   <property fragment>...]
   [SPLIT_INSTALL_PROPERTIES <property fragment>...])
-```
+~~~
 
 The `BUILD_FILE` and `INSTALL_FILE` arguments are required. Exactly one of
 `MODULE` and `KIT` is also required. The `MODULE` or `KIT` argument holds the
@@ -1577,10 +1577,10 @@ name of the module or kit that will have properties exported. The `BUILD_FILE`
 and `INSTALL_FILE` paths are *appended to*. As such, when setting up these
 files, it should be preceded with:
 
-```cmake
+~~~{.cmake}
 file(WRITE "${build_file}")
 file(WRITE "${install_file}")
-```
+~~~
 
 To avoid accidental usage of the install file from the build tree, it is
 recommended to store it under a `CMakeFiles/` directory in the build tree.
@@ -1607,9 +1607,9 @@ This function is intended for prepending an import prefix computation to the
 install file so that the install root can be discovered from the installed
 file's location. This function is called as:
 
-```
+~~~
 _vtk_module_write_import_prefix(<file> <destination>)
-```
+~~~
 
 The prefix is available as the `_vtk_module_import_prefix` variable and may be
 used in property values which require it. Note that the function clears the
@@ -1872,7 +1872,7 @@ Once all of the modules have been scanned, they need to be built. Generally,
 there will be just one build necessary for a set of scans, though they may be
 built distinctly as well, but generally in reverse order of their scans.
 
-```
+~~~
 vtk_module_build(
   MODULES       <module>...
   [KITS          <kit>...]
@@ -1906,7 +1906,7 @@ vtk_module_build(
   [CMAKE_DESTINATION      <destination>]
   [LICENSE_DESTINATION    <destination>]
   [HIERARCHY_DESTINATION  <destination>])
-```
+~~~
 
 The only requirement of the function is the list of modules to build, the rest
 have reasonable defaults if not specified.
@@ -2549,11 +2549,11 @@ need to declare their registration. In order to do this, defines may need to be
 provided to targets in order to trigger registration. These defines may be
 added to targets by using the `vtk_module_autoinit` function.
 
-```
+~~~
 vtk_module_autoinit(
   TARGETS <target>...
   MODULES <module>...)
-```
+~~~
 
 After this call, the targets given to the `TARGETS` argument will gain the
 preprocessor definitions to trigger registrations properly.
@@ -2568,7 +2568,7 @@ The subsystem provides the following hooks for use by projects:
   * In modules which are `IMPLEMENTABLE` or `IMPLEMENTS` another module, the
     generated `<module>Module.h` file will include the following block:
 
-```c
+~~~{.c}
 #ifdef <module>_AUTOINIT_INCLUDE
 #include <module>_AUTOINIT_INCLUDE
 #endif
@@ -2576,7 +2576,7 @@ The subsystem provides the following hooks for use by projects:
 #include <header>
 VTK_MODULE_AUTOINIT(<module>)
 #endif
-```
+~~~
 
     The `vtk_module_autoinit` function will generate an include file and
     provide its path via the `<module>_AUTOINIT_INCLUDE` define. once it has
@@ -2896,7 +2896,7 @@ include(GenerateExportHeader)
 
 Create a module library.
 
-```
+~~~
 vtk_module_add_module(<name>
   [FORCE_STATIC] [HEADER_ONLY]
   [EXPORT_MACRO_PREFIX      <prefix>]
@@ -2911,7 +2911,7 @@ vtk_module_add_module(<name>
   [PRIVATE_TEMPLATE_CLASSES <template class>...]
   [PRIVATE_HEADERS          <header>...]
   [PRIVATE_TEMPLATES        <template>...])
-```
+~~~
 
 The `PRIVATE_` arguments are analogous to their non-`PRIVATE_` arguments, but
 the associated files are not installed or available for wrapping (`SOURCES` are
@@ -3454,12 +3454,12 @@ To facilitate the installation of headers in various ways, the
 `INSTALL_HEADERS`, `HEADERS_DESTINATION`, and `HEADERS_COMPONENT` arguments to
 `vtk_module_build`.
 
-```
+~~~
 vtk_module_install_headers(
   [DIRECTORIES  <directory>...]
   [FILES        <file>...]
   [SUBDIR       <subdir>])
-```
+~~~
 
 Installation of header directories follows CMake's `install` function semantics
 with respect to trailing slashes.
@@ -3605,12 +3605,12 @@ Some modules may have associated executables with them. By using
 given to the associated `vtk_module_build` command. Its name will also be
 changed according to the `LIBRARY_NAME_SUFFIX` option.
 
-```
+~~~
 vtk_module_add_executable(<name>
   [NO_INSTALL]
   [BASENAME <basename>]
   <source>...)
-```
+~~~
 
 If `NO_INSTALL` is specified, the executable will not be installed. If
 `BASENAME` is given, it will be used as the name of the executable rather than
@@ -3724,7 +3724,7 @@ The module system provides the `vtk_module_find_package` function in order to
 extend `find_package` support to include finding the dependencies from an
 install of the project.
 
-```
+~~~
 vtk_module_find_package(
   PACKAGE               <name>
   [VERSION              <version>]
@@ -3734,7 +3734,7 @@ vtk_module_find_package(
   [VERSION_VAR          <varname>]
   [CONFIG_MODE]
   [PRIVATE])
-```
+~~~
 
 The `PACKAGE` argument is the only required argument. The rest are optional.
 
@@ -3919,13 +3919,13 @@ the exported targets are named `${CMAKE_FIND_PACKAGE_NAME}::${component}`.
 Dependent packages will only be found if a requested component requires the
 package to be found either directly or transitively.
 
-```
+~~~
 vtk_module_export_find_packages(
   CMAKE_DESTINATION <directory>
   FILE_NAME         <filename>
   [COMPONENT        <component>]
   MODULES           <module>...)
-```
+~~~
 
 The file will be installed into `CMAKE_DESTINATION` in the build and install
 trees with the given filename. If not provided, the `development` component
@@ -4151,11 +4151,11 @@ endfunction ()
 When a project has modules which represent third party packages, there are some
 convenience functions to help deal with them. First, there is the meta-wrapper:
 
-```
+~~~
 vtk_module_third_party(
   [INTERNAL <internal arguments>...]
   [EXTERNAL <external arguments>...])
-```
+~~~
 
 This offers a cache variable named `VTK_MODULE_USE_EXTERNAL_<module name>` that
 may be set to trigger between the internal copy and an externally provided
@@ -4225,7 +4225,7 @@ highly recommended that imported targets are used to make usage easier. The
 module itself will be created as an `INTERFACE` library which exposes the
 package.
 
-```
+~~~
 vtk_module_third_party_external(
   PACKAGE               <package>
   [VERSION              <version>]
@@ -4239,7 +4239,7 @@ vtk_module_third_party_external(
   [USE_VARIABLES        <variable>...]
   [CONFIG_MODE]
   [STANDARD_INCLUDE_DIRS])
-```
+~~~
 
 Only the `PACKAGE` argument is required. The arguments are as follows:
 
@@ -4498,7 +4498,7 @@ subdirectory that will be used via `add_subdirectory`. Unless it is marked as
 `HEADERS_ONLY`, it is assumed that it will create a target with the name of the
 module.
 
-```
+~~~
 vtk_module_third_party_internal(
   [SUBDIRECTORY   <path>]
   [HEADERS_SUBDIR <subdir>]
@@ -4507,7 +4507,7 @@ vtk_module_third_party_internal(
   [HEADER_ONLY]
   [INTERFACE]
   [STANDARD_INCLUDE_DIRS])
-```
+~~~
 
 All arguments are optional, however warnings are emitted if `LICENSE_FILES` or
 `VERSION` is not specified. They are as follows:

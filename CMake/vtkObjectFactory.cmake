@@ -26,11 +26,11 @@ set(_vtkObjectFactory_source_dir "${CMAKE_CURRENT_LIST_DIR}")
 In order to declare an override, the `vtk_object_factory_declare` function must
 be used.
 
-```
+~~~
 vtk_object_factory_declare(
   BASE      <base>
   OVERRIDE  <implementation>)
-```
+~~~
 #]==]
 function (vtk_object_factory_declare)
   cmake_parse_arguments(_vtk_object_factory_declare
@@ -70,14 +70,14 @@ A module may only have a single declaration of all its object factory
 implementations. This is done using the `vtk_object_factory_configure`
 function.
 
-```
+~~~
 vtk_object_factory_configure(
   SOURCE_FILE <variable>
   [HEADER_FILE <variable>]
   [EXPORT_MACRO <macro>]
   [INITIAL_CODE <code>]
   [EXTRA_INCLUDES <include>...])
-```
+~~~
 
   - `SOURCE_FILE`: (Required) A variable to set to the path to generated source
     file.

@@ -25,9 +25,9 @@ Some projects may need to know where VTK is going to place its Python modules
 in the installation directory. This function will provide it in a variable
 named as its first argument.
 
-```
+~~~
 vtk_module_python_default_destination(<var>)
-```
+~~~
 
 By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
 Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
@@ -57,9 +57,9 @@ This function generates the wrapped sources for a module. It places the list of
 generated source files and classes in variables named in the second and third
 arguments, respectively.
 
-```
+~~~
 _vtk_module_wrap_python_sources(<module> <sources> <classes>)
-```
+~~~
 #]==]
 function (_vtk_module_wrap_python_sources module sources classes)
   _vtk_module_get_module_property("${module}"
@@ -167,9 +167,9 @@ A Python module library may consist of the Python wrappings of multiple VTK
 modules. This is useful for kit-based builds where the modules part of the same
 kit belong to the same Python module as well.
 
-```
+~~~
 _vtk_module_wrap_python_library(<name> <module>...)
-```
+~~~
 
 The first argument is the name of the Python module. The remaining arguments
 are VTK modules to include in the Python module.
@@ -445,7 +445,7 @@ endfunction ()
 #[==[.md
 ## Wrapping a set of VTK modules in Python
 
-```
+~~~
 vtk_module_wrap_python(
   MODULES <module>...
   [TARGET <target>]
@@ -465,7 +465,7 @@ vtk_module_wrap_python(
 
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
-```
+~~~
 
   * `MODULES`: (Required) The list of modules to wrap.
   * `TARGET`: (Recommended) The target to create which represents all wrapped
@@ -847,13 +847,13 @@ endfunction ()
 Some modules may have associated Python code. This function should be used to
 install them.
 
-```
+~~~
 vtk_module_add_python_package(<module>
   PACKAGE <package>
   FILES <files>...
   [MODULE_DESTINATION <destination>]
   [COMPONENT <component>])
-```
+~~~
 
 The `<module>` argument must match the associated VTK module that the package
 is with. Each package is independent and should be installed separately. That
@@ -965,10 +965,10 @@ endfunction ()
 If a VTK module is a Python package, this function should be used instead of
 `vtk_module_add_module`.
 
-```
+~~~
 vtk_module_add_python_module(<name>
   PACKAGES <packages>...)
-```
+~~~
 
   * `PACKAGES`: (Required) The list of packages installed by this VTK module.
     These must have been created by the `vtk_module_add_python_package`

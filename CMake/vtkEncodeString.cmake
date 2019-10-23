@@ -18,7 +18,7 @@ Adds a rule to turn a file into a C string. Note that any Unicode characters
 will not be replaced with escaping, so it is recommended to avoid their usage
 in the input.
 
-```
+~~~
 vtk_encode_string
   INPUT           <input>
   [NAME           <name>]
@@ -27,7 +27,7 @@ vtk_encode_string
   [HEADER_OUTPUT  <variable>]
   [SOURCE_OUTPUT  <variable>]
   [BINARY] [NUL_TERMINATE])
-```
+~~~
 
 The only required variable is `INPUT`, however, it is likely that at least one
 of `HEADER_OUTPUT` or `SOURCE_OUTPUT` will be required to add them to a

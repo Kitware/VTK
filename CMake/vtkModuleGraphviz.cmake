@@ -104,14 +104,14 @@ endfunction ()
 Information about the modules built and/or available may be dumped to a
 Graphviz `.dot` file.
 
-```
+~~~
 vtk_module_graphviz(
   MODULES   <module>...
   OUTPUT    <path>
 
   [PRIVATE_DEPENDENCIES <ON|OFF>]
   [KIT_CLUSTERS <ON|OFF>])
-```
+~~~
 
   * `MODULES`: (Required) The modules to output information for.
   * `OUTPUT`: (Required) A Graphviz file describing the modules built will

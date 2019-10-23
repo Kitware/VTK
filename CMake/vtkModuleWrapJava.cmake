@@ -12,9 +12,9 @@ This function generates the wrapped sources for a module. It places the list of
 generated source files and Java source files in variables named in the second
 and third arguments, respectively.
 
-```
+~~~
 _vtk_module_wrap_java_sources(<module> <sources> <classes>)
-```
+~~~
 #]==]
 function (_vtk_module_wrap_java_sources module sources java_sources)
   _vtk_module_get_module_property("${module}"
@@ -158,9 +158,9 @@ A single JNI library may consist of the Java wrappings of multiple VTK modules.
 This is useful for kit-based builds where the modules part of the same kit
 belong to the same JNI library as well.
 
-```
+~~~
 _vtk_module_wrap_java_library(<name> <module>...)
-```
+~~~
 
 The first argument is the name of the JNI library. The remaining arguments are
 VTK modules to include in the JNI library.
@@ -260,13 +260,13 @@ endfunction ()
 #[==[.md
 ## Wrapping a set of VTK modules in Java
 
-```
+~~~
 vtk_module_wrap_java(
   MODULES <module>...
   [WRAPPED_MODULES <varname>]
 
   [JAVA_OUTPUT <destination>])
-```
+~~~
 
   * `MODULES`: (Required) The list of modules to wrap.
   * `WRAPPED_MODULES`: (Recommended) Not all modules are wrappable. This

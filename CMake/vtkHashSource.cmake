@@ -14,13 +14,13 @@ include(CMakeParseArguments)
 
 Add a rule to turn a file into a MD5 hash and place that in a C string.
 
-```
+~~~
 vtk_hash_source(
   INPUT          <input>
   [NAME          <name>]
   [ALGORITHM     <algorithm>]
   [HEADER_OUTPUT <header>])
-```
+~~~
 
 The only required variable is `INPUT`.
 

@@ -20,9 +20,9 @@ get_filename_component(_vtkModuleTesting_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECT
 
 Data may be downloaded manually using this function:
 
-```
+~~~
 vtk_module_test_data(<PATHSPEC>...)
-```
+~~~
 
 This will download data inside of the input data directory for the modules
 being built at that time (see the `TEST_INPUT_DATA_DIRECTORY` argument of
@@ -57,9 +57,9 @@ This function creates an executable from the list of sources passed to it. It
 is automatically linked to the module the tests are intended for as well as any
 declared test dependencies of the module.
 
-```
+~~~
 vtk_module_test_executable(<NAME> <SOURCE>...)
-```
+~~~
 
 This function is not usually used directly, but instead through the other
 convenience functions.
@@ -122,9 +122,9 @@ setting `vtk_test_prefix`, the test name will instead be
 This function parses the name from a testspec. The calling scope has
 `test_name` and `test_file` variables set in it.
 
-```
+~~~
 _vtk_test_parse_name(<TESTSPEC>)
-```
+~~~
 #]==]
 function (_vtk_test_parse_name name)
   if (name AND name MATCHES "^([^,]*),(.*)$")
@@ -160,9 +160,9 @@ variables:
     `_vtk_test_parse_name`.
   - `_<NAME>_options`: Options specific to a certain test.
 
-```
+~~~
 _vtk_test_parse_args(<OPTIONS> <SOURCE_EXT> <ARG>...)
-```
+~~~
 
 In order to be recognized as a source file, the `SOURCE_EXT` must be used.
 Without it, all non-option arguments are placed into `args`. Each test is
@@ -210,9 +210,9 @@ For handling global option settings, this function sets variables in the
 calling scoped named `<PREFIX><OPTION>` to either `0` or `1` if the option is
 present in the remaining argument list.
 
-```
+~~~
 _vtk_test_set_options(<OPTIONS> <PREFIX> <ARG>...)
-```
+~~~
 
 Additionally, a non-`0` default for a given option may be specified by a
 variable with the same name as the option and specifying a prefix for the
@@ -253,9 +253,9 @@ set_property(CACHE VTK_MPI_NUMPROCS
 This function declares C++ tests. Source files are required to use the `cxx`
 extension.
 
-```
+~~~
 vtk_add_test_cxx(<EXENAME> <VARNAME> <ARG>...)
-```
+~~~
 
 Each argument should be either an option, a test specification, or it is passed
 as flags to all tests declared in the group. The list of tests is set in the
@@ -334,9 +334,9 @@ endfunction ()
 This function declares C++ tests which should be run under an MPI environment.
 Source files are required to use the `cxx` extension.
 
-```
+~~~
 vtk_add_test_mpi(<EXENAME> <VARNAME> <ARG>...)
-```
+~~~
 
 Each argument should be either an option, a test specification, or it is passed
 as flags to all tests declared in the group. The list of tests is set in the
@@ -429,9 +429,9 @@ endfunction ()
 #[==[.md
 ### C++ test executable
 
-```
+~~~
 vtk_test_cxx_executable(<EXENAME> <VARNAME> [RENDERING_FACTORY] [<SRC>...])
-```
+~~~
 
 Creates an executable named `EXENAME` which contains the tests listed in the
 variable named in the `VARNAME` argument. The `EXENAME` must match the
@@ -491,9 +491,9 @@ endfunction ()
 This function declares Python tests. Test files are required to use the `py`
 extension.
 
-```
+~~~
 vtk_add_test_python(<EXENAME> <VARNAME> <ARG>...)
-```
+~~~
 #]==]
 
 #[==[.md INTERNAL
