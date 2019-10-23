@@ -1498,6 +1498,15 @@ mentioned in the previous section.
   * `depends`: The list of dependent modules. Language wrappers will generally
     require this to satisfy references to parent classes of the classes in the
     module.
+  * `private_depends`: The list of privately dependent modules. Language
+    wrappers may require this to satisfy references to parent classes of the
+    classes in the module.
+  * `optional_depends`: The list of optionally dependent modules. Language
+    wrappers may require this to satisfy references to parent classes of the
+    classes in the module.
+  * `kit`: The kit the module is a member of. Only set if the module is
+    actually a member of the kit (i.e., the module was built with
+    `BUILD_WITH_KITS ON`).
   * `implements`: The list of modules for which this module registers to. This
     is used by the autoinit subsystem and generally is not required.
   * `implementable`: If set, this module provides registries which may be
@@ -1511,6 +1520,10 @@ mentioned in the previous section.
     classes for use in language wrappers.
   * `forward_link`: Usage requirements that must be forwarded even though the
     module is linked to privately.
+
+Kits have the following properties available (but only if kits are enabled):
+
+  * `kit_modules`: Modules which are compiled into the kit.
 
 In order to add new module properties to a module, the
 `_vtk_module_set_module_property` function should be used. This works for
