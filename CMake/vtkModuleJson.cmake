@@ -1,3 +1,14 @@
+#[==[
+@ingroup module-impl
+@brief Output a boolean to JSON
+
+Appends a condition as a JSON boolean with the given dictionary key name to the
+given string variable.
+
+~~~
+_vtk_json_bool(<output> <name> <cond>)
+~~~
+#]==]
 macro (_vtk_json_bool output name cond)
   if (${cond})
     set(val "true")
@@ -8,6 +19,17 @@ macro (_vtk_json_bool output name cond)
   unset(val)
 endmacro ()
 
+#[==[
+@ingroup module-impl
+@brief Output a string list to JSON
+
+Appends a variable as a JSON list of strings with the given dictionary key name
+to the given string variable.
+
+~~~
+_vtk_json_string_list(<output> <name> <cond>)
+~~~
+#]==]
 macro (_vtk_json_string_list output name var)
   set(list "[")
   foreach (value IN LISTS "${var}")
@@ -20,8 +42,9 @@ macro (_vtk_json_string_list output name var)
   unset(list)
 endmacro ()
 
-#[==[.md
-## JSON output
+#[==[
+@ingroup module-support
+@brief JSON metadata representation of modules
 
 Information about the modules built and/or available may be dumped to a JSON
 file.

@@ -2,6 +2,7 @@
 @defgroup module Module CMake APIs
 @defgroup module-internal Module Internal CMake APIs
 @defgroup module-impl Module Implementation CMake APIs
+@defgroup module-support Module Support CMake APIs
 #]==]
 
 #[==[
