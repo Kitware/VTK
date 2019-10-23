@@ -2411,6 +2411,9 @@ function (vtk_module_build)
       COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
 
     if (_vtk_build_INSTALL_HEADERS)
+      file(APPEND "${_vtk_build_properties_install_file}"
+        "unset(_vtk_module_import_prefix)\n")
+
       install(
         FILES       "${_vtk_build_properties_install_file}"
         DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
