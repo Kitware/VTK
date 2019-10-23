@@ -727,6 +727,7 @@ namespace vtkosp {
       ospSet3fv(oMaterial, "baseColor", diffusef);
       ospSet1f(oMaterial, "metallic", static_cast<float>(property->GetMetallic()));
       ospSet1f(oMaterial, "roughness", static_cast<float>(property->GetRoughness()));
+      ospSet1f(oMaterial, "opacity", static_cast<float>(opacity));
     }
     else
     {
