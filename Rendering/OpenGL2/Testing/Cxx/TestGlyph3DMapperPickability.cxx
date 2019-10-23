@@ -146,6 +146,7 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
   auto mb = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   auto da = vtkSmartPointer<vtkCompositeDataDisplayAttributes>::New();
   rw->AddRenderer(rr);
+  rw->SetMultiSamples(0);
   rw->SetInteractor(ri);
   mp->SetBlockAttributes(da);
 
