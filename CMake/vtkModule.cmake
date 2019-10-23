@@ -3513,10 +3513,10 @@ function (_vtk_module_apply_properties target)
     ""
     ${ARGN})
 
-  if (_vtk_apply_properties_UNPARSE_ARGUMENTS)
+  if (_vtk_apply_properties_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
       "Unparsed arguments for _vtk_module_apply_properties: "
-      "${_vtk_apply_properties_UNPARSE_ARGUMENTS}.")
+      "${_vtk_apply_properties_UNPARSED_ARGUMENTS}.")
   endif ()
 
   if (NOT DEFINED _vtk_apply_properties_BASENAME)
