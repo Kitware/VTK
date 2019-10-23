@@ -3627,6 +3627,16 @@ function (vtk_module_add_executable name)
   set(_vtk_add_executable_target_name "${name}")
   set(_vtk_add_executable_library_name "${name}")
   if (name STREQUAL _vtk_build_module)
+    if (_vtk_add_executable_NO_INSTALL)
+      message(FATAL_ERROR
+        "The executable ${_vtk_build_module} module may not use `NO_INSTALL`.")
+    endif ()
+    if (DEFINED _vtk_add_executable_BASENAME)
+      message(FATAL_ERROR
+        "The executable ${_vtk_build_module} module may not pass `BASENAME` "
+        "when adding the executable; it is controlled via `LIBRARY_NAME` in "
+        "the associated `vtk.module` file.")
+    endif ()
     get_property(_vtk_add_executable_target_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
     get_property(_vtk_add_executable_library_name GLOBAL
@@ -3642,6 +3652,14 @@ function (vtk_module_add_executable name)
   endif ()
 
   if (name STREQUAL _vtk_build_module)
+    get_property(_vtk_real_target_kit GLOBAL
+      PROPERTY "_vtk_module_${_vtk_build_module}_kit")
+    if (_vtk_real_target_kit)
+      message(FATAL_ERROR
+        "Executable module ${_vtk_build_module} is declared to be part of a "
+        "kit; this is not possible.")
+    endif ()
+
     get_property(_vtk_add_executable_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_depends")
     get_property(_vtk_add_executable_private_depends GLOBAL
@@ -3664,6 +3682,14 @@ function (vtk_module_add_executable name)
         PRIVATE
           "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=${_vtk_add_executable_have_optional_depend}")
     endforeach ()
+
+    if (_vtk_module_warnings)
+      if (_vtk_add_executable_depends)
+        message(WARNING
+          "Executable module ${_vtk_build_module} has public dependencies; this "
+          "shouldn't be necessary.")
+      endif ()
+    endif ()
   endif ()
 
   set(_vtk_add_executable_property_args)
