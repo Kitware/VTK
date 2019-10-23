@@ -97,10 +97,10 @@ Module names may include a namespace. This function splits the name into a
 namespace and target name part.
 
 ~~~
-_vtk_module_split_module_name(<NAME> <PREFIX>)
+_vtk_module_split_module_name(<name> <prefix>)
 ~~~
 
-The `<PREFIX>_NAMESPACE` and `<PREFIX>_TARGET_NAME` variables will be set in
+The `<prefix>_NAMESPACE` and `<prefix>_TARGET_NAME` variables will be set in
 the calling scope.
 #]==]
 function (_vtk_module_split_module_name name prefix)
