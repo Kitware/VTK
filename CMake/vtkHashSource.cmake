@@ -1,7 +1,7 @@
-#[==[.md
-# vtkHashSource
+#[==[
+@file vtkHashSource.cmake
 
-This module contains the `vtk_hash_source` function which may be used to
+This module contains the @ref vtk_hash_source function which may be used to
 generate a hash from a file and place that in a generated header.
 #]==]
 
@@ -9,8 +9,8 @@ set(_vtkHashSource_script_file "${CMAKE_CURRENT_LIST_FILE}")
 
 include(CMakeParseArguments)
 
-#[==[.md
-# `vtk_hash_source`
+#[==[
+@brief Generate a header containing the hash of a file
 
 Add a rule to turn a file into a MD5 hash and place that in a C string.
 
