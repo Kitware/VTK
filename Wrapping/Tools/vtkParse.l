@@ -5,18 +5,22 @@
 
 This file must be translated to C and modified to build everywhere.
 
-Run flex like this:
+See the adjacent README.txt file for instructions.
 
-  flex --nodefault --noline -olex.yy.c vtkParse.l
-
-Modify lex.yy.c:
-  - convert tabs to spaces (2 spaces per tab)
-  - remove extra space from end of lines
-  - remove blank lines from end of file
-  - compile with gcc and "-Wsign-compare", there should be no warnings
-  - add a prototype for isatty
-  - remove unused struct yy_trans_info
 */
+
+/* to workaround https://bugs.llvm.org/show_bug.cgi?id=43465 */
+#if defined(__clang__)
+  #pragma clang diagnostic push
+  #if defined(__has_warning)
+    #if __has_warning("-Wimplicit-fallthrough")
+      #pragma clang diagnostic ignored "-Wimplicit-fallthrough"
+    #endif
+  #endif
+#elif defined(__GNUC__) && (__GNUC__ >= 7)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+#endif
 
 /* We do not care of interactive mode */
 #define YY_NEVER_INTERACTIVE 1
