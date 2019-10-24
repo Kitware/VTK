@@ -72,15 +72,15 @@ function.
 
 ```
 vtk_object_factory_configure(
-  [SOURCE_FILE <variable>]
+  SOURCE_FILE <variable>
   [HEADER_FILE <variable>]
   [EXPORT_MACRO <macro>]
   [INITIAL_CODE <code>]
   [EXTRA_INCLUDES <include>...])
 ```
 
-  - `SOURCE_FILE`: (Recommended) A variable to set to the path to generated
-    source file.
+  - `SOURCE_FILE`: (Required) A variable to set to the path to generated source
+    file.
   - `HEADER_FILE`: (Recommended) A variable to set to the path to generated
     header file. This should not be treated as a public header.
   - `EXPORT_MACRO`: (Recommended) The export macro to add to the generated
@@ -176,9 +176,7 @@ function (vtk_object_factory_configure)
       PARENT_SCOPE)
   endif ()
 
-  if (_vtk_object_factory_configure_SOURCE_FILE)
-    set("${_vtk_object_factory_configure_SOURCE_FILE}"
-      "${_vtk_object_factory_overrides_source}"
-      PARENT_SCOPE)
-  endif ()
+  set("${_vtk_object_factory_configure_SOURCE_FILE}"
+    "${_vtk_object_factory_overrides_source}"
+    PARENT_SCOPE)
 endfunction ()
