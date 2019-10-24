@@ -32,20 +32,22 @@
 
 vtkStandardNewMacro(vtkFeatureEdges);
 
+//----------------------------------------------------------------------------
 // Construct object with feature angle = 30; all types of edges, except
 // manifold edges, are extracted and colored.
 vtkFeatureEdges::vtkFeatureEdges()
 {
   this->FeatureAngle = 30.0;
-  this->BoundaryEdges = 1;
-  this->FeatureEdges = 1;
-  this->NonManifoldEdges = 1;
-  this->ManifoldEdges = 0;
-  this->Coloring = 1;
+  this->BoundaryEdges = true;
+  this->FeatureEdges = true;
+  this->NonManifoldEdges = true;
+  this->ManifoldEdges = false;
+  this->Coloring = true;
   this->Locator = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
+//----------------------------------------------------------------------------
 vtkFeatureEdges::~vtkFeatureEdges()
 {
   if (this->Locator)
@@ -55,6 +57,7 @@ vtkFeatureEdges::~vtkFeatureEdges()
   }
 }
 
+//----------------------------------------------------------------------------
 // Generate feature edges for mesh
 int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -365,6 +368,7 @@ int vtkFeatureEdges::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkFeatureEdges::CreateDefaultLocator()
 {
   if (this->Locator == nullptr)
@@ -373,6 +377,7 @@ void vtkFeatureEdges::CreateDefaultLocator()
   }
 }
 
+//----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkFeatureEdges::SetLocator(vtkIncrementalPointLocator* locator)
@@ -394,6 +399,7 @@ void vtkFeatureEdges::SetLocator(vtkIncrementalPointLocator* locator)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 vtkMTimeType vtkFeatureEdges::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
@@ -407,6 +413,7 @@ vtkMTimeType vtkFeatureEdges::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 int vtkFeatureEdges::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -427,6 +434,25 @@ int vtkFeatureEdges::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//----------------------------------------------------------------------------
+void vtkFeatureEdges::ExtractAllEdgeTypesOn()
+{
+  this->BoundaryEdgesOn();
+  this->FeatureEdgesOn();
+  this->NonManifoldEdgesOn();
+  this->ManifoldEdgesOn();
+}
+
+//----------------------------------------------------------------------------
+void vtkFeatureEdges::ExtractAllEdgeTypesOff()
+{
+  this->BoundaryEdgesOff();
+  this->FeatureEdgesOff();
+  this->NonManifoldEdgesOff();
+  this->ManifoldEdgesOff();
+}
+
+//----------------------------------------------------------------------------
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

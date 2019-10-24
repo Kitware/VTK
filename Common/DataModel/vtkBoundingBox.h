@@ -14,11 +14,11 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
  * @class   vtkBoundingBox
- * @brief   Fast Simple Class for dealing with 3D bounds
+ * @brief   Fast, simple class for dealing with 3D bounds
  *
  * vtkBoundingBox maintains a 3D axis aligned bounding box.  It is very light
  * weight and many of the member functions are in-lined so it is very fast.
- * It is not derived from vtkObject so it can be allocated on the stack
+ * It is not derived from vtkObject so it can be allocated on the stack.
  *
  * @sa
  * vtkBox
@@ -28,6 +28,8 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkBoundingBox_h
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
+
+class vtkPoints;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkBoundingBox
 {
@@ -67,6 +69,16 @@ public:
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
+  //@}
+
+  //@{
+  /**
+   * Compute the bounding box from an array of vtkPoints. It uses a fast
+   * path when possible. The second signature (with point uses) only considers
+   * points with ptUses[i] != 0 in the bounds calculation.
+   */
+  static void ComputeBounds(vtkPoints* pts, double bounds[6]);
+  static void ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6]);
   //@}
 
   //@{
