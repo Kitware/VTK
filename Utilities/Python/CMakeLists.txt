@@ -107,6 +107,8 @@ file(APPEND "${_vtk_python_build_file}"
   "set(VTK_PYTHONPATH \"${VTK_BUILD_PYTHON_MODULES_DIR}\")\n")
 
 if (_vtk_build_INSTALL_HEADERS)
+  file(APPEND "${_vtk_python_install_file}"
+    "unset(_vtk_module_import_prefix)\n")
   install(
     FILES       "${_vtk_python_install_file}"
     DESTINATION "${_vtk_build_CMAKE_DESTINATION}"

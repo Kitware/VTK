@@ -544,17 +544,61 @@ function (vtk_module_scan)
     _vtk_module_parse_module_args(_vtk_scan_module_name ${_vtk_scan_module_args})
     _vtk_module_debug(module "@_vtk_scan_module_name@ declared by @_vtk_scan_module_file@")
 
+    if (${_vtk_scan_module_name}_THIRD_PARTY)
+      if (_vtk_module_warnings)
+        if (${_vtk_scan_module_name}_EXCLUDE_WRAP)
+          message(WARNING
+            "The third party ${_vtk_scan_module_name} module does not need to "
+            "declare `EXCLUDE_WRAP` also.")
+        endif ()
+      endif ()
+      if (${_vtk_scan_module_name}_IMPLEMENTABLE)
+        message(FATAL_ERROR
+          "The third party ${_vtk_scan_module_name} module may not be "
+          "`IMPLEMENTABLE`.")
+      endif ()
+      if (${_vtk_scan_module_name}_IMPLEMENTS)
+        message(FATAL_ERROR
+          "The third party ${_vtk_scan_module_name} module may not "
+          "`IMPLEMENTS` another module.")
+      endif ()
+      if (${_vtk_scan_module_name}_KIT)
+        message(FATAL_ERROR
+          "The third party ${_vtk_scan_module_name} module may not be part of "
+          "a kit (${${_vtk_scan_module_name}_KIT}).")
+      endif ()
+    endif ()
+
+    if (${_vtk_scan_module_name}_KIT)
+      if (NOT ${_vtk_scan_module_name}_KIT IN_LIST _vtk_scan_all_kits)
+        message(FATAL_ERROR
+          "The ${_vtk_scan_module_name} belongs to the "
+          "${${_vtk_scan_module_name}_KIT} kit, but it has not been scanned.")
+      endif ()
+    endif ()
+
+    # Check if the module is visible. Modules which have a failing condition
+    # are basically invisible.
+    if (DEFINED ${_vtk_scan_module_name}_CONDITION)
+      if (NOT (${${_vtk_scan_module_name}_CONDITION}))
+        if (DEFINED "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
+          set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
+            PROPERTY
+              TYPE INTERNAL)
+        endif ()
+        _vtk_module_debug(module "@_vtk_scan_module_name@ hidden by its `CONDITION`")
+        continue ()
+      endif ()
+    endif ()
+
     # Determine whether we should provide a user-visible option for this
     # module.
-    set(_vtk_build_use_option 0)
-    if (DEFINED _vtk_scan_REQUEST_MODULE)
-      if (_vtk_scan_module_name IN_LIST _vtk_scan_REQUEST_MODULE)
+    set(_vtk_build_use_option 1)
+    if (DEFINED _vtk_scan_REQUEST_MODULES)
+      if (_vtk_scan_module_name IN_LIST _vtk_scan_REQUEST_MODULES)
         set("_vtk_scan_enable_${_vtk_scan_module_name}" YES)
-      else ()
-        set(_vtk_build_use_option 1)
+        set(_vtk_build_use_option 0)
       endif ()
-    else ()
-      set(_vtk_build_use_option 1)
     endif ()
     if (DEFINED _vtk_scan_REJECT_MODULES)
       if (_vtk_scan_module_name IN_LIST _vtk_scan_REJECT_MODULES)
@@ -609,16 +653,7 @@ function (vtk_module_scan)
         endif ()
 
         # Determine the state of the group.
-        if (VTK_GROUP_ENABLE_${_vtk_scan_group} STREQUAL "DEFAULT")
-          if (_vtk_scan_WANT_BY_DEFAULT)
-            set(_vtk_scan_group_enable WANT)
-          else ()
-            set(_vtk_scan_group_enable DONT_WANT)
-          endif ()
-        else ()
-          set(_vtk_scan_group_enable "${VTK_GROUP_ENABLE_${_vtk_scan_group}}")
-        endif ()
-
+        set(_vtk_scan_group_enable "${VTK_GROUP_ENABLE_${_vtk_scan_group}}")
         if (NOT _vtk_scan_group_enable STREQUAL "DEFAULT")
           set("_vtk_scan_enable_${_vtk_scan_module_name}" "${_vtk_scan_group_enable}")
           _vtk_module_debug(enable "@_vtk_scan_module_name@ is DEFAULT, using group `@_vtk_scan_group@` setting: @_vtk_scan_group_enable@")
@@ -628,20 +663,6 @@ function (vtk_module_scan)
       set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
         PROPERTY
           TYPE "${_vtk_scan_option_default_type}")
-    endif ()
-
-    # Check if the module is visible. Modules which have a failing condition
-    # are basically invisible.
-    if (DEFINED ${_vtk_scan_module_name}_CONDITION)
-      if (NOT (${${_vtk_scan_module_name}_CONDITION}))
-        if (DEFINED "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
-          set_property(CACHE "VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}"
-            PROPERTY
-              TYPE INTERNAL)
-        endif ()
-        _vtk_module_debug(module "@_vtk_scan_module_name@ hidden by its `CONDITION`")
-        continue ()
-      endif ()
     endif ()
 
     if (NOT DEFINED "_vtk_scan_enable_${_vtk_scan_module_name}" AND
@@ -667,18 +688,6 @@ function (vtk_module_scan)
     endif ()
 
     if (${_vtk_scan_module_name}_KIT)
-      if (${_vtk_scan_module_name}_THIRD_PARTY)
-        message(FATAL_ERROR
-          "The third party module ${_vtk_scan_module_name} may not be part of "
-          "a kit (${${_vtk_scan_module_name}_KIT}).")
-      endif ()
-
-      if (NOT ${_vtk_scan_module_name}_KIT IN_LIST _vtk_scan_all_kits)
-        message(FATAL_ERROR
-          "The ${_vtk_scan_module_name} belongs to the "
-          "${${_vtk_scan_module_name}_KIT} kit, but it has not been scanned.")
-      endif ()
-
       _vtk_module_debug(kit "@_vtk_scan_module_name@ belongs to the ${${_vtk_scan_module_name}_KIT} kit")
     endif ()
 
@@ -1489,6 +1498,15 @@ mentioned in the previous section.
   * `depends`: The list of dependent modules. Language wrappers will generally
     require this to satisfy references to parent classes of the classes in the
     module.
+  * `private_depends`: The list of privately dependent modules. Language
+    wrappers may require this to satisfy references to parent classes of the
+    classes in the module.
+  * `optional_depends`: The list of optionally dependent modules. Language
+    wrappers may require this to satisfy references to parent classes of the
+    classes in the module.
+  * `kit`: The kit the module is a member of. Only set if the module is
+    actually a member of the kit (i.e., the module was built with
+    `BUILD_WITH_KITS ON`).
   * `implements`: The list of modules for which this module registers to. This
     is used by the autoinit subsystem and generally is not required.
   * `implementable`: If set, this module provides registries which may be
@@ -1502,6 +1520,10 @@ mentioned in the previous section.
     classes for use in language wrappers.
   * `forward_link`: Usage requirements that must be forwarded even though the
     module is linked to privately.
+
+Kits have the following properties available (but only if kits are enabled):
+
+  * `kit_modules`: Modules which are compiled into the kit.
 
 In order to add new module properties to a module, the
 `_vtk_module_set_module_property` function should be used. This works for
@@ -2091,6 +2113,16 @@ function (vtk_module_build)
     set(_vtk_build_TARGETS_COMPONENT "runtime")
   endif ()
 
+  if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_ARCHIVE_DESTINATION}")
+  endif ()
+  if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_LIBRARY_DESTINATION}")
+  endif ()
+  if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${_vtk_build_RUNTIME_DESTINATION}")
+  endif ()
+
   if (NOT _vtk_build_MODULES)
     message(FATAL_ERROR
       "No modules given to build.")
@@ -2379,6 +2411,9 @@ function (vtk_module_build)
       COMPONENT   "${_vtk_build_HEADERS_COMPONENT}")
 
     if (_vtk_build_INSTALL_HEADERS)
+      file(APPEND "${_vtk_build_properties_install_file}"
+        "unset(_vtk_module_import_prefix)\n")
+
       install(
         FILES       "${_vtk_build_properties_install_file}"
         DESTINATION "${_vtk_build_CMAKE_DESTINATION}"
@@ -3478,10 +3513,10 @@ function (_vtk_module_apply_properties target)
     ""
     ${ARGN})
 
-  if (_vtk_apply_properties_UNPARSE_ARGUMENTS)
+  if (_vtk_apply_properties_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
       "Unparsed arguments for _vtk_module_apply_properties: "
-      "${_vtk_apply_properties_UNPARSE_ARGUMENTS}.")
+      "${_vtk_apply_properties_UNPARSED_ARGUMENTS}.")
   endif ()
 
   if (NOT DEFINED _vtk_apply_properties_BASENAME)
@@ -3592,6 +3627,16 @@ function (vtk_module_add_executable name)
   set(_vtk_add_executable_target_name "${name}")
   set(_vtk_add_executable_library_name "${name}")
   if (name STREQUAL _vtk_build_module)
+    if (_vtk_add_executable_NO_INSTALL)
+      message(FATAL_ERROR
+        "The executable ${_vtk_build_module} module may not use `NO_INSTALL`.")
+    endif ()
+    if (DEFINED _vtk_add_executable_BASENAME)
+      message(FATAL_ERROR
+        "The executable ${_vtk_build_module} module may not pass `BASENAME` "
+        "when adding the executable; it is controlled via `LIBRARY_NAME` in "
+        "the associated `vtk.module` file.")
+    endif ()
     get_property(_vtk_add_executable_target_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
     get_property(_vtk_add_executable_library_name GLOBAL
@@ -3607,11 +3652,44 @@ function (vtk_module_add_executable name)
   endif ()
 
   if (name STREQUAL _vtk_build_module)
+    get_property(_vtk_real_target_kit GLOBAL
+      PROPERTY "_vtk_module_${_vtk_build_module}_kit")
+    if (_vtk_real_target_kit)
+      message(FATAL_ERROR
+        "Executable module ${_vtk_build_module} is declared to be part of a "
+        "kit; this is not possible.")
+    endif ()
+
+    get_property(_vtk_add_executable_depends GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_depends")
     get_property(_vtk_add_executable_private_depends GLOBAL
       PROPERTY  "_vtk_module_${_vtk_build_module}_private_depends")
     target_link_libraries("${_vtk_add_executable_target_name}"
+      PUBLIC
+        ${_vtk_add_executable_depends}
       PRIVATE
         ${_vtk_add_executable_private_depends})
+    get_property(_vtk_add_executable_optional_depends GLOBAL
+      PROPERTY  "_vtk_module_${_vtk_build_module}_optional_depends")
+    foreach (_vtk_add_executable_optional_depend IN LISTS _vtk_add_executable_optional_depends)
+      string(REPLACE "::" "_" _vtk_add_executable_optional_depend_safe "${_vtk_add_executable_optional_depend}")
+      if (TARGET "${_vtk_add_executable_optional_depend}")
+        set(_vtk_add_executable_have_optional_depend 1)
+      else ()
+        set(_vtk_add_executable_have_optional_depend 0)
+      endif ()
+      target_compile_definitions("${_vtk_add_executable_target_name}"
+        PRIVATE
+          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=${_vtk_add_executable_have_optional_depend}")
+    endforeach ()
+
+    if (_vtk_module_warnings)
+      if (_vtk_add_executable_depends)
+        message(WARNING
+          "Executable module ${_vtk_build_module} has public dependencies; this "
+          "shouldn't be necessary.")
+      endif ()
+    endif ()
   endif ()
 
   set(_vtk_add_executable_property_args)
