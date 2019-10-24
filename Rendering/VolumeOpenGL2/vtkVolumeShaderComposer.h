@@ -391,30 +391,25 @@ namespace vtkvolume
       \n  // buffer has the original size buffer.\
       \n  vec2 fragTexCoord = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
       \n                      in_inverseWindowSize;\
-      \n");
-
-    if (mapper->GetBlendMode() != vtkVolumeMapper::SLICE_BLEND)
-    {
-      shaderStr += std::string("\
-        \n  // Multiply the raymarching direction with the step size to get the\
-        \n  // sub-step size we need to take at each raymarching step\
-        \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
-        \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
-        \n\
-        \n  if (in_useJittering)\
-        \n  {\
-        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
-        \n    g_rayJitter = g_dirStep * jitterValue;\
-        \n  }\
-        \n  else\
-        \n  {\
-        \n    g_rayJitter = g_dirStep;\
-        \n  }\
-        \n  g_rayOrigin += g_rayJitter;\
-        \n\
-        \n  // Flag to determine if voxel should be considered for the rendering\
-        \n  g_skip = false;");
-    }
+      \n\
+      \n  // Multiply the raymarching direction with the step size to get the\
+      \n  // sub-step size we need to take at each raymarching step\
+      \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
+      \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
+      \n\
+      \n  if (in_useJittering)\
+      \n  {\
+      \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
+      \n    g_rayJitter = g_dirStep * jitterValue;\
+      \n  }\
+      \n  else\
+      \n  {\
+      \n    g_rayJitter = g_dirStep;\
+      \n  }\
+      \n  g_rayOrigin += g_rayJitter;\
+      \n\
+      \n  // Flag to determine if voxel should be considered for the rendering\
+      \n  g_skip = false;");
 
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
     {
@@ -1808,7 +1803,7 @@ namespace vtkvolume
         \n    float opacity = computeOpacity(scalar);\
         \n    g_fragColor = computeColor(scalar, opacity);\
         \n    g_fragColor.rgb *= opacity;\
-        \n    break;");
+        \n    g_exit = true;");
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
     {
@@ -2189,12 +2184,13 @@ namespace vtkvolume
           shaderStr += std::string("\
           \n\
           \n  // Intersection with plane\
-          \n  float t = intersectRayPlane(g_eyePosObj.xyz, rayDir);\
-          \n  vec4 intersection = vec4(g_eyePosObj.xyz + t * rayDir, 1.0);\
+          \n  vec3 origin = (in_textureDatasetMatrix[0] * vec4(g_rayOrigin, 1.0)).xyz;\
+          \n  float t = intersectRayPlane(origin, rayDir);\
+          \n  vec4 intersection = vec4(origin + t * rayDir, 1.0);\
           \n  g_intersection = (ip_inverseTextureDataAdjusted * intersection).xyz;\
-          \n  vec4 intersWin = in_projectionMatrix * in_modelViewMatrix * in_volumeMatrix[0] * intersection;\
-          \n  intersWin.xyz /= intersWin.w;\
-          \n  intersWin = NDCToWindow(intersWin.x, intersWin.y, intersWin.z);\
+          \n  vec4 intersDC = in_projectionMatrix * in_modelViewMatrix * in_volumeMatrix[0] * intersection;\
+          \n  intersDC.xyz /= intersDC.w;\
+          \n  vec4 intersWin = NDCToWindow(intersDC.x, intersDC.y, intersDC.z);\
           \n  if(intersWin.z >= l_depthValue.x)\
           \n  {\
           \n    discard;\
@@ -2208,34 +2204,32 @@ namespace vtkvolume
         }
       }
     }
-    else
-    {
-      shaderStr += std::string("\
-        \n  // Compute max number of iterations it will take before we hit\
-        \n  // the termination point\
-        \n\
-        \n  // Abscissa of the point on the depth buffer along the ray.\
-        \n  // point in texture coordinates\
-        \n  vec4 rayTermination = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
-        \n\
-        \n  // From normalized device coordinates to eye coordinates.\
-        \n  // in_projectionMatrix is inversed because of way VT\
-        \n  // From eye coordinates to texture coordinates\
-        \n  rayTermination = ip_inverseTextureDataAdjusted *\
-        \n                    in_inverseVolumeMatrix[0] *\
-        \n                    in_inverseModelViewMatrix *\
-        \n                    in_inverseProjectionMatrix *\
-        \n                    rayTermination;\
-        \n  g_rayTermination = rayTermination.xyz / rayTermination.w;\
-        \n\
-        \n  // Setup the current segment:\
-        \n  g_dataPos = g_rayOrigin;\
-        \n  g_terminatePos = g_rayTermination;\
-        \n\
-        \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
-        \n                        length(g_dirStep);\
-        \n  g_currentT = 0.0;");
-    }
+
+    shaderStr += std::string("\
+      \n  // Compute max number of iterations it will take before we hit\
+      \n  // the termination point\
+      \n\
+      \n  // Abscissa of the point on the depth buffer along the ray.\
+      \n  // point in texture coordinates\
+      \n  vec4 rayTermination = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, l_depthValue.x);\
+      \n\
+      \n  // From normalized device coordinates to eye coordinates.\
+      \n  // in_projectionMatrix is inversed because of way VT\
+      \n  // From eye coordinates to texture coordinates\
+      \n  rayTermination = ip_inverseTextureDataAdjusted *\
+      \n                    in_inverseVolumeMatrix[0] *\
+      \n                    in_inverseModelViewMatrix *\
+      \n                    in_inverseProjectionMatrix *\
+      \n                    rayTermination;\
+      \n  g_rayTermination = rayTermination.xyz / rayTermination.w;\
+      \n\
+      \n  // Setup the current segment:\
+      \n  g_dataPos = g_rayOrigin;\
+      \n  g_terminatePos = g_rayTermination;\
+      \n\
+      \n  g_terminatePointMax = length(g_terminatePos.xyz - g_dataPos.xyz) /\
+      \n                        length(g_dirStep);\
+      \n  g_currentT = 0.0;");
 
     return shaderStr;
   }
