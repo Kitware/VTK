@@ -366,7 +366,7 @@ const char eventLog2LockNormalToCamera[] =
   "RenderEvent 217 122 0 0 0 0 t\n"
   "MouseMoveEvent 218 134 0 0 0 0 t\n"
   "RenderEvent 218 134 0 0 0 0 t\n"
-  "LeftButtonReleaseEvent 290 0 0 0 0 t\n"
+  "LeftButtonReleaseEvent 290 106 0 0 0 0 t\n"
   "KeyPressEvent 147 213 0 1 62 1 greater\n"
   "CharEvent 147 213 0 1 62 1 greater\n"
   "KeyReleaseEvent 147 213 0 1 62 1 greater\n"

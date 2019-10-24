@@ -99,7 +99,7 @@ void InitRepresentation(vtkRenderer* renderer)
 }
 
 const char PropPickerEventLog[] =
-  "# StreamVersion 1\n"
+  "# StreamVersion 1.1\n"
   "LeftButtonPressEvent 160 150 0 0 0 0\n"
   "LeftButtonReleaseEvent 160 150 0 0 0 0\n";
 
