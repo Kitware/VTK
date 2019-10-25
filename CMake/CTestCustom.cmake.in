@@ -119,6 +119,10 @@ if (NOT cdash_show_third_party_warnings)
 
     # Warnings due to DIY
     "xmemory.*: warning C4996:.*Default Bounds constructor"
+
+    # eigen uses this internal header from CUDA that should not be used.
+    # [-Wcpp]
+    "host_defines.h is an internal header file and must not be used directly.  This file will be removed in a future CUDA release.  Please use cuda_runtime_api.h or cuda_runtime.h instead"
   )
 endif ()
 
