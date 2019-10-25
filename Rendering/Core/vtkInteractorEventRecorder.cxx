@@ -202,7 +202,7 @@ void vtkInteractorEventRecorder::Play()
     this->State = vtkInteractorEventRecorder::Playing;
 
     // Read events and invoke them on the object in question
-    char event[128], keySym[64];
+    char event[256], keySym[256];
     int pos[2], ctrlKey, shiftKey, altKey, keyCode, repeatCount;
     float stream_version = 0.0f, tempf;
     std::string line;
@@ -270,6 +270,7 @@ void vtkInteractorEventRecorder::Play()
           this->Interactor->InvokeEvent(ievent, nullptr);
         }
       }
+      assert(iss.good() || iss.eof());
     }
   }
 
@@ -461,9 +462,3 @@ void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input String: (None)\n";
   }
 }
-
-
-
-
-
-
