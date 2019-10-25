@@ -594,8 +594,8 @@ function (vtk_module_scan)
     # Determine whether we should provide a user-visible option for this
     # module.
     set(_vtk_build_use_option 1)
-    if (DEFINED _vtk_scan_REQUEST_MODULES)
-      if (_vtk_scan_module_name IN_LIST _vtk_scan_REQUEST_MODULES)
+    if (DEFINED _vtk_scan_REQUEST_MODULE)
+      if (_vtk_scan_module_name IN_LIST _vtk_scan_REQUEST_MODULE)
         set("_vtk_scan_enable_${_vtk_scan_module_name}" YES)
         set(_vtk_build_use_option 0)
       endif ()
