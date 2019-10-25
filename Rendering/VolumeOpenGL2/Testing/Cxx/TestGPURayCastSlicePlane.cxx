@@ -24,6 +24,10 @@ int TestGPURayCastSlicePlane(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   mapper->SetSampleDistance(0.5);
   mapper->SetBlendModeToSlice();
 
+  // we also test if slicing works with cropping
+  mapper->SetCroppingRegionPlanes(0, 100, -100, 100, -100, 100);
+  mapper->CroppingOn();
+
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(220.0, 0.0, 1.0, 0.0);
