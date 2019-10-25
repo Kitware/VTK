@@ -2330,6 +2330,7 @@ void vtkPolyhedron::Clip(double value,
 
         const vector<vtkIdType>& nextPolygon = *it;
         auto polygon_it = nextPolygon.begin();
+        bool insertedNextPolygon = false;
         for (; polygon_it != nextPolygon.end(); ++polygon_it)
         {
           // Check if the next polygon has any common point with the seed polygon
@@ -2342,6 +2343,7 @@ void vtkPolyhedron::Clip(double value,
             // polyhedralIdSet has new ids now
             // this flag allows to scan again the list polygons
             add = true;
+            insertedNextPolygon = true;
             // We found a polygon, we can look for another one now
             break;
           }
@@ -2350,8 +2352,7 @@ void vtkPolyhedron::Clip(double value,
         {
           break;
         }
-        // We did not catch a new polygon, iterating
-        if (polygon_it == nextPolygon.end())
+        if (!insertedNextPolygon)
         {
           ++it;
         }
