@@ -1,10 +1,12 @@
-#[==[.md
-# `vtkModuleWrapPython`
+#[==[
+@defgroup module-wrapping-python Module Python CMake APIs
+#]==]
 
-This module includes logic necessary in order to wrap VTK modules using VTK's
-Python wrapping logic.
+#[==[
+@file vtkModuleWrapPython.cmake
+@brief APIs for wrapping modules for Python
 
-## Limitations
+@section Limitations
 
 Known limitations include:
 
@@ -18,16 +20,17 @@ Known limitations include:
     details.
 #]==]
 
-#[==[.md
-## Python module destination
+#[==[
+@ingroup module-wrapping-python
+@brief Determine Python module destination
 
-Some projects may need to know where VTK is going to place its Python modules
-in the installation directory. This function will provide it in a variable
-named as its first argument.
+Some projects may need to know where Python expects its modules to be placed in
+the install tree (assuming a shared prefix). This function computes the default
+and sets the passed variable to the value in the calling scope.
 
-```
+~~~
 vtk_module_python_default_destination(<var>)
-```
+~~~
 
 By default, the destination is `${CMAKE_INSTALL_BINDIR}/Lib/site-packages` on
 Windows and `${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages` otherwise.
@@ -50,16 +53,17 @@ function (vtk_module_python_default_destination var)
   set("${var}" "${destination}" PARENT_SCOPE)
 endfunction ()
 
-#[==[.md INTERNAL
-## Wrapping a single module
+#[==[
+@ingroup module-impl
+@brief Generate sources for using a module's classes from Python
 
 This function generates the wrapped sources for a module. It places the list of
 generated source files and classes in variables named in the second and third
 arguments, respectively.
 
-```
+~~~
 _vtk_module_wrap_python_sources(<module> <sources> <classes>)
-```
+~~~
 #]==]
 function (_vtk_module_wrap_python_sources module sources classes)
   _vtk_module_get_module_property("${module}"
@@ -160,22 +164,23 @@ $<$<BOOL:${_vtk_python_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_python_ge
     PARENT_SCOPE)
 endfunction ()
 
-#[==[.md INTERNAL
-## Generating a Python module library
+#[==[
+@ingroup module-impl
+@brief Generate a CPython library for a set of modules
 
-A Python module library may consist of the Python wrappings of multiple VTK
+A Python module library may consist of the Python wrappings of multiple
 modules. This is useful for kit-based builds where the modules part of the same
 kit belong to the same Python module as well.
 
-```
+~~~
 _vtk_module_wrap_python_library(<name> <module>...)
-```
+~~~
 
 The first argument is the name of the Python module. The remaining arguments
-are VTK modules to include in the Python module.
+are modules to include in the Python module.
 
 The remaining information it uses is assumed to be provided by the
-`vtk_module_wrap_python` function.
+@ref vtk_module_wrap_python function.
 #]==]
 function (_vtk_module_wrap_python_library name)
   set(_vtk_python_library_sources)
@@ -442,10 +447,11 @@ extern PyObject* PyInit_${name}();
     ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
 endfunction ()
 
-#[==[.md
-## Wrapping a set of VTK modules in Python
+#[==[
+@ingroup module-wrapping-python
+@brief Wrap a set of modules for use in Python
 
-```
+~~~
 vtk_module_wrap_python(
   MODULES <module>...
   [TARGET <target>]
@@ -465,7 +471,7 @@ vtk_module_wrap_python(
 
   [INSTALL_EXPORT <export>]
   [COMPONENT <component>])
-```
+~~~
 
   * `MODULES`: (Required) The list of modules to wrap.
   * `TARGET`: (Recommended) The target to create which represents all wrapped
@@ -841,19 +847,20 @@ PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
   endif ()
 endfunction ()
 
-#[==[.md
-## Python packages
+#[==[
+@ingroup module-wrapping-python
+@brief Install Python packages with a module
 
 Some modules may have associated Python code. This function should be used to
 install them.
 
-```
+~~~
 vtk_module_add_python_package(<module>
   PACKAGE <package>
   FILES <files>...
   [MODULE_DESTINATION <destination>]
   [COMPONENT <component>])
-```
+~~~
 
 The `<module>` argument must match the associated VTK module that the package
 is with. Each package is independent and should be installed separately. That
@@ -876,13 +883,11 @@ function.
 A `<module>-<package>` target is created which ensures that all Python modules
 have been copied to the correct location in the build tree.
 
-### TODO items
+@todo Support a tree of modules with a single call.
 
-  - [ ] Support a tree of modules with a single call.
-  - [ ] Support freezing the Python package. This should create a header and
-    the associated target should provide an interface for including this
-    header. The target should then be exported and the header installed
-    properly.
+@todo Support freezing the Python package. This should create a header and the
+associated target should provide an interface for including this header. The
+target should then be exported and the header installed properly.
 #]==]
 function (vtk_module_add_python_package name)
   if (NOT name STREQUAL _vtk_build_module)
@@ -959,19 +964,20 @@ function (vtk_module_add_python_package name)
       ${_vtk_add_python_package_file_outputs})
 endfunction ()
 
-#[==[.md
-## Pure Python modules
+#[==[
+@ingroup module-wrapping-python
+@brief Use a Python package as a module
 
-If a VTK module is a Python package, this function should be used instead of
-`vtk_module_add_module`.
+If a module is a Python package, this function should be used instead of
+@ref vtk_module_add_module.
 
-```
+~~~
 vtk_module_add_python_module(<name>
   PACKAGES <packages>...)
-```
+~~~
 
-  * `PACKAGES`: (Required) The list of packages installed by this VTK module.
-    These must have been created by the `vtk_module_add_python_package`
+  * `PACKAGES`: (Required) The list of packages installed by this module.
+    These must have been created by the @ref vtk_module_add_python_package
     function.
 #]==]
 function (vtk_module_add_python_module name)
