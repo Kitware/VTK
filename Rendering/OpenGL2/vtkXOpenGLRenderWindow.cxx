@@ -51,6 +51,7 @@ typedef ptrdiff_t GLsizeiptr;
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderTimerLog.h"
@@ -683,9 +684,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
       {
         if (sharedContext)
         {
-          this->VBOCache->Delete();
-          this->VBOCache = renWin->VBOCache;
-          this->VBOCache->Register(this);
+          this->GetState()->SetVBOCache(renWin->GetState()->GetVBOCache());
         }
       }
     }

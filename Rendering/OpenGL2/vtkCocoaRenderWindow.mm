@@ -26,6 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkCommand.h"
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
+#import "vtkOpenGLState.h"
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
 
@@ -1008,9 +1009,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
     if (renWin && renWin->GetContextId())
     {
       sharedContext = (NSOpenGLContext*)renWin->GetContextId();
-      this->VBOCache->Delete();
-      this->VBOCache = renWin->VBOCache;
-      this->VBOCache->Register(this);
+      this->GetState()->SetVBOCache(renWin->GetState()->GetVBOCache());
     }
   }
 

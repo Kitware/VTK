@@ -505,7 +505,7 @@ void vtkOpenVRRenderWindow::Render()
 
   this->MakeCurrent();
   this->GetState()->ResetGLViewportState();
-  this->vtkRenderWindow::Render();
+  this->Superclass::Render();
 }
 
 void vtkOpenVRRenderWindow::StereoUpdate()

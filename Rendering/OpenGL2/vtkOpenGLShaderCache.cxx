@@ -395,18 +395,22 @@ void vtkOpenGLShaderCache::ReleaseCurrentShader()
 
 int vtkOpenGLShaderCache::BindShader(vtkShaderProgram* shader)
 {
-  if (this->LastShaderBound == shader)
+  if (this->LastShaderBound != shader)
   {
-    return 1;
+    // release prior shader
+    if (this->LastShaderBound)
+    {
+      this->LastShaderBound->Release();
+    }
+    shader->Bind();
+    this->LastShaderBound = shader;
   }
 
-  // release prior shader
-  if (this->LastShaderBound)
+  if (shader->IsUniformUsed("vtkElapsedTime"))
   {
-    this->LastShaderBound->Release();
+    shader->SetUniformf("vtkElapsedTime", this->ElapsedTime);
   }
-  shader->Bind();
-  this->LastShaderBound = shader;
+
   return 1;
 }
 

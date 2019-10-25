@@ -76,6 +76,9 @@ public:
   virtual void ClearLastShaderBound() { this->LastShaderBound = nullptr; }
   vtkGetObjectMacro(LastShaderBound, vtkShaderProgram);
 
+  // Set the time in seconds elapsed since the first render
+  void SetElapsedTime(float val) { this->ElapsedTime = val; }
+
 protected:
   vtkOpenGLShaderCache();
   ~vtkOpenGLShaderCache() override;
@@ -100,6 +103,8 @@ protected:
 
   int OpenGLMajorVersion;
   int OpenGLMinorVersion;
+
+  float ElapsedTime;
 
 private:
   vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) = delete;

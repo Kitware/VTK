@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringOutputWindow.h"
@@ -1068,9 +1069,7 @@ void vtkWin32OpenGLRenderWindow::Initialize (void)
       bool result = wglShareLists( renWin->ContextId, this->ContextId) == TRUE;
       if (result)
       {
-        this->VBOCache->Delete();
-        this->VBOCache = renWin->VBOCache;
-        this->VBOCache->Register(this);
+        this->GetState()->SetVBOCache(renWin->GetVBOCache());
       }
     }
   }
