@@ -24,4 +24,7 @@
 /* Whether VTK_FUTURE_CONST should be defined as const or nothing.  */
 #cmakedefine01 VTK_USE_FUTURE_CONST
 
+/* Whether vtkTypeBool should be defined as int or bool.  */
+#cmakedefine01 VTK_USE_FUTURE_BOOL
+
 #endif

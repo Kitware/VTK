@@ -148,6 +148,11 @@ More advanced options:
     macro expands to `const`; otherwise it expands to nothing. This is used to
     incrementally add more const correctness to the codebase while making it
     opt-in for backwards compatibility.
+  * `VTK_USE_FUTURE_BOOL` (default `OFF`): If set, the `vtkTypeBool`
+    typedef is defined to `bool`; otherwise it's `int`. VTK was created before
+    C++ even had `bool`, and so its oldest code used `int`. Set to `ON` to opt in
+    to using more real `bool`s, set to `OFF` only if required for backwards
+    compatibility.
   * `VTK_USE_TK` (default `OFF`; requires `VTK_WRAP_PYTHON`): If set, VTK will
     enable Tkinter support for VTK widgets.
   * `VTK_BUILD_COMPILE_TOOLS_ONLY` (default `OFF`): If set, VTK will compile

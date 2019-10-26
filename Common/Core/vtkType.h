@@ -17,7 +17,7 @@
 
 #include "vtkABINamespace.h"
 #include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS and VTK_USE_64BIT_TIMESTAMPS
+#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
@@ -346,12 +346,12 @@ typedef int vtkIdType;
 /* Eventually vtkTypeBool will switch to real bool.                         */
 #ifndef VTK_TYPE_BOOL_TYPEDEFED
 #define VTK_TYPE_BOOL_TYPEDEFED
-#if 1
-typedef int vtkTypeBool;
-typedef unsigned int vtkTypeUBool;
-#else
+#if VTK_USE_FUTURE_BOOL
 typedef bool vtkTypeBool;
 typedef bool vtkTypeUBool;
+#else
+typedef int vtkTypeBool;
+typedef unsigned int vtkTypeUBool;
 #endif
 #endif
 
