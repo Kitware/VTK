@@ -440,7 +440,7 @@ public:
   virtual void RemoveWindowLevelPreset(double w, double l);
   virtual void RemoveAllWindowLevelPresets();
   virtual int GetNumberOfWindowLevelPresets();
-  virtual int HasWindowLevelPreset(double w, double l);
+  virtual vtkTypeBool HasWindowLevelPreset(double w, double l);
   virtual int GetWindowLevelPresetIndex(double w, double l);
   virtual int GetNthWindowLevelPreset(int idx, double* w, double* l);
   virtual double* GetNthWindowLevelPreset(int idx) VTK_SIZEHINT(2);

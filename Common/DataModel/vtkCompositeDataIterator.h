@@ -92,7 +92,7 @@ public:
    * Returns if the a meta-data information object is present for the current
    * item. Return 1 on success, 0 otherwise.
    */
-  virtual int HasCurrentMetaData() = 0;
+  virtual vtkTypeBool HasCurrentMetaData() = 0;
 
   ///@{
   /**

@@ -86,7 +86,7 @@ public:
   /**
    * Returns true if meta-data is available for a given partition.
    */
-  int HasMetaData(unsigned int idx) { return this->Superclass::HasChildMetaData(idx); }
+  vtkTypeBool HasMetaData(unsigned int idx) { return this->Superclass::HasChildMetaData(idx); }
 
   /**
    * Returns the meta-data for the partition. If none is already present, a new
@@ -114,7 +114,7 @@ public:
   /**
    * Unhiding superclass method.
    */
-  int HasMetaData(vtkCompositeDataIterator* iter) override
+  vtkTypeBool HasMetaData(vtkCompositeDataIterator* iter) override
   {
     return this->Superclass::HasMetaData(iter);
   }

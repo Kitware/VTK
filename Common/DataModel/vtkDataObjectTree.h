@@ -111,7 +111,7 @@ public:
    * be an iterator for composite dataset with similar structure (achieved by
    * using CopyStructure).
    */
-  virtual int HasMetaData(vtkCompositeDataIterator* iter);
+  virtual vtkTypeBool HasMetaData(vtkCompositeDataIterator* iter);
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -212,7 +212,7 @@ protected:
    * Returns if meta-data information is available for the given child index.
    * Returns 1 is present, 0 otherwise.
    */
-  int HasChildMetaData(unsigned int index);
+  vtkTypeBool HasChildMetaData(unsigned int index);
 
   /**
    * When copying structure from another vtkDataObjectTree, this method gets

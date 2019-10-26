@@ -111,7 +111,7 @@ public:
   /**
    * Query if a renderer is in the list of renderers.
    */
-  int HasRenderer(vtkRenderer*);
+  vtkTypeBool HasRenderer(vtkRenderer*);
 
   /**
    * What rendering library has the user requested

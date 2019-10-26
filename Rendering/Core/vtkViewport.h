@@ -68,7 +68,7 @@ public:
   /**
    * Query if a prop is in the list of props.
    */
-  int HasViewProp(vtkProp*);
+  vtkTypeBool HasViewProp(vtkProp*);
 
   /**
    * Remove a prop from the list of props. Does nothing if the prop

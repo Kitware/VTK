@@ -142,7 +142,7 @@ void vtkViewport::RemoveActor2D(vtkProp* p)
 }
 
 //------------------------------------------------------------------------------
-int vtkViewport::HasViewProp(vtkProp* p)
+vtkTypeBool vtkViewport::HasViewProp(vtkProp* p)
 {
   return (p && this->Props->IsItemPresent(p));
 }

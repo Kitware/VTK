@@ -134,7 +134,7 @@ void vtkDataObjectTree::SetChildMetaData(unsigned int index, vtkInformation* inf
 }
 
 //------------------------------------------------------------------------------
-int vtkDataObjectTree::HasChildMetaData(unsigned int index)
+vtkTypeBool vtkDataObjectTree::HasChildMetaData(unsigned int index)
 {
   if (index < this->Internals->Children.size())
   {
@@ -429,7 +429,7 @@ vtkInformation* vtkDataObjectTree::GetMetaData(vtkCompositeDataIterator* composi
 }
 
 //------------------------------------------------------------------------------
-int vtkDataObjectTree::HasMetaData(vtkCompositeDataIterator* compositeIter)
+vtkTypeBool vtkDataObjectTree::HasMetaData(vtkCompositeDataIterator* compositeIter)
 {
   vtkDataObjectTreeIterator* iter = vtkDataObjectTreeIterator::SafeDownCast(compositeIter);
   if (!iter || iter->IsDoneWithTraversal())

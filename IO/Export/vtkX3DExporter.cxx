@@ -850,7 +850,7 @@ void vtkX3DExporter::WriteATexture(vtkActor* anActor, vtkX3DExporterWriter* writ
 }
 
 //------------------------------------------------------------------------------
-int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
+vtkTypeBool vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
 {
   // make sure we have a default light
   // if we don't then use a headlight

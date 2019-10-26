@@ -190,7 +190,7 @@ public:
       return this->ChildIterator->GetCurrentMetaData();
     }
 
-    int HasCurrentMetaData()
+    vtkTypeBool HasCurrentMetaData()
     {
       if (this->PassSelf || !this->ChildIterator)
       {
@@ -390,7 +390,7 @@ vtkInformation* vtkDataObjectTreeIterator::GetCurrentMetaData()
 }
 
 //------------------------------------------------------------------------------
-int vtkDataObjectTreeIterator::HasCurrentMetaData()
+vtkTypeBool vtkDataObjectTreeIterator::HasCurrentMetaData()
 {
   if (!this->IsDoneWithTraversal())
   {

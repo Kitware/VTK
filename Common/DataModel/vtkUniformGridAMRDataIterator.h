@@ -48,7 +48,7 @@ public:
    */
   vtkInformation* GetCurrentMetaData() override;
 
-  int HasCurrentMetaData() override { return 1; }
+  vtkTypeBool HasCurrentMetaData() override { return 1; }
 
   /**
    * Returns the current item. Valid only when IsDoneWithTraversal() returns 0.

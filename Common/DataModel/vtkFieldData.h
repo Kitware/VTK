@@ -200,7 +200,7 @@ public:
   /**
    * Return 1 if an array with the given name could be found. 0 otherwise.
    */
-  int HasArray(const char* name)
+  vtkTypeBool HasArray(const char* name)
   {
     int i;
     vtkAbstractArray* array = this->GetAbstractArray(name, i);

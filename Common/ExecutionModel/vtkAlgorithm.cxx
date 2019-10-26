@@ -726,7 +726,7 @@ void vtkAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkAlgorithm::HasExecutive()
+vtkTypeBool vtkAlgorithm::HasExecutive()
 {
   return this->Executive ? 1 : 0;
 }

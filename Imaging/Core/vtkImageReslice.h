@@ -557,7 +557,7 @@ protected:
    * This should be set to 1 by derived classes that override the
    * ConvertScalars method.
    */
-  int HasConvertScalars;
+  vtkTypeBool HasConvertScalars;
 
   /**
    * This should be overridden by derived classes that operate on

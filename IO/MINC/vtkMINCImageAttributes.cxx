@@ -673,7 +673,7 @@ vtkStringArray* vtkMINCImageAttributes::GetAttributeNames(const char* variable)
 }
 
 //------------------------------------------------------------------------------
-int vtkMINCImageAttributes::HasAttribute(const char* variable, const char* attribute)
+vtkTypeBool vtkMINCImageAttributes::HasAttribute(const char* variable, const char* attribute)
 {
   return (this->GetAttributeValueAsArray(variable, attribute) != nullptr);
 }

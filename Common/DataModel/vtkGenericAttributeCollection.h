@@ -221,7 +221,7 @@ public:
    * \pre positive_size: size>=0
    * \pre valid_attributes: size>0 implies attributes!=0
    */
-  int HasAttribute(int size, int* attributes, int attribute) VTK_SIZEHINT(attributes, size);
+  vtkTypeBool HasAttribute(int size, int* attributes, int attribute) VTK_SIZEHINT(attributes, size);
 
   ///@{
   /**

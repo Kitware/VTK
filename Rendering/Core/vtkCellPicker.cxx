@@ -690,7 +690,7 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet, const double p
 
       // If it is a strip, we need to iterate over the subIds
       int cellType = dataSet->GetCellType(cellId);
-      int useSubCells = vtkCellPicker::HasSubCells(cellType);
+      vtkTypeBool useSubCells = vtkCellPicker::HasSubCells(cellType);
       if (useSubCells)
       {
         // Get the pointIds for the strip and the length of the strip
@@ -1634,7 +1634,7 @@ void vtkCellPicker::SubCellFromCell(vtkGenericCell* cell, int subId)
 }
 
 //------------------------------------------------------------------------------
-int vtkCellPicker::HasSubCells(int cellType)
+vtkTypeBool vtkCellPicker::HasSubCells(int cellType)
 {
   switch (cellType)
   {

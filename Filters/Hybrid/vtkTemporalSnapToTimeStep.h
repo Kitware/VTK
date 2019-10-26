@@ -78,7 +78,7 @@ protected:
     vtkInformationVector* outputVector) override;
 
   std::vector<double> InputTimeValues;
-  int HasDiscrete;
+  vtkTypeBool HasDiscrete;
   int SnapMode;
 
 private:
