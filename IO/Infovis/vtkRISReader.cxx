@@ -25,6 +25,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
+#include "vtksys/FStream.hxx"
 
 #include <map>
 #include <string>
@@ -79,7 +80,7 @@ int vtkRISReader::RequestData(
   }
 
   // Open the file
-  ifstream file(this->FileName, ios::in | ios::binary);
+  vtksys::ifstream file(this->FileName, ios::in | ios::binary);
   if (!file)
   {
     vtkErrorMacro(<< "vtkRISReader could not open file " << this->FileName);

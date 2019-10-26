@@ -23,6 +23,7 @@
 #include "vtkPeriodicTable.h"
 
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/FStream.hxx"
 
 #include <cmath>
 #include <cstring>
@@ -68,7 +69,7 @@ int vtkXYZMolReader2::RequestInformation(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  ifstream file_in(this->FileName);
+  vtksys::ifstream file_in(this->FileName);
 
   if (!file_in.is_open())
   {
@@ -157,7 +158,7 @@ int vtkXYZMolReader2::RequestData(
     return 0;
   }
 
-  ifstream file_in(this->FileName);
+  vtksys::ifstream file_in(this->FileName);
 
   if (!file_in.is_open())
   {

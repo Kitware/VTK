@@ -45,6 +45,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
+#include "vtksys/Encoding.hxx"
 
 #include "fstream"
 #include <algorithm>
@@ -176,8 +177,6 @@ vtkFLUENTReader::vtkFLUENTReader()
   this->ScalarSubSectionIds = new intVector;
   this->VectorVariableNames = new stringVector;
   this->VectorSubSectionIds = new intVector;
-  this->FluentCaseFile = new ifstream;
-  this->FluentDataFile = new ifstream;
 
   this->NumberOfCells = 0;
 
@@ -434,8 +433,8 @@ int vtkFLUENTReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 bool vtkFLUENTReader::OpenCaseFile(const char* filename)
 {
 #ifdef _WIN32
-  // this->FluentCaseFile->open(filename, ios::in | ios::binary);
-  this->FluentCaseFile = new ifstream(filename, ios::in | ios::binary);
+  std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(filename);
+  this->FluentCaseFile = new ifstream(wfilename, ios::in | ios::binary);
 #else
   // this->FluentCaseFile->open(filename, ios::in);
   this->FluentCaseFile = new ifstream(filename, ios::in);
@@ -504,8 +503,8 @@ bool vtkFLUENTReader::OpenDataFile(const char* filename)
   dfilename.append("dat");
 
 #ifdef _WIN32
-  // this->FluentDataFile->open(dfilename.c_str(), ios::in | ios::binary);
-  this->FluentDataFile = new ifstream(dfilename.c_str(), ios::in | ios::binary);
+  this->FluentDataFile =
+    new ifstream(vtksys::Encoding::ToWindowsExtendedPath(dfilename), ios::in | ios::binary);
 #else
   // this->FluentDataFile->open(dfilename.c_str(), ios::in);
   this->FluentDataFile = new ifstream(dfilename.c_str(), ios::in);

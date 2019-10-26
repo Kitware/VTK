@@ -50,6 +50,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtksys/FStream.hxx"
 
 #include <fstream>
 #include <sstream>
@@ -93,7 +94,7 @@ int vtkChacoGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  std::ifstream fin(this->FileName);
+  vtksys::ifstream fin(this->FileName);
   if (!fin.is_open())
   {
     vtkErrorMacro("Could not open file " << this->FileName << ".");

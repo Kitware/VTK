@@ -35,6 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -592,7 +593,7 @@ bool vtkWindBladeReader::ReadGlobalData()
   std::string fileName = this->Filename;
   vtksys::SystemTools::ConvertToUnixSlashes(fileName);
 
-  std::ifstream inStrStream(fileName.c_str());
+  vtksys::ifstream inStrStream(fileName.c_str());
   std::stringstream inStr;
   std::copy(std::istreambuf_iterator<char>(inStrStream), std::istreambuf_iterator<char>(),
     std::ostreambuf_iterator<char>(inStr));
@@ -1115,7 +1116,7 @@ void vtkWindBladeReader::SetupBladeData()
   fileName << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineTowerName;
   char inBuf[LINE_SIZE];
 
-  ifstream inStr(fileName.str().c_str());
+  vtksys::ifstream inStr(fileName.str().c_str());
 
   if (!inStr)
   {
@@ -1135,7 +1136,7 @@ void vtkWindBladeReader::SetupBladeData()
   fileName2 << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineBladeName
             << this->TimeStepFirst;
 
-  ifstream inStr2(fileName2.str().c_str());
+  vtksys::ifstream inStr2(fileName2.str().c_str());
 
   if (!inStr2)
   {
@@ -1200,7 +1201,7 @@ void vtkWindBladeReader::LoadBladeData(int timeStep)
   fileName << this->RootDirectory << "/" << this->TurbineDirectory << "/" << this->TurbineBladeName
            << this->TimeSteps[timeStep];
 
-  std::ifstream inStr(fileName.str().c_str());
+  vtksys::ifstream inStr(fileName.str().c_str());
   std::stringstream inStrSS;
   std::copy(std::istreambuf_iterator<char>(inStr), std::istreambuf_iterator<char>(),
     std::ostreambuf_iterator<char>(inStrSS));

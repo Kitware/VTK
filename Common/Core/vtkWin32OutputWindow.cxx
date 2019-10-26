@@ -347,14 +347,14 @@ bool vtkWin32OutputWindow::GetSendToStdErr()
 void vtkWin32OutputWindow::SendToStdErrOn()
 {
   VTK_LEGACY_REPLACED_BODY(
-    vtkWin32OutputWindow::SendToStdErrOn, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode)
+    vtkWin32OutputWindow::SendToStdErrOn, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode);
   this->SetDisplayMode(ALWAYS_STDERR);
 }
 void vtkWin32OutputWindow::SendToStdErrOff()
 {
 
   VTK_LEGACY_REPLACED_BODY(
-    vtkWin32OutputWindow::SendToStdErrOff, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode)
+    vtkWin32OutputWindow::SendToStdErrOff, "VTK 8.3", vtkWin32OutputWindow::SetDisplayMode);
   this->SetDisplayMode(DEFAULT);
 }
 #endif

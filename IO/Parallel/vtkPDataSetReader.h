@@ -62,7 +62,7 @@ protected:
 
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  void ReadPVTKFileInformation(ifstream* fp, vtkInformation* request,
+  void ReadPVTKFileInformation(istream* fp, vtkInformation* request,
     vtkInformationVector** inputVector, vtkInformationVector* outputVector);
   void ReadVTKFileInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
@@ -82,7 +82,7 @@ protected:
 
   ifstream* OpenFile(const char*);
 
-  int ReadXML(ifstream* file, char** block, char** param, char** value);
+  int ReadXML(istream* file, char** block, char** param, char** value);
   int VTKFileFlag;
   int StructuredFlag;
   char* FileName;

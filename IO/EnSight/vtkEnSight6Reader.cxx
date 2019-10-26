@@ -27,6 +27,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 #include <cctype>
@@ -195,7 +196,7 @@ int vtkEnSight6Reader::ReadGeometryFile(
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -377,7 +378,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -495,7 +496,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -725,7 +726,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -921,7 +922,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName, const char* desc
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -1070,7 +1071,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, const char* d
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -1243,7 +1244,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName, const char* d
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
@@ -1406,7 +1407,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
     sfilename = fileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());

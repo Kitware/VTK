@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
+#include "vtksys/FStream.hxx"
 
 #include <cmath>
 #include <fstream>
@@ -37,9 +38,9 @@ int TestPLYWriterString(int argc, char* argv[])
   std::string filename = tempFileName;
   delete[] tempFileName;
 
-  std::ifstream ifs;
+  vtksys::ifstream ifs;
 
-  ifs.open(filename, std::ifstream::in | std::ifstream::binary);
+  ifs.open(filename.c_str(), std::ios::in | std::ios::binary);
   if (!ifs.is_open())
   {
     std::cout << "Can not read the input file." << std::endl;

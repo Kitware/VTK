@@ -60,6 +60,7 @@
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLReaderVersion.h"
+#include "vtksys/Encoding.hxx"
 #include <memory>
 
 #include <cassert>
@@ -904,7 +905,8 @@ int vtkXMLWriter::OpenFile()
 
   // Try to open the output file for writing.
 #ifdef _WIN32
-  this->OutFile = new ofstream(this->FileName, ios::out | ios::binary);
+  this->OutFile =
+    new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::out | ios::binary);
 #else
   this->OutFile = new ofstream(this->FileName, ios::out);
 #endif

@@ -15,6 +15,7 @@
 #include "vtkXMLFileOutputWindow.h"
 
 #include "vtkSmartPointer.h"
+#include "vtksys/FStream.hxx"
 #include <string>
 
 int TestXMLFileOutputWindow(int argc, char* argv[])
@@ -73,7 +74,7 @@ int TestXMLFileOutputWindow(int argc, char* argv[])
 
   // Now, compare the default and specified files
   // Read the default XML file
-  std::ifstream dfin("vtkMessageLog.xml");
+  vtksys::ifstream dfin("vtkMessageLog.xml");
   std::string def((std::istreambuf_iterator<char>(dfin)), std::istreambuf_iterator<char>());
 
   if (dfin.fail())
@@ -82,7 +83,7 @@ int TestXMLFileOutputWindow(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  std::ifstream sfin(argv[1]);
+  vtksys::ifstream sfin(argv[1]);
   std::string specified((std::istreambuf_iterator<char>(sfin)), std::istreambuf_iterator<char>());
 
   if (sfin.fail())

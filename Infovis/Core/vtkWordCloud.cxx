@@ -42,6 +42,7 @@
 #include "vtkImageReader2Factory.h"
 #include "vtkImageResize.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 #ifdef HAS_STD_REGEX
 #include <regex>
@@ -193,7 +194,7 @@ int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
   // Open the text file
-  std::ifstream t(this->FileName);
+  vtksys::ifstream t(this->FileName.c_str());
   std::stringstream buffer;
   buffer << t.rdbuf();
   std::string s = buffer.str();
@@ -762,7 +763,7 @@ void ShowColorSeriesNames(ostream& os)
 
 void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContainer& stopList)
 {
-  std::ifstream t(fileName);
+  vtksys::ifstream t(fileName.c_str());
   std::stringstream buffer;
   buffer << t.rdbuf();
   std::string s = buffer.str();

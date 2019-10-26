@@ -39,6 +39,7 @@ using namespace std;
 #include "vtkUnsignedShortArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+#include "vtksys/FStream.hxx"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
@@ -169,7 +170,7 @@ int TestGPURayCastClippingUserTransform(int argc, char* argv[])
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/MagnitudeImage_256x256x148");
 
-  ifstream file(fname, ios::in | ios::binary | ios::ate);
+  vtksys::ifstream file(fname, ios::in | ios::binary | ios::ate);
   if (file.is_open())
   {
     size = file.tellg();

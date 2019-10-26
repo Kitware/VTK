@@ -650,8 +650,8 @@ protected:
    * ReadInputDeck determines the type of file (keyword or XML summary) and
    * calls one of these two routines to read the file.
    */
-  int ReadInputDeckXML(ifstream& deck);
-  int ReadInputDeckKeywords(ifstream& deck);
+  int ReadInputDeckXML(istream& deck);
+  int ReadInputDeckKeywords(istream& deck);
   //@}
 
   /**

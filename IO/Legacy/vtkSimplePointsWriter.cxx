@@ -17,6 +17,7 @@
 #include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
+#include "vtksys/FStream.hxx"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 #include <unistd.h> /* unlink */
@@ -30,7 +31,7 @@ vtkStandardNewMacro(vtkSimplePointsWriter);
 
 vtkSimplePointsWriter::vtkSimplePointsWriter()
 {
-  std::ofstream fout; // only used to extract the default precision
+  vtksys::ofstream fout; // only used to extract the default precision
   this->DecimalPrecision = fout.precision();
 }
 

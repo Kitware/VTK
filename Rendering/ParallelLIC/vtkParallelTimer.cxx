@@ -60,6 +60,7 @@ static int gettimeofday(struct timeval* tv, void*)
 #include <fstream>
 using std::ios_base;
 using std::ofstream;
+using vtksys::ofstream;
 
 /*
 For singleton pattern
@@ -621,7 +622,7 @@ int vtkParallelTimer::Write()
 
     ostringstream oss;
     *this->Log >> oss;
-    ofstream f(this->FileName, ios_base::out | ios_base::app);
+    vtksys::ofstream f(this->FileName, ios_base::out | ios_base::app);
     if (!f.good())
     {
       vtkErrorMacro(<< "Failed to open " << this->FileName << " for writing.");

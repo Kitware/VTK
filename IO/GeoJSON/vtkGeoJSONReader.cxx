@@ -208,7 +208,7 @@ int vtkGeoJSONReader::GeoJSONReaderInternal::CanParseFile(const char* filename, 
     return VTK_ERROR;
   }
 
-  ifstream file;
+  vtksys::ifstream file;
   file.open(filename);
 
   if (!file.is_open())

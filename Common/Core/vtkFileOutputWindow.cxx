@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkFileOutputWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkFileOutputWindow);
 
@@ -43,11 +44,20 @@ void vtkFileOutputWindow::Initialize()
     }
     if (this->Append)
     {
+#ifdef _WIN32
+      this->OStream =
+        new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::app);
+#else
       this->OStream = new ofstream(this->FileName, ios::app);
+#endif
     }
     else
     {
+#ifdef _WIN32
+      this->OStream = new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName));
+#else
       this->OStream = new ofstream(this->FileName);
+#endif
     }
   }
 }

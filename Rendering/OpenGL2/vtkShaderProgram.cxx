@@ -22,6 +22,7 @@
 #include "vtkTransformFeedback.h"
 #include "vtkTypeTraits.h"
 #include "vtk_glew.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 #include <iostream>
@@ -396,14 +397,14 @@ bool vtkShaderProgram::Bind()
       fname += exts[cc];
       if (vtksys::SystemTools::FileExists(fname))
       {
-        std::ifstream ifp(fname.c_str());
+        vtksys::ifstream ifp(fname.c_str());
         assert(ifp);
         std::string source((std::istreambuf_iterator<char>(ifp)), std::istreambuf_iterator<char>());
         shaders[cc]->SetSource(source);
       }
       else
       {
-        std::ofstream ofp(fname.c_str());
+        vtksys::ofstream ofp(fname.c_str());
         ofp << shaders[cc]->GetSource().c_str();
       }
     }

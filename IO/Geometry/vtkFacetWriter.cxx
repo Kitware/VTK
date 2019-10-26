@@ -29,6 +29,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <string>
 #include <sys/stat.h>
@@ -70,7 +71,7 @@ int vtkFacetWriter::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
-    this->OutputStream = new ofstream(this->FileName);
+    this->OutputStream = new vtksys::ofstream(this->FileName);
     if (!this->OutputStream)
     {
       vtkErrorMacro("Error opening file: " << this->FileName << " for writing");

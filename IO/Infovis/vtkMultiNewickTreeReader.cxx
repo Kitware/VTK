@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
+#include "vtksys/FStream.hxx"
 
 #include <fstream>
 #include <iostream>
@@ -78,7 +79,7 @@ int vtkMultiNewickTreeReader::ReadMeshSimple(const std::string& fname, vtkDataOb
     return 1;
   }
 
-  std::ifstream ifs(fname.c_str(), std::ifstream::in);
+  vtksys::ifstream ifs(fname.c_str(), vtksys::ifstream::in);
   if (!ifs.good())
   {
     vtkErrorMacro(<< "Unable to open " << fname << " for reading");

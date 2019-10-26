@@ -132,7 +132,7 @@ ostream* vtkGeoJSONWriter::OpenFile()
       return nullptr;
     }
 
-    fptr = new ofstream(this->FileName, ios::out);
+    fptr = new vtksys::ofstream(this->FileName, ios::out);
   }
   else
   {

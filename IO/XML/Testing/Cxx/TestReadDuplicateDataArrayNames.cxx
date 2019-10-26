@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtksys/FStream.hxx"
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
@@ -101,7 +102,7 @@ void generateDataSetWithDuplicateArrayNames(const std::string& filename)
     "</UnstructuredGrid>\n"
     "</VTKFile>";
 
-  ofstream myfile;
+  vtksys::ofstream myfile;
   myfile.open(filename.c_str());
   myfile << dataSet;
   myfile.close();

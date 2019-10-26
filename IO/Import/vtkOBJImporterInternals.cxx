@@ -23,6 +23,7 @@
 #include "vtkTIFFReader.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <cstdio>
@@ -256,7 +257,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
     return listOfMaterials;
   }
 
-  std::ifstream in(Filename, std::ios::in | std::ios::binary);
+  vtksys::ifstream in(Filename.c_str(), std::ios::in | std::ios::binary);
   if (!in)
   {
     return listOfMaterials;

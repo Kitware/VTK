@@ -17,6 +17,7 @@
 
 #include "vtkBase64Utilities.h"
 #include "vtk_jsoncpp.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -253,12 +254,12 @@ bool vtkGLTFUtils::GetBinaryBufferFromUri(const std::string& uri, const std::str
   // Load buffer from file
   else
   {
-    ifstream fin;
+    vtksys::ifstream fin;
 
     std::string bufferPath = GetResourceFullPath(uri, glTFFilePath);
 
     // Open file
-    fin.open(bufferPath, ios::binary);
+    fin.open(bufferPath.c_str(), ios::binary);
     if (!fin.is_open())
     {
       return false;
@@ -282,8 +283,8 @@ bool vtkGLTFUtils::GetBinaryBufferFromUri(const std::string& uri, const std::str
 bool vtkGLTFUtils::ExtractGLBFileInformation(const std::string& fileName, std::string& magic,
   uint32_t& version, uint32_t& fileLength, std::vector<vtkGLTFUtils::ChunkInfoType>& chunkInfo)
 {
-  std::ifstream fin;
-  fin.open(fileName, std::ios::binary | std::ios::in);
+  vtksys::ifstream fin;
+  fin.open(fileName.c_str(), std::ios::binary | std::ios::in);
   if (!fin.is_open())
   {
     return false;

@@ -36,6 +36,7 @@
 #include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
+#include "vtksys/FStream.hxx"
 #include <string>
 
 vtkStandardNewMacro(vtkMFIXReader);
@@ -899,9 +900,9 @@ void vtkMFIXReader::ReadRestartFile()
   int dimensionUsr = 5;
 
 #ifdef _WIN32
-  ifstream in(this->FileName, ios::binary);
+  vtksys::ifstream in(this->FileName, ios::binary);
 #else
-  ifstream in(this->FileName);
+  vtksys::ifstream in(this->FileName);
 #endif
 
   if (!in)
@@ -1613,9 +1614,9 @@ void vtkMFIXReader::CreateVariableNames()
     }
 
 #ifdef _WIN32
-    ifstream in(fileName, ios::binary);
+    vtksys::ifstream in(fileName, ios::binary);
 #else
-    ifstream in(fileName);
+    vtksys::ifstream in(fileName);
 #endif
     if (in) // file exists
     {
@@ -1932,9 +1933,9 @@ void vtkMFIXReader::GetTimeSteps()
       strcat(fileName, ".SPB");
     }
 #ifdef _WIN32
-    ifstream in(fileName, ios::binary);
+    vtksys::ifstream in(fileName, ios::binary);
 #else
-    ifstream in(fileName);
+    vtksys::ifstream in(fileName);
 #endif
 
     int numberOfVariables = 0;
@@ -2133,9 +2134,9 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari, int tstep, vtkFloatArray* v)
   int index = (vari * this->MaximumTimestep) + tstep;
   int nBytesSkip = this->SPXTimestepIndexTable->GetValue(index);
 #ifdef _WIN32
-  ifstream in(fileName, ios::binary);
+  vtksys::ifstream in(fileName, ios::binary);
 #else
-  ifstream in(fileName);
+  vtksys::ifstream in(fileName);
 #endif
   in.seekg(nBytesSkip, ios::beg);
   this->GetBlockOfFloats(in, v, this->IJKMaximum2);
@@ -2335,9 +2336,9 @@ void vtkMFIXReader::GetAllTimes(vtkInformationVector* outputVector)
   }
 
 #ifdef _WIN32
-  ifstream tfile(fileName, ios::binary);
+  vtksys::ifstream tfile(fileName, ios::binary);
 #else
-  ifstream tfile(fileName);
+  vtksys::ifstream tfile(fileName);
 #endif
 
   int numberOfVariablesInSPX =

@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
     commandLine.push_back(nullptr);
 
     filename += ".csv";
-    std::ofstream outfile(filename.c_str());
+    vtksys::ofstream outfile(filename.c_str());
 
     // create and run the subprocess
     vtksysProcess* process = vtksysProcess_New();

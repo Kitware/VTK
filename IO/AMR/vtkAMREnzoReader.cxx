@@ -22,6 +22,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPolyData.h"
 #include "vtkUniformGrid.h"
+#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkCellData.h"
@@ -182,7 +183,7 @@ void vtkAMREnzoReader::ParseConversionFactors()
     baseDir + "/" + vtksys::SystemTools::GetFilenameWithoutExtension(std::string(this->FileName));
 
   // STEP 1: Open Parameters file
-  std::ifstream ifs;
+  vtksys::ifstream ifs;
   ifs.open(paramsFile.c_str());
   if (!ifs.is_open())
   {

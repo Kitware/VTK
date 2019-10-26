@@ -50,6 +50,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkByteSwap.h"
 #include "vtkHeap.h"
 #include "vtkMath.h"
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
@@ -171,7 +172,7 @@ PlyFile* vtkPLY::ply_open_for_writing(
 {
   PlyFile* plyfile;
   char* name;
-  std::ofstream* ofs = nullptr;
+  vtksys::ofstream* ofs = nullptr;
 
   // memory leaks
   plyInitialize();
@@ -184,7 +185,7 @@ PlyFile* vtkPLY::ply_open_for_writing(
     strcat(name, ".ply");
 
   /* open the file for writing */
-  ofs = new std::ofstream;
+  ofs = new vtksys::ofstream;
 
   ofs->open(name, std::istream::out | std::istream::binary);
   free(name); // wjs remove memory leak//
@@ -815,16 +816,16 @@ Exit:
 
 PlyFile* vtkPLY::ply_open_for_reading(const char* filename, int* nelems, char*** elem_names)
 {
-  std::ifstream* ifs;
+  vtksys::ifstream* ifs;
   PlyFile* plyfile;
 
   // memory leaks
   plyInitialize();
 
   /* open the file for reading */
-  ifs = new std::ifstream;
+  ifs = new vtksys::ifstream;
 
-  ifs->open(filename, std::ifstream::in | std::ifstream::binary);
+  ifs->open(filename, std::ios::in | std::ios::binary);
   if (!ifs->is_open())
   {
     delete ifs;
@@ -1375,7 +1376,7 @@ void vtkPLY::ply_close(PlyFile* plyfile)
   /* free up memory associated with the PLY file */
   if (plyfile->is)
   {
-    std::ifstream* ifs = dynamic_cast<std::ifstream*>(plyfile->is);
+    vtksys::ifstream* ifs = dynamic_cast<vtksys::ifstream*>(plyfile->is);
     if (ifs)
     {
       ifs->close();
@@ -1384,7 +1385,7 @@ void vtkPLY::ply_close(PlyFile* plyfile)
   }
   if (plyfile->os)
   {
-    std::ofstream* ofs = dynamic_cast<std::ofstream*>(plyfile->os);
+    vtksys::ofstream* ofs = dynamic_cast<vtksys::ofstream*>(plyfile->os);
     if (ofs)
     {
       ofs->close();

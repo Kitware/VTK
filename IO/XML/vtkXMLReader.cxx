@@ -44,6 +44,7 @@
 #include "vtkXMLReaderVersion.h"
 #include "vtkZLibDataCompressor.h"
 
+#include "vtksys/Encoding.hxx"
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
@@ -294,7 +295,8 @@ int vtkXMLReader::OpenVTKFile()
   }
 
 #ifdef _WIN32
-  this->FileStream = new ifstream(this->FileName, ios::binary | ios::in);
+  std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
+  this->FileStream = new ifstream(wfilename, ios::binary | ios::in);
 #else
   this->FileStream = new ifstream(this->FileName, ios::in);
 #endif

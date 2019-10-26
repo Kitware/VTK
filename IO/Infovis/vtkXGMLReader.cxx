@@ -33,6 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 #include <cctype> // for isspace, isdigit
@@ -189,7 +190,7 @@ int vtkXGMLReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  std::ifstream fin(this->FileName);
+  vtksys::ifstream fin(this->FileName);
   if (!fin.is_open())
   {
     vtkErrorMacro("Could not open file " << this->FileName << ".");

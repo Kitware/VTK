@@ -19,6 +19,7 @@
 
 #include "vtkDebugLeaks.h"
 #include <string>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 void vtkSystemInformationPrintFile(const char* name, ostream& os)
@@ -32,9 +33,9 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
   }
 
 #ifdef _WIN32
-  ifstream fin(name, ios::in | ios::binary);
+  vtksys::ifstream fin(name, ios::in | ios::binary);
 #else
-  ifstream fin(name, ios::in);
+  vtksys::ifstream fin(name, ios::in);
 #endif
 
   if (fin)

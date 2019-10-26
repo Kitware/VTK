@@ -28,6 +28,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/Encoding.hxx"
 
 #include <cctype>
 #include <string>
@@ -108,7 +109,8 @@ int vtkEnSight6BinaryReader::OpenFile(const char* filename)
     this->FileSize = static_cast<vtkTypeUInt64>(fs.st_size);
 
 #ifdef _WIN32
-    this->BinaryIFile = new ifstream(filename, ios::in | ios::binary);
+    this->BinaryIFile =
+      new ifstream(vtksys::Encoding::ToWindowsExtendedPath(filename), ios::in | ios::binary);
 #else
     this->BinaryIFile = new ifstream(filename, ios::in);
 #endif

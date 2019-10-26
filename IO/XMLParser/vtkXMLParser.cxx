@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtk_expat.h"
 
+#include "vtksys/FStream.hxx"
 #include <vtksys/SystemTools.hxx>
 
 #include <cctype>
@@ -119,7 +120,7 @@ int vtkXMLParser::Parse(const char* inputString, unsigned int length)
 int vtkXMLParser::Parse()
 {
   // Select source of XML
-  ifstream ifs;
+  vtksys::ifstream ifs;
   if (!this->InputString && !this->Stream && this->FileName)
   {
     // If it is file, open it and set the appropriate stream

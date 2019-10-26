@@ -33,6 +33,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/Encoding.hxx"
 
 vtkStandardNewMacro(vtkPDataSetReader);
 
@@ -196,7 +197,7 @@ int vtkPDataSetReader::RequestDataObject(
 // Returns 5 for end block.
 // =======
 // The statics should be instance variables ...
-int vtkPDataSetReader::ReadXML(ifstream* file, char** retBlock, char** retParam, char** retVal)
+int vtkPDataSetReader::ReadXML(istream* file, char** retBlock, char** retParam, char** retVal)
 {
   static char str[1024];
   static char* ptr = nullptr;
@@ -430,7 +431,7 @@ int vtkPDataSetReader::CanReadFile(const char* filename)
 
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::ReadPVTKFileInformation(
-  ifstream* file, vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+  istream* file, vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   char* block;
   char* param;
@@ -657,7 +658,11 @@ ifstream* vtkPDataSetReader::OpenFile(const char* filename)
   }
 
   // Open the new file
+#ifdef _WIN32
+  file = new ifstream(vtksys::Encoding::ToWindowsExtendedPath(filename), ios::in);
+#else
   file = new ifstream(filename, ios::in);
+#endif
 
   if (!file || file->fail())
   {

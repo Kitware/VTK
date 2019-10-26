@@ -27,6 +27,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/Encoding.hxx"
 
 #include <cctype>
 #include <map>
@@ -116,7 +117,8 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
     this->FileSize = static_cast<vtkTypeUInt64>(fs.st_size);
 
 #ifdef _WIN32
-    this->GoldIFile = new ifstream(filename, ios::in | ios::binary);
+    this->GoldIFile =
+      new ifstream(vtksys::Encoding::ToWindowsExtendedPath(filename), ios::in | ios::binary);
 #else
     this->GoldIFile = new ifstream(filename, ios::in);
 #endif

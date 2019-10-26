@@ -28,6 +28,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <fstream>
@@ -97,7 +98,7 @@ int vtkFixedWidthTextReader::RequestData(
     return 2;
   }
 
-  std::ifstream infile(this->FileName, ios::in);
+  vtksys::ifstream infile(this->FileName, ios::in);
   if (!infile || infile.fail())
   {
     vtkErrorMacro(<< "vtkFixedWidthTextReader: Couldn't open file!");

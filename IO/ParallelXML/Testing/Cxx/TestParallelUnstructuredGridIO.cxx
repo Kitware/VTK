@@ -1,6 +1,7 @@
 #include "vtkNew.h"
 #include <string>
 
+#include "vtksys/FStream.hxx"
 #include <vtkCell.h>
 #include <vtkIdList.h>
 #include <vtkMultiProcessController.h>
@@ -200,7 +201,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   w->SetDataModeToAscii();
   w->Update();
   delete[] tempDir;
-  ifstream f(fn.c_str());
+  vtksys::ifstream f(fn.c_str());
   if (!f.good())
   {
     std::cerr << "File " << fn << " does not exist." << std::endl;

@@ -28,6 +28,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include "vtk_sqlite.h"
@@ -299,7 +300,7 @@ bool vtkSQLiteDatabase::Open(const char* password, int mode)
     if (mode == CREATE_OR_CLEAR && exists)
     {
       // Here we need to clear the file if it exists by opening it.
-      std::ofstream os;
+      vtksys::ofstream os;
       os.open(this->DatabaseFileName);
       if (!os.is_open())
       {

@@ -144,7 +144,7 @@ void vtkPStructuredGridConnectivity::CreateGhostLayers(const int N)
   // BEGIN DEBUG
   //  std::ostringstream oss;
   //  oss << "Process" << this->Rank << "-neis.log";
-  //  std::ofstream ofs;
+  //  vtksys::ofstream ofs;
   //  ofs.open( oss.str().c_str() );
   //  assert("ERROR: cannot write log file" && ofs.is_open() );
   //  this->Print( ofs );
@@ -1188,7 +1188,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostData(const int sendGridID, co
   // BEGIN DEBUG
   //  std::ostringstream oss;
   //  oss << "SendLog_" << this->Rank << ".txt";
-  //  std::ofstream ofs;
+  //  vtksys::ofstream ofs;
   //  ofs.open( oss.str().c_str() );
   //  ofs << "SEND MESSAGE SIZE: " << size << "\n";
   //  ofs << sendGridID << " " << rcvGrid << std::endl;
@@ -1232,7 +1232,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(const int gridID, cons
   // BEGIN DEBUG
   //  std::ostringstream oss;
   //  oss << "RcvLog_" << this->Rank << ".txt";
-  //  std::ofstream ofs;
+  //  vtksys::ofstream ofs;
   //  ofs.open( oss.str().c_str() );
   //  ofs << "RCV MESSAGE SIZE: " << size << "\n";
   //  ofs <<  remoteGrid << " " << rcvGrid << std::endl;
@@ -1250,7 +1250,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostData(const int gridID, cons
 
   //  std::ostringstream oss;
   //  oss << "Extents-" << this->Rank << "-" << neiGridIdx << ".txt";
-  //  std::ofstream ofs;
+  //  vtksys::ofstream ofs;
   //  ofs.open( oss.str().c_str() );
   //  assert( ofs.is_open() );
   //

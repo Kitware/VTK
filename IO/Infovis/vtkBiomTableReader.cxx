@@ -27,6 +27,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <sstream>
@@ -80,7 +81,7 @@ int vtkBiomTableReader::ReadMeshSimple(const std::string& fname, vtkDataObject* 
     return 1;
   }
 
-  std::ifstream ifs(fname, std::ifstream::in);
+  vtksys::ifstream ifs(fname.c_str(), vtksys::ifstream::in);
   if (!ifs.good())
   {
     vtkErrorMacro(<< "Unable to open " << fname << " for reading");

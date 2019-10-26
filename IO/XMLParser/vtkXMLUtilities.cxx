@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 
@@ -362,7 +363,7 @@ int vtkXMLUtilities::WriteElementToFile(
     return 0;
   }
 
-  ofstream os(filename, ios::out);
+  vtksys::ofstream os(filename, ios::out);
   vtkXMLUtilities::FlattenElement(elem, os, indent);
 
   os.flush();
@@ -419,7 +420,7 @@ vtkXMLDataElement* vtkXMLUtilities::ReadElementFromFile(const char* filename, in
     return nullptr;
   }
 
-  ifstream is(filename);
+  vtksys::ifstream is(filename);
   return vtkXMLUtilities::ReadElementFromStream(is, encoding);
 }
 

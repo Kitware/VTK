@@ -23,6 +23,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
 #include "vtkUnicodeString.h"
+#include "vtksys/FStream.hxx"
 
 #include <cmath>
 #include <limits>
@@ -371,13 +372,13 @@ int vtkArrayWriter::Write()
 
 bool vtkArrayWriter::Write(const vtkStdString& file_name, bool WriteBinary)
 {
-  ofstream file(file_name.c_str(), std::ios::binary);
+  vtksys::ofstream file(file_name.c_str(), std::ios::binary);
   return this->Write(file, WriteBinary);
 }
 
 bool vtkArrayWriter::Write(vtkArray* array, const vtkStdString& file_name, bool WriteBinary)
 {
-  ofstream file(file_name.c_str(), std::ios::binary);
+  vtksys::ofstream file(file_name.c_str(), std::ios::binary);
   return vtkArrayWriter::Write(array, file, WriteBinary);
 }
 

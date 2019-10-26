@@ -28,6 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkPipelineSize);
 
@@ -62,12 +63,12 @@ void vtkPipelineSize::ComputeSourcePipelineSize(
   // handle vtkDataReader subclasses
   if (src->IsA("vtkDataReader"))
   {
-    ifstream* ifs;
+    vtksys::ifstream* ifs;
     vtkDataReader* rdr = vtkDataReader::SafeDownCast(src);
 #ifdef _WIN32
-    ifs = new ifstream(rdr->GetFileName(), ios::in | ios::binary);
+    ifs = new vtksys::ifstream(rdr->GetFileName(), ios::in | ios::binary);
 #else
-    ifs = new ifstream(rdr->GetFileName(), ios::in);
+    ifs = new vtksys::ifstream(rdr->GetFileName(), ios::in);
 #endif
     if (!ifs->fail())
     {

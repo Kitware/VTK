@@ -31,6 +31,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <cctype>
@@ -238,7 +239,7 @@ void vtkNrrdReader::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 int vtkNrrdReader::CanReadFile(const char* filename)
 {
-  ifstream file(filename, ios::in | ios::binary);
+  vtksys::ifstream file(filename, ios::in | ios::binary);
   std::string firstLine;
   getline(file, firstLine);
   if (firstLine.substr(0, 4) == "NRRD")
@@ -270,7 +271,7 @@ int vtkNrrdReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
     return 0;
   }
 
-  ifstream file(this->FileName, ios::in | ios::binary);
+  vtksys::ifstream file(this->FileName, ios::in | ios::binary);
   // Read in 4 MB.  Assuming that the header will be smaller than that.
   headerBuffer->SetNumberOfTuples(0x400000);
   file.read(headerBuffer->GetPointer(0), 0x400000 - 1);
@@ -699,7 +700,7 @@ int vtkNrrdReaderReadDataAsciiTemplate(vtkNrrdReader* self, vtkImageData* output
   vtkStringArray* filenames = self->GetFileNames();
   vtkStdString filename = self->GetFileName();
 
-  std::ifstream file;
+  vtksys::ifstream file;
   if (self->GetFileDimensionality() == 3)
   {
     if (filenames != nullptr)

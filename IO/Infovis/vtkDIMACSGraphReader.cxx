@@ -34,7 +34,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-using std::ifstream;
+#include <vtksys/FStream.hxx>
 using std::istringstream;
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -144,7 +144,7 @@ int vtkDIMACSGraphReader::buildGenericGraph(vtkGraph* output,
   // set starting edge id number.
   int baseEdgeId = 1;
 
-  ifstream IFP(this->FileName);
+  vtksys::ifstream IFP(this->FileName);
   if (IFP.is_open())
   {
     while (vtksys::SystemTools::GetLineFromStream(IFP, S))
@@ -264,7 +264,7 @@ int vtkDIMACSGraphReader::buildMaxflowGraph(vtkGraph* output)
   // set starting edge id number.
   int baseEdgeId = 1;
 
-  ifstream IFP(this->FileName);
+  vtksys::ifstream IFP(this->FileName);
   if (IFP.is_open())
   {
     while (vtksys::SystemTools::GetLineFromStream(IFP, S))
@@ -369,7 +369,7 @@ int vtkDIMACSGraphReader::buildColoringGraph(vtkGraph* output)
   // set starting edge id number.
   int baseEdgeId = 1;
 
-  ifstream IFP(this->FileName);
+  vtksys::ifstream IFP(this->FileName);
   if (IFP.is_open())
   {
     while (vtksys::SystemTools::GetLineFromStream(IFP, S))
@@ -426,7 +426,7 @@ int vtkDIMACSGraphReader::ReadGraphMetaData()
     return 0;
   }
 
-  ifstream IFP(this->FileName);
+  vtksys::ifstream IFP(this->FileName);
   if (!IFP.is_open())
   {
     vtkErrorMacro("Could not open file " << this->FileName << ".");

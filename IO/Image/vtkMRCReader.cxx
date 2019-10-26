@@ -31,6 +31,7 @@
 #include "vtkTypeInt16Array.h"
 #include "vtkTypeInt8Array.h"
 #include "vtkTypeUInt16Array.h"
+#include "vtksys/FStream.hxx"
 
 #include <cassert>
 
@@ -130,7 +131,7 @@ std::ostream& operator<<(std::ostream& os, const mrc_file_header& hdr)
 class vtkMRCReader::vtkInternal
 {
 public:
-  ifstream* stream;
+  vtksys::ifstream* stream;
   mrc_file_header header;
 
   vtkInternal()
@@ -144,7 +145,7 @@ public:
   void openFile(const char* file)
   {
     delete stream;
-    stream = new std::ifstream(file, std::ifstream::binary);
+    stream = new vtksys::ifstream(file, std::ios::binary);
   }
 };
 
@@ -317,7 +318,8 @@ ByteSwapFunction getByteSwapFunction(int vtkType, bool isLittleEndian)
 
 template <typename T>
 void readData(int numComponents, int* outExt, vtkIdType* outInc, vtkIdType* inOffsets,
-  T* const outPtr, std::ifstream& stream, vtkIdType dataStartPos, ByteSwapFunction byteSwapFunction)
+  T* const outPtr, vtksys::ifstream& stream, vtkIdType dataStartPos,
+  ByteSwapFunction byteSwapFunction)
 {
   vtkIdType lineSize = (outExt[1] - outExt[0] + 1) * numComponents;
   T* ptr = outPtr;
@@ -329,7 +331,7 @@ void readData(int numComponents, int* outExt, vtkIdType* outInc, vtkIdType* inOf
       vtkIdType offset = z * inOffsets[2] + y * inOffsets[1] + outExt[0] * inOffsets[0];
       offset = dataStartPos + offset * sizeof(T);
 
-      stream.seekg(offset, std::ifstream::beg);
+      stream.seekg(offset, vtksys::ifstream::beg);
       // read the line
       stream.read((char*)ptr, lineSize * sizeof(T));
       if (byteSwapFunction)
@@ -378,7 +380,7 @@ void vtkMRCReader::ExecuteDataWithInformation(
   }
   // data start position is 1024 (the header size) plus the extended header size
   vtkIdType dataStartPos = 1024 + this->Internals->header.next;
-  this->Internals->stream->seekg(dataStartPos, std::ifstream::beg);
+  this->Internals->stream->seekg(dataStartPos, vtksys::ifstream::beg);
 
   int vtkType = getFileDataType(this->Internals->header.mode);
   int numComponents = getFileDataNumComponents(this->Internals->header.mode);

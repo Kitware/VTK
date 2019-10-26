@@ -64,6 +64,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
+#include "vtksys/FStream.hxx"
 
 #include <cstdio>
 #include <sstream>
@@ -171,14 +172,14 @@ ostream* vtkDataWriter::OpenVTKFile()
   {
     if (this->FileType == VTK_ASCII)
     {
-      fptr = new ofstream(this->FileName, ios::out);
+      fptr = new vtksys::ofstream(this->FileName, ios::out);
     }
     else
     {
 #ifdef _WIN32
-      fptr = new ofstream(this->FileName, ios::out | ios::binary);
+      fptr = new vtksys::ofstream(this->FileName, ios::out | ios::binary);
 #else
-      fptr = new ofstream(this->FileName, ios::out);
+      fptr = new vtksys::ofstream(this->FileName, ios::out);
 #endif
     }
   }

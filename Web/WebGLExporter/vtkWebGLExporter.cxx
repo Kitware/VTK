@@ -775,7 +775,7 @@ void vtkWebGLExporter::exportStaticScene(
 
   resultHTML += "</script></html>";
 
-  ofstream file;
+  vtksys::ofstream file;
   file.open(path.c_str());
   file << resultHTML;
   file.close();

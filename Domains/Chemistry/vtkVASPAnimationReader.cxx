@@ -25,6 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVectorOperators.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/RegularExpression.hxx>
 
 #include <algorithm>
@@ -102,7 +103,7 @@ int vtkVASPAnimationReader::RequestData(
   vtkMolecule* output = vtkMolecule::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   assert(output);
 
-  std::ifstream in(this->FileName);
+  vtksys::ifstream in(this->FileName);
   if (!in)
   {
     vtkErrorMacro("Could not open file for reading: " << (this->FileName ? this->FileName : ""));
@@ -138,7 +139,7 @@ int vtkVASPAnimationReader::RequestData(
 int vtkVASPAnimationReader::RequestInformation(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
-  std::ifstream in(this->FileName);
+  vtksys::ifstream in(this->FileName);
   if (!in)
   {
     vtkErrorMacro("Could not open file for reading: " << (this->FileName ? this->FileName : ""));

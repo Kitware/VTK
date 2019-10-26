@@ -23,6 +23,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkPDataSetWriter);
 
@@ -512,7 +513,7 @@ ostream* vtkPDataSetWriter::OpenFile()
 {
   ostream* fptr;
 
-  fptr = new ofstream(this->FileName, ios::out);
+  fptr = new vtksys::ofstream(this->FileName, ios::out);
 
   if (fptr->fail())
   {

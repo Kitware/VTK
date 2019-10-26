@@ -27,6 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtksys/Encoding.hxx"
 
 #include <algorithm>
 #include <sstream>
@@ -163,7 +164,8 @@ void vtkParticleReader::OpenFile()
   // Open the new file.
   vtkDebugMacro(<< "Initialize: opening file " << this->FileName);
 #ifdef _WIN32
-  this->File = new ifstream(this->FileName, ios::in | ios::binary);
+  this->File =
+    new ifstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::in | ios::binary);
 #else
   this->File = new ifstream(this->FileName, ios::in);
 #endif

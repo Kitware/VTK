@@ -17,6 +17,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtksys/FStream.hxx"
 
 #include <string>
 
@@ -114,7 +115,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     sfilename = this->CaseFileName;
   }
 
-  this->IS = new ifstream(sfilename.c_str(), ios::in);
+  this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());

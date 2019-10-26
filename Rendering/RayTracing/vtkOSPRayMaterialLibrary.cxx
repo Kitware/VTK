@@ -235,7 +235,7 @@ bool vtkOSPRayMaterialLibrary::InternalParse(const char* filename, bool fromfile
   std::istream* doc;
   if (fromfile)
   {
-    doc = new std::ifstream(filename, std::ifstream::binary);
+    doc = new vtksys::ifstream(filename, std::ios::binary);
   }
   else
   {

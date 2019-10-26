@@ -30,6 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtksys/Encoding.hxx"
 
 #include <sstream>
 #include <vector>
@@ -83,7 +84,11 @@ ofstream* vtkJavaScriptDataWriter::OpenFile()
 
   vtkDebugMacro(<< "Opening file for writing...");
 
+#ifdef _WIN32
+  ofstream* fptr = new ofstream(vtksys::Encoding::ToWindowsExtendedPath(this->FileName), ios::out);
+#else
   ofstream* fptr = new ofstream(this->FileName, ios::out);
+#endif
 
   if (fptr->fail())
   {

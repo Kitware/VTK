@@ -73,6 +73,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <ctime>
 
 #include <stack>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------------
@@ -413,7 +414,7 @@ int vtkMNITransformWriter::WriteFile()
   }
 
   // Open the file.
-  ofstream outfile(this->FileName, ios::out);
+  vtksys::ofstream outfile(this->FileName, ios::out);
 
   if (outfile.fail())
   {

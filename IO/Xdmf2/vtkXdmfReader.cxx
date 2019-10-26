@@ -44,7 +44,7 @@ public:
       return 0;
     }
 
-    ifstream inFile(this->FileName);
+    vtksys::ifstream inFile(this->FileName);
     if (!inFile)
     {
       return 0;

@@ -66,6 +66,7 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include <string>
 #include <vector>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 //--------------------------------------------------------------------------
@@ -114,7 +115,7 @@ int vtkMNITagPointReader::CanReadFile(const char* fname)
   // Try to read the first line of the file.
   int status = 0;
 
-  ifstream infile(fname);
+  vtksys::ifstream infile(fname);
 
   if (infile.good())
   {
@@ -426,7 +427,7 @@ int vtkMNITagPointReader::ReadFile(vtkPolyData* output1, vtkPolyData* output2)
   }
 
   // Make sure that the file is readable.
-  ifstream infile(this->FileName);
+  vtksys::ifstream infile(this->FileName);
   std::string linetext;
   std::string::iterator pos = linetext.begin();
 

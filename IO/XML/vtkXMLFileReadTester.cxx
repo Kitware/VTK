@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXMLFileReadTester.h"
 #include "vtkObjectFactory.h"
+#include "vtksys/FStream.hxx"
 
 vtkStandardNewMacro(vtkXMLFileReadTester);
 
@@ -47,7 +48,7 @@ int vtkXMLFileReadTester::TestReadFile()
     return 0;
   }
 
-  ifstream inFile(this->FileName);
+  vtksys::ifstream inFile(this->FileName);
   if (!inFile)
   {
     return 0;

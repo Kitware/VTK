@@ -26,6 +26,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
 #include "vtkUnicodeString.h"
+#include "vtksys/FStream.hxx"
 
 #include <sstream>
 #include <stdexcept>
@@ -529,7 +530,7 @@ int vtkArrayReader::RequestData(
       if (!this->FileName)
         throw std::runtime_error("FileName not set.");
 
-      ifstream file(this->FileName, std::ios::binary);
+      vtksys::ifstream file(this->FileName, std::ios::binary);
 
       array = this->Read(file);
     }

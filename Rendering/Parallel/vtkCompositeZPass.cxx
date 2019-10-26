@@ -231,7 +231,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     ost00.precision(5);
     ost00 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
           << "_root00.txt";
-    ofstream outfile00(ost00.str().c_str());
+    vtksys::ofstream outfile00(ost00.str().c_str());
     state->PrintSelf(outfile00, indent);
     outfile00.close();
 
@@ -243,7 +243,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     ost01.precision(5);
     ost01 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
           << "_root01.txt";
-    ofstream outfile01(ost01.str().c_str());
+    vtksys::ofstream outfile01(ost01.str().c_str());
     state->PrintSelf(outfile01, indent);
     outfile01.close();
 
@@ -351,7 +351,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost02 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
             << "_root02_proc_" << proc << "_"
             << ".txt";
-      ofstream outfile02(ost02.str().c_str());
+      vtksys::ofstream outfile02(ost02.str().c_str());
       state->PrintSelf(outfile02, indent);
       outfile02.close();
 #endif
@@ -366,7 +366,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost03 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
             << "_root03_proc_" << proc << "_"
             << ".txt";
-      ofstream outfile03(ost03.str().c_str());
+      vtksys::ofstream outfile03(ost03.str().c_str());
       state->PrintSelf(outfile03, indent);
       outfile03.close();
 
@@ -406,7 +406,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost04.precision(5);
       ost04 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
             << "_root_proc_" << proc << "_before_copyframe.txt";
-      ofstream outfile04(ost04.str().c_str());
+      vtksys::ofstream outfile04(ost04.str().c_str());
       state->PrintSelf(outfile04, indent);
       outfile04.close();
 #endif
@@ -421,7 +421,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost05.precision(5);
       ost05 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
             << "_root_proc_" << proc << "_after_copyframe.txt";
-      ofstream outfile05(ost05.str().c_str());
+      vtksys::ofstream outfile05(ost05.str().c_str());
       state->PrintSelf(outfile05, indent);
       outfile05.close();
 #endif
@@ -435,7 +435,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost06.precision(5);
       ost06 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
             << "_root_proc_" << proc << "_before_popattrib.txt";
-      ofstream outfile06(ost06.str().c_str());
+      vtksys::ofstream outfile06(ost06.str().c_str());
       state->PrintSelf(outfile06, indent);
       outfile06.close();
 #endif
@@ -447,7 +447,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       ost07.precision(5);
       ost07 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime()
             << "_root_proc_" << proc << "_after_popattrib.txt";
-      ofstream outfile07(ost07.str().c_str());
+      vtksys::ofstream outfile07(ost07.str().c_str());
       state->PrintSelf(outfile07, indent);
       outfile07.close();
 #endif
