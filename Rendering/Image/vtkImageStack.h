@@ -63,7 +63,7 @@ public:
   /**
    * Check if an image is present.  The returned value is one or zero.
    */
-  int HasImage(vtkImageSlice* prop);
+  vtkTypeBool HasImage(vtkImageSlice* prop);
 
   /**
    * Get the list of images as a vtkImageSliceCollection.

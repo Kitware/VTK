@@ -125,7 +125,7 @@ void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
 //------------------------------------------------------------------------------
 void vtkAnnotationLink::AddDomainMap(vtkTable* map)
 {
-  if (!this->DomainMaps->IsItemPresent(map))
+  if (this->DomainMaps->IndexOfFirstOccurence(map) < 0)
   {
     this->DomainMaps->AddItem(map);
   }

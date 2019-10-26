@@ -185,7 +185,7 @@ void vtkCellPicker::ResetCellPickerInfo()
 //------------------------------------------------------------------------------
 void vtkCellPicker::AddLocator(vtkAbstractCellLocator* locator)
 {
-  if (!this->Locators->IsItemPresent(locator))
+  if (this->Locators->IndexOfFirstOccurence(locator) < 0)
   {
     this->Locators->AddItem(locator);
   }

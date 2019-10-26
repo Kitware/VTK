@@ -199,20 +199,42 @@ void vtkCollection::RemoveAllItems()
   this->Modified();
 }
 
+// Search for an object and return location in list. If location == -1,
+// object was not found.
+int vtkCollection::IndexOfFirstOccurence(vtkObject* a)
+{
+  if (!this->Top)
+  {
+    return -1;
+  }
+
+  vtkCollectionElement* elem = this->Top;
+  for (int i = 0; i < this->NumberOfItems; i++)
+  {
+    if (elem->Item == a)
+    {
+      return i;
+    }
+    else
+    {
+      elem = elem->Next;
+    }
+  }
+
+  return -1;
+}
+
 // Search for an object and return location in list. If location == 0,
 // object was not found.
 int vtkCollection::IsItemPresent(vtkObject* a)
 {
-  int i;
-  vtkCollectionElement* elem;
-
   if (!this->Top)
   {
     return 0;
   }
 
-  elem = this->Top;
-  for (i = 0; i < this->NumberOfItems; i++)
+  vtkCollectionElement* elem = this->Top;
+  for (int i = 0; i < this->NumberOfItems; i++)
   {
     if (elem->Item == a)
     {

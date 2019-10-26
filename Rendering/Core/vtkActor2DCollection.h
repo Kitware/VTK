@@ -65,6 +65,7 @@ public:
    * Standard Collection methods
    */
   int IsItemPresent(vtkActor2D* a);
+  int IndexOfFirstOccurence(vtkActor2D* a);
   vtkActor2D* GetNextActor2D();
   vtkActor2D* GetLastActor2D();
   ///@}
@@ -104,6 +105,7 @@ private:
   void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
   void AddItem(vtkProp* o) { this->vtkPropCollection::AddItem(o); }
   int IsItemPresent(vtkObject* o) { return this->vtkCollection::IsItemPresent(o); }
+  int IndexOfFirstOccurence(vtkObject* o) { return this->vtkCollection::IndexOfFirstOccurence(o); };
 
   vtkActor2DCollection(const vtkActor2DCollection&) = delete;
   void operator=(const vtkActor2DCollection&) = delete;
@@ -112,6 +114,11 @@ private:
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D* a)
 {
   return this->vtkCollection::IsItemPresent(a);
+}
+
+inline int vtkActor2DCollection::IndexOfFirstOccurence(vtkActor2D* a)
+{
+  return this->vtkCollection::IndexOfFirstOccurence(a);
 }
 
 inline vtkActor2D* vtkActor2DCollection::GetNextActor2D()

@@ -78,7 +78,7 @@ vtkImageSlice* vtkImageStack::GetActiveImage()
 //------------------------------------------------------------------------------
 void vtkImageStack::AddImage(vtkImageSlice* prop)
 {
-  if (!this->Images->IsItemPresent(prop) && !vtkImageStack::SafeDownCast(prop))
+  if (this->Images->IndexOfFirstOccurence(prop) < 0 && !vtkImageStack::SafeDownCast(prop))
   {
     this->Images->AddItem(prop);
     prop->AddConsumer(this);
@@ -89,7 +89,7 @@ void vtkImageStack::AddImage(vtkImageSlice* prop)
 //------------------------------------------------------------------------------
 void vtkImageStack::RemoveImage(vtkImageSlice* prop)
 {
-  if (this->Images->IsItemPresent(prop))
+  if (this->Images->IndexOfFirstOccurence(prop) >= 0)
   {
     prop->RemoveConsumer(this);
     this->Images->RemoveItem(prop);
@@ -98,9 +98,18 @@ void vtkImageStack::RemoveImage(vtkImageSlice* prop)
 }
 
 //------------------------------------------------------------------------------
-int vtkImageStack::HasImage(vtkImageSlice* prop)
+vtkTypeBool vtkImageStack::HasImage(vtkImageSlice* prop)
 {
-  return this->Images->IsItemPresent(prop);
+  int index = this->Images->IndexOfFirstOccurence(prop);
+
+#if defined(VTK_LEGACY_REMOVE)
+  return (index >= 0);
+#else
+  // The implementation used to call IsItemPresent(), which, despite its name,
+  // returned an index, not a boolean.  Preserve the old behaviour.  0 means
+  // the item is not found, otherwise return the index + 1.
+  return index + 1;
+#endif
 }
 
 //------------------------------------------------------------------------------

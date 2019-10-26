@@ -2073,7 +2073,8 @@ double vtkRenderer::GetTiledAspectRatio()
 
 int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp* prop)
 {
-  if (this->GL2PSSpecialPropCollection && !this->GL2PSSpecialPropCollection->IsItemPresent(prop))
+  if (this->GL2PSSpecialPropCollection &&
+    this->GL2PSSpecialPropCollection->IndexOfFirstOccurence(prop) < 0)
   {
     this->GL2PSSpecialPropCollection->AddItem(prop);
     return 1;

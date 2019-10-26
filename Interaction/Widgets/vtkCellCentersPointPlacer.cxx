@@ -69,9 +69,18 @@ void vtkCellCentersPointPlacer::RemoveAllProps()
 }
 
 //------------------------------------------------------------------------------
-int vtkCellCentersPointPlacer::HasProp(vtkProp* prop)
+vtkTypeBool vtkCellCentersPointPlacer::HasProp(vtkProp* prop)
 {
-  return this->PickProps->IsItemPresent(prop);
+  int index = this->PickProps->IndexOfFirstOccurence(prop);
+
+#if defined(VTK_LEGACY_REMOVE)
+  return (index >= 0);
+#else
+  // The implementation used to call IsItemPresent(), which, despite its name,
+  // returned an index, not a boolean.  Preserve the old behaviour.  0 means
+  // the item is not found, otherwise return the index + 1.
+  return index + 1;
+#endif
 }
 
 //------------------------------------------------------------------------------

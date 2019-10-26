@@ -267,8 +267,7 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
           {
             this->MarkPicked(path, static_cast<vtkProp3D*>(propCandidate), mapper, 0.0, pos);
 
-            // The IsItemPresent method returns "index+1"
-            int prevIndex = this->Prop3Ds->IsItemPresent(prop) - 1;
+            int prevIndex = this->Prop3Ds->IndexOfFirstOccurence(prop);
 
             if (prevIndex < 0)
             {
@@ -671,8 +670,7 @@ int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p
             p[1] = (1.0 - t) * p1World[1] + t * p2World[1];
             p[2] = (1.0 - t) * p1World[2] + t * p2World[2];
 
-            // The IsItemPresent method returns "index+1"
-            int prevIndex = this->Prop3Ds->IsItemPresent(prop) - 1;
+            int prevIndex = this->Prop3Ds->IndexOfFirstOccurence(prop);
 
             if (prevIndex >= 0)
             {

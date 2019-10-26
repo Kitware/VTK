@@ -71,7 +71,7 @@ void vtkPipelineGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 {
-  if (sink != nullptr && !this->Sinks->IsItemPresent(sink))
+  if (sink != nullptr && this->Sinks->IndexOfFirstOccurence(sink) < 0)
   {
     this->Sinks->AddItem(sink);
     this->Modified();
@@ -80,7 +80,7 @@ void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 
 void vtkPipelineGraphSource::RemoveSink(vtkObject* sink)
 {
-  if (sink != nullptr && this->Sinks->IsItemPresent(sink))
+  if (sink != nullptr && this->Sinks->IndexOfFirstOccurence(sink) >= 0)
   {
     this->Sinks->RemoveItem(sink);
     this->Modified();

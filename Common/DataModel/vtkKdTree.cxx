@@ -441,7 +441,7 @@ void vtkKdTree::AddDataSet(vtkDataSet* set)
     return;
   }
 
-  if (this->DataSets->IsItemPresent(set))
+  if (this->DataSets->IndexOfFirstOccurence(set) >= 0)
   {
     return;
   }
@@ -476,9 +476,7 @@ int vtkKdTree::GetNumberOfDataSets()
 //------------------------------------------------------------------------------
 int vtkKdTree::GetDataSetIndex(vtkDataSet* set)
 {
-  // This is weird, but IsItemPresent returns the index + 1 (so that 0
-  // corresponds to item not present).
-  return this->DataSets->IsItemPresent(set) - 1;
+  return this->DataSets->IndexOfFirstOccurence(set);
 }
 
 //------------------------------------------------------------------------------
