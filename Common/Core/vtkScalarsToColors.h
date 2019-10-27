@@ -453,8 +453,10 @@ protected:
   int VectorComponent;
   int VectorSize;
 
+#if !defined(VTK_LEGACY_REMOVE)
   // Obsolete, kept so subclasses will still compile
   int UseMagnitude;
+#endif
 
   unsigned char RGBABytes[4];
 

@@ -50,7 +50,9 @@ public:
   /**
    * See vtkCell3D API for description of this method.
    */
-  virtual int HasFixedTopology() { return 0; }
+#ifndef VTK_LEGACY_REMOVE
+  virtual vtkTypeBool HasFixedTopology() { return 0; }
+#endif
 
   ///@{
   /**

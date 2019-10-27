@@ -57,8 +57,10 @@ vtkScalarsToColors::vtkScalarsToColors()
   this->AnnotatedValueList = new vtkInternalAnnotatedValueList;
   this->IndexedLookup = 0;
 
+#if !defined(VTK_LEGACY_REMOVE)
   // obsolete, kept for backwards compatibility
   this->UseMagnitude = 0;
+#endif
 }
 
 //------------------------------------------------------------------------------
