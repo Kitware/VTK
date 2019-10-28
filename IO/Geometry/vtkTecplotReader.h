@@ -262,6 +262,43 @@ protected:
           vtkMultiBlockDataSet * multZone );
 
   /**
+   * This function creates a polyhedral vtkUnstructuredGrid object made up of a set of
+   * points and the associated attributes (node-based and / or cell-based)
+   * extracted from a block-packing (i.e., component-based) zone. This
+   * vtkUnstructuredGrid is then inserted, with a specified zone name, to a
+   * vtkMultiBlockDataSet object.
+   */
+  void    GetPolyhedralGridFromBlockPackingZone(int numNodes, int numElements,
+          int numFaces, int zoneIndex, const char * zoneName,
+          vtkMultiBlockDataSet * multZone);
+
+
+  /**
+   * This function creates a polygonal vtkUnstructuredGrid object made up of a set of
+   * points and the associated attributes (node-based and / or cell-based)
+   * extracted from a block-packing (i.e., component-based) zone. This
+   * vtkUnstructuredGrid is then inserted, with a specified zone name, to a
+   * vtkMultiBlockDataSet object.
+   */
+  void    GetPolygonalGridFromBlockPackingZone(int numNodes, int numElements,
+          int numFaces, int zoneIndex, const char * zoneName,
+          vtkMultiBlockDataSet * multZone);
+
+   /**
+   * This function fills an allocated vtkUnstructuredGrid object with numberCells
+   * polyhedral cells to define the grid topology.
+   */
+  void    GetPolyhedralGridCells(int numberCells, int numFaces,
+          vtkUnstructuredGrid * unstruct);
+
+   /**
+   * This function fills an allocated vtkUnstructuredGrid object with numberCells
+   * polygonal cells to define the grid topology.
+   */
+  void    GetPolygonalGridCells(int numFaces, int numEdges,
+          vtkUnstructuredGrid * unstruct);
+
+  /**
    * This function creates a vtkUnstructuredGrid object made up of a set of
    * points and the associated attributes (node-based and / or cell-based)
    * extracted from a point-packing (i.e., tuple-based) zone. This

@@ -124,7 +124,7 @@ int TestTecplotReader2( int argc, char *argv[] )
   }
   else
   {
-    cout << "All files were loaded without errors." << endl;
+    cout << dir->GetNumberOfFiles() << " files were loaded without errors." << endl;
   }
 
   delete[] dataRoot;
