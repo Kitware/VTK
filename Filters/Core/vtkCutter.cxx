@@ -394,7 +394,8 @@ int vtkCutter::RequestData(
     // See if the input can be fully processed by the fast vtk3DLinearGridPlaneCutter.
     // This algorithm can provide a substantial speed improvement over the more general
     // algorithm for vtkUnstructuredGrids.
-    if (this->GetCutFunction() && this->GetCutFunction()->IsA("vtkPlane") &&
+    if (this->GetGenerateTriangles() && this->GetCutFunction() &&
+      this->GetCutFunction()->IsA("vtkPlane") &&
       this->GetNumberOfContours() == 1 &&
       this->GetGenerateCutScalars() == 0 &&
       (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
