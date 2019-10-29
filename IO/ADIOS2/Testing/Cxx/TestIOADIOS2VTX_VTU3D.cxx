@@ -50,6 +50,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <adios2.h>
@@ -341,17 +342,19 @@ int TestIOADIOS2VTX_VTU3D(int argc, char* argv[])
   vtksys::SystemTools::MakeDirectory("bp4");
 
   const std::vector<std::string> engineTypes = { "bp3", "bp4" };
+  vtkNew<vtkTesting> testing;
+  const std::string rootDirectory(testing->GetTempDirectory());
   std::string fileName;
 
   for (const std::string& engineType : engineTypes)
   {
     // schema as attribute in bp file
-    fileName = engineType + "/ex2_mfem_1.bp";
+    fileName = rootDirectory + "/" + engineType + "/ex2_mfem_1.bp";
     WriteBPFile3DVars(fileName, steps, rank, false, true, true, engineType);
     lf_DoTest(fileName, steps);
 
     // schema as file in bp directory
-    fileName = engineType + "/ex2_mfem_2.bp";
+    fileName = rootDirectory + "/" + engineType + "/ex2_mfem_2.bp";
     WriteBPFile3DVars(fileName, steps, rank, false, false, false, engineType);
     lf_DoTest(fileName, steps);
   }

@@ -49,6 +49,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTesting.h"
 
 #include <adios2.h>
 
@@ -137,7 +138,9 @@ int TestIOADIOS2VTX_VTI3DRendering(int argc, char* argv[])
   const int rank = MPIGetRank();
   const int size = MPIGetSize();
 
-  const std::string fileName = "heat3D_render.bp";
+  vtkNew<vtkTesting> testing;
+  const std::string rootDirectory(testing->GetTempDirectory());
+  const std::string fileName = rootDirectory + "/heat3D_render.bp";
   const adios2::Dims count{ 4, 4, 8 };
   const adios2::Dims start{ static_cast<size_t>(rank) * count[0], 0, 0 };
   const adios2::Dims shape{ static_cast<size_t>(size) * count[0], count[1], count[2] };
