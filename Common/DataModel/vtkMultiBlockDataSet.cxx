@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkMultiBlockDataSet.h"
 
-#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

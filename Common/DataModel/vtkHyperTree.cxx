@@ -367,7 +367,7 @@ vtkHyperTree* vtkHyperTree::CreateInstance(unsigned char factor, unsigned char d
   }
   if (dimension < 1 || 3 < dimension)
   {
-    vtkGenericWarningMacro("Bad dimension " << dimension);
+    vtkGenericWarningMacro("Bad dimension " << (int)dimension);
     return nullptr;
   }
   vtkHyperTree* ht = vtkCompactHyperTree::New();

@@ -58,6 +58,8 @@ public:
    */
   void CopyStructure(vtkDataObject*) override;
 
+  virtual void Initialize() override;
+
   //@{
   /**
    * Set/Get origin of grid

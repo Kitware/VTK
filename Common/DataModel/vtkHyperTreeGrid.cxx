@@ -195,6 +195,111 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGrid::Initialize()
+{
+  this->Superclass::Initialize();
+  // DataObject Initialize will not do PointData
+  this->PointData->Initialize();
+  // Delete existing trees
+  this->HyperTrees.clear();
+
+   // Default state
+  this->ModeSqueeze = nullptr;
+  this->FreezeState = false;
+
+  // Grid topology
+  this->TransposedRootIndexing = false;
+
+  // Invalid default grid parameters to force actual initialization
+  this->Orientation = UINT_MAX;
+  this->BranchFactor = 0;
+  this->NumberOfChildren = 0;
+
+  // Depth limiter
+  this->DepthLimiter = UINT_MAX;
+
+  // Masked primal leaves
+  vtkBitArray* mask = vtkBitArray::New();
+  this->SetMask (mask);
+  mask->FastDelete();
+
+  // No interface by default
+  this->HasInterface = false;
+
+  // Interface array names
+  this->InterfaceNormalsName = nullptr;
+  this->InterfaceInterceptsName = nullptr;
+
+  // Primal grid geometry
+  this->WithCoordinates = true;
+
+  // Might be better to set coordinates using this->SetXCoordinates(),
+  // but there is currently a conflict with vtkUniformHyperTreeGrid
+  // which inherits from vtkHyperTreeGrid.
+  // To be fixed when a better inheritance tree is implemented.
+  if (this->XCoordinates)
+  {
+    this->XCoordinates->Delete();
+  }
+  this->XCoordinates = vtkDoubleArray::New();
+  this->XCoordinates->SetNumberOfTuples(1);
+  this->XCoordinates->SetTuple1(0, 0.0);
+
+  if (this->YCoordinates)
+  {
+    this->YCoordinates->Delete();
+  }
+  this->YCoordinates = vtkDoubleArray::New();
+  this->YCoordinates->SetNumberOfTuples(1);
+  this->YCoordinates->SetTuple1(0, 0.0);
+
+  if (this->ZCoordinates)
+  {
+    this->ZCoordinates->Delete();
+  }
+  this->ZCoordinates = vtkDoubleArray::New();
+  this->ZCoordinates->SetNumberOfTuples(1);
+  this->ZCoordinates->SetTuple1(0, 0.0);
+
+  // -----------------------------------------------
+  // RectilinearGrid
+  // -----------------------------------------------
+  // Invalid default grid parameters to force actual initialization
+  this->Dimension = 0;
+  this->Dimensions[0] = 0; // Just used by GetDimensions
+  this->Dimensions[1] = 0;
+  this->Dimensions[2] = 0;
+
+  this->CellDims[0] = 0; // Just used by GetCellDims
+  this->CellDims[1] = 0;
+  this->CellDims[2] = 0;
+
+  this->Axis[0] = UINT_MAX;
+  this->Axis[1] = UINT_MAX;
+
+  int extent[6] = { 0, -1, 0, -1, 0, -1 };
+  memcpy(this->Extent, extent, 6 * sizeof(int));
+
+  this->DataDescription = VTK_EMPTY;
+
+  this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
+
+  // Generate default information
+  this->Bounds[0] = 0.0;
+  this->Bounds[1] = -1.0;
+  this->Bounds[2] = 0.0;
+  this->Bounds[3] = -1.0;
+  this->Bounds[4] = 0.0;
+  this->Bounds[5] = -1.0;
+
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
+
+}
+
+//-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::Squeeze()
 {
   if (!this->FreezeState)
@@ -531,12 +636,19 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
           ++this->Orientation;
         }
       }
+      // If normal to the HTG is y, we right now have HTG spanned by (x,y)
+      // We swap them to have a direct frame spanning the HTG
+      if (this->Orientation == 1)
+      {
+        std::swap (this->Axis[0], this->Axis[1]);
+      }
       break;
   }
 
   assert("post: valid_axis" &&
     (this->Dimension != 2 || (this->Axis[0] == (this->Orientation + 1) % 3 &&
                                this->Axis[1] == (this->Orientation + 2) % 3)));
+
 
   // Make sure that number of children is factor^dimension
   this->NumberOfChildren = this->BranchFactor;
@@ -972,16 +1084,6 @@ vtkHyperTreeGrid::NewNonOrientedMooreSuperCursorLight(vtkIdType index, bool crea
 }
 
 //-----------------------------------------------------------------------------
-void vtkHyperTreeGrid::Initialize()
-{
-  this->Superclass::Initialize();
-  // DataObject Initialize will not do PointData
-  this->PointData->Initialize();
-  // Delete existing trees
-  this->HyperTrees.clear();
-}
-
-//-----------------------------------------------------------------------------
 vtkHyperTree* vtkHyperTreeGrid::GetTree(vtkIdType index, bool create)
 {
   // Wrap convenience macro for outside use
@@ -1410,6 +1512,7 @@ void vtkHyperTreeGrid::InitializeLocalIndexNode()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::vtkHyperTreeGridIterator::Initialize(vtkHyperTreeGrid* grid)
 {
+  assert (grid != nullptr);
   this->Grid = grid;
   this->Iterator = grid->HyperTrees.begin();
 }

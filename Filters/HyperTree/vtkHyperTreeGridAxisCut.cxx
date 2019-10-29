@@ -103,6 +103,8 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
     return 0;
   }
 
+  output->Initialize();
+
   // Retrieve normal axis and intercept of cut plane
   int axis = this->PlaneNormalAxis;
 
@@ -180,7 +182,7 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
     const double* _size = inCursor->GetSize();
 
     // Check whether root cell is intersected by plane
-    if ( origin[axis] <= inter && ( origin[axis] + _size[axis] >= inter ) )
+    if ( origin[axis] < inter && ( origin[axis] + _size[axis] >= inter ) )
     {
       // Root is intersected by plane, descend into current child
       input->GetLevelZeroCoordinatesFromIndex( inIndex, i, j, k );
@@ -216,6 +218,8 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
   {
     this->OutMask->Squeeze();
     output->SetMask( this->OutMask );
+    this->OutMask->FastDelete();
+    this->OutMask = nullptr;
   }
 
   return 1;
@@ -270,7 +274,7 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
       const double* size = inCursor->GetSize();
 
       // Check whether child is intersected by plane
-      if ( origin[axis] <= inter && ( origin[axis] + size[axis] >= inter ) )
+      if ( origin[axis] < inter && ( origin[axis] + size[axis] >= inter ) )
       {
         // Child is intersected by plane, descend into current child
         outCursor->ToChild( outChild );

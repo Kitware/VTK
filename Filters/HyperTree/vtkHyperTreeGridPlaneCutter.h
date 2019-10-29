@@ -63,9 +63,26 @@ public:
    * Specify the plane with its [a,b,c,d] Cartesian coefficients:
    * a*x + b*y + c*z = d
    */
-  vtkSetVector4Macro(Plane,double);
+  void SetPlane(double a, double b, double c, double d);
   vtkGetVector4Macro(Plane,double);
   //@}
+
+  //@{
+  /**
+   * Returns 0 if plane's normal is aligned with X axis, 1 if it is aligned with Y axis, 2 if it
+   * is aligned with Z axis. Returns -1 if not aligned with any principal axis.
+   */
+  vtkGetMacro(AxisAlignment, int);
+  //@}
+
+  //@{
+  /**
+   * Returns true if plane's normal is aligned with the corresponding axis, false elsewise.
+   */
+  bool IsPlaneOrthogonalToXAxis() { return this->AxisAlignment == 0; }
+  bool IsPlaneOrthogonalToYAxis() { return this->AxisAlignment == 1; }
+  bool IsPlaneOrthogonalToZAxis() { return this->AxisAlignment == 2; }
+  //}@
 
   //@{
   /**
@@ -76,9 +93,15 @@ public:
   vtkBooleanMacro(Dual,int);
   //@}
 
+
 protected:
   vtkHyperTreeGridPlaneCutter();
   ~vtkHyperTreeGridPlaneCutter() override;
+
+  /**
+   * Resets every attributes to a minimal state needed for the algorithm to execute
+   */
+  virtual void Reset();
 
   /**
    * For this algorithm the output is a vtkPolyData instance
@@ -168,6 +191,11 @@ protected:
    * material Mask
    */
   vtkBitArray* InMask;
+
+  /**
+   * Flag computed at plane creation to know wether it is aligned with x, y or z axis
+   */
+  int AxisAlignment;
 
 private:
   vtkHyperTreeGridPlaneCutter(const vtkHyperTreeGridPlaneCutter&) = delete;

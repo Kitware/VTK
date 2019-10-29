@@ -23,6 +23,7 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
@@ -32,6 +33,8 @@
 
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridNonOrientedMooreSuperCursor.h"
+
+#include <cassert>
 
 vtkIdType First8Integers[] = {
   0, 1, 2, 3, 4, 5, 6, 7 };
@@ -44,11 +47,8 @@ vtkStandardNewMacro(vtkHyperTreeGridPlaneCutter);
 //-----------------------------------------------------------------------------
 vtkHyperTreeGridPlaneCutter::vtkHyperTreeGridPlaneCutter()
 {
-  // Create storage for intersections of the cut
-  this->Points = vtkPoints::New();
-
-  // Create storage for untructured cells
-  this->Cells = vtkCellArray::New();
+  this->Points = nullptr;
+  this->Cells = nullptr;
 
   // Initialize plane parameters
   std::fill( this->Plane, this->Plane + 4, 0. );
@@ -183,10 +183,41 @@ int vtkHyperTreeGridPlaneCutter::FillOutputPortInformation( int,
 }
 
 //-----------------------------------------------------------------------------
+void vtkHyperTreeGridPlaneCutter::Reset()
+{
+  // Points and Cells are created in the constructor
+  if (this->Points)
+  {
+    this->Points->Delete();
+  }
+  this->Points = vtkPoints::New();
+  if (this->Cells)
+  {
+    this->Cells->Delete();
+  }
+  this->Cells = vtkCellArray::New();
+  if (this->Centers)
+  {
+    this->Centers->Initialize();
+  }
+  if (this->Leaves)
+  {
+    this->Leaves->Initialize();
+  }
+  if (this->Cutter)
+  {
+    this->Cutter->SetNumberOfContours(0);
+  }
+  if (this->SelectedCells)
+  {
+    this->SelectedCells->Initialize();
+  }
+}
+
+//-----------------------------------------------------------------------------
 int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
                                                vtkDataObject* outputDO )
 {
-  // Downcast output data object to polygonal data set
   vtkPolyData* output = vtkPolyData::SafeDownCast( outputDO );
   if ( ! output )
   {
@@ -202,15 +233,15 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
     return 0;
   }
 
+  // Reset Data
+  this->Reset();
+  output->Initialize();
+
   // Retrieve input point data
   this->InData = input->GetPointData();
 
   // Retrieve material mask
   this->InMask = input->HasMask() ? input->GetMask() : nullptr;
-
-  // Reset PolyData
-  this->Points->SetNumberOfPoints(0);
-  this->Cells->SetNumberOfCells(0);
 
   // Compute cut on dual or primal input depending on specification
   if ( this->Dual )
@@ -323,7 +354,11 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Set output geometry and topology
   output->SetPoints( this->Points );
+  this->Points->FastDelete();
+  this->Points = nullptr;
   output->SetPolys( this->Cells );
+  this->Cells->FastDelete();
+  this->Cells = nullptr;
 
   // Clean and squeeze output
   vtkCleanPolyData* cleaner = vtkCleanPolyData::New();
@@ -355,8 +390,39 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
   for ( int i = 0; i < 8; ++ i )
   {
     cellCoords[i][0] = ( i & 1 ) ? origin[0] + size[0] : origin[0];
+    // Checking if the plane is equal to the boundary of a cell.
+    // If it is, we need to shift it a tiny bit.
+    // Check is done on all axis.
+    // NOTE: we set cellCoords to std::sqrt(VTK_DBL_MIN) if the plane passes by the origin
+    // because distance computation, needed later, requires squaring those values.
+    // Since VTK_DBL_MIN is the smallest normal double value, VTK_DBL_MIN*VTK_DBL_MIN == 0,
+    // and sqrt(VTK_DBL_MIN)*std::sqrt(VTK_DBL_MIN) == VTK_DBL_MIN, which is what we want
+    if (this->IsPlaneOrthogonalToXAxis())
+    {
+      if (cellCoords[i][0] == this->Plane[3])
+      {
+        cellCoords[i][0] +=
+          std::abs(cellCoords[i][0]) > std::sqrt(VTK_DBL_MIN) ? VTK_DBL_EPSILON * std::abs(cellCoords[i][0]) : std::sqrt(VTK_DBL_MIN);
+      }
+    }
     cellCoords[i][1] = ( i & 2 ) ? origin[1] + size[1] : origin[1];
+    if (this->IsPlaneOrthogonalToYAxis())
+    {
+      if (cellCoords[i][1] == this->Plane[3])
+      {
+        cellCoords[i][1] +=
+          std::abs(cellCoords[i][1]) > std::sqrt(VTK_DBL_MIN) ? VTK_DBL_EPSILON * std::abs(cellCoords[i][1]) : std::sqrt(VTK_DBL_MIN);
+      }
+    }
     cellCoords[i][2] = ( i & 4 ) ? origin[2] + size[2] : origin[2];
+    if (this->IsPlaneOrthogonalToZAxis())
+    {
+      if (cellCoords[i][2] == this->Plane[3])
+      {
+        cellCoords[i][2] +=
+          std::abs(cellCoords[i][2]) > std::sqrt(VTK_DBL_MIN) ? VTK_DBL_EPSILON * std::abs(cellCoords[i][2]) : std::sqrt(VTK_DBL_MIN);
+      }
+    }
   }
 
   // Check cell-plane intersection
@@ -385,17 +451,17 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal( vtkHyperTreeGrid
         else
         {
           // Check every edge of the current vertex.
-          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] < 0 )
+          if ( ! ( i & 1 ) && functEval[i] * functEval[i + 1] <= 0 )
           {
             // Edge in X
             this->PlaneCut( i, i + 1, cellCoords, n, points );
           }
-          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] < 0 )
+          if ( ! ( i & 2 ) && functEval[i] * functEval[i + 2] <= 0 )
           {
             // Edge in Y
             this->PlaneCut( i, i + 2, cellCoords, n, points );
           }
-          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] < 0 )
+          if ( ! ( i & 4 ) && functEval[i] * functEval[i + 4] <= 0 )
           {
             // Edge in Z
             this->PlaneCut( i, i + 4, cellCoords, n, points );
@@ -608,7 +674,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridNo
             this->Points->InsertNextPoint( pt );
 
             // Copy cut point data to that of corresponding output point
-            this->OutData->CopyData( pdata, i, i + offset );
+            this->OutData->CopyData(pdata, i, i + offset);
           } // i
 
           // Append new elements to existing cut element
@@ -623,7 +689,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreeDual( vtkHyperTreeGridNo
             vtkIdType n = vertices->GetNumberOfIds();
             for ( int j = 0; j < n; ++ j )
             {
-              ids[j] = vertices->GetId( j ) + offset;
+              ids[j] = vertices->GetId(j) + offset;
             } // j
 
             // Insert next cell with offset ids
@@ -690,6 +756,33 @@ bool vtkHyperTreeGridPlaneCutter::CheckIntersection( double cellCoords[8][3] )
   }
 
   return ! sameSign;
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridPlaneCutter::SetPlane(double a, double b, double c, double d)
+{
+  assert (!(a == 0 && b == 0 && c == 0) && "Plane's normal equals zero");
+  this->Plane[0] = a;
+  this->Plane[1] = b;
+  this->Plane[2] = c;
+  this->Plane[3] = d;
+  if (a == 0.0 && b == 0.0)
+  {
+    this->AxisAlignment = 2;
+  }
+  else if (b == 0.0 && c == 0.0)
+  {
+    this->AxisAlignment = 0;
+  }
+  else if (a == 0.0 && c == 0.0)
+  {
+    this->AxisAlignment = 1;
+  }
+  else
+  {
+    this->AxisAlignment = -1;
+  }
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
