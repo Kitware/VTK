@@ -244,19 +244,15 @@ public:
    */
   virtual vtkMTimeType GetContextCreationTime();
 
-  //@{
   /**
    * Returns an Shader Cache object
    */
-  vtkGetObjectMacro(ShaderCache,vtkOpenGLShaderCache);
-  //@}
+  vtkOpenGLShaderCache *GetShaderCache();
 
-  //@{
   /**
-   * Returns an Shader Cache object
+   * Returns the VBO Cache
    */
-  vtkGetObjectMacro(VBOCache,vtkOpenGLVertexBufferObjectCache);
-  //@}
+  vtkOpenGLVertexBufferObjectCache *GetVBOCache();
 
   //@{
   /**
@@ -451,17 +447,11 @@ protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
 
-  vtkOpenGLShaderCache *ShaderCache;
-  vtkOpenGLVertexBufferObjectCache *VBOCache;
-
   // used in testing for opengl support
   // in the SupportsOpenGL() method
   bool OpenGLSupportTested;
   int OpenGLSupportResult;
   std::string OpenGLSupportMessage;
-
-  int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
-  void InitializeTextureInternalFormats();
 
   virtual int ReadPixels(const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0);
 
@@ -532,6 +522,8 @@ protected:
 
   // noise texture
   vtkTextureObject *NoiseTextureObject;
+
+  double FirstRenderTime;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

@@ -45,6 +45,7 @@
 #include "vtkStringOutputWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
+#include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkTextureObjectVS.h"  // a pass through shader
@@ -193,13 +194,10 @@ const char *vtkOpenGLRenderWindow::GetRenderingBackend()
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
-  this->State = new vtkOpenGLState;
+  this->State = vtkOpenGLState::New();
 
   this->Initialized = false;
   this->GlewInitValid = false;
-
-  this->ShaderCache = vtkOpenGLShaderCache::New();
-  this->VBOCache = vtkOpenGLVertexBufferObjectCache::New();
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   delete [] this->WindowName;
@@ -231,6 +229,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->TQuad2DVBO = nullptr;
   this->NoiseTextureObject = nullptr;
+  this->FirstRenderTime = -1;
 }
 
 // free up memory & close the window
@@ -257,8 +256,6 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   }
   this->GLStateIntegers.clear();
 
-  this->ShaderCache->UnRegister(this);
-
   if (this->TQuad2DVBO)
   {
     this->TQuad2DVBO->Delete();
@@ -273,8 +270,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   delete [] this->Capabilities;
   this->Capabilities = nullptr;
 
-  this->VBOCache->UnRegister(this);
-  delete this->State;
+  this->State->Delete();
 }
 
 const char* vtkOpenGLRenderWindow::ReportCapabilities()
@@ -368,7 +364,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
      this->DrawPixelsTextureObject->ReleaseGraphicsResources(renWin);
   }
 
-  this->ShaderCache->ReleaseGraphicsResources(renWin);
+  this->GetShaderCache()->ReleaseGraphicsResources(renWin);
   //this->VBOCache->ReleaseGraphicsResources(renWin);
 
   this->GetState()->VerifyNoActiveTextures();
@@ -382,8 +378,8 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 
   this->PopContext();
 
-  delete this->State;
-  this->State = new vtkOpenGLState();
+  this->State->Delete();
+  this->State = vtkOpenGLState::New();
 
   this->Initialized = false;
 }
@@ -392,6 +388,18 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 vtkMTimeType vtkOpenGLRenderWindow::GetContextCreationTime()
 {
   return this->ContextCreationTime.GetMTime();
+}
+
+// ----------------------------------------------------------------------------
+vtkOpenGLShaderCache *vtkOpenGLRenderWindow::GetShaderCache()
+{
+  return this->GetState()->GetShaderCache();
+}
+
+// ----------------------------------------------------------------------------
+vtkOpenGLVertexBufferObjectCache *vtkOpenGLRenderWindow::GetVBOCache()
+{
+  return this->GetState()->GetVBOCache();
 }
 
 // ----------------------------------------------------------------------------
@@ -529,159 +537,14 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   int rgba[4];
   this->GetColorBufferSizes(rgba);
   this->SetAlphaBitPlanes(rgba[3]);
-
-  this->InitializeTextureInternalFormats();
 }
 
 int vtkOpenGLRenderWindow::GetDefaultTextureInternalFormat(
   int vtktype, int numComponents,
   bool needInt, bool needFloat, bool needSRGB)
 {
-  // 0 = none
-  // 1 = float
-  // 2 = int
-  if (vtktype >= VTK_UNICODE_STRING)
-  {
-    return 0;
-  }
-  if (needInt)
-  {
-    return this->TextureInternalFormats[vtktype][2][numComponents];
-  }
-  if (needFloat)
-  {
-    return this->TextureInternalFormats[vtktype][1][numComponents];
-  }
-  int result = this->TextureInternalFormats[vtktype][0][numComponents];
-  if (needSRGB)
-  {
-    switch (result)
-    {
-#ifdef GL_ES_VERSION_3_0
-      case GL_RGB: result = GL_SRGB8; break;
-      case GL_RGBA: result = GL_SRGB8_ALPHA8; break;
-#else
-      case GL_RGB: result = GL_SRGB; break;
-      case GL_RGBA: result = GL_SRGB_ALPHA; break;
-#endif
-      case GL_RGB8: result = GL_SRGB8; break;
-      case GL_RGBA8: result = GL_SRGB8_ALPHA8; break;
-      default: break;
-    }
-  }
-  return result;
-}
-
-void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
-{
-  // 0 = none
-  // 1 = float
-  // 2 = int
-
-  // initialize to zero
-  for (int dtype = 0; dtype < VTK_UNICODE_STRING; dtype++)
-  {
-    for (int ctype = 0; ctype < 3; ctype++)
-    {
-      for (int comp = 0; comp <= 4; comp++)
-      {
-        this->TextureInternalFormats[dtype][ctype][comp] = 0;
-      }
-    }
-  }
-
-  this->TextureInternalFormats[VTK_VOID][0][1] = GL_DEPTH_COMPONENT;
-
-#ifdef GL_R8
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][1] = GL_R8;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][2] = GL_RG8;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][3] = GL_RGB8;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][4] = GL_RGBA8;
-#else
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][1] = GL_LUMINANCE;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][2] = GL_LUMINANCE_ALPHA;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][3] = GL_RGB;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][4] = GL_RGBA;
-#endif
-
-#ifdef GL_R16
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][1] = GL_R16;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][2] = GL_RG16;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][3] = GL_RGB16;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][4] = GL_RGBA16;
-#endif
-
-#ifdef GL_R8_SNORM
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][1] = GL_R8_SNORM;
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][2] = GL_RG8_SNORM;
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][3] = GL_RGB8_SNORM;
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][4] = GL_RGBA8_SNORM;
-#endif
-
-#ifdef GL_R16_SNORM
-  this->TextureInternalFormats[VTK_SHORT][0][1] = GL_R16_SNORM;
-  this->TextureInternalFormats[VTK_SHORT][0][2] = GL_RG16_SNORM;
-  this->TextureInternalFormats[VTK_SHORT][0][3] = GL_RGB16_SNORM;
-  this->TextureInternalFormats[VTK_SHORT][0][4] = GL_RGBA16_SNORM;
-#endif
-
-#ifdef GL_R8I
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][1] = GL_R8I;
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][2] = GL_RG8I;
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][3] = GL_RGB8I;
-  this->TextureInternalFormats[VTK_SIGNED_CHAR][2][4] = GL_RGBA8I;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][1] = GL_R8UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][2] = GL_RG8UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][3] = GL_RGB8UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][4] = GL_RGBA8UI;
-
-  this->TextureInternalFormats[VTK_SHORT][2][1] = GL_R16I;
-  this->TextureInternalFormats[VTK_SHORT][2][2] = GL_RG16I;
-  this->TextureInternalFormats[VTK_SHORT][2][3] = GL_RGB16I;
-  this->TextureInternalFormats[VTK_SHORT][2][4] = GL_RGBA16I;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][1] = GL_R16UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][2] = GL_RG16UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][3] = GL_RGB16UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][4] = GL_RGBA16UI;
-
-  this->TextureInternalFormats[VTK_INT][2][1] = GL_R32I;
-  this->TextureInternalFormats[VTK_INT][2][2] = GL_RG32I;
-  this->TextureInternalFormats[VTK_INT][2][3] = GL_RGB32I;
-  this->TextureInternalFormats[VTK_INT][2][4] = GL_RGBA32I;
-  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][1] = GL_R32UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][2] = GL_RG32UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][3] = GL_RGB32UI;
-  this->TextureInternalFormats[VTK_UNSIGNED_INT][2][4] = GL_RGBA32UI;
-#endif
-
-  // on mesa we may not have float textures even though we think we do
-  // this is due to Mesa being impacted by a patent issue with SGI
-  // that is due to expire in the US in summer 2018
-#ifndef GL_ES_VERSION_3_0
-  const char *glVersion =
-    reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  if (glVersion && strstr(glVersion,"Mesa") != nullptr &&
-      !GLEW_ARB_texture_float)
-  {
-    // mesa without float support cannot even use
-    // uchar textures with underlying float data
-    // so pretty much anything with float data
-    // is out of luck so return
-    return;
-  }
-#endif
-
-#ifdef GL_R32F
-  this->TextureInternalFormats[VTK_FLOAT][1][1] = GL_R32F;
-  this->TextureInternalFormats[VTK_FLOAT][1][2] = GL_RG32F;
-  this->TextureInternalFormats[VTK_FLOAT][1][3] = GL_RGB32F;
-  this->TextureInternalFormats[VTK_FLOAT][1][4] = GL_RGBA32F;
-
-  this->TextureInternalFormats[VTK_SHORT][1][1] = GL_R32F;
-  this->TextureInternalFormats[VTK_SHORT][1][2] = GL_RG32F;
-  this->TextureInternalFormats[VTK_SHORT][1][3] = GL_RGB32F;
-  this->TextureInternalFormats[VTK_SHORT][1][4] = GL_RGBA32F;
-#endif
+  return this->GetState()->GetDefaultTextureInternalFormat(
+    vtktype, numComponents, needInt, needFloat, needSRGB);
 }
 
 void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
@@ -2370,6 +2233,13 @@ int vtkOpenGLRenderWindow::GetNoiseTextureUnit()
 void vtkOpenGLRenderWindow::Render()
 {
   this->Superclass::Render();
+
+  if (this->FirstRenderTime < 0)
+  {
+    this->FirstRenderTime = vtkTimerLog::GetUniversalTime();
+  }
+  this->GetShaderCache()->SetElapsedTime(vtkTimerLog::GetUniversalTime() - this->FirstRenderTime);
+
   if (this->NoiseTextureObject &&
     this->GetTextureUnitForTexture(this->NoiseTextureObject) >= 0)
   {

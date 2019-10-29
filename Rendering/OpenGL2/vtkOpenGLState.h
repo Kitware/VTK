@@ -33,6 +33,10 @@
  * state become no-ops. Queries of state can be done by querying the
  * state stored in this class without impacting the OpenGL driver.
  *
+ * This class is designed to hold all context related values and
+ * could just as well be considered a representation of the OpenGL
+ * context.
+ *
  * To facilitate saving state and restoring it this class contains
  * a number of nested classes named Scoped<glFunction> that store
  * the state of that glFunction and when they go out of scope they restore
@@ -67,14 +71,16 @@
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
+class vtkOpenGLShaderCache;
+class vtkOpenGLVertexBufferObjectCache;
 class vtkTextureObject;
 class vtkTextureUnitManager;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLState
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLState : public vtkObject
 {
 public:
-  vtkOpenGLState(); // set initial values
-  ~vtkOpenGLState();
+  static vtkOpenGLState *New();
+  vtkTypeMacro(vtkOpenGLState, vtkObject);
 
   //@{
   // cached OpenGL methods. By calling these the context will check
@@ -112,6 +118,8 @@ public:
 
   //@{
   // Methods to reset the state to the current OpenGL context value.
+  // These methods are useful when interfacing with third party code
+  // that may have changed the opengl state.
   //
   void ResetGLClearColorState();
   void ResetGLClearDepthState();
@@ -134,9 +142,8 @@ public:
 
 
   //@{
-  // Get methods that can be used to query state
-  // if the state is not cached they fall through
-  // and call the underlying opengl functions
+  // Get methods that can be used to query state if the state is not cached
+  // they fall through and call the underlying opengl functions
   void vtkglGetBooleanv(unsigned int pname, unsigned char *params);
   void vtkglGetIntegerv(unsigned int pname, int *params);
   void vtkglGetDoublev(unsigned int pname, double *params);
@@ -277,12 +284,39 @@ public:
    */
   vtkTextureUnitManager *GetTextureUnitManager();
 
+  // get the shader program cache for this context
+  vtkGetObjectMacro(ShaderCache, vtkOpenGLShaderCache);
+
+  // get the vbo buffer cache for this context
+  vtkGetObjectMacro(VBOCache, vtkOpenGLVertexBufferObjectCache);
+
+  // set the VBO Cache to use for this state
+  // this allows two contexts to share VBOs
+  // basically this is OPenGL's support for shared
+  // lists
+  void SetVBOCache(vtkOpenGLVertexBufferObjectCache *val);
+
+  /**
+   * Get a mapping of vtk data types to native texture formats for this window
+   * we put this on the RenderWindow so that every texture does not have to
+   * build these structures themselves
+   */
+  int GetDefaultTextureInternalFormat(
+    int vtktype, int numComponents,
+    bool needInteger, bool needFloat, bool needSRGB);
+
 protected:
+  vtkOpenGLState(); // set initial values
+  ~vtkOpenGLState() override;
+
   void BlendFuncSeparate(std::array<unsigned int, 4> val);
   void ClearColor(std::array<float, 4> val);
   void ColorMask(std::array<unsigned char, 4> val);
   void Scissor(std::array<int, 4> val);
   void Viewport(std::array<int, 4> val);
+
+  int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
+  void InitializeTextureInternalFormats();
 
   vtkTextureUnitManager *TextureUnitManager;
   std::map<const vtkTextureObject *, int> TextureResourceIds;
@@ -345,6 +379,9 @@ protected:
   };
 
   GLState CurrentState;
+
+  vtkOpenGLVertexBufferObjectCache *VBOCache;
+  vtkOpenGLShaderCache *ShaderCache;
 
 private:
   vtkOpenGLState(const vtkOpenGLState&) = delete;
