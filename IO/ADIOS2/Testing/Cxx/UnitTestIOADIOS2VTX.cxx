@@ -33,6 +33,7 @@
 #include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
+#include "vtkTesting.h"
 
 #include <string>
 
@@ -526,7 +527,9 @@ void WriteBPFileUnsupportedType(const std::string& fileName)
 int UnitTestIOADIOS2VTX(int argc, char* argv[])
 {
   auto lf_GetFileName = [](const size_t id) -> std::string {
-    return "dummy_" + std::to_string(id) + ".bp";
+    vtkNew<vtkTesting> testing;
+    const std::string rootDirectory(testing->GetTempDirectory());
+    return rootDirectory + "/dummy_" + std::to_string(id) + ".bp";
   };
 
   auto lf_Test = [&](const std::string& fileName, const size_t id, const bool print = false) {

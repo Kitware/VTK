@@ -50,6 +50,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <adios2.h>
@@ -148,7 +149,9 @@ int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(mpiController);
   const int rank = MPIGetRank();
 
-  const std::string fileName = "testVTU.bp";
+  vtkNew<vtkTesting> testing;
+  const std::string rootDirectory(testing->GetTempDirectory());
+  const std::string fileName = rootDirectory + "/testVTU.bp";
   if (rank == 0)
   {
     WriteBP(fileName);
