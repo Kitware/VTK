@@ -17,7 +17,6 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOpenFOAMReaderRegEx.cxx,NO_VALID
   TestProStarReader.cxx
   TestTecplotReader.cxx
-  #TestTecplotReader2.cxx,NO_VALID
   TestAMRReadWrite.cxx,NO_VALID
   TestSimplePointsReaderWriter.cxx,NO_VALID
   TestHoudiniPolyDataWriter.cxx,NO_VALID
