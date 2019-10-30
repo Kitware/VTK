@@ -71,62 +71,48 @@ string vtkErrorObserver::ErrorMessage = string();
 int TestTecplotReader2( int argc, char *argv[] )
 {
   char* dataRoot = vtkTestUtilities::GetDataRoot(argc, argv);
-  string tecplotDir = string(dataRoot) + "/Data/TecPlot/";
+  const string tecplotDir = string(dataRoot) + "/Data/TecPlot/";
 
-  vtkNew<vtkDirectory> dir;
-  if (1 != dir->Open(tecplotDir.c_str()))
+  if (argc < 2)
   {
-    cerr << "Unable to list files in " << tecplotDir << endl;
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
   }
+
+  const char* filename = argv[1];
 
   vtkNew<vtkCallbackCommand> cmd;
   cmd->SetCallback(&(vtkErrorObserver::OnError));
 
-  int nErrors(0);
-  for (int i = 0; i < dir->GetNumberOfFiles(); ++i)
+  const string ext = vtksys::SystemTools::GetFilenameLastExtension(filename);
+  if (ext != ".dat")
   {
-    string filename = tecplotDir;
-    filename += dir->GetFile(i);
-    string ext = vtksys::SystemTools::GetFilenameLastExtension(filename);
-    if (ext != ".dat")
-    {
-      continue;
-    }
-
-    vtkErrorObserver::Reset();
-    vtkNew<vtkTecplotReader> r;
-    r->AddObserver("ErrorEvent", cmd);
-    r->SetFileName(filename.c_str());
-    r->Update();
-    r->RemoveAllObservers();
-
-    vtkMultiBlockDataSet* ds = r->GetOutput();
-    if (ds == nullptr)
-    {
-      cerr << "Failed to read data set from " << filename << endl;
-      return EXIT_FAILURE;
-    }
-    if (vtkErrorObserver::HasError)
-    {
-      nErrors++;
-      cerr << "Failed to read from " << filename << endl;
-      if (!vtkErrorObserver::ErrorMessage.empty())
-      {
-        cerr << "Error message: " << vtkErrorObserver::ErrorMessage << endl;
-      }
-    }
+    return EXIT_FAILURE;
   }
 
-  if (nErrors > 0)
+  vtkErrorObserver::Reset();
+  vtkNew<vtkTecplotReader> r;
+  r->AddObserver("ErrorEvent", cmd);
+  r->SetFileName((tecplotDir + filename).c_str());
+  r->Update();
+  r->RemoveAllObservers();
+
+  vtkMultiBlockDataSet* ds = r->GetOutput();
+  if (ds == nullptr)
   {
-    cerr << nErrors << "/" << dir->GetNumberOfFiles() << " files could not be loaded" << endl;
+    cerr << "Failed to read data set from " << filename << endl;
+    return EXIT_FAILURE;
   }
-  else
+  if (vtkErrorObserver::HasError)
   {
-    cout << "All files were loaded without errors." << endl;
+    cerr << "Failed to read from " << filename << endl;
+    if (!vtkErrorObserver::ErrorMessage.empty())
+    {
+      cerr << "Error message: " << vtkErrorObserver::ErrorMessage << endl;
+    }
+    return EXIT_FAILURE;
   }
 
+  cout << filename << " was read without errors." << endl;
   delete[] dataRoot;
-  return nErrors > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
