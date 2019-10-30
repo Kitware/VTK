@@ -10,6 +10,7 @@ set(classes
   vtkAssignAttribute
   vtkAttributeDataToFieldDataFilter
   vtkBinCellDataFilter
+  vtkBinnedDecimation
   vtkCellDataToPointData
   vtkCellCenters
   vtkCenterOfMass
