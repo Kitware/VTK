@@ -50,8 +50,6 @@
 #include "vtk_zlib.h"
 #include <vtksys/SystemTools.hxx>
 
-#include <fstream>
-
 #include <cctype> // for isspace(), isalnum()
 
 vtkStandardNewMacro( vtkTecplotReader );
@@ -1079,6 +1077,68 @@ void vtkTecplotReader::GetStructuredGridFromPointPackingZone
   strcGrid = nullptr;
 }
 
+void vtkTecplotReader::GetPolygonalGridFromBlockPackingZone
+  ( int numNodes, int numCells, int numFaces,
+    int zoneIndx, const char * zoneName, vtkMultiBlockDataSet * multZone)
+{
+  vtkPoints *           gridPnts = vtkPoints::New();
+  vtkUnstructuredGrid * unstruct = vtkUnstructuredGrid::New();
+  this->GetArraysFromBlockPackingZone( numNodes, numCells,
+        gridPnts, unstruct->GetPointData(), unstruct->GetCellData() );
+
+  unstruct->SetPoints( gridPnts );
+  gridPnts->Delete();
+  gridPnts = nullptr;
+
+  this->GetPolygonalGridCells(numCells, numFaces, unstruct);
+
+    if (    (    this->Internal->TopologyDim == 2
+            || this->Internal->TopologyDim == 3
+          )
+       || (    this->Internal->TopologyDim == 0
+            && this->Internal->GeometryDim >  1
+          )
+     )
+  {
+    multZone->SetBlock( zoneIndx, unstruct );
+    multZone->GetMetaData( zoneIndx )
+            ->Set( vtkCompositeDataSet::NAME(), zoneName );
+  }
+  unstruct->Delete();
+  unstruct = nullptr;
+}
+
+void vtkTecplotReader::GetPolyhedralGridFromBlockPackingZone
+  ( int numNodes, int numCells, int numFaces, int zoneIndx,
+    const char * zoneName, vtkMultiBlockDataSet * multZone )
+{
+  vtkPoints *           gridPnts = vtkPoints::New();
+  vtkUnstructuredGrid * unstruct = vtkUnstructuredGrid::New();
+  this->GetArraysFromBlockPackingZone( numNodes, numCells,
+        gridPnts, unstruct->GetPointData(), unstruct->GetCellData() );
+
+  unstruct->SetPoints( gridPnts );
+  gridPnts->Delete();
+  gridPnts = nullptr;
+
+  this->GetPolyhedralGridCells(numCells, numFaces, unstruct);
+
+    if (    (    this->Internal->TopologyDim == 2
+            || this->Internal->TopologyDim == 3
+          )
+       || (    this->Internal->TopologyDim == 0
+            && this->Internal->GeometryDim >  1
+          )
+     )
+  {
+    multZone->SetBlock( zoneIndx, unstruct );
+    multZone->GetMetaData( zoneIndx )
+            ->Set( vtkCompositeDataSet::NAME(), zoneName );
+  }
+  unstruct->Delete();
+  unstruct = nullptr;
+}
+
 // ----------------------------------------------------------------------------
 void vtkTecplotReader::GetUnstructuredGridFromBlockPackingZone
   ( int numNodes, int numCells, const char * cellType,
@@ -1152,6 +1212,223 @@ void vtkTecplotReader::GetUnstructuredGridFromPointPackingZone
   unstruct->Delete();
   unstruct = nullptr;
 }
+
+void vtkTecplotReader::GetPolyhedralGridCells
+  ( int numCells, int numFaces, vtkUnstructuredGrid * unstruct) const
+{
+  auto tok = this->Internal->GetNextToken();
+  while(tok.empty())
+  {
+    tok = this->Internal->GetNextToken();
+  }
+
+  std::vector<size_t> nodeCountPerFace;
+  nodeCountPerFace.push_back(static_cast<size_t>(atoi(tok.c_str())));
+
+  for(vtkIdType i = 1; i < numFaces; ++i)
+  {
+    tok = this->Internal->GetNextToken();
+    while(tok.empty())
+    {
+      tok = this->Internal->GetNextToken();
+    }
+    nodeCountPerFace.push_back(static_cast<size_t>(atoi(tok.c_str())));
+  }
+
+  std::vector<std::vector<vtkIdType>> faces;
+  for(vtkIdType i = 0; i < numFaces; ++i)
+  {
+    const size_t nodeCount = nodeCountPerFace[i];
+    std::vector<vtkIdType> face;
+    face.reserve(nodeCount);
+
+    for (size_t j = 0; j < nodeCount; ++j)
+    {
+      tok = this->Internal->GetNextToken();
+      while(tok.empty())
+      {
+        tok = this->Internal->GetNextToken();
+      }
+      auto aVertexIndex = static_cast<vtkIdType>(atoi(tok.c_str()));
+      face.push_back(aVertexIndex - 1); // convert from FORTRAN to C-indexing
+    }
+
+    faces.push_back(face);
+  }
+
+  std::map<vtkIdType, std::vector<vtkIdType>> polyhedra;
+
+  for(vtkIdType i = 0; i < numFaces; ++i)
+  {
+    tok = this->Internal->GetNextToken();
+    while(tok.empty())
+    {
+      tok = this->Internal->GetNextToken();
+    }
+    const auto rightCell = static_cast<vtkIdType>(atoi(tok.c_str()));
+    if (rightCell > 0)
+    {
+      polyhedra[rightCell - 1].push_back(i);
+    }
+  }
+
+  for(vtkIdType i = 0; i < numFaces; ++i)
+  {
+    tok = this->Internal->GetNextToken();
+    while(tok.empty())
+    {
+      tok = this->Internal->GetNextToken();
+    }
+    const auto leftCell = static_cast<vtkIdType>(atoi(tok.c_str()));
+    if(leftCell > 0)
+    {
+      polyhedra[leftCell - 1].push_back(i);
+    }
+  }
+
+  for(auto& entry : polyhedra)
+  {
+    const auto& facesOfPolyhedron = entry.second;
+    std::vector<vtkIdType> polyhedron;
+
+    for(auto& aFaceIndex : facesOfPolyhedron)
+    {
+      const auto& aFace = faces[aFaceIndex];
+      const auto faceSize = static_cast<vtkIdType>(aFace.size());
+      polyhedron.push_back(faceSize);
+      for(auto& aVertexIndex : aFace)
+      {
+        polyhedron.push_back(aVertexIndex);
+      }
+    }
+    unstruct->InsertNextCell(VTK_POLYHEDRON,
+      static_cast<vtkIdType>(facesOfPolyhedron.size()), polyhedron.data());
+  }
+
+  if (unstruct->GetNumberOfCells() != numCells)
+  {
+    vtkWarningMacro(<< "Number of polyhedral cells does not match.")
+  }
+
+}
+
+void OrderEdges(const std::vector<vtkIdType>& faceEdges,
+  const std::vector<std::pair<vtkIdType, vtkIdType>>& allEdges, vtkIdList* face)
+{
+  face->Reset();
+  if (faceEdges.empty())
+    return;
+
+  const auto& firstEdge = allEdges[faceEdges[0]];
+  const vtkIdType from = firstEdge.first;
+  face->InsertNextId(from);
+  vtkIdType to = firstEdge.second;
+  face->InsertNextId(to);
+
+  size_t i = 0;
+  while(to != from)
+  {
+    for(size_t j = 0; j < faceEdges.size(); ++j)
+    {
+      if (i == j) continue;
+
+      const auto& edge = allEdges[faceEdges[j]];
+      if (edge.first == to)
+      {
+        to = edge.second;
+        i = j;
+        face->InsertNextId(to);
+        break;
+      }
+      else if (edge.second == to)
+      {
+        to = edge.first;
+        i = j;
+        face->InsertNextId(to);
+        break;
+      }
+    }
+
+    if (face->GetNumberOfIds() > static_cast<vtkIdType>(faceEdges.size() + 1))
+    {
+       // should not happen, but better exit than ending up in a continuous loop
+      break;
+    }
+  }
+
+  face->Resize(face->GetNumberOfIds()-1);
+}
+
+
+void vtkTecplotReader::GetPolygonalGridCells
+  ( int numFaces, int numEdges, vtkUnstructuredGrid * unstruct ) const
+{
+  std::vector<std::pair<vtkIdType, vtkIdType>> edges;
+
+  for(int i = 0; i < numEdges; ++i)
+  {
+    auto tok1 = this->Internal->GetNextToken();
+    while(tok1.empty())
+    {
+      tok1 = this->Internal->GetNextToken();
+    }
+    auto tok2 = this->Internal->GetNextToken();
+    while(tok2.empty())
+    {
+      tok2 = this->Internal->GetNextToken();
+    }
+
+    const auto e1 = static_cast<vtkIdType>(atoi(tok1.c_str()));
+    const auto e2 = static_cast<vtkIdType>(atoi(tok2.c_str()));
+    edges.emplace_back(e1 - 1, e2 - 1); // convert from FORTRAN to C-indexing
+  }
+
+  std::map<vtkIdType, std::vector<vtkIdType>> faceEdges;
+
+  for(int i = 0; i < numEdges; ++i)
+  {
+    auto tok = this->Internal->GetNextToken();
+    while(tok.empty())
+    {
+      tok = this->Internal->GetNextToken();
+    }
+
+    const auto leftElement = static_cast<vtkIdType>(atoi(tok.c_str()));
+    if (leftElement > 0)
+    {
+      faceEdges[leftElement-1].push_back(i);
+    }
+  }
+
+  for(int i = 0; i < numEdges; ++i)
+  {
+    auto tok = this->Internal->GetNextToken();
+    while(tok.empty())
+    {
+      tok = this->Internal->GetNextToken();
+    }
+
+    const auto rightElement = static_cast<vtkIdType>(atoi(tok.c_str()));
+    if (rightElement > 0)
+    {
+      faceEdges[rightElement-1].push_back(i);
+    }
+  }
+
+  if (faceEdges.size() != static_cast<size_t>(numFaces))
+  {
+    vtkWarningMacro(<<" number of faces does not match.")
+  }
+
+  vtkNew<vtkIdList> face;
+  for(auto& entry : faceEdges)
+  {
+    OrderEdges(entry.second, edges, face);
+    unstruct->InsertNextCell(VTK_POLYGON, face->GetNumberOfIds(), face->GetPointer(0));
+  }
+}
+
+
 
 // ----------------------------------------------------------------------------
 void vtkTecplotReader::GetUnstructuredGridCells( int numberCells,
@@ -1613,6 +1890,9 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       int      numJ = 1;
       int      numK = 1;
       int      numNodes    = 0;
+      int      numFaces    = 0;
+      int      numConnectedBoundaryFaces(-1);
+      int      totalNumBoundaryConnections(-1);
       int      numElements = 0;
       char     untitledZoneName[40];
       snprintf( untitledZoneName, sizeof(untitledZoneName), "zone%05d", zoneIndex );
@@ -1760,6 +2040,12 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
                          << "'SOLUTIONTIME' is currently unsupported." );
           this->Internal->GetNextToken();
         }
+        else if (tok == "PARENTZONE")
+        {
+          vtkWarningMacro( << this->FileName << "; Tecplot zone record parameter "
+                         << "'PARENTZONE' is currently unsupported." );
+          this->Internal->GetNextToken();
+        }
         else if (tok == "AUXDATA")
         {
           while (READ_UNTIL_LINE_END)
@@ -1773,6 +2059,31 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
             {
               break;
             }
+          }
+        }
+        else if (tok == "FACES")
+        {
+          numFaces = atoi( this->Internal->GetNextToken().c_str() );
+        }
+        else if (tok == "TOTALNUMFACENODES")
+        {
+          // this parameter is not used
+          this->Internal->GetNextToken();
+        }
+        else if (tok == "NUMCONNECTEDBOUNDARYFACES")
+        {
+          numConnectedBoundaryFaces = atoi( this->Internal->GetNextToken().c_str() );
+          if (0 != numConnectedBoundaryFaces)
+          {
+            vtkWarningMacro(<< "Non-zero number of connected boundary faces is not supported.")
+          }
+        }
+        else if (tok == "TOTALNUMBOUNDARYCONNECTIONS")
+        {
+          totalNumBoundaryConnections = atoi( this->Internal->GetNextToken().c_str() );
+          if (0 != totalNumBoundaryConnections)
+          {
+            vtkWarningMacro(<< "Non-zero number of total #boundary faces is not supported.")
           }
         }
         else
@@ -1852,6 +2163,16 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
             this->GetUnstructuredGridFromBlockPackingZone(numNodes, numElements,
                   elType.c_str(), zoneIndex, ZoneName.c_str(), multZone);
           }
+        }
+        else if (zoneType == "FEPOLYHEDRON")
+        {
+          this->GetPolyhedralGridFromBlockPackingZone(numNodes, numElements,numFaces,
+                                                      zoneIndex, ZoneName.c_str(), multZone);
+        }
+        else if (zoneType == "FEPOLYGON")
+        {
+          this->GetPolygonalGridFromBlockPackingZone(numNodes, numElements,numFaces,
+                                                     zoneIndex, ZoneName.c_str(), multZone);
         }
         else
         {
