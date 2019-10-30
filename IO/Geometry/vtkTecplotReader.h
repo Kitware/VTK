@@ -289,14 +289,14 @@ protected:
    * polyhedral cells to define the grid topology.
    */
   void    GetPolyhedralGridCells(int numberCells, int numFaces,
-          vtkUnstructuredGrid * unstruct);
+          vtkUnstructuredGrid * unstruct) const;
 
    /**
    * This function fills an allocated vtkUnstructuredGrid object with numberCells
    * polygonal cells to define the grid topology.
    */
   void    GetPolygonalGridCells(int numFaces, int numEdges,
-          vtkUnstructuredGrid * unstruct);
+          vtkUnstructuredGrid * unstruct) const;
 
   /**
    * This function creates a vtkUnstructuredGrid object made up of a set of

@@ -1214,7 +1214,7 @@ void vtkTecplotReader::GetUnstructuredGridFromPointPackingZone
 }
 
 void vtkTecplotReader::GetPolyhedralGridCells
-  ( int numCells, int numFaces, vtkUnstructuredGrid * unstruct)
+  ( int numCells, int numFaces, vtkUnstructuredGrid * unstruct) const
 {
   auto tok = this->Internal->GetNextToken();
   while(tok.empty())
@@ -1265,7 +1265,7 @@ void vtkTecplotReader::GetPolyhedralGridCells
     {
       tok = this->Internal->GetNextToken();
     }
-    vtkIdType rightCell = static_cast<vtkIdType>(atoi(tok.c_str()));
+    const auto rightCell = static_cast<vtkIdType>(atoi(tok.c_str()));
     if (rightCell > 0)
     {
       polyhedra[rightCell - 1].push_back(i);
@@ -1279,7 +1279,7 @@ void vtkTecplotReader::GetPolyhedralGridCells
     {
       tok = this->Internal->GetNextToken();
     }
-    vtkIdType leftCell = static_cast<vtkIdType>(atoi(tok.c_str()));
+    const auto leftCell = static_cast<vtkIdType>(atoi(tok.c_str()));
     if(leftCell > 0)
     {
       polyhedra[leftCell - 1].push_back(i);
@@ -1294,14 +1294,15 @@ void vtkTecplotReader::GetPolyhedralGridCells
     for(auto& aFaceIndex : facesOfPolyhedron)
     {
       const auto& aFace = faces[aFaceIndex];
-      polyhedron.push_back(aFace.size());
+      const auto faceSize = static_cast<vtkIdType>(aFace.size());
+      polyhedron.push_back(faceSize);
       for(auto& aVertexIndex : aFace)
       {
         polyhedron.push_back(aVertexIndex);
       }
     }
     unstruct->InsertNextCell(VTK_POLYHEDRON,
-      facesOfPolyhedron.size(), polyhedron.data());
+      static_cast<vtkIdType>(facesOfPolyhedron.size()), polyhedron.data());
   }
 
   if (unstruct->GetNumberOfCells() != numCells)
@@ -1360,7 +1361,7 @@ void OrderEdges(const std::vector<vtkIdType>& faceEdges,
 
 
 void vtkTecplotReader::GetPolygonalGridCells
-  ( int numFaces, int numEdges, vtkUnstructuredGrid * unstruct )
+  ( int numFaces, int numEdges, vtkUnstructuredGrid * unstruct ) const
 {
   std::vector<std::pair<vtkIdType, vtkIdType>> edges;
 
@@ -1377,8 +1378,8 @@ void vtkTecplotReader::GetPolygonalGridCells
       tok2 = this->Internal->GetNextToken();
     }
 
-    auto e1 = static_cast<vtkIdType>(atoi(tok1.c_str()));
-    auto e2 = static_cast<vtkIdType>(atoi(tok2.c_str()));
+    const auto e1 = static_cast<vtkIdType>(atoi(tok1.c_str()));
+    const auto e2 = static_cast<vtkIdType>(atoi(tok2.c_str()));
     edges.emplace_back(e1 - 1, e2 - 1); // convert from FORTRAN to C-indexing
   }
 
@@ -1392,7 +1393,7 @@ void vtkTecplotReader::GetPolygonalGridCells
       tok = this->Internal->GetNextToken();
     }
 
-    auto leftElement = static_cast<vtkIdType>(atoi(tok.c_str()));
+    const auto leftElement = static_cast<vtkIdType>(atoi(tok.c_str()));
     if (leftElement > 0)
     {
       faceEdges[leftElement-1].push_back(i);
@@ -1407,14 +1408,14 @@ void vtkTecplotReader::GetPolygonalGridCells
       tok = this->Internal->GetNextToken();
     }
 
-    auto rightElement = static_cast<vtkIdType>(atoi(tok.c_str()));
+    const auto rightElement = static_cast<vtkIdType>(atoi(tok.c_str()));
     if (rightElement > 0)
     {
       faceEdges[rightElement-1].push_back(i);
     }
   }
 
-  if (faceEdges.size() != numFaces)
+  if (faceEdges.size() != static_cast<size_t>(numFaces))
   {
     vtkWarningMacro(<<" number of faces does not match.")
   }
@@ -1425,8 +1426,6 @@ void vtkTecplotReader::GetPolygonalGridCells
     OrderEdges(entry.second, edges, face);
     unstruct->InsertNextCell(VTK_POLYGON, face->GetNumberOfIds(), face->GetPointer(0));
   }
-
-  // todo: convert edge-collection of each face into a VTK_POLYGON + add to grid
 }
 
 
@@ -1892,7 +1891,6 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
       int      numK = 1;
       int      numNodes    = 0;
       int      numFaces    = 0;
-      int      totalNumFaceNodes = 0;
       int      numConnectedBoundaryFaces(-1);
       int      totalNumBoundaryConnections(-1);
       int      numElements = 0;
@@ -2069,7 +2067,8 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         }
         else if (tok == "TOTALNUMFACENODES")
         {
-          totalNumFaceNodes = atoi( this->Internal->GetNextToken().c_str() );
+          // this parameter is not used
+          this->Internal->GetNextToken();
         }
         else if (tok == "NUMCONNECTEDBOUNDARYFACES")
         {
