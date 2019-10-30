@@ -15,7 +15,6 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
 
@@ -26,7 +25,6 @@
 #include <QtGui/QOpenGLFramebufferObject>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QWidget>
-
 
 
 //----------------------------------------------------------------------------
