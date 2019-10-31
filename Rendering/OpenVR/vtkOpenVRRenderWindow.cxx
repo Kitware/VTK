@@ -569,12 +569,6 @@ void  vtkOpenVRRenderWindow::StereoRenderComplete()
   }
 }
 
-// End the rendering process and display the image.
-// handled in stereo render complete
-void vtkOpenVRRenderWindow::Frame(void)
-{
-}
-
 bool vtkOpenVRRenderWindow::CreateFrameBuffer( int nWidth, int nHeight, FramebufferDesc &framebufferDesc )
 {
   glGenFramebuffers(1, &framebufferDesc.m_nRenderFramebufferId );

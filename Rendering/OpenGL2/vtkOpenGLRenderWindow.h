@@ -60,6 +60,12 @@ public:
   void Start(void) override;
 
   /**
+   * A termination method performed at the end of the rendering process
+   * to do things like swapping buffers (if necessary) or similar actions.
+   */
+  void Frame() override;
+
+  /**
    * What rendering backend has the user requested
    */
   const char *GetRenderingBackend() override;
@@ -259,6 +265,15 @@ public:
    * Returns the offscreen framebuffer object if any
    */
   vtkGetObjectMacro(OffScreenFramebuffer, vtkOpenGLFramebufferObject);
+  //@}
+
+  //@{
+  /**
+   * Render to an offscreen destination such as a framebuffer.
+   * All four combinations of ShowWindow and UseOffScreenBuffers
+   * should work for most rendering backends.
+   */
+  void SetUseOffScreenBuffers(bool) override;
   //@}
 
   /**
@@ -465,7 +480,6 @@ protected:
    */
   int CreateOffScreenFramebuffer(int width, int height);
   vtkOpenGLFramebufferObject *OffScreenFramebuffer;
-  bool OffScreenFramebufferBound;
 
   /**
    * Create a not-off-screen window.

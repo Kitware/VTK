@@ -152,7 +152,7 @@ public:
   void Render() override;
 
   /**
-   * Initialize the rendering process.
+   * Start the rendering process for a frame
    */
   virtual void Start() = 0;
 

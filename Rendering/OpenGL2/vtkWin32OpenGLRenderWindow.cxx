@@ -368,6 +368,7 @@ void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
 void vtkWin32OpenGLRenderWindow::Frame(void)
 {
   this->MakeCurrent();
+  this->Superclass::Frame();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
     // If this check is not enforced, we crash in offscreen rendering

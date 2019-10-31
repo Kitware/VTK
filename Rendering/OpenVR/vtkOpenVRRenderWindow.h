@@ -277,11 +277,6 @@ public:
   virtual void StereoRenderComplete();
 
   /**
-   * End the rendering process and display the image.
-   */
-  void Frame(void);
-
-  /**
    * Initialize the rendering window.  This will setup all system-specific
    * resources.  This method and Finalize() must be symmetric and it
    * should be possible to call them multiple times, even changing WindowId

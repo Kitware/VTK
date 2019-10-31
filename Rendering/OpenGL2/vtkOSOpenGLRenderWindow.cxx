@@ -126,6 +126,7 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
 void vtkOSOpenGLRenderWindow::Frame()
 {
   this->MakeCurrent();
+  this->Superclass::Frame();
 }
 
 //

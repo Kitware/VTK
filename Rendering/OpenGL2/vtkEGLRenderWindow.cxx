@@ -195,6 +195,7 @@ void vtkEGLRenderWindow::Frame()
 {
   vtkInternals* impl = this->Internals;
   this->MakeCurrent();
+  this->Superclass::Frame();
   if (this->OwnWindow)
   {
     if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers

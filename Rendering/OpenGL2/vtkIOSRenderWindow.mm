@@ -306,6 +306,7 @@ void vtkIOSRenderWindow::SetPosition(int x, int y)
 void vtkIOSRenderWindow::Frame()
 {
   this->MakeCurrent();
+  this->Superclass::Frame();
 
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {

@@ -643,6 +643,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
 void vtkCocoaRenderWindow::Frame()
 {
   this->MakeCurrent();
+  this->Superclass::Frame();
 
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
