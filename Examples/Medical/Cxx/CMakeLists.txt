@@ -3,15 +3,24 @@ project(Medical)
 
 find_package(VTK
   COMPONENTS
+    CommonCore
+    CommonDataModel
+    CommonTransforms
+    FiltersCore
+    FiltersGeneral
     FiltersGeometry
     FiltersModeling
     IOImage
     IOXML
-    ImagingStatistics
     ImagingCore
+    ImagingStatistics
+    InteractionStyle
     RenderingCore
     RenderingVolume
+    RenderingOpenGL2
+    RenderingVolumeOpenGL2
   OPTIONAL_COMPONENTS
+    TestingCore
     TestingRendering)
 if (NOT VTK_FOUND)
   message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
@@ -40,10 +49,27 @@ vtk_module_autoinit(
           Medical4
           GenerateModelsFromLabels
           GenerateCubesFromLabels
-  MODULES ${vtk_modules})
+  MODULES ${VTK_LIBRARIES})
 
-include(CTest)
+if (BUILD_TESTING)
+  include(CTest)
+  if (TARGET VTK::TestingRendering)
 
-if (TARGET VTK::TestingRendering)
-  add_subdirectory(Testing)
+    ######## Regression Testing ########
+    include(ExternalData)
+
+    ExternalData_Expand_Arguments(MedicalData _
+      DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/headsq/,REGEX:.*})
+
+    foreach(test Medical1 Medical2 Medical3 Medical4)
+      ExternalData_add_test(MedicalData
+        NAME    "MedicalExampleCxx-${test}"
+        COMMAND ${test}
+          ${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing/Data/headsq/quarter
+          -V DATA{${CMAKE_CURRENT_SOURCE_DIR}/Testing/Data/Baseline/${test}.png}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endforeach()
+
+    ExternalData_Add_Target(MedicalData)
+  endif ()
 endif ()

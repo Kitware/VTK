@@ -28,6 +28,7 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 #include <vtkColorTransferFunction.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkCamera.h>
+#include <vtkRegressionTestImage.h>
 
 int main (int argc, char *argv[])
 {
@@ -143,6 +144,22 @@ int main (int argc, char *argv[])
 
   // Increase the size of the render window
   renWin->SetSize(640, 480);
+
+  // For testing, check if "-V" is used to provide a regression test image
+  if (argc >= 4 && strcmp(argv[2], "-V") == 0)
+  {
+    renWin->Render();
+    int retVal = vtkRegressionTestImage(renWin);
+
+    if (retVal == vtkTesting::FAILED)
+    {
+      return EXIT_FAILURE;
+    }
+    else if (retVal != vtkTesting::DO_INTERACTOR)
+    {
+      return EXIT_SUCCESS;
+    }
+  }
 
   // Interact with the data.
   iren->Initialize();

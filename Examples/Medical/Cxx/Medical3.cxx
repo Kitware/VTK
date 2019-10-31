@@ -37,6 +37,7 @@
 #include <vtkImageActor.h>
 #include <vtkSmartPointer.h>
 #include <vtkImageMapper3D.h>
+#include <vtkRegressionTestImage.h>
 
 int main (int argc, char *argv[])
 {
@@ -287,6 +288,21 @@ int main (int argc, char *argv[])
   // between the planes is actually rendered.
   aRenderer->ResetCameraClippingRange ();
 
+  // For testing, check if "-V" is used to provide a regression test image
+  if (argc >= 4 && strcmp(argv[2], "-V") == 0)
+  {
+    renWin->Render();
+    int retVal = vtkRegressionTestImage(renWin);
+
+    if (retVal == vtkTesting::FAILED)
+    {
+      return EXIT_FAILURE;
+    }
+    else if (retVal != vtkTesting::DO_INTERACTOR)
+    {
+      return EXIT_SUCCESS;
+    }
+  }
   // interact with data
   iren->Initialize();
   iren->Start();
