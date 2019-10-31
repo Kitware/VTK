@@ -58,7 +58,7 @@ std::size_t NumErrors = 0;
   static_assert(std::is_copy_assignable<Iter>::value, \
                 "Iterator types must be copy assignable at " LOCATION()); \
   static_assert(std::is_destructible<Iter>::value, \
-                "Iterator types must be destructable at " LOCATION());
+                "Iterator types must be destructible at " LOCATION());
 
 #define LOG_ERROR(message) \
   ++NumErrors; \
@@ -126,7 +126,7 @@ void TestIota(Range range)
 
   auto value = startValue;
 
-  for (auto& comp : range)
+  for (const auto& comp : range)
   {
     CHECK_EQUAL(value, comp);
     ++value;
@@ -211,7 +211,7 @@ struct UnitTestValueRangeAPI
   template <typename Range>
   void TestEmptyRange(Range range)
   {
-    for (auto& value : range)
+    for (const auto& value : range)
     {
       (void)value;
       CHECK_TRUE(false && "This should not execute.");
@@ -253,6 +253,8 @@ struct UnitTestValueRangeAPI
     CHECK_EQUAL(range.size(), end - start);
     CHECK_EQUAL(range.end() - range.begin(), range.size());
     CHECK_EQUAL(range.cend() - range.cbegin(), range.size());
+    CHECK_EQUAL_NODUMP(*range.begin(), range[0]);
+    CHECK_EQUAL_NODUMP(*(range.begin() + 1), range[1]);
 
     TestIota(range);
   }
@@ -264,12 +266,12 @@ struct UnitTestValueRangeAPI
   {
     using ConstRange = typename std::add_const<Range>::type;
     using MutableRange = typename std::remove_const<Range>::type;
-    (void)range; // MSVC thinks this is unused when it appears in decltype.
+    (void)range; // decltype doesn't actually count as a usage.
 
     CHECK_IS_BASE_TYPE_OF(typename Range::ArrayType, RangeArrayType);
     CHECK_TYPEDEF(typename Range::ValueType,
                   vtk::GetAPIType<RangeArrayType>);
-    CHECK_TYPEDEF(typename Range::ComponentType,
+    CHECK_TYPEDEF(typename Range::ValueType,
                   vtk::GetAPIType<RangeArrayType>);
     CHECK_TYPEDEF(typename Range::size_type, vtk::ValueIdType);
     CHECK_TYPEDEF(typename Range::size_type, decltype(range.size()));
@@ -285,6 +287,10 @@ struct UnitTestValueRangeAPI
                   decltype(range.cbegin()));
     CHECK_TYPEDEF(typename Range::const_iterator,
                   decltype(range.cend()));
+    CHECK_TYPEDEF(typename Range::reference,
+                  decltype(std::declval<MutableRange>()[0]));
+    CHECK_TYPEDEF(typename Range::const_reference,
+                  decltype(std::declval<ConstRange>()[0]));
     CHECK_TYPEDEF(typename Range::ArrayType, decltype(*range.GetArray()));
     CHECK_TYPEDEF(vtk::ValueIdType, decltype(range.GetBeginValueId()));
     CHECK_TYPEDEF(vtk::ValueIdType, decltype(range.GetEndValueId()));
@@ -351,6 +357,8 @@ struct UnitTestValueIteratorAPI
     (void)range;
 
     CHECK_ITER_TYPE(Iter);
+    CHECK_TYPEDEF(typename std::iterator_traits<Iter>::reference,
+                  decltype(std::declval<Iter>()[0]));
   }
 
   template <typename Range>
@@ -359,6 +367,8 @@ struct UnitTestValueIteratorAPI
     TestDeref(range);
     TestIndexing(range);
     TestIterSwap(range);
+    TestConstCopy(range);
+    TestConstAssign(range);
   }
 
   template <typename Range>
@@ -385,6 +395,19 @@ struct UnitTestValueIteratorAPI
   }
 
   template <typename Range>
+  void TestConstCopy(Range& range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    // We should be able to implicitly cast and compare mutable iterators to
+    // const ones:
+    typename Range::iterator iter{range.begin()};
+    typename Range::const_iterator citer{iter};
+    CHECK_EQUAL_NODUMP(iter, citer);
+  }
+
+  template <typename Range>
   void TestAssign(Range& range)
   {
     auto iter = this->GetTestingIter(range);
@@ -401,6 +424,21 @@ struct UnitTestValueIteratorAPI
     CHECK_EQUAL_NODUMP(iter, iter2);
     CHECK_EQUAL_NODUMP(iter, iter3);
     CHECK_EQUAL_NODUMP(iter2, iter3);
+  }
+
+  template <typename Range>
+  void TestConstAssign(Range &range)
+  {
+    // This should only get called with non-const ranges:
+    static_assert(!std::is_const<Range>::value, "Expected mutable range.");
+
+    // We should be able to implicitly cast and compare mutable objects to
+    // const ones:
+    typename Range::iterator iter{range.begin()};
+    typename Range::const_iterator citer{range.cend()};
+
+    citer = iter;
+    CHECK_EQUAL_NODUMP(iter, citer);
   }
 
   template <typename Range>
@@ -612,26 +650,25 @@ struct UnitTestValueIteratorAPI
       CHECK_EQUAL(*it, 10);
     }
 
-    // Assigning to auto by value is currently disabled. See note on deleted
-    // ComponentReference copy constructor.
-#if 0
-    // auto should deduce to a raw value type, this assignment should have
-    // no effect:
+    // Modifying value types shouldn't modify underlying storage:
     for (auto it = start; it < end; ++it)
     {
+      ValueType comp = *it;
       comp = 16;
+      (void)comp; // Silence set-but-not-used warning
     }
 
     for (auto it = start; it < end; ++it)
     {
       CHECK_EQUAL(*it, 10); // Still 10
     }
-#endif
 
-    // auto should deduce to a reference type, this assignment should be saved:
+    // Modifying reference should modify underlying storage:
     for (auto it = start; it < end; ++it)
     {
-      *it = 16;
+      using RefType = typename Range::reference;
+      RefType comp = *it;
+      comp = 16;
     }
 
     for (auto it = start; it < end; ++it)
@@ -649,53 +686,43 @@ struct UnitTestValueIteratorAPI
   template <typename Range>
   void TestIndexingConst(Range& range)
   {
-    (void)range;
-    // operator[] disabled. See vtk::DataArrayTupleRange documentation.
-#if 0
-    using ValueType = typename Range::ValueType;
+    using ValueType = typename Range::value_type;
+    using IndexType = typename Range::size_type;
 
-    auto tuple = this->GetTestingIterRange(range);
+    auto iter = this->GetTestingIter(range);
 
-    using IndexType = typename decltype(*tuple)::size_type;
-
-    auto iter = tuple->begin();
     ValueType value = *iter;
-    for (IndexType i = 0; i < tuple->size(); ++i)
+    for (IndexType i = 0; i < 4; ++i)
     {
       CHECK_EQUAL(value++, iter[i]);
     }
-#endif
   }
 
   template <typename Range>
   void TestIndexing(Range& range)
   {
-    (void)range;
-#if 0
-    using ValueType = typename Range::ValueType;
+    using IndexType = typename Range::size_type;
+    using ValueType = typename Range::value_type;
 
-    auto tuple = this->GetTestingIterRange(range);
+    auto iter = this->GetTestingIter(range);
 
-    using IndexType = typename decltype(*tuple)::size_type;
-    ValueType initialValue = *tuple->begin();
+    ValueType initialValue = *iter;
 
-    auto iter = tuple->begin();
-    for (IndexType i = 0; i < tuple->size(); ++i)
+    for (IndexType i = 0; i < 4; ++i)
     {
       iter[i] = 19;
     }
 
-    for (auto& comp : *tuple)
+    for (auto it = iter; it < iter + 4; ++it)
     {
-      CHECK_EQUAL(comp, 19);
+      CHECK_EQUAL(*it, 19);
     }
 
     // Restore:
-    for (IndexType i = 0; i < tuple->size(); ++i)
+    for (IndexType i = 0; i < 4; ++i)
     {
       iter[i] = initialValue++;
     }
-#endif
   }
 
   template <typename Range>
@@ -773,10 +800,490 @@ struct UnitTestValueIteratorAPI
   // Returns an iterator. tupleOffset allows iterators from different tuples to
   // be obtained. The returned iterator +/- 4 are guaranteed valid.
   template <typename Range>
-  static auto GetTestingIter(Range& range)
-  -> decltype(range.begin())
+  static auto GetTestingIter(Range& range) -> decltype(range.begin())
   {
     return range.begin() + NumValues / 2;
+  }
+};
+
+template <typename ArrayType>
+struct UnitTestValueReferenceAPI
+{
+  static constexpr vtk::ComponentIdType NumComps = 9;
+  static constexpr vtk::TupleIdType NumTuples = 5;
+
+  void operator()()
+  {
+    vtkNew<ArrayType> array;
+    array->SetNumberOfComponents(NumComps);
+    array->SetNumberOfTuples(NumTuples);
+    FillValueRangeIota(vtk::DataArrayValueRange<NumComps>(array));
+
+    auto da = static_cast<vtkDataArray*>(array);
+
+    { // Full, dynamic-size, real typed range
+      auto range = vtk::DataArrayValueRange(array);
+      DispatchRangeTests(range);
+    }
+    { // Full, dynamic-size, generic-typed range
+      auto range = vtk::DataArrayValueRange(da);
+      DispatchRangeTests(range);
+    }
+    { // Full, fixed-size, real typed range
+      auto range = vtk::DataArrayValueRange<NumComps>(array);
+      DispatchRangeTests(range);
+    }
+    { // Full, fixed-size, generic-typed range
+      auto range = vtk::DataArrayValueRange<NumComps>(da);
+      DispatchRangeTests(range);
+    }
+  }
+
+  template <typename Range>
+  void DispatchRangeTests(Range range)
+  {
+    {
+      TestValueReference(range);
+      TestConstValueReference(range);
+    }
+
+    {
+      const Range& crange = range;
+      TestConstValueReference(crange);
+    }
+  }
+
+  template <typename Range>
+  void TestValueReference(Range& range)
+  {
+    TestCopy(range);
+    TestAssign(range);
+    TestSwap(range);
+    TestMath(range);
+  }
+
+  template <typename Range>
+  void TestConstValueReference(Range& range)
+  {
+    TestComparison(range);
+    TestConstMath(range);
+  }
+
+  template <typename Range>
+  void TestCopy(Range& range)
+  {
+    using APIType = typename Range::value_type;
+    using RefType = typename Range::reference;
+
+    RefType ref1 = this->GetTestRef(range, 0);
+    const APIType val = ref1;
+
+    RefType ref1Copy{ref1};
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(val, ref1Copy);
+
+    ref1Copy = val - 1;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val - 1);
+    CHECK_EQUAL_NODUMP(ref1, val - 1);
+
+    ref1 = val;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val);
+    CHECK_EQUAL_NODUMP(ref1, val);
+  }
+
+  template <typename Range>
+  void TestAssign(Range& range)
+  {
+    using APIType = typename Range::value_type;
+    using RefType = typename Range::reference;
+
+    RefType ref1 = this->GetTestRef(range, 0);
+    const APIType val = ref1;
+
+    RefType ref1Copy{ref1};
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(val, ref1Copy);
+
+    ref1Copy = val - 1;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val - 1);
+    CHECK_EQUAL_NODUMP(ref1, val - 1);
+
+    ref1 = val;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val);
+    CHECK_EQUAL_NODUMP(ref1, val);
+
+    auto ref2 = this->GetTestRef(range, 1);
+    CHECK_EQUAL_NODUMP(ref2, val + 1);
+    CHECK_NOT_EQUAL_NODUMP(ref1, ref2);
+    CHECK_NOT_EQUAL_NODUMP(ref1Copy, ref2);
+    CHECK_NOT_EQUAL_NODUMP(val, ref2);
+
+    ref1 = ref2;
+    CHECK_EQUAL_NODUMP(ref1, ref2);
+    CHECK_EQUAL_NODUMP(ref1Copy, ref2);
+    CHECK_EQUAL_NODUMP(ref1, val + 1);
+    CHECK_EQUAL_NODUMP(ref1Copy, val + 1);
+
+    ref1 = val;
+    CHECK_EQUAL_NODUMP(ref1, ref1Copy);
+    CHECK_EQUAL_NODUMP(ref1Copy, val);
+    CHECK_EQUAL_NODUMP(ref1, val);
+    CHECK_EQUAL_NODUMP(ref2, val + 1);
+  }
+
+  template <typename Range>
+  void TestSwap(Range& range)
+  {
+    using APIType = typename Range::value_type;
+
+    auto ref1 = this->GetTestRef(range, 0);
+    const APIType val1 = ref1;
+
+    APIType val2 = val1 + 1;
+
+    using std::swap;
+    swap(ref1, val2);
+
+    CHECK_EQUAL_NODUMP(ref1, val1 + 1);
+    CHECK_EQUAL_NODUMP(val1, val2);
+
+    swap(val2, ref1);
+
+    CHECK_EQUAL_NODUMP(ref1, val1);
+    CHECK_EQUAL_NODUMP(val2, val1 + 1);
+
+    auto ref2 = this->GetTestRef(range, 1);
+    CHECK_EQUAL_NODUMP(ref2, val2);
+
+    swap(ref1, ref2);
+
+    CHECK_EQUAL_NODUMP(ref1, val2);
+    CHECK_EQUAL_NODUMP(ref2, val1);
+
+    swap(ref2, ref1);
+
+    CHECK_EQUAL_NODUMP(ref1, val1);
+    CHECK_EQUAL_NODUMP(ref2, val2);
+  }
+
+  template <typename Range>
+  void TestMath(Range& range)
+  {
+    // Testing mutable math only. Const math is tested in TestConstMath
+    using APIType = typename Range::value_type;
+    using RefType = typename Range::reference;
+
+    RefType ref1 = this->GetTestRef(range, 0);
+    RefType ref2 = this->GetTestRef(range, 1);
+    const APIType val1 = ref1;
+    const APIType val2 = ref2;
+
+    const APIType one = static_cast<APIType>(1);
+    const APIType two = static_cast<APIType>(2);
+    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+
+    // +=
+    {
+      auto v = (ref1 += one);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 + one);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = one;
+      auto v = (tmp += ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, val1 + one);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+    }
+    {
+      auto v = (ref1 += ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1 + val2);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 + val2);
+      ref1 = val1;
+    }
+
+    // -=
+    {
+      auto v = (ref1 -= one);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 - one);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = bignum;
+      auto v = (tmp -= ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, bignum - val1);
+      CHECK_EQUAL_NODUMP(v, bignum - val1);
+    }
+    {
+      auto v = (ref1 -= ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1 - val2);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 - val2);
+      ref1 = val1;
+    }
+
+    // *=
+    {
+      auto v = (ref1 *= two);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 * two);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = two;
+      auto v = (tmp *= ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, val1 * two);
+      CHECK_EQUAL_NODUMP(v, val1 * two);
+    }
+    {
+      auto v = (ref1 *= ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1 * val2);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 * val2);
+      ref1 = val1;
+    }
+
+    // /=
+    {
+      auto v = (ref1 /= two);
+      CHECK_EQUAL_NODUMP(ref1, v);
+      CHECK_EQUAL_NODUMP(ref1, val1 / two);
+      ref1 = val1;
+    }
+    {
+      APIType tmp = bignum;
+      auto v = (tmp /= ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(tmp, bignum / val1);
+      CHECK_EQUAL_NODUMP(v, bignum / val1);
+    }
+    {
+      auto v = (ref1 /= ref2);
+      // Use a tolerance test to account for rounding errors.
+      CHECK_TRUE(std::fabs(ref1 - APIType{val1 / val2}) < 1e-5);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_TRUE(std::fabs(v - APIType{val1 / val2}) < 1e-5);
+      ref1 = val1;
+    }
+
+    // ++ (pre)
+    {
+      auto v = ++ref1;
+      CHECK_EQUAL_NODUMP(ref1, val1 + one);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+      ref1 = val1;
+    }
+
+    // ++ (post)
+    {
+      auto v = ref1++;
+      CHECK_EQUAL_NODUMP(ref1, val1 + one);
+      CHECK_EQUAL_NODUMP(v, val1);
+      ref1 = val1;
+    }
+
+    // -- (pre)
+    {
+      auto v = --ref1;
+      CHECK_EQUAL_NODUMP(ref1, val1 - one);
+      CHECK_EQUAL_NODUMP(v, val1 - one);
+      ref1 = val1;
+    }
+
+    // -- (post)
+    {
+      auto v = ref1--;
+      CHECK_EQUAL_NODUMP(ref1, val1 - one);
+      CHECK_EQUAL_NODUMP(v, val1);
+      ref1 = val1;
+    }
+  }
+
+  template <typename Range>
+  void TestComparison(Range& range)
+  {
+    using APIType = typename Range::value_type;
+
+    auto ref1 = this->GetTestRef(range, 0);
+    auto refTmp = this->GetTestRef(range, 0); // same as ref1
+    auto ref2 = this->GetTestRef(range, 1);
+    const APIType val1 = ref1;
+    const APIType val2 = ref2;
+
+    const APIType one = static_cast<APIType>(1);
+    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+
+    // ==
+    CHECK_TRUE(ref1 == val1);
+    CHECK_TRUE(ref1 == refTmp);
+    CHECK_FALSE(ref1 == val2);
+    CHECK_FALSE(ref2 == refTmp);
+
+    // !=
+    CHECK_FALSE(ref1 != val1);
+    CHECK_FALSE(ref1 != refTmp);
+    CHECK_TRUE(ref1 != val2);
+    CHECK_TRUE(ref2 != refTmp);
+
+    // <
+    CHECK_TRUE(ref1 < bignum);
+    CHECK_TRUE(one < ref1);
+    CHECK_TRUE(ref1 < ref2);
+    CHECK_TRUE(refTmp < ref2);
+    CHECK_FALSE(bignum < ref1);
+    CHECK_FALSE(ref1 < one);
+    CHECK_FALSE(ref2 < ref1);
+    CHECK_FALSE(ref2 < refTmp);
+    CHECK_FALSE(ref1 < refTmp);
+    CHECK_FALSE(ref1 < val1);
+    CHECK_FALSE(val1 < ref1);
+
+    // >
+    CHECK_FALSE(ref1 > bignum);
+    CHECK_FALSE(one > ref1);
+    CHECK_FALSE(ref1 > ref2);
+    CHECK_FALSE(refTmp > ref2);
+    CHECK_TRUE(bignum > ref1);
+    CHECK_TRUE(ref1 > one);
+    CHECK_TRUE(ref2 > ref1);
+    CHECK_TRUE(ref2 > refTmp);
+    CHECK_FALSE(ref1 > refTmp);
+    CHECK_FALSE(ref1 > val1);
+    CHECK_FALSE(val1 > ref1);
+
+    // <=
+    CHECK_TRUE(ref1 <= bignum);
+    CHECK_TRUE(one <= ref1);
+    CHECK_TRUE(ref1 <= ref2);
+    CHECK_TRUE(refTmp <= ref2);
+    CHECK_FALSE(bignum <= ref1);
+    CHECK_FALSE(ref1 <= one);
+    CHECK_FALSE(ref2 <= ref1);
+    CHECK_FALSE(ref2 <= refTmp);
+    CHECK_TRUE(ref1 <= refTmp);
+    CHECK_TRUE(ref1 <= val1);
+    CHECK_TRUE(val1 <= ref1);
+
+    // >=
+    CHECK_FALSE(ref1 >= bignum);
+    CHECK_FALSE(one >= ref1);
+    CHECK_FALSE(ref1 >= ref2);
+    CHECK_FALSE(refTmp >= ref2);
+    CHECK_TRUE(bignum >= ref1);
+    CHECK_TRUE(ref1 >= one);
+    CHECK_TRUE(ref2 >= ref1);
+    CHECK_TRUE(ref2 >= refTmp);
+    CHECK_TRUE(ref1 >= refTmp);
+    CHECK_TRUE(ref1 >= val1);
+    CHECK_TRUE(val1 >= ref1);
+  }
+
+  template <typename Range>
+  void TestConstMath(Range& range)
+  {
+    // Testing const math only. Mutable math is tested in TestMath
+    using APIType = typename Range::value_type;
+    using CRefType = typename Range::const_reference;
+
+    const CRefType ref1 = this->GetTestRef(range, 0);
+    const CRefType ref2 = this->GetTestRef(range, 1);
+    const APIType val1 = ref1;
+    const APIType val2 = ref2;
+
+    const APIType one = static_cast<APIType>(1);
+    const APIType two = static_cast<APIType>(2);
+    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+
+    // +
+    {
+      auto v = (ref1 + one);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+    }
+    {
+      auto v = (one + ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 + one);
+    }
+    {
+      auto v = (ref1 + ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 + val2);
+    }
+
+    // -
+    {
+      auto v = (ref1 - one);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 - one);
+    }
+    {
+      auto v = (bignum - ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, bignum - val1);
+    }
+    {
+      auto v = (ref1 - ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 - val2);
+    }
+
+    // *
+    {
+      auto v = (ref1 * two);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 * two);
+    }
+    {
+      auto v = (two * ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 * two);
+    }
+    {
+      auto v = (ref1 * ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 * val2);
+    }
+
+    // /
+    {
+      auto v = (ref1 / two);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, val1 / two);
+    }
+    {
+      auto v = (bignum / ref1);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(v, bignum / val1);
+    }
+    {
+      auto v = (ref1 / ref2);
+      CHECK_EQUAL_NODUMP(ref1, val1);
+      CHECK_EQUAL_NODUMP(ref2, val2);
+      CHECK_EQUAL_NODUMP(v, val1 / val2);
+    }
+  }
+
+  // Return a reference. Valid offsets range from (-4, 4), and
+  // values increase with offset.
+  template <typename Range>
+  auto GetTestRef(Range& range, vtk::ValueIdType offset)
+      -> decltype(std::declval<Range>()[0])
+  {
+    assert(offset >= -4 && offset <= 4);
+    return range[6 + offset];
   }
 };
 
@@ -1223,6 +1730,8 @@ void RunTestsForArray()
   UnitTestValueRangeAPI<ArrayType>{}();
   std::cerr << "ValueIteratorAPI:\n";
   UnitTestValueIteratorAPI<ArrayType>{}();
+  std::cerr << "ValueReferenceAPI:\n";
+  UnitTestValueReferenceAPI<ArrayType>{}();
 }
 
 } // end anon namespace
