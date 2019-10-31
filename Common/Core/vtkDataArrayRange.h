@@ -161,7 +161,9 @@ public:
  * C++ that affects all proxy iterators (such as those from `vector<bool>`)
  * that use a reference object instead of an actual C++ reference type. When in
  * doubt, use `std::iterator_traits` (along with decltype) or the typedefs
- * listed below to determine the proper value/reference type to use.
+ * listed below to determine the proper value/reference type to use. The
+ * examples below show how these may be used.
+ *
  *
  * To mitigate this, the following types are defined on the range object:
  * - `Range::TupleIteratorType`: Iterator that visits tuples.
@@ -290,7 +292,8 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  * C++ that affects all proxy iterators (such as those from `vector<bool>`)
  * that use a reference object instead of an actual C++ reference type. When in
  * doubt, use `std::iterator_traits` (along with decltype) or the typedefs
- * listed below to determine the proper value/reference type to use.
+ * listed below to determine the proper value/reference type to use. The
+ * examples below show how these may be used.
  *
  * To mitigate this, the following types are defined on the range object:
  * - `Range::IteratorType`: Iterator that visits values in AOS order.
@@ -305,17 +308,15 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  * auto range = vtk::DataArrayValueRange(array);
  *
  * using RefType = typename decltype(range)::ReferenceType;
- *
- * for (RefType value : range)
- * {
- *   value = value - 1; // Array is modified.
+ * for (RefType ref : range)
+ * { // `ref` is a reference (or reference proxy) to the data held by the array.
+ *   ref -= 1; // Array is modified.
  * }
  *
- * using ComponentType = typename decltype(range)::ComponentType;
- *
- * for (ComponentType value : range)
- * {
- *   value = value - 1; // Array is not modified.
+ * using ValueType = typename decltype(range)::ValueType;
+ * for (ValueType value : range)
+ * { // implicitly converts from a reference (or proxy) to a local lvalue `value`
+ *   value -= 1; // Array is not modified.
  * }
  * ```
  */
