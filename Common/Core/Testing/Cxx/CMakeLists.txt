@@ -98,6 +98,7 @@ endif ()
 
 vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
+  ExampleDataArrayRangeDispatch.cxx
   UnitTestMath.cxx
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
