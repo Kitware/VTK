@@ -229,47 +229,51 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
   }
 }
 
-int vtkGeoTransform::ComputeUTMZone(double lat, double lon)
+int vtkGeoTransform::ComputeUTMZone(double lon, double lat)
 {
-  lat = std::fmod(lat, 90);
-  lon = std::fmod(lon, 180);
+  lon = std::fmod(lon + 180, 360) - 180;
+  lat = std::fmod(lat + 90, 180) - 90;
+  int result = 0;
   // UTM is not defined outside of these limits
-  if (lat > 84 || lat < -80)
+  if (lat <= 84 && lat >= -80)
   {
-    return 0;
-  }
-  // first special case
-  if (lat >= 72 && lon >= 0 && lon < 42)
-  {
-    if (lon < 9)
+    // first special case
+    if (lat >= 72 && lon >= 0 && lon < 42)
     {
-      return 31;
+      if (lon < 9)
+      {
+        result = 31;
+      }
+      else if (lon < 21)
+      {
+        result = 33;
+      }
+      else if (lon < 33)
+      {
+        result = 35;
+      }
+      else
+      {
+        result = 37;
+      }
     }
-    else if (lon < 21)
+    // second special case
+    else if (lat >= 56 && lat < 64 && lon >= 0 && lon < 12)
     {
-      return 33;
-    }
-    else if (lon < 33)
-    {
-      return 35;
+      if (lon < 3)
+      {
+        result = 31;
+      }
+      else
+      {
+        result = 32;
+      }
     }
     else
     {
-      return 37;
+      // general case: zones are 6 degrees, from 1 to 60.
+      result = (static_cast<int>(lon) + 180) / 6 + 1;
     }
   }
-  // second special case
-  if (lat >= 56 && lat < 64 && lon >= 0 && lon < 12)
-  {
-    if (lon < 3)
-    {
-      return 31;
-    }
-    else
-    {
-      return 32;
-    }
-  }
-  // general case: zones are 6 degrees, from 1 to 60.
-  return (lon + 180) / 6 + 1;
+  return result;
 }
