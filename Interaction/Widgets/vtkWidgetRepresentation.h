@@ -291,6 +291,12 @@ protected:
   vtkAssemblyPath* GetAssemblyPath3DPoint(double pos[3],
                                      vtkAbstractPropPicker* picker);
 
+  // Helper function to cull events if they are not near to the actual widget
+  // representation. This is needed typically in situations of extreme zoom
+  // for 3D widgets. The current event position, and 3D bounds of the widget
+  // are provided.
+  bool NearbyEvent(int X, int Y, double bounds[6]);
+
   // Members use to control handle size. The two methods return a "radius"
   // in world coordinates. Note that the HandleSize data member is used
   // internal to the SizeHandles__() methods.

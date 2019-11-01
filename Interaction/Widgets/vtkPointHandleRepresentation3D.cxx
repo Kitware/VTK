@@ -198,12 +198,20 @@ int vtkPointHandleRepresentation3D
 {
   this->VisibilityOn(); //actor must be on to be picked
 
-  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
-
-  double focus[3];
-  this->Cursor3D->GetFocalPoint(focus);
-  double d[3];
+  // First make sure that the cursor is within the bounding sphere of the
+  // representation in display space.
+  double d[3], bounds[6];
+  this->Cursor3D->GetModelBounds(bounds);
   this->GetDisplayPosition(d);
+
+  if ( ! this->NearbyEvent(X,Y,bounds) )
+  {
+    this->InteractionState = vtkHandleRepresentation::Outside;
+    return this->InteractionState;
+  }
+
+  // Now see if anything is picked
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
 
   if ( path != nullptr )
   {
@@ -221,6 +229,7 @@ int vtkPointHandleRepresentation3D
   return this->InteractionState;
 }
 
+//-------------------------------------------------------------------------
 int vtkPointHandleRepresentation3D::ComputeComplexInteractionState(
   vtkRenderWindowInteractor *,
   vtkAbstractWidget *,
@@ -307,7 +316,7 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
 }
 
 //----------------------------------------------------------------------
-// Record the current event position, and the rectilinear wipe position.
+// Record the current event position, and the translation state
 void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos[2])
 {
   this->StartEventPosition[0] = startEventPos[0];
@@ -317,10 +326,14 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
 
+  // Make sure events are close to widget and something is picked
+  double bounds[6];
+  this->Cursor3D->GetModelBounds(bounds);
+  bool nearby = this->NearbyEvent(startEventPos[0],startEventPos[1],bounds);
   vtkAssemblyPath* path = this->GetAssemblyPath(
     startEventPos[0], startEventPos[1], 0., this->CursorPicker);
 
-  if ( path != nullptr )
+  if ( nearby && path != nullptr )
   {
     this->InteractionState = vtkHandleRepresentation::Nearby;
     this->ConstraintAxis = -1;
@@ -335,6 +348,7 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   this->WaitCount = 0;
 }
 
+//----------------------------------------------------------------------
 void vtkPointHandleRepresentation3D::StartComplexInteraction(
   vtkRenderWindowInteractor *,
   vtkAbstractWidget *,
@@ -349,10 +363,13 @@ void vtkPointHandleRepresentation3D::StartComplexInteraction(
     this->LastEventPosition[1] = this->StartEventPosition[1];
     this->LastEventPosition[2] = this->StartEventPosition[2];
 
+    double bounds[6];
+    this->Cursor3D->GetModelBounds(bounds);
+    bool nearby = this->NearbyEvent(this->StartEventPosition[0],this->StartEventPosition[1],bounds);
     vtkAssemblyPath* path = this->GetAssemblyPath3DPoint(
       this->StartEventPosition, this->CursorPicker);
 
-    if ( path != nullptr )
+    if ( nearby && path != nullptr )
     {
       this->InteractionState = vtkHandleRepresentation::Nearby;
       this->ConstraintAxis = -1;
@@ -655,7 +672,8 @@ void vtkPointHandleRepresentation3D::Translate(const double* p1, const double* p
   this->GetTranslationVector(p1, p2, v);
 
   double *bounds = this->Cursor3D->GetModelBounds();
-  double newBounds[6];
+  double *pos = this->Cursor3D->GetFocalPoint();
+  double newBounds[6], newFocus[3];
   int i;
 
   if ( this->ConstraintAxis >= 0 )
@@ -673,9 +691,11 @@ void vtkPointHandleRepresentation3D::Translate(const double* p1, const double* p
   {
     newBounds[2*i] = bounds[2*i] + v[i];
     newBounds[2*i+1] = bounds[2*i+1] + v[i];
+    newFocus[i] = pos[i] + v[i];
   }
 
   this->Cursor3D->SetModelBounds(newBounds);
+  this->Cursor3D->SetFocalPoint(newFocus);
 }
 
 //----------------------------------------------------------------------
@@ -684,17 +704,17 @@ void vtkPointHandleRepresentation3D::SizeBounds()
   // Only change the size of the bounding box if translation mode is on.
   if ( this->TranslationMode )
   {
-    double center[3], newBounds[6];
+    double center[3], bounds[6];
     this->Cursor3D->GetFocalPoint(center);
     double radius = this->SizeHandlesInPixels(1.0,center);
     radius *= this->CurrentHandleSize / this->HandleSize;
 
     for (int i=0; i<3; i++)
     {
-      newBounds[2*i] = center[i] - radius;
-      newBounds[2*i+1] = center[i] + radius;
+      bounds[2*i] = center[i] - radius;
+      bounds[2*i+1] = center[i] + radius;
     }
-    this->Cursor3D->SetModelBounds(newBounds);
+    this->Cursor3D->SetModelBounds(bounds);
   }
 }
 
