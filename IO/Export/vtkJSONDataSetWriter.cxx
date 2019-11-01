@@ -73,6 +73,7 @@ vtkDataSet* vtkJSONDataSetWriter::GetInput(int port)
 std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
   vtkDataSetAttributes* fields, const char* className)
 {
+  int nbArrayWritten = 0;
   vtkIdType activeTCoords = -1;
   vtkIdType activeScalars = -1;
   vtkIdType activeNormals = -1;
@@ -94,21 +95,30 @@ std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
               << "\n    \"arrays\": [\n";
   for (vtkIdType idx = 0; idx < nbFields; idx++)
   {
-    if (idx)
+    vtkDataArray* field = fields->GetArray(idx);
+    if (field == nullptr)
+    {
+      continue;
+    }
+
+    if (nbArrayWritten)
     {
       jsonSnippet << ",\n";
     }
-    vtkDataArray* field = fields->GetArray(idx);
+
     jsonSnippet << "      { \"data\": " << this->WriteArray(field, "vtkDataArray") << "}";
 
     // Update active field if any
-    activeTCoords = field == fields->GetTCoords() ? idx : activeTCoords;
-    activeScalars = field == fields->GetScalars() ? idx : activeScalars;
-    activeNormals = field == fields->GetNormals() ? idx : activeNormals;
-    activeGlobalIds = field == fields->GetGlobalIds() ? idx : activeGlobalIds;
-    activeTensors = field == fields->GetTensors() ? idx : activeTensors;
-    activePedigreeIds = field == fields->GetPedigreeIds() ? idx : activePedigreeIds;
-    activeVectors = field == fields->GetVectors() ? idx : activeVectors;
+    activeTCoords = field == fields->GetTCoords() ? nbArrayWritten : activeTCoords;
+    activeScalars = field == fields->GetScalars() ? nbArrayWritten : activeScalars;
+    activeNormals = field == fields->GetNormals() ? nbArrayWritten : activeNormals;
+    activeGlobalIds = field == fields->GetGlobalIds() ? nbArrayWritten : activeGlobalIds;
+    activeTensors = field == fields->GetTensors() ? nbArrayWritten : activeTensors;
+    activePedigreeIds = field == fields->GetPedigreeIds() ? nbArrayWritten : activePedigreeIds;
+    activeVectors = field == fields->GetVectors() ? nbArrayWritten : activeVectors;
+
+    // Increment the number of array currently in the list
+    nbArrayWritten++;
   }
   jsonSnippet << "\n    ],\n"
               << "    \"activeTCoords\": " << activeTCoords << ",\n"

@@ -729,7 +729,6 @@ vtkRectilinearGrid* vtkXdmfHeavyData::RequestRectilinearGrid(XdmfGrid* xmfGrid)
   // convert to stridden update extents.
   int scaled_extents[6];
   vtkScaleExtents(update_extents, scaled_extents, this->Stride);
-
   int scaled_dims[3];
   vtkGetDims(scaled_extents, scaled_dims);
 
@@ -782,11 +781,23 @@ vtkRectilinearGrid* vtkXdmfHeavyData::RequestRectilinearGrid(XdmfGrid* xmfGrid)
 
   case XDMF_GEOMETRY_VXVY:
   {
-      xarray->FillComponent(0, 0);
-      xmfGeometry->GetVectorY()->GetValues(update_extents[2],
-        yarray->GetPointer(0), scaled_dims[1], this->Stride[1]);
-      xmfGeometry->GetVectorX()->GetValues(update_extents[4],
-        zarray->GetPointer(0), scaled_dims[2], this->Stride[2]);
+      // Note:
+      // XDMF and VTK structured extents are reversed
+      // Where I varies fastest, VTK's convention is IJK, but XDMF's is KJI
+      // However, users naturally don't want VXVY to mean VZVY.
+      // Let's accept VisIt's interpretation of this 2D case
+      // (KJI is ZXY where Z=0).
+      xarray->SetNumberOfTuples(scaled_dims[1]);
+      yarray->SetNumberOfTuples(scaled_dims[2]);
+      zarray->SetNumberOfTuples(scaled_dims[0]);
+      rg->SetExtent(scaled_extents[2],scaled_extents[3],
+                    scaled_extents[4],scaled_extents[5],
+                    scaled_extents[0],scaled_extents[1]);
+      xmfGeometry->GetVectorX()->GetValues(update_extents[2],
+        xarray->GetPointer(0), scaled_dims[1], this->Stride[1]);
+      xmfGeometry->GetVectorY()->GetValues(update_extents[4],
+        yarray->GetPointer(0), scaled_dims[2], this->Stride[2]);
+      zarray->FillComponent(0, 0);
   }
     break;
 

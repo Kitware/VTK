@@ -243,15 +243,6 @@ public:
   }
 
   //----------------------------------------------------------------------------
-  static std::string to_string(int number)
-  {
-    //TODO: use c++11's to_string when c++11 is min required
-    std::ostringstream oss;
-    oss << number;
-    return oss.str();
-  }
-
-  //----------------------------------------------------------------------------
   bool ReadAvailableBlocks(vtkTRUCHASReader *self)
   {
     if (this->BlockFileIndx == this->FileIndx)
@@ -319,7 +310,7 @@ public:
          ++it)
     {
       //keep record of the "name" of the block for GUI to choose from
-      self->BlockChoices->AddArray(to_string(*it).c_str());
+      self->BlockChoices->AddArray(std::to_string(*it).c_str());
       //keep track of location to block id
       this->blockmap.push_back(*it);
       //keep track of block id to location
@@ -391,7 +382,7 @@ public:
     while (!done)
     {
       std::string nextpartname = "/Simulations/MAIN/Non-series Data/part" +
-        to_string(partnum);
+        std::to_string(partnum);
       htri_t exists = H5Lexists(this->FileIndx, nextpartname.c_str(),
                                 H5P_DEFAULT);
       if( !exists )
@@ -572,7 +563,7 @@ public:
 
     for (unsigned int i = 0; i < this->part_to_blocks.size(); i++)
     {
-      std::string nextpartname = "translate_part" + to_string(i+1);
+      std::string nextpartname = "translate_part" + std::to_string(i+1);
       hid_t att = H5Aopen(now_gid, nextpartname.c_str(), H5P_DEFAULT);
       double transform[3];
       H5Aread(att, H5T_NATIVE_DOUBLE, &transform);
@@ -680,11 +671,11 @@ public:
       H5Aclose(attr);
 
       int align = -1;
-      if (!strcmp(alignment, "CELL"))
+      if (!strncmp(alignment, "CELL", 4))
       {
         align = 0;
       }
-      if (!strcmp(alignment, "NODE"))
+      if (!strncmp(alignment, "NODE", 4))
       {
         align = 1;
       }
@@ -899,7 +890,7 @@ int vtkTRUCHASReader::RequestData(
          this->Internals->tmap.begin();
        ttit != this->Internals->tmap.end();)
   {
-    if (ttit->first < reqTime)
+    if (ttit->first <= reqTime)
     {
       tit = ttit;
     }
@@ -1196,7 +1187,7 @@ int vtkTRUCHASReader::RequestData(
   for(unsigned int b = 0; b < totalNumBlocks; b++)
   {
     int gblockid = this->Internals->blockmap[b];
-    std::string bname = vtkTRUCHASReader::Internal::to_string(gblockid);
+    std::string bname = std::to_string(gblockid);
     output->SetBlock(b, grid[b]);
     output->GetMetaData(b)->Set(vtkCompositeDataSet::NAME(), bname);
   }
