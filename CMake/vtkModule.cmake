@@ -3072,7 +3072,7 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
       "${_vtk_hierarchy_data_file}"
       "${_vtk_hierarchy_depends_args_file}"
       ${_vtk_hierarchy_command_depends})
-  add_custom_target("${_vtk_add_module_target_name}-hierarchy" ALL
+  add_custom_target("${_vtk_add_module_library_name}-hierarchy" ALL
     DEPENDS
       "${_vtk_hierarchy_file}"
       "$<TARGET_FILE:${_vtk_hierarchy_tool_target}>")
