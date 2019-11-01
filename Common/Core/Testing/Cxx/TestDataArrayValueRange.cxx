@@ -126,7 +126,7 @@ void TestIota(Range range)
 
   auto value = startValue;
 
-  for (const auto& comp : range)
+  for (auto comp : range)
   {
     CHECK_EQUAL(value, comp);
     ++value;
@@ -211,7 +211,7 @@ struct UnitTestValueRangeAPI
   template <typename Range>
   void TestEmptyRange(Range range)
   {
-    for (const auto& value : range)
+    for (auto value : range)
     {
       (void)value;
       CHECK_TRUE(false && "This should not execute.");
