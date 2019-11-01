@@ -49,12 +49,12 @@ $<$<BOOL:${_vtk_java_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_java_genex_
   if (_vtk_java_is_imported OR CMAKE_GENERATOR MATCHES "Ninja")
     set(_vtk_java_command_depend "${_vtk_java_hierarchy_file}")
   else ()
-    if (TARGET "${_vtk_java_target_name}-hierarchy")
-      set(_vtk_java_command_depend "${_vtk_java_target_name}-hierarchy")
+    if (TARGET "${_vtk_java_library_name}-hierarchy")
+      set(_vtk_java_command_depend "${_vtk_java_library_name}-hierarchy")
     else ()
       message(FATAL_ERROR
         "The ${module} hierarchy file is attached to a non-imported target "
-        "and a hierarchy target (${_vtk_java_target_name}-hierarchy) is "
+        "and a hierarchy target (${_vtk_java_library_name}-hierarchy) is "
         "missing.")
     endif ()
   endif ()
