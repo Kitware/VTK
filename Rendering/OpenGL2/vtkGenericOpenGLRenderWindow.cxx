@@ -101,6 +101,7 @@ void vtkGenericOpenGLRenderWindow::Finalize()
 
 void vtkGenericOpenGLRenderWindow::Frame()
 {
+  this->Superclass::Frame();
   this->InvokeEvent(vtkCommand::WindowFrameEvent, nullptr);
   this->GetState()->ResetFramebufferBindings();
 }

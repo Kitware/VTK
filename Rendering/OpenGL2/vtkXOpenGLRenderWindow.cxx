@@ -358,6 +358,7 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
 void vtkXOpenGLRenderWindow::Frame()
 {
   this->MakeCurrent();
+  this->Superclass::Frame();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
       && this->WindowId!=0)
   {

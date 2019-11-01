@@ -205,7 +205,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   strcpy(this->WindowName, defaultWindowName);
 
   this->OffScreenFramebuffer = nullptr;
-  this->OffScreenFramebufferBound = false;
 
   this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
@@ -236,13 +235,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
-  // pop the framebuffer stack if needed
-  if (this->OffScreenFramebufferBound)
-  {
-    this->GetState()->PopFramebufferBindings();
-    this->OffScreenFramebufferBound = false;
-  }
-
   if (this->OffScreenFramebuffer)
   {
     this->OffScreenFramebuffer->Delete();
@@ -317,17 +309,6 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
   this->PushContext();
-
-  // pop the framebuffer stack if needed
-  if (this->OffScreenFramebufferBound)
-  {
-    this->GetState()->PopFramebufferBindings();
-    this->OffScreenFramebufferBound = false;
-    this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
-    this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
-    this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
-    this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
-  }
 
   if (this->OffScreenFramebuffer)
   {
@@ -1100,6 +1081,42 @@ int vtkOpenGLRenderWindow::ReadPixels(
   }
 }
 
+void vtkOpenGLRenderWindow::SetUseOffScreenBuffers(bool val)
+{
+  this->Superclass::SetUseOffScreenBuffers(val);
+
+  if (this->UseOffScreenBuffers && this->OffScreenFramebuffer)
+  {
+    unsigned int buffer =
+      static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
+    this->BackLeftBuffer  = buffer;
+    this->FrontLeftBuffer = buffer;
+    this->BackRightBuffer  = buffer;
+    this->FrontRightBuffer = buffer;
+    if (this->OffScreenFramebuffer->GetNumberOfColorAttachments() == 2)
+    {
+      unsigned int buffer1 = static_cast<unsigned int>(GL_COLOR_ATTACHMENT1);
+      this->BackRightBuffer  = buffer1;
+      this->FrontRightBuffer = buffer1;
+    }
+  }
+  else
+  {
+    this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
+    this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
+    this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
+    this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
+  }
+}
+
+void vtkOpenGLRenderWindow::Frame()
+{
+  if (this->UseOffScreenBuffers)
+  {
+    this->GetState()->PopFramebufferBindings();
+  }
+}
+
 // Begin the rendering process.
 void vtkOpenGLRenderWindow::Start()
 {
@@ -1123,17 +1140,8 @@ void vtkOpenGLRenderWindow::Start()
   if (this->UseOffScreenBuffers && !this->OffScreenFramebuffer)
   {
     this->CreateOffScreenFramebuffer(this->Size[0], this->Size[1]);
-  }
-
-  // assign the buffers correctly based on rendering destination
-  if (this->UseOffScreenBuffers)
-  {
-    if (!this->OffScreenFramebufferBound)
-    {
-      this->GetState()->PushFramebufferBindings();
-    }
-    this->OffScreenFramebuffer->Bind();
-    this->OffScreenFramebufferBound = true;
+    // do this here as well as it may have been deferred from an earlier
+    // SetUseOffScreenBuffers call
     unsigned int buffer =
       static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
     this->BackLeftBuffer  = buffer;
@@ -1146,19 +1154,16 @@ void vtkOpenGLRenderWindow::Start()
       this->BackRightBuffer  = buffer1;
       this->FrontRightBuffer = buffer1;
     }
+
   }
 
-  if (!this->UseOffScreenBuffers && this->OffScreenFramebufferBound)
+  // assign the buffers correctly based on rendering destination
+  if (this->UseOffScreenBuffers)
   {
-    this->GetState()->PopFramebufferBindings();
-    this->OffScreenFramebufferBound = false;
-    this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
-    this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
-    this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
-    this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
+    this->GetState()->PushFramebufferBindings();
+    this->OffScreenFramebuffer->Bind();
   }
 }
-
 
 //----------------------------------------------------------------------------
 // Update the system, if needed, due to stereo rendering. For some stereo
@@ -1958,6 +1963,8 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
     return VTK_ERROR;
   }
   vtkOpenGLVertexArrayObject *VAO = vtkOpenGLVertexArrayObject::New();
+
+  FrameBufferHelper helper(FrameBufferHelper::DRAW, this, 0, 0);
 
   // bind and activate this texture
   this->DrawPixelsTextureObject->Activate();

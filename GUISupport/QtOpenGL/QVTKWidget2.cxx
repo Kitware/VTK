@@ -479,8 +479,11 @@ void QVTKWidget2::SupportsOpenGL(vtkObject*, unsigned long, void*, void* call_da
 
 void QVTKWidget2::Frame()
 {
+  this->Superclass::Frame();
   if(mRenWin->GetSwapBuffers())
+  {
     this->swapBuffers();
+  }
 
   // This callback will call swapBuffers() for us
   // because sometimes VTK does a render without coming through this paintGL()
