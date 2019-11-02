@@ -236,6 +236,17 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     // fail when run in embedded VTK Python environment.
     PySys_SetArgvEx(0, nullptr, 0);
 
+#ifdef VTK_PYTHON_FULL_THREADSAFE
+    int threadInit = PyEval_ThreadsInitialized();
+    if (!threadInit)
+    {
+      PyEval_InitThreads(); // initialize and acquire GIL
+    }
+    // Always release GIL, as it has been acquired either by PyEval_InitThreads 
+    // prior to Python 3.7 or by Py_InitializeEx in Python 3.7 and after
+    PyEval_SaveThread(); 
+#endif
+
 #ifdef SIGINT
     // Put default SIGINT handler back after Py_Initialize/Py_InitializeEx.
     signal(SIGINT, SIG_DFL);
@@ -245,11 +256,6 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
   if (!vtkPythonInterpreter::InitializedOnce)
   {
     vtkPythonInterpreter::InitializedOnce = true;
-
-#ifdef VTK_PYTHON_FULL_THREADSAFE
-    PyEval_InitThreads(); // safe to call this multiple time
-    PyEval_SaveThread(); // release GIL
-#endif
 
     // HACK: Calling PyRun_SimpleString for the first time for some reason results in
     // a "\n" message being generated which is causing the error dialog to
