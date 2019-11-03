@@ -353,6 +353,31 @@ void vtkWidgetRepresentation::UpdatePropPose(
 }
 
 //----------------------------------------------------------------------
+bool vtkWidgetRepresentation::
+NearbyEvent(int X, int Y, double bounds[6])
+{
+  double focus[3], z, pickPoint[4], dFocus[4], length, dist;
+
+  focus[0] = (bounds[0]+bounds[1]) / 2.0;
+  focus[1] = (bounds[2]+bounds[3]) / 2.0;
+  focus[2] = (bounds[4]+bounds[5]) / 2.0;
+
+  vtkInteractorObserver::
+    ComputeWorldToDisplay(this->Renderer, focus[0], focus[1], focus[2], dFocus);
+  z = dFocus[2];
+  vtkInteractorObserver::
+    ComputeDisplayToWorld(this->Renderer, X, Y, z, pickPoint);
+  length = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+                (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
+                (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  dist = sqrt((pickPoint[0]-focus[0])*(pickPoint[0]-focus[0]) +
+              (pickPoint[1]-focus[1])*(pickPoint[1]-focus[1]) +
+              (pickPoint[2]-focus[2])*(pickPoint[2]-focus[2]));
+
+  return ( ( dist > 0.75*length ) ? false : true );
+}
+
+//----------------------------------------------------------------------
 void vtkWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   //Superclass typedef defined in vtkTypeMacro() found in vtkSetGet.h
