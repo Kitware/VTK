@@ -195,8 +195,6 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
       {
         this->ResetAxesSelection();
       }
-      // Once this is done, we reset the flag
-      this->Storage->InteractiveSelection = false;
     }
   }
   else
