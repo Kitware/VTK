@@ -396,18 +396,26 @@ namespace vtkvolume
       \n  // sub-step size we need to take at each raymarching step\
       \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
       \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
-      \n\
-      \n  if (in_useJittering)\
-      \n  {\
-      \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
-      \n    g_rayJitter = g_dirStep * jitterValue;\
-      \n  }\
-      \n  else\
-      \n  {\
-      \n    g_rayJitter = g_dirStep;\
-      \n  }\
-      \n  g_rayOrigin += g_rayJitter;\
-      \n\
+      \n");
+
+    if (glMapper->GetBlendMode() != vtkVolumeMapper::SLICE_BLEND)
+    {
+      // Intersection is computed with g_rayOrigin, so we should not modify it with Slice mode
+      shaderStr += std::string("\
+        \n  if (in_useJittering)\
+        \n  {\
+        \n    float jitterValue = texture2D(in_noiseSampler, gl_FragCoord.xy / textureSize(in_noiseSampler, 0)).x;\
+        \n    g_rayJitter = g_dirStep * jitterValue;\
+        \n  }\
+        \n  else\
+        \n  {\
+        \n    g_rayJitter = g_dirStep;\
+        \n  }\
+        \n  g_rayOrigin += g_rayJitter;\
+        \n");
+    }
+
+    shaderStr += std::string("\
       \n  // Flag to determine if voxel should be considered for the rendering\
       \n  g_skip = false;");
 
@@ -428,12 +436,24 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string BaseImplementation(vtkRenderer* vtkNotUsed(ren),
-                                 vtkVolumeMapper* vtkNotUsed(mapper),
+                                 vtkVolumeMapper* mapper,
                                  vtkVolume* vtkNotUsed(vol))
   {
-    return std::string("\
+    vtkOpenGLGPUVolumeRayCastMapper* glMapper =
+      vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+
+    std::string str("\
       \n    g_skip = false;"
     );
+
+    if (glMapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
+    {
+      str += std::string("\
+        \n    g_dataPos = g_intersection;\
+        \n");
+    }
+
+    return str;
   }
 
   //--------------------------------------------------------------------------
@@ -1557,12 +1577,6 @@ namespace vtkvolume
 
     std::string shaderStr;
 
-    if (mapper->GetBlendMode() == vtkVolumeMapper::SLICE_BLEND)
-    {
-      shaderStr += std::string("\
-        \n    g_dataPos = g_intersection;");
-    }
-
     shaderStr += std::string("\
       \n    if (!g_skip)\
       \n      {\
@@ -1795,8 +1809,7 @@ namespace vtkvolume
     {
       shaderStr += std::string("\
         \n    // test if the intersection is inside the volume bounds\
-        \n    if(any(greaterThan(g_dataPos - in_texMax[0], vec3(0.0))) ||\
-        \n       any(greaterThan(in_texMin[0] - g_dataPos, vec3(0.0))))\
+        \n    if (any(greaterThan(g_dataPos, vec3(1.0))) || any(lessThan(g_dataPos, vec3(0.0))))\
         \n    {\
         \n      discard;\
         \n    }\
@@ -2184,10 +2197,9 @@ namespace vtkvolume
           shaderStr += std::string("\
           \n\
           \n  // Intersection with plane\
-          \n  vec3 origin = (in_textureDatasetMatrix[0] * vec4(g_rayOrigin, 1.0)).xyz;\
-          \n  float t = intersectRayPlane(origin, rayDir);\
-          \n  vec4 intersection = vec4(origin + t * rayDir, 1.0);\
-          \n  g_intersection = (ip_inverseTextureDataAdjusted * intersection).xyz;\
+          \n  float t = intersectRayPlane(ip_vertexPos, rayDir);\
+          \n  vec4 intersection = vec4(ip_vertexPos + t * rayDir, 1.0);\
+          \n  g_intersection = (in_inverseTextureDatasetMatrix[0] * intersection).xyz;\
           \n  vec4 intersDC = in_projectionMatrix * in_modelViewMatrix * in_volumeMatrix[0] * intersection;\
           \n  intersDC.xyz /= intersDC.w;\
           \n  vec4 intersWin = NDCToWindow(intersDC.x, intersDC.y, intersDC.z);\
