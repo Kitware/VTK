@@ -29,6 +29,9 @@
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkSmartPointer.h"
+#include <vtkRegressionTestImage.h>
+
+#include <cstring>
 
 #if defined( _MSC_VER )      /* Visual C++ (and Intel C++) */
 #pragma warning(disable : 4996) // 'function': was declared deprecated
@@ -140,10 +143,25 @@ int main( int argc, char *argv[] )
   renderer->SetBackground(1,1,1);
   renWin->SetSize(300,300);
 
+
+  // For testing, check if "-V" is used to provide a regression test image
+  if (argc >= 4 && strcmp(argv[2], "-V") == 0)
+  {
+    renWin->Render();
+    int retVal = vtkRegressionTestImage(renWin);
+
+    if (retVal == vtkTesting::FAILED)
+    {
+      return EXIT_FAILURE;
+    }
+    else if (retVal != vtkTesting::DO_INTERACTOR)
+    {
+      return EXIT_SUCCESS;
+    }
+  }
+
   // interact with data
   iren->Initialize();
-
-  renWin->Render();
   iren->Start();
 
   return EXIT_SUCCESS;
