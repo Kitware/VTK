@@ -102,6 +102,7 @@ int vtkReverseSense::RequestData(
     vtkDataArray *outNormals=normals->NewInstance();
     outNormals->SetNumberOfComponents(normals->GetNumberOfComponents());
     outNormals->SetNumberOfTuples(numPoints);
+    outNormals->SetName(normals->GetName());
     double n[3];
 
     progressInterval=numPoints/5+1;
@@ -128,6 +129,7 @@ int vtkReverseSense::RequestData(
     vtkDataArray *outNormals=cellNormals->NewInstance();
     outNormals->SetNumberOfComponents(cellNormals->GetNumberOfComponents());
     outNormals->SetNumberOfTuples(numCells);
+    outNormals->SetName(cellNormals->GetName());
     double n[3];
 
     progressInterval=numCells/5+1;
