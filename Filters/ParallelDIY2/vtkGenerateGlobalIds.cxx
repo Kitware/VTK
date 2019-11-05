@@ -185,7 +185,7 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
   vtkLogStartScope(TRACE, "kdtree");
   // use diy::kdtree to shuffle points around so that all spatially co-located
   // points are within a block.
-  diy::kdtree_sampling(master, assigner, 3, gdomain, BlockTraitsT::GetPoints(), /*hist_bins=*/512);
+  diy::kdtree(master, assigner, 3, gdomain, BlockTraitsT::GetPoints(), /*hist_bins=*/512);
   vtkLogEndScope("kdtree");
   self->UpdateProgress(0.50);
 
