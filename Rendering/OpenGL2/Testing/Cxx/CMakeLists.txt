@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCubeMap.cxx
   TestCubeMapRerender.cxx
   TestDepthOfFieldPass.cxx
+  TestDepthPeelingOcclusionQuery.cxx
   TestDepthPeelingPass.cxx
   TestDepthPeelingPassViewport.cxx
   TestEDLPass.cxx
