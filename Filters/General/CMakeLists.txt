@@ -28,6 +28,7 @@ set(classes
   vtkDataSetGradient
   vtkDataSetGradientPrecompute
   vtkDataSetTriangleFilter
+  vtkDateToNumeric
   vtkDeformPointSet
   vtkDensifyPolyData
   vtkDicer

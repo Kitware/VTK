@@ -50,6 +50,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
   BoxClipOrientedPointData.cxx
   TestDataSetGradient.cxx
   TestDataSetGradientPrecompute.cxx
+  TestDateToNumeric.cxx
   TestGradientAndVorticity.cxx,NO_VALID
   TestIconGlyphFilterGravity.cxx
   TestQuadraturePoints.cxx
