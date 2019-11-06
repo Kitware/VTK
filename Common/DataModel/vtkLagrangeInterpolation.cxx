@@ -24,6 +24,9 @@
 #include "vtkVectorOperators.h"
 #include "vtkObjectFactory.h"
 
+#include <array>
+#include <vector>
+
 vtkStandardNewMacro(vtkLagrangeInterpolation);
 
 // -----------------------------------------------------------------------------
@@ -127,12 +130,6 @@ static const int wedgeFaceEdges[5][5] = {
 
 vtkLagrangeInterpolation::vtkLagrangeInterpolation()
 {
-  int maxOrder[3] = {
-    MaxDegree,
-    MaxDegree,
-    MaxDegree
-  };
-  vtkLagrangeInterpolation::PrepareForOrder(maxOrder, 0);
 }
 
 vtkLagrangeInterpolation::~vtkLagrangeInterpolation() = default;
@@ -218,13 +215,13 @@ int vtkLagrangeInterpolation::Tensor1ShapeDerivatives(const int order[1], const 
 /// Quadrilateral shape function computation
 int vtkLagrangeInterpolation::Tensor2ShapeFunctions(const int order[2], const double pcoords[3], double* shape)
 {
-  // FIXME: Eventually needs to be varying length.
-  double ll[2][vtkLagrangeInterpolation::MaxDegree + 1];
+  std::array<std::vector<double>, 2> ll;
   int i, j;
 
   for (i = 0; i < 2; ++i)
   {
-    vtkLagrangeInterpolation::EvaluateShapeFunctions(order[i], pcoords[i], ll[i]);
+    ll[i].resize(order[i] + 1);
+    vtkLagrangeInterpolation::EvaluateShapeFunctions(order[i], pcoords[i], &ll[i][0]);
   }
 
   int sn = 0;
@@ -265,15 +262,16 @@ int vtkLagrangeInterpolation::Tensor2ShapeFunctions(const int order[2], const do
 // Quadrilateral shape-function derivatives
 int vtkLagrangeInterpolation::Tensor2ShapeDerivatives(const int order[2], const double pcoords[2], double* deriv)
 {
-  // FIXME: Eventually needs to be varying length.
-  double ll[2][vtkLagrangeInterpolation::MaxDegree + 1];
-  double dd[2][vtkLagrangeInterpolation::MaxDegree + 1];
+  std::array<std::vector<double>, 2> ll;
+  std::array<std::vector<double>, 2> dd;
   int i, j;
 
   for (i = 0; i < 2; ++i)
   {
+    ll[i].resize(order[i] + 1);
+    dd[i].resize(order[i] + 1);
     vtkLagrangeInterpolation::EvaluateShapeAndGradient(
-      order[i], pcoords[i], ll[i], dd[i]);
+      order[i], pcoords[i], &ll[i][0], &dd[i][0]);
   }
 
   int sn = 0;
@@ -327,13 +325,13 @@ int vtkLagrangeInterpolation::Tensor2ShapeDerivatives(const int order[2], const 
 /// Hexahedral shape function computation
 int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const double pcoords[3], double* shape)
 {
-  // FIXME: Eventually needs to be varying length.
-  double ll[3][vtkLagrangeInterpolation::MaxDegree + 1];
+  std::array<std::vector<double>, 3> ll;
   int i,j,k;
 
   for (i = 0; i < 3; ++i)
   {
-    vtkLagrangeInterpolation::EvaluateShapeFunctions(order[i], pcoords[i], ll[i]);
+    ll[i].resize(order[i] + 1);
+    vtkLagrangeInterpolation::EvaluateShapeFunctions(order[i], pcoords[i], &ll[i][0]);
   }
 
   int sn = 0;
@@ -436,15 +434,16 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
 
 int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const double pcoords[3], double* deriv)
 {
-  // FIXME: Eventually needs to be varying length.
-  double ll[3][vtkLagrangeInterpolation::MaxDegree + 1];
-  double dd[3][vtkLagrangeInterpolation::MaxDegree + 1];
+  std::array<std::vector<double>, 3> ll;
+  std::array<std::vector<double>, 3> dd;
   int i, j, k;
 
   for (i = 0; i < 3; ++i)
   {
+    ll[i].resize(order[i] + 1);
+    dd[i].resize(order[i] + 1);
     vtkLagrangeInterpolation::EvaluateShapeAndGradient(
-      order[i], pcoords[i], ll[i], dd[i]);
+      order[i], pcoords[i], &ll[i][0], &dd[i][0]);
   }
 
   int sn = 0;
@@ -675,15 +674,6 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtk
 
   int rsOrder = order[0];
   int tOrder = order[2];
-  if (
-    rsOrder > vtkLagrangeInterpolation::MaxDegree ||
-    tOrder > vtkLagrangeInterpolation::MaxDegree)
-  {
-    vtkGenericWarningMacro(
-      "vtkLagrangeInterpolation::MaxDegree exceeded by "
-      << order[0] << ", " << order[1] << ", " << order[2]);
-    return;
-  }
 
 #ifdef VTK_21_POINT_WEDGE
   if (numberOfPoints == 21 && order[0] == 2)
@@ -723,16 +713,16 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtk
 #endif
 
   // FIXME: Eventually needs to be varying length.
-  double ll[vtkLagrangeInterpolation::MaxDegree + 1];
-  double tt[(vtkLagrangeInterpolation::MaxDegree + 1) * (vtkLagrangeInterpolation::MaxDegree + 2) / 2];
-  vtkLagrangeInterpolation::EvaluateShapeFunctions(tOrder, pcoords[2], ll);
+  std::vector<double> ll(tOrder + 1);
+  vtkLagrangeInterpolation::EvaluateShapeFunctions(tOrder, pcoords[2], &ll[0]);
   vtkVector3d triP(pcoords);
   triP[2] = 0;
   int numtripts = (rsOrder + 1) * (rsOrder + 2) / 2;
+  std::vector<double> tt(numtripts);
   tri->GetPoints()->SetNumberOfPoints(numtripts);
   tri->GetPointIds()->SetNumberOfIds(numtripts);
   tri->Initialize();
-  tri->InterpolateFunctions(triP.GetData(), tt);
+  tri->InterpolateFunctions(triP.GetData(), &tt[0]);
 
   int sn;
   //int numPts = numtripts * (tOrder + 1);
@@ -771,30 +761,20 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
 
   int rsOrder = order[0];
   int tOrder = order[2];
-  if (
-    rsOrder > vtkLagrangeInterpolation::MaxDegree ||
-    tOrder > vtkLagrangeInterpolation::MaxDegree)
-  {
-    vtkGenericWarningMacro(
-      "vtkLagrangeInterpolation::MaxDegree exceeded by "
-      << order[0] << ", " << order[1] << ", " << order[2]);
-    return;
-  }
 
-  // FIXME: Eventually needs to be varying length.
-  double ll[vtkLagrangeInterpolation::MaxDegree + 1];
-  double ld[vtkLagrangeInterpolation::MaxDegree + 1];
-  double tt[(vtkLagrangeInterpolation::MaxDegree + 1) * (vtkLagrangeInterpolation::MaxDegree + 2) / 2];
-  double td[(vtkLagrangeInterpolation::MaxDegree + 1) * (vtkLagrangeInterpolation::MaxDegree + 2)];
-  vtkLagrangeInterpolation::EvaluateShapeAndGradient(tOrder, pcoords[2], ll, ld);
+  std::vector<double> ll(tOrder + 1);
+  std::vector<double> ld(tOrder + 1);
+  vtkLagrangeInterpolation::EvaluateShapeAndGradient(tOrder, pcoords[2], &ll[0], &ld[0]);
   vtkVector3d triP(pcoords);
   triP[2] = 0;
   int numtripts = (rsOrder + 1) * (rsOrder + 2) / 2;
+  std::vector<double> tt(numtripts);
+  std::vector<double> td(2 * numtripts);
   tri->GetPoints()->SetNumberOfPoints(numtripts);
   tri->GetPointIds()->SetNumberOfIds(numtripts);
   tri->Initialize();
-  tri->InterpolateFunctions(triP.GetData(), tt);
-  tri->InterpolateDerivs(triP.GetData(), td);
+  tri->InterpolateFunctions(triP.GetData(), &tt[0]);
+  tri->InterpolateDerivs(triP.GetData(), &td[0]);
 
   int numPts = numtripts * (tOrder + 1);
 #ifdef VTK_21_POINT_WEDGE

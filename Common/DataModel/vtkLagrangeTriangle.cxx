@@ -102,6 +102,7 @@ void vtkLagrangeTriangle::Initialize()
     this->NumberOfSubtriangles = this->ComputeNumberOfSubtriangles();
 
 #ifdef ENABLE_CACHING
+    this->BarycentricIndexMap.resize(3 * this->GetPointIds()->GetNumberOfIds());
     for (vtkIdType i = 0; i < this->GetPointIds()->GetNumberOfIds(); i++)
       {
       this->BarycentricIndexMap[3*i] = -1;
@@ -109,12 +110,14 @@ void vtkLagrangeTriangle::Initialize()
 
     // we sacrifice memory for efficiency here
     vtkIdType nIndexMap = (this->Order+1)*(this->Order+1);
+    IndexMap.resize(nIndexMap);
     for (vtkIdType i = 0; i < nIndexMap; i++)
       {
       this->IndexMap[i] = -1;
       }
 
     vtkIdType nSubtriangles = this->GetNumberOfSubtriangles();
+    SubtriangleIndexMap.resize(9 * nSubtriangles);
     for (vtkIdType i = 0; i < nSubtriangles; i++)
       {
       this->SubtriangleIndexMap[9*i] = -1;
@@ -603,15 +606,14 @@ void vtkLagrangeTriangle::Derivatives(int vtkNotUsed(subId),
                                       double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  double fDs[(VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 1) *
-             (VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 2)];
+  std::vector<double> fDs(2 * this->Points->GetNumberOfPoints());
   double sum[3];
   int i, j, k;
   vtkIdType numberOfPoints = this->Points->GetNumberOfPoints();
 
   // compute inverse Jacobian and interpolation function derivatives
   jI[0] = j0; jI[1] = j1; jI[2] = j2;
-  this->JacobianInverse(pcoords, jI, fDs);
+  this->JacobianInverse(pcoords, jI, &fDs[0]);
 
   // now compute derivates of values provided
   for (k=0; k < dim; k++) //loop over values per vertex

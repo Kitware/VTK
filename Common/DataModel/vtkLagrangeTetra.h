@@ -34,21 +34,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
-#define VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER 6
-
-#define MAX_POINTS ((VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1) *  \
-                    (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 2) *  \
-                    (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 3)/6)
-
-#define MAX_SUBTETRAHEDRA (((VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER - 2) *  \
-                            (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER - 1) *  \
-                            (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER)) +     \
-                           4*((VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER - 1) * \
-                              (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER) *    \
-                              (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1)) + \
-                           ((VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER) *      \
-                            (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1) *  \
-                            (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 2))/6)
+#include <vector> // For caching
 
 class vtkTetra;
 class vtkLagrangeCurve;
@@ -72,12 +58,6 @@ public:
 
   void Initialize() override;
 
-  static int MaximumOrder() { return VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER; }
-  static int MaximumNumberOfPoints()
-  {
-    return ((vtkLagrangeTetra::MaximumOrder() + 1) *
-            (vtkLagrangeTetra::MaximumOrder() + 2)/2);
-  }
   int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   int EvaluatePosition(const double x[3], double closestPoint[3],
                        int& subId, double pcoords[3],
@@ -142,12 +122,10 @@ protected:
   vtkIdType NumberOfSubtetras;
   double* ParametricCoordinates;
 
-  vtkIdType EdgeIds[VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1];
-  vtkIdType BarycentricIndexMap[4*MAX_POINTS];
-  vtkIdType IndexMap[(VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1) *
-                     (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1) *
-                     (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1)];
-  vtkIdType SubtetraIndexMap[16*MAX_SUBTETRAHEDRA];
+  std::vector<vtkIdType> EdgeIds;
+  std::vector<vtkIdType> BarycentricIndexMap;
+  std::vector<vtkIdType> IndexMap;
+  std::vector<vtkIdType> SubtetraIndexMap;
 
 private:
   vtkLagrangeTetra(const vtkLagrangeTetra&) = delete;

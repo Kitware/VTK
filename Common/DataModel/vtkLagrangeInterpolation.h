@@ -38,10 +38,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkLagrangeInterpolation,vtkObject);
 
-  enum Constants {
-    MaxDegree = 10 // The maximum degree that VTK will support.
-  };
-
   static void EvaluateShapeFunctions(int order, double pcoord, double* shape);
   static void EvaluateShapeAndGradient(int order, double pcoord, double* shape, double* grad);
 

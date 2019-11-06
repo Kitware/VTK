@@ -151,7 +151,7 @@ vtkCell *vtkLagrangeTetra::GetEdge(int edgeId)
     bindex[EdgeVertices[edgeId][0]]--;
     bindex[EdgeVertices[edgeId][1]]++;
     }
-  this->Edge->vtkCell::Initialize(order + 1, this->EdgeIds, this->Points);
+  this->Edge->vtkCell::Initialize(order + 1, &this->EdgeIds[0], this->Points);
   return this->Edge;
 }
 
@@ -216,7 +216,10 @@ void vtkLagrangeTetra::Initialize()
 
     this->NumberOfSubtetras = this->ComputeNumberOfSubtetras();
 
+    EdgeIds.resize(this->Order + 1);
+
 #ifdef ENABLE_CACHING
+    this->BarycentricIndexMap.resize(4 * this->GetPointIds()->GetNumberOfIds());
     for (vtkIdType i = 0; i < this->GetPointIds()->GetNumberOfIds(); i++)
       {
       this->BarycentricIndexMap[4*i] = -1;
@@ -224,12 +227,14 @@ void vtkLagrangeTetra::Initialize()
 
     // we sacrifice memory for efficiency here
     vtkIdType nIndexMap = (this->Order+1)*(this->Order+1)*(this->Order+1);
+    this->IndexMap.resize(nIndexMap);
     for (vtkIdType i = 0; i < nIndexMap; i++)
       {
       this->IndexMap[i] = -1;
       }
 
     vtkIdType nSubtetras = this->GetNumberOfSubtetras();
+    this->SubtetraIndexMap.resize(16 * nSubtetras);
     for (vtkIdType i = 0; i < nSubtetras; i++)
       {
       this->SubtetraIndexMap[16*i] = -1;
@@ -777,16 +782,14 @@ void vtkLagrangeTetra::Derivatives(int vtkNotUsed(subId),
                                    double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  double fDs[(VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 1) *
-             (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 2) *
-             (VTK_LAGRANGE_TETRAHEDRON_MAX_ORDER + 3)/2];
+  std::vector<double> fDs(3 * this->Points->GetNumberOfPoints());
   double sum[3];
   int i, j, k;
   vtkIdType numberOfPoints = this->Points->GetNumberOfPoints();
 
   // compute inverse Jacobian and interpolation function derivatives
   jI[0] = j0; jI[1] = j1; jI[2] = j2;
-  this->JacobianInverse(pcoords, jI, fDs);
+  this->JacobianInverse(pcoords, jI, &fDs[0]);
 
   // now compute derivatives of values provided
   for (k=0; k < dim; k++) //loop over values per vertex
