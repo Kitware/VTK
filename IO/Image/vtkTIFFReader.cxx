@@ -380,7 +380,7 @@ vtkTIFFReader::vtkTIFFReader()
   this->SpacingSpecifiedFlag = false;
 
   //Make the default orientation type to be ORIENTATION_TOPLEFT
-  this->OrientationType = 4;
+  this->OrientationType = ORIENTATION_TOPLEFT;
   this->IgnoreColorMap = false;
 }
 
