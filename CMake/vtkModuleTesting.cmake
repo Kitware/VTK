@@ -599,6 +599,10 @@ function (vtk_add_test_python)
       set(_T -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}")
     endif ()
 
+    if (NOT _vtk_build_TEST_FILE_DIRECTORY)
+      set(_vtk_build_TEST_FILE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+
     set(testArgs NAME "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
                  COMMAND ${_vtk_test_python_pre_args}
                          "${_vtk_testing_python_exe}" ${_vtk_test_python_args} --enable-bt
