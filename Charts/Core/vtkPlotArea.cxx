@@ -152,7 +152,7 @@ private:
 
       vtkArrayDispatch::Dispatch2ByArray<
           vtkArrayDispatch::Arrays, // First array is input, can be anything.
-          vtkTypeList_Create_1(vtkCharArray) // Second is always vtkCharArray.
+          vtkTypeList::Create<vtkCharArray> // Second is always vtkCharArray.
           > dispatcher;
       ComputeArrayRange worker;
 

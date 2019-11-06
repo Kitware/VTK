@@ -50,14 +50,14 @@
 namespace {
 
 typedef vtkTypeList::Unique<
-  vtkTypeList_Create_6(
+  vtkTypeList::Create<
     vtkAOSDataArrayTemplate<int>,
     vtkAOSDataArrayTemplate<unsigned long>,
     vtkAOSDataArrayTemplate<char>,
     vtkAOSDataArrayTemplate<unsigned char>,
     vtkAOSDataArrayTemplate<float>,
     vtkAOSDataArrayTemplate<double>
-  )
+  >
 >::Result PointArrayTypes;
 
 struct WorkerBase

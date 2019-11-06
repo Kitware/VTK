@@ -202,7 +202,7 @@ struct Dispatch2Same<
     >
 {
   typedef Dispatch2Same<ArrayTail, ArrayList2> NextDispatch;
-  typedef vtkTypeList_Create_1(typename ArrayHead::ValueType) ValueType;
+  typedef vtkTypeList::Create<typename ArrayHead::ValueType> ValueType;
   typedef typename FilterArraysByValueType<ArrayList2, ValueType>::Result ValueArrayList;
   typedef Dispatch2Trampoline<ArrayHead, ValueArrayList> Trampoline;
 
@@ -433,7 +433,7 @@ struct Dispatch3Same<
     >
 {
 private:
-  typedef vtkTypeList_Create_1(typename ArrayHead::ValueType) ValueType;
+  typedef vtkTypeList::Create<typename ArrayHead::ValueType> ValueType;
   typedef typename FilterArraysByValueType<ArrayList2, ValueType>::Result ValueArrays2;
   typedef typename FilterArraysByValueType<ArrayList3, ValueType>::Result ValueArrays3;
   typedef Dispatch3Trampoline1<ArrayHead, ValueArrays2, ValueArrays3> Trampoline;

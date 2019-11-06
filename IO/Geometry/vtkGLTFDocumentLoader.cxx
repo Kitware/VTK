@@ -637,7 +637,7 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAttributes(Primitive& primitive)
   worker.BufferViews = &(this->InternalModel->BufferViews);
   worker.Buffers = &(this->InternalModel->Buffers);
   using AttributeArrayTypes =
-    vtkTypeList_Create_3(vtkFloatArray, vtkIntArray, vtkUnsignedShortArray);
+    vtkTypeList::Create<vtkFloatArray, vtkIntArray, vtkUnsignedShortArray>;
 
   // Load all attributes
   for (auto& attributePair : primitive.AttributeIndices)
@@ -708,7 +708,7 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
   worker.BufferViews = &(this->InternalModel->BufferViews);
   worker.Buffers = &(this->InternalModel->Buffers);
 
-  using AttributeArrayTypes = vtkTypeList_Create_1(vtkFloatArray);
+  using AttributeArrayTypes = vtkTypeList::Create<vtkFloatArray>;
 
   for (Animation& animation : this->InternalModel->Animations)
   {
@@ -866,7 +866,7 @@ bool vtkGLTFDocumentLoader::LoadSkinMatrixData()
   worker.BufferViews = &(this->InternalModel->BufferViews);
   worker.Buffers = &(this->InternalModel->Buffers);
 
-  using AttributeArrayTypes = vtkTypeList_Create_2(vtkFloatArray, vtkIntArray);
+  using AttributeArrayTypes = vtkTypeList::Create<vtkFloatArray, vtkIntArray>;
 
   for (Skin& skin : this->InternalModel->Skins)
   {

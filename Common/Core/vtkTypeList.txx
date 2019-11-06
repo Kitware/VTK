@@ -21,6 +21,62 @@
 namespace vtkTypeList
 {
 
+namespace detail
+{
+
+template <typename ...Ts>
+struct CreateImpl;
+
+// Unroll small cases to help out compiler:
+template <typename T1, typename T2, typename T3, typename T4>
+struct CreateImpl<T1, T2, T3, T4>
+{
+  using type =
+  vtkTypeList::TypeList<
+    T1, vtkTypeList::TypeList<
+      T2, vtkTypeList::TypeList<
+        T3, vtkTypeList::TypeList<
+          T4, vtkTypeList::NullType>>>>;
+};
+
+template <typename T1, typename T2, typename T3>
+struct CreateImpl<T1, T2, T3>
+{
+  using type =
+  vtkTypeList::TypeList<
+    T1, vtkTypeList::TypeList<
+      T2, vtkTypeList::TypeList<
+        T3, vtkTypeList::NullType>>>;
+};
+
+template <typename T1, typename T2>
+struct CreateImpl<T1, T2>
+{
+  using type =
+  vtkTypeList::TypeList<
+    T1, vtkTypeList::TypeList<
+      T2, vtkTypeList::NullType>>;
+};
+
+template <typename T1>
+struct CreateImpl<T1>
+{
+  using type = vtkTypeList::TypeList<T1, vtkTypeList::NullType>;
+};
+
+template <typename T1, typename T2, typename T3, typename T4, typename ...Tail>
+struct CreateImpl<T1, T2, T3, T4, Tail...>
+{
+  using type =
+  vtkTypeList::TypeList<
+    T1, vtkTypeList::TypeList<
+      T2, vtkTypeList::TypeList<
+        T3, vtkTypeList::TypeList<
+          T4, typename vtkTypeList::detail::CreateImpl<Tail...>::type>>>>;
+};
+
+}
+
 //------------------------------------------------------------------------------
 // Description:
 // Sets Result to T if Exp is true, or F if Exp is false.
