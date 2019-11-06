@@ -494,34 +494,27 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   }
 
   // carefully compute the bounds
-  if (kMax >= kMin && jMax >= jMin && iMax >= iMin)
-  {
-    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
-    // Extract point coordinates
-    for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
-    {
-      x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
-      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
-    }
-    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
-    {
-      x[1] = this->YCoordinates->GetComponent(loc[1], 0);
-      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    }
-    for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-    {
-      x[0] = this->XCoordinates->GetComponent(loc[0], 0);
-      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-    }
-  }
-  else
+  // Extract point coordinates
+  for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
   {
-    vtkMath::UninitializeBounds(bounds);
+    x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
+    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+  }
+  for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+  {
+    x[1] = this->YCoordinates->GetComponent(loc[1], 0);
+    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+  }
+  for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
+  {
+    x[0] = this->XCoordinates->GetComponent(loc[0], 0);
+    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
   }
 }
 
