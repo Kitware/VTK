@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include <cctype>
+#include <sstream>
 #include <unordered_map>
 
 #include "vtkCellData.h"
@@ -255,9 +256,18 @@ int vtkOBJReader::RequestData(
     else if (strcmp(cmd, "vt") == 0)
     {
       // this is a tcoord, expect two floats, separated by whitespace:
-      if (sscanf(pLine, "%f %f", xyz, xyz+1) == 2)
+      std::stringstream  dataStream;
+      dataStream.imbue(std::locale::classic());
+      dataStream << pLine;
+
+      try
       {
+        dataStream >> xyz[0] >> xyz[1];
         verticesTextureList.emplace_back(xyz[0], xyz[1]);
+      }
+      catch(const std::exception& ex)
+      {
+        vtkErrorMacro(<<"Error reading 'vt' at line " << lineNr);
       }
     }
   } // (end of first while loop)
@@ -331,12 +341,17 @@ int vtkOBJReader::RequestData(
     else if (strcmp(cmd, "v") == 0)
     {
       // vertex definition, expect three floats, separated by whitespace:
-      if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
+      std::stringstream  dataStream;
+      dataStream.imbue(std::locale::classic());
+      dataStream << pLine;
+
+      try
       {
+        dataStream >> xyz[0] >> xyz[1] >> xyz[2];
         points->InsertNextPoint(xyz);
         numPoints++;
       }
-      else
+      catch(const std::exception& ex)
       {
         vtkErrorMacro(<<"Error reading 'v' at line " << lineNr);
         everything_ok = false;
@@ -367,13 +382,18 @@ int vtkOBJReader::RequestData(
     else if (strcmp(cmd, "vn") == 0)
     {
       // vertex normal, expect three floats, separated by whitespace:
-      if (sscanf(pLine, "%f %f %f", xyz, xyz+1, xyz+2) == 3)
+      std::stringstream  dataStream;
+      dataStream.imbue(std::locale::classic());
+      dataStream << pLine;
+
+      try
       {
+        dataStream >> xyz[0] >> xyz[1] >> xyz[2];
         normals->InsertNextTuple(xyz);
         hasNormals = true;
         numNormals++;
       }
-      else
+      catch(const std::exception& ex)
       {
         vtkErrorMacro(<<"Error reading 'vn' at line " << lineNr);
         everything_ok = false;
