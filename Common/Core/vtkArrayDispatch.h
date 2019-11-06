@@ -166,15 +166,15 @@ namespace vtkArrayDispatch {
 /**
  * A TypeList containing all real ValueTypes.
  */
-typedef vtkTypeList_Create_2(double, float) Reals;
+typedef vtkTypeList::Create<double, float> Reals;
 
 /**
  * A Typelist containing all integral ValueTypes.
  */
 typedef vtkTypeList::Unique<
-  vtkTypeList_Create_12(char, int, long, long long, short, signed char,
-                        unsigned char, unsigned int, unsigned long,
-                        unsigned long long, unsigned short, vtkIdType)
+  vtkTypeList::Create<char, int, long, long long, short, signed char,
+                      unsigned char, unsigned int, unsigned long,
+                      unsigned long long, unsigned short, vtkIdType>
   >::Result Integrals;
 
 /**

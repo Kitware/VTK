@@ -25,7 +25,7 @@
 
 namespace vtkArrayDispatch {
 typedef vtkTypeList::Unique<
-  vtkTypeList_Create_10(
+  vtkTypeList::Create<
     vtkAOSDataArrayTemplate<double>,
     vtkAOSDataArrayTemplate<float>,
     vtkAOSDataArrayTemplate<int>,
@@ -36,7 +36,7 @@ typedef vtkTypeList::Unique<
     vtkSOADataArrayTemplate<int>,
     vtkSOADataArrayTemplate<unsigned char>,
     vtkSOADataArrayTemplate<vtkIdType>
-  )
+  >
 >::Result Arrays;
 } // end namespace vtkArrayDispatch
 
@@ -133,16 +133,16 @@ std::vector<vtkDataArray*> Arrays::allArrays;
 // Miscellaneous Debris
 typedef std::vector<vtkDataArray*>::iterator ArrayIter;
 
-typedef vtkTypeList_Create_5(vtkAOSDataArrayTemplate<double>,
-                             vtkAOSDataArrayTemplate<float>,
-                             vtkAOSDataArrayTemplate<int>,
-                             vtkAOSDataArrayTemplate<unsigned char>,
-                             vtkAOSDataArrayTemplate<vtkIdType>) AoSArrayList;
-typedef vtkTypeList_Create_5(vtkSOADataArrayTemplate<double>,
-                             vtkSOADataArrayTemplate<float>,
-                             vtkSOADataArrayTemplate<int>,
-                             vtkSOADataArrayTemplate<unsigned char>,
-                             vtkSOADataArrayTemplate<vtkIdType>) SoAArrayList;
+typedef vtkTypeList::Create<vtkAOSDataArrayTemplate<double>,
+                            vtkAOSDataArrayTemplate<float>,
+                            vtkAOSDataArrayTemplate<int>,
+                            vtkAOSDataArrayTemplate<unsigned char>,
+                            vtkAOSDataArrayTemplate<vtkIdType>> AoSArrayList;
+typedef vtkTypeList::Create<vtkSOADataArrayTemplate<double>,
+                            vtkSOADataArrayTemplate<float>,
+                            vtkSOADataArrayTemplate<int>,
+                            vtkSOADataArrayTemplate<unsigned char>,
+                            vtkSOADataArrayTemplate<vtkIdType>> SoAArrayList;
 
 typedef vtkTypeList::Append<AoSArrayList, SoAArrayList>::Result AllArrayList;
 
@@ -489,8 +489,8 @@ int TestDispatch3ByArray()
   vtkArrayDispatch::Dispatch3ByArray<
       SoAArrayList,
       AoSArrayList,
-      vtkTypeList_Create_2(vtkAOSDataArrayTemplate<float>,
-                           vtkSOADataArrayTemplate<float>)
+      vtkTypeList::Create<vtkAOSDataArrayTemplate<float>,
+                          vtkSOADataArrayTemplate<float>>
       > dispatcher;
   TestWorker worker;
 
@@ -551,7 +551,7 @@ int TestDispatch3ByValueType()
   vtkArrayDispatch::Dispatch3ByValueType<
       vtkArrayDispatch::Reals,
       vtkArrayDispatch::Integrals,
-      vtkTypeList_Create_1(unsigned char)
+      vtkTypeList::Create<unsigned char>
       > dispatcher;
   TestWorker worker;
 

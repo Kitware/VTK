@@ -270,7 +270,7 @@ struct ImposeVelMotion : public Motion
       ApplyDisplacement worker(s);
 
       // displace points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -380,7 +380,7 @@ struct RotateAxisMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -444,7 +444,7 @@ struct RotateMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -567,7 +567,7 @@ struct PlanetaryMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList_Create_2(float, double);
+      using PointTypes = vtkTypeList::Create<float, double>;
       vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
       pts->GetData()->Modified();
     }
@@ -741,7 +741,7 @@ struct PositionFileMotion : public Motion
 
     ApplyTransform worker(transform);
     // transform points.
-    using PointTypes = vtkTypeList_Create_2(float, double);
+    using PointTypes = vtkTypeList::Create<float, double>;
     vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
     pts->GetData()->Modified();
     return true;

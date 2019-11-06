@@ -102,8 +102,8 @@ void vtkImplicitFunction::FunctionValue(vtkDataArray* input,
   {
     FunctionWorker<TransformFunction> worker(
         TransformFunction(this, this->Transform));
-    typedef vtkTypeList_Create_2(float, double) InputTypes;
-    typedef vtkTypeList_Create_2(float, double) OutputTypes;
+    typedef vtkTypeList::Create<float, double> InputTypes;
+    typedef vtkTypeList::Create<float, double> OutputTypes;
     typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes>
         MyDispatch;
     if (!MyDispatch::Execute(input, output, worker))
@@ -122,8 +122,8 @@ void vtkImplicitFunction::EvaluateFunction(vtkDataArray* input,
   output->SetNumberOfTuples(input->GetNumberOfTuples());
 
   FunctionWorker<SimpleFunction> worker(SimpleFunction(this));
-  typedef vtkTypeList_Create_2(float, double) InputTypes;
-  typedef vtkTypeList_Create_2(float, double) OutputTypes;
+  typedef vtkTypeList::Create<float, double> InputTypes;
+  typedef vtkTypeList::Create<float, double> OutputTypes;
   typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes>
       MyDispatch;
   if (!MyDispatch::Execute(input, output, worker))

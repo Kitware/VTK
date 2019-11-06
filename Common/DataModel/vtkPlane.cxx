@@ -287,8 +287,8 @@ struct CutFunctionWorker
 void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
   CutFunctionWorker worker(this->Normal, this->Origin);
-  typedef vtkTypeList_Create_2(float, double) InputTypes;
-  typedef vtkTypeList_Create_2(float, double) OutputTypes;
+  typedef vtkTypeList::Create<float, double> InputTypes;
+  typedef vtkTypeList::Create<float, double> OutputTypes;
   typedef vtkArrayDispatch::Dispatch2ByValueType<InputTypes, OutputTypes> MyDispatch;
   if (!MyDispatch::Execute(input, output, worker))
   {
