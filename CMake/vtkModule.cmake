@@ -3007,11 +3007,11 @@ $<$<BOOL:${_vtk_hierarchy_genex_include_directories}>:\n-I\'$<JOIN:${_vtk_hierar
       continue ()
     endif ()
 
-    get_property(_vtk_hierarchy_depend_target_name GLOBAL
-      PROPERTY "_vtk_module_${_vtk_hierarchy_depend}_target_name")
-    if (TARGET "${_vtk_hierarchy_depend_target_name}-hierarchy")
+    get_property(_vtk_hierarchy_depend_library_name GLOBAL
+      PROPERTY "_vtk_module_${_vtk_hierarchy_depend}_library_name")
+    if (TARGET "${_vtk_hierarchy_depend_library_name}-hierarchy")
       list(APPEND _vtk_hierarchy_depends_targets
-        "${_vtk_hierarchy_depend_target_name}-hierarchy")
+        "${_vtk_hierarchy_depend_library_name}-hierarchy")
     endif ()
   endforeach ()
 
