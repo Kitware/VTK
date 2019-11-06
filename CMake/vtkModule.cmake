@@ -3823,14 +3823,25 @@ function (_vtk_module_install target)
       EXPORT "${_vtk_build_INSTALL_EXPORT}")
   endif ()
 
+  set(_vtk_install_namelink_args)
+  if(NOT CMAKE_VERSION VERSION_LESS 3.12)
+    list(APPEND _vtk_install_namelink_args
+      NAMELINK_COMPONENT "${_vtk_build_HEADERS_COMPONENT}")
+  endif()
   install(
     TARGETS             "${target}"
     ${_vtk_install_export}
-    ARCHIVE DESTINATION "${_vtk_build_ARCHIVE_DESTINATION}"
-    LIBRARY DESTINATION "${_vtk_build_LIBRARY_DESTINATION}"
-    RUNTIME DESTINATION "${_vtk_build_RUNTIME_DESTINATION}"
     ${ARGN}
-    COMPONENT           "${_vtk_build_TARGETS_COMPONENT}")
+    ARCHIVE
+      DESTINATION "${_vtk_build_ARCHIVE_DESTINATION}"
+      COMPONENT   "${_vtk_build_HEADERS_COMPONENT}"
+    LIBRARY
+      DESTINATION "${_vtk_build_LIBRARY_DESTINATION}"
+      COMPONENT   "${_vtk_build_TARGETS_COMPONENT}"
+      ${_vtk_install_namelink_args}
+    RUNTIME
+      DESTINATION "${_vtk_build_RUNTIME_DESTINATION}"
+      COMPONENT   "${_vtk_build_TARGETS_COMPONENT}")
 endfunction ()
 
 #[==[
