@@ -119,7 +119,7 @@ public:
    * and is mainly used by mappers when building the shaders.
    * @return const reference to internal map holding all replacements
    */
-  typedef std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue> ReplacementMap;
+  typedef std::map<vtkShader::ReplacementSpec, vtkShader::ReplacementValue> ReplacementMap;
   const ReplacementMap & GetAllShaderReplacements() { return this->UserShaderReplacements; }
 
 protected:
