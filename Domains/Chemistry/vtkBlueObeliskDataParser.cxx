@@ -23,13 +23,17 @@
 #include "vtkStringArray.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <vtksys/SystemTools.hxx>
+
 // Defines VTK_BODR_DATA_PATH
 #include "vtkChemistryConfigure.h"
 
 #include <locale>
 #include <sstream>
+#include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <vector>
 
 #ifdef MSC_VER
 #define stat _stat
@@ -522,27 +526,19 @@ inline void vtkBlueObeliskDataParser::parseFloat3(const char *str,
                                                   float arr[3])
 {
   unsigned short ind = 0;
-  // Make copy of d for strtok.:
-  char *strcopy = new char[strlen(str) + 1];
-  strcpy(strcopy, str);
 
-  char *curTok = strtok(strcopy, " ");
+  std::vector<std::string> tokens;
+  vtksys::SystemTools::Split(str, tokens, ' ');
 
-  while (curTok != nullptr)
+  for (auto &&tok : tokens)
   {
-    if (ind == 3)
-      break;
-
-    arr[ind++] = static_cast<float>(atof(curTok));
-    curTok = strtok(nullptr, " ");
+    arr[ind++] = std::stof(tok);
   }
 
   if (ind != 3)
   {
     arr[0] = arr[1] = arr[2] == VTK_FLOAT_MAX;
   }
-
-  delete [] strcopy;
 }
 
 //----------------------------------------------------------------------------
