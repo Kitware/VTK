@@ -6,14 +6,26 @@ newalpha         crlf=input
 newversion       crlf=input
 pre-commit       crlf=input
 
-*.c              whitespace=tab-in-indent
-*.h              whitespace=tab-in-indent
-*.cxx            whitespace=tab-in-indent
-*.hxx            whitespace=tab-in-indent
-*.txx            whitespace=tab-in-indent
-*.txt            whitespace=tab-in-indent
-*.cmake          whitespace=tab-in-indent
+# Custom attribute to mark sources as using our C code style.
+[attr]our-c-style  whitespace=tab-in-indent,-blank-at-eol  format.clang-format=8
+
+*.c              our-c-style
+*.h              our-c-style
+*.cpp            our-c-style
+*.cxx            our-c-style
+*.hxx            our-c-style
+*.txx            our-c-style
+*.mm             our-c-style
+*.glsl           whitespace=tab-in-indent,-blank-at-eol
+*.txt            whitespace=tab-in-indent,-blank-at-eol
+*.cmake          whitespace=tab-in-indent,-blank-at-eol
 
 *.sha512         eol=lf
 
 *.md             whitespace=tab-in-indent conflict-marker-size=30
+
+# Third party code.
+Utilities/KWIML/**  -format.clang-format
+Utilities/KWSys/**  -format.clang-format
+Utilities/MetaIO/** -format.clang-format
+ThirdParty/**       -format.clang-format
