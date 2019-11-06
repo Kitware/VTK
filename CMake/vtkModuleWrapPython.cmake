@@ -635,15 +635,19 @@ function (vtk_module_wrap_python)
   if (DEFINED _vtk_python_LIBRARY_DESTINATION)
     # Set up rpaths
     set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
-    if (UNIX AND NOT APPLE)
+    if (UNIX)
       file(RELATIVE_PATH _vtk_python_relpath
         "/prefix/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
         "/prefix/${_vtk_python_LIBRARY_DESTINATION}")
-      set(_vtk_python_origin_rpath
-        "$ORIGIN/${_vtk_python_relpath}")
+
+      if (APPLE)
+        set(_vtk_python_origin_stem "@loader_path")
+      else ()
+        set(_vtk_python_origin_stem "$ORIGIN")
+      endif()
 
       list(APPEND CMAKE_INSTALL_RPATH
-        "${_vtk_python_origin_rpath}")
+        "${_vtk_python_origin_stem}/${_vtk_python_relpath}")
     endif ()
   endif ()
 
