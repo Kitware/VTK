@@ -27,6 +27,7 @@ vtkOpenGLShaderProperty::~vtkOpenGLShaderProperty() = default;
 void vtkOpenGLShaderProperty::DeepCopy(vtkOpenGLShaderProperty *p)
 {
   vtkShaderProperty::DeepCopy(p);
+  this->UserShaderReplacements = p->UserShaderReplacements;
 }
 
 void vtkOpenGLShaderProperty::AddVertexShaderReplacement(
@@ -182,7 +183,7 @@ void vtkOpenGLShaderProperty::ClearShaderReplacement(
   spec.OriginalValue = originalValue;
   spec.ReplaceFirst = replaceFirst;
 
-  typedef std::map<const vtkShader::ReplacementSpec,
+  typedef std::map<vtkShader::ReplacementSpec,
       vtkShader::ReplacementValue>::iterator RIter;
   RIter found = this->UserShaderReplacements.find(spec);
   if (found != this->UserShaderReplacements.end())
@@ -210,7 +211,7 @@ void vtkOpenGLShaderProperty::ClearAllShaderReplacements(
   }
 
   // Now clear custom tag replacements
-  std::map<const vtkShader::ReplacementSpec,
+  std::map<vtkShader::ReplacementSpec,
       vtkShader::ReplacementValue>::iterator rIter;
   for (rIter = this->UserShaderReplacements.begin();
        rIter != this->UserShaderReplacements.end();)
