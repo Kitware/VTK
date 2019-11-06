@@ -5,6 +5,9 @@ import shutil
 import subprocess
 
 
+import vtk_features
+
+
 CMAKE_EXE = os.environ.get('CMAKE_EXE', shutil.which('cmake'))
 BUILD_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -39,6 +42,16 @@ with open(vtk_reqs_path, 'r') as fin:
         if not line.startswith('#')
     ]
 
+
+python_code_features = {
+    'gtk': [],
+    'numpy': ['numpy>=1.9'],
+    'qt': [],
+    'tk': [],
+    'wx': [],
+}
+features = python_code_features
+features.update(vtk_features.FEATURES)
 
 setup(
     name='vtk',
@@ -83,17 +96,11 @@ setup(
         'build_ext': CMakeBuildExt,
     },
     url='https://vtk.org',
-    license='@license_file@',
+    license_file='@license_file@',
     description='',
     long_description='',
     install_requires=reqs,
-    extras_require={
-        'gtk': [],
-        'numpy': ['numpy>=1.9'],
-        'qt': [],
-        'tk': [],
-        'wx': [],
-    },
+    extras_require=features,
     include_package_data=True,
     zip_safe=False,
 )
