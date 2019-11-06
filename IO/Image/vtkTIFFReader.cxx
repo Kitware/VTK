@@ -294,13 +294,12 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
     }
 
     // TIFFTAG_ORIENTATION tag from the image data and use it if available.
-    // If the tag is not found in the image data, use ORIENTATION_BOTLEFT by
-    // default.
+    // If the tag is not found in the image data, use the ORIENTATION_TOPLEFT by default.
     int status = TIFFGetField(this->Image, TIFFTAG_ORIENTATION,
                               &this->Orientation);
     if (!status)
     {
-      this->Orientation = ORIENTATION_BOTLEFT;
+      this->Orientation = ORIENTATION_TOPLEFT;
     }
 
     TIFFGetFieldDefaulted(this->Image, TIFFTAG_SAMPLESPERPIXEL,
@@ -380,8 +379,8 @@ vtkTIFFReader::vtkTIFFReader()
   this->OriginSpecifiedFlag = false;
   this->SpacingSpecifiedFlag = false;
 
-  //Make the default orientation type to be ORIENTATION_BOTLEFT
-  this->OrientationType = 4;
+  //Make the default orientation type to be ORIENTATION_TOPLEFT
+  this->OrientationType = ORIENTATION_TOPLEFT;
   this->IgnoreColorMap = false;
 }
 
