@@ -3,6 +3,7 @@ from setuptools.command.build_ext import build_ext
 import os
 import shutil
 import subprocess
+import sys
 
 
 import vtk_features
@@ -10,6 +11,12 @@ import vtk_features
 
 CMAKE_EXE = os.environ.get('CMAKE_EXE', shutil.which('cmake'))
 BUILD_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+if not CMAKE_EXE or not os.path.exists(CMAKE_EXE):
+    print('cmake is required to build from source.', file=sys.stderr)
+    print('Please install cmake or set CMAKE_EXE environment variable.', file=sys.stderr)
+    sys.exit(1)
 
 
 class ConfiguredCMakeExtension(Extension):
