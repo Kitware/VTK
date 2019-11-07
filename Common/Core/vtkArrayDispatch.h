@@ -35,7 +35,7 @@
  * copy of the array data into an AOS buffer. This is very inefficient and
  * should be avoided.
  *
- * The vtkDataArrayAccessor wrapper is worth mentioning here, as it allows
+ * The vtkDataArrayRange.h utilities are worth mentioning here, as they allow
  * vtkArrayDispatch workers to operate on selected concrete subclasses for
  * 'fast paths', yet fallback to using the slower vtkDataArray API for uncommon
  * array types. This helps mitigate the "template explosion" issues that can
@@ -146,8 +146,46 @@
  * be supported by providing overloads of operator() that have more restrictive
  * template parameters.
  *
+ * A worker's operator() implementation can accept additional parameters that
+ * follow the arrays. These parameters are passed to the dispatcher during
+ * execution. For instance, this worker scales an array by a runtime-value,
+ * writing it into a second array:
+ *
+ * @code
+ * struct ScaleArray
+ * {
+ *   template <typename ArraySrc, typename ArrayDst>
+ *   void operator()(ArraySrc *srcArray, ArrayDst *dstArray,
+ *                   double scaleFactor) const
+ *   {
+ *     using SrcType = vtk::GetAPIType<ArraySrc>;
+ *     using DstType = vtk::GetAPIType<ArrayDst>;
+ *
+ *     const auto srcRange = vtk::DataArrayValueRange(srcArray);
+ *     auto dstRange = vtk::DataArrayValueRange(dstArray);
+ *
+ *     assert(srcRange.size() == dstRange.size());
+ *
+ *     auto dstIter = dstRange.begin();
+ *     for (SrcType srcVal : srcRange)
+ *     {
+ *       *dstIter++ = static_cast<DstType>(srcVal * scaleFactor);
+ *     }
+ *   }
+ * };
+ *
+ * vtkDataArray *src = ...;
+ * vtkDataArray *dst = ...;
+ * // Scale src by 3 (scaleFactor) and store in dst:
+ * if (!vtkArrayDispatch::Dispatch2::Execute(src, dst, ScaleArray, 3))
+ * {
+ *   scaleArray(src, dst, 3);
+ * }
+ * @endcode
+ *
  * Examples:
- * See TestArrayDispatchers.cxx for examples of each dispatch type.
+ * See TestArrayDispatchers.cxx for examples of each dispatch type and
+ * ExampleDataArrayRangeDispatch.cxx for more real-world examples.
  *
  * @sa
  * vtkDataArrayAccessor

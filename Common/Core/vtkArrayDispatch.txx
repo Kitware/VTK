@@ -21,6 +21,8 @@
 #include "vtkConfigure.h" // For warning macro settings.
 #include "vtkSetGet.h" // For warning macros.
 
+#include <utility> // For std::forward
+
 class vtkDataArray;
 
 namespace vtkArrayDispatch {
@@ -35,8 +37,8 @@ struct Dispatch;
 template<>
 struct Dispatch<vtkTypeList::NullType>
 {
-  template <typename Worker>
-  static bool Execute(vtkDataArray *, Worker&)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Array dispatch failed.");
@@ -52,17 +54,19 @@ template <
     >
 struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail> >
 {
-  template <typename Worker>
-  static bool Execute(vtkDataArray *inArray, Worker &worker)
+  template <typename Worker, typename ...Params>
+  static bool Execute(vtkDataArray *inArray, Worker &&worker, Params&& ...params)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(inArray))
     {
-      worker(array);
+      worker(array, std::forward<Params>(params)...);
       return true;
     }
     else
     {
-      return Dispatch<ArrayTail>::Execute(inArray, worker);
+      return Dispatch<ArrayTail>::Execute(inArray,
+                                          std::forward<Worker>(worker),
+                                          std::forward<Params>(params)...);
     }
   }
 };
@@ -89,8 +93,8 @@ struct Dispatch2Trampoline;
 template <typename ArrayList2>
 struct Dispatch2<vtkTypeList::NullType, ArrayList2>
 {
-  template <typename Worker>
-  static bool Execute(vtkDataArray *, vtkDataArray *, Worker &)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Dual array dispatch failed.");
@@ -110,17 +114,21 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>, ArrayList2>
   typedef Dispatch2<Array1Tail, ArrayList2> NextDispatch;
   typedef Dispatch2Trampoline<Array1Head, ArrayList2> Trampoline;
 
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&&...params)
   {
     if (Array1Head *array = vtkArrayDownCast<Array1Head>(array1))
     {
-      return Trampoline::Execute(array, array2, worker);
+      return Trampoline::Execute(array, array2,
+                                 std::forward<Worker>(worker),
+                                 std::forward<Params>(params)...);
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, worker);
+      return NextDispatch::Execute(array1, array2,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -129,8 +137,8 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>, ArrayList2>
 template <typename Array1T>
 struct Dispatch2Trampoline<Array1T, vtkTypeList::NullType>
 {
-  template <typename Worker>
-  static bool Execute(Array1T *, vtkDataArray *, Worker &)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Dual array dispatch failed.");
@@ -152,17 +160,20 @@ struct Dispatch2Trampoline<
 {
   typedef Dispatch2Trampoline<Array1T, Array2Tail> NextDispatch;
 
-  template <typename Worker>
-  static bool Execute(Array1T *array1, vtkDataArray *array2, Worker &worker)
+  template <typename Worker, typename ...Params>
+  static bool Execute(Array1T *array1, vtkDataArray *array2,
+                      Worker &&worker, Params&&...params)
   {
     if (Array2Head *array = vtkArrayDownCast<Array2Head>(array2))
     {
-      worker(array1, array);
+      worker(array1, array, std::forward<Params>(params)...);
       return true;
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, worker);
+      return NextDispatch::Execute(array1, array2,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -180,8 +191,8 @@ struct Dispatch2Same;
 template <typename ArrayList2>
 struct Dispatch2Same<vtkTypeList::NullType, ArrayList2>
 {
-  template <typename Worker>
-  static bool Execute(vtkDataArray *, vtkDataArray *, Worker &)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Dual array dispatch failed.");
@@ -206,17 +217,21 @@ struct Dispatch2Same<
   typedef typename FilterArraysByValueType<ArrayList2, ValueType>::Result ValueArrayList;
   typedef Dispatch2Trampoline<ArrayHead, ValueArrayList> Trampoline;
 
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&& ...params)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array1))
     {
-      return Trampoline::Execute(array, array2, worker);
+      return Trampoline::Execute(array, array2,
+                                 std::forward<Worker>(worker),
+                                 std::forward<Params>(params)...);
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, worker);
+      return NextDispatch::Execute(array1, array2,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -258,8 +273,8 @@ template <
     >
 struct Dispatch3<vtkTypeList::NullType, ArrayList2, ArrayList3>
 {
-  template <typename Worker>
-  static bool Execute(vtkDataArray *, vtkDataArray*, vtkDataArray*, Worker&)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Triple array dispatch failed.");
@@ -282,17 +297,23 @@ private:
   typedef Dispatch3Trampoline1<ArrayHead, ArrayList2, ArrayList3> Trampoline;
   typedef Dispatch3<ArrayTail, ArrayList2, ArrayList3> NextDispatch;
 public:
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3,
+                      Worker &&worker,
+                      Params &&... params)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array1))
     {
-      return Trampoline::Execute(array, array2, array3, worker);
+      return Trampoline::Execute(array, array2, array3,
+                                 std::forward<Worker>(worker),
+                                 std::forward<Params>(params)...);
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, array3, worker);
+      return NextDispatch::Execute(array1, array2, array3,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -304,8 +325,8 @@ template <
     >
 struct Dispatch3Trampoline1<Array1T, vtkTypeList::NullType, ArrayList3>
 {
-  template <typename Worker>
-  static bool Execute(Array1T*, vtkDataArray*, vtkDataArray*, Worker&)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Triple array dispatch failed.");
@@ -329,17 +350,22 @@ private:
   typedef Dispatch3Trampoline2<Array1T, ArrayHead, ArrayList3> Trampoline;
   typedef Dispatch3Trampoline1<Array1T, ArrayTail, ArrayList3> NextDispatch;
 public:
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(Array1T *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3, Worker &&worker,
+                      Params&&... params)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array2))
     {
-      return Trampoline::Execute(array1, array, array3, worker);
+      return Trampoline::Execute(array1, array, array3,
+                                 std::forward<Worker>(worker),
+                                 std::forward<Params>(params)...);
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, array3, worker);
+      return NextDispatch::Execute(array1, array2, array3,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -352,8 +378,8 @@ template <
     >
 struct Dispatch3Trampoline2<Array1T, Array2T, vtkTypeList::NullType>
 {
-  template <typename Worker>
-  static bool Execute(Array1T*, Array2T*, vtkDataArray*, Worker&)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Triple array dispatch failed.");
@@ -375,18 +401,21 @@ struct Dispatch3Trampoline2<Array1T, Array2T,
 private:
   typedef Dispatch3Trampoline2<Array1T, Array2T, ArrayTail> NextDispatch;
 public:
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(Array1T *array1, Array2T *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3, Worker &&worker,
+                      Params&&... params)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array3))
     {
-      worker(array1, array2, array);
+      worker(array1, array2, array, std::forward<Params>(params)...);
       return true;
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, array3, worker);
+      return NextDispatch::Execute(array1, array2, array3,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -408,9 +437,8 @@ struct Dispatch3Same;
 template <typename ArrayList2, typename ArrayList3>
 struct Dispatch3Same<vtkTypeList::NullType, ArrayList2, ArrayList3>
 {
-  template <typename Worker>
-  static bool Execute(vtkDataArray*, vtkDataArray*,
-                      vtkDataArray*, Worker&)
+  template <typename ...T>
+  static bool Execute(T&&...)
   {
 #ifdef VTK_WARN_ON_DISPATCH_FAILURE
     vtkGenericWarningMacro("Triple array dispatch failed.");
@@ -439,17 +467,22 @@ private:
   typedef Dispatch3Trampoline1<ArrayHead, ValueArrays2, ValueArrays3> Trampoline;
   typedef Dispatch3Same<ArrayTail, ArrayList2, ArrayList3> NextDispatch;
 public:
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3, Worker &&worker,
+                      Params&&... params)
   {
     if (ArrayHead *array = vtkArrayDownCast<ArrayHead>(array1))
     {
-      return Trampoline::Execute(array, array2, array3, worker);
+      return Trampoline::Execute(array, array2, array3,
+                                 std::forward<Worker>(worker),
+                                 std::forward<Params>(params)...);
     }
     else
     {
-      return NextDispatch::Execute(array1, array2, array3, worker);
+      return NextDispatch::Execute(array1, array2, array3,
+                                   std::forward<Worker>(worker),
+                                   std::forward<Params>(params)...);
     }
   }
 };
@@ -499,11 +532,12 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArrays>::Result SortedUniqueArrays;
   typedef impl::Dispatch<SortedUniqueArrays> ArrayDispatcher;
 public:
-  DispatchByArray() {}
-  template <typename Worker>
-  static bool Execute(vtkDataArray *inArray, Worker &worker)
+  template <typename Worker, typename ...Params>
+  static bool Execute(vtkDataArray *inArray, Worker &&worker, Params&&...params)
   {
-    return ArrayDispatcher::Execute(inArray, worker);
+    return ArrayDispatcher::Execute(inArray,
+                                    std::forward<Worker>(worker),
+                                    std::forward<Params>(params)...);
   }
 };
 
@@ -516,11 +550,12 @@ struct Dispatch
 private:
   typedef DispatchByArray<Arrays> Dispatcher;
 public:
-  Dispatch() {}
-  template <typename Worker>
-  static bool Execute(vtkDataArray *array, Worker &worker)
+  template <typename Worker, typename ...Params>
+  static bool Execute(vtkDataArray *array, Worker &&worker, Params&&... params)
   {
-    return Dispatcher::Execute(array, worker);
+    return Dispatcher::Execute(array,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -541,11 +576,12 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArrays>::Result SortedUniqueArrays;
   typedef impl::Dispatch<SortedUniqueArrays> ArrayDispatcher;
 public:
-  DispatchByValueType() {}
-  template <typename Worker>
-  static bool Execute(vtkDataArray *inArray, Worker &worker)
+  template <typename Worker, typename ...Params>
+  static bool Execute(vtkDataArray *inArray, Worker &&worker, Params&&... params)
   {
-    return ArrayDispatcher::Execute(inArray, worker);
+    return ArrayDispatcher::Execute(inArray,
+                                    std::forward<Worker>(worker),
+                                    std::forward<Params>(params)...);
   }
 };
 
@@ -566,12 +602,13 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
   typedef impl::Dispatch2<SortedUniqueArray1, SortedUniqueArray2> ArrayDispatcher;
 public:
-  Dispatch2ByArray() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&&...params)
   {
-    return ArrayDispatcher::Execute(array1, array2, worker);
+    return ArrayDispatcher::Execute(array1, array2,
+                                    std::forward<Worker>(worker),
+                                    std::forward<Params>(params)...);
   }
 };
 
@@ -583,12 +620,13 @@ struct Dispatch2
 private:
   typedef Dispatch2ByArray<vtkArrayDispatch::Arrays, vtkArrayDispatch::Arrays> Dispatcher;
 public:
-  Dispatch2() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&&...params)
   {
-    return Dispatcher::Execute(array1, array2, worker);
+    return Dispatcher::Execute(array1, array2,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -611,11 +649,13 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
   typedef impl::Dispatch2<SortedUniqueArray1, SortedUniqueArray2> ArrayDispatcher;
 public:
-  Dispatch2ByValueType() {}
-  template <typename Worker>
-  static bool Execute(vtkDataArray *array1, vtkDataArray *array2, Worker &worker)
+  template <typename Worker, typename ...Params>
+  static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
+                      Worker &&worker, Params&&...params)
   {
-    return ArrayDispatcher::Execute(array1, array2, worker);
+    return ArrayDispatcher::Execute(array1, array2,
+                                    std::forward<Worker>(worker),
+                                    std::forward<Params>(params)...);
   }
 };
 
@@ -632,12 +672,13 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray>::Result SortedUniqueArray;
   typedef impl::Dispatch2Same<SortedUniqueArray, SortedUniqueArray> Dispatcher;
 public:
-  Dispatch2BySameValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&&...params)
   {
-    return Dispatcher::Execute(array1, array2, worker);
+    return Dispatcher::Execute(array1, array2,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -658,12 +699,13 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
   typedef impl::Dispatch2Same<SortedUniqueArray1, SortedUniqueArray2> Dispatcher;
 public:
-  Dispatch2ByArrayWithSameValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&&...params)
   {
-    return Dispatcher::Execute(array1, array2, worker);
+    return Dispatcher::Execute(array1, array2,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -675,12 +717,13 @@ struct Dispatch2SameValueType
 private:
   typedef Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::Arrays, vtkArrayDispatch::Arrays> Dispatcher;
 public:
-  Dispatch2SameValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      Worker &worker)
+                      Worker &&worker, Params&&... params)
   {
-    return Dispatcher::Execute(array1, array2, worker);
+    return Dispatcher::Execute(array1, array2,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -704,12 +747,15 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray3>::Result SortedUniqueArray3;
   typedef impl::Dispatch3<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3> ArrayDispatcher;
 public:
-  Dispatch3ByArray() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3,
+                      Worker &&worker,
+                      Params&&... params)
   {
-    return ArrayDispatcher::Execute(array1, array2, array3, worker);
+    return ArrayDispatcher::Execute(array1, array2, array3,
+                                    std::forward<Worker>(worker),
+                                    std::forward<Params>(params)...);
   }
 };
 
@@ -723,12 +769,15 @@ private:
                            vtkArrayDispatch::Arrays,
                            vtkArrayDispatch::Arrays> Dispatcher;
 public:
-  Dispatch3() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3,
+                      Worker &&worker,
+                      Params&&... params)
   {
-    return Dispatcher::Execute(array1, array2, array3, worker);
+    return Dispatcher::Execute(array1, array2, array3,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -755,12 +804,13 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray3>::Result SortedUniqueArray3;
   typedef impl::Dispatch3<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3> ArrayDispatcher;
 public:
-  Dispatch3ByValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3, Worker &&worker, Params&&... params)
   {
-    return ArrayDispatcher::Execute(array1, array2, array3, worker);
+    return ArrayDispatcher::Execute(array1, array2, array3,
+                                    std::forward<Worker>(worker),
+                                    std::forward<Params>(params)...);
   }
 };
 
@@ -777,12 +827,15 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray>::Result SortedUniqueArray;
   typedef impl::Dispatch3Same<SortedUniqueArray, SortedUniqueArray, SortedUniqueArray> Dispatcher;
 public:
-  Dispatch3BySameValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3,
+                      Worker &&worker,
+                      Params&&...params)
   {
-    return Dispatcher::Execute(array1, array2, array3, worker);
+    return Dispatcher::Execute(array1, array2, array3,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -806,12 +859,15 @@ private:
   typedef typename vtkTypeList::DerivedToFront<UniqueArray3>::Result SortedUniqueArray3;
   typedef impl::Dispatch3Same<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3> Dispatcher;
 public:
-  Dispatch3ByArrayWithSameValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3,
+                      Worker &&worker,
+                      Params&&...params)
   {
-    return Dispatcher::Execute(array1, array2, array3, worker);
+    return Dispatcher::Execute(array1, array2, array3,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 
@@ -825,12 +881,15 @@ private:
                                             vtkArrayDispatch::Arrays,
                                             vtkArrayDispatch::Arrays> Dispatcher;
 public:
-  Dispatch3SameValueType() {}
-  template <typename Worker>
+  template <typename Worker, typename ...Params>
   static bool Execute(vtkDataArray *array1, vtkDataArray *array2,
-                      vtkDataArray *array3, Worker &worker)
+                      vtkDataArray *array3,
+                      Worker &&worker,
+                      Params&&...params)
   {
-    return Dispatcher::Execute(array1, array2, array3, worker);
+    return Dispatcher::Execute(array1, array2, array3,
+                               std::forward<Worker>(worker),
+                               std::forward<Params>(params)...);
   }
 };
 

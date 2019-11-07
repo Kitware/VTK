@@ -555,9 +555,6 @@ int vtkPConnectivityFilter::RequestData(
   vtkSmartPointer<vtkDataArray> allBoundsArray;
   allBoundsArray.TakeReference(output->GetPoints()->GetData()->NewInstance());
 
-  // Common array dispatcher used by various workers.
-  vtkArrayDispatch::DispatchByArray<PointArrayTypes> arrayDispatcher;
-
   ExchangeBoundsWorker exchangeBounds(subController);
   if (!exchangeBounds.Execute(output->GetBounds(), allBoundsArray))
   {
