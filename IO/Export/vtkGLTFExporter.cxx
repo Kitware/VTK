@@ -52,6 +52,8 @@ vtkGLTFExporter::vtkGLTFExporter()
 {
   this->FileName = nullptr;
   this->InlineData = false;
+  this->SaveNormal = false;
+  this->SaveBatchId = false;
 }
 
 vtkGLTFExporter::~vtkGLTFExporter()
@@ -207,7 +209,7 @@ void WriteBufferAndView(vtkCellArray* ca, const char* fileName, bool inlineData,
 
 void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& bufferViews,
   Json::Value& meshes, Json::Value& nodes, vtkPolyData* pd, vtkActor* aPart, const char* fileName,
-  bool inlineData)
+  bool inlineData, bool saveNormal, bool saveBatchId)
 {
   vtkNew<vtkTriangleFilter> trif;
   trif->SetInputData(pd);
@@ -240,6 +242,39 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     acc["min"] = mins;
     acc["max"] = maxs;
     pointAccessor = accessors.size();
+    accessors.append(acc);
+  }
+
+  std::vector<vtkDataArray*> arraysToSave;
+  if (saveBatchId)
+  {
+    vtkDataArray* a;
+    if ((a = pd->GetPointData()->GetArray("_BATCHID")))
+    {
+      arraysToSave.push_back(a);
+    }
+  }
+  if (saveNormal)
+  {
+    vtkDataArray* a;
+    if ((a = pd->GetPointData()->GetArray("NORMAL")))
+    {
+      arraysToSave.push_back(a);
+    }
+  }
+  int userAccessorsStart = accessors.size();
+  for (size_t i = 0; i < arraysToSave.size(); ++i)
+  {
+    vtkDataArray* da = arraysToSave[i];
+    WriteBufferAndView(da, fileName, inlineData, buffers, bufferViews);
+
+    // write the accessor
+    Json::Value acc;
+    acc["bufferView"] = bufferViews.size() - 1;
+    acc["byteOffset"] = 0;
+    acc["type"] = da->GetNumberOfComponents() == 3 ? "VEC3" : "SCALAR";
+    acc["componentType"] = GL_FLOAT;
+    acc["count"] = static_cast<Json::Value::Int64>(da->GetNumberOfTuples());
     accessors.append(acc);
   }
 
@@ -312,6 +347,11 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     accessors.append(acc);
 
     attribs["POSITION"] = pointAccessor;
+    int userAccessor = userAccessorsStart;
+    for (size_t i = 0; i < arraysToSave.size(); ++i)
+      {
+        attribs[arraysToSave[i]->GetName()] = userAccessor++;
+      }
     if (vertColorAccessor >= 0)
     {
       attribs["COLOR_0"] = vertColorAccessor;
@@ -345,6 +385,11 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     accessors.append(acc);
 
     attribs["POSITION"] = pointAccessor;
+    int userAccessor = userAccessorsStart;
+    for (size_t i = 0; i < arraysToSave.size(); ++i)
+    {
+      attribs[arraysToSave[i]->GetName()] = userAccessor++;
+    }
     if (vertColorAccessor >= 0)
     {
       attribs["COLOR_0"] = vertColorAccessor;
@@ -378,6 +423,11 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
     accessors.append(acc);
 
     attribs["POSITION"] = pointAccessor;
+    int userAccessor = userAccessorsStart;
+    for (size_t i = 0; i < arraysToSave.size(); ++i)
+    {
+      attribs[arraysToSave[i]->GetName()] = userAccessor++;
+    }
     if (vertColorAccessor >= 0)
     {
       attribs["COLOR_0"] = vertColorAccessor;
@@ -399,9 +449,9 @@ void WriteMesh(Json::Value& accessors, Json::Value& buffers, Json::Value& buffer
 
   // write out an actor
   Json::Value child;
-  if (!aPart->GetIsIdentity())
+  vtkMatrix4x4* amat = aPart->GetMatrix();
+  if (!amat->IsIdentity())
   {
-    vtkMatrix4x4* amat = aPart->GetMatrix();
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -478,7 +528,7 @@ void WriteTexture(Json::Value& buffers, Json::Value& bufferViews, Json::Value& t
 
     // convert to png
     vtkNew<vtkPNGWriter> png;
-    png->SetCompressionLevel(0);
+    png->SetCompressionLevel(5);
     png->SetInputConnection(flip->GetOutputPort());
     png->WriteToMemoryOn();
     png->Write();
@@ -658,7 +708,7 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
             {
               foundVisibleProp = true;
               WriteMesh(accessors, buffers, bufferViews, meshes, nodes, pd, aPart, this->FileName,
-                this->InlineData);
+                  this->InlineData, this->SaveNormal, this->SaveBatchId);
               rendererNode["children"].append(nodes.size() - 1);
               unsigned int oldTextureCount = textures.size();
               WriteTexture(buffers, bufferViews, textures, samplers, images, pd, aPart,
@@ -676,10 +726,9 @@ void vtkGLTFExporter::WriteToStream(ostream& output)
       WriteCamera(cameras, ren);
       nodes.append(anode);
       rendererNode["children"].append(nodes.size() - 1);
+      nodes.append(rendererNode);
+      topNodes.push_back(nodes.size() - 1);
     }
-
-    nodes.append(rendererNode);
-    topNodes.push_back(nodes.size() - 1);
   }
 
   Json::Value root;
