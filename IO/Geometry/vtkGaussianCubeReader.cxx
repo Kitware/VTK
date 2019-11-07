@@ -26,7 +26,11 @@
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
 
+#include <vtksys/SystemTools.hxx>
+
 #include <cctype>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
@@ -95,14 +99,21 @@ int vtkGaussianCubeReader::RequestData(
     fclose (fp);
     return 0;
   }
-  if(strtok(title, ":") != nullptr)
+
+  // TODO: SystemTools::Split should be replaced by a SystemTools::SplitN call
+  // which only splits up to N times as soon as it exists
+  std::vector<std::string> tokens;
+  vtksys::SystemTools::Split(title, tokens, ':');
+  if (tokens.size() > 2)
   {
-    if(strtok(nullptr, ":") != nullptr)
+    for (std::size_t token = 3; token < tokens.size(); ++token)
     {
-      strcpy(data_name, strtok(nullptr, ":"));
-      fprintf(stderr,"label = %s\n", data_name);
+      tokens[2] += ":" + tokens[token];
     }
+    strcpy(data_name, tokens[2].c_str());
+    fprintf(stderr, "label = %s\n", data_name);
   }
+
   if (!fgets(title, 256, fp))
   {
     vtkErrorMacro ("GaussianCubeReader error reading file: " << this->FileName
