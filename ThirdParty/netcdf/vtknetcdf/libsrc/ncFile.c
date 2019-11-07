@@ -159,11 +159,11 @@ NCFile_sync(ncstdio* filep);
 #ifdef HAVE_FSYNC
 #ifdef USE_FSYNC
     fd = fileno(state->file);
-#ifndef WIN32
+#ifndef _WIN32
     fsync(fd);
 #else
     _commit(fd);
-#endif	/* WIN32 */
+#endif	/* _WIN32 */
 #endif
 #endif
     return NC_NOERR;

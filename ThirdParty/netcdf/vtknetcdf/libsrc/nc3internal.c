@@ -1500,11 +1500,11 @@ NC3_sync(int ncid)
 #ifdef USE_FSYNC
 	/* may improve concurrent access, but slows performance if
 	 * called frequently */
-#ifndef WIN32
+#ifndef _WIN32
 	status = fsync(nc3->nciop->fd);
 #else
 	status = _commit(nc3->nciop->fd);
-#endif	/* WIN32 */
+#endif	/* _WIN32 */
 #endif	/* USE_FSYNC */
 
 	return status;
