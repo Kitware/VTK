@@ -164,13 +164,12 @@ private:
   void RemoveInvalidPoints(vtkCharArray* validArray, vtkDataSetAttributes* dsa)
   {
     ClearInvalidElementsWorker worker(validArray);
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
     const auto narrays = dsa->GetNumberOfArrays();
     for (vtkIdType a = 0; a < narrays; a++)
     {
       if (vtkDataArray* da = dsa->GetArray(a))
       {
-        if (!Dispatcher::Execute(da, worker))
+        if (!vtkArrayDispatch::Dispatch::Execute(da, worker))
         {
           // use vtkDataArray fallback.
           worker(da);

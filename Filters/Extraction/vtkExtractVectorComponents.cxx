@@ -14,8 +14,10 @@
 =========================================================================*/
 #include "vtkExtractVectorComponents.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
@@ -110,17 +112,30 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
     vtkWarningMacro(<<" a new output had to be created since the input type changed.");
   }
 }
+namespace {
 
-template <class T>
-void vtkExtractComponents(int numVectors, T* vectors, T* vx, T* vy, T* vz)
-{
-  for (int i=0; i<numVectors; i++)
-  {
-    vx[i] = vectors[3*i];
-    vy[i] = vectors[3*i+1];
-    vz[i] = vectors[3*i+2];
+struct vtkExtractComponents {
+  template <class T>
+  void operator()(T *vectors, vtkDataArray *vx, vtkDataArray *vy,
+                  vtkDataArray *vz) {
+    T *x = T::FastDownCast(vx);
+    T *y = T::FastDownCast(vy);
+    T *z = T::FastDownCast(vz);
+
+    const auto inRange = vtk::DataArrayTupleRange<3>(vectors);
+    //mark out ranges as single component for better perf
+    auto outX = vtk::DataArrayValueRange<1>(x).begin();
+    auto outY = vtk::DataArrayValueRange<1>(y).begin();
+    auto outZ = vtk::DataArrayValueRange<1>(z).begin();
+
+    for (auto value : inRange) {
+      *outX++ = value[0];
+      *outY++ = value[1];
+      *outZ++ = value[2];
+    }
   }
-}
+};
+} // namespace
 
 int vtkExtractVectorComponents::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -218,14 +233,9 @@ int vtkExtractVectorComponents::RequestData(
     snprintf(newName, newNameSize, "%s-z", name);
     vz->SetName(newName);
 
-    switch (vectors->GetDataType())
+    if(!vtkArrayDispatch::Dispatch::Execute(vectors, vtkExtractComponents{}, vx, vy, vz))
     {
-      vtkTemplateMacro(
-        vtkExtractComponents(numVectors,
-                             static_cast<VTK_TT *>(vectors->GetVoidPointer(0)),
-                             static_cast<VTK_TT *>(vx->GetVoidPointer(0)),
-                             static_cast<VTK_TT *>(vy->GetVoidPointer(0)),
-                             static_cast<VTK_TT *>(vz->GetVoidPointer(0))));
+      vtkExtractComponents{}(vectors, vx, vy, vz);
     }
 
     outVx->PassData(pd);
@@ -267,15 +277,9 @@ int vtkExtractVectorComponents::RequestData(
     snprintf(newName, newNameSize, "%s-z", name);
     vzc->SetName(newName);
 
-    switch (vectorsc->GetDataType())
+    if(!vtkArrayDispatch::Dispatch::Execute(vectorsc, vtkExtractComponents{}, vxc, vyc, vzc))
     {
-      vtkTemplateMacro(
-        vtkExtractComponents(numVectorsc,
-                             static_cast<VTK_TT *>(
-                               vectorsc->GetVoidPointer(0)),
-                             static_cast<VTK_TT *>(vxc->GetVoidPointer(0)),
-                             static_cast<VTK_TT *>(vyc->GetVoidPointer(0)),
-                             static_cast<VTK_TT *>(vzc->GetVoidPointer(0))));
+      vtkExtractComponents{}(vectorsc, vxc, vyc, vzc);
     }
 
     outVxc->PassData(cd);

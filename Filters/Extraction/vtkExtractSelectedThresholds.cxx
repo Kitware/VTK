@@ -14,8 +14,10 @@
 =========================================================================*/
 #include "vtkExtractSelectedThresholds.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
@@ -666,28 +668,34 @@ void vtkExtractSelectedThresholds::PrintSelf(ostream& os, vtkIndent indent)
 
 namespace
 {
-  template <class daT>
-  bool TestItem(vtkIdType numLims, daT* limsPtr, double value)
+struct TestItem
+{
+  template <class ArrayT>
+  void operator()(ArrayT* lims, double value, int& keep) const
   {
-    for (int i = 0; i < numLims; i+=2)
+    auto limsRange = vtk::DataArrayValueRange(lims);
+    assert(limsRange.size() % 2 == 0);
+    for(auto i = limsRange.begin(); i < limsRange.end(); i+=2)
     {
-      if (value >= limsPtr[i] && value <= limsPtr[i+1])
+      if (value >= *i && value <= *(i+1))
       {
-        return true;
+        keep = true;
+        return;
       }
     }
-    return false;
+    keep = false;
   }
 
-  template <class daT>
-  bool TestItem(vtkIdType numLims, daT* limsPtr, double value,
-    int &above, int &below, int& inside)
+  template <class ArrayT>
+  void operator()(ArrayT* lims, double value, int& keepCell,
+    int &above, int &below, int& inside) const
   {
-    bool keepCell = false;
-    for (vtkIdType i = 0; i < numLims; i+=2)
+    auto limsRange = vtk::DataArrayValueRange(lims);
+    assert(limsRange.size() % 2 == 0);
+    for(auto i = limsRange.begin(); i < limsRange.end(); i+=2)
     {
-      daT low = limsPtr[i];
-      daT high = limsPtr[i+1];
+      const auto& low = *i;
+      const auto& high = *(i+1);
       if (value >= low && value <= high)
       {
         keepCell = true;
@@ -702,9 +710,11 @@ namespace
         ++above;
       }
     }
-    return keepCell;
+    keepCell = false;
   }
 };
+} // namespace
+
 //----------------------------------------------------------------------------
 int vtkExtractSelectedThresholds::EvaluateValue(
   vtkDataArray *scalars, int comp_no, vtkIdType id, vtkDataArray *lims)
@@ -730,14 +740,9 @@ int vtkExtractSelectedThresholds::EvaluateValue(
       static_cast<double>(id); /// <=== precision loss when using id.
   }
 
-  void* rawLimsPtr = lims->GetVoidPointer(0);
-  vtkIdType numLims = lims->GetNumberOfComponents() * lims->GetNumberOfTuples();
-  switch (lims->GetDataType())
+  if(!vtkArrayDispatch::Dispatch::Execute(lims, TestItem{}, value, keepCell))
   {
-    vtkTemplateMacro(
-      keepCell = TestItem<VTK_TT>(numLims,
-        static_cast<VTK_TT*>(rawLimsPtr),
-        value));
+    TestItem{}(lims, value, keepCell);
   }
   return keepCell;
 }
@@ -773,15 +778,10 @@ int vtkExtractSelectedThresholds::EvaluateValue(
   int below = 0;
   int inside = 0;
 
-  void* rawLimsPtr = lims->GetVoidPointer(0);
-  vtkIdType numLims = lims->GetNumberOfComponents() * lims->GetNumberOfTuples();
-  switch (lims->GetDataType())
+  if (!vtkArrayDispatch::Dispatch::Execute(lims, TestItem{}, value, keepCell,
+                                           above, below, inside))
   {
-    vtkTemplateMacro(
-      keepCell = TestItem<VTK_TT>(numLims,
-        static_cast<VTK_TT*>(rawLimsPtr),
-        value,
-        above, below, inside));
+    TestItem{}(lims, value, keepCell, above, below, inside);
   }
 
   if (AboveCount) *AboveCount = above;

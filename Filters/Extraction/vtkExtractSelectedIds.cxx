@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkExtractSelectedIds.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
+#include "vtkDataArrayRange.h"
 #include "vtkExtractCells.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -218,38 +220,43 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
 
 namespace
 {
-  template <class T>
-  void vtkESIDeepCopyImpl(T* out, T* in, int compno, int num_comps,
-    vtkIdType numTuples)
+struct vtkESIDeepCopyImpl {
+
+  template <class ArrayOut, class ArrayIn>
+  void operator()(ArrayOut* outArray, ArrayIn* inArray, int compno) const
   {
+    using T = vtk::GetAPIType<ArrayOut>;
+    const auto inRange = vtk::DataArrayTupleRange(inArray);
+    auto outRange = vtk::DataArrayValueRange(outArray);
+
+    auto out = outRange.begin();
+
     if (compno < 0)
     {
-      for (vtkIdType cc=0; cc < numTuples; cc++)
+      for (auto tuple : inRange)
       {
         double mag = 0;
-        for (int comp=0; comp < num_comps; comp++)
+        for (auto comp : tuple)
         {
-          mag += in[comp]*in[comp];
+          mag += static_cast<double>(comp) * static_cast<double>(comp);
         }
         mag = sqrt(mag);
         *out = static_cast<T>(mag);
         out++;
-        in += num_comps;
       }
     }
     else
     {
-      for (vtkIdType cc=0; cc < numTuples; cc++)
+      for (auto tuple : inRange)
       {
-        *out = in[compno];
+        *out = tuple[compno];
         out++;
-        in += num_comps;
       }
     }
   }
 
-  void vtkESIDeepCopyImpl(vtkStdString* out, vtkStdString* in,
-    int compno, int num_comps, vtkIdType numTuples)
+  void operator()(vtkStdString* out, vtkStdString* in,
+    int compno, int num_comps, vtkIdType numTuples) const
   {
     if (compno < 0)
     {
@@ -263,6 +270,7 @@ namespace
       in += num_comps;
     }
   }
+};
 
   // Deep copies a specified component (or magnitude of compno < 0).
   static void vtkESIDeepCopy(vtkAbstractArray* out, vtkAbstractArray* in, int compno)
@@ -277,30 +285,54 @@ namespace
     vtkIdType numTuples = in->GetNumberOfTuples();
     out->SetNumberOfComponents(1);
     out->SetNumberOfTuples(numTuples);
-    switch (in->GetDataType())
-    {
-      vtkTemplateMacro(
-        vtkESIDeepCopyImpl<VTK_TT>(
-          static_cast<VTK_TT*>(out->GetVoidPointer(0)),
-          static_cast<VTK_TT*>(in->GetVoidPointer(0)),
-          compno, in->GetNumberOfComponents(), numTuples));
-    case VTK_STRING:
-      vtkESIDeepCopyImpl(
-        static_cast<vtkStdString*>(out->GetVoidPointer(0)),
-        static_cast<vtkStdString*>(in->GetVoidPointer(0)),
-        compno, in->GetNumberOfComponents(), numTuples);
-      break;
+
+    vtkDataArray* dataArrayIn = vtkDataArray::SafeDownCast(in);
+    vtkDataArray* dataArrayOut = vtkDataArray::SafeDownCast(out);
+    vtkESIDeepCopyImpl copy_worklet;
+    if (dataArrayIn && dataArrayOut) {
+      const bool executed = vtkArrayDispatch::Dispatch2SameValueType::Execute(
+          dataArrayIn, dataArrayOut, copy_worklet, compno);
+      if (!executed) { // fallback to vtkDataArray dispatch access
+        copy_worklet(dataArrayIn, dataArrayOut, compno);
+      }
+    } else {
+      vtkStringArray *strArrayIn = vtkStringArray::SafeDownCast(in);
+      vtkStringArray *strArrayOut = vtkStringArray::SafeDownCast(out);
+      if(strArrayIn && strArrayOut)
+      {
+        copy_worklet(strArrayIn->GetPointer(0),
+                     strArrayOut->GetPointer(0),
+                     compno, in->GetNumberOfComponents(), numTuples);
+      }
     }
   }
 
-  //---------------------
-  template<class T1, class T2>
-  void vtkExtractSelectedIdsExtractCells(
+//---------------------
+struct vtkExtractSelectedIdsExtractCells
+{
+  template<typename ...Args>
+  void operator()(vtkStringArray *id, vtkStringArray *label, Args&&... args) const
+  {
+    this->execute(id->GetPointer(0), label->GetPointer(0), std::forward<Args>(args)...);
+  }
+  template<typename ArrayT, typename ArrayU, typename ...Args>
+  void operator()(ArrayT id, ArrayU label, Args&&... args) const
+  {
+    const auto idRange = vtk::DataArrayValueRange(id);
+    const auto labelRange = vtk::DataArrayValueRange(label);
+    this->execute(idRange.begin(), labelRange.begin(), std::forward<Args>(args)...);
+  }
+
+  template<typename IdIter, typename LabelIter>
+  void execute(IdIter id, LabelIter label,
     vtkExtractSelectedIds *self, int passThrough, int invert,
     vtkDataSet *input, vtkIdTypeArray *idxArray,
     vtkSignedCharArray *cellInArray, vtkSignedCharArray *pointInArray,
-    vtkIdType numIds, T1 *id, T2 *label)
+    vtkIdType numIds) const
   {
+    using T1 = typename std::iterator_traits<IdIter>::value_type;
+    using T2 = typename std::iterator_traits<LabelIter>::value_type;
+
     // Reverse the "in" flag
     signed char flag = invert ? 1 : -1;
     flag = -flag;
@@ -424,34 +456,35 @@ namespace
 
     idList->Delete();
   }
+};
 
-  //---------------------
-  template<class T1>
-  void vtkExtractSelectedIdsExtractCellsT1(
-    vtkExtractSelectedIds *self, int passThrough, int invert,
-    vtkDataSet *input, vtkIdTypeArray *idxArray,
-    vtkSignedCharArray *cellInArray, vtkSignedCharArray *pointInArray,
-    vtkIdType numIds, T1 *id, void *labelVoid, int labelArrayType)
+//---------------------
+struct vtkExtractSelectedIdsExtractPoints
+{
+  template<typename ...Args>
+  void operator()(vtkStringArray *id, vtkStringArray *label, Args&&... args) const
   {
-    switch (labelArrayType)
-    {
-      vtkTemplateMacro(
-        vtkExtractSelectedIdsExtractCells(
-          self, passThrough, invert, input,
-          idxArray, cellInArray, pointInArray,
-          numIds, id, static_cast<VTK_TT *>(labelVoid)));
-    }
+    this->execute(id->GetPointer(0), label->GetPointer(0), std::forward<Args>(args)...);
+  }
+  template<typename ArrayT, typename ArrayU, typename ...Args>
+  void operator()(ArrayT id, ArrayU label, Args&&... args) const
+  {
+    const auto idRange = vtk::DataArrayValueRange(id);
+    const auto labelRange = vtk::DataArrayValueRange(label);
+    this->execute(idRange.cbegin(), labelRange.cbegin(), std::forward<Args>(args)...);
   }
 
-  //---------------------
-  template<class T1, class T2>
-  void vtkExtractSelectedIdsExtractPoints(
+  template<typename IdIter, typename LabelIter>
+  void execute(IdIter id, LabelIter label,
     vtkExtractSelectedIds *self,
     int passThrough, int invert, int containingCells,
     vtkDataSet *input, vtkIdTypeArray *idxArray,
     vtkSignedCharArray *cellInArray, vtkSignedCharArray *pointInArray,
-    vtkIdType numIds, T1 *id, T2 *label)
+    vtkIdType numIds) const
   {
+    using T1 = typename std::iterator_traits<IdIter>::value_type;
+    using T2 = typename std::iterator_traits<LabelIter>::value_type;
+
     // Reverse the "in" flag
     signed char flag = invert ? 1 : -1;
     flag = -flag;
@@ -558,25 +591,7 @@ namespace
       cellPts->Delete();
     }
   }
-
-  //---------------------
-  template<class T1>
-  void vtkExtractSelectedIdsExtractPointsT1(
-    vtkExtractSelectedIds *self,
-    int passThrough, int invert, int containingCells,
-    vtkDataSet *input, vtkIdTypeArray *idxArray,
-    vtkSignedCharArray *cellInArray, vtkSignedCharArray *pointInArray,
-    vtkIdType numIds, T1 *id, void *labelVoid, int labelArrayType)
-  {
-    switch (labelArrayType)
-    {
-      vtkTemplateMacro(
-        vtkExtractSelectedIdsExtractPoints(
-          self, passThrough, invert, containingCells, input,
-          idxArray, cellInArray, pointInArray,
-          numIds, id, static_cast<VTK_TT *>(labelVoid)));
-    }
-  }
+};
 
 } // end anonymous namespace
 
@@ -708,35 +723,36 @@ int vtkExtractSelectedIds::ExtractCells(
   }
 
   // Array types must match if they are string arrays.
-  if (vtkArrayDownCast<vtkStringArray>(labelArray) &&
-    vtkArrayDownCast<vtkStringArray>(idArray) == nullptr)
+  vtkExtractSelectedIdsExtractCells worker;
+  if (vtkArrayDownCast<vtkStringArray>(labelArray))
   {
-    labelArray->Delete();
-    idxArray->Delete();
-    idArray->Delete();
-    vtkWarningMacro(
-      "Array types don't match. They must match for vtkStringArray.");
-    return 0;
+    vtkStringArray* labels = vtkArrayDownCast<vtkStringArray>(labelArray);
+    vtkStringArray* ids = vtkArrayDownCast<vtkStringArray>(idArray);
+    if(ids == nullptr)
+    {
+      labelArray->Delete();
+      idxArray->Delete();
+      idArray->Delete();
+      vtkWarningMacro(
+        "Array types don't match. They must match for vtkStringArray.");
+      return 0;
+    }
+    worker(ids, labels, this, passThrough,
+           invert, input, idxArray, cellInArray, pointInArray, numIds);
   }
-
-  void *idVoid = idArray->GetVoidPointer(0);
-  void *labelVoid = labelArray->GetVoidPointer(0);
-  int idArrayType = idArray->GetDataType();
-  int labelArrayType = labelArray->GetDataType();
-
-  switch (idArrayType)
+  else
   {
-    vtkTemplateMacro(
-      vtkExtractSelectedIdsExtractCellsT1(
-        this, passThrough, invert, input,
-        idxArray, cellInArray, pointInArray, numIds,
-        static_cast<VTK_TT *>(idVoid), labelVoid, labelArrayType));
-    case VTK_STRING:
-      vtkExtractSelectedIdsExtractCells(
-        this, passThrough, invert, input,
-        idxArray, cellInArray, pointInArray, numIds,
-        static_cast<vtkStdString *>(idVoid),
-        static_cast<vtkStdString *>(labelVoid));
+    vtkDataArray* labels = vtkDataArray::SafeDownCast(labelArray);
+    vtkDataArray* ids = vtkDataArray::SafeDownCast(idArray);
+
+    const bool executed = vtkArrayDispatch::Dispatch2::Execute(
+        ids, labels, worker, this, passThrough, invert, input, idxArray,
+        cellInArray, pointInArray, numIds);
+    if(!executed)
+    { //fallback to vtkDataArray dispatch access
+      worker(ids, labels, this, passThrough, invert, input, idxArray,
+             cellInArray, pointInArray, numIds);
+    }
   }
 
   idArray->Delete();
@@ -910,6 +926,7 @@ int vtkExtractSelectedIds::ExtractPoints(
     return 0;
   }
 
+
   numIds = idArray->GetNumberOfTuples();
   vtkAbstractArray* sortedArray =
     vtkAbstractArray::CreateArray(idArray->GetDataType());
@@ -917,25 +934,29 @@ int vtkExtractSelectedIds::ExtractPoints(
   vtkSortDataArray::SortArrayByComponent(sortedArray, 0);
   idArray = sortedArray;
 
-  void *idVoid = idArray->GetVoidPointer(0);
-  void *labelVoid = labelArray->GetVoidPointer(0);
-  int idArrayType = idArray->GetDataType();
-  int labelArrayType = labelArray->GetDataType();
-
-  switch (idArrayType)
+  vtkExtractSelectedIdsExtractPoints worker;
+  if (vtkArrayDownCast<vtkStringArray>(labelArray))
   {
-    vtkTemplateMacro(
-      vtkExtractSelectedIdsExtractPointsT1(
-        this, passThrough, invert, containingCells, input,
-        idxArray, cellInArray, pointInArray, numIds,
-        static_cast<VTK_TT *>(idVoid), labelVoid, labelArrayType));
-    case VTK_STRING:
-      vtkExtractSelectedIdsExtractPoints(
-        this, passThrough, invert, containingCells, input,
-        idxArray, cellInArray, pointInArray, numIds,
-        static_cast<vtkStdString *>(idVoid),
-        static_cast<vtkStdString *>(labelVoid));
+    vtkStringArray* labels = vtkArrayDownCast<vtkStringArray>(labelArray);
+    vtkStringArray* ids = vtkArrayDownCast<vtkStringArray>(idArray);
+    worker(ids, labels, this, passThrough,
+           invert, containingCells, input, idxArray, cellInArray, pointInArray, numIds);
   }
+  else
+  {
+    vtkDataArray* labels = vtkDataArray::SafeDownCast(labelArray);
+    vtkDataArray* ids = vtkDataArray::SafeDownCast(idArray);
+
+    bool executed = vtkArrayDispatch::Dispatch2::Execute(
+        ids, labels, worker, this, passThrough, invert, containingCells, input,
+        idxArray, cellInArray, pointInArray, numIds);
+    if(!executed)
+    { //fallback to vtkDataArray dispatch access
+      worker(ids, labels, this, passThrough, invert, containingCells, input,
+             idxArray, cellInArray, pointInArray, numIds);
+    }
+  }
+
 
   idArray->Delete();
   idxArray->Delete();

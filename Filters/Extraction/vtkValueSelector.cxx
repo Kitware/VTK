@@ -358,7 +358,7 @@ private:
     if (this->SelectionList->GetNumberOfComponents() == 1)
     {
       ArrayValueMatchFunctor worker(insidednessArray, this->ComponentNo);
-      if (!vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>::Execute(
+      if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
             darray, vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
@@ -371,7 +371,7 @@ private:
     else
     {
       ArrayValueRangeFunctor worker(insidednessArray, this->ComponentNo);
-      if (!vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>::Execute(
+      if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
             darray, vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // Use the slow data array API for threshold-based selection. Thresholds
