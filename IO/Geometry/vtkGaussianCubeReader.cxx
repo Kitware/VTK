@@ -100,8 +100,8 @@ int vtkGaussianCubeReader::RequestData(
     return 0;
   }
 
-  // TODO: SystemTools::Split should be replaced by a SystemTools::SplitN call which only splits
-  //       up to N times as soon as it exists
+  // TODO: SystemTools::Split should be replaced by a SystemTools::SplitN call
+  // which only splits up to N times as soon as it exists
   std::vector<std::string> tokens;
   vtksys::SystemTools::Split(title, tokens, ':');
   if (tokens.size() > 2)
@@ -111,7 +111,7 @@ int vtkGaussianCubeReader::RequestData(
       tokens[2] += ":" + tokens[token];
     }
     strcpy(data_name, tokens[2].c_str());
-    fprintf(stderr,"label = %s\n", data_name);
+    fprintf(stderr, "label = %s\n", data_name);
   }
 
   if (!fgets(title, 256, fp))
