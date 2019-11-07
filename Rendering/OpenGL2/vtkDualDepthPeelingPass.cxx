@@ -1297,12 +1297,11 @@ void vtkDualDepthPeelingPass::PeelVolumesOutsideTranslucentRange()
 //------------------------------------------------------------------------------
 bool vtkDualDepthPeelingPass::PeelingDone()
 {
-  // Note that we do NOT check the volumetric occlusion info as an early
-  // termination criterion. A volume may not exist for every slice, or may
-  // only be found in the front slice (only the back is counted for occlusion
-  // tests). This can lead to incorrect early termination of volume peeling.
+  const auto writtenPix =
+    this->TranslucentWrittenPixels + this->VolumetricWrittenPixels;
+
   return this->CurrentPeel >= this->MaximumNumberOfPeels ||
-         this->TranslucentWrittenPixels <= this->OcclusionThreshold;
+    writtenPix <= this->OcclusionThreshold;
 }
 
 //------------------------------------------------------------------------------
