@@ -34,13 +34,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"
 
-#define VTK_LAGRANGE_TRIANGLE_MAX_ORDER 6
-
-#define MAX_POINTS ((VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 1) *     \
-                    (VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 2)/2)
-
-#define MAX_SUBTRIANGLES (VTK_LAGRANGE_TRIANGLE_MAX_ORDER *     \
-                          VTK_LAGRANGE_TRIANGLE_MAX_ORDER)
+#include <vector> // For caching
 
 class vtkDoubleArray;
 class vtkLagrangeCurve;
@@ -62,13 +56,6 @@ public:
   vtkCell *GetFace(int) override { return nullptr; }
 
   void Initialize() override;
-
-  static int MaximumOrder() { return VTK_LAGRANGE_TRIANGLE_MAX_ORDER; }
-  static int MaximumNumberOfPoints()
-  {
-    return ((vtkLagrangeTriangle::MaximumOrder() + 1) *
-            (vtkLagrangeTriangle::MaximumOrder() + 2)/2);
-  }
 
   int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   int EvaluatePosition(const double x[3], double closestPoint[3],
@@ -118,7 +105,7 @@ protected:
   vtkLagrangeTriangle();
   ~vtkLagrangeTriangle() override;
 
-  vtkIdType GetNumberOfSubtriangles() const {return this->NumberOfSubtriangles;}
+  vtkIdType GetNumberOfSubtriangles() const { return this->NumberOfSubtriangles; }
   vtkIdType ComputeNumberOfSubtriangles();
 
   // Description:
@@ -134,11 +121,9 @@ protected:
   vtkIdType NumberOfSubtriangles;
   double* ParametricCoordinates;
 
-  vtkIdType EdgeIds[VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 1];
-  vtkIdType BarycentricIndexMap[3*MAX_POINTS];
-  vtkIdType IndexMap[(VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 1) *
-                     (VTK_LAGRANGE_TRIANGLE_MAX_ORDER + 1)];
-  vtkIdType SubtriangleIndexMap[9*MAX_SUBTRIANGLES];
+  std::vector<vtkIdType> BarycentricIndexMap;
+  std::vector<vtkIdType> IndexMap;
+  std::vector<vtkIdType> SubtriangleIndexMap;
 
 private:
   vtkLagrangeTriangle(const vtkLagrangeTriangle&) = delete;
