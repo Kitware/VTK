@@ -29,8 +29,8 @@
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
-#include "vtkMatrix4x4.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 
 #include "vtkBrush.h"
 #include "vtkPen.h"
@@ -39,8 +39,8 @@
 
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
 #include "vtkTextPropertyCollection.h"

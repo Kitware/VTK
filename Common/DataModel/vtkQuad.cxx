@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkQuad.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
-#include "vtkTriangle.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
+#include "vtkTriangle.h"
 
 vtkStandardNewMacro(vtkQuad);
 

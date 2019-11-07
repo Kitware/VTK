@@ -1,5 +1,5 @@
-#include "vtkBiDimensionalWidget.h"
 #include "vtkBiDimensionalRepresentation2D.h"
+#include "vtkBiDimensionalWidget.h"
 
 #include <cstdlib>
 #include <iostream>

@@ -26,19 +26,19 @@
 #define vtkAMRFlashReaderInternal_h
 
 #include <cassert>
-#include <vector>
-#include <map>
 #include <cstring>
+#include <map>
 #include <string>
+#include <vector>
 
-#include "vtkSetGet.h"
-#include "vtkDataSet.h"
-#include "vtkObject.h"
+#include "vtkByteSwap.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
-#include "vtkCellData.h"
-#include "vtkByteSwap.h"
+#include "vtkObject.h"
+#include "vtkSetGet.h"
 
 #define H5_USE_16_API
 #include "vtk_hdf5.h"

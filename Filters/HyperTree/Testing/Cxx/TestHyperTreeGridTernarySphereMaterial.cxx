@@ -24,14 +24,14 @@
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkQuadric.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkQuadric.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
 int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )

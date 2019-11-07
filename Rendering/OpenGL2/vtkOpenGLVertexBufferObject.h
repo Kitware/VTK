@@ -14,8 +14,8 @@
 #ifndef vtkOpenGLVertexBufferObject_h
 #define vtkOpenGLVertexBufferObject_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkOpenGLBufferObject.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
 class vtkOpenGLVertexBufferObjectCache;
 

@@ -14,22 +14,22 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkOpenVRModel.h"
 
+#include "vtkInteractorObserver.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenVRCamera.h"
-#include "vtkOpenVRRay.h"
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkShaderProgram.h"
-#include "vtkOpenGLHelper.h"
-#include "vtkTextureObject.h"
-#include "vtkRendererCollection.h"
-#include "vtkMatrix4x4.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
+#include "vtkOpenVRCamera.h"
+#include "vtkOpenVRRay.h"
+#include "vtkOpenVRRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorObserver.h"
+#include "vtkRendererCollection.h"
+#include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 
 /*=========================================================================
 vtkOpenVRModel

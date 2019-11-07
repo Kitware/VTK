@@ -27,8 +27,8 @@
 #ifndef vtkPropCollection_h
 #define vtkPropCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkProp.h" // Needed for inline methods
 

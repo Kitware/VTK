@@ -16,9 +16,9 @@
 
 #include "vtkCellArray.h"
 #include "vtkCylinderSource.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMolecule.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"

@@ -15,9 +15,9 @@
 #ifndef vtkPython_h
 #define vtkPython_h
 
-#include "vtkPythonConfigure.h"
-#include "vtkConfigure.h"
 #include "vtkABI.h"
+#include "vtkConfigure.h"
+#include "vtkPythonConfigure.h"
 
 /*
    Use the real python debugging library if it is provided.
@@ -36,8 +36,8 @@
 // a debug build against a release build of python the compiler will end up
 // including these low level headers without DEBUG enabled, causing it to try
 // and link release versions of this low level C api.
-# include <basetsd.h>
 # include <assert.h>
+# include <basetsd.h>
 # include <ctype.h>
 # include <errno.h>
 # include <io.h>

@@ -60,9 +60,9 @@
 #ifndef vtkArrayExtents_h
 #define vtkArrayExtents_h
 
+#include "vtkArrayRange.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include "vtkArrayRange.h"
 #include <vector> // STL Header
 
 class VTKCOMMONCORE_EXPORT vtkArrayExtents

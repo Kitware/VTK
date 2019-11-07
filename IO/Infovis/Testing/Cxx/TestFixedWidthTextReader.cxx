@@ -19,14 +19,14 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkFixedWidthTextReader.h>
+#include <vtkIOStream.h>
 #include <vtkNew.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
+#include <vtkTestErrorObserver.h>
+#include <vtkTestUtilities.h>
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
-#include <vtkTestUtilities.h>
-#include <vtkTestErrorObserver.h>
-#include <vtkIOStream.h>
 
 int TestFixedWidthTextReader(int argc, char *argv[])
 {

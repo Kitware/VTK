@@ -22,12 +22,12 @@
 #include "vtkExtractVOI.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkResampleToImage.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkResampleToImage.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtkCellType.h"
 #include "vtkCell.h"
+#include "vtkCellType.h"
 #include "vtkUnstructuredGrid.h"
 #include <iostream>
 

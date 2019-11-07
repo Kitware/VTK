@@ -42,8 +42,8 @@
 #ifndef vtkAttributeDataToFieldDataFilter_h
 #define vtkAttributeDataToFieldDataFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetAlgorithm
 {

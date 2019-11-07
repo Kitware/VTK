@@ -13,18 +13,18 @@
 
 =========================================================================*/
 #include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation3D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
 #include "vtkEventData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 
 vtkStandardNewMacro(vtkHandleWidget);

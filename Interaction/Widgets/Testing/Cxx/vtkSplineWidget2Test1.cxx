@@ -1,5 +1,5 @@
-#include "vtkSplineWidget2.h"
 #include "vtkSplineRepresentation.h"
+#include "vtkSplineWidget2.h"
 
 #include <cstdlib>
 #include <iostream>

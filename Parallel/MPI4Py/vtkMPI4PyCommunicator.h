@@ -29,8 +29,8 @@
 
 #include "vtkPython.h" // For PyObject*; must be first
 
-#include "vtkParallelMPI4PyModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelMPI4PyModule.h" // For export macro
 
 class vtkMPICommunicator;
 

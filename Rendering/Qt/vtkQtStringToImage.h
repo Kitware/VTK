@@ -25,8 +25,8 @@
 #define vtkQtStringToImage_h
 
 #include "vtkRenderingQtModule.h" // For export macro
+#include "vtkSmartPointer.h"      // For SP ivars
 #include "vtkStringToImage.h"
-#include "vtkSmartPointer.h" // For SP ivars
 
 class vtkQImageToImageSource;
 

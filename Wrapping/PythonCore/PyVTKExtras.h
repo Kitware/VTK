@@ -23,8 +23,8 @@
 #ifndef PyVTKExtras_h
 #define PyVTKExtras_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 //--------------------------------------------------------------------
 // This will add extras to the provided dict.  It is called during the

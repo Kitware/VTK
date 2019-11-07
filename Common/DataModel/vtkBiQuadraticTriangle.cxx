@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkBiQuadraticTriangle.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
+#include "vtkDoubleArray.h"
 #include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkTriangle.h"
-#include "vtkDoubleArray.h"
-#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkBiQuadraticTriangle);
 

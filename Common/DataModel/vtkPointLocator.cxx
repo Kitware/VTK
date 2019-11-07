@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkPointLocator.h"
 
+#include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkBoundingBox.h"
 
 #include <algorithm> //std::sort
 

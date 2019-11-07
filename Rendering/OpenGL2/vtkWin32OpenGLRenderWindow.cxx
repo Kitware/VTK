@@ -14,13 +14,13 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkWin32OpenGLRenderWindow.h"
 
-#include "vtkIdList.h"
 #include "vtkCommand.h"
+#include "vtkIdList.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"

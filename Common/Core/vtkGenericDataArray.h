@@ -69,9 +69,9 @@
 #include "vtkDataArray.h"
 
 #include "vtkConfigure.h"
+#include "vtkGenericDataArrayLookupHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
-#include "vtkGenericDataArrayLookupHelper.h"
 
 #include <cassert>
 

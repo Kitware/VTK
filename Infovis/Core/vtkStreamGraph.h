@@ -36,8 +36,8 @@
 #ifndef vtkStreamGraph_h
 #define vtkStreamGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkBitArray;
 class vtkMergeGraphs;

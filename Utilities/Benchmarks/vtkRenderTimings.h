@@ -20,10 +20,10 @@
  * Define the classes we use for running timing benchmarks
  */
 
-#include "vtkUtilitiesBenchmarksModule.h"
 #include "vtkTimerLog.h"
-#include <vtksys/CommandLineArguments.hxx>
+#include "vtkUtilitiesBenchmarksModule.h"
 #include <map>
+#include <vtksys/CommandLineArguments.hxx>
 
 class vtkRTTestResult;
 class vtkRTTestSequence;

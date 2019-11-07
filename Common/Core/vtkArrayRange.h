@@ -38,9 +38,9 @@
 #ifndef vtkArrayRange_h
 #define vtkArrayRange_h
 
+#include "vtkArrayCoordinates.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include "vtkArrayCoordinates.h"
 
 class VTKCOMMONCORE_EXPORT vtkArrayRange
 {

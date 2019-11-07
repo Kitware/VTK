@@ -22,8 +22,8 @@
 #ifndef vtkSkybox_h
 #define vtkSkybox_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkSkybox: public vtkActor
 {

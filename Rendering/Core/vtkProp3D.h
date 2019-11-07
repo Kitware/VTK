@@ -33,8 +33,8 @@
 #ifndef vtkProp3D_h
 #define vtkProp3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkTransform;

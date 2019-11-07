@@ -17,6 +17,10 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenericAdaptorCell.h"
+#include "vtkGenericAttribute.h"
+#include "vtkGenericAttributeCollection.h"
+#include "vtkGenericDataSet.h"
 #include "vtkGenericInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -26,14 +30,10 @@
 #include "vtkRungeKutta2.h"
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
-#include "vtkGenericDataSet.h"
-#include "vtkGenericAttributeCollection.h"
-#include "vtkGenericAttribute.h"
-#include "vtkGenericAdaptorCell.h"
 #include <cassert>
 
-#include "vtkInformation.h"
 #include "vtkExecutive.h" // for GetExecutive()
+#include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
 vtkStandardNewMacro(vtkGenericStreamTracer);

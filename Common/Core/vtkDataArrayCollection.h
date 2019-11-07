@@ -23,8 +23,8 @@
 #ifndef vtkDataArrayCollection_h
 #define vtkDataArrayCollection_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 #include "vtkDataArray.h" // Needed for inline methods
 

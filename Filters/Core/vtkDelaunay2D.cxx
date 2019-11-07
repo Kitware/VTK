@@ -26,8 +26,8 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTriangle.h"
 #include "vtkTransform.h"
+#include "vtkTriangle.h"
 
 #include <set>
 #include <vector>

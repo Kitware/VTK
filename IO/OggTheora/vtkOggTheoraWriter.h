@@ -29,8 +29,8 @@
 #ifndef vtkOggTheoraWriter_h
 #define vtkOggTheoraWriter_h
 
-#include "vtkIOOggTheoraModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
+#include "vtkIOOggTheoraModule.h" // For export macro
 
 class vtkOggTheoraWriterInternal;
 

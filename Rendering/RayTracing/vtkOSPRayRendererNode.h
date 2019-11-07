@@ -22,9 +22,9 @@
 #ifndef vtkOSPRayRendererNode_h
 #define vtkOSPRayRendererNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkRendererNode.h"
-#include <vector> // for ivars
+#include "vtkRenderingRayTracingModule.h" // For export macro
+#include <vector>                         // for ivars
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 

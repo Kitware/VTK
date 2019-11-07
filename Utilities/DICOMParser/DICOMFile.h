@@ -30,8 +30,8 @@
 #include <stdlib.h>
 #include <string>
 
-#include "DICOMTypes.h"
 #include "DICOMConfig.h"
+#include "DICOMTypes.h"
 
 //
 // Abstraction of a file used by the DICOMParser.

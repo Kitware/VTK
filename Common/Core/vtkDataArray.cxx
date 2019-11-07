@@ -13,26 +13,26 @@
 
 =========================================================================*/
 
-#include "vtkArrayDispatch.h"
-#include "vtkAOSDataArrayTemplate.h" // For fast paths
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
-#include "vtkDataArrayPrivate.txx"
+#include "vtkAOSDataArrayTemplate.h" // For fast paths
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
+#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayPrivate.txx"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericDataArray.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
-#include "vtkIdList.h"
-#include "vtkLookupTable.h"
 #include "vtkLongArray.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkSOADataArrayTemplate.h" // For fast paths
 #ifdef VTK_USE_SCALED_SOA_ARRAYS

@@ -33,8 +33,8 @@
 #ifndef vtkInterpolateDataSetAttributes_h
 #define vtkInterpolateDataSetAttributes_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkDataSetCollection;
 

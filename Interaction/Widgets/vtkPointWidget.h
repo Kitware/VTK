@@ -64,9 +64,9 @@
 #ifndef vtkPointWidget_h
 #define vtkPointWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
-#include "vtkCursor3D.h" // Needed for faster access to the Cursor3D
+#include "vtkCursor3D.h"                 // Needed for faster access to the Cursor3D
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkPolyDataMapper;

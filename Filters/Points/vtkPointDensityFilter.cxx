@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkPointDensityFilter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointSet.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkImageData.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkMath.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkSMPThreadLocalObject.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 
 
 vtkStandardNewMacro(vtkPointDensityFilter);

@@ -16,10 +16,10 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkExecutive.h"
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMatrix3x3.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cctype>

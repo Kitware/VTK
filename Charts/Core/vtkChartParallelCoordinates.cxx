@@ -15,29 +15,29 @@
 
 #include "vtkChartParallelCoordinates.h"
 
-#include "vtkContext2D.h"
-#include "vtkBrush.h"
-#include "vtkPen.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkTextProperty.h"
+#include "vtkAnnotationLink.h"
 #include "vtkAxis.h"
-#include "vtkPlotParallelCoordinates.h"
+#include "vtkBrush.h"
+#include "vtkCommand.h"
+#include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkSmartPointer.h"
-#include "vtkTable.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkTransform2D.h"
 #include "vtkObjectFactory.h"
-#include "vtkCommand.h"
-#include "vtkAnnotationLink.h"
+#include "vtkPen.h"
+#include "vtkPlotParallelCoordinates.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTextProperty.h"
+#include "vtkTransform2D.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 // Minimal storage class for STL containers etc.
 class vtkChartParallelCoordinates::Private

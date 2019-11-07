@@ -18,18 +18,18 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkCursor2D.h"
-#include "vtkCoordinate.h"
-#include "vtkDiskSource.h"
-#include "vtkPolyDataMapper2D.h"
 #include "vtkActor2D.h"
-#include "vtkRenderer.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkCursor2D.h"
+#include "vtkDiskSource.h"
+#include "vtkHandleWidget.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkPointHandleRepresentation2D.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkRenderer.h"
 
 // This does the actual work: updates the probe.
 // Callback for the interaction

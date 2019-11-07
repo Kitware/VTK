@@ -18,8 +18,8 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkTable.h"
+#include "vtkArrayIteratorIncludes.h"
 
 #include "vtkAbstractArray.h"
 #include "vtkDataArray.h"

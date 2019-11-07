@@ -15,8 +15,8 @@
 
 #include "vtkTimePointUtility.h"
 
-#include "vtkSmartPointer.h"
 #include "vtkMath.h"
+#include "vtkSmartPointer.h"
 
 #include <sstream>
 #include <string>

@@ -16,11 +16,8 @@
 #import <vtk/vtkActor.h>
 #import <vtk/vtkCamera.h>
 #import <vtk/vtkCommand.h>
-#import <vtk/vtkCommand.h>
 #import <vtk/vtkDebugLeaks.h>
 #import <vtk/vtkIOSRenderWindow.h>
-#import <vtk/vtkIOSRenderWindow.h>
-#import <vtk/vtkIOSRenderWindowInteractor.h>
 #import <vtk/vtkIOSRenderWindowInteractor.h>
 #import <vtk/vtkImageData.h>
 #import <vtk/vtkInteractorStyleMultiTouchCamera.h>

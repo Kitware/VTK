@@ -32,8 +32,8 @@
 #ifndef vtkAbstractMapper3D_h
 #define vtkAbstractMapper3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkWindow;
 class vtkDataSet;

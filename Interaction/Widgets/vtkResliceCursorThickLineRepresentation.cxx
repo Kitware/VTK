@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkResliceCursorThickLineRepresentation.h"
-#include "vtkImageSlabReslice.h"
-#include "vtkImageReslice.h"
-#include "vtkResliceCursor.h"
 #include "vtkImageData.h"
-#include "vtkObjectFactory.h"
 #include "vtkImageMapToColors.h"
-#include <cmath>
+#include "vtkImageReslice.h"
+#include "vtkImageSlabReslice.h"
+#include "vtkObjectFactory.h"
+#include "vtkResliceCursor.h"
 #include <algorithm>
+#include <cmath>
 
 #include <sstream>
 

@@ -17,10 +17,10 @@
 // .SECTION Description
 // This program tests functions in vtkGraph
 
-#include "vtkMutableUndirectedGraph.h"
 #include "vtkMutableDirectedGraph.h"
-#include <limits>
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkSmartPointer.h"
+#include <limits>
 
 #include <vector>
 

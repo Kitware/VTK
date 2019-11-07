@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkMath.h"
 #include "vtkBoundingBox.h"
+#include "vtkMath.h"
 #include "vtkSmartPointer.h"
 
 #include <limits>

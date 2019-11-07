@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkLagrangeTetra.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
+#include "vtkDoubleArray.h"
 #include "vtkLagrangeCurve.h"
 #include "vtkLagrangeTriangle.h"
-#include "vtkTetra.h"
-#include "vtkDoubleArray.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkTetra.h"
 
 #define ENABLE_CACHING
 #define FIFTEEN_POINT_TETRA

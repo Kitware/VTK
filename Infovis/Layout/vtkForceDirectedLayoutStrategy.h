@@ -34,8 +34,8 @@
 #ifndef vtkForceDirectedLayoutStrategy_h
 #define vtkForceDirectedLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkForceDirectedLayoutStrategy : public vtkGraphLayoutStrategy
 {

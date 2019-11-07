@@ -23,8 +23,8 @@
 #ifndef vtkReebGraphSimplificationFilter_h
 #define vtkReebGraphSimplificationFilter_h
 
-#include "vtkFiltersReebGraphModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkFiltersReebGraphModule.h" // For export macro
 
 class vtkReebGraph;
 class vtkReebGraphSimplificationMetric;

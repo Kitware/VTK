@@ -31,8 +31,8 @@
 #ifndef vtkPExtractGrid_h
 #define vtkPExtractGrid_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractGrid.h"
+#include "vtkFiltersParallelMPIModule.h" // For export macro
 
 // Forward declarations
 class vtkMPIController;

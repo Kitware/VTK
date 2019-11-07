@@ -1,27 +1,27 @@
 #ifndef vtkWidgetTestingMacros_h
 #define vtkWidgetTestingMacros_h
 
-#include <vtkAbstractTransform.h>
-#include <vtkActor.h>
-#include <vtkAssemblyPath.h>
 #include "vtkCamera.h"
 #include "vtkDebugLeaks.h"
-#include <vtkFollower.h>
-#include <vtkInformation.h>
-#include <vtkLineWidget2.h>
 #include "vtkMath.h"
-#include <vtkMatrix4x4.h>
-#include <vtkPointHandleRepresentation2D.h>
-#include <vtkPointPlacer.h>
-#include <vtkPolyData.h>
-#include <vtkPropCollection.h>
-#include <vtkProperty2D.h>
-#include <vtkProperty.h>
-#include <vtkProp.h>
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include <vtkAbstractTransform.h>
+#include <vtkActor.h>
+#include <vtkAssemblyPath.h>
+#include <vtkFollower.h>
+#include <vtkInformation.h>
+#include <vtkLineWidget2.h>
+#include <vtkMatrix4x4.h>
+#include <vtkPointHandleRepresentation2D.h>
+#include <vtkPointPlacer.h>
+#include <vtkPolyData.h>
+#include <vtkProp.h>
+#include <vtkPropCollection.h>
+#include <vtkProperty.h>
+#include <vtkProperty2D.h>
 
 /// tests basic vtkObject methods
 #define EXERCISE_BASIC_OBJECT_METHODS( object ) \

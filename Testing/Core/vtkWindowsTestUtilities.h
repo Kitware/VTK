@@ -19,8 +19,8 @@
 #define VTK_WINDOWS_TEST_UTILITIES
 
 #if defined(VTK_COMPILER_MSVC) && defined(WIN32)
-#include <windows.h>
 #include <sstream>
+#include <windows.h>
 
 inline
 LONG WINAPI vtkWindowsTestUlititiesExceptionHandler(EXCEPTION_POINTERS * ExceptionInfo)

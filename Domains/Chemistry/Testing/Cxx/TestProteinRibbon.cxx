@@ -12,20 +12,20 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkProteinRibbonFilter.h"
-#include "vtkPDBReader.h"
 #include "vtkInteractorStyleSwitch.h"
+#include "vtkNew.h"
+#include "vtkPDBReader.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkProteinRibbonFilter.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestProteinRibbon(int argc, char *argv[])
 {

@@ -33,18 +33,18 @@
 // decide whether it's a good idea to put any kind of password in
 // CMake.
 
+#include "DatabaseSchemaWith2Tables.h"
+#include "vtkIOMySQLTestingCxxConfigure.h"
 #include "vtkMySQLDatabase.h"
-#include "vtkSQLQuery.h"
 #include "vtkRowQueryToTable.h"
 #include "vtkSQLDatabaseSchema.h"
+#include "vtkSQLQuery.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimePointUtility.h"
+#include "vtkToolkits.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkToolkits.h"
-#include "DatabaseSchemaWith2Tables.h"
-#include "vtkIOMySQLTestingCxxConfigure.h"
 
 #include <vector>
 

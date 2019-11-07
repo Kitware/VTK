@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkLinearKernel.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdList.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkLinearKernel);
 

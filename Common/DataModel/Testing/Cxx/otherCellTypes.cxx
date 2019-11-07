@@ -19,8 +19,8 @@
 
 #include "vtkDebugLeaks.h"
 
-#include "vtkCellTypes.h"
 #include "vtkCellType.h"
+#include "vtkCellTypes.h"
 
 void TestOCT()
 {

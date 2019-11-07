@@ -14,34 +14,34 @@
 =========================================================================*/
 #include "vtkClipClosedSurface.h"
 
-#include "vtkDataSet.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkSignedCharArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkPlaneCollection.h"
-#include "vtkMath.h"
-#include "vtkPolygon.h"
-#include "vtkTriangleStrip.h"
-#include "vtkLine.h"
-#include "vtkMatrix4x4.h"
 #include "vtkContourTriangulator.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkSignedCharArray.h"
+#include "vtkTriangleStrip.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkIncrementalOctreePointLocator.h"
 
-#include <vector>
 #include <algorithm>
 #include <map>
 #include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkClipClosedSurface);
 

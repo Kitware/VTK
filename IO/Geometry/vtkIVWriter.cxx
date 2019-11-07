@@ -18,8 +18,8 @@
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkIVWriter);
 

@@ -37,8 +37,8 @@
 
 #include <vector>                            // For DataBlocks
 
-#include "vtkTimeStamp.h"                    // For BlockLoadingTime
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
+#include "vtkTimeStamp.h"                    // For BlockLoadingTime
 #include "vtkVolumeMapper.h"
 
 

@@ -17,8 +17,8 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
 #include "vtkIdTypeArray.h"
@@ -26,30 +26,30 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkPointDataToCellData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTrivialProducer.h"
-#include "vtkPointDataToCellData.h"
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
+#include "vtkAppendPolyData.h"
+#include "vtkAreaPicker.h"
+#include "vtkCommand.h"
 #include "vtkCylinderSource.h"
 #include "vtkElevationFilter.h"
-#include "vtkPlaneSource.h"
-#include "vtkAppendPolyData.h"
 #include "vtkExtractEdges.h"
-#include "vtkCommand.h"
-#include "vtkAreaPicker.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
-#include "vtkProp3DCollection.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInteractorStyleRubberBandPick.h"
+#include "vtkPlaneSource.h"
+#include "vtkProp3DCollection.h"
 #include "vtkRenderedAreaPicker.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 
 namespace {
 

@@ -21,8 +21,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
-#include "vtkTriangleFilter.h"
 #include "vtkSmartPointer.h"
+#include "vtkTriangleFilter.h"
 
 vtkStandardNewMacro(vtkImplicitPolyDataDistance);
 

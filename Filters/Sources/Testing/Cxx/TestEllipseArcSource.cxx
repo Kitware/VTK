@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkEllipseArcSource.h>
-#include <vtkPolyData.h>
-#include <vtkNew.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkEllipseArcSource.h>
+#include <vtkNew.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 int TestEllipseArcSource(int vtkNotUsed(argc), char * vtkNotUsed(argv)[])
 {

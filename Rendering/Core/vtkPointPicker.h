@@ -33,8 +33,8 @@
 #ifndef vtkPointPicker_h
 #define vtkPointPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkDataSet;
 

@@ -13,12 +13,12 @@
 
 =========================================================================*/
 #include "vtkImageActorPointPlacer.h"
-#include "vtkObjectFactory.h"
 #include "vtkBoundedPlanePointPlacer.h"
-#include "vtkPlane.h"
-#include "vtkRenderer.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 

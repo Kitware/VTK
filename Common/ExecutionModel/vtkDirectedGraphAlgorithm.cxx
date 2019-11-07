@@ -20,10 +20,10 @@
 #include "vtkDirectedGraphAlgorithm.h"
 
 #include "vtkCommand.h"
+#include "vtkDirectedGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDirectedGraph.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkDirectedGraphAlgorithm);

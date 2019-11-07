@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
+#include "vtkCompositeTransferFunctionItem.h"
 #include "vtkAxis.h"
 #include "vtkCallbackCommand.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkCompositeTransferFunctionItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 

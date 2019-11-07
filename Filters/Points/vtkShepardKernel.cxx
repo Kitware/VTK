@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkShepardKernel.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
-#include "vtkDoubleArray.h"
 #include "vtkDataSet.h"
-#include "vtkPointData.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkShepardKernel);
 

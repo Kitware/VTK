@@ -24,8 +24,8 @@
 #ifndef vtkOpenGLContextActor_h
 #define vtkOpenGLContextActor_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextActor.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextActor : public vtkContextActor
 {

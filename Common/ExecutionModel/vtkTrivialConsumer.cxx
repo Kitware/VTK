@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkTrivialConsumer.h"
 
+#include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataObject.h"
 
 vtkStandardNewMacro(vtkTrivialConsumer);
 

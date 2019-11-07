@@ -15,8 +15,8 @@
 
 #include <cstdlib>
 
-#include "vtkNew.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"

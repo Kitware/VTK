@@ -12,24 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#include "vtkDensifyPolyData.h"
-#include "vtkXMLPolyDataWriter.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDensifyPolyData.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkTestUtilities.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkCellArray.h"
-#include "vtkSmartPointer.h"
-#include "vtkProperty.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPoints.h"
-#include "vtkSphereSource.h"
+#include "vtkXMLPolyDataWriter.h"
 
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()

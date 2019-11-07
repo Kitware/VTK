@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkPythonCommand.h"
-#include "vtkPythonUtil.h"
 #include "vtkObject.h"
+#include "vtkPythonUtil.h"
 
 
 vtkPythonCommand::vtkPythonCommand()

@@ -41,8 +41,8 @@
 #ifndef vtkSocketController_h
 #define vtkSocketController_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkMultiProcessController.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 class vtkSocketCommunicator;
 

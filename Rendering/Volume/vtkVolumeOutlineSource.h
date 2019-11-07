@@ -30,8 +30,8 @@
 #ifndef vtkVolumeOutlineSource_h
 #define vtkVolumeOutlineSource_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkVolumeMapper;
 

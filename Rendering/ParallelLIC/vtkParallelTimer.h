@@ -43,9 +43,9 @@
 #include "vtkObject.h"
 #include "vtkRenderingParallelLICModule.h" // for export
 
-#include <vector> // for vector
-#include <string> // for string
 #include <sstream> // for sstream
+#include <string> // for string
+#include <vector> // for vector
 #if vtkParallelTimerDEBUG > 0
 #include <iostream> // for cerr
 #endif

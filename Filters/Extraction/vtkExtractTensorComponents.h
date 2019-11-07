@@ -43,8 +43,8 @@
 #ifndef vtkExtractTensorComponents_h
 #define vtkExtractTensorComponents_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 #define VTK_EXTRACT_COMPONENT 0
 #define VTK_EXTRACT_EFFECTIVE_STRESS 1

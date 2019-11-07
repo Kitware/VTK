@@ -35,8 +35,8 @@
 #ifndef vtkSampleImplicitFunctionFilter_h
 #define vtkSampleImplicitFunctionFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkImplicitFunction;
 class vtkDataArray;

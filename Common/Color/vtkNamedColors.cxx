@@ -18,13 +18,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <map> // STL Header for the underlying color map
-#include <vector> // STL Header for returning/storing color values
-#include <sstream> // STL Header for parsing character arrays
 #include <algorithm> // STL Header for transform
-#include <iterator> // STL Header for back inserter
 #include <cctype> // Header to ensure std::tolower is present
 #include <cstdlib>
+#include <iterator> // STL Header for back inserter
+#include <map> // STL Header for the underlying color map
+#include <sstream> // STL Header for parsing character arrays
+#include <vector> // STL Header for returning/storing color values
 
 class vtkNamedColorsDataStore
 {

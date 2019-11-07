@@ -15,11 +15,11 @@
 =========================================================================*/
 #include "vtkSILBuilder.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkDataSetAttributes.h"
 
 vtkStandardNewMacro(vtkSILBuilder);
 vtkCxxSetObjectMacro(vtkSILBuilder, SIL, vtkMutableDirectedGraph);

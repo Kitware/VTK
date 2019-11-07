@@ -1,9 +1,9 @@
-#include <vtkSmartPointer.h>
-#include <vtkSampleFunction.h>
-#include <vtkSphere.h>
+#include <vtkDataArray.h>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
-#include <vtkDataArray.h>
+#include <vtkSampleFunction.h>
+#include <vtkSmartPointer.h>
+#include <vtkSphere.h>
 
 #include <vtkRTAnalyticSource.h>
 

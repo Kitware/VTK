@@ -18,6 +18,7 @@
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkFloatArray.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPlot.h"
 #include "vtkRenderWindow.h"
@@ -25,7 +26,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
-#include "vtkMath.h"
 
 #include <string>
 

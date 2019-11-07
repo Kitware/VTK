@@ -19,23 +19,23 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkGlyph3D.h"
-#include "vtkSphereSource.h"
-#include "vtkImageGridSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkPlaneSource.h"
-#include "vtkLookupTable.h"
-#include "vtkProperty.h"
 #include "vtkCubeSource.h"
+#include "vtkGlyph3D.h"
+#include "vtkImageData.h"
+#include "vtkImageGridSource.h"
+#include "vtkLookupTable.h"
+#include "vtkPlaneSource.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 // if not defined, we use spherical glyphs (slower) instead of cubic
 // glyphs (faster)

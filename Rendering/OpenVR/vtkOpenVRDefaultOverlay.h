@@ -21,8 +21,8 @@
 #ifndef vtkOpenVRDefaultOverlay_h
 #define vtkOpenVRDefaultOverlay_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkOpenVROverlay.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRDefaultOverlay : public vtkOpenVROverlay
 {

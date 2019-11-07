@@ -16,10 +16,10 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkExplicitStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkDataArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"

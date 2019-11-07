@@ -63,9 +63,9 @@
 #ifndef vtkApplyIcons_h
 #define vtkApplyIcons_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkVariant.h" // For variant arguments.
+#include "vtkVariant.h"            // For variant arguments.
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class VTKVIEWSINFOVIS_EXPORT vtkApplyIcons : public vtkPassInputTypeAlgorithm
 {

@@ -25,8 +25,8 @@
 #ifndef vtkBlockItem_h
 #define vtkBlockItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkContext2D;

@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkErrorCode.h"
 
-#include <cstring>
 #include <cctype>
 #include <cerrno>
+#include <cstring>
 
 // this list should only contain the initial, contiguous
 // set of error codes and should not include UserError

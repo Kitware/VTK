@@ -29,18 +29,18 @@
 #ifndef vtkPPixelTransfer_h
 #define vtkPPixelTransfer_h
 
-#include "vtkPixelTransfer.h"
-#include "vtkRenderingParallelLICModule.h" // for export
-#include "vtkSetGet.h" // for macros
-#include "vtkPixelExtent.h" // for pixel extent
 #include "vtkMPI.h" // for mpi
 #include "vtkMPIPixelTT.h" // for type traits
 #include "vtkMPIPixelView.h" // for mpi subarrays
+#include "vtkPixelExtent.h" // for pixel extent
+#include "vtkPixelTransfer.h"
+#include "vtkRenderingParallelLICModule.h" // for export
+#include "vtkSetGet.h" // for macros
 
 // included vtkSystemIncludes.h in the base class.
+#include <cstring> // for memcpy
 #include <iostream> // for ostream
 #include <vector> // for vector
-#include <cstring> // for memcpy
 
 // #define vtkPPixelTransferDEBUG
 

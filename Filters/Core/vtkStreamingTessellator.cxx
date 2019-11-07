@@ -13,15 +13,15 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkStreamingTessellator.h"
 #include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkStreamingTessellator.h"
 
 
 #undef UGLY_ASPECT_RATIO_HACK
 #undef DBG_MIDPTS
 
-#include <stack>
 #include <algorithm>
+#include <stack>
 
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
 #  define VTK_TESSELLATOR_INCR_CASE_COUNT(cs) this->CaseCounts[cs]++

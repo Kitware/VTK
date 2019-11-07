@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-#include "vtkEmptyCell.h"
-#include "vtkIdList.h"
-#include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkPointLocator.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkEmptyCell.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPoints.h"
 
 #include <sstream>
 

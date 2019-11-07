@@ -16,8 +16,8 @@
 #include "vtkSegYIOUtils.h"
 
 #include <cmath>
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 #include <sys/types.h>
 
 //----------------------------------------------------------------------------

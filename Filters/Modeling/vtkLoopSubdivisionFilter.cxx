@@ -14,8 +14,6 @@
 =========================================================================*/
 #include "vtkLoopSubdivisionFilter.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkMath.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellIterator.h"
@@ -23,9 +21,11 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);

@@ -37,8 +37,8 @@
 #ifndef vtkOSPRayPass_h
 #define vtkOSPRayPass_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include <string> // for std::string
 

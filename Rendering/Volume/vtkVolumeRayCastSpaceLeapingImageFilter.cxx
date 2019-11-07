@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataArray.h"
 #include "vtkPointData.h"
-#include <sstream>
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
 #include "vtkMetaImageWriter.h"

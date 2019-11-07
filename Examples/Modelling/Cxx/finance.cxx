@@ -26,9 +26,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkSmartPointer.h"
 #include <vtkRegressionTestImage.h>
 
 #include <cstring>

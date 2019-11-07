@@ -17,9 +17,9 @@
 // .SECTION Description
 //
 
-#include "vtkOBJReader.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkOBJReader.h"
 #include "vtkTestUtilities.h"
 
 // Read the specified file and check for expected number of groups

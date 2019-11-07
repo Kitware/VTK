@@ -25,8 +25,8 @@
 #ifndef vtkClearRGBPass_h
 #define vtkClearRGBPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLRenderWindow;
 

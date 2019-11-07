@@ -27,9 +27,9 @@
 #ifndef vtkCullerCollection_h
 #define vtkCullerCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkCuller.h" // for inline functions
+#include "vtkCuller.h"              // for inline functions
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 {

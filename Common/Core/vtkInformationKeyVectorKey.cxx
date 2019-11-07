@@ -15,8 +15,8 @@
 #include "vtkInformationKeyVectorKey.h"
 
 #include "vtkInformation.h"
-#include <vector>
 #include <algorithm> // find()
+#include <vector>
 
 
 //----------------------------------------------------------------------------

@@ -38,19 +38,19 @@
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderPass.h"
+#include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLShaderProperty.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLUniforms.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
-#include "vtkOpenGLShaderProperty.h"
-#include "vtkOpenGLUniforms.h"
 #include "vtkPBRIrradianceTexture.h"
 #include "vtkPBRLUTTexture.h"
 #include "vtkPBRPrefilterTexture.h"
@@ -65,8 +65,8 @@
 #include "vtkUnsignedIntArray.h"
 
 // Bring in our fragment lit shader symbols.
-#include "vtkPolyDataVS.h"
 #include "vtkPolyDataFS.h"
+#include "vtkPolyDataVS.h"
 #include "vtkPolyDataWideLineGS.h"
 
 #include <algorithm>

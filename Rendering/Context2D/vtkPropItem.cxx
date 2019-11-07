@@ -15,10 +15,10 @@
 
 #include "vtkPropItem.h"
 
-#include "vtkProp.h"
-#include "vtkProp3D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
+#include "vtkProp.h"
+#include "vtkProp3D.h"
 #include "vtkRenderer.h"
 
 vtkObjectFactoryNewMacro(vtkPropItem)

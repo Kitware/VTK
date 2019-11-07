@@ -12,18 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
-#include <cassert>
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkEGLRenderWindow.h"
 
 #include "vtkActor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
 #include <android/log.h>
 #include <android_native_app_glue.h>

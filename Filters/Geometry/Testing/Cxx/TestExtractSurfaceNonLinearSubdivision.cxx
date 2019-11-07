@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkXMLUnstructuredGridReader.h"
+#include "vtkNew.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
 {

@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
-#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
-#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCocoaRenderWindow.h"
+#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCommand.h"
 #import "vtkObjectFactory.h"
 

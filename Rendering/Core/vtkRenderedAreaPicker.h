@@ -32,8 +32,8 @@
 #ifndef vtkRenderedAreaPicker_h
 #define vtkRenderedAreaPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAreaPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 

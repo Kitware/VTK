@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkActor2D.h"
 
-#include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
-#include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
+#include "vtkPropCollection.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkActor2D);
 

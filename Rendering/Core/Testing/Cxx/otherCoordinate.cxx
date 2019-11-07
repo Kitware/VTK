@@ -17,10 +17,10 @@
 // .SECTION Description
 // this program tests vtkCoordinate
 
+#include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkCamera.h"
 
 #include <sstream>
 

@@ -26,8 +26,8 @@
 #ifndef vtkImageToAMR_h
 #define vtkImageToAMR_h
 
-#include "vtkOverlappingAMRAlgorithm.h"
 #include "vtkFiltersAMRModule.h" // For export macro
+#include "vtkOverlappingAMRAlgorithm.h"
 
 class VTKFILTERSAMR_EXPORT vtkImageToAMR : public vtkOverlappingAMRAlgorithm
 {

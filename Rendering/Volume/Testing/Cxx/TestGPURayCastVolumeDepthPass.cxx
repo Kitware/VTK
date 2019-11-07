@@ -24,12 +24,12 @@
 #include <vtkNew.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkTesting.h>
 #include <vtkTestUtilities.h>
+#include <vtkTesting.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 

@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageStencilSource.h"
 
-#include "vtkImageStencilData.h"
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
+#include "vtkImageStencilData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkImageStencilSource);
 vtkCxxSetObjectMacro(vtkImageStencilSource, InformationInput, vtkImageData);

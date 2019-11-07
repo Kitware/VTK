@@ -37,8 +37,8 @@
 #define vtkBlueObeliskData_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkNew.h"                    // For vtkNew
 #include "vtkObject.h"
-#include "vtkNew.h" // For vtkNew
 
 class vtkAbstractArray;
 class vtkFloatArray;

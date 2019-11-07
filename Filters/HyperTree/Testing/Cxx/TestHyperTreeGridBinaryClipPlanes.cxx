@@ -34,9 +34,9 @@
 #include "vtkProperty.h"
 #include "vtkQuadric.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnstructuredGrid.h"
 
 int TestHyperTreeGridBinaryClipPlanes(int argc, char* argv[])

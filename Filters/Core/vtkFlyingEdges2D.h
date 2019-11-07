@@ -63,9 +63,9 @@
 #ifndef vtkFlyingEdges2D_h
 #define vtkFlyingEdges2D_h
 
+#include "vtkContourValues.h"     // Needed for direct access to ContourValues
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkImageData;
 

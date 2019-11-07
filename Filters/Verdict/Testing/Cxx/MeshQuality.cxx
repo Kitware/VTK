@@ -10,14 +10,14 @@
 #include "vtkMeshQuality.h"
 
 #include "vtkDebugLeaks.h"
+#include "vtkFieldData.h"
+#include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
 #include "vtkTestUtilities.h"
+#include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
-#include "vtkFieldData.h"
-#include "vtkPoints.h"
-#include "vtkTriangle.h"
 
 static int DumpQualityStats( vtkMeshQuality* iq, const char *arrayname )
 {

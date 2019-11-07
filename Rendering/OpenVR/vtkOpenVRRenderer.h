@@ -22,8 +22,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRRenderer_h
 #define vtkOpenVRRenderer_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkOpenGLRenderer.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class vtkActor;
 

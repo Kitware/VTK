@@ -15,14 +15,14 @@
 
 #include "vtkActor.h"
 #include "vtkChartXY.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkContextActor.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkPlot.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 

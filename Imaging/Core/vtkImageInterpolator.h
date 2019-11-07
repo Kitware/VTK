@@ -28,8 +28,8 @@
 #ifndef vtkImageInterpolator_h
 #define vtkImageInterpolator_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class VTKIMAGINGCORE_EXPORT vtkImageInterpolator :
   public vtkAbstractImageInterpolator

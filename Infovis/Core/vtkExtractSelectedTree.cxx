@@ -16,19 +16,19 @@
 #include "vtkExtractSelectedTree.h"
 
 #include "vtkCellData.h"
+#include "vtkConvertSelection.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
-#include "vtkIdTypeArray.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
-#include "vtkConvertSelection.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkNew.h"
 
 #include <map>
 

@@ -16,9 +16,9 @@
 #ifndef vtkQuadraturePointsUtilities_hxx
 #define vtkQuadraturePointsUtilities_hxx
 
-#include "vtkQuadratureSchemeDefinition.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkQuadratureSchemeDefinition.h"
 #include "vtkUnstructuredGrid.h"
 
 namespace vtkQuadraturePointsUtilities {

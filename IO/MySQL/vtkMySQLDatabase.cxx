@@ -26,8 +26,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
-#include <vtksys/SystemTools.hxx>
 #include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 

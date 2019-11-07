@@ -30,8 +30,8 @@
 
 #include "vtkMultiProcessController.h"
 
-#include "vtkvpic/VPICDataSet.h"
 #include "vtkvpic/GridExchange.h"
+#include "vtkvpic/VPICDataSet.h"
 #include "vtkvpic/VPICView.h"
 
 vtkStandardNewMacro(vtkVPICReader);

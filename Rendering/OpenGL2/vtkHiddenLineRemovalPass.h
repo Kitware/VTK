@@ -25,8 +25,8 @@
 #ifndef vtkHiddenLineRemovalPass_h
 #define vtkHiddenLineRemovalPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include <vector> // For std::vector!
 

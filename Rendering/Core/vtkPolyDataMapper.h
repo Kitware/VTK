@@ -25,8 +25,8 @@
 #ifndef vtkPolyDataMapper_h
 #define vtkPolyDataMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 //#include "vtkTexture.h" // used to include texture unit enum.
 
 class vtkPolyData;

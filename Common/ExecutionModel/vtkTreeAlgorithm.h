@@ -36,9 +36,9 @@
 #ifndef vtkTreeAlgorithm_h
 #define vtkTreeAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkTree.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkTree.h"                       // makes things a bit easier
 
 class vtkDataSet;
 

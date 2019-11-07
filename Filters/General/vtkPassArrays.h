@@ -71,8 +71,8 @@
 #ifndef vtkPassArrays_h
 #define vtkPassArrays_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkPassArrays : public vtkDataObjectAlgorithm
 {

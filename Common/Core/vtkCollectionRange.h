@@ -20,8 +20,8 @@
 
 #include "vtkCollection.h"
 #include "vtkMeta.h"
-#include "vtkSmartPointer.h"
 #include "vtkRange.h"
+#include "vtkSmartPointer.h"
 
 #include <cassert>
 

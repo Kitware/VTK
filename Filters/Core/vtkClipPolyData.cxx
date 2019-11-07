@@ -20,6 +20,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImplicitFunction.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
@@ -28,7 +29,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
-#include "vtkIncrementalPointLocator.h"
 
 #include <cmath>
 

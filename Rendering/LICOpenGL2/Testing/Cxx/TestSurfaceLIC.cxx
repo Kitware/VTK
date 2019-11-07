@@ -12,23 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkObjectFactory.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkGenericDataObjectReader.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkXMLMultiBlockDataReader.h"
-#include "vtkGenericDataObjectReader.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkSurfaceLICTestDriver.h"
+#include "vtkXMLMultiBlockDataReader.h"
+#include "vtkXMLPolyDataReader.h"
 
+#include <string>
+#include <vector>
 #include <vtksys/CommandLineArguments.hxx>
 #include <vtksys/SystemTools.hxx>
-#include <vector>
-#include <string>
 
 // Description:
 // Serial regression test, parse command line, build the

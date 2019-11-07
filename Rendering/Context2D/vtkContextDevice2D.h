@@ -26,11 +26,11 @@
 #ifndef vtkContextDevice2D_h
 #define vtkContextDevice2D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVector.h" // For vtkVector2i ivar
 #include "vtkRect.h"   // For vtkRecti ivar
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkRenderingCoreEnums.h" // For marker enum
+#include "vtkVector.h" // For vtkVector2i ivar
 
 class vtkWindow;
 class vtkViewport;

@@ -54,9 +54,9 @@
 #ifndef vtkArray_h
 #define vtkArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"

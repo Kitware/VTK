@@ -17,16 +17,16 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkGraph.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMolecule.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkProgrammableFilter);
 

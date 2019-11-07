@@ -27,9 +27,9 @@
 #ifndef vtkTestingInteractor_h
 #define vtkTestingInteractor_h
 
-#include "vtkTestingRenderingModule.h" // For export macro
-#include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactoryCollection.h" // Generated object overrides
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTestingRenderingModule.h" // For export macro
 
 #include <string> // STL Header; Required for string
 

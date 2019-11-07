@@ -25,8 +25,8 @@
 #ifndef vtkHierarchicalDataSetGeometryFilter_h
 #define vtkHierarchicalDataSetGeometryFilter_h
 
-#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkCompositeDataGeometryFilter.h"
+#include "vtkFiltersGeometryModule.h" // For export macro
 
 class vtkPolyData;
 

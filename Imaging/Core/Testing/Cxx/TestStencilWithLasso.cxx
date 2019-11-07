@@ -13,23 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkImageData.h"
-#include "vtkImageReader2.h"
-#include "vtkPoints.h"
-#include "vtkLassoStencilSource.h"
-#include "vtkTransform.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageStencil.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
+#include "vtkImageReader2.h"
+#include "vtkImageShiftScale.h"
 #include "vtkImageSlice.h"
 #include "vtkImageSliceMapper.h"
-#include "vtkImageProperty.h"
-#include "vtkTestUtilities.h"
+#include "vtkImageStencil.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkLassoStencilSource.h"
+#include "vtkPoints.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTransform.h"
 
 #include <string>
 

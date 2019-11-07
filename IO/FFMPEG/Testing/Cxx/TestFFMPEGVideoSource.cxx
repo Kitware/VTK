@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkCamera.h"
 #include "vtkNew.h"
 #include "vtkPlaneSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTexture.h"
 
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkLookupTable.h"
 

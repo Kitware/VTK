@@ -65,9 +65,9 @@
 #ifndef vtkProbeFilter_h
 #define vtkProbeFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkAbstractCellLocator;
 class vtkCell;

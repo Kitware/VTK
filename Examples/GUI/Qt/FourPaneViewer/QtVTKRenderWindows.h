@@ -1,11 +1,11 @@
 #ifndef QtVTKRenderWindows_H
 #define QtVTKRenderWindows_H
 
-#include "vtkSmartPointer.h"
-#include "vtkResliceImageViewer.h"
-#include "vtkImagePlaneWidget.h"
 #include "vtkDistanceWidget.h"
+#include "vtkImagePlaneWidget.h"
+#include "vtkResliceImageViewer.h"
 #include "vtkResliceImageViewerMeasurements.h"
+#include "vtkSmartPointer.h"
 #include <QMainWindow>
 
 // Forward Qt class declarations

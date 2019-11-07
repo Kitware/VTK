@@ -5,14 +5,14 @@
 -------------------------------------------------------------------------*/
 
 
-#include "ui_EasyView.h"
 #include "EasyView.h"
+#include "ui_EasyView.h"
 
 // VTK includes
+#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkAnnotationLink.h>
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
-#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeView.h>

@@ -73,9 +73,9 @@
 #ifndef vtkSmartVolumeMapper_h
 #define vtkSmartVolumeMapper_h
 
+#include "vtkImageReslice.h"                 // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
-#include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
 class vtkFixedPointVolumeRayCastMapper;
 class vtkGPUVolumeRayCastMapper;

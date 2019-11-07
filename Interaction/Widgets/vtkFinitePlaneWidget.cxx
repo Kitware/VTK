@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtkFinitePlaneWidget.h"
-#include "vtkFinitePlaneRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkWidgetEvent.h"
+#include "vtkFinitePlaneRepresentation.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkFinitePlaneWidget);
 

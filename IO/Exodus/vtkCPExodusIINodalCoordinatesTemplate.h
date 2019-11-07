@@ -27,8 +27,8 @@
 #ifndef vtkCPExodusIINodalCoordinatesTemplate_h
 #define vtkCPExodusIINodalCoordinatesTemplate_h
 
-#include "vtkMappedDataArray.h"
 #include "vtkIOExodusModule.h" // For export macro
+#include "vtkMappedDataArray.h"
 
 #include "vtkObjectFactory.h" // for vtkStandardNewMacro
 

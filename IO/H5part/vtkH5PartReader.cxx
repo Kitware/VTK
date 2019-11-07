@@ -63,7 +63,6 @@
 #include <vtksys/SystemTools.hxx>
 //
 #include "vtkCharArray.h"
-#include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"

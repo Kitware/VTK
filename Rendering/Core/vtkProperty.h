@@ -31,8 +31,8 @@
 #ifndef vtkProperty_h
 #define vtkProperty_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 #include <map> // used for ivar
 #include <string> // used for ivar
 

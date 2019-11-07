@@ -19,36 +19,36 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkTimerLog.h"
 
 #include "vtkDICOMImageReader.h"
 
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkNew.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkCullerCollection.h"
-#include "vtkLight.h"
-#include "vtkImageShrink3D.h"
 #include "vtkImageData.h"
+#include "vtkImageShrink3D.h"
+#include "vtkLight.h"
 
 #define USE_VIVE
 #ifdef USE_VIVE
-#include "vtkOpenVRRenderer.h"
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
+#include "vtkOpenVRRenderer.h"
 #else
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLCamera.h"
-#include "vtkWin32RenderWindowInteractor.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkWin32OpenGLRenderWindow.h"
+#include "vtkWin32RenderWindowInteractor.h"
 #endif
 
 //----------------------------------------------------------------------------

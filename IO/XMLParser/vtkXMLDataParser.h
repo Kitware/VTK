@@ -30,8 +30,8 @@
 #define vtkXMLDataParser_h
 
 #include "vtkIOXMLParserModule.h" // For export macro
-#include "vtkXMLParser.h"
 #include "vtkXMLDataElement.h"//For inline definition.
+#include "vtkXMLParser.h"
 
 class vtkInputStream;
 class vtkDataCompressor;

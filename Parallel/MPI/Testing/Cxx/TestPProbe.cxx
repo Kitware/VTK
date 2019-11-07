@@ -15,22 +15,22 @@
 
 #include <mpi.h>
 
-#include "vtkMPIController.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkCamera.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkLineSource.h"
-#include "vtkPDataSetReader.h"
-#include "vtkPProbeFilter.h"
-#include "vtkPOutlineFilter.h"
-#include "vtkTestUtilities.h"
-#include "vtkProperty.h"
-#include "vtkTubeFilter.h"
+#include "vtkCamera.h"
 #include "vtkCompositeRenderManager.h"
+#include "vtkLineSource.h"
+#include "vtkMPIController.h"
+#include "vtkPDataSetReader.h"
+#include "vtkPOutlineFilter.h"
+#include "vtkPProbeFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTubeFilter.h"
 
 
 int TestPProbe(int argc,char *argv[])

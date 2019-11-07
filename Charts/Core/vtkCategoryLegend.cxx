@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkBrush.h"
 #include "vtkCategoryLegend.h"
+#include "vtkBrush.h"
 #include "vtkContext2D.h"
 #include "vtkObjectFactory.h"
 #include "vtkScalarsToColors.h"

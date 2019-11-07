@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 
-#include "vtkGenericGeometryFilter.h"
 #include "vtkBridgeDataSet.h"
-#include "vtkPlaneSource.h"
-#include "vtkVertex.h"
-#include "vtkTetra.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkGenericGeometryFilter.h"
+#include "vtkPlaneSource.h"
+#include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkPolyData.h"
+#include "vtkTetra.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVertex.h"
 
 #include "vtkTestErrorObserver.h"
 

@@ -13,8 +13,8 @@
 =========================================================================*/
 #include "vtkMinimalStandardRandomSequence.h"
 
-#include <cassert>
 #include "vtkObjectFactory.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkMinimalStandardRandomSequence);
 

@@ -22,8 +22,8 @@
 #ifndef vtkUnstructuredGridToExplicitStructuredGrid_h
 #define vtkUnstructuredGridToExplicitStructuredGrid_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkExplicitStructuredGridAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkUnstructuredGridToExplicitStructuredGrid :
   public vtkExplicitStructuredGridAlgorithm

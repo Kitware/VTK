@@ -16,13 +16,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
-#include "vtkInformation.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
 

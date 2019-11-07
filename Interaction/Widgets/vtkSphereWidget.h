@@ -53,9 +53,9 @@
 #ifndef vtkSphereWidget_h
 #define vtkSphereWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
-#include "vtkSphereSource.h" // Needed for faster access to the sphere source
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkSphereSource.h"             // Needed for faster access to the sphere source
 
 class vtkActor;
 class vtkPolyDataMapper;

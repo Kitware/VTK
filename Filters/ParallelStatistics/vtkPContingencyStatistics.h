@@ -40,8 +40,8 @@
 #ifndef vtkPContingencyStatistics_h
 #define vtkPContingencyStatistics_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkContingencyStatistics.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 #include <vector> // STL Header
 

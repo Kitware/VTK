@@ -14,36 +14,36 @@
 =========================================================================*/
 #include "TestImageDataLIC2D.h"
 
-#include "vtkGenericDataObjectReader.h"
-#include "vtkImageDataLIC2D.h"
-#include "vtkPixelExtent.h"
-#include "vtkPixelTransfer.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkDataSetWriter.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericDataObjectReader.h"
+#include "vtkImageData.h"
+#include "vtkImageDataLIC2D.h"
 #include "vtkImageIterator.h"
+#include "vtkImageMapToColors.h"
 #include "vtkImagePermute.h"
 #include "vtkImageShiftScale.h"
+#include "vtkLookupTable.h"
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
-#include "vtkDataSetWriter.h"
+#include "vtkPixelExtent.h"
+#include "vtkPixelTransfer.h"
+#include "vtkPointData.h"
 #include "vtkProbeFilter.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
-#include "vtkTimerLog.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkTesting.h"
-#include <vtksys/CommandLineArguments.hxx>
-#include "vtkImageMapToColors.h"
-#include "vtkLookupTable.h"
+#include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
-#include <vtksys/SystemTools.hxx>
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 #include <sstream>
+#include <vtksys/CommandLineArguments.hxx>
+#include <vtksys/SystemTools.hxx>
 using std::ostringstream;
 
 //-----------------------------------------------------------------------------

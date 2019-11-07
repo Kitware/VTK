@@ -1,12 +1,12 @@
 #include "vtkKMeansDistanceFunctorCalculator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
 #include "vtkFunctionParser.h"
+#include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
 
 #include <sstream>
 

@@ -31,8 +31,8 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 

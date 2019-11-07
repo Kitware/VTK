@@ -25,8 +25,8 @@
 #ifndef vtkGraphWriter_h
 #define vtkGraphWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkGraph;
 class vtkMolecule;

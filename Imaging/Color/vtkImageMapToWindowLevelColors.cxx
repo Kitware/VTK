@@ -19,8 +19,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
+#include "vtkScalarsToColors.h"
 
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 

@@ -61,9 +61,9 @@
 #include "vtkProperty.h"
 #include "vtkRandomLayoutStrategy.h"
 #include "vtkRemoveHiddenData.h"
-#include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkScalarBarWidget.h"
 #include "vtkSelection.h"
@@ -81,8 +81,8 @@
 #include "vtkVertexDegree.h"
 #include "vtkViewTheme.h"
 
-#include <cctype>
 #include <algorithm>
+#include <cctype>
 
 
 

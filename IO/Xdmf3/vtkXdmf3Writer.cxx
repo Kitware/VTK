@@ -15,9 +15,9 @@
 
 #include "vtkXdmf3Writer.h"
 
-#include "vtkDoubleArray.h"
 #include "vtkDataObject.h"
 #include "vtkDirectedGraph.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

@@ -32,8 +32,8 @@
 #ifndef vtkBackgroundColorMonitor_h
 #define vtkBackgroundColorMonitor_h
 
-#include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // for export macro
 
 class vtkRenderer;
 

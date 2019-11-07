@@ -15,18 +15,18 @@
 #include "vtkClipConvexPolyData.h"
 
 #include "vtkCellArray.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
 
-#include <vector>
-#include <set>
 #include <algorithm>
 #include <iterator>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkClipConvexPolyData);
 

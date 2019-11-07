@@ -16,13 +16,13 @@
 
 #include <vtkCenterOfMass.h>
 #include <vtkDoubleArray.h>
-#include <vtkPoints.h>
 #include <vtkPointData.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 
-#include <limits>
 #include <cmath>
+#include <limits>
 
 template<class A>
 bool fuzzyCompare1D(A a, A b)

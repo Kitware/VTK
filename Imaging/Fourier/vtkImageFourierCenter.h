@@ -27,8 +27,8 @@
 #define vtkImageFourierCenter_h
 
 
-#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingFourierModule.h" // For export macro
 
 class VTKIMAGINGFOURIER_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {

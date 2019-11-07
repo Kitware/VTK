@@ -169,8 +169,8 @@ if (!ok)                                                           \
 #include "vtkFrameBufferObjectBase.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
-#include <vector> // for the lists of logical buffers.
 #include <map> // for the maps
+#include <vector> // for the lists of logical buffers.
 
 class vtkFOInfo;
 class vtkGenericOpenGLResourceFreeCallback;

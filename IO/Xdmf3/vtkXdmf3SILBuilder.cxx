@@ -17,9 +17,9 @@
 #include "vtkXdmf3SILBuilder.h"
 
 #include "vtkDataSetAttributes.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMutableDirectedGraph.h"
 
 // As soon as num-grids (sub-grids and all) grows beyond this number, we assume
 // that the grids are too numerous for the user to select individually and

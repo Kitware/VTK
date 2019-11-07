@@ -28,8 +28,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include "vtkCompositeDataPipeline.h"
 

@@ -17,18 +17,18 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkNew.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImageHistogram.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkNew.h"
 #include "vtkPNGReader.h"
-#include "vtkImageHistogram.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkTestUtilities.h"
 

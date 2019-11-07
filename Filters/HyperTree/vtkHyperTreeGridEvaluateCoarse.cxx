@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkHyperTreeGridEvaluateCoarse.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformation.h"
 #include "vtkBitArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkPointData.h"
+#include "vtkInformation.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include "vtkUniformHyperTreeGrid.h"
 

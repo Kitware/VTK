@@ -24,8 +24,8 @@
 #include "vtkPolyData.h"
 #include "vtkProbeFilter.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkSphereSource.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 
 //----------------------------------------------------------------------------
 int TestProbeFilterOutputAttributes(int, char*[])

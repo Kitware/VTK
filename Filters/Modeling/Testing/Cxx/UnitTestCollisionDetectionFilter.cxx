@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkCollisionDetectionFilter.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkSphereSource.h"
-#include "vtkTransform.h"
-#include "vtkExecutive.h"
 #include "vtkCommand.h"
+#include "vtkExecutive.h"
+#include "vtkSphereSource.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkTransform.h"
 
 #include <sstream>
 

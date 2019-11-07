@@ -1,42 +1,42 @@
+#include "vtkLagrangeCurve.h"
 #include "vtkLagrangeHexahedron.h"
 #include "vtkLagrangeInterpolation.h"
-#include "vtkLagrangeCurve.h"
 #include "vtkLagrangeQuadrilateral.h"
 
 #include "vtkMultiBaselineRegressionTest.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
-#include "vtkDoubleArray.h"
 
-#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkCell.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkCell.h"
-#include "vtkCellArray.h"
 #include "vtkXMLPolyDataWriter.h"
 
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
 #include "vtkAxis.h"
+#include "vtkChartXY.h"
 #include "vtkColor.h"
 #include "vtkColorSeries.h"
-#include "vtkRenderWindow.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkPlot.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTable.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include "vtkTestConditionals.txx"
 

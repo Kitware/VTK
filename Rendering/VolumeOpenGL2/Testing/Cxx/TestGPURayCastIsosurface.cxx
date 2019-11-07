@@ -1,19 +1,19 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkContourValues.h>
+#include <vtkDataArray.h>
+#include <vtkFloatingPointExceptions.h>
+#include <vtkImageData.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkPiecewiseFunction.h>
+#include <vtkPointData.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
-#include <vtkFloatingPointExceptions.h>
-#include <vtkImageData.h>
-#include <vtkPointData.h>
-#include <vtkDataArray.h>
 
 //----------------------------------------------------------------------------
 int TestGPURayCastIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])

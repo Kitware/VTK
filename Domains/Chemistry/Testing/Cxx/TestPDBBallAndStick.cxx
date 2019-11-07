@@ -12,23 +12,23 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkMolecule.h"
 #include "vtkLight.h"
+#include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkPDBReader.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-#include "vtkTimerLog.h"
 #include "vtkCamera.h"
+#include "vtkTimerLog.h"
 
 int TestPDBBallAndStick(int argc, char *argv[])
 {

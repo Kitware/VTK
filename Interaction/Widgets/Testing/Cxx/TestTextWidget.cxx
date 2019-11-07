@@ -18,20 +18,19 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkTextWidget.h"
-#include "vtkTextActor.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRepresentation.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkTextWidget.h"
 
 int TestTextWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

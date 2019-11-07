@@ -14,18 +14,17 @@
 =========================================================================*/
 #include "vtkTexturedButtonRepresentation2D.h"
 #include "vtkBalloonRepresentation.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkPolyData.h"
-#include "vtkProperty2D.h"
-#include "vtkRenderer.h"
-#include "vtkInteractorObserver.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderWindow.h"
 #include "vtkCamera.h"
-#include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
-#include "vtkImageData.h"
 #include "vtkCoordinate.h"
+#include "vtkImageData.h"
+#include "vtkInteractorObserver.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include <map>
 
 vtkStandardNewMacro(vtkTexturedButtonRepresentation2D);

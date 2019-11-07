@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkAxesTransformWidget.h"
 #include "vtkAxesTransformRepresentation.h"
-#include "vtkPointHandleRepresentation3D.h"
-#include "vtkHandleWidget.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkWidgetEvent.h"
+#include "vtkHandleWidget.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation3D.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 
 vtkStandardNewMacro(vtkAxesTransformWidget);

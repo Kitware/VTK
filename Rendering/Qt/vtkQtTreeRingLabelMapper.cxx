@@ -18,7 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
   -------------------------------------------------------------------------*/
 
-#include "vtkQImageToImageSource.h"
+#include "vtkQtTreeRingLabelMapper.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
 #include "vtkDataSetAttributes.h"
@@ -27,20 +27,20 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkQtTreeRingLabelMapper.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
-#include "vtkRenderer.h"
+#include "vtkQImageToImageSource.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
-#include "vtkTexturedActor2D.h"
 #include "vtkTextureMapToPlane.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkTree.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkUnicodeString.h"
+#include "vtkUnicodeStringArray.h"
 
 #include <QApplication>
 #include <QFont>

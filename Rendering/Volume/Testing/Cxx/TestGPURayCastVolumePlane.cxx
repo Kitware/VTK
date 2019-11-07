@@ -21,7 +21,6 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkPiecewiseFunction.h>
 #include <vtkPlaneSource.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>

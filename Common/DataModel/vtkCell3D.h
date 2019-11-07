@@ -27,8 +27,8 @@
 #ifndef vtkCell3D_h
 #define vtkCell3D_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkOrderedTriangulator;
 class vtkTetra;

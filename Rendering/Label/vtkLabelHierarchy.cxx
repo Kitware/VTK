@@ -22,31 +22,31 @@
 
 #include "vtkCamera.h"
 #include "vtkCellType.h"
+#include "vtkCoincidentPoints.h"
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
 #include "vtkExtractSelectedFrustum.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLabelHierarchyIterator.h"
 #include "vtkLabelHierarchyPrivate.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkCoincidentPoints.h"
 #include "vtkPlanes.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPythagoreanQuadruples.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
-#include <octree/octree>
 #include <deque>
+#include <map>
+#include <octree/octree>
 #include <set>
 #include <vector>
-#include <map>
 
 #include <cstdlib>
 

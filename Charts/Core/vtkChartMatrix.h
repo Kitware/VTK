@@ -26,9 +26,9 @@
 #ifndef vtkChartMatrix_h
 #define vtkChartMatrix_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
-#include "vtkVector.h" // For ivars
+#include "vtkChartsCoreModule.h" // For export macro
+#include "vtkVector.h"           // For ivars
 
 #include <map> // For specific gutter
 #include <utility> // For specific gutter

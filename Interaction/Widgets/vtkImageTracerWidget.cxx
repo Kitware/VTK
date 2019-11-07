@@ -16,8 +16,8 @@
 
 #include "vtkAbstractPicker.h"
 #include "vtkActor.h"
-#include "vtkAssemblyPath.h"
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
@@ -31,12 +31,12 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyLine.h"
-#include "vtkProperty.h"
 #include "vtkPropPicker.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
 
 vtkStandardNewMacro(vtkImageTracerWidget);
 

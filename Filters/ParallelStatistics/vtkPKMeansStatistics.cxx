@@ -19,17 +19,17 @@
   -------------------------------------------------------------------------*/
 #include "vtkToolkits.h"
 
-#include "vtkPKMeansStatistics.h"
-#include "vtkKMeansStatistics.h"
-#include "vtkKMeansDistanceFunctor.h"
-#include "vtkIntArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkVariantArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkCommunicator.h"
-#include "vtkObjectFactory.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkKMeansDistanceFunctor.h"
+#include "vtkKMeansStatistics.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkPKMeansStatistics.h"
 #include "vtkTable.h"
+#include "vtkVariantArray.h"
 
 
 vtkStandardNewMacro(vtkPKMeansStatistics);

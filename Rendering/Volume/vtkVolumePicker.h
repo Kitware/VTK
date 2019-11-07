@@ -33,8 +33,8 @@
 #ifndef vtkVolumePicker_h
 #define vtkVolumePicker_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkCellPicker.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkVolumePicker : public vtkCellPicker
 {

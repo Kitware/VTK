@@ -15,7 +15,6 @@
 
 #include "vtkTimeSourceExample.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
@@ -25,6 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

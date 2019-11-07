@@ -52,8 +52,8 @@
 #ifndef vtkQtTableRepresentation_h
 #define vtkQtTableRepresentation_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkDataRepresentation.h"
+#include "vtkViewsQtModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkLookupTable;

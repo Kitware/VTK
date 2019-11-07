@@ -32,8 +32,8 @@
 #ifndef __QFilterTreeProxyModel_h
 #define __QFilterTreeProxyModel_h
 
-#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"
+#include "vtkGUISupportQtModule.h" // For export macro
 #include <QSortFilterProxyModel>
 
 class QModelIndex;

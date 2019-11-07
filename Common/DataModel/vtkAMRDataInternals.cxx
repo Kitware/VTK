@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkAMRDataInternals.h"
-#include "vtkUniformGrid.h"
 #include "vtkObjectFactory.h"
+#include "vtkUniformGrid.h"
 
 #include <cassert>
 vtkStandardNewMacro(vtkAMRDataInternals);

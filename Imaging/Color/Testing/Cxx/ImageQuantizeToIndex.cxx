@@ -1,11 +1,11 @@
 #include <array>
 #include <set>
 
-#include "vtkTIFFReader.h"
-#include "vtkLookupTable.h"
 #include "vtkImageData.h"
 #include "vtkImageQuantizeRGBToIndex.h"
+#include "vtkLookupTable.h"
 #include "vtkSmartPointer.h"
+#include "vtkTIFFReader.h"
 
 #include "vtkTestUtilities.h"
 

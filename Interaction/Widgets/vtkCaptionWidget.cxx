@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkCaptionWidget.h"
-#include "vtkCaptionRepresentation.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation3D.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCaptionRepresentation.h"
+#include "vtkCommand.h"
+#include "vtkHandleWidget.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation3D.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 

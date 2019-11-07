@@ -45,9 +45,9 @@
 #ifndef vtkMergeCells_h
 #define vtkMergeCells_h
 
+#include "vtkDataSetAttributes.h" // Needed for FieldList
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkDataSetAttributes.h" // Needed for FieldList
 #include "vtkSmartPointer.h" //fot vtkSmartPointer
 
 class vtkCellData;

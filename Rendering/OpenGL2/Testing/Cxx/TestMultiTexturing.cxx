@@ -8,12 +8,12 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTIFFReader.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 #include "vtkTexturedSphereSource.h"
-#include "vtkTIFFReader.h"
 
 //----------------------------------------------------------------------------
 int TestMultiTexturing(int argc, char* argv[])

@@ -13,23 +13,23 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCubeAxesActor2D.h"
 #include "vtkConeSource.h"
+#include "vtkCubeAxesActor2D.h"
 #include "vtkLogoRepresentation.h"
 #include "vtkNew.h"
 #include "vtkPNGReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"

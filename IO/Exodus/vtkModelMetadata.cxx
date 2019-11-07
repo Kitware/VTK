@@ -19,25 +19,25 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkModelMetadata.h"
-#include "vtkDataSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkFieldData.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkStringArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
-#include "vtkIdList.h"
-#include "vtkCellData.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringArray.h"
 #include <ctime>
 
 vtkStandardNewMacro(vtkModelMetadata);
 
-#include <set>
-#include <map>
 #include <algorithm>
+#include <map>
+#include <set>
 
 class vtkModelMetadataSTLCloak
 {

@@ -37,8 +37,8 @@
 #ifndef vtkOctreePointLocator_h
 #define vtkOctreePointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkCellArray;
 class vtkIdTypeArray;

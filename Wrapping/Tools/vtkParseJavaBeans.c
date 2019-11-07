@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
+#include "vtkParse.h"
+#include "vtkParseHierarchy.h"
+#include "vtkParseMain.h"
 #include <stdio.h>
 #include <string.h>
-#include "vtkParse.h"
-#include "vtkParseMain.h"
-#include "vtkParseHierarchy.h"
 
 HierarchyInfo *hierarchyInfo = NULL;
 int numberOfWrappedFunctions = 0;

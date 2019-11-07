@@ -16,19 +16,19 @@
 // .SECTION Description
 //
 
-#include "vtkTecplotReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkTecplotReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataGeometryFilter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkPointData.h"
-#include "vtkRenderer.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 

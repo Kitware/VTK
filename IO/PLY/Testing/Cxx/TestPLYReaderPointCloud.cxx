@@ -19,16 +19,16 @@
 #include "vtkPLYReader.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkSphereSource.h>
 #include <vtkGlyph3D.h>
+#include <vtkSphereSource.h>
 
 #include "vtkActor.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 int TestPLYReaderPointCloud( int argc, char *argv[] )

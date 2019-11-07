@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkObjectFactory.h"
 
+#include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
-#include "vtkDebugLeaks.h"
 
 
 #include "vtkCriticalSection.h"

@@ -44,8 +44,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFieldData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLookupTable.h"
@@ -61,15 +61,15 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyLine.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty2D.h"
-#include "vtkRenderer.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSCurveSpline.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkStdString.h"
 #include "vtkSortDataArray.h"
+#include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextMapper.h"
@@ -80,8 +80,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkViewTheme.h"
 
 #include <algorithm>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 vtkStandardNewMacro(vtkParallelCoordinatesRepresentation);
 

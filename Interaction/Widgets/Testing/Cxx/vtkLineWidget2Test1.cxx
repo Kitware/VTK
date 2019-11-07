@@ -1,5 +1,5 @@
-#include "vtkLineWidget2.h"
 #include "vtkLineRepresentation.h"
+#include "vtkLineWidget2.h"
 
 #include <cstdlib>
 #include <iostream>

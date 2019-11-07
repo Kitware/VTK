@@ -18,15 +18,15 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkCameraWidget.h"
-#include "vtkCameraRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkCameraRepresentation.h"
+#include "vtkCameraWidget.h"
+#include "vtkCommand.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTesting.h"
 
 int TestCameraWidget(int argc, char *argv[])

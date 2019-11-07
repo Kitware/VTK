@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkParametricFunctionSource.h"
-#include "vtkParametricFunction.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkFloatArray.h"
-#include "vtkPoints.h"
-#include "vtkTriangleFilter.h"
-#include "vtkPolyDataNormals.h"
-#include "vtkPointData.h"
 #include "vtkCellArray.h"
-#include "vtkPolyData.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkParametricFunction.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataNormals.h"
 #include "vtkSmartPointer.h"
+#include "vtkTriangleFilter.h"
 
 #include <cmath>
 #include <string>

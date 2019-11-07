@@ -21,9 +21,9 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSmartPointer.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPMergePoints.h"
+#include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 
 #include <algorithm>
 

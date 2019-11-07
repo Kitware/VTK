@@ -25,8 +25,8 @@
 #ifndef vtkXMLHierarchicalBoxDataFileConverter_h
 #define vtkXMLHierarchicalBoxDataFileConverter_h
 
-#include "vtkObject.h"
 #include "vtkIOXMLModule.h" // needed for export macro.
+#include "vtkObject.h"
 
 class vtkXMLDataElement;
 

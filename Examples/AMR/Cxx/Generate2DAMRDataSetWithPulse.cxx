@@ -24,11 +24,13 @@
 # pragma warning (disable: 4089)
 #endif
 
-#include <iostream>
-#include <cmath>
-#include <sstream>
 #include <cassert>
+#include <cmath>
+#include <iostream>
+#include <sstream>
 
+#include "AMRCommon.h"
+#include "vtkAMRBox.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -38,8 +40,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRBox.h"
-#include "AMRCommon.h"
 
 static struct PulseAttributes {
   double origin[3]; // xyz for the center of the pulse

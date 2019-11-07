@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkXYPlotWidget.h"
-#include "vtkXYPlotActor.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCoordinate.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCoordinate.h"
+#include "vtkRenderer.h"
+#include "vtkXYPlotActor.h"
 
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);

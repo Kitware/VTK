@@ -43,9 +43,9 @@
 #ifndef vtkArraySort_h
 #define vtkArraySort_h
 
+#include "vtkArrayCoordinates.h"
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include "vtkArrayCoordinates.h"
 #include <vector>
 
 class VTKCOMMONCORE_EXPORT vtkArraySort

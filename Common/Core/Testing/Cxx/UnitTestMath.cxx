@@ -20,9 +20,9 @@
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkSmartPointer.h"
+#include "vtkType.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkType.h"
 
 #include <vector>
 

@@ -15,11 +15,11 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
-#include "vtkPolyLineWidget.h"
 #include "vtkPolyLineRepresentation.h"
-#include "vtkRenderer.h"
+#include "vtkPolyLineWidget.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 const char events[] = R"(# StreamVersion 1.1

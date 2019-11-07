@@ -18,17 +18,17 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkLightKit.h"
 #include "vtkMetaImageReader.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkLightKit.h"
 
 
 int TestGPURayCastGradientOpacityLight(int argc, char* argv[])

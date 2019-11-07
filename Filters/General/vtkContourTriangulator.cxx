@@ -14,24 +14,24 @@
 =========================================================================*/
 #include "vtkContourTriangulator.h"
 
-#include "vtkDataSet.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkMath.h"
-#include "vtkPolygon.h"
-#include "vtkLine.h"
-#include "vtkMatrix4x4.h"
+#include "vtkDataSet.h"
 #include "vtkIncrementalOctreePointLocator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
 
-#include <vector>
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkContourTriangulator);
 

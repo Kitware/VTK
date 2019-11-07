@@ -16,18 +16,17 @@
 // Test meshes obtained with vtkDelaunay2D.
 
 #include "vtkCellArray.h"
+#include "vtkDelaunay2D.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
-#include "vtkDelaunay2D.h"
-#include "vtkCellArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 #include "vtkTriangle.h"
 #include "vtkXMLPolyDataReader.h"
-#include "vtkTestUtilities.h"
-#include "vtkSmartPointer.h"
 
 #define VTK_FAILURE 1
 

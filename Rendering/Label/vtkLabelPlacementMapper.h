@@ -35,8 +35,8 @@
 #ifndef vtkLabelPlacementMapper_h
 #define vtkLabelPlacementMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkCoordinate;
 class vtkLabelRenderStrategy;

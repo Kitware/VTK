@@ -46,9 +46,9 @@
 #define vtkImageBSplineCoefficients_h
 
 
-#include "vtkImagingCoreModule.h" // For export macro
-#include "vtkThreadedImageAlgorithm.h"
 #include "vtkImageBSplineInterpolator.h" // for constants
+#include "vtkImagingCoreModule.h"        // For export macro
+#include "vtkThreadedImageAlgorithm.h"
 
 class VTKIMAGINGCORE_EXPORT vtkImageBSplineCoefficients :
   public vtkThreadedImageAlgorithm

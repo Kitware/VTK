@@ -1,6 +1,6 @@
-#include <vtkSmartPointer.h>
 #include <vtkCleanPolyData.h>
 #include <vtkDelaunay3D.h>
+#include <vtkSmartPointer.h>
 #include <vtkXMLDataSetWriter.h>
 #include <vtkXMLPolyDataReader.h>
 

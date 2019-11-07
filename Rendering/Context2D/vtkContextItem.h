@@ -25,8 +25,8 @@
 #ifndef vtkContextItem_h
 #define vtkContextItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextItem : public vtkAbstractContextItem
 {

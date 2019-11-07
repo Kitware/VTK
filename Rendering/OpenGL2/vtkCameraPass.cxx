@@ -15,14 +15,14 @@
 
 #include "vtkCameraPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderUtilities.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderUtilities.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderState.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkCameraPass);
 vtkCxxSetObjectMacro(vtkCameraPass,DelegatePass,vtkRenderPass);

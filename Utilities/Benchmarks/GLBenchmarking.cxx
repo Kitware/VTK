@@ -36,8 +36,8 @@
 #include "vtkVector.h"
 
 #include "vtkParametricBoy.h"
-#include "vtkParametricTorus.h"
 #include "vtkParametricFunctionSource.h"
+#include "vtkParametricTorus.h"
 
 #include <vtksys/CommandLineArguments.hxx>
 

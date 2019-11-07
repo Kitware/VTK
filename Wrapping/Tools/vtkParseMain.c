@@ -19,9 +19,9 @@ This file provides a unified front-end for the wrapper generators.
 
 */
 
+#include "vtkParseMain.h"
 #include "vtkParse.h"
 #include "vtkParseData.h"
-#include "vtkParseMain.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

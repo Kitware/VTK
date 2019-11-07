@@ -14,19 +14,18 @@
 =========================================================================*/
 #include "vtkConnectedPointsFilter.h"
 
-#include "vtkStaticPointLocator.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkIdTypeArray.h"
+#include "vtkStaticPointLocator.h"
 
 vtkStandardNewMacro(vtkConnectedPointsFilter);
 vtkCxxSetObjectMacro(vtkConnectedPointsFilter,Locator,vtkAbstractPointLocator);

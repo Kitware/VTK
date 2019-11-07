@@ -24,9 +24,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
+#include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
-#include "vtkScalarsToColors.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorLegend);

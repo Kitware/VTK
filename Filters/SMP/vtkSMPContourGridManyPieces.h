@@ -26,8 +26,8 @@
 #ifndef vtkSMPContourGridManyPieces_h
 #define vtkSMPContourGridManyPieces_h
 
-#include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkContourGrid.h"
+#include "vtkFiltersSMPModule.h" // For export macro
 
 class vtkPolyData;
 

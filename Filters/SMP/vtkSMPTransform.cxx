@@ -17,8 +17,8 @@
 #include "vtkDataArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
-#include "vtkPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 
 #include "vtkSMPTools.h"
 

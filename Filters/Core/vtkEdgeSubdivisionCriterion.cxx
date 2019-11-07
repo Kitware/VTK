@@ -8,9 +8,9 @@
  */
 
 #include "vtkEdgeSubdivisionCriterion.h"
-#include "vtkStreamingTessellator.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkMatrix4x4.h"
+#include "vtkStreamingTessellator.h"
 
 
 void vtkEdgeSubdivisionCriterion::PrintSelf( ostream& os, vtkIndent indent )

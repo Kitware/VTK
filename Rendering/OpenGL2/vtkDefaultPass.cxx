@@ -15,10 +15,10 @@
 
 #include "vtkDefaultPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
 #include "vtkProp.h"
+#include "vtkRenderState.h"
 #include "vtkRenderer.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkDefaultPass);
 

@@ -15,33 +15,33 @@
 
 #include "vtkPlotParallelCoordinates.h"
 
+#include "vtkAxis.h"
 #include "vtkChartParallelCoordinates.h"
 #include "vtkContext2D.h"
-#include "vtkAxis.h"
-#include "vtkPen.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkVector.h"
-#include "vtkTransform2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkTable.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkStringArray.h"
-#include "vtkTimeStamp.h"
 #include "vtkInformation.h"
-#include "vtkSmartPointer.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
+#include "vtkPen.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTimeStamp.h"
+#include "vtkTransform2D.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkVector.h"
 
 // Need to turn some arrays of strings into categories
 #include "vtkStringToCategory.h"
 
 #include "vtkObjectFactory.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 class vtkPlotParallelCoordinates::Private :
     public std::vector< std::vector<float> >

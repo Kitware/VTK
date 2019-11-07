@@ -15,13 +15,13 @@
 // .NAME Test of vtkImageImport and vtkImageExport
 // .SECTION Description
 //
-#include "vtkSmartPointer.h"
-#include "vtkImageImport.h"
-#include "vtkImageExport.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
-#include <vtkImageEllipsoidSource.h>
+#include "vtkImageExport.h"
+#include "vtkImageImport.h"
+#include "vtkSmartPointer.h"
 #include <vtkImageChangeInformation.h>
+#include <vtkImageEllipsoidSource.h>
 
 // Compare 2 vtk Images, return true if they are the same.
 // 'Same' here implies contents and metadata values (spacing, origin) are equal.

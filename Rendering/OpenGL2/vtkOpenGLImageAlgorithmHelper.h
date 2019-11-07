@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLImageAlgorithmHelper_h
 #define vtkOpenGLImageAlgorithmHelper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkSmartPointer.h" // for ivar

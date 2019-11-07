@@ -19,8 +19,8 @@
 #include "vtkPythonCompatibility.h"
 
 #ifdef VTK_COMPILED_USING_MPI
-# include <mpi.h>
 # include "vtkMPIController.h"
+# include <mpi.h>
 #endif // VTK_COMPILED_USING_MPI
 
 #include "vtkOutputWindow.h"

@@ -33,8 +33,8 @@
 #ifndef vtkmContour_h
 #define vtkmContour_h
 
-#include "vtkContourFilter.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkContourFilter.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmContour : public vtkContourFilter
 {

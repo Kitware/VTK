@@ -42,8 +42,8 @@
 #ifndef vtkmPolyDataNormals_h
 #define vtkmPolyDataNormals_h
 
-#include "vtkPolyDataNormals.h"
 #include "vtkAcceleratorsVTKmModule.h" // for export macro
+#include "vtkPolyDataNormals.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmPolyDataNormals : public vtkPolyDataNormals
 {

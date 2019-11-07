@@ -20,8 +20,8 @@
 #include "vtkCell.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGenericCell.h"
-#include "vtkMathUtilities.h"
 #include "vtkImageData.h"
+#include "vtkMathUtilities.h"
 
 #include <sstream>
 

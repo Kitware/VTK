@@ -37,16 +37,16 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
-#include <algorithm>
-#include <QIcon>
-#include <QPainter>
 #include <QBrush>
+#include <QIcon>
+#include <QMimeData>
+#include <QPainter>
 #include <QPen>
 #include <QPixmap>
-#include <QMimeData>
+#include <algorithm>
 
-#include <sstream>
 #include <set>
+#include <sstream>
 
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)

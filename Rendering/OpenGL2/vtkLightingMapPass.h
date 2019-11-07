@@ -31,8 +31,8 @@
 #ifndef vtkLightingMapPass_h
 #define vtkLightingMapPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDefaultPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkInformationIntegerKey;
 

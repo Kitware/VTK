@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
+#include <vtkLineSource.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
-#include <vtkLineSource.h>
 
 int TestLineSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

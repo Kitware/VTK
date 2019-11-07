@@ -28,9 +28,9 @@
 #ifndef vtkContextView_h
 #define vtkContextView_h
 
-#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkRenderViewBase.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars
+#include "vtkSmartPointer.h"         // Needed for SP ivars
+#include "vtkViewsContext2DModule.h" // For export macro
 
 class vtkContext2D;
 class vtkContextScene;

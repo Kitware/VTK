@@ -16,9 +16,9 @@
 #include "vtkTransformFeedback.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLBufferObject.h"
 
 #include "vtk_glew.h"
 

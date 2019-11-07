@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkLeaderActor2D.h"
 
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkLeaderActor2D);
 

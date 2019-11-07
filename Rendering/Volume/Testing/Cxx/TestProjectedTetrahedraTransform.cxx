@@ -27,9 +27,9 @@
 #include <vtkRectilinearGrid.h>
 #include <vtkRectilinearGridToTetrahedra.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTesting.h>
 #include <vtkTransform.h>

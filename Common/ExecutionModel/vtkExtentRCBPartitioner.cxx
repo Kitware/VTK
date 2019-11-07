@@ -14,14 +14,14 @@
  =========================================================================*/
 
 #include "vtkExtentRCBPartitioner.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPriorityQueue.h"
 #include "vtkStructuredData.h"
 
-#include <cmath>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 
 vtkStandardNewMacro( vtkExtentRCBPartitioner );
 

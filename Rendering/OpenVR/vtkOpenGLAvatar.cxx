@@ -14,22 +14,30 @@
 =========================================================================*/
 #include "vtkOpenGLAvatar.h"
 
-#include "vtkFlagpoleLabel.h"
+#include "vtkAvatarHead.h"          // geometry for head
+#include "vtkAvatarLeftForeArm.h"   // geometry for arm
+#include "vtkAvatarLeftHand.h"      // geometry for hand
+#include "vtkAvatarLeftUpperArm.h"  // geometry for arm
+#include "vtkAvatarRightForeArm.h"  // geometry for arm
+#include "vtkAvatarRightHand.h"     // geometry for hand
+#include "vtkAvatarRightUpperArm.h" // geometry for arm
+#include "vtkAvatarTorso.h"         // geometry for torso
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkFlagpoleLabel.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRay.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextProperty.h"
@@ -37,14 +45,6 @@
 #include "vtkTransform.h"
 #include "vtkVectorOperators.h"
 #include "vtkXMLPolyDataReader.h"
-#include "vtkAvatarHead.h" // geometry for head
-#include "vtkAvatarLeftHand.h" // geometry for hand
-#include "vtkAvatarRightHand.h" // geometry for hand
-#include "vtkAvatarTorso.h" // geometry for torso
-#include "vtkAvatarLeftForeArm.h" // geometry for arm
-#include "vtkAvatarRightForeArm.h" // geometry for arm
-#include "vtkAvatarLeftUpperArm.h" // geometry for arm
-#include "vtkAvatarRightUpperArm.h" // geometry for arm
 
 #include <cmath>
 

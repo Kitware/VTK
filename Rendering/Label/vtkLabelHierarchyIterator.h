@@ -28,8 +28,8 @@
 #ifndef vtkLabelHierarchyIterator_h
 #define vtkLabelHierarchyIterator_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkStdString.h" // for std string
 #include "vtkUnicodeString.h" // for unicode string
 

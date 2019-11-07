@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkBase64OutputStream.h"
-#include "vtkObjectFactory.h"
 #include "vtkBase64Utilities.h"
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBase64OutputStream);

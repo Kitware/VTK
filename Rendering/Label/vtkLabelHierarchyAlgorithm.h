@@ -34,8 +34,8 @@
 #ifndef vtkLabelHierarchyAlgorithm_h
 #define vtkLabelHierarchyAlgorithm_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkLabelHierarchy;

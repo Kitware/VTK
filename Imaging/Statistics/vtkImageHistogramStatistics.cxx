@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkImageHistogramStatistics.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
+#include "vtkObjectFactory.h"
 
 #include <cmath>
 

@@ -22,8 +22,8 @@
 #include <algorithm>
 
 vtkStandardNewMacro(vtkWebGLObject);
-#include <vector>
 #include <map>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 vtkWebGLObject::vtkWebGLObject()

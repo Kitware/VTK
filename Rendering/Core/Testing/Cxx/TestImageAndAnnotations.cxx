@@ -9,8 +9,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkTextProperty.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 namespace
 {

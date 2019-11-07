@@ -26,13 +26,13 @@
 #define vtkPolygonBuilder_h
 
 #include "vtkCommonMiscModule.h" // For export macro
-#include <map> //for private data members
-#include <vector> // for private data members
-#include <utility> //for private data members
+#include "vtkIdList.h"
+#include "vtkObject.h"
 #include "vtkType.h" //for basic types
 #include <cstddef> //for size_t
-#include "vtkObject.h"
-#include "vtkIdList.h"
+#include <map> //for private data members
+#include <utility> //for private data members
+#include <vector> // for private data members
 
 class vtkIdListCollection;
 

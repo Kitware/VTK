@@ -26,18 +26,18 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <cstdlib>
 #include <cmath>
-#include <vector>
+#include <cstdlib>
 #include <map>
 #include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkOrderStatistics);
 

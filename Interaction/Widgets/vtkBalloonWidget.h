@@ -71,8 +71,8 @@
 #ifndef vtkBalloonWidget_h
 #define vtkBalloonWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHoverWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkBalloonRepresentation;
 class vtkProp;

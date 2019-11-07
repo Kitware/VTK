@@ -15,18 +15,18 @@
 
 #include "vtkActor.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkmThreshold.h"
 #include "vtkElevationFilter.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
+#include "vtkmThreshold.h"
 
 
 int TestVTKMThreshold2(int argc, char *argv[])

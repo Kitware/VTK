@@ -26,17 +26,17 @@
 //
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkActor.h"
+#include "vtkBoxWidget.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkConeSource.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
-#include "vtkActor.h"
 #include "vtkRenderer.h"
-#include "vtkCommand.h"
-#include "vtkBoxWidget.h"
 #include "vtkTransform.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 
 //
 // Similar to Cone2.cxx, we define a callback for interaction.

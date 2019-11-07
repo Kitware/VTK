@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#include "vtkDenseArray.h"
 #include "vtkDiagonalMatrixSource.h"
+#include "vtkDenseArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

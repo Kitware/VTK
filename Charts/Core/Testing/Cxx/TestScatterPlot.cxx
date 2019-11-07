@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkNew.h"
 #include "vtkChartXY.h"
-#include "vtkPlotPoints.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkStringArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkNew.h"
+#include "vtkPlotPoints.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
 int TestScatterPlot(int , char * [])

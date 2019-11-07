@@ -34,9 +34,9 @@
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 
-#include <utility>
 #include <algorithm>
 #include <map>
+#include <utility>
 
 // Map containing updates to a vtkVariantArray that have occurred
 // since we last build the vtkVariantArrayLookup.

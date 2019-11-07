@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkProjectedTerrainPath.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPriorityQueue.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPixel.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPriorityQueue.h"
 #include <vector>
 
 // Define the edge list class--------------------------------------------------

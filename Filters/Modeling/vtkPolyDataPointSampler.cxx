@@ -15,12 +15,12 @@
 #include "vtkPolyDataPointSampler.h"
 
 #include "vtkCellArray.h"
+#include "vtkEdgeTable.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkEdgeTable.h"
-#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkPolyDataPointSampler);
 

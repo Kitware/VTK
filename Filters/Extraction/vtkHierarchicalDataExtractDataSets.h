@@ -25,8 +25,8 @@
 #ifndef vtkHierarchicalDataExtractDataSets_h
 #define vtkHierarchicalDataExtractDataSets_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractDataSets.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 struct vtkHierarchicalDataExtractDataSetsInternals;
 

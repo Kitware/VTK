@@ -23,8 +23,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkUndirectedGraph.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUndirectedGraph.h"
 
 vtkStandardNewMacro(vtkUndirectedGraphAlgorithm);
 

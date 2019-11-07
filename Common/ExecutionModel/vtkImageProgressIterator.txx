@@ -15,9 +15,9 @@
 #ifndef vtkImageProgressIterator_txx
 #define vtkImageProgressIterator_txx
 
-#include "vtkImageProgressIterator.h"
-#include "vtkImageData.h"
 #include "vtkAlgorithm.h"
+#include "vtkImageData.h"
+#include "vtkImageProgressIterator.h"
 
 template <class DType>
 vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd,

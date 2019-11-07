@@ -16,8 +16,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkMatrix4x4);
 

@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkImplicitFunctionToImageStencil.h"
 
+#include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkImplicitFunction.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

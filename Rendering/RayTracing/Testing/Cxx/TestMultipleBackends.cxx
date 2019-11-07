@@ -20,16 +20,15 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkProperty.h"
-#include "vtkSphereSource.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkOSPRayRendererNode.h"
 
 #include "vtkOSPRayTestInteractor.h"
 

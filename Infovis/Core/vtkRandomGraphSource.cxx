@@ -32,8 +32,8 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
-#include <set>
 #include <algorithm>
+#include <set>
 
 vtkStandardNewMacro(vtkRandomGraphSource);
 

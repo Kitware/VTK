@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkPipelineGraphSource.h"
 #include "vtkAbstractArray.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnnotationLink.h"
@@ -21,11 +22,9 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
-#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
-#include "vtkPipelineGraphSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"

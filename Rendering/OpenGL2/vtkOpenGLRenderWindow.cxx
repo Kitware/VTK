@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtk_glew.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtk_glew.h"
 
 #include "vtkOpenGLHelper.h"
 
@@ -29,8 +29,8 @@
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderUtilities.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -38,8 +38,8 @@
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOutputWindow.h"
 #include "vtkPerlinNoise.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderTimerLog.h"
+#include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
 #include "vtkStdString.h"
 #include "vtkStringOutputWindow.h"

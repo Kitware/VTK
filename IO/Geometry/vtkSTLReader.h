@@ -35,8 +35,8 @@
 #ifndef vtkSTLReader_h
 #define vtkSTLReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkAbstractPolyDataReader.h"
+#include "vtkIOGeometryModule.h" // For export macro
 
 class vtkCellArray;
 class vtkFloatArray;

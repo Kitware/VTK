@@ -17,10 +17,10 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellDistanceSelector.h"
 #include "vtkExtractSelection.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkCellDistanceSelector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
 #include "vtkSelection.h"

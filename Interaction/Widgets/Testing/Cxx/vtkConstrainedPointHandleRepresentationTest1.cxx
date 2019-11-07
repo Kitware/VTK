@@ -6,10 +6,10 @@
 #include "WidgetTestingMacros.h"
 #include "vtkPolyData.h"
 
-#include "vtkProperty.h"
 #include "vtkPlane.h"
-#include "vtkPlanes.h"
 #include "vtkPlaneCollection.h"
+#include "vtkPlanes.h"
+#include "vtkProperty.h"
 
 int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
 {

@@ -6,10 +6,10 @@
  * or without modification, are permitted provided that this Notice and any
  * statement of authorship are reproduced on all copies.
  */
-#include "vtkActor2D.h"
 #include "vtkActor.h"
-#include "vtkCellData.h"
+#include "vtkActor2D.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCellTypes.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
@@ -28,9 +28,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRandomAttributeGenerator.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 #include "vtkSphereSource.h"
 #include "vtkStreamingTessellator.h"

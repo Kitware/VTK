@@ -31,8 +31,8 @@
 #ifndef vtkTableReader_h
 #define vtkTableReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkTable;
 

@@ -13,21 +13,21 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkStreaklineFilter.h"
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkIntArray.h"
-#include "vtkSmartPointer.h"
-#include "vtkNew.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
 
-#include <vector>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <vector>
 
 #define DEBUGSTREAKLINEFILTER 1
 #ifdef DEBUGSTREAKLINEFILTER

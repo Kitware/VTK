@@ -20,20 +20,20 @@
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
+#include "vtkBitArray.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkBitArray.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkHyperTreeGrid.h"
-#include "vtkPointData.h"
+#include "vtkRenderer.h"
 
 int TestHyperTreeGridTernary3DGeometryMaterialBits( int argc, char* argv[] )
 {

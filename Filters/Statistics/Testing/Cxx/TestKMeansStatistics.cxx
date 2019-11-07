@@ -11,13 +11,13 @@
 // for implementing this test.
 
 #include "vtkDoubleArray.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkStringArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkTable.h"
-#include "vtkMath.h"
 #include "vtkKMeansStatistics.h"
+#include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkTimerLog.h"
 
 #include <sstream>

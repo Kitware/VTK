@@ -24,9 +24,9 @@
 #ifndef vtkChartParallelCoordinates_h
 #define vtkChartParallelCoordinates_h
 
+#include "vtkChart.h"
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h" // For vtkNew
-#include "vtkChart.h"
 
 class vtkIdTypeArray;
 class vtkStdString;

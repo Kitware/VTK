@@ -33,8 +33,8 @@
 #ifndef vtkXYPlotRepresentation_h
 #define vtkXYPlotRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkXYPlotActor;
 

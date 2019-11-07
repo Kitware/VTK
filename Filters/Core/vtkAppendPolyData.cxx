@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkAppendPolyData.h"
 
-#include "vtkAssume.h"
-#include "vtkArrayDispatch.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkArrayDispatch.h"
+#include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayAccessor.h"

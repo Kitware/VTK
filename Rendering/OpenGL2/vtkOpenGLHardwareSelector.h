@@ -27,8 +27,8 @@
 #ifndef vtkOpenGLHardwareSelector_h
 #define vtkOpenGLHardwareSelector_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkHardwareSelector.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareSelector
 {

@@ -18,15 +18,15 @@
 // .SECTION Description
 //  Simple test for rectilinear grid partitioner
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <cassert>
 
-#include "vtkRectilinearGridPartitioner.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkXMLRectilinearGridReader.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridPartitioner.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkXMLRectilinearGridReader.h"
 
 
 //------------------------------------------------------------------------------

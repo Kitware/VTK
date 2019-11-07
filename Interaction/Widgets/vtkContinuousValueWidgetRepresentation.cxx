@@ -21,14 +21,14 @@
 
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkCommand.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkMath.h"
 #include "vtkEvent.h"
 #include "vtkInteractorObserver.h"
-#include "vtkWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkWindow.h"
 
 
 

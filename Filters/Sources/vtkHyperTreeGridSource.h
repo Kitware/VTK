@@ -48,8 +48,8 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
-#include <string> // STL Header
 #include <map> // STL Header
+#include <string> // STL Header
 #include <vector> // STL Header
 
 class vtkBitArray;

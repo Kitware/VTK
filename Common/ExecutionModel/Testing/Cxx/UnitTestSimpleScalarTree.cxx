@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkSimpleScalarTree.h"
-#include "vtkImageData.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
-#include "vtkSphereSource.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkSimpleScalarTree.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTestErrorObserver.h"
 
 #include <sstream>

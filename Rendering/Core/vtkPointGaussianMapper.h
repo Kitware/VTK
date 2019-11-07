@@ -26,8 +26,8 @@
 #ifndef vtkPointGaussianMapper_h
 #define vtkPointGaussianMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkPiecewiseFunction;
 

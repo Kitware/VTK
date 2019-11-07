@@ -18,9 +18,9 @@
 #include <vtkDateToNumeric.h>
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkXMLPolyDataReader.h>
 
 int TestDateToNumeric(int argc, char *argv[])

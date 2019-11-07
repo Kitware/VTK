@@ -20,11 +20,11 @@
 
 
 #include "vtkFloatArray.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -38,9 +38,9 @@
 #include "vtkTextureObjectVS.h"
 #include "vtkTimerLog.h"
 
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <string>
+#include <vector>
 
 using std::deque;
 using std::vector;

@@ -50,27 +50,27 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkImageData.h"
-#include "vtkStringArray.h"
 #include "vtkCharArray.h"
-#include "vtkSignedCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkMatrix4x4.h"
-#include "vtkSmartPointer.h"
-#include "vtkMath.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkShortArray.h"
+#include "vtkSignedCharArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkType.h"
 
-#include "vtkMINCImageAttributes.h"
 #include "vtkMINC.h"
+#include "vtkMINCImageAttributes.h"
 #include "vtk_netcdf.h"
 
 #ifdef _WIN32
@@ -80,12 +80,12 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <unistd.h>
 #endif
 
-#include <cstdlib>
 #include <cfloat>
+#include <cstdlib>
 #include <ctime>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 #define VTK_MINC_MAX_DIMS 8
 

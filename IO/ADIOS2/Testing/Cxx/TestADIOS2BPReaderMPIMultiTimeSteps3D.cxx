@@ -30,25 +30,25 @@
 #include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockVolumeMapper.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkMPIController.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkNew.h"
+#include "vtkTestUtilities.h"
 
 #include <sstream> // istringstream
 

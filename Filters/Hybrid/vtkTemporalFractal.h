@@ -29,9 +29,9 @@
 #ifndef vtkTemporalFractal_h
 #define vtkTemporalFractal_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkSmartPointer.h" //for ivars
+#include "vtkFiltersHybridModule.h" // For export macro
+#include "vtkSmartPointer.h"        //for ivars
 
 class vtkCompositeDataSet;
 class vtkDataSet;

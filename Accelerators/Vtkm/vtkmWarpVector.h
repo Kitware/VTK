@@ -27,8 +27,8 @@
 #ifndef vtkmWarpVector_h
 #define vtkmWarpVector_h
 
-#include "vtkWarpVector.h"
 #include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkWarpVector.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmWarpVector : public vtkWarpVector
 {

@@ -12,13 +12,13 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkExecutive.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
@@ -26,8 +26,8 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVASPTessellationReader.h"

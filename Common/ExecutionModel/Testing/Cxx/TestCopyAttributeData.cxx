@@ -17,19 +17,19 @@
 // not usually handled by the Execute methods of the imaging filters
 // (Execute methods typically process only the PointData Scalars).
 
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkImageAlgorithm.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkStringArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkVariant.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
+#include "vtkVariant.h"
 
 #include <cmath>
 #include <cstring>

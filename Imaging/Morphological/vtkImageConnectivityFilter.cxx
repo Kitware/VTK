@@ -46,29 +46,28 @@
 
 #include "vtkImageConnectivityFilter.h"
 
-#include "vtkMath.h"
-#include "vtkImageData.h"
 #include "vtkDataSet.h"
-#include "vtkPointData.h"
+#include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
+#include "vtkImageIterator.h"
 #include "vtkImageStencilData.h"
 #include "vtkImageStencilIterator.h"
-#include "vtkImageIterator.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkImageStencilData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 #include "vtkTypeTraits.h"
-#include "vtkSmartPointer.h"
 #include "vtkVersion.h"
 
-#include <vector>
-#include <stack>
 #include <algorithm>
+#include <stack>
+#include <vector>
 
 vtkStandardNewMacro(vtkImageConnectivityFilter);
 

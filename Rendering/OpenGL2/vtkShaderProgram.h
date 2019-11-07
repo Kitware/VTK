@@ -21,11 +21,11 @@
 #ifndef vtkShaderProgram_h
 #define vtkShaderProgram_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
-#include <string> // For member variables.
 #include <map>    // For member variables.
+#include <string> // For member variables.
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;

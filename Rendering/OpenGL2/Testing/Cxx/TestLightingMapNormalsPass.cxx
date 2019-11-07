@@ -18,14 +18,15 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCameraPass.h"
 #include "vtkCellArray.h"
 #include "vtkInformation.h"
 #include "vtkLight.h"
+#include "vtkLightingMapPass.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPLYReader.h"
 #include "vtkPolyData.h"
@@ -37,7 +38,6 @@
 #include "vtkSequencePass.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkLightingMapPass.h"
 
 
 int TestLightingMapNormalsPass(int argc, char *argv[])

@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkQuadraticTetra.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkTetra.h"
-#include "vtkDoubleArray.h"
-#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkQuadraticTetra);
 

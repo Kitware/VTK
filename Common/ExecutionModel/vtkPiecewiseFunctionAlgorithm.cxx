@@ -15,10 +15,10 @@
 #include "vtkPiecewiseFunctionAlgorithm.h"
 
 #include "vtkCommand.h"
+#include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkPiecewiseFunctionAlgorithm);

@@ -21,8 +21,8 @@
 
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
-#include <vtkNormalizeMatrixVectors.h>
 #include <vtkDiagonalMatrixSource.h>
+#include <vtkNormalizeMatrixVectors.h>
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
 

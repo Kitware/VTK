@@ -26,16 +26,16 @@
 #include "vtkFieldData.h"
 #include "vtkJPEGReader.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
+#include "vtksys/SystemTools.hxx"
 
 
 int TestCityGMLReader(int argc, char *argv[])

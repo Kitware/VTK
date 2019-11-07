@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkPolyDataPointPlacer.h"
 
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkPropPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkAssemblyNode.h"
-#include "vtkInteractorObserver.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkPolyDataPointPlacer);
 

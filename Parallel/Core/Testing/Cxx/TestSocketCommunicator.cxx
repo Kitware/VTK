@@ -13,13 +13,13 @@
 
 =========================================================================*/
 // This test tests vtkSocketCommunicator.
+#include "vtkDoubleArray.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkServerSocket.h"
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkTesting.h"
-#include "vtkServerSocket.h"
-#include "vtkPolyData.h"
-#include "vtkDoubleArray.h"
 
 #include <sstream>
 

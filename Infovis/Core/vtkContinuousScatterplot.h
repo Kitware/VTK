@@ -169,8 +169,8 @@
 #ifndef vtkContinuousScatterplot_h
 #define vtkContinuousScatterplot_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkContinuousScatterplot : public vtkImageAlgorithm
 {

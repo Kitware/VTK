@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include <vtkDataArray.h>
 #include <vtkCellData.h>
+#include <vtkDataArray.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
@@ -22,9 +22,9 @@
 #include <vtkPointData.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkRTAnalyticSource.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkThreshold.h>
 #include <vtkTestUtilities.h>
+#include <vtkThreshold.h>
+#include <vtkUnstructuredGrid.h>
 
 int TestPointDataToCellData (int, char*[])
 {

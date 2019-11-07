@@ -15,28 +15,28 @@
 
 #include "vtkPlotStacked.h"
 
-#include "vtkChartXY.h"
-#include "vtkContext2D.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkAxis.h"
+#include "vtkBrush.h"
+#include "vtkChartXY.h"
+#include "vtkColorSeries.h"
+#include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkPoints2D.h"
-#include "vtkTable.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
-#include "vtkStringArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkColorSeries.h"
-#include "vtkSmartPointer.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 
-#include <vector>
 #include <algorithm>
 #include <map>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 namespace {

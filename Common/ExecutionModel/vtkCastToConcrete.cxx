@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkCastToConcrete.h"
-#include "vtkPolyData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkCastToConcrete);
 

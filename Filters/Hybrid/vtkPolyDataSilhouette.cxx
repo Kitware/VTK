@@ -20,22 +20,22 @@
 #include "vtkPolyDataSilhouette.h"
 
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
-#include "vtkMath.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkProp3D.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
-#include "vtkPolygon.h"
 
 #include <map>
 

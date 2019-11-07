@@ -23,8 +23,8 @@
 #ifndef vtkLabelRenderStrategy_h
 #define vtkLabelRenderStrategy_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 #include "vtkStdString.h" // For string support
 #include "vtkUnicodeString.h" // For unicode string support

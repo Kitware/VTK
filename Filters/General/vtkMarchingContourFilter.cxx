@@ -18,6 +18,7 @@
 #include "vtkContourFilter.h"
 #include "vtkContourValues.h"
 #include "vtkImageMarchingCubes.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMarchingCubes.h"
@@ -29,7 +30,6 @@
 #include "vtkScalarTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
-#include "vtkIncrementalPointLocator.h"
 
 #include <cmath>
 

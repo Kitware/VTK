@@ -30,10 +30,10 @@
 #ifndef vtkDataObjectWriter_h
 #define vtkDataObjectWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
-#include "vtkWriter.h"
 #include "vtkDataWriter.h" // Needs data because it calls methods on it
+#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkStdString.h" // For string used in api
+#include "vtkWriter.h"
 
 class VTKIOLEGACY_EXPORT vtkDataObjectWriter : public vtkWriter
 {

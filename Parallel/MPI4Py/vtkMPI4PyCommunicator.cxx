@@ -15,9 +15,9 @@
 
 #include "vtkMPI4PyCommunicator.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMPICommunicator.h"
 #include "vtkMPI.h"
+#include "vtkMPICommunicator.h"
+#include "vtkObjectFactory.h"
 
 #include <mpi4py/mpi4py.h>
 

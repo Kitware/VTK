@@ -26,8 +26,8 @@
 #ifndef vtkCompositeRenderManager_h
 #define vtkCompositeRenderManager_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkParallelRenderManager.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkCompositer;
 class vtkFloatArray;

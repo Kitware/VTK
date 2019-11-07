@@ -23,8 +23,8 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkSOADataArrayTemplate.h"
 
-#include <vtkm/cont/Field.h>
 #include <vtkm/cont/ArrayHandleSOA.h>
+#include <vtkm/cont/Field.h>
 
 #include <type_traits> // for std::underlying_type
 

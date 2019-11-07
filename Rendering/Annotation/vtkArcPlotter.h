@@ -41,8 +41,8 @@
 #ifndef vtkArcPlotter_h
 #define vtkArcPlotter_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 #define VTK_PLOT_SCALARS    1
 #define VTK_PLOT_VECTORS    2

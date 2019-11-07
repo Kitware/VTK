@@ -26,8 +26,8 @@
 #ifndef vtkDummyGPUInfoList_h
 #define vtkDummyGPUInfoList_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkGPUInfoList.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkDummyGPUInfoList : public vtkGPUInfoList
 {

@@ -29,8 +29,8 @@
 #include "vtkTransformFeedback.h"
 #include "vtkTriangleFilter.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <sstream>
 
 vtkStandardNewMacro(vtkOpenGLInstanceCulling)

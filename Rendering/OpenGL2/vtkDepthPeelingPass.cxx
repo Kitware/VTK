@@ -14,11 +14,11 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
 #include "vtkDepthPeelingPass.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
@@ -37,8 +37,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLHelper.h"
 
 // the 2D blending shaders we use
-#include "vtkDepthPeelingPassIntermediateFS.h"
 #include "vtkDepthPeelingPassFinalFS.h"
+#include "vtkDepthPeelingPassIntermediateFS.h"
 
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);

@@ -34,8 +34,8 @@
 #define vtkPolyDataMapper2D_h
 
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCoordinate;
 class vtkPolyData;

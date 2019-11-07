@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkAxis.h"
+#include "vtkChartXY.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTable.h"
 
 // Traced data from Talbot et. al paper
 static double data_x[] = {8.1, 8.6, 8.65, 8.9, 8.95, 9.2, 9.4, 9.6, 9.9, 10,

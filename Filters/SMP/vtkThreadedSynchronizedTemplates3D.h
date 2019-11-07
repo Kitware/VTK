@@ -31,9 +31,9 @@
 #ifndef vtkThreadedSynchronizedTemplates3D_h
 #define vtkThreadedSynchronizedTemplates3D_h
 
+#include "vtkContourValues.h"    // Passes calls through
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
-#include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 

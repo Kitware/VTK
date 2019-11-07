@@ -21,8 +21,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
-#include "vtkSQLDatabaseSchema.h"
 #include "DatabaseSchemaWith2Tables.h"
+#include "vtkSQLDatabaseSchema.h"
 #include "vtkStdString.h"
 
 #include <set>

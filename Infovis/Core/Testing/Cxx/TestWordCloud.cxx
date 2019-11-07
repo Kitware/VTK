@@ -21,12 +21,12 @@
 #include "vtkSmartPointer.h"
 #include "vtkWordCloud.h"
 
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
 #include <vtkCamera.h>
 #include <vtkImageViewer2.h>
 #include <vtkNamedColors.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include <iostream>
 

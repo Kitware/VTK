@@ -21,7 +21,11 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkXGMLReader.h"
 
+#include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
@@ -29,17 +33,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkAbstractArray.h"
-#include "vtkIdTypeArray.h"
 
 
 #include <cassert>
-#include <fstream>
-#include <sstream>
-#include <map>
 #include <cctype> // for isspace, isdigit
+#include <fstream>
+#include <map>
+#include <sstream>
 
 // Copied from vtkTulipReader.cxx ..
 static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');

@@ -14,12 +14,12 @@
 =========================================================================*/
 
 #include "vtkCompositer.h"
-#include "vtkObjectFactory.h"
-#include "vtkToolkits.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkToolkits.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkCompositer);
 

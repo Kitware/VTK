@@ -13,21 +13,21 @@
 
 =========================================================================*/
 #include "vtkBalloonWidget.h"
-#include "vtkBalloonRepresentation.h"
-#include "vtkStdString.h"
-#include "vtkProp.h"
-#include "vtkPropPicker.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkAssemblyPath.h"
-#include "vtkWidgetCallbackMapper.h"
-#include "vtkWidgetEvent.h"
-#include "vtkObjectFactory.h"
-#include "vtkPickingManager.h"
+#include "vtkBalloonRepresentation.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
+#include "vtkProp.h"
+#include "vtkPropPicker.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
+#include "vtkStdString.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
 
 #include <cassert>
 #include <map>

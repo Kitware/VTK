@@ -46,8 +46,8 @@
 #ifndef vtkSplitField_h
 #define vtkSplitField_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 

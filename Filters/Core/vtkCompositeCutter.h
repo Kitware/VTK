@@ -24,8 +24,8 @@
 #ifndef vtkCompositeCutter_h
 #define vtkCompositeCutter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkCutter.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkCompositeCutter : public vtkCutter
 {

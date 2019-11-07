@@ -23,8 +23,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkRegressionTestImage.h"
 
 int RGrid( int argc, char *argv[] )
 {

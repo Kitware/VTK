@@ -16,13 +16,13 @@
 #include "vtkAxisExtended.h"
 
 #include "vtkMath.h" // for VTK_DBL_EPSILON
-#include "vtkStdString.h"
 #include "vtkObjectFactory.h"
+#include "vtkStdString.h"
 
 #include <sstream>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 
 vtkStandardNewMacro(vtkAxisExtended);

@@ -43,8 +43,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkIdList.h" // Needed for inline methods
 #include "vtkCellType.h" // Needed to define cell types
+#include "vtkIdList.h" // Needed for inline methods
 
 class vtkCellArray;
 class vtkCellData;

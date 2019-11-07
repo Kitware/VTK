@@ -31,8 +31,8 @@
 #ifndef vtkViewUpdater_h
 #define vtkViewUpdater_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkAnnotationLink;
 class vtkView;

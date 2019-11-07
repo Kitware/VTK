@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkAMRInterpolatedVelocityField.h>
-#include <vtkAMRGaussianPulseSource.h>
-#include <vtkNew.h>
-#include <vtkGradientFilter.h>
-#include <vtkOverlappingAMR.h>
-#include <vtkMath.h>
-#include <vtkCompositeDataPipeline.h>
 #include "vtkUniformGrid.h"
+#include <vtkAMRGaussianPulseSource.h>
+#include <vtkAMRInterpolatedVelocityField.h>
+#include <vtkCompositeDataPipeline.h>
+#include <vtkGradientFilter.h>
+#include <vtkMath.h>
+#include <vtkNew.h>
+#include <vtkOverlappingAMR.h>
 #define RETURNONFALSE(b)\
   if(!(b)) \
   {\

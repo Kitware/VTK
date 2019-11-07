@@ -20,8 +20,8 @@
 #ifndef vtkEnSightReader_h
 #define vtkEnSightReader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkGenericEnSightReader.h"
+#include "vtkIOEnSightModule.h" // For export macro
 
 
 class vtkDataSet;

@@ -31,8 +31,8 @@ typedef vtkThreadFunctionType vtkExternCThreadFunctionType;
 #endif
 
 #ifdef __APPLE__
-#include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/types.h>
 #endif
 
 // Initialize static member that controls global maximum number of threads

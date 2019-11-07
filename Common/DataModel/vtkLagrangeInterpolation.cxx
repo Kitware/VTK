@@ -14,15 +14,15 @@
   =========================================================================*/
 #include "vtkLagrangeInterpolation.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkLagrangeTriangle.h"
 #include "vtkLagrangeWedge.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkVector.h"
-#include "vtkDoubleArray.h"
 #include "vtkVectorOperators.h"
-#include "vtkObjectFactory.h"
 
 #include <array>
 #include <vector>

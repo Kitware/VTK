@@ -12,6 +12,8 @@
     PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
+#include "QTestMainWindow.h"
+#include "QVTKWidget2.h"
 #include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkDataSetMapper.h"
@@ -21,8 +23,6 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "QVTKWidget2.h"
-#include "QTestMainWindow.h"
 
 #include <QApplication>
 #include <QTimer>

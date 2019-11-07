@@ -21,8 +21,8 @@
 #include "vtkXMLTreeReader.h"
 
 #include "vtkBitArray.h"
-#include "vtkInformation.h"
 #include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"

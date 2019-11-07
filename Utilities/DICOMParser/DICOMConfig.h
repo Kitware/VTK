@@ -36,15 +36,15 @@
 #ifdef DICOM_ANSI_STDLIB
   #define dicom_stream std
 
-  #include <iostream>
   #include <fstream>
   #include <iomanip>
+  #include <iostream>
 #else
   #define dicom_stream
 
-  #include <iostream.h>
   #include <fstream.h>
   #include <iomanip.h>
+  #include <iostream.h>
 #endif
 
 #ifdef DICOM_DLL

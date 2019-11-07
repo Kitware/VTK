@@ -44,8 +44,8 @@
 #ifndef vtkAnnotationLink_h
 #define vtkAnnotationLink_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAnnotationLayersAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkCommand;
 class vtkDataObjectCollection;

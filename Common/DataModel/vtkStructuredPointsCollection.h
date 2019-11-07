@@ -24,9 +24,9 @@
 #ifndef vtkStructuredPointsCollection_h
 #define vtkStructuredPointsCollection_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkStructuredPoints.h" // Needed for static cast
+#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkStructuredPoints.h"      // Needed for static cast
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {

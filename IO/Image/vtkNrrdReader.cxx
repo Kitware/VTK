@@ -26,16 +26,16 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
-#include <string>
 #include <algorithm>
-#include <vector>
-#include <vtksys/SystemTools.hxx>
 #include <istream>
 #include <sstream>
+#include <string>
+#include <vector>
+#include <vtksys/SystemTools.hxx>
 
+#include <cctype>
 #include <cmath>
 #include <cstring>
-#include <cctype>
 
 #include "vtkSmartPointer.h"
 

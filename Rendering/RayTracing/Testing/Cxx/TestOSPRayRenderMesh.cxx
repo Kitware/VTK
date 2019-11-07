@@ -38,19 +38,19 @@
 #include "vtkInformation.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStripper.h"
@@ -60,8 +60,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertexGlyphFilter.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "vtkOSPRayTestInteractor.h"
 

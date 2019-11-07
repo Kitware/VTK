@@ -70,8 +70,8 @@
 #ifndef vtkSeedWidget_h
 #define vtkSeedWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkHandleRepresentation;
 class vtkHandleWidget;

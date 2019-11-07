@@ -34,19 +34,19 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkPointGaussianMapper.h"
 #include "vtkPointSource.h"
 #include "vtkProperty.h"
 #include "vtkRandomAttributeGenerator.h"
-#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTimerLog.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestPointGaussianMapperOpacity(int argc, char *argv[])
 {

@@ -44,8 +44,8 @@
 #ifndef vtkAreaContourSpectrumFilter_h
 #define vtkAreaContourSpectrumFilter_h
 
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include  "vtkDataObjectAlgorithm.h"
 
 class vtkTable;
 

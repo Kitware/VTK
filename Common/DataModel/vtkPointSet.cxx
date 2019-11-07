@@ -15,16 +15,16 @@
 #include "vtkPointSet.h"
 
 #include "vtkCell.h"
+#include "vtkCellLocator.h"
+#include "vtkClosestPointStrategy.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkPointLocator.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkCellLocator.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkPointSetCellIterator.h"
-#include "vtkClosestPointStrategy.h"
+#include "vtkStaticCellLocator.h"
+#include "vtkStaticPointLocator.h"
 
 #include "vtkSmartPointer.h"
 

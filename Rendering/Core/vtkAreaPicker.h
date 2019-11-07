@@ -44,8 +44,8 @@
 #ifndef vtkAreaPicker_h
 #define vtkAreaPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkPoints;

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
+#import <Cocoa/Cocoa.h>
 
 #import "vtkCocoaGLView.h"
 #import "vtkCocoaRenderWindow.h"

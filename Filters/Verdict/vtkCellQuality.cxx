@@ -15,8 +15,8 @@
 #include "vtkCellQuality.h"
 #include "vtk_verdict.h"
 
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCellTypes.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"

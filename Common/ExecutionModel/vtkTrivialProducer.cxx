@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkTrivialProducer.h"
 
-#include "vtkImageData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataObject.h"
 #include "vtkGarbageCollector.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataObject.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkTrivialProducer);
 

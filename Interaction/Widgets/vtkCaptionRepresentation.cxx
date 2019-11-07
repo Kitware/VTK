@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkCaptionRepresentation.h"
 #include "vtkCaptionActor2D.h"
-#include "vtkPointHandleRepresentation3D.h"
 #include "vtkConeSource.h"
-#include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkPointHandleRepresentation3D.h"
 #include "vtkPointWidget.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 
 vtkStandardNewMacro(vtkCaptionRepresentation);

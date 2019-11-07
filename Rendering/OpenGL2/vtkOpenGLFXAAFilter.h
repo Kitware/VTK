@@ -40,9 +40,9 @@
 #ifndef vtkOpenGLFXAAFilter_h
 #define vtkOpenGLFXAAFilter_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkObject.h"
 #include "vtkFXAAOptions.h" // For DebugOptions enum
+#include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include <string> // For std::string
 

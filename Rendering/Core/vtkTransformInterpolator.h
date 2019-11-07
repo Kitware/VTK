@@ -50,8 +50,8 @@
 #ifndef vtkTransformInterpolator_h
 #define vtkTransformInterpolator_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 
 class vtkTransform;

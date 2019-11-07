@@ -50,9 +50,9 @@
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h"
 #endif
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
-#include "vtkSOADataArrayTemplate.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTypeInt64Array.h"

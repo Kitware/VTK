@@ -24,15 +24,15 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
+#include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 #include "vtkTextPropertyCollection.h"
-#include "vtkTestUtilities.h"
 #include "vtkTransform.h"
-#include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
 int TestLabeledContourMapperWithActorMatrix(int argc, char *argv[])

@@ -30,8 +30,8 @@
 
 #include "vtkMultiBlockDataSet.h"
 
-#include <adios2.h>
 #include "schema/VTXSchema.h"
+#include <adios2.h>
 
 namespace vtx
 {

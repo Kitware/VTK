@@ -37,8 +37,8 @@
 #ifndef vtkLightActor_h
 #define vtkLightActor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkLight;
 class vtkConeSource;

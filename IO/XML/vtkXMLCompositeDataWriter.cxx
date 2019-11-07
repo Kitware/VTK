@@ -24,6 +24,7 @@
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkHierarchicalBoxDataSet.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -31,20 +32,18 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
-#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
-#include "vtkHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataObjectWriter.h"
 
-#include <vtksys/SystemTools.hxx>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <vtksys/SystemTools.hxx>
 
 //----------------------------------------------------------------------------
 

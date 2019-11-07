@@ -30,8 +30,8 @@
 #ifndef vtkUnstructuredGridBaseAlgorithm_h
 #define vtkUnstructuredGridBaseAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkUnstructuredGridBase;

@@ -62,8 +62,8 @@
 #ifndef vtkSpanTreeLayoutStrategy_h
 #define vtkSpanTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkSpanTreeLayoutStrategy : public vtkGraphLayoutStrategy
 {

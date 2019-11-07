@@ -17,8 +17,8 @@
 #include "vtkVariantArray.h"
 
 #include <map>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #define VTK_MULTICORRELATIVE_KEYCOLUMN1 "Column1"
 #define VTK_MULTICORRELATIVE_KEYCOLUMN2 "Column2"

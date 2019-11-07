@@ -25,8 +25,8 @@
 #ifndef vtkOutputWindow_h
 #define vtkOutputWindow_h
 
-#include "vtkDebugLeaksManager.h" // Must be included before singletons
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDebugLeaksManager.h" // Must be included before singletons
 #include "vtkObject.h"
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup

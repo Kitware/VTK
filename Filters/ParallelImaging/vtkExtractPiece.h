@@ -25,8 +25,8 @@
 #ifndef vtkExtractPiece_h
 #define vtkExtractPiece_h
 
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 
 class vtkImageData;
 class vtkPolyData;

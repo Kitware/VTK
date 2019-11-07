@@ -33,8 +33,8 @@
 #ifndef vtkSCurveSpline_h
 #define vtkSCurveSpline_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkSpline.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class VTKVIEWSINFOVIS_EXPORT vtkSCurveSpline : public vtkSpline
 {

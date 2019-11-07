@@ -16,9 +16,9 @@
 
 #include "vtkConeSource.h"
 #include "vtkDebugLeaks.h"
-#include "vtkSmartPointer.h"
 #include "vtkQtDebugLeaksModel.h"
 #include "vtkQtDebugLeaksView.h"
+#include "vtkSmartPointer.h"
 
 #include <QApplication>
 #include <QStandardItemModel>

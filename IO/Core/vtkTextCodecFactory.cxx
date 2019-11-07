@@ -24,8 +24,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextCodec.h"
 
 #include "vtkASCIITextCodec.h"
-#include "vtkUTF8TextCodec.h"
 #include "vtkUTF16TextCodec.h"
+#include "vtkUTF8TextCodec.h"
 
 #include <algorithm>
 #include <vector>

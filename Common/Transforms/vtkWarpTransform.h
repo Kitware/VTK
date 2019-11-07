@@ -25,8 +25,8 @@
 #ifndef vtkWarpTransform_h
 #define vtkWarpTransform_h
 
-#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkAbstractTransform.h"
+#include "vtkCommonTransformsModule.h" // For export macro
 
 class VTKCOMMONTRANSFORMS_EXPORT vtkWarpTransform : public vtkAbstractTransform
 {

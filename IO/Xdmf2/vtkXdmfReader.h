@@ -34,8 +34,8 @@
 #ifndef vtkXdmfReader_h
 #define vtkXdmfReader_h
 
-#include "vtkIOXdmf2Module.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkIOXdmf2Module.h" // For export macro
 #include <map> // for caching
 #include <string> // needed for string API
 

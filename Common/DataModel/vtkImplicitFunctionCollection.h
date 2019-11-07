@@ -25,8 +25,8 @@
 #ifndef vtkImplicitFunctionCollection_h
 #define vtkImplicitFunctionCollection_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkImplicitFunction.h" // Needed for inline methods
 

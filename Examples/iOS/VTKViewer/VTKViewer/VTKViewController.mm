@@ -15,8 +15,8 @@
 #include "vtkActor.h"
 #include "vtkCubeSource.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 

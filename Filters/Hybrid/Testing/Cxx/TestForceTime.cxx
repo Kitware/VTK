@@ -24,9 +24,9 @@
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkRTAnalyticSource.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkUnstructuredGrid.h>
 

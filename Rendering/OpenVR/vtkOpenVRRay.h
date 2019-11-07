@@ -21,10 +21,10 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRRay_h
 #define vtkOpenVRRay_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkNew.h" // for ivar
 #include "vtkObject.h"
 #include "vtkOpenGLHelper.h" // ivar
-#include "vtkNew.h" // for ivar
+#include "vtkRenderingOpenVRModule.h" // For export macro
 #include <openvr.h> // for ivars
 
 class vtkOpenGLRenderWindow;

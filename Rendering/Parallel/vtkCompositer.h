@@ -29,8 +29,8 @@
 #ifndef vtkCompositer_h
 #define vtkCompositer_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkMultiProcessController;
 class vtkCompositer;

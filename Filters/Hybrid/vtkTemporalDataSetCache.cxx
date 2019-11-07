@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkTemporalDataSetCache.h"
 
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vector>
 

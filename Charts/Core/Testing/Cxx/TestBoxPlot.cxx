@@ -22,9 +22,9 @@
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPlotBox.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 

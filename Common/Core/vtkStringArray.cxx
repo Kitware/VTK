@@ -30,9 +30,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkSortDataArray.h"
 
-#include <utility>
 #include <algorithm>
 #include <map>
+#include <utility>
 #include <vector>
 
 // Map containing updates to a vtkStringArray that have occurred

@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkImageDivergence.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>

@@ -19,6 +19,7 @@
 #include "vtkTecplotTableReader.h"
 #include "vtkCommand.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,17 +27,16 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-#include "vtkDoubleArray.h"
 
 #include "vtkTextCodec.h"
 #include "vtkTextCodecFactory.h"
 
-#include <sstream>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
-#include <stdexcept>
 #include <set>
+#include <sstream>
+#include <stdexcept>
 #include <vector>
 
 #include <cctype>

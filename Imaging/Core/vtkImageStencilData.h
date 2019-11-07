@@ -28,8 +28,8 @@
 #define vtkImageStencilData_h
 
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
 {

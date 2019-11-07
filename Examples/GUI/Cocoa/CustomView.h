@@ -1,10 +1,10 @@
 #import <Cocoa/Cocoa.h>
 
-#import "vtkRenderer.h"
 #import "vtkRenderWindow.h"
+#import "vtkRenderer.h"
 //#import "vtkRenderWindowInteractor.h"
-#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCocoaRenderWindow.h"
+#import "vtkCocoaRenderWindowInteractor.h"
 
 // This is a subclass of plain old NSView.
 @interface CustomView : NSView

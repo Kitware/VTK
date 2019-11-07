@@ -19,8 +19,8 @@
 #include <vtkDataArray.h>
 #include <vtkImageData.h>
 #include <vtkOpenGLRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
 #include <vtkTextureObject.h>
 
 #include <map> // STL required

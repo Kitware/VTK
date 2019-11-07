@@ -8,15 +8,15 @@
 
 #include "vtkExodusIIReader.h"
 #include "vtkStdString.h"
-#include "vtkToolkits.h" // make sure VTK_USE_PARALLEL is properly set
 #include "vtkExodusIICache.h"
+#include "vtkToolkits.h" // make sure VTK_USE_PARALLEL is properly set
 #include "vtksys/RegularExpression.hxx"
 
 #include <map>
 #include <vector>
 
-#include "vtk_exodusII.h"
 #include "vtkIOExodusModule.h" // For export macro
+#include "vtk_exodusII.h"
 class vtkExodusIIReaderParser;
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;

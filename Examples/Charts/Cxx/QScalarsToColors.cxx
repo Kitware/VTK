@@ -26,8 +26,8 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlot.h"
 #include "vtkQtTableView.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
 #include <QApplication>

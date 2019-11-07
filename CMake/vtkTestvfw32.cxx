@@ -1,5 +1,5 @@
-#include "windows.h"
 #include "vfw.h"
+#include "windows.h"
 
 int main()
 {

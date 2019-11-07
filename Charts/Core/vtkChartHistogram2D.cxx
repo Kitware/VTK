@@ -15,18 +15,18 @@
 
 #include "vtkChartHistogram2D.h"
 
-#include "vtkContext2D.h"
-#include "vtkBrush.h"
-#include "vtkPen.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkTextProperty.h"
 #include "vtkAxis.h"
-#include "vtkPlotHistogram2D.h"
+#include "vtkBrush.h"
 #include "vtkColorLegend.h"
-#include "vtkTooltipItem.h"
-#include "vtkSmartPointer.h"
+#include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkPlotHistogram2D.h"
+#include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
+#include "vtkTooltipItem.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkChartHistogram2D);

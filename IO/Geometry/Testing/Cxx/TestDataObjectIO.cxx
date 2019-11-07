@@ -20,6 +20,7 @@
 #include "vtkGenericDataObjectReader.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkIntArray.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
@@ -28,7 +29,6 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariant.h"
-#include "vtkMultiPieceDataSet.h"
 
 void InitializeData(vtkPolyData* Data)
 {

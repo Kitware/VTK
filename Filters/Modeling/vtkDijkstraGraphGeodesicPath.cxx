@@ -14,9 +14,9 @@
 
 #include "vtkCellArray.h"
 #include "vtkDijkstraGraphInternals.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

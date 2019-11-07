@@ -17,8 +17,8 @@
 #include "vtkActor.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 

@@ -28,8 +28,8 @@
  *
  */
 
-#include <jni.h>
 #include <errno.h>
+#include <jni.h>
 #include <sstream>
 
 #include "vtkNew.h"

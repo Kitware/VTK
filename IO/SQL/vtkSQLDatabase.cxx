@@ -18,10 +18,10 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkToolkits.h"
-#include "vtkInformationObjectBaseKey.h"
 #include "vtkSQLDatabase.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkSQLQuery.h"
+#include "vtkToolkits.h"
 
 #include "vtkSQLDatabaseSchema.h"
 
@@ -31,8 +31,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
-#include <vtksys/SystemTools.hxx>
 #include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 
 class vtkSQLDatabase::vtkCallbackVector :

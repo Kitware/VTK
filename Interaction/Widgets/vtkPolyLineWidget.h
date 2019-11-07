@@ -36,8 +36,8 @@
 #ifndef vtkPolyLineWidget_h
 #define vtkPolyLineWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPolyLineRepresentation;
 

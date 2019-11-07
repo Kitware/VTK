@@ -1,16 +1,16 @@
-#include <vtkSmartPointer.h>
-#include <vtkProperty.h>
+#include <vtkActor.h>
+#include <vtkCleanPolyData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderer.h>
+#include <vtkPolyDataSilhouette.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkPolyDataSilhouette.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkXMLPolyDataReader.h>
-#include <vtkCleanPolyData.h>
 #include <vtkTestUtilities.h>
+#include <vtkXMLPolyDataReader.h>
 
 int TestPolyDataSilhouette(int argc, char *argv[])
 {

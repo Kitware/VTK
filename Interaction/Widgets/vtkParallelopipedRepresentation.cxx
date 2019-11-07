@@ -14,28 +14,28 @@
 =========================================================================*/
 #include "vtkParallelopipedRepresentation.h"
 
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkClosedSurfacePointPlacer.h"
 #include "vtkDoubleArray.h"
+#include "vtkEvent.h"
+#include "vtkInteractorObserver.h"
+#include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPlaneCollection.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkInteractorObserver.h"
-#include "vtkEvent.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphereHandleRepresentation.h"
-#include "vtkLine.h"
-#include "vtkClosedSurfacePointPlacer.h"
-#include "vtkPlaneCollection.h"
-#include "vtkPlane.h"
-#include <vector>
-#include <set>
 #include <algorithm>
+#include <set>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // This class manages topological information for a parallelopiped with a

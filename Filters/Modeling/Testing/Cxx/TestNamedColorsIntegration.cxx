@@ -15,21 +15,20 @@
 
 #include <vtkNamedColors.h>
 
-#include <vtkConeSource.h>
+#include "vtkRegressionTestImage.h"
+#include <vtkActor.h>
 #include <vtkAlgorithm.h>
-#include <vtkElevationFilter.h>
 #include <vtkBandedPolyDataContourFilter.h>
+#include <vtkConeSource.h>
+#include <vtkElevationFilter.h>
 #include <vtkLookupTable.h>
 #include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
 #include <vtkProperty.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
-#include "vtkRegressionTestImage.h"
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 
 // Create a cone, contour it using the banded contour filter and
 // color it with the primary additive and subtractive colors.

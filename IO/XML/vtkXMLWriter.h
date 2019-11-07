@@ -30,9 +30,9 @@
 #ifndef vtkXMLWriter_h
 #define vtkXMLWriter_h
 
-#include "vtkIOXMLModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include <sstream> // For ostringstream ivar
+#include "vtkIOXMLModule.h" // For export macro
+#include <sstream>          // For ostringstream ivar
 
 class vtkAbstractArray;
 class vtkArrayIterator;

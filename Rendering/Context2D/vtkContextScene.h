@@ -26,10 +26,10 @@
 #ifndef vtkContextScene_h
 #define vtkContextScene_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // Needed for weak pointer to the window.
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkVector.h" // For vtkVector return type.
+#include "vtkWeakPointer.h" // Needed for weak pointer to the window.
 
 class vtkContext2D;
 class vtkAbstractContextItem;

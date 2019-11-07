@@ -17,18 +17,18 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 // This example reads a volume dataset and displays it via volume rendering.
 //
 
-#include <vtkSmartPointer.h>
-#include <vtkRenderer.h>
+#include <vtkCamera.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkFixedPointVolumeRayCastMapper.h>
+#include <vtkPiecewiseFunction.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkVolume16Reader.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 #include <vtkVolume.h>
-#include <vtkFixedPointVolumeRayCastMapper.h>
+#include <vtkVolume16Reader.h>
 #include <vtkVolumeProperty.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkCamera.h>
-#include <vtkRegressionTestImage.h>
 
 int main (int argc, char *argv[])
 {

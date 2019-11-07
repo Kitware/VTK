@@ -18,20 +18,20 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include <cstdio>
-#include <cctype>
 #include "vtkChacoReader.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
+#include <cctype>
+#include <cstdio>
 
 vtkStandardNewMacro(vtkChacoReader);
 

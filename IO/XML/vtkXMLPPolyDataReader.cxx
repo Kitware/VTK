@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkXMLPPolyDataReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkXMLDataElement.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkPolyData.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkXMLDataElement.h"
+#include "vtkXMLPolyDataReader.h"
 
 vtkStandardNewMacro(vtkXMLPPolyDataReader);
 

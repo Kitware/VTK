@@ -17,12 +17,12 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#include "vtkSmartPointer.h"
-#include "vtkKCoreDecomposition.h"
-#include "vtkMutableUndirectedGraph.h"
-#include "vtkMutableDirectedGraph.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkKCoreDecomposition.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkMutableUndirectedGraph.h"
+#include "vtkSmartPointer.h"
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

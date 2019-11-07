@@ -24,8 +24,8 @@
 #ifndef vtkOpenGLGL2PSExporter_h
 #define vtkOpenGLGL2PSExporter_h
 
-#include "vtkIOExportGL2PSModule.h" // For export macro
 #include "vtkGL2PSExporter.h"
+#include "vtkIOExportGL2PSModule.h" // For export macro
 
 class vtkImageData;
 

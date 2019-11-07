@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGLVertexBufferObjectCache.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLVertexBufferObject.h"
 
 

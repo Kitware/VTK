@@ -82,8 +82,8 @@
 #ifndef vtkBrokenLineWidget_h
 #define vtkBrokenLineWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkCellPicker;

@@ -22,19 +22,19 @@
 
 #include "vtkActor2D.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkAreaLayoutStrategy.h"
 #include "vtkCamera.h"
 #include "vtkDirectedGraph.h"
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderedTreeAreaRepresentation.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderedTreeAreaRepresentation.h"
+#include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTree.h"
-#include "vtkAreaLayoutStrategy.h"
 
 vtkStandardNewMacro(vtkTreeAreaView);
 //----------------------------------------------------------------------------

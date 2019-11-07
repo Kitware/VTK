@@ -25,13 +25,13 @@
 #include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRTAnalyticSource.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkTesting.h>
 #include <vtkTestUtilities.h>
+#include <vtkTesting.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 

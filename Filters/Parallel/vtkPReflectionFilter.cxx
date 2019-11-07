@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkPReflectionFilter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkBoundingBox.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkPReflectionFilter);
 vtkCxxSetObjectMacro(vtkPReflectionFilter, Controller, vtkMultiProcessController);

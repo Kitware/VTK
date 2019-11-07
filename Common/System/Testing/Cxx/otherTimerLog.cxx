@@ -17,8 +17,8 @@
 // .SECTION Description
 // this program tests the TimerLog
 
-#include "vtkTimerLog.h"
 #include "vtkDebugLeaks.h"
+#include "vtkTimerLog.h"
 
 #include <sstream>
 

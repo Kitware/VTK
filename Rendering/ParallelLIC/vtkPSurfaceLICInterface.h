@@ -24,8 +24,8 @@
 #ifndef vtkPSurfaceLICInterface_h
 #define vtkPSurfaceLICInterface_h
 
-#include "vtkSurfaceLICInterface.h"
 #include "vtkRenderingParallelLICModule.h" // For export macro
+#include "vtkSurfaceLICInterface.h"
 #include <string> // for string
 
 class vtkPainterCommunicator;

@@ -21,15 +21,15 @@
 // Thanks to Andrew Wilson from Sandia National Laboratories for implementing
 // this test.
 
+#include "vtkIOODBCTestingCxxConfigure.h"
 #include "vtkODBCDatabase.h"
-#include "vtkSQLQuery.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLQuery.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
+#include "vtkToolkits.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkToolkits.h"
-#include "vtkIOODBCTestingCxxConfigure.h"
 
 #include <sstream>
 

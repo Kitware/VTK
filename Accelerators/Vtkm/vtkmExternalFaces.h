@@ -28,8 +28,8 @@
 #ifndef vtkmExternalFaces_h
 #define vtkmExternalFaces_h
 
-#include "vtkAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkAlgorithm.h"
 
 class vtkUnstructuredGrid;
 

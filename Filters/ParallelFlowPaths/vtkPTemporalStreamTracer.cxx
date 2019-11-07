@@ -12,28 +12,30 @@ the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkTemporalStreamTracer.h"
 #include "vtkPTemporalStreamTracer.h"
+#include "vtkTemporalStreamTracer.h"
 
+#include "vtkAbstractParticleWriter.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
+#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkCharArray.h"
+#include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
@@ -43,11 +45,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
 #include "vtkTemporalInterpolatedVelocityField.h"
-#include "vtkOutputWindow.h"
-#include "vtkAbstractParticleWriter.h"
 #include "vtkToolkits.h"
 #include <cassert>
-#include "vtkMPIController.h"
 
 using namespace vtkTemporalStreamTracerNamespace;
 

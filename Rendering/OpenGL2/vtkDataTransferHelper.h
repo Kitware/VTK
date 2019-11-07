@@ -31,10 +31,10 @@
 #ifndef vtkDataTransferHelper_h
 #define vtkDataTransferHelper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
 class vtkDataArray;
 class vtkPixelBufferObject;

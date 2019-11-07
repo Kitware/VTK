@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkAbstractArray.h"
 #include "vtkInformation.h"
-#include "vtkObjectFactory.h"
 #include "vtkMySQLDatabase.h"
 #include "vtkMySQLQuery.h"
+#include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"

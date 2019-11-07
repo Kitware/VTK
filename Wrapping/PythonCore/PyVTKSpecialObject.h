@@ -20,9 +20,9 @@
 #ifndef PyVTKSpecialObject_h
 #define PyVTKSpecialObject_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 // This for objects not derived from vtkObjectBase
 

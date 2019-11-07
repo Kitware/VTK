@@ -13,12 +13,12 @@
 
  =========================================================================*/
 #include "vtkStructuredGridGhostDataGenerator.h"
-#include "vtkObjectFactory.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkStructuredGridConnectivity.h"
-#include "vtkStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredGridConnectivity.h"
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 

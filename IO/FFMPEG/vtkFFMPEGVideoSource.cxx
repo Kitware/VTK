@@ -24,10 +24,10 @@
 #include "vtksys/SystemTools.hxx"
 
 extern "C" {
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavutil/stereo3d.h>
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/stereo3d.h>
+#include <libswscale/swscale.h>
 }
 
 #include <cctype>

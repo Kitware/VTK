@@ -23,9 +23,12 @@
 #include <vtkImageData.h>
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
 #include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
+#include <vtkPlane.h>
+#include <vtkPlaneCollection.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
@@ -38,9 +41,6 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
-#include <vtkInteractorStyleTrackballCamera.h>
 
 
 /// Tests volume clipping when intermixed with geometry.

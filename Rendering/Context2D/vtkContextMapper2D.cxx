@@ -15,9 +15,9 @@
 
 #include "vtkContextMapper2D.h"
 
-#include "vtkTable.h"
-#include "vtkInformation.h"
 #include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkTable.h"
 
 #include "vtkObjectFactory.h"
 

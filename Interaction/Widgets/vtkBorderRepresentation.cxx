@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtkBorderRepresentation.h"
-#include "vtkRenderer.h"
-#include "vtkPoints.h"
+#include "vtkActor2D.h"
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkActor2D.h"
 #include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWindow.h"
-#include "vtkObjectFactory.h"
 
 #include <algorithm>
 #include <cassert>

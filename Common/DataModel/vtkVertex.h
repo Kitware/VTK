@@ -22,8 +22,8 @@
 #ifndef vtkVertex_h
 #define vtkVertex_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkIncrementalPointLocator;
 

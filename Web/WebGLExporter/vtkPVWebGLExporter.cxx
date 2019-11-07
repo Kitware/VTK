@@ -19,15 +19,15 @@
 #include "vtkExporter.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkWebGLExporter.h"
 #include "vtkWebGLObject.h"
 
-#include <string>
-#include <sstream>
 #include <fstream>
+#include <sstream>
+#include <string>
 
 vtkStandardNewMacro(vtkPVWebGLExporter);
 // ---------------------------------------------------------------------------

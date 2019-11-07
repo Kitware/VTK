@@ -27,9 +27,9 @@
 #ifndef vtkOpenGLGL2PSHelper_h
 #define vtkOpenGLGL2PSHelper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include <string> // For string usage
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <string>                      // For string usage
 
 class vtkActor;
 class vtkImageData;

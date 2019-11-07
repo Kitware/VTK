@@ -25,7 +25,6 @@ with additional system information.
 #include <vector>
 
 #include <windows.h>
-#include <GL/gl.h>
 
 #include <GL/gl.h>
 

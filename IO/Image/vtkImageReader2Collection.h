@@ -25,8 +25,8 @@
 #ifndef vtkImageReader2Collection_h
 #define vtkImageReader2Collection_h
 
-#include "vtkIOImageModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkIOImageModule.h" // For export macro
 
 class vtkImageReader2;
 

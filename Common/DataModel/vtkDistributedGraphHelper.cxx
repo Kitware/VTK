@@ -29,8 +29,8 @@
 #include "vtkVariant.h"
 
 
-#include <climits> // CHAR_BIT
 #include <cassert> // assert()
+#include <climits> // CHAR_BIT
 
 
 vtkInformationKeyMacro(vtkDistributedGraphHelper, DISTRIBUTEDVERTEXIDS, Integer);

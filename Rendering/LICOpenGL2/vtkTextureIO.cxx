@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkTextureIO.h"
 
-#include "vtkTextureObject.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkFloatArray.h"
 #include "vtkDataSetWriter.h"
-#include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkPixelBufferObject.h"
 #include "vtkPixelExtent.h"
 #include "vtkPixelTransfer.h"
+#include "vtkPointData.h"
+#include "vtkTextureObject.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 #include <cstddef>
 #include <deque>
 #include <sstream>

@@ -18,9 +18,9 @@
 #ifndef vtkLagrangeInterpolation_h
 #define vtkLagrangeInterpolation_h
 
+#include "vtkCommonDataModelModule.h" // For export macro.
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For API.
-#include "vtkCommonDataModelModule.h" // For export macro.
 
 #include <vector> // For scratch storage.
 

@@ -24,8 +24,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 #define AssertMacro(b) if(!(b)){std::cerr <<"Failed to reflect pyramid"<<std::endl;return EXIT_FAILURE;}
 

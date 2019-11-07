@@ -54,8 +54,8 @@
 #ifndef vtkAppendCompositeDataLeaves_h
 #define vtkAppendCompositeDataLeaves_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkCompositeDataIterator;
 class vtkDataSet;

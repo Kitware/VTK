@@ -14,9 +14,9 @@
 #ifndef vtkAbstractRenderDevice_h
 #define vtkAbstractRenderDevice_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <string> // For std::string
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <string>                   // For std::string
 
 class vtkRecti;
 

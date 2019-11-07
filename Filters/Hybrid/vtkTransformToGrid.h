@@ -27,9 +27,9 @@
 #ifndef vtkTransformToGrid_h
 #define vtkTransformToGrid_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkFiltersHybridModule.h" // For export macro
+#include "vtkImageData.h"           // makes things a bit easier
 
 class vtkAbstractTransform;
 

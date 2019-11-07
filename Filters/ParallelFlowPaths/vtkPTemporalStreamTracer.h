@@ -40,8 +40,8 @@
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkTemporalStreamTracer.h"
 
-#include <vector> // STL Header
 #include <list>   // STL Header
+#include <vector> // STL Header
 
 class vtkMultiProcessController;
 

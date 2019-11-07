@@ -26,9 +26,9 @@
 #ifndef vtkRenderedGraphRepresentation_h
 #define vtkRenderedGraphRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
-#include "vtkSmartPointer.h" // for SP ivars
+#include "vtkSmartPointer.h"       // for SP ivars
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkApplyColors;

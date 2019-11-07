@@ -31,8 +31,8 @@
 #include <locale>
 #include <sstream>
 #include <string>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <vector>
 
 #ifdef MSC_VER

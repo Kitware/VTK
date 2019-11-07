@@ -47,8 +47,8 @@
 #ifndef vtkmLevelOfDetail_h
 #define vtkmLevelOfDetail_h
 
-#include "vtkPolyDataAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkPolyDataAlgorithm.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {

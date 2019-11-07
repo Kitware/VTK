@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkROIStencilSource.h"
 
-#include "vtkMath.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 

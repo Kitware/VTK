@@ -15,10 +15,10 @@
 
 #include "vtkTooltipItem.h"
 
+#include "vtkBrush.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
 #include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 

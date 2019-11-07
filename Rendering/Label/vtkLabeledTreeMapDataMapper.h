@@ -44,8 +44,8 @@
 #ifndef vtkLabeledTreeMapDataMapper_h
 #define vtkLabeledTreeMapDataMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkTree;
 class vtkPoints;

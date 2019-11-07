@@ -16,8 +16,8 @@
 #include "vtkRenderTimings.h"
 //#include "vtkNew.h"
 
-#include <vtksys/SystemInformation.hxx>
 #include <vtksys/RegularExpression.hxx>
+#include <vtksys/SystemInformation.hxx>
 
 #include "vtkAxis.h"
 #include "vtkChartLegend.h"
@@ -27,8 +27,8 @@
 #include "vtkDelimitedTextWriter.h"
 #include "vtkDoubleArray.h"
 #include "vtkPlot.h"
-#include "vtkTable.h"
 #include "vtkRenderWindow.h"
+#include "vtkTable.h"
 
 void vtkRTTestSequence::GetSequenceNumbers(int &xdim)
 {

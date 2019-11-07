@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkImageProperty.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkLookupTable.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageProperty);
 

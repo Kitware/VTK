@@ -14,12 +14,12 @@
  =========================================================================*/
 
 #include "vtkAMRDataSetCache.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkUniformGrid.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkTimerLog.h"
+#include "vtkUniformGrid.h"
 #include <cassert>
 
 vtkStandardNewMacro( vtkAMRDataSetCache );

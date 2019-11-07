@@ -21,13 +21,13 @@
 #define vtkSurfaceLICHelper_h
 #ifndef __VTK_WRAP__
 
-#include "vtkRenderingLICOpenGL2Module.h" // for export
-#include "vtkPixelExtent.h"
-#include "vtkWeakPointer.h"
-#include "vtkSmartPointer.h"
 #include "vtkOpenGLHelper.h"
-#include "vtk_glew.h"
+#include "vtkPixelExtent.h"
+#include "vtkRenderingLICOpenGL2Module.h" // for export
+#include "vtkSmartPointer.h"
 #include "vtkTextureObject.h"
+#include "vtkWeakPointer.h"
+#include "vtk_glew.h"
 
 #include <deque> // for methods
 

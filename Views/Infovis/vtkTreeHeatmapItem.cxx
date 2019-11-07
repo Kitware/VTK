@@ -16,8 +16,8 @@
 #include "vtkDendrogramItem.h"
 #include "vtkHeatmapItem.h"
 
-#include "vtkDataSetAttributes.h"
 #include "vtkBitArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"

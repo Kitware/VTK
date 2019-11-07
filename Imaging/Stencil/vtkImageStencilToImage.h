@@ -28,8 +28,8 @@
 #ifndef vtkImageStencilToImage_h
 #define vtkImageStencilToImage_h
 
-#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingStencilModule.h" // For export macro
 
 class VTKIMAGINGSTENCIL_EXPORT vtkImageStencilToImage : public vtkImageAlgorithm
 {

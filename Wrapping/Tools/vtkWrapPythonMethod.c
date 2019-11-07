@@ -20,10 +20,10 @@
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* -------------------------------------------------------------------- */
 /* prototypes for the methods used by the python wrappers */

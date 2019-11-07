@@ -21,22 +21,22 @@
 // are inserted into the XZ plane instead of the XY plane, and that
 // VTK_BEST_FITTING_PLANE mode is used.
 
-#include "vtkPolyData.h"
-#include "vtkDelaunay2D.h"
-#include "vtkCellArray.h"
-#include "vtkShrinkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkCellArray.h"
+#include "vtkDelaunay2D.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkShrinkPolyData.h"
 
 //#define WRITE_IMAGE
 
 #ifdef WRITE_IMAGE
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 #endif
 
 int TestDelaunay2DBestFittingPlane( int argc, char* argv[] )

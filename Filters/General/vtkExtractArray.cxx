@@ -19,9 +19,9 @@
 
 =========================================================================*/
 
+#include "vtkExtractArray.h"
 #include "vtkArrayData.h"
 #include "vtkCommand.h"
-#include "vtkExtractArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

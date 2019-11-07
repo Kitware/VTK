@@ -18,12 +18,12 @@
 // if the file exists and has non zero length.
 
 
+#include "vtkFFMPEGWriter.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
-#include "vtkFFMPEGWriter.h"
 #include "vtksys/SystemTools.hxx"
 
 int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])

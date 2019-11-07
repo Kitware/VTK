@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkPCAAnalysisFilter.h"
 #include "vtkExecutive.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyData.h"
-#include "vtkMath.h"
-#include "vtkFloatArray.h"
+#include "vtkTransformPolyDataFilter.h"
 
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 

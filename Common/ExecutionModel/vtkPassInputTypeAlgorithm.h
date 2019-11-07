@@ -34,8 +34,8 @@
 #ifndef vtkPassInputTypeAlgorithm_h
 #define vtkPassInputTypeAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataObject;
 class vtkGraph;

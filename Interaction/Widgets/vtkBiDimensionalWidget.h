@@ -94,8 +94,8 @@
 #ifndef vtkBiDimensionalWidget_h
 #define vtkBiDimensionalWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkBiDimensionalRepresentation;
 class vtkHandleWidget;

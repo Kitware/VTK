@@ -20,9 +20,9 @@
 
 #include "vtkInEdgeIterator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
+#include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkInEdgeIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkInEdgeIterator);

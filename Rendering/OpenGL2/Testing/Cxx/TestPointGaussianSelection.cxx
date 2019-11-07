@@ -12,24 +12,24 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkLookupTable.h"
 #include "vtkHardwareSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPointGaussianMapper.h"
 #include "vtkPointSource.h"
 #include "vtkProp3DCollection.h"
 #include "vtkRandomAttributeGenerator.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderedAreaPicker.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 

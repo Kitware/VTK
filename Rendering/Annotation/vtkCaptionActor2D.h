@@ -55,8 +55,8 @@
 #ifndef vtkCaptionActor2D_h
 #define vtkCaptionActor2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkActor;
 class vtkAlgorithmOutput;

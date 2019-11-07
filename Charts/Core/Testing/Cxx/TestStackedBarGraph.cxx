@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
-#include "vtkChartXY.h"
-#include "vtkChartLegend.h"
-#include "vtkPlotBar.h"
 #include "vtkAxis.h"
-#include "vtkTable.h"
-#include "vtkIntArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
-#include "vtkTextProperty.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkChartLegend.h"
+#include "vtkChartXY.h"
 #include "vtkColorSeries.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
+#include "vtkPlotBar.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTextProperty.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

@@ -13,21 +13,21 @@
 
 =========================================================================*/
 #include "vtkSphereHandleRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkPickingManager.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkCellPicker.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkProperty.h"
 #include "vtkAssemblyPath.h"
-#include "vtkMath.h"
+#include "vtkCellPicker.h"
+#include "vtkCoordinate.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
-#include "vtkCoordinate.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 vtkStandardNewMacro(vtkSphereHandleRepresentation);
 vtkCxxSetObjectMacro(vtkSphereHandleRepresentation,SelectedProperty,vtkProperty);

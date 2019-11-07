@@ -25,8 +25,8 @@
 #ifndef vtkPlaneCollection_h
 #define vtkPlaneCollection_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkPlane.h" // Needed for inline methods
 

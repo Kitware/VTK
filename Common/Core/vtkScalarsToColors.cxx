@@ -16,11 +16,11 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkCharArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTemplateAliasMacro.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
-#include "vtkObjectFactory.h"
 
 #include <map>
 

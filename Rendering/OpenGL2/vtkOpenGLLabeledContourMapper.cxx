@@ -20,6 +20,7 @@
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -28,7 +29,6 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextActor3D.h"
-#include "vtkOpenGLHelper.h"
 
 
 

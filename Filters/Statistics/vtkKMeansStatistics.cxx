@@ -1,22 +1,22 @@
 #include "vtkKMeansStatistics.h"
-#include "vtkStringArray.h"
 #include "vtkKMeansAssessFunctor.h"
 #include "vtkKMeansDistanceFunctor.h"
+#include "vtkStringArray.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
 
 #include <map>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
 vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);

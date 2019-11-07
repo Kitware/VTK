@@ -31,8 +31,8 @@
 #ifndef vtkRectilinearGridReader_h
 #define vtkRectilinearGridReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 
 class vtkRectilinearGrid;

@@ -12,19 +12,19 @@
 
 =========================================================================*/
 // Test case of empty input for vtkGlyph3DMapper. Refer to MR!1529.
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
-#include <vtkMath.h>
-#include <vtkSmartPointer.h>
-#include <vtkCubeSource.h>
-#include <vtkPolyData.h>
-#include <vtkPoints.h>
-#include <vtkCellArray.h>
+#include "vtkTestUtilities.h"
 #include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkCellArray.h>
+#include <vtkCubeSource.h>
 #include <vtkGlyph3DMapper.h>
+#include <vtkMath.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 
 int TestGlyph3DMapper2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

@@ -1,10 +1,10 @@
 
 #include "WebView.h"
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QToolButton>
 #include <QLineEdit>
 #include <QStyle>
+#include <QToolButton>
+#include <QVBoxLayout>
 
 WebView::WebView(QWidget* p)
 : QFrame(p)

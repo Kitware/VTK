@@ -19,30 +19,30 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkPolyDataMapper.h"
 
-#include "vtkTexturedSphereSource.h"
+#include "vtkEarthSource.h"
 #include "vtkPNMReader.h"
 #include "vtkTexture.h"
-#include "vtkEarthSource.h"
+#include "vtkTexturedSphereSource.h"
 
+#include "vtkCommand.h"
 #include "vtkProperty.h"
 #include "vtkTDxMotionEventInfo.h"
-#include "vtkCommand.h"
 
 #include "vtkInteractorStyle.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkTDxInteractorStyleCamera.h"
 #include "vtkTDxInteractorStyleGeo.h"
 #include "vtkTDxInteractorStyleSettings.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 
 const double angleSensitivity=0.02;
 const double translationSensitivity=0.001;

@@ -30,8 +30,8 @@
 #define vtkLassoStencilSource_h
 
 
-#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"
+#include "vtkImagingStencilModule.h" // For export macro
 
 class vtkPoints;
 class vtkSpline;

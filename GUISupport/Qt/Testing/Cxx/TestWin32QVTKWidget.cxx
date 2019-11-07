@@ -20,18 +20,18 @@ PURPOSE.  See the above copyright notice for more information.
 // trust the dashboard entry for this test unfortunately.
 
 
-#include "vtkSmartPointer.h"
 #include "QVTKWidget.h"
-#include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkNew.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 
-#include <QPointer>
-#include <QDockWidget>
-#include <QTabWidget>
-#include <QEvent>
 #include <QApplication>
+#include <QDockWidget>
+#include <QEvent>
 #include <QMainWindow>
+#include <QPointer>
+#include <QTabWidget>
 
 #define TOKEN_TO_STRING(TOK) # TOK
 #define STRINGIZE_TOKEN(TOK) TOKEN_TO_STRING(TOK)

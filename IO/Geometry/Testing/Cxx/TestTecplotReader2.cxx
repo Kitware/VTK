@@ -16,28 +16,28 @@
 // .SECTION Description
 //
 
-#include "vtkTecplotReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkTecplotReader.h"
 
 #include "vtkActor.h"
-#include "vtkCamera.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataGeometryFilter.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPointData.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
-#include "vtkDirectory.h"
-#include "vtkStringArray.h"
 #include "vtkArrayIterator.h"
 #include "vtkArrayIteratorTemplate.h"
-#include <vtksys/SystemTools.hxx>
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkCompositeDataGeometryFilter.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkDirectory.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTestUtilities.h"
 #include <string>
+#include <vtksys/SystemTools.hxx>
 
 using namespace std;
 

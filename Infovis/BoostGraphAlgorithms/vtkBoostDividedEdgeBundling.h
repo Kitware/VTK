@@ -42,8 +42,8 @@
 #ifndef vtkBoostDividedEdgeBundling_h
 #define vtkBoostDividedEdgeBundling_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostDividedEdgeBundling : public vtkDirectedGraphAlgorithm
 {

@@ -58,8 +58,8 @@
 #ifndef vtkAxisActor2D_h
 #define vtkAxisActor2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkPolyDataMapper2D;
 class vtkPolyData;

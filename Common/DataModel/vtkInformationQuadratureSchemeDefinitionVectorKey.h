@@ -25,9 +25,9 @@
 #ifndef vtkInformationQuadratureSchemeDefinitionVectorKey_h
 #define vtkInformationQuadratureSchemeDefinitionVectorKey_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkInformationKey.h"
+#include "vtkCommonDataModelModule.h"       // For export macro
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
+#include "vtkInformationKey.h"
 
 class vtkInformationQuadratureSchemeDefinitionVectorValue;
 class vtkXMLDataElement;

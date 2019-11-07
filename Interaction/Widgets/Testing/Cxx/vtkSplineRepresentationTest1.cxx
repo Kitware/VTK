@@ -5,8 +5,8 @@
 
 #include "WidgetTestingMacros.h"
 
-#include "vtkPointHandleRepresentation3D.h"
 #include "vtkPlaneSource.h"
+#include "vtkPointHandleRepresentation3D.h"
 
 #include "vtkPolyData.h"
 #include "vtkProperty.h"

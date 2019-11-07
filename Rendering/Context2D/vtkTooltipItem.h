@@ -27,10 +27,10 @@
 #ifndef vtkTooltipItem_h
 #define vtkTooltipItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkVector.h"     // Needed for vtkVector2f
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkStdString.h"  // For vtkStdString ivars
+#include "vtkVector.h"     // Needed for vtkVector2f
 
 class vtkPen;
 class vtkBrush;

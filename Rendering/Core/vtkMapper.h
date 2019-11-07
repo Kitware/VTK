@@ -47,10 +47,10 @@
 #ifndef vtkMapper_h
 #define vtkMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
-#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include <vector> // for method args
 
 #define VTK_RESOLVE_OFF 0

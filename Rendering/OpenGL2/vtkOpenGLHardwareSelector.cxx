@@ -16,23 +16,23 @@
 
 #include "vtk_glew.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 #include "vtkOpenGLError.h"
 
 //#define vtkOpenGLHardwareSelectorDEBUG
 #ifdef vtkOpenGLHardwareSelectorDEBUG
-#include "vtkPNMWriter.h"
 #include "vtkImageImport.h"
 #include "vtkNew.h"
-#include <sstream>
+#include "vtkPNMWriter.h"
 #include "vtkWindows.h"  // OK on UNix etc
+#include <sstream>
 #endif
 
 #define ID_OFFSET 1

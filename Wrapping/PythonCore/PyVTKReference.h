@@ -22,9 +22,9 @@
 #ifndef PyVTKReference_h
 #define PyVTKReference_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 // The PyVTKReference is a wrapper around a PyObject of
 // type int or float.

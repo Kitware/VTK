@@ -35,9 +35,9 @@
 #include "vtkGUISupportQtModule.h" // For export macro
 
 #include "vtkQtAbstractModelAdapter.h"
+#include "vtkType.h" // Needed for vtkIdType
 #include <QHash> // Needed for the decoration map
 #include <QVector> // Needed for the index map
-#include "vtkType.h" // Needed for vtkIdType
 
 class vtkSelection;
 class vtkTree;

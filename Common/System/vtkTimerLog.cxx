@@ -29,9 +29,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdarg>
 #include <iomanip>
 #include <iterator>
-#include <cstdarg>
 #include <string>
 #include <vector>
 
@@ -42,8 +42,8 @@
 #endif
 
 #ifndef _WIN32_WCE
-#include <sys/types.h>
 #include <ctime>
+#include <sys/types.h>
 #endif
 #include "vtkObjectFactory.h"
 

@@ -22,8 +22,8 @@
 #ifndef vtkImageCursor3D_h
 #define vtkImageCursor3D_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageInPlaceFilter.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 class VTKIMAGINGHYBRID_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
 {

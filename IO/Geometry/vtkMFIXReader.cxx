@@ -19,24 +19,24 @@
 
 #include "vtkMFIXReader.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataArraySelection.h"
+#include "vtkDoubleArray.h"
+#include "vtkErrorCode.h"
+#include "vtkFloatArray.h"
+#include "vtkHexahedron.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkErrorCode.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
-#include "vtkCellArray.h"
-#include "vtkHexahedron.h"
-#include "vtkFloatArray.h"
-#include <string>
-#include "vtkDataArraySelection.h"
-#include "vtkWedge.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkQuad.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkWedge.h"
+#include <string>
 
 vtkStandardNewMacro(vtkMFIXReader);
 

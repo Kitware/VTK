@@ -24,9 +24,9 @@
 #define vtkPhyloXMLTreeWriter_h
 
 #include "vtkIOInfovisModule.h" // For export macro
-#include "vtkXMLWriter.h"
 #include "vtkSmartPointer.h"    // For SP ivars
 #include "vtkStdString.h"       // For get/set ivars
+#include "vtkXMLWriter.h"
 
 class vtkStringArray;
 class vtkTree;

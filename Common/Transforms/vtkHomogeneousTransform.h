@@ -26,8 +26,8 @@
 #ifndef vtkHomogeneousTransform_h
 #define vtkHomogeneousTransform_h
 
-#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkAbstractTransform.h"
+#include "vtkCommonTransformsModule.h" // For export macro
 
 class vtkMatrix4x4;
 

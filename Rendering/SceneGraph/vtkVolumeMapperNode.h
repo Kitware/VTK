@@ -24,8 +24,8 @@
 #ifndef vtkVolumeMapperNode_h
 #define vtkVolumeMapperNode_h
 
-#include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkMapperNode.h"
+#include "vtkRenderingSceneGraphModule.h" // For export macro
 
 #include <vector> //for results
 

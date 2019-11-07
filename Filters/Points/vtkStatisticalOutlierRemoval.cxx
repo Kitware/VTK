@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkStatisticalOutlierRemoval.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkStaticPointLocator.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
-#include "vtkMath.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
 
 vtkStandardNewMacro(vtkStatisticalOutlierRemoval);
 vtkCxxSetObjectMacro(vtkStatisticalOutlierRemoval,Locator,vtkAbstractPointLocator);

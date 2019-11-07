@@ -27,8 +27,8 @@
 #ifndef vtkTransformCollection_h
 #define vtkTransformCollection_h
 
-#include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonTransformsModule.h" // For export macro
 
 #include "vtkTransform.h" // Needed for inline methods
 

@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
-#include "vtkCellIterator.h"
 #include "vtkContextDevice2D.h"
-#include "vtkPen.h"
+#include "vtkAbstractMapper.h" // for VTK_SCALAR_MODE defines
 #include "vtkBrush.h"
+#include "vtkCellIterator.h"
 #include "vtkMathTextUtilities.h"
+#include "vtkPen.h"
 #include "vtkPolyData.h"
-#include "vtkTextProperty.h"
 #include "vtkRect.h"
 #include "vtkStdString.h"
+#include "vtkTextProperty.h"
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"

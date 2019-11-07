@@ -22,11 +22,11 @@
 #ifndef vtkGenericDataArrayLookupHelper_h
 #define vtkGenericDataArrayLookupHelper_h
 
+#include "vtkIdList.h"
 #include <algorithm>
 #include <cmath>
 #include <unordered_map>
 #include <vector>
-#include "vtkIdList.h"
 
 namespace detail
 {

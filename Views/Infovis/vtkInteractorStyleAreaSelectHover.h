@@ -34,8 +34,8 @@
 #ifndef vtkInteractorStyleAreaSelectHover_h
 #define vtkInteractorStyleAreaSelectHover_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleRubberBand2D.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkAreaLayout;
 class vtkBalloonRepresentation;

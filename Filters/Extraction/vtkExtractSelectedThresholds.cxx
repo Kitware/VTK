@@ -15,8 +15,8 @@
 #include "vtkExtractSelectedThresholds.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"

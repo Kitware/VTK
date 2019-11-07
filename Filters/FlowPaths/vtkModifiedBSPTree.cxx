@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkObjectFactory.h"
 #include "vtkModifiedBSPTree.h"
-#include "vtkPolyData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdListCollection.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 
-#include <stack>
-#include <vector>
 #include <algorithm>
 #include <functional>
+#include <stack>
+#include <vector>
 
 #include "vtkAppendPolyData.h"
 #include "vtkCubeSource.h"

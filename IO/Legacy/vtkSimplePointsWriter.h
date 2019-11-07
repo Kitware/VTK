@@ -25,8 +25,8 @@
 #ifndef vtkSimplePointsWriter_h
 #define vtkSimplePointsWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataSetWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class VTKIOLEGACY_EXPORT vtkSimplePointsWriter : public vtkDataSetWriter
 {

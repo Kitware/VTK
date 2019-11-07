@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
-#include "vtkImageData.h"
-#include "vtkImageAccumulate.h"
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageAccumulate.h"
+#include "vtkImageData.h"
+#include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 
 int ImageAccumulateLarge(int argc, char *argv[])
 {

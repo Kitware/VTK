@@ -19,15 +19,15 @@
 #include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkMatrix4x4.h"
+#include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkOSPRayPass.h"
-#include "vtkOSPRayRendererNode.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \

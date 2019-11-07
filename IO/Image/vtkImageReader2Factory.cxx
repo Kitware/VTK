@@ -19,13 +19,13 @@
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Collection.h"
 #include "vtkJPEGReader.h"
+#include "vtkMetaImageReader.h"
 #include "vtkObjectFactory.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkPNGReader.h"
 #include "vtkPNMReader.h"
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
-#include "vtkMetaImageReader.h"
 
 // Destroying the prototype readers requires information keys.
 // Include the manager here to make sure the keys are not destroyed

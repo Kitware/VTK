@@ -20,12 +20,12 @@
 #include "vtkNew.h"
 #include "vtkVariantArray.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 

@@ -22,15 +22,15 @@
 #include "vtkDirectedAcyclicGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkInEdgeIterator.h"
+#include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
-#include "vtkTree.h"
-#include "vtkVertexListIterator.h"
-#include "vtkVariantArray.h"
 #include "vtkStringArray.h"
-#include "vtkIntArray.h"
+#include "vtkTree.h"
+#include "vtkVariantArray.h"
+#include "vtkVertexListIterator.h"
 
 
 #define VTK_CREATE(type, name) \

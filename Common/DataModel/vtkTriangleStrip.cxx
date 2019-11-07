@@ -16,11 +16,11 @@
 
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
-#include "vtkTriangle.h"
 #include "vtkPoints.h"
-#include "vtkIncrementalPointLocator.h"
+#include "vtkTriangle.h"
 
 vtkStandardNewMacro(vtkTriangleStrip);
 

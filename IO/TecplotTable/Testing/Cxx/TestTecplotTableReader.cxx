@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include <vtkTecplotTableReader.h>
 #include <vtkTable.h>
+#include <vtkTecplotTableReader.h>
 #include <vtkTestUtilities.h>
 
 // This tests the ability to read a Tecplot table. The test file contains residuals from a CFD calculation.

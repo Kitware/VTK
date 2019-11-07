@@ -39,8 +39,8 @@
 #ifndef vtkExtractVOI_h
 #define vtkExtractVOI_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 // Forward Declarations
 class vtkExtractStructuredGridHelper;

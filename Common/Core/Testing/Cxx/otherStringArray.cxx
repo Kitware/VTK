@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#include "vtkDebugLeaks.h"
 #include "vtkCharArray.h"
+#include "vtkDebugLeaks.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkStringArray.h"
-#include "vtkIdList.h"
 
 #include <sstream>
 

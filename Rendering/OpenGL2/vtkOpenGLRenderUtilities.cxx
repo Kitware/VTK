@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtk_glew.h"
 #include "vtkOpenGLRenderUtilities.h"
+#include "vtk_glew.h"
 
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"

@@ -23,8 +23,8 @@
 #ifndef vtkImageGaussianSource_h
 #define vtkImageGaussianSource_h
 
-#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingSourcesModule.h" // For export macro
 
 class VTKIMAGINGSOURCES_EXPORT vtkImageGaussianSource : public vtkImageAlgorithm
 {

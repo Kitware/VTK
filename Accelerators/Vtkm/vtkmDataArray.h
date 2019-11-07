@@ -24,14 +24,14 @@
 #define vtkmDataArray_h
 
 #include "vtkAcceleratorsVTKmModule.h" // For export macro
-#include "vtkmConfig.h" // For template export
 #include "vtkGenericDataArray.h"
+#include "vtkmConfig.h" // For template export
 
-#include <vtkm/cont/ArrayHandle.h> // For vtkm::cont::ArrayHandle
-#include <vtkm/cont/VariantArrayHandle.h> // For vtkm::cont::VariantArrayHandle
 #include <vtkm/ListTag.h> // For vtkm::ListTagBase
 #include <vtkm/VecFromPortal.h> // For vtkm::VecFromPortal
 #include <vtkm/VecTraits.h> // For vtkm::VecTraits
+#include <vtkm/cont/ArrayHandle.h> // For vtkm::cont::ArrayHandle
+#include <vtkm/cont/VariantArrayHandle.h> // For vtkm::cont::VariantArrayHandle
 
 #include <memory> // For unique_ptr
 

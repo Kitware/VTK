@@ -26,13 +26,13 @@
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
-#include "vtkQuadric.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkQuadric.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSampleFunction.h"
 
 int TestHyperTreeGridTernary3DAxisClipCylinder( int argc, char* argv[] )

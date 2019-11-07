@@ -13,11 +13,11 @@
 
 =========================================================================*/
 #include "vtkActor2D.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkImageProperty.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkPNGReader.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"

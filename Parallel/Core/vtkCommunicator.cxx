@@ -35,8 +35,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
-#include "vtkTypeTraits.h"
 #include "vtkTable.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 

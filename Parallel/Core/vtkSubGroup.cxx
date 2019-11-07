@@ -17,9 +17,9 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkObjectFactory.h"
-#include "vtkMultiProcessController.h"
 #include "vtkSubGroup.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 #include <algorithm>
 

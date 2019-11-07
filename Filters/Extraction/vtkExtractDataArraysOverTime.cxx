@@ -34,7 +34,6 @@
 #include "vtkSplitColumnComponents.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-#include "vtkCharArray.h"
 #include "vtkWeakPointer.h"
 
 #include <algorithm>

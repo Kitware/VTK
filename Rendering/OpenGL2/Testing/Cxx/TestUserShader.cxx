@@ -12,15 +12,15 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPLYReader.h"
-#include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProperty.h"
 #include "vtkTriangleMeshPointNormals.h"
 

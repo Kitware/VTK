@@ -1,7 +1,7 @@
 #include "vtkAMRInterpolatedVelocityField.h"
 #include "vtkObjectFactory.h"
-#include "vtkUniformGrid.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkUniformGrid.h"
 #include <cassert>
 //----------------------------------------------------------------------------
 namespace

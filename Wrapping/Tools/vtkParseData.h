@@ -26,9 +26,9 @@
 #ifndef vtkParseData_h
 #define vtkParseData_h
 
-#include "vtkWrappingToolsModule.h"
-#include "vtkParseType.h"
 #include "vtkParseString.h"
+#include "vtkParseType.h"
+#include "vtkWrappingToolsModule.h"
 
 /* legacy */
 #ifndef VTK_PARSE_LEGACY_REMOVE

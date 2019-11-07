@@ -37,9 +37,9 @@
 #ifndef vtkHyperTreeGridContour_h
 #define vtkHyperTreeGridContour_h
 
+#include "vtkContourValues.h"          // Needed for inline methods
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
-#include "vtkContourValues.h" // Needed for inline methods
 
 #include <vector> // For STL
 

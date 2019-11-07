@@ -38,8 +38,8 @@
 #ifndef vtkPCellSizeFilter_h
 #define vtkPCellSizeFilter_h
 
-#include "vtkFiltersParallelVerdictModule.h" // For export macro
 #include "vtkCellSizeFilter.h"
+#include "vtkFiltersParallelVerdictModule.h" // For export macro
 
 class VTKFILTERSPARALLELVERDICT_EXPORT vtkPCellSizeFilter : public vtkCellSizeFilter
 {

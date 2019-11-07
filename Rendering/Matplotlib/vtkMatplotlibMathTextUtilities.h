@@ -28,8 +28,8 @@
 #ifndef vtkMatplotlibMathTextUtilities_h
 #define vtkMatplotlibMathTextUtilities_h
 
-#include "vtkRenderingMatplotlibModule.h" // For export macro
 #include "vtkMathTextUtilities.h"
+#include "vtkRenderingMatplotlibModule.h" // For export macro
 
 struct _object;
 typedef struct _object PyObject;

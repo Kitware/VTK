@@ -15,8 +15,8 @@
 #include "vtkBackgroundColorMonitor.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkBackgroundColorMonitor)

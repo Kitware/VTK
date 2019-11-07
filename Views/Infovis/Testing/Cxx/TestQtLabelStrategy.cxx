@@ -17,6 +17,8 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
+#include "vtkActor2D.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataRepresentation.h"
@@ -24,25 +26,23 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkLabelPlacementMapper.h"
+#include "vtkPointData.h"
+#include "vtkPointSetToLabelHierarchy.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkQtLabelRenderStrategy.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 #include "vtkUnicodeString.h"
 #include "vtkUnicodeStringArray.h"
 #include "vtkXMLTreeReader.h"
-#include "vtkPointSetToLabelHierarchy.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkLabelPlacementMapper.h"
-#include "vtkActor2D.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPointData.h"
-#include "vtkTextProperty.h"
-#include "vtkQtLabelRenderStrategy.h"
 
 #include <sstream>
 #include <time.h>

@@ -16,20 +16,20 @@
 
 #include "vtkProjectSphereFilter.h"
 
-#include "vtkCellIterator.h"
-#include "vtkSphereSource.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkPointLocator.h"
+#include "vtkCellIterator.h"
 #include "vtkFloatArray.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPoints.h"
+#include "vtkSphereSource.h"
 
-#include "vtkVertex.h"
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
+#include "vtkVertex.h"
 
-#include "vtkExecutive.h"
 #include "vtkCommand.h"
+#include "vtkExecutive.h"
 #include "vtkTestErrorObserver.h"
 
 #include <sstream>

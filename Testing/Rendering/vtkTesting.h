@@ -62,10 +62,10 @@
 #ifndef vtkTesting_h
 #define vtkTesting_h
 
-#include "vtkTestingRenderingModule.h" // For export macro
 #include "vtkObject.h"
-#include <vector> // STL Header used for argv
-#include <string> // STL Header used for argv
+#include "vtkTestingRenderingModule.h" // For export macro
+#include <string>                      // STL Header used for argv
+#include <vector>                      // STL Header used for argv
 
 class vtkAlgorithm;
 class vtkRenderWindow;

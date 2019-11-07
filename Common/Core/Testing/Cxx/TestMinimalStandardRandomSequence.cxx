@@ -25,9 +25,9 @@
 // 31, 10 (Oct. 1988) pp. 1192-1201.
 // Code is at page 1195, "Integer version 2"
 
-#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkDebugLeaks.h"
 #include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 
 int TestMinimalStandardRandomSequence(int,char *[])
 {

@@ -34,9 +34,9 @@
 #ifndef vtkMutableGraphHelper_h
 #define vtkMutableGraphHelper_h
 
+#include "vtkGraph.h"             // For vtkEdgeType
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkGraph.h" // For vtkEdgeType
 
 class vtkDataSetAttributes;
 class vtkGraph;

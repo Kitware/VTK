@@ -44,8 +44,8 @@
 #ifndef vtkQtTreeRingLabelMapper_h
 #define vtkQtTreeRingLabelMapper_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
 class QImage;
 

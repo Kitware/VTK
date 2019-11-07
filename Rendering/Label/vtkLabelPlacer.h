@@ -42,8 +42,8 @@
 #ifndef vtkLabelPlacer_h
 #define vtkLabelPlacer_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkRenderer;
 class vtkCoordinate;

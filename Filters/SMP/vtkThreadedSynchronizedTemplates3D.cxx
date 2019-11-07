@@ -42,9 +42,9 @@
 
 #include <cmath>
 
-#include "vtkSMPTools.h"
-#include "vtkNew.h"
 #include "vtkExtentTranslator.h"
+#include "vtkNew.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkThreadedSynchronizedTemplates3D);
 

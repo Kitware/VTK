@@ -1,10 +1,10 @@
 #import "BasicVTKView.h"
 
-#import "vtkRenderer.h"
+#import "vtkCocoaRenderWindow.h"
+#import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkRenderWindow.h"
 #import "vtkRenderWindowInteractor.h"
-#import "vtkCocoaRenderWindowInteractor.h"
-#import "vtkCocoaRenderWindow.h"
+#import "vtkRenderer.h"
 
 @implementation BasicVTKView
 

@@ -55,8 +55,8 @@
 #ifndef vtkGraphHierarchicalBundleEdges_h
 #define vtkGraphHierarchicalBundleEdges_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkGraphHierarchicalBundleEdges : public vtkGraphAlgorithm
 {

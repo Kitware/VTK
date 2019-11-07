@@ -35,8 +35,8 @@
 #ifndef vtkDistributedDataFilter_h
 #define vtkDistributedDataFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 #include <vector> // for vector
 

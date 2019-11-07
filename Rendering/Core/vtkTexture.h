@@ -46,9 +46,9 @@
 #ifndef vtkTexture_h
 #define vtkTexture_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkSystemIncludes.h" // For VTK_COLOR_MODE_*
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSystemIncludes.h"      // For VTK_COLOR_MODE_*
 
 class vtkImageData;
 class vtkScalarsToColors;

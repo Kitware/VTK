@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkPlanesIntersection.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkTetra.h"
-#include "vtkPoints.h"
 #include "vtkBoundingBox.h"
-#include "vtkRegularPolygonSource.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkPoints.h"
+#include "vtkRegularPolygonSource.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkTetra.h"
 
 #include <sstream>
 static vtkSmartPointer<vtkTetra> MakeTetra();

@@ -42,9 +42,9 @@
 #ifndef vtkGraphAlgorithm_h
 #define vtkGraphAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkGraph.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkGraph.h"                      // makes things a bit easier
 
 class vtkDataSet;
 

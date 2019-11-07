@@ -27,11 +27,11 @@
 #include "vtkPointSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRTAnalyticSource.h"
 #include "vtkRungeKutta2.h"
 #include "vtkTrivialProducer.h"
 

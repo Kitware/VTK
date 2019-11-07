@@ -10,25 +10,25 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkOBJImporter.h"
 #include "vtkOBJImporterInternals.h"
 #include "vtkBMPReader.h"
 #include "vtkJPEGReader.h"
+#include "vtkOBJImporter.h"
 #include "vtkPNGReader.h"
-#include "vtkTIFFReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTIFFReader.h"
 #include "vtkTexture.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTransform.h"
+#include "vtksys/SystemTools.hxx"
 
-#include <iostream>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <map>
 
 #if defined(_WIN32)

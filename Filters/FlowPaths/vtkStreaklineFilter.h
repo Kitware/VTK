@@ -27,8 +27,8 @@
 #define vtkStreaklineFilter_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"
+#include "vtkSmartPointer.h" // For protected ivars.
 
 class VTKFILTERSFLOWPATHS_EXPORT StreaklineFilterInternal
 {

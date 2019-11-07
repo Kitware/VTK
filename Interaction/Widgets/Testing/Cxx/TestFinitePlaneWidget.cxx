@@ -22,9 +22,9 @@
 #include <vtkInteractorEventRecorder.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 const char eventLog[] =
   "EnterEvent 273 40 0 0 0 0 0\n"

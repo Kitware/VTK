@@ -41,18 +41,18 @@
 // This class is preceded by some file-static constants and utility routines.
 
 #include "vtkLSDynaReader.h"
-#include "vtkLSDynaSummaryParser.h"
-#include "vtkLSDynaPartCollection.h"
 #include "LSDynaFamily.h"
 #include "LSDynaMetaData.h"
+#include "vtkLSDynaPartCollection.h"
+#include "vtkLSDynaSummaryParser.h"
 
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
+#include <cassert>
+#include <map>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <map>
-#include <cassert>
 
 #include "vtkCellType.h"
 #include "vtkDataObject.h"

@@ -24,8 +24,8 @@
 #ifndef vtkCompositeDataSetAlgorithm_h
 #define vtkCompositeDataSetAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkCompositeDataSet;
 

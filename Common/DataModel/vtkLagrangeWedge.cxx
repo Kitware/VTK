@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkWedge.h"
 #include "vtkIdList.h"
 #include "vtkLagrangeCurve.h"
 #include "vtkLagrangeInterpolation.h"
@@ -30,6 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
+#include "vtkWedge.h"
 
 // VTK_21_POINT_WEDGE is defined (or not) in vtkLagrangeInterpolation.h
 #ifdef VTK_21_POINT_WEDGE

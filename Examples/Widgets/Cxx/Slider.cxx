@@ -1,23 +1,19 @@
-#include <vtkSphereSource.h>
-#include <vtkSmartPointer.h>
-#include <vtkPolyData.h>
-#include <vtkSliderWidget.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCommand.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSliderRepresentation3D.h>
+#include <vtkSliderWidget.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkCommand.h>
 #include <vtkWidgetEvent.h>
-#include <vtkCallbackCommand.h>
 #include <vtkWidgetEventTranslator.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkSliderWidget.h>
-#include <vtkSliderRepresentation3D.h>
-#include <vtkProperty.h>
 
 // The callback does the work.
 // The callback keeps a pointer to the sphere whose resolution is

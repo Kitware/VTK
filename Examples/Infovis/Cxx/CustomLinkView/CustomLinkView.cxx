@@ -5,15 +5,15 @@
 -------------------------------------------------------------------------*/
 
 
-#include "ui_CustomLinkView.h"
 #include "CustomLinkView.h"
+#include "ui_CustomLinkView.h"
 
+#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkAnnotationLink.h>
 #include <vtkCommand.h>
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkEventQtSlotConnect.h>
-#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeView.h>

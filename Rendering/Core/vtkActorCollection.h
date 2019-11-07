@@ -27,9 +27,9 @@
 #ifndef vtkActorCollection_h
 #define vtkActorCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkPropCollection.h"
 #include "vtkActor.h" // For inline methods
+#include "vtkPropCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProperty;
 

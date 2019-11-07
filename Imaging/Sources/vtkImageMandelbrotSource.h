@@ -30,8 +30,8 @@
 #ifndef vtkImageMandelbrotSource_h
 #define vtkImageMandelbrotSource_h
 
-#include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingSourcesModule.h" // For export macro
 
 class VTKIMAGINGSOURCES_EXPORT vtkImageMandelbrotSource : public vtkImageAlgorithm
 {

@@ -27,8 +27,8 @@
 #define vtkImageToImageStencil_h
 
 
-#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilAlgorithm.h"
+#include "vtkImagingStencilModule.h" // For export macro
 
 class vtkImageData;
 

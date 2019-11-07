@@ -15,12 +15,12 @@
 
 #include <vtkSmartPointer.h>
 
-#include <vtkTIFFReader.h>
+#include <vtkImageData.h>
 #include <vtkImageViewer2.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkImageData.h>
+#include <vtkTIFFReader.h>
 
 int TestCompressedTIFFReader(int argc, char* argv[])
 {

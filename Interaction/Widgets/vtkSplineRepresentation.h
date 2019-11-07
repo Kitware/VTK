@@ -28,8 +28,8 @@
 #ifndef vtkSplineRepresentation_h
 #define vtkSplineRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkCurveRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkCellPicker;

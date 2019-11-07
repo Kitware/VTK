@@ -29,8 +29,8 @@
 #ifndef vtkPythonOverload_h
 #define vtkPythonOverload_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonOverload
 {

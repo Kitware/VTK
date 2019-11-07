@@ -15,13 +15,13 @@
 
 #include "vtkAbstractCellLocator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCellArray.h"
+#include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkPoints.h"
-#include "vtkDataSet.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 vtkAbstractCellLocator::vtkAbstractCellLocator()

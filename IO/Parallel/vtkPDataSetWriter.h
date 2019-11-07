@@ -23,8 +23,8 @@
 #ifndef vtkPDataSetWriter_h
 #define vtkPDataSetWriter_h
 
-#include "vtkIOParallelModule.h" // For export macro
 #include "vtkDataSetWriter.h"
+#include "vtkIOParallelModule.h" // For export macro
 
 #include <map> // for keeping track of extents
 #include <vector> // for keeping track of extents

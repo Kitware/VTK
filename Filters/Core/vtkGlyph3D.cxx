@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkGlyph3D.h"
 
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"

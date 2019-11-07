@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkUnstructuredGridAlgorithm);
 

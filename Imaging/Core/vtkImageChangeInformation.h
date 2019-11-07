@@ -24,8 +24,8 @@
 #ifndef vtkImageChangeInformation_h
 #define vtkImageChangeInformation_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkImageData;
 

@@ -45,8 +45,8 @@
 #ifndef vtkSelectVisiblePoints_h
 #define vtkSelectVisiblePoints_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkMatrix4x4;

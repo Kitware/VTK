@@ -28,8 +28,8 @@
 #ifndef vtkRayCastImageDisplayHelper_h
 #define vtkRayCastImageDisplayHelper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkFixedPointRayCastImage;
 class vtkRenderer;

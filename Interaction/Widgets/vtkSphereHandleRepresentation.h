@@ -27,9 +27,9 @@
 #ifndef vtkSphereHandleRepresentation_h
 #define vtkSphereHandleRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
-#include "vtkSphereSource.h" // Needed for delegation to sphere
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkSphereSource.h"             // Needed for delegation to sphere
 
 class vtkSphereSource;
 class vtkProperty;

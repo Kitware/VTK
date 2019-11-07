@@ -21,8 +21,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
 vtkStandardNewMacro(vtkArrayDataWriter);
 

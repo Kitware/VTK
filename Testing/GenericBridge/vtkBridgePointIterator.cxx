@@ -23,13 +23,13 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
 
+#include "vtkBridgePointIteratorOnCell.h"
 #include "vtkBridgePointIteratorOnDataSet.h"
 #include "vtkBridgePointIteratorOne.h"
-#include "vtkBridgePointIteratorOnCell.h"
 
 vtkStandardNewMacro(vtkBridgePointIterator);
 

@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkViewDependentErrorMetric.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkCoordinate.h"
+#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
-#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
 #include "vtkMath.h"
-#include <cassert>
-#include "vtkCoordinate.h"
+#include "vtkObjectFactory.h"
 #include "vtkViewport.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkViewDependentErrorMetric);
 

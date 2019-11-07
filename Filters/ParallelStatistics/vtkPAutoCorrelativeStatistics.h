@@ -27,8 +27,8 @@
 #ifndef vtkPAutoCorrelativeStatistics_h
 #define vtkPAutoCorrelativeStatistics_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkAutoCorrelativeStatistics.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;

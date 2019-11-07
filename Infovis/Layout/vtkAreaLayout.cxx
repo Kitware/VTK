@@ -33,8 +33,8 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
-#include "vtkTreeFieldAggregator.h"
 #include "vtkTreeDFSIterator.h"
+#include "vtkTreeFieldAggregator.h"
 
 vtkStandardNewMacro(vtkAreaLayout);
 vtkCxxSetObjectMacro(vtkAreaLayout, LayoutStrategy, vtkAreaLayoutStrategy);

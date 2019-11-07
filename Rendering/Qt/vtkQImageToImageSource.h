@@ -22,8 +22,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkQImageToImageSource_h
 #define vtkQImageToImageSource_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
 class QImage;
 

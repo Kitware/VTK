@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkRendererCollection.h"
-#include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 
 #include <cstdlib>
 

@@ -28,8 +28,8 @@
 #ifndef vtkGenericVertexAttributeMapping_h
 #define vtkGenericVertexAttributeMapping_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkGenericVertexAttributeMapping : public vtkObject
 {

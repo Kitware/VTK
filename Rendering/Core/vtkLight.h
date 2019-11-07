@@ -41,8 +41,8 @@
 #ifndef vtkLight_h
 #define vtkLight_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 /* need for virtual function */
 class vtkInformation;

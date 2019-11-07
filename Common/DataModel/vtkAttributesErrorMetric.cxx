@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkAttributesErrorMetric.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
-#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
+#include "vtkObjectFactory.h"
 #include <cassert>
 
 vtkStandardNewMacro(vtkAttributesErrorMetric);

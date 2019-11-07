@@ -41,10 +41,10 @@
 #ifndef vtkShadowMapPass_h
 #define vtkShadowMapPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
-#include <vector>  // STL Header
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <string> // For member variables.
+#include <vector>  // STL Header
 
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;

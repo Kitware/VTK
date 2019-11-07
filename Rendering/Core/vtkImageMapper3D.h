@@ -29,8 +29,8 @@
 #ifndef vtkImageMapper3D_h
 #define vtkImageMapper3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkProp3D;

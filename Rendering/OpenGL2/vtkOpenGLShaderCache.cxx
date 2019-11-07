@@ -17,10 +17,10 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLHelper.h"
 
 #include <cmath>
 #include <sstream>

@@ -65,9 +65,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPASReader.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkCellArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"

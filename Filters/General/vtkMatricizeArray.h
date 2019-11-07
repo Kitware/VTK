@@ -36,8 +36,8 @@
 #ifndef vtkMatricizeArray_h
 #define vtkMatricizeArray_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkMatricizeArray : public vtkArrayDataAlgorithm
 {

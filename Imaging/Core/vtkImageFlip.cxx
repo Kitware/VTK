@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageFlip.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSetAttributes.h"
 
 vtkStandardNewMacro(vtkImageFlip);
 

@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPartitionedDataSetCollection.h"
-#include "vtkPartitionedDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
 

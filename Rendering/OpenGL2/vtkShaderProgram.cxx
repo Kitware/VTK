@@ -14,14 +14,14 @@
 #include "vtkShaderProgram.h"
 #include "vtkObjectFactory.h"
 
-#include "vtk_glew.h"
-#include "vtkShader.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkShader.h"
 #include "vtkTransformFeedback.h"
 #include "vtkTypeTraits.h"
+#include "vtk_glew.h"
 
 #include <cassert>
 #include <iostream>

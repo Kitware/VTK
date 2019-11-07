@@ -16,8 +16,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkDataSet.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"

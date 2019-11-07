@@ -27,8 +27,8 @@
 #include "vtkStringArray.h"
 #include "vtkUnsignedIntArray.h"
 
-#include <vector>
 #include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkSelectionSource);
 

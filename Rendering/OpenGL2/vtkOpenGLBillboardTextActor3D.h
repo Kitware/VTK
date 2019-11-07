@@ -20,8 +20,8 @@
 #ifndef vtkOpenGLBillboardTextActor3D_h
 #define vtkOpenGLBillboardTextActor3D_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkBillboardTextActor3D.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLGL2PSHelper;
 

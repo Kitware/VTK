@@ -39,13 +39,13 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
-#include "vtkUndirectedGraph.h"
-#include "vtkVertexListIterator.h"
-#include "vtkVariantArray.h"
 #include "vtkStringArray.h"
+#include "vtkUndirectedGraph.h"
+#include "vtkVariantArray.h"
+#include "vtkVertexListIterator.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <set>
 #include <vector>
 

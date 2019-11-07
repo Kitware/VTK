@@ -30,9 +30,9 @@
 #ifndef vtkSQLDatabaseGraphSource_h
 #define vtkSQLDatabaseGraphSource_h
 
+#include "vtkGraphAlgorithm.h"
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkStdString.h"
-#include "vtkGraphAlgorithm.h"
 
 class vtkEventForwarderCommand;
 

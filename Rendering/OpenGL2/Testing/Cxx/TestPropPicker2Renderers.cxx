@@ -25,14 +25,14 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkPolyDataReader.h>
 #include <vtkPropPicker.h>
-#include <vtkRendererCollection.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataNormals.h>
+#include <vtkRendererCollection.h>
 #include <vtkSphereSource.h>
 
 bool corner = true;

@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkAnnotationLayersAlgorithm.h"
 
+#include "vtkAnnotationLayers.h"
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkAnnotationLayers.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkAnnotationLayersAlgorithm);

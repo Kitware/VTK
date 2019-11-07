@@ -35,10 +35,10 @@
 #ifndef Q_VTK_WIDGET_H
 #define Q_VTK_WIDGET_H
 
-#include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKInteractor.h"
-#include <QWidget>
+#include "vtkGUISupportQtModule.h" // For export macro
 #include <QTimer>
+#include <QWidget>
 
 class QVTKInteractorAdapter;
 

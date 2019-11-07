@@ -22,8 +22,8 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkDemandDrivenPipeline.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"

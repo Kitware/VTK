@@ -27,25 +27,25 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkConvertSelection.h"
-#include "vtkMath.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkFloatArray.h"
-#include "vtkDataArray.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 
 #include "vtkBoostGraphAdapter.h"
 #include "vtkDirectedGraph.h"
 #include "vtkUndirectedGraph.h"
 
-#include <boost/graph/visitors.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/visitors.hpp>
 #include <boost/pending/queue.hpp>
 
 #include <utility> // for pair

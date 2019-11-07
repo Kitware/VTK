@@ -16,24 +16,24 @@
 #include "vtkActor.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkContourFilter.h"
 #include "vtkInformation.h"
-#include "vtkCompositePolyDataMapper.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTemporalDataSetCache.h"
 #include "vtkTemporalInterpolator.h"
 #include "vtkThreshold.h"
-#include "vtkSphereSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
 #include <algorithm>
-#include <vector>
 #include <functional>
+#include <vector>
 
 //
 // This test is intended to test the ability of the temporal pipeline

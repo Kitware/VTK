@@ -26,8 +26,8 @@
 #define vtkImageWrapPad_h
 
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImagePadFilter.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkInformation;
 class vtkInformationVector;

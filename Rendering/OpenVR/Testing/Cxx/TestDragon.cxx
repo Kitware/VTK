@@ -12,15 +12,15 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPLYReader.h"
-#include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
@@ -29,8 +29,8 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-#include "vtkOpenVRCamera.h"
 #include "vtkCullerCollection.h"
+#include "vtkOpenVRCamera.h"
 #include "vtkTransform.h"
 
 #include "vtkPlaneWidget.h"
@@ -39,13 +39,13 @@
 
 #include "vtkLight.h"
 
-#include "vtkOpenVRRenderer.h"
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
+#include "vtkOpenVRRenderer.h"
 
-#include "vtkWin32RenderWindowInteractor.h"
 #include "vtkWin32OpenGLRenderWindow.h"
+#include "vtkWin32RenderWindowInteractor.h"
 
 //----------------------------------------------------------------------------
 int TestDragon(int argc, char *argv[])

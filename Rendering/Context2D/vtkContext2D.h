@@ -27,8 +27,8 @@
 #ifndef vtkContext2D_h
 #define vtkContext2D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkWindow;
 

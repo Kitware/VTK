@@ -30,9 +30,9 @@
 #ifndef vtkGridSynchronizedTemplates3D_h
 #define vtkGridSynchronizedTemplates3D_h
 
+#include "vtkContourValues.h"     // Because it passes all the calls to it
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Because it passes all the calls to it
 
 class vtkStructuredGrid;
 

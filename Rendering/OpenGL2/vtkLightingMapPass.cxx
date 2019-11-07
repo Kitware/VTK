@@ -19,8 +19,8 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
-#include "vtkRenderer.h"
 #include "vtkRenderState.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 #include <cassert>

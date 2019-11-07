@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkNew.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
 #include "vtkAxis.h"
-#include "vtkPlotStacked.h"
+#include "vtkChartXY.h"
 #include "vtkColor.h"
 #include "vtkColorSeries.h"
-#include "vtkTable.h"
-#include "vtkIntArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
+#include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkPlotStacked.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 
 // Monthly checkout data
 static const char *month_labels[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",

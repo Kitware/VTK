@@ -29,8 +29,8 @@
 #define vtkPixelTransfer_h
 
 #include "vtkCommonDataModelModule.h" // for export
-#include "vtkSetGet.h" // for macros
 #include "vtkPixelExtent.h" // for pixel extent
+#include "vtkSetGet.h" // for macros
 #include <cstring> // for memcpy
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPixelTransfer

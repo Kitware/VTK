@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkNew.h"
 #include "vtkOBJImporter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSingleVTPExporter.h"
 #include "vtksys/SystemTools.hxx"
 

@@ -16,18 +16,18 @@
 // .SECTION Description
 //
 
-#include "vtksys/SystemTools.hxx"
-#include "vtkSmartPointer.h"
 #include "vtkMySQLDatabase.h"
 #include "vtkSQLQuery.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTableReader.h"
 #include "vtkTableWriter.h"
 #include "vtkToolkits.h"
+#include "vtksys/SystemTools.hxx"
 
-#include "vtkTableToMySQLWriter.h"
-#include "vtkMySQLToTableReader.h"
 #include "vtkIOMySQLTestingCxxConfigure.h"
+#include "vtkMySQLToTableReader.h"
+#include "vtkTableToMySQLWriter.h"
 
 int TestMySQLTableReadWrite(int argc, char *argv[])
 {

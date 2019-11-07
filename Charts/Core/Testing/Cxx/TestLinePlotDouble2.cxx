@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkDoubleArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
 int TestLinePlotDouble2(int, char *[])

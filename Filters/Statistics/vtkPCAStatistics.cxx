@@ -12,8 +12,8 @@
 #include "vtkVariantArray.h"
 
 #include <map>
-#include <vector>
 #include <sstream>
+#include <vector>
 
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Dense)

@@ -15,8 +15,8 @@
 #include "vtkAppendFilter.h"
 
 #include "vtkBoundingBox.h"
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
 #include "vtkExecutive.h"
 #include "vtkIncrementalOctreePointLocator.h"
@@ -26,8 +26,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <string>
 

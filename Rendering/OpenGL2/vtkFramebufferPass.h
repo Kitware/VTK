@@ -23,8 +23,8 @@
 #ifndef vtkFramebufferPass_h
 #define vtkFramebufferPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthImageProcessingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLHelper;

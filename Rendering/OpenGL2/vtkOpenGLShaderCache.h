@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLShaderCache_h
 #define vtkOpenGLShaderCache_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkShader.h" // for vtkShader::Type
 #include <map> // for methods
 

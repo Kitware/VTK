@@ -33,9 +33,9 @@
 #ifndef vtkLoopBooleanPolyDataFilter_h
 #define vtkLoopBooleanPolyDataFilter_h
 
+#include "vtkDataSetAttributes.h"    // Needed for CopyCells() method
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkDataSetAttributes.h" // Needed for CopyCells() method
 
 class vtkIdList;
 

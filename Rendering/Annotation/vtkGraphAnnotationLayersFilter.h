@@ -49,9 +49,9 @@
 #ifndef vtkGraphAnnotationLayersFilter_h
 #define vtkGraphAnnotationLayersFilter_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // needed for ivars
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkSmartPointer.h"              // needed for ivars
 
 class vtkAppendPolyData;
 class vtkConvexHull2D;

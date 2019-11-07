@@ -26,8 +26,8 @@
 #ifndef vtkCameraActor_h
 #define vtkCameraActor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 class vtkFrustumSource;

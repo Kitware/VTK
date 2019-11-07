@@ -28,12 +28,12 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
-#include "vtksys/MD5.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkTypeUInt64Array.h"
+#include "vtksys/MD5.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
 #include <sstream>

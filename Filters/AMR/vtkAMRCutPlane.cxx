@@ -13,33 +13,29 @@
 
  =========================================================================*/
 #include "vtkAMRCutPlane.h"
-#include "vtkObjectFactory.h"
+#include "vtkAMRUtilities.h"
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkCutter.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdList.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkMultiProcessController.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkIndent.h"
-#include "vtkPlane.h"
-#include "vtkAMRUtilities.h"
-#include "vtkUniformGrid.h"
-#include "vtkCutter.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkIdList.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkCell.h"
-#include "vtkCellArray.h"
-#include "vtkPoints.h"
+#include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkPoints.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 
 vtkStandardNewMacro(vtkAMRCutPlane);

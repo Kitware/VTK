@@ -50,22 +50,22 @@
 #include "vtkVariantArray.h"
 #include "vtkXMLParser.h"
 
+#include "vtksys/SystemTools.hxx"
 #include <algorithm>
-#include <vector>
+#include <deque>
 #include <map>
 #include <set>
-#include <deque>
 #include <string>
-#include "vtksys/SystemTools.hxx"
+#include <vector>
 
 #include "vtksys/RegularExpression.hxx"
 
 #include "vtk_exodusII.h"
+#include <cctype> /* for toupper(), isgraph() */
+#include <cmath> /* for cos() */
 #include <cstdio>
 #include <cstdlib> /* for free() */
 #include <cstring> /* for memset() */
-#include <cctype> /* for toupper(), isgraph() */
-#include <cmath> /* for cos() */
 
 #ifdef EXODUSII_HAVE_MALLOC_H
 #  include <malloc.h>

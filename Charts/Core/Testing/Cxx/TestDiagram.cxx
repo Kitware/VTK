@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
+#include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextActor.h"
+#include "vtkContextItem.h"
+#include "vtkContextScene.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
-#include "vtkContext2D.h"
-#include "vtkContextItem.h"
-#include "vtkContextActor.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
-#include "vtkTextProperty.h"
 #include "vtkStdString.h"
-#include "vtkNew.h"
+#include "vtkTextProperty.h"
 
 #include "vtkRegressionTestImage.h"
 

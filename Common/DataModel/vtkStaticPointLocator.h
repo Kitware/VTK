@@ -50,8 +50,8 @@
 #ifndef vtkStaticPointLocator_h
 #define vtkStaticPointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkIdList;
 struct vtkBucketList;

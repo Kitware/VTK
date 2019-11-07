@@ -22,8 +22,8 @@
 #ifndef vtkPipelineGraphSource_h
 #define vtkPipelineGraphSource_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkStdString.h"
 
 class vtkCollection;

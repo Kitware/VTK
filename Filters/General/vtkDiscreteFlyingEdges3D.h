@@ -50,9 +50,9 @@
 #ifndef vtkDiscreteFlyingEdges3D_h
 #define vtkDiscreteFlyingEdges3D_h
 
+#include "vtkContourValues.h"        // Passes calls through
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 

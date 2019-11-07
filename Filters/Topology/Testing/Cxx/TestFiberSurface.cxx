@@ -20,17 +20,16 @@
 #include <sstream>
 #include <string>
 
-#include "vtkFiberSurface.h"
-#include "vtkTestUtilities.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkCleanPolyData.h"
+#include "vtkFiberSurface.h"
 #include "vtkFloatArray.h"
-#include "vtkPolyData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 

@@ -23,11 +23,11 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
+#include "vtkQuadRotationalExtrusionFilter.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkQuadRotationalExtrusionFilter.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 

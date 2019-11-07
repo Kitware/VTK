@@ -23,8 +23,8 @@
 #ifndef vtkIdListCollection_h
 #define vtkIdListCollection_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 #include "vtkIdList.h" // Needed for inline methods
 

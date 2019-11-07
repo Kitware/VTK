@@ -24,14 +24,14 @@
 
 #include "vtkUnstructuredGridHomogeneousRayIntegrator.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDoubleArray.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDoubleArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <cmath>
 

@@ -26,8 +26,8 @@
 #define vtkContextKeyEvent_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkWeakPointer.h" // For vtkWeakPointer
 #include "vtkVector.h" // For vtkVector2i
+#include "vtkWeakPointer.h" // For vtkWeakPointer
 
 class vtkRenderWindowInteractor;
 

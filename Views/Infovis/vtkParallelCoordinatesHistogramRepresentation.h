@@ -55,8 +55,8 @@
 #ifndef vtkParallelCoordinatesHistogramRepresentation_h
 #define vtkParallelCoordinatesHistogramRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkParallelCoordinatesRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkComputeHistogram2DOutliers;
 class vtkPairwiseExtractHistogram2D;

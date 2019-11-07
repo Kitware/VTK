@@ -23,8 +23,8 @@
 #define vtkFreeTypeStringToImage_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
+#include "vtkSmartPointer.h"            // For SP ivars
 #include "vtkStringToImage.h"
-#include "vtkSmartPointer.h" // For SP ivars
 
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeStringToImage : public vtkStringToImage
 {

@@ -30,8 +30,8 @@
 #ifndef vtkPassThroughLayoutStrategy_h
 #define vtkPassThroughLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkPassThroughLayoutStrategy : public vtkGraphLayoutStrategy
 {

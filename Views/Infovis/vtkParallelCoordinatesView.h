@@ -42,8 +42,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkParallelCoordinatesView_h
 #define vtkParallelCoordinatesView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor2D;
 class vtkOutlineSource;

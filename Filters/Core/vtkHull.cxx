@@ -15,9 +15,9 @@
 #include "vtkHull.h"
 
 #include "vtkCellArray.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"

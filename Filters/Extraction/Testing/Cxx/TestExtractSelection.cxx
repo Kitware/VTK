@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
+#include "vtkActor.h"
+#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkSphereSource.h"
-#include "vtkExtractSelectedPolyDataIds.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSphereSource.h"
 
 #include "vtkRegressionTestImage.h"
 

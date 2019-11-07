@@ -15,18 +15,18 @@
 
 #include "vtkCPExodusIIInSituReader.h"
 
-#include "vtkCellData.h"
 #include "vtkCPExodusIIElementBlock.h"
 #include "vtkCPExodusIINodalCoordinatesTemplate.h"
 #include "vtkCPExodusIIResultsArrayTemplate.h"
+#include "vtkCellData.h"
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkMultiBlockDataSet.h"
 
 #include "vtk_exodusII.h"
 

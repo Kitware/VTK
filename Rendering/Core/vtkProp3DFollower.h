@@ -34,8 +34,8 @@
 #ifndef vtkProp3DFollower_h
 #define vtkProp3DFollower_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 class vtkMapper;

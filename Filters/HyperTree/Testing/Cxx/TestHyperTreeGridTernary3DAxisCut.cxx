@@ -20,20 +20,20 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
 #include "vtkHyperTreeGridGeometry.h"
-#include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridOutlineFilter.h"
+#include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 
 int TestHyperTreeGridTernary3DAxisCut( int argc, char* argv[] )

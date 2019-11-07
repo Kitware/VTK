@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkSphereRepresentation.h"
 #include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkAssemblyPath.h"
@@ -33,7 +34,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphere.h"
-#include "vtkSphereRepresentation.h"
 #include "vtkSphereSource.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"

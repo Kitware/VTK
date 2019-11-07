@@ -47,8 +47,8 @@
 #ifndef vtkmTriangleMeshPointNormals_h
 #define vtkmTriangleMeshPointNormals_h
 
-#include "vtkTriangleMeshPointNormals.h"
 #include "vtkAcceleratorsVTKmModule.h" // for export macro
+#include "vtkTriangleMeshPointNormals.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmTriangleMeshPointNormals
   : public vtkTriangleMeshPointNormals

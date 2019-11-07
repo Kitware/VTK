@@ -18,6 +18,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#include "vtkExodusIIWriter.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -26,7 +27,6 @@
 #include "vtkDataObject.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDoubleArray.h"
-#include "vtkExodusIIWriter.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
@@ -47,8 +47,8 @@
 
 #include "vtk_exodusII.h"
 #include <cctype>
-#include <map>
 #include <ctime>
+#include <map>
 #include <sstream>
 
 vtkObjectFactoryNewMacro (vtkExodusIIWriter);

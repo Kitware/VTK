@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
+#include "vtkPlotPoints3D.h"
 #include "vtkChartXYZ.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
-#include "vtkObjectFactory.h"
-#include "vtkNew.h"
-#include "vtkPen.h"
-#include "vtkPlotPoints3D.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkUnsignedCharArray.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPlotPoints3D)

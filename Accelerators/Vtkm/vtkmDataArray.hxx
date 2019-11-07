@@ -23,10 +23,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkm/cont/ArrayRangeCompute.h>
 #include <vtkm/cont/ArrayHandleCounting.h>
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
 #include <vtkm/cont/ArrayHandleTransform.h>
+#include <vtkm/cont/ArrayRangeCompute.h>
 
 namespace internal
 {

@@ -12,17 +12,17 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSelectVisiblePoints.h"
 #include "vtkSphereSource.h"
 

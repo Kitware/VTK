@@ -16,10 +16,10 @@
 #include <string>
 
 #include "vtkAMREnzoReader.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMRDataIterator.h"
 namespace EnzoReaderTest {

@@ -49,8 +49,8 @@
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkTuple.h" // needed for vtkTuple
-#include <vector> // needed for vector
 #include <string> // needed for string.
+#include <vector> // needed for vector
 
 #define VTK_PARSER_IMMEDIATE 1
 #define VTK_PARSER_UNARY_MINUS 2

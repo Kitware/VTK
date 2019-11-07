@@ -49,8 +49,8 @@
 #ifndef vtkCameraInterpolator_h
 #define vtkCameraInterpolator_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 class vtkCameraList;

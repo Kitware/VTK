@@ -53,8 +53,8 @@
 #ifndef vtkOBBTree_h
 #define vtkOBBTree_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkMatrix4x4;
 

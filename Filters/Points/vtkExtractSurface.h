@@ -101,9 +101,9 @@
 #ifndef vtkExtractSurface_h
 #define vtkExtractSurface_h
 
+#include "vtkContourValues.h"       // Passes calls through
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 

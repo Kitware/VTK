@@ -30,8 +30,8 @@
 #ifndef vtkTetra_h
 #define vtkTetra_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkLine;
 class vtkTriangle;

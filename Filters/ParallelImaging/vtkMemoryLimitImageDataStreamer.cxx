@@ -19,11 +19,11 @@
 #include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPipelineSize.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformationExecutivePortKey.h"
 
 vtkStandardNewMacro(vtkMemoryLimitImageDataStreamer);
 

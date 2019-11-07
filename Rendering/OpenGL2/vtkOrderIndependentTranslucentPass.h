@@ -26,8 +26,8 @@
 #ifndef vtkOrderIndependentTranslucentPass_h
 #define vtkOrderIndependentTranslucentPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;

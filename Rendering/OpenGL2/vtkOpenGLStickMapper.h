@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLStickMapper_h
 #define vtkOpenGLStickMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLStickMapper : public vtkOpenGLPolyDataMapper
 {

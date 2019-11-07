@@ -1,6 +1,6 @@
 #include <vtkMutableDirectedGraph.h>
-#include <vtkTree.h>
 #include <vtkNew.h>
+#include <vtkTree.h>
 
 #include <vector>
 

@@ -14,8 +14,8 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkMPIController.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
 #include "vtkMPI.h"

@@ -16,31 +16,31 @@
 #include "vtkPlotBar.h"
 
 #include "vtkAxis.h"
-#include "vtkContext2D.h"
-#include "vtkRect.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
+#include "vtkColorSeries.h"
+#include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkPoints2D.h"
-#include "vtkTable.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkExecutive.h"
-#include "vtkTimeStamp.h"
 #include "vtkInformation.h"
-#include "vtkSmartPointer.h"
-#include "vtkColorSeries.h"
-#include "vtkStringArray.h"
-#include "vtkNew.h"
 #include "vtkLookupTable.h"
+#include "vtkNew.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkRect.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTimeStamp.h"
 
 #include "vtkObjectFactory.h"
 
-#include <vector>
 #include <algorithm>
 #include <map>
 #include <set>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 namespace {

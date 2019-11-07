@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkUnsignedDistance.h"
 
+#include "vtkAbstractPointLocator.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -22,12 +24,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkAbstractPointLocator.h"
+#include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDoubleArray.h"
-#include "vtkSMPTools.h"
-#include "vtkSMPThreadLocalObject.h"
 
 vtkStandardNewMacro(vtkUnsignedDistance);
 vtkCxxSetObjectMacro(vtkUnsignedDistance,Locator,vtkAbstractPointLocator);

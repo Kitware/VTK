@@ -18,10 +18,10 @@
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* -------------------------------------------------------------------- */
 /* check whether an enum type will be wrapped */

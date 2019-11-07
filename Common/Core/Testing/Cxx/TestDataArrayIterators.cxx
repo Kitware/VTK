@@ -14,10 +14,10 @@
 =========================================================================*/
 
 #include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkTimerLog.h"
 #include "vtkTypedDataArray.h"
 #include "vtkTypedDataArrayIterator.h"
-#include "vtkNew.h"
 
 #include <cassert>
 #include <iostream>

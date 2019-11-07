@@ -18,8 +18,8 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkToolkits.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkToolkits.h"
 
 vtkStandardNewMacro(vtkOpenSlideReader);
 

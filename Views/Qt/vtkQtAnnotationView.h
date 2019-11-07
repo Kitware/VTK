@@ -30,9 +30,9 @@
 #ifndef vtkQtAnnotationView_h
 #define vtkQtAnnotationView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
-#include <QObject> // Needed for the Q_OBJECT macro
+#include "vtkViewsQtModule.h" // For export macro
+#include <QObject>            // Needed for the Q_OBJECT macro
 
 #include <QPointer> // Needed to hold the view
 

@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkMatplotlibMathTextUtilities.h"
 #include "vtkPython.h" // must be the first thing that's included.
 #include "vtkPythonCompatibility.h"
-#include "vtkMatplotlibMathTextUtilities.h"
 
 #include "vtkCommand.h"
 #include "vtkImageData.h"
@@ -25,8 +25,8 @@
 #include "vtkPath.h"
 #include "vtkPoints.h"
 #include "vtkPythonInterpreter.h"
-#include "vtkStdString.h"
 #include "vtkSmartPyObject.h"
+#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 

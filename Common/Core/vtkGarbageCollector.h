@@ -79,9 +79,9 @@
 #ifndef vtkGarbageCollector_h
 #define vtkGarbageCollector_h
 
-#include "vtkCommonCoreModule.h" // For export macro
-#include "vtkObject.h"
+#include "vtkCommonCoreModule.h"        // For export macro
 #include "vtkGarbageCollectorManager.h" // Needed for singleton initialization.
+#include "vtkObject.h"
 
 // This function is a friend of the collector so that it can call the
 // internal report method.

@@ -15,8 +15,8 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkShaderProgram.h"
 

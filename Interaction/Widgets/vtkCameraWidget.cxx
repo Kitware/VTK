@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkCameraWidget.h"
-#include "vtkCameraRepresentation.h"
-#include "vtkCameraInterpolator.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCameraInterpolator.h"
+#include "vtkCameraRepresentation.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkCameraWidget);

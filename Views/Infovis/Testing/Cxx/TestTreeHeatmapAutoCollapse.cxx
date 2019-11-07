@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkTreeHeatmapItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDendrogramItem.h"
 #include "vtkDoubleArray.h"
@@ -22,15 +21,16 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
+#include "vtkTreeHeatmapItem.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkContextInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkContextInteractorStyle.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 

@@ -39,8 +39,8 @@
 #ifndef vtkPExodusIIReader_h
 #define vtkPExodusIIReader_h
 
-#include "vtkIOParallelExodusModule.h" // For export macro
 #include "vtkExodusIIReader.h"
+#include "vtkIOParallelExodusModule.h" // For export macro
 
 #include <vector> // Required for vector
 

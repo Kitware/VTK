@@ -26,8 +26,8 @@
 #ifndef vtkAMREnzoParticlesReader_h
 #define vtkAMREnzoParticlesReader_h
 
-#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
+#include "vtkIOAMRModule.h" // For export macro
 
 
 class vtkPolyData;

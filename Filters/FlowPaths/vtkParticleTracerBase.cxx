@@ -21,11 +21,11 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
+#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -39,8 +39,8 @@
 #include "vtkTemporalInterpolatedVelocityField.h"
 #include <cassert>
 
-#include <functional>
 #include <algorithm>
+#include <functional>
 #ifdef DEBUGPARTICLETRACE
 #define Assert(x) assert(x)
 #define PRINT(x) cout<<__LINE__<<": "<<x<<endl;

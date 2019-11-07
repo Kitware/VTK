@@ -27,8 +27,8 @@
 #ifndef vtkmAverageToPoints_h
 #define vtkmAverageToPoints_h
 
-#include "vtkDataSetAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkDataSetAlgorithm.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmAverageToPoints : public vtkDataSetAlgorithm
 {

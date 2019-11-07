@@ -16,12 +16,12 @@
 
 #include "vtkCollectionIterator.h"
 #include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayViewNodeFactory.h"
-#include "vtkRendererCollection.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewNodeCollection.h"
 

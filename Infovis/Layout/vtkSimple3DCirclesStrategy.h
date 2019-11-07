@@ -39,9 +39,9 @@
 #ifndef vtkSimple3DCirclesStrategy_h
 #define vtkSimple3DCirclesStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkVariant.h" // For variant API
+#include "vtkInfovisLayoutModule.h" // For export macro
+#include "vtkVariant.h"             // For variant API
 
 class vtkAbstractArray;
 class vtkDirectedGraph;

@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkCoordinate.h"
-#include "vtkViewport.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkCoordinate);
 

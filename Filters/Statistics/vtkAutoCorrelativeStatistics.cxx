@@ -20,20 +20,20 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkTableFFT.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTableFFT.h"
 #include "vtkVariantArray.h"
 
+#include <limits>
 #include <set>
 #include <sstream>
-#include <limits>
 
 vtkStandardNewMacro(vtkAutoCorrelativeStatistics);
 

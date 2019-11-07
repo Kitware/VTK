@@ -24,8 +24,8 @@
 #ifndef vtkChartPie_h
 #define vtkChartPie_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
+#include "vtkChartsCoreModule.h" // For export macro
 
 class vtkChartLegend;
 class vtkTooltipItem;

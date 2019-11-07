@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
+#include "vtkLookupTableItem.h"
 #include "vtkCallbackCommand.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
-#include "vtkLookupTableItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"

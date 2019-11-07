@@ -20,8 +20,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 class vtkUnicodeStringArray::Implementation
 {

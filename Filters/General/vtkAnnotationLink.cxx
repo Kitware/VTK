@@ -15,6 +15,7 @@
 
 #include "vtkAnnotationLink.h"
 
+#include "vtkAnnotationLayers.h"
 #include "vtkCommand.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkIdTypeArray.h"
@@ -22,7 +23,6 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkAnnotationLayers.h"
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"

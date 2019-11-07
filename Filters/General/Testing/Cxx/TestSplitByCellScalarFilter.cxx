@@ -17,13 +17,13 @@
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkSplitByCellScalarFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkInformation.h"
 #include "vtkXMLImageDataReader.h"
 
 int TestSplitByCellScalarFilter(int argc, char* argv[])

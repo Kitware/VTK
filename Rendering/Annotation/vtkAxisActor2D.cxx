@@ -15,6 +15,7 @@
 #include "vtkAxisActor2D.h"
 
 #include "vtkCellArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
@@ -22,7 +23,6 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkMath.h"
 
 #include <cmath>
 #include <limits>

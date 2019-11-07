@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkEdgeTable.h"
-#include "vtkPoints.h"
 #include "vtkIdList.h"
-#include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkVoidArray.h"
 
 vtkStandardNewMacro(vtkEdgeTable);
 

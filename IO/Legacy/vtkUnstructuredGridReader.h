@@ -31,8 +31,8 @@
 #ifndef vtkUnstructuredGridReader_h
 #define vtkUnstructuredGridReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkUnstructuredGrid;
 

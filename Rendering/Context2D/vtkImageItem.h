@@ -25,9 +25,9 @@
 #ifndef vtkImageItem_h
 #define vtkImageItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For SP ivars.
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkSmartPointer.h"             // For SP ivars.
 
 class vtkImageData;
 

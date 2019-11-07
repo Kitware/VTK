@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkGLTFExporter.h"
 
-#include <stdio.h>
 #include <memory>
 #include <sstream>
+#include <stdio.h>
 
 #include "vtk_jsoncpp.h"
 
@@ -36,8 +36,8 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"

@@ -56,8 +56,8 @@
 #ifndef vtkScalarBarActor_h
 #define vtkScalarBarActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkColor3ub;
 class vtkPolyData;

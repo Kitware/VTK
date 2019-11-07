@@ -60,8 +60,8 @@
 #ifndef vtkParallelCoordinatesActor_h
 #define vtkParallelCoordinatesActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;

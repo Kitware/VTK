@@ -30,8 +30,8 @@
 #ifndef vtkTreeMapView_h
 #define vtkTreeMapView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkBoxLayoutStrategy;
 class vtkSliceAndDiceLayoutStrategy;

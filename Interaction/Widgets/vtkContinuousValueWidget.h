@@ -64,8 +64,8 @@
 #ifndef vtkContinuousValueWidget_h
 #define vtkContinuousValueWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkContinuousValueWidgetRepresentation;
 

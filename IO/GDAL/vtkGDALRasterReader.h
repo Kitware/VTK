@@ -34,8 +34,8 @@
 #ifndef vtkGDALRasterReader_h
 #define vtkGDALRasterReader_h
 
-#include <vtkImageReader2.h>
 #include <vtkIOGDALModule.h> // For export macro
+#include <vtkImageReader2.h>
 
 // C++ includes
 #include <string> // string is required

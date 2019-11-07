@@ -1,5 +1,5 @@
-#include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 
 int TestDataArrayComponentNames(int,char *[])
 {

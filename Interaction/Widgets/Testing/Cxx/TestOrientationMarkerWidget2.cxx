@@ -13,7 +13,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
 #include "vtkAxesActor.h"
 #include "vtkCamera.h"
@@ -23,9 +22,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOrientationMarkerWidget.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextSource.h"
 
 const char TestOMWidgetEventLog[] =

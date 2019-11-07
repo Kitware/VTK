@@ -18,35 +18,34 @@
 // Serial tests for structured grid connectivity
 
 // VTK includes
+#include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkUniformGrid.h"
+#include "vtkDoubleArray.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkDataObject.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
-#include "vtkXMLImageDataWriter.h"
 #include "vtkStructuredGridConnectivity.h"
 #include "vtkStructuredNeighbor.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIntArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDoubleArray.h"
-#include "vtkCell.h"
+#include "vtkUniformGrid.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkMathUtilities.h"
 
 // C++ includes
-#include <iostream>
-#include <sstream>
 #include <cassert>
+#include <iostream>
+#include <set>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <set>
 
 //#define ENABLE_IO
 

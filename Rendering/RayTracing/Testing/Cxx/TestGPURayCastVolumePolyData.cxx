@@ -24,10 +24,12 @@
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
 #include <vtkNew.h>
+#include <vtkOSPRayPass.h>
 #include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -38,8 +40,6 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkOSPRayPass.h>
-#include <vtkProperty.h>
 
 
 int TestGPURayCastVolumePolyData(int argc, char *argv[])

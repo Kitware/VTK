@@ -3,19 +3,19 @@
 #define VISRTX_DYNLOAD
 #include <VisRTX.h>
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
-#include "Object.h"
+#include "Camera.h"
 #include "Data.h"
 #include "FrameBuffer.h"
 #include "Geometry.h"
-#include "Texture.h"
 #include "Light.h"
 #include "Material.h"
-#include "Renderer.h"
-#include "Camera.h"
 #include "Model.h"
+#include "Object.h"
+#include "Renderer.h"
+#include "Texture.h"
 
 
 namespace RTW

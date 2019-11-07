@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkHyperTreeGridCellCenters.h"
 
+#include "vtkAlgorithm.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkHyperTree.h"
@@ -21,10 +22,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkAlgorithm.h"
 
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 

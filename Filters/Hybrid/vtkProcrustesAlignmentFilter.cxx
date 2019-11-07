@@ -18,12 +18,12 @@
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLandmarkTransform.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkLandmarkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyData.h"
-#include "vtkMath.h"
+#include "vtkTransformPolyDataFilter.h"
 
 vtkStandardNewMacro(vtkProcrustesAlignmentFilter);
 

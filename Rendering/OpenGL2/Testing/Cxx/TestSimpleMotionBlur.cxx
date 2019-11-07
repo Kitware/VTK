@@ -17,7 +17,6 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkSimpleMotionBlurPass.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPLYReader.h"
@@ -28,6 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSimpleMotionBlurPass.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextureObject.h"
 

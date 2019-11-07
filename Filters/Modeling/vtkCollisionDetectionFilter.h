@@ -91,9 +91,9 @@
 #ifndef vtkCollisionDetectionFilter_h
 #define vtkCollisionDetectionFilter_h
 
+#include "vtkFieldData.h"             // For GetContactCells
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkFieldData.h" // For GetContactCells
 
 class vtkOBBTree;
 class vtkPolyData;

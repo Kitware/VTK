@@ -24,8 +24,8 @@
 #ifndef vtkMRCReader_h
 #define vtkMRCReader_h
 
-#include "vtkImageAlgorithm.h"
 #include "vtkIOImageModule.h" // For export macro
+#include "vtkImageAlgorithm.h"
 
 class vtkInformation;
 class vtkInformationVector;

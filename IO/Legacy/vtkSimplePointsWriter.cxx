@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkSimplePointsWriter.h"
 
+#include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
-#include "vtkErrorCode.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */

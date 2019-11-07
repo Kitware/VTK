@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkTerrainDataPointPlacer.h"
 
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkPropPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkAssemblyNode.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkTerrainDataPointPlacer);
 

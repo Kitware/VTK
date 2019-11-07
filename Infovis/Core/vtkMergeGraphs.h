@@ -47,8 +47,8 @@
 #ifndef vtkMergeGraphs_h
 #define vtkMergeGraphs_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkBitArray;
 class vtkMutableGraphHelper;

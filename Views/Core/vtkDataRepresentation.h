@@ -50,8 +50,8 @@
 #ifndef vtkDataRepresentation_h
 #define vtkDataRepresentation_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkAnnotationLayers;

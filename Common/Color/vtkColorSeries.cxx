@@ -18,8 +18,8 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 class vtkColorSeriesPalette

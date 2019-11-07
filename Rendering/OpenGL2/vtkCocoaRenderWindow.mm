@@ -15,20 +15,20 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtk_glew.h"
 
+#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
-#import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 
-#import "vtkOpenGL.h"
+#import "vtkCocoaGLView.h"
 #import "vtkCocoaRenderWindow.h"
-#import "vtkOpenGLVertexBufferObjectCache.h"
-#import "vtkRenderWindowInteractor.h"
 #import "vtkCommand.h"
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
+#import "vtkOpenGL.h"
 #import "vtkOpenGLState.h"
+#import "vtkOpenGLVertexBufferObjectCache.h"
+#import "vtkRenderWindowInteractor.h"
 #import "vtkRendererCollection.h"
-#import "vtkCocoaGLView.h"
 
 #import <sstream>
 

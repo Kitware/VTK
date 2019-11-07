@@ -11,21 +11,21 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkImageData.h"
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageCheckerboard.h"
+#include "vtkImageData.h"
+#include "vtkImageGridSource.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkImageGridSource.h"
-#include "vtkImageCheckerboard.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkCamera.h"
+#include "vtkXMLImageDataReader.h"
 
 int TestGPURayCastCompositeMaskBlend(int argc, char *argv[])
 {

@@ -69,8 +69,8 @@
 #ifndef vtkDistanceWidget_h
 #define vtkDistanceWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkDistanceRepresentation;
 class vtkHandleWidget;

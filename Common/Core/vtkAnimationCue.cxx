@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkAnimationCue.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkAnimationCue);
 

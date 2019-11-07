@@ -24,9 +24,9 @@
 #ifndef vtkChartHistogram2D_h
 #define vtkChartHistogram2D_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartXY.h"
-#include "vtkSmartPointer.h" // For SP ivars
+#include "vtkChartsCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"     // For SP ivars
 
 class vtkColorLegend;
 class vtkPlotHistogram2D;

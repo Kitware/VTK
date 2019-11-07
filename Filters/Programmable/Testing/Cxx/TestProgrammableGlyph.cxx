@@ -12,21 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkSmartPointer.h>
-#include <vtkPointData.h>
-#include <vtkCubeSource.h>
-#include <vtkConeSource.h>
-#include <vtkSphereSource.h>
-#include <vtkPolyData.h>
-#include <vtkPoints.h>
-#include <vtkProgrammableGlyphFilter.h>
-#include <vtkCellArray.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkCellArray.h>
+#include <vtkConeSource.h>
+#include <vtkCubeSource.h>
 #include <vtkFloatArray.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProgrammableGlyphFilter.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
 
 void CalcGlyph(void *arg)
 {

@@ -26,12 +26,12 @@
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
 #include "vtkPlaneSource.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestHyperTreeGridTernary3DAxisClipPlanes( int argc, char* argv[] )
 {

@@ -43,8 +43,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,

@@ -16,9 +16,9 @@
 #include "vtkLandmarkTransform.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkTransform.h"
-#include "vtkNew.h"
 
 #include <iostream>
 #include <sstream>

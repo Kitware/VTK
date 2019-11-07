@@ -30,8 +30,8 @@
 #ifndef vtkPHardwareSelector_h
 #define vtkPHardwareSelector_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkOpenGLHardwareSelector.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class VTKRENDERINGPARALLEL_EXPORT vtkPHardwareSelector : public vtkOpenGLHardwareSelector
 {

@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkCellCentersPointPlacer.h"
 
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
+#include "vtkCell.h"
+#include "vtkCellPicker.h"
+#include "vtkDataSet.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
+#include "vtkPoints.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkAssemblyNode.h"
-#include "vtkInteractorObserver.h"
-#include "vtkDataSet.h"
-#include "vtkCell.h"
-#include "vtkPoints.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkCellCentersPointPlacer);
 

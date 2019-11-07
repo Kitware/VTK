@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkScalarsToColorsItem.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
@@ -27,7 +28,6 @@
 #include "vtkPen.h"
 #include "vtkPlotBar.h"
 #include "vtkPoints2D.h"
-#include "vtkScalarsToColorsItem.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTransform2D.h"

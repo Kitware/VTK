@@ -17,8 +17,8 @@
 #define vtkmlib_ImplicitFunctionConverter_h
 
 #include "vtkAcceleratorsVTKmModule.h"
-#include "vtkmConfig.h" //required for general vtkm setup
 #include "vtkType.h" // For vtkMTimeType
+#include "vtkmConfig.h" //required for general vtkm setup
 
 #include "vtkm/cont/ImplicitFunctionHandle.h"
 

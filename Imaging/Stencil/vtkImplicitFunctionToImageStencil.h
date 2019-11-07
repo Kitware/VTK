@@ -27,8 +27,8 @@
 #define vtkImplicitFunctionToImageStencil_h
 
 
-#include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"
+#include "vtkImagingStencilModule.h" // For export macro
 
 class vtkImplicitFunction;
 

@@ -9,12 +9,12 @@
 #include <vtkPolyDataMapper2D.h>
 #include <vtkProperty.h>
 #include <vtkProperty2D.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 
 int TestActor2D(int argc, char* argv[])

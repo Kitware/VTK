@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "PyVTKExtras.h"
-#include "vtkPythonCompatibility.h"
 #include "PyVTKReference.h"
+#include "vtkPythonCompatibility.h"
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"

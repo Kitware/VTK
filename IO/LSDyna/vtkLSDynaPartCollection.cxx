@@ -13,26 +13,26 @@
 =========================================================================*/
 
 #include "vtkLSDynaPartCollection.h"
-#include "vtkLSDynaPart.h"
 #include "LSDynaMetaData.h"
+#include "vtkLSDynaPart.h"
 
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
-#include <vector>
 #include <list>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 class vtkLSDynaPartCollection::LSDynaPartStorage

@@ -33,9 +33,9 @@
 #ifndef vtkDataObjectAlgorithm_h
 #define vtkDataObjectAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkDataObject.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkDataObject.h"                 // makes things a bit easier
 
 class vtkDataSet;
 class vtkDataObject;

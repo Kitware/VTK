@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkPolygon.h"
 
+#include "vtkBox.h"
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkPriorityQueue.h"
 #include "vtkQuad.h"
-#include "vtkTriangle.h"
-#include "vtkBox.h"
-#include "vtkMergePoints.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkSmartPointer.h"
+#include "vtkTriangle.h"
 
 vtkStandardNewMacro(vtkPolygon);
 

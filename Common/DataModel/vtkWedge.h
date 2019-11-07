@@ -31,8 +31,8 @@
 #ifndef vtkWedge_h
 #define vtkWedge_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkLine;
 class vtkTriangle;

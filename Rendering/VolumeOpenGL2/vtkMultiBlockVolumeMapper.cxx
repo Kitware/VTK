@@ -15,8 +15,8 @@
 #include <algorithm>
 
 #include "vtkBlockSortHelper.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"

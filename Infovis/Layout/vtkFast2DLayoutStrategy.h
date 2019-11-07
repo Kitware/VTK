@@ -33,8 +33,8 @@
 #ifndef vtkFast2DLayoutStrategy_h
 #define vtkFast2DLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 

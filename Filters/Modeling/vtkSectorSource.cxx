@@ -16,11 +16,11 @@
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLineSource.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkLineSource.h"
 #include "vtkRotationalExtrusionFilter.h"
-#include "vtkMath.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkSmartPointer.h"

@@ -27,11 +27,11 @@
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTesting.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
 

@@ -21,8 +21,8 @@
 #ifndef vtkProgrammableElectronicData_h
 #define vtkProgrammableElectronicData_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"
+#include "vtkDomainsChemistryModule.h" // For export macro
 
 class vtkImageData;
 

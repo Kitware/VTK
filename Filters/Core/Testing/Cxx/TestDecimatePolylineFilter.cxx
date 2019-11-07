@@ -22,6 +22,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
+#include "vtkRegressionTestImage.h"
 #include <vtkActor.h>
 #include <vtkCellArray.h>
 #include <vtkDecimatePolylineFilter.h>
@@ -29,10 +30,9 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include "vtkRegressionTestImage.h"
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 
 int TestDecimatePolylineFilter(int argc, char *argv[])

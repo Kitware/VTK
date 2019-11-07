@@ -19,9 +19,9 @@
 #include <vtkDistancePolyDataFilter.h>
 #include <vtkIntersectionPolyDataFilter.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkReverseSense.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>

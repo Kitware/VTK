@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkOldStyleCallbackCommand.h"
 
-#include "vtkSetGet.h"
 #include "vtkObject.h"
+#include "vtkSetGet.h"
 
-#include <cstring>
 #include <cctype>
+#include <cstring>
 
 //----------------------------------------------------------------
 vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()

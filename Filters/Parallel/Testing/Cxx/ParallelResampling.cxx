@@ -20,7 +20,7 @@
 */
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -30,10 +30,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPResampleFilter.h"
 #include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProcess.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkTestUtilities.h"
-#include "vtkDataSetSurfaceFilter.h"
 #include <mpi.h>
 
 namespace

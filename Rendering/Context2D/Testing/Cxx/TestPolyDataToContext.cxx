@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkAxis.h"
 #include "vtkAbstractMapper.h"
+#include "vtkAxis.h"
 #include "vtkBandedPolyDataContourFilter.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
-#include "vtkInteractiveArea.h"
-#include "vtkInteractorStyle.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFeatureEdges.h"
 #include "vtkFloatArray.h"
+#include "vtkInteractiveArea.h"
+#include "vtkInteractorStyle.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPen.h"
@@ -31,12 +31,12 @@
 #include "vtkPolyDataConnectivityFilter.h"
 #include "vtkPolyDataItem.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTextProperty.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextProperty.h"
 #include "vtkXMLPolyDataReader.h"
 
 

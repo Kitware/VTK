@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
-#include "vtkNew.h"
-#include "vtkThreshold.h"
-#include "vtkRTAnalyticSource.h"
 #include "vtkDataObject.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkSmartPointer.h"
+#include "vtkThreshold.h"
+#include "vtkUnstructuredGrid.h"
 
 int TestThreshold(int, char *[])
 {

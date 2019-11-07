@@ -18,8 +18,8 @@ PURPOSE.  See the above copyright notice for more information.
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkToolkits.h"
 #include "vtkSQLDatabaseSchema.h"
+#include "vtkToolkits.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"

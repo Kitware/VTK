@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkContextInteractorStyle.h"
 
-#include "vtkContextMouseEvent.h"
-#include "vtkContextKeyEvent.h"
-#include "vtkContextScene.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
+#include "vtkContextKeyEvent.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"

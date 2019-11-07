@@ -31,8 +31,8 @@
 #include "vtkTable.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
-#include "vtkTypeTraits.h"
 #include "vtkTransform.h"
+#include "vtkTypeTraits.h"
 #include "vtkUnicodeStringArray.h"
 
 #include <map>

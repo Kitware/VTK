@@ -20,21 +20,21 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
-#include "vtkOverlappingAMR.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiThreader.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkUniformGrid.h"
 
-#include "vtkTimerLog.h"
 #include "vtkNew.h"
+#include "vtkTimerLog.h"
 
 vtkStandardNewMacro( vtkAMRVolumeMapper );
 

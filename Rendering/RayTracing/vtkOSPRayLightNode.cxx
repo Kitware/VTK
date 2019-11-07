@@ -20,8 +20,8 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkObjectFactory.h"
 
 #include <vector>
 

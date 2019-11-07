@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkChartXY.h"
 #include "vtkChartLegend.h"
+#include "vtkChartXY.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
-#include "vtkPlotFunctionalBag.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPen.h"
+#include "vtkPlotFunctionalBag.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStringArray.h"

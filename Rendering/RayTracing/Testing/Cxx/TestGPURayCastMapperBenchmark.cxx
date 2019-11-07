@@ -15,20 +15,20 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
+#include "vtkOSPRayPass.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkOSPRayPass.h"
 
 // TODO , tweak the sampling rate and number of samples to test if the
 // baseline image would be matched (only visible differences on the edges)

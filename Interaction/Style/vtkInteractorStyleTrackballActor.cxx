@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkInteractorStyleTrackballActor.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
-#include "vtkCallbackCommand.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"

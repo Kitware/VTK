@@ -23,16 +23,16 @@
  */
 // -*- c++ -*- *******************************************************
 
-#include "vtkSortDataArray.h"
-#include "vtkIntArray.h"
 #include "vtkFloatArray.h"
-#include "vtkStringArray.h"
 #include "vtkIdList.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkSortDataArray.h"
+#include "vtkStringArray.h"
 #include "vtkTimerLog.h"
 
-#include <sstream>
 #include <locale> // C++ locale
+#include <sstream>
 
 //#define ARRAY_SIZE (2*1024*1024)
 #define ARRAY_SIZE 2048

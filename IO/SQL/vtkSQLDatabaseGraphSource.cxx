@@ -21,7 +21,6 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkDirectedGraph.h"
-#include "vtkUndirectedGraph.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExecutive.h"
 #include "vtkIdTypeArray.h"

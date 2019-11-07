@@ -17,20 +17,20 @@
 // The stencils are added / subtracted, converted to an image and compared
 // to a baseline
 
-#include "vtkPolyDataToImageStencil.h"
-#include "vtkLinearExtrusionFilter.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkImageStencil.h"
 #include "vtkImageStencilData.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkSmartPointer.h"
-#include "vtkMatrixToLinearTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkLinearExtrusionFilter.h"
 #include "vtkMatrix4x4.h"
-#include "vtkTrivialProducer.h"
+#include "vtkMatrixToLinearTransform.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataToImageStencil.h"
+#include "vtkSmartPointer.h"
 #include "vtkTesting.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkTrivialProducer.h"
 
 
 //----------------------------------------------------------------------------

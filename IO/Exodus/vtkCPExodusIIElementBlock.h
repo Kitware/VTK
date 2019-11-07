@@ -27,8 +27,8 @@
 #ifndef vtkCPExodusIIElementBlock_h
 #define vtkCPExodusIIElementBlock_h
 
-#include "vtkObject.h"
 #include "vtkIOExodusModule.h" // For export macro
+#include "vtkObject.h"
 
 #include "vtkMappedUnstructuredGrid.h" // For mapped unstructured grid wrapper
 

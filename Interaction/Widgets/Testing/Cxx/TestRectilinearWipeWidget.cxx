@@ -16,23 +16,22 @@
 // This example tests the vtkRectilinearWipeWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-#include "vtkRectilinearWipeWidget.h"
-#include "vtkRectilinearWipeRepresentation.h"
-#include "vtkImageCanvasSource2D.h"
-#include "vtkImageWrapPad.h"
-#include "vtkImageCanvasSource2D.h"
-#include "vtkImageRectilinearWipe.h"
+#include "vtkCommand.h"
 #include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
+#include "vtkImageCanvasSource2D.h"
 #include "vtkImageData.h"
-#include "vtkRenderer.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageRectilinearWipe.h"
+#include "vtkImageWrapPad.h"
+#include "vtkProperty2D.h"
+#include "vtkRectilinearWipeRepresentation.h"
+#include "vtkRectilinearWipeWidget.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkCommand.h"
 
 const char eventLog[] =
 "# StreamVersion 1\n"

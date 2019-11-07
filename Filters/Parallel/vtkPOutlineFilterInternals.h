@@ -24,8 +24,8 @@
 #ifndef vtkPOutlineFilterInternals_h
 #define vtkPOutlineFilterInternals_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkBoundingBox.h" //  needed for vtkBoundingBox.
+#include "vtkFiltersParallelModule.h" // For export macro
 #include <vector> // needed for std::vector
 
 class vtkBoundingBox;

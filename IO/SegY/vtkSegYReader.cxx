@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
+#include "vtkSegYReader.h"
 #include "vtkImageData.h"
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSegYReaderInternal.h"
 #include "vtkSmartPointer.h"
-#include "vtkSegYReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 

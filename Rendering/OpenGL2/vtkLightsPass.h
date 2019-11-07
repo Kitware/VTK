@@ -29,8 +29,8 @@
 #ifndef vtkLightsPass_h
 #define vtkLightsPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLRenderWindow;
 

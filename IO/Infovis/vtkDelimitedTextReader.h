@@ -65,9 +65,9 @@
 #define vtkDelimitedTextReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
+#include "vtkStdString.h" // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
 #include "vtkUnicodeString.h" // Needed for vtkUnicodeString
-#include "vtkStdString.h" // Needed for vtkStdString
 
 class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {

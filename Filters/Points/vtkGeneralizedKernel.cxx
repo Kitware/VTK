@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkGeneralizedKernel.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
-#include "vtkDoubleArray.h"
 #include "vtkDataSet.h"
-#include "vtkPointData.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 //----------------------------------------------------------------------------
 vtkGeneralizedKernel::vtkGeneralizedKernel()

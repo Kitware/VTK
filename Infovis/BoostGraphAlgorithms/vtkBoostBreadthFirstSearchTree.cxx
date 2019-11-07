@@ -21,22 +21,22 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
 #include "vtkBoostGraphAdapter.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkUndirectedGraph.h"
 #include "vtkTree.h"
+#include "vtkUndirectedGraph.h"
 
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/reverse_graph.hpp>

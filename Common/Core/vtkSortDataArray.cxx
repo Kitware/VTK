@@ -25,14 +25,14 @@
 #include "vtkSortDataArray.h"
 
 #include "vtkAbstractArray.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkIdList.h"
+#include "vtkSMPTools.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkSMPTools.h"
 #include <functional>  //std::greater
 
 //-------------------------------------------------------------------------

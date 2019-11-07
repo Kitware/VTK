@@ -19,9 +19,10 @@
 -------------------------------------------------------------------------*/
 #include "vtkQtAnnotationLayersModelAdapter.h"
 
-#include "vtkDataSetAttributes.h"
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -30,12 +31,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
-#include "vtkDoubleArray.h"
 
-#include <QIcon>
-#include <QPixmap>
 #include <QHash>
+#include <QIcon>
 #include <QMap>
+#include <QPixmap>
 
 
 //----------------------------------------------------------------------------

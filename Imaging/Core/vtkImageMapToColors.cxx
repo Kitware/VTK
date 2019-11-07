@@ -20,9 +20,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
+#include "vtkScalarsToColors.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);

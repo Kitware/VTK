@@ -15,19 +15,19 @@
 
 #include "vtkPiecewisePointHandleItem.h"
 
+#include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
 #include "vtkContext2D.h"
-#include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
-#include "vtkTextProperty.h"
-#include "vtkObjectFactory.h"
-#include "vtkPiecewiseFunction.h"
+#include "vtkContextScene.h"
 #include "vtkControlPointsItem.h"
-#include "vtkTransform2D.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkTextProperty.h"
+#include "vtkTransform2D.h"
 
 #include <algorithm>
 

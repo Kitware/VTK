@@ -13,20 +13,20 @@
 
 =========================================================================*/
 #include "vtkImplicitPlaneWidget2.h"
-#include "vtkImplicitPlaneRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkStdString.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
 #include "vtkEventData.h"
-#include "vtkWidgetEvent.h"
+#include "vtkImplicitPlaneRepresentation.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStdString.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 
 vtkStandardNewMacro(vtkImplicitPlaneWidget2);

@@ -39,8 +39,8 @@
 #define vtkTreeMapLayoutStrategy_h
 
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkAreaLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkTree;
 class vtkDataArray;

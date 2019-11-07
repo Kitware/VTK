@@ -27,10 +27,10 @@
 #ifndef vtkContext3D_h
 #define vtkContext3D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVector.h" // For the vector coordinates.
+#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkSmartPointer.h" // For SP ivars.
+#include "vtkVector.h" // For the vector coordinates.
 
 class vtkContextDevice3D;
 class vtkPen;

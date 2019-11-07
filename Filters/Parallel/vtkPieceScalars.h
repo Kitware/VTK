@@ -28,8 +28,8 @@
 #ifndef vtkPieceScalars_h
 #define vtkPieceScalars_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkFloatArray;
 class vtkIntArray;

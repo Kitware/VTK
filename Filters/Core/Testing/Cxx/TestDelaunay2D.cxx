@@ -18,22 +18,22 @@
 // A fix was added to vtkDelaunay2D. This test exercices the new
 // functionality.
 
-#include "vtkPolyData.h"
-#include "vtkDelaunay2D.h"
-#include "vtkCellArray.h"
-#include "vtkShrinkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkCellArray.h"
+#include "vtkDelaunay2D.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
+#include "vtkShrinkPolyData.h"
 
 //#define WRITE_IMAGE
 
 #ifdef WRITE_IMAGE
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 #endif
 
 int TestDelaunay2D( int argc, char* argv[] )

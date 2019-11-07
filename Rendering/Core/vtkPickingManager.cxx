@@ -34,18 +34,18 @@
 ==============================================================================*/
 
 // VTK includes
+#include "vtkPickingManager.h"
 #include "vtkAbstractPicker.h"
 #include "vtkAbstractPropPicker.h"
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPickingManager.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimeStamp.h"
 

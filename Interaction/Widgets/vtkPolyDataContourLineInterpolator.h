@@ -25,8 +25,8 @@
 #ifndef vtkPolyDataContourLineInterpolator_h
 #define vtkPolyDataContourLineInterpolator_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPolyData;
 class vtkPolyDataCollection;

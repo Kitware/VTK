@@ -41,8 +41,8 @@
 #ifndef vtkPLYReader_h
 #define vtkPLYReader_h
 
-#include "vtkIOPLYModule.h" // For export macro
 #include "vtkAbstractPolyDataReader.h"
+#include "vtkIOPLYModule.h" // For export macro
 
 class vtkStringArray;
 

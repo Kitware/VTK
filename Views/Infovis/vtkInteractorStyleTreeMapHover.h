@@ -34,8 +34,8 @@
 #ifndef vtkInteractorStyleTreeMapHover_h
 #define vtkInteractorStyleTreeMapHover_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleImage.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkBalloonRepresentation;
 class vtkPoints;

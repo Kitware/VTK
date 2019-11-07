@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkInformationInformationVectorKey.h"
 
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
 
 //----------------------------------------------------------------------------

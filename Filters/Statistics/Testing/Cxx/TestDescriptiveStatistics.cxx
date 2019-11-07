@@ -11,13 +11,13 @@
 // for implementing this test.
 
 #include "vtkDataObjectCollection.h"
+#include "vtkDescriptiveStatistics.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
-#include "vtkDescriptiveStatistics.h"
 
 //=============================================================================
 int TestDescriptiveStatistics( int, char *[] )

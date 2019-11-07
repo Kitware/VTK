@@ -34,9 +34,9 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 
+#include <sstream>
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
-#include <sstream>
 
 #include <vector>
 

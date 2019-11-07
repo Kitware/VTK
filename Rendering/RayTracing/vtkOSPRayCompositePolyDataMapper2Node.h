@@ -22,9 +22,9 @@
 #ifndef vtkOSPRayCompositePolyDataMapper2Node_h
 #define vtkOSPRayCompositePolyDataMapper2Node_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
-#include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkColor.h" // used for ivars
+#include "vtkOSPRayPolyDataMapperNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include <stack> // used for ivars
 
 class vtkDataObject;

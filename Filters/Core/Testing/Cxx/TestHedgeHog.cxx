@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include <vtkCellArray.h>
-#include <vtkHedgeHog.h>
 #include <vtkFloatArray.h>
+#include <vtkHedgeHog.h>
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkPointData.h>
 #include <vtkSmartPointer.h>

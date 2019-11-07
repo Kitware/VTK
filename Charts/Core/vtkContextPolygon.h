@@ -17,8 +17,8 @@
 #define vtkContextPolygon_h
 
 #include "vtkChartsCoreModule.h"
-#include "vtkVector.h" // For vtkVector2f
 #include "vtkType.h" // For vtkIdType
+#include "vtkVector.h" // For vtkVector2f
 
 class vtkTransform2D;
 class vtkContextPolygonPrivate;

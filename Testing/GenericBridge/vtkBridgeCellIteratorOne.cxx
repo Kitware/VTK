@@ -20,17 +20,17 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkBridgeCell.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
 
-#include "vtkTriangle.h"
-#include "vtkPolygon.h"
 #include "vtkLine.h"
 #include "vtkPolyLine.h"
-#include "vtkVertex.h"
 #include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
+#include "vtkTriangle.h"
+#include "vtkVertex.h"
 
 vtkStandardNewMacro(vtkBridgeCellIteratorOne);
 

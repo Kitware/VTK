@@ -34,8 +34,8 @@
 #ifndef vtkGraphLayout_h
 #define vtkGraphLayout_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkAbstractTransform;
 class vtkEventForwarderCommand;

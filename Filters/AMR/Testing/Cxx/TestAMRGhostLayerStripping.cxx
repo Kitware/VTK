@@ -30,13 +30,13 @@
 
 // VTK includes
 #include "vtkAMRGaussianPulseSource.h"
+#include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkAMRInformation.h"
 #include "vtkUniformGrid.h"
 //#define DEBUG_ON
 

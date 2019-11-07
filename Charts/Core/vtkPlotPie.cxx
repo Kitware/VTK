@@ -15,15 +15,15 @@
 
 #include "vtkPlotPie.h"
 
-#include "vtkContext2D.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
-#include "vtkPoints2D.h"
+#include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkTable.h"
 #include "vtkMath.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
 #include "vtkRect.h"
+#include "vtkTable.h"
 
 #include "vtkObjectFactory.h"
 

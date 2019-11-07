@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
 #include "vtkBiQuadraticQuad.h"
-#include "vtkPointData.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkMathUtilities.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkProbeFilter.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
-#include "vtkMathUtilities.h"
 
 //----------------------------------------------------------------------------
 int TestBiQuadraticQuad(int, char*[])

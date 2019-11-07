@@ -24,12 +24,12 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRControlsHelper_h
 #define vtkOpenVRControlsHelper_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkProp.h"
-#include "vtkStdString.h" // needed for vtkStdString iVar.
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 #include "vtkEventData.h" // for enums
 #include "vtkNew.h" // for iVar
+#include "vtkProp.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
+#include "vtkStdString.h" // needed for vtkStdString iVar.
+#include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
 
 class vtkActor;
 class vtkProperty;

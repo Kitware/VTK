@@ -45,9 +45,9 @@
 #ifndef vtkRenderWindowInteractor_h
 #define vtkRenderWindowInteractor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkObject.h"
 #include "vtkCommand.h" // for method sig
+#include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkTimerIdMap;
 

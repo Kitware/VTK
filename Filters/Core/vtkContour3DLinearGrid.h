@@ -113,9 +113,9 @@
 #ifndef vtkContour3DLinearGrid_h
 #define vtkContour3DLinearGrid_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkDataObjectAlgorithm.h"
 #include "vtkContourValues.h" // Needed for inline methods
+#include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkPolyData;
 class vtkUnstructuredGrid;

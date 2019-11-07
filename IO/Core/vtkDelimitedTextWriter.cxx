@@ -27,11 +27,11 @@
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkTable.h"
 #include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
-#include <vector>
 #include <sstream>
+#include <vector>
 
 vtkStandardNewMacro(vtkDelimitedTextWriter);
 //-----------------------------------------------------------------------------

@@ -29,8 +29,8 @@
 #ifndef vtkClosestNPointsStrategy_h
 #define vtkClosestNPointsStrategy_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkClosestPointStrategy.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 
 class VTKCOMMONDATAMODEL_EXPORT vtkClosestNPointsStrategy : public vtkClosestPointStrategy

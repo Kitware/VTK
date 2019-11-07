@@ -15,8 +15,8 @@
 #ifndef vtkMPIPixelTT_h
 #define vtkMPIPixelTT_h
 
-#include "vtkType.h" // for vtk types
 #include "vtkMPI.h"
+#include "vtkType.h" // for vtk types
 
 // Description:
 // Traits class for converting from vtk data type enum

@@ -15,23 +15,23 @@
 
 #include "vtkQtStringToImage.h"
 
+#include "vtkImageData.h"
 #include "vtkQImageToImageSource.h"
 #include "vtkStdString.h"
-#include "vtkUnicodeString.h"
 #include "vtkTextProperty.h"
+#include "vtkUnicodeString.h"
 #include "vtkVector.h"
-#include "vtkImageData.h"
 
 #include "vtkObjectFactory.h"
 
 // Qt classes
 #include <QApplication>
-#include <QString>
 #include <QFont>
 #include <QFontMetrics>
 #include <QImage>
 #include <QPainter>
 #include <QPixmap>
+#include <QString>
 #include <QTextDocument>
 #include <QTextStream>
 

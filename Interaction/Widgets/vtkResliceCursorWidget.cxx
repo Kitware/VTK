@@ -13,21 +13,21 @@
 
 =========================================================================*/
 #include "vtkResliceCursorWidget.h"
-#include "vtkResliceCursorLineRepresentation.h"
-#include "vtkCommand.h"
-#include "vtkResliceCursor.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkWidgetEvent.h"
 #include "vtkImageData.h"
-#include "vtkInteractorStyleImage.h"
 #include "vtkImageMapToWindowLevelColors.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkResliceCursor.h"
+#include "vtkResliceCursorLineRepresentation.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkResliceCursorWidget);
 

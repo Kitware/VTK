@@ -18,14 +18,14 @@
 //  This test applies a function, F(x,y,z), to the image data and tests the
 //  interpolation.
 
+#include "vtkCell.h"
 #include "vtkDebugLeaks.h"
-#include "vtkImageData.h"
-#include "vtkSmartPointer.h"
-#include "vtkPoints.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkPointData.h"
-#include "vtkCell.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 
 #include <cassert>
 #include <cmath>

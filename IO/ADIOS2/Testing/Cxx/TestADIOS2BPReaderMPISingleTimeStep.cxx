@@ -26,21 +26,21 @@
 #include "vtkDataSetMapper.h"
 #include "vtkImageData.h"
 #include "vtkImageDataToPointSet.h"
+#include "vtkMPIController.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkMPIController.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkNew.h"
+#include "vtkTestUtilities.h"
 
 #include <sstream> // istringstream
 

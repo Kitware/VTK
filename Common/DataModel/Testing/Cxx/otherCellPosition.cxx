@@ -18,9 +18,11 @@
 // this program tests the Cell Position and Location Boundary methods for each cell type
 
 #include "vtkDebugLeaks.h"
+#include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
 #include "vtkIdList.h"
 #include "vtkLine.h"
+#include "vtkPentagonalPrism.h"
 #include "vtkPixel.h"
 #include "vtkPoints.h"
 #include "vtkPolyLine.h"
@@ -33,8 +35,6 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-#include "vtkPentagonalPrism.h"
-#include "vtkHexagonalPrism.h"
 
 #include <sstream>
 

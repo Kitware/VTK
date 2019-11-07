@@ -19,32 +19,32 @@
 #include "vtkAppendFilter.h"
 #include "vtkPlaneSource.h"
 #include "vtkRegularPolygonSource.h"
-#include "vtkTriangleFilter.h"
 #include "vtkStripper.h"
+#include "vtkTriangleFilter.h"
 
-#include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkUniformGrid.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
 
-#include "vtkPoints.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkPointLocator.h"
 #include "vtkDoubleArray.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPoints.h"
 
-#include "vtkTetra.h"
+#include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 #include "vtkQuadraticWedge.h"
-#include "vtkGenericCell.h"
+#include "vtkTetra.h"
 
 #include "vtkCommand.h"
 #include "vtkTestErrorObserver.h"
 
-#include <sstream>
 #include <map>
+#include <sstream>
 
 static vtkSmartPointer<vtkDataSet> CreatePolyData(const int xres, const int yres);
 static vtkSmartPointer<vtkDataSet> CreateTriangleStripData(const int xres, const int yres);

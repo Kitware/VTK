@@ -18,19 +18,19 @@
 
 #include "vtkByteSwap.h"
 #include "vtkDataArray.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkDataObject.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTypeInt16Array.h"
-#include "vtkTypeUInt16Array.h"
 #include "vtkTypeInt8Array.h"
+#include "vtkTypeUInt16Array.h"
 
 #include <cassert>
 

@@ -24,8 +24,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedIntArray.h"
 

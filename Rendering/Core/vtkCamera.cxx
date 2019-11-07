@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkCamera.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkTimeStamp.h"
 #include "vtkObjectFactory.h"
 #include "vtkPerspectiveTransform.h"
-#include "vtkTransform.h"
-#include "vtkCallbackCommand.h"
 #include "vtkRenderer.h"
+#include "vtkTimeStamp.h"
+#include "vtkTransform.h"
 
 #include <cassert>
 #include <cmath>

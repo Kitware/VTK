@@ -17,8 +17,8 @@
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridPlaneCutter.h"
 #include "vtkHyperTreeGridGeometry.h"
+#include "vtkHyperTreeGridPlaneCutter.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkHyperTreeGridToUnstructuredGrid.h"
 
@@ -26,12 +26,12 @@
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyData.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
 

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkCollectionIterator.h"
-#include "vtkObjectFactory.h"
 #include "vtkCollection.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkCollectionIterator);
 

@@ -13,24 +13,24 @@
 
 =========================================================================*/
 #include "vtkTemporalPathLineFilter.h"
-#include "vtkPolyData.h"
-#include "vtkPointSet.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMergePoints.h"
-#include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 //
-#include <vector>
+#include <cmath>
 #include <list>
 #include <map>
-#include <string>
 #include <stdexcept>
-#include <cmath>
+#include <string>
+#include <vector>
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTemporalPathLineFilter);
 //----------------------------------------------------------------------------

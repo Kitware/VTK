@@ -1,5 +1,5 @@
-#include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 #include "vtkMathUtilities.h"
 
 // Define this to run benchmarking tests on some vtkDataArray methods:
@@ -7,9 +7,9 @@
 // #define BENCHMARK
 
 #ifdef BENCHMARK
-#include "vtkTimerLog.h"
 #include "vtkIdList.h"
 #include "vtkNew.h"
+#include "vtkTimerLog.h"
 
 #include <iostream>
 #include <map>

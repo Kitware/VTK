@@ -43,8 +43,8 @@
 #define vtkImageMapToWindowLevelColors_h
 
 
-#include "vtkImagingColorModule.h" // For export macro
 #include "vtkImageMapToColors.h"
+#include "vtkImagingColorModule.h" // For export macro
 
 class VTKIMAGINGCOLOR_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToColors
 {

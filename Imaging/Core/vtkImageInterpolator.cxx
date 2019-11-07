@@ -14,11 +14,11 @@
 =========================================================================*/
 
 #include "vtkImageInterpolator.h"
-#include "vtkImageInterpolatorInternals.h"
-#include "vtkImageData.h"
 #include "vtkDataArray.h"
-#include "vtkTypeTraits.h"
+#include "vtkImageData.h"
+#include "vtkImageInterpolatorInternals.h"
 #include "vtkObjectFactory.h"
+#include "vtkTypeTraits.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types, because

@@ -32,9 +32,9 @@
 #ifndef vtkUnicodeStringArray_h
 #define vtkUnicodeStringArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
-#include "vtkUnicodeString.h" // For value type
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkUnicodeString.h"    // For value type
 
 class VTKCOMMONCORE_EXPORT vtkUnicodeStringArray :
   public vtkAbstractArray

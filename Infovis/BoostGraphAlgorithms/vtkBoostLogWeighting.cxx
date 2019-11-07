@@ -19,11 +19,11 @@
 
 =========================================================================*/
 
+#include "vtkBoostLogWeighting.h"
 #include "vtkArrayCoordinates.h"
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkBoostLogWeighting.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypedArray.h"

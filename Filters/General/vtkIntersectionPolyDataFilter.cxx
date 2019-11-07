@@ -34,10 +34,10 @@
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
 #include "vtkSortDataArray.h"
-#include "vtkTriangle.h"
-#include "vtkTriangleFilter.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
+#include "vtkTriangle.h"
+#include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <list>

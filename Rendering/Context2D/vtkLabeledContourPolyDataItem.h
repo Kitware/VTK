@@ -24,9 +24,9 @@
 #ifndef vtkLabeledContourPolyDataItem_h
 #define vtkLabeledContourPolyDataItem_h
 
+#include "vtkPolyDataItem.h"
 #include "vtkRect.h" // For vtkRect/vtkVector/vtkTuple
 #include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkPolyDataItem.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 class vtkActor;

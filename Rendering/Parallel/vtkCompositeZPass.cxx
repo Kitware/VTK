@@ -15,29 +15,29 @@
 
 #include "vtkCompositeZPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderState.h"
+#include "vtkTextureObject.h"
+#include <cassert>
 
 // to be able to dump intermediate result into png files for debugging.
 // only for vtkCompositeZPass developers.
 //#define VTK_COMPOSITE_ZPASS_DEBUG
 
 #include "vtkFrameBufferObjectBase.h"
-#include "vtkPNGWriter.h"
+#include "vtkImageData.h"
+#include "vtkImageExtractComponents.h"
 #include "vtkImageImport.h"
 #include "vtkImageShiftScale.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
 #include "vtkMultiProcessController.h"
-#include <sstream>
-#include "vtkTimerLog.h"
-#include "vtkStdString.h"
-#include "vtkImageData.h"
+#include "vtkPNGWriter.h"
+#include "vtkPixelBufferObject.h"
 #include "vtkPointData.h"
+#include "vtkStdString.h"
+#include "vtkTimerLog.h"
+#include <sstream>
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
 //#include <unistd.h>
@@ -45,11 +45,11 @@
 # include <sys/types.h> // Linux specific gettid()
 #endif
 
+#include "vtkCompositeZPassFS.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLHelper.h"
 #include "vtkTextureObjectVS.h"
-#include "vtkCompositeZPassFS.h"
 #include "vtk_glew.h"
 
 vtkStandardNewMacro(vtkCompositeZPass);

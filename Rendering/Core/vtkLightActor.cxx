@@ -15,15 +15,15 @@
 #include "vtkLightActor.h"
 
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkBoundingBox.h"
+#include "vtkCamera.h"
 #include "vtkCameraActor.h"
 #include "vtkConeSource.h"
-#include "vtkCamera.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkBoundingBox.h"
 
 vtkStandardNewMacro(vtkLightActor);
 vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);

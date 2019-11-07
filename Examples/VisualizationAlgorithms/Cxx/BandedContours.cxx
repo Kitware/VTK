@@ -1,19 +1,19 @@
+#include <vtkBandedPolyDataContourFilter.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
-#include <vtkBandedPolyDataContourFilter.h>
 
-#include <vtkFloatArray.h>
+#include <vtkActor.h>
 #include <vtkCellData.h>
-#include <vtkPointData.h>
-#include <vtkScalarsToColors.h>
+#include <vtkFloatArray.h>
 #include <vtkLookupTable.h>
+#include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkActor.h>
+#include <vtkScalarsToColors.h>
 
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include <vector>
 

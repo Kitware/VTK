@@ -17,8 +17,8 @@
 
 #include "vtkDataSetCollection.h"
 #include "vtkImageData.h"
-#include "vtkObjectFactory.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vector>

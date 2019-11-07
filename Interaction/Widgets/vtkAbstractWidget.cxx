@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkAbstractWidget.h"
-#include "vtkWidgetRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
-#include "vtkRenderer.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
+#include "vtkWidgetRepresentation.h"
 
 //----------------------------------------------------------------------
 vtkAbstractWidget::vtkAbstractWidget()

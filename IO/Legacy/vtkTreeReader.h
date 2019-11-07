@@ -31,8 +31,8 @@
 #ifndef vtkTreeReader_h
 #define vtkTreeReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkTree;
 

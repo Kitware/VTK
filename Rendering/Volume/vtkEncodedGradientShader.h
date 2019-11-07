@@ -33,8 +33,8 @@
 #ifndef vtkEncodedGradientShader_h
 #define vtkEncodedGradientShader_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkVolume;
 class vtkRenderer;

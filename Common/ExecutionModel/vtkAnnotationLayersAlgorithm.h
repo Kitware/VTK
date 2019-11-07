@@ -33,9 +33,9 @@
 #ifndef vtkAnnotationLayersAlgorithm_h
 #define vtkAnnotationLayersAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkAnnotationLayers.h" // makes things a bit easier
+#include "vtkAnnotationLayers.h"           // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 

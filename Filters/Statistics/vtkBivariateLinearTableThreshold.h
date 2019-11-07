@@ -41,8 +41,8 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkBivariateLinearTableThreshold_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
-#include "vtkTableAlgorithm.h"
 #include "vtkSmartPointer.h"  //Required for smart pointer internal ivars
+#include "vtkTableAlgorithm.h"
 
 class vtkDataArrayCollection;
 class vtkDoubleArray;

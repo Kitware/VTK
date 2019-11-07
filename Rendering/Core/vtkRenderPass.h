@@ -45,8 +45,8 @@
 #ifndef vtkRenderPass_h
 #define vtkRenderPass_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkFrameBufferObjectBase;
 class vtkRenderState;

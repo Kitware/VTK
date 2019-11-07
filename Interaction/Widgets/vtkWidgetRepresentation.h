@@ -43,9 +43,9 @@
 #define vtkWidgetRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkNew.h" // for ivars
 #include "vtkProp.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer iVar.
-#include "vtkNew.h" // for ivars
 
 class vtkAbstractPropPicker;
 class vtkAbstractWidget;

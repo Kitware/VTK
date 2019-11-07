@@ -20,42 +20,42 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkYoungsMaterialInterface.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCell.h"
-#include "vtkEmptyCell.h"
-#include "vtkPolygon.h"
-#include "vtkConvexPointSet.h"
-#include "vtkDataSet.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkDataArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkConvexPointSet.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkEmptyCell.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
-#include "vtkIdList.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 #ifndef DBG_ASSERT
 #define DBG_ASSERT(c) (void)0
 #endif
 
-#include <vector>
+#include <algorithm>
+#include <map>
 #include <set>
 #include <string>
-#include <map>
-#include <algorithm>
+#include <vector>
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
 
 class vtkYoungsMaterialInterfaceCellCut
 {
@@ -1734,8 +1734,8 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
   struct uchar3 {unsigned char x,y,z; };
 
 #else
-#include <vector_types.h>
 #include <vector_functions.h>
+#include <vector_types.h>
 #endif
 
 #ifndef FUNC_DECL

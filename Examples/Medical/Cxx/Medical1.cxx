@@ -17,19 +17,19 @@
 // represents the skin and displays it.
 //
 
-#include <vtkRenderer.h>
+#include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkContourFilter.h>
+#include <vtkOutlineFilter.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkProperty.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkVolume16Reader.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkOutlineFilter.h>
-#include <vtkCamera.h>
-#include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
-#include <vtkContourFilter.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkRegressionTestImage.h>
+#include <vtkVolume16Reader.h>
 
 #include<cstring>
 

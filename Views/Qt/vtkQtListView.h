@@ -32,12 +32,12 @@
 #ifndef vtkQtListView_h
 #define vtkQtListView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
-#include <QPointer> // Needed for the internal list view
-#include <QImage> // Needed for the icon methods
 #include "vtkSmartPointer.h" // Needed for member variables
+#include <QImage> // Needed for the icon methods
+#include <QPointer> // Needed for the internal list view
 
 class vtkApplyColors;
 class vtkDataObjectToTable;

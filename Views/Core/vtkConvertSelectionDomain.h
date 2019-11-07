@@ -41,8 +41,8 @@
 #ifndef vtkConvertSelectionDomain_h
 #define vtkConvertSelectionDomain_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkAnnotation;
 

@@ -26,8 +26,8 @@
 #ifndef vtkStructuredGridWriter_h
 #define vtkStructuredGridWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkStructuredGrid;
 

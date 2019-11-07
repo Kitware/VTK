@@ -13,33 +13,33 @@
 
 =========================================================================*/
 
-#include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
-#include "vtkPointData.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkPolyData.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkTestUtilities.h"
-#include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCompositeSurfaceLICMapper.h"
-#include "vtkSurfaceLICMapper.h"
 #include "vtkSurfaceLICInterface.h"
+#include "vtkSurfaceLICMapper.h"
 
 #include "vtk_glew.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #ifndef vtkFloatingPointTemplateMacro
 #define vtkFloatingPointTemplateMacro(call) \

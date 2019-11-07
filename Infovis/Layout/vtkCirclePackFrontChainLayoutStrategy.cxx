@@ -29,11 +29,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkTree.h"
-#include "vtkMath.h"
-#include <vector>
+#include <cmath>
 #include <limits>
 #include <list>
-#include <cmath>
+#include <vector>
 
 vtkStandardNewMacro(vtkCirclePackFrontChainLayoutStrategy);
 

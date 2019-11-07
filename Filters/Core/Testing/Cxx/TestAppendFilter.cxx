@@ -15,8 +15,8 @@
 
 #include <vtkAppendFilter.h>
 #include <vtkCellData.h>
-#include <vtkDataSetAttributes.h>
 #include <vtkDataSet.h>
+#include <vtkDataSetAttributes.h>
 #include <vtkIdList.h>
 #include <vtkIdTypeArray.h>
 #include <vtkIntArray.h>

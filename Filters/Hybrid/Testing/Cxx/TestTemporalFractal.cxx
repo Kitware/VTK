@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 
-#include "vtkTemporalFractal.h"
-#include "vtkTemporalShiftScale.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkContourFilter.h"
 #include "vtkActor.h"
 #include "vtkCompositeDataGeometryFilter.h"
-#include "vtkSmartPointer.h"
-#include "vtkThreshold.h"
-#include "vtkTemporalInterpolator.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkContourFilter.h"
 #include "vtkInformation.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkSmartPointer.h"
+#include "vtkTemporalFractal.h"
+#include "vtkTemporalInterpolator.h"
+#include "vtkTemporalShiftScale.h"
+#include "vtkThreshold.h"
 
 //-------------------------------------------------------------------------
 int TestTemporalFractal(int argc, char *argv[])

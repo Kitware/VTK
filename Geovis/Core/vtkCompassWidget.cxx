@@ -19,18 +19,18 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkCompassWidget.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
-#include "vtkCompassWidget.h"
 #include "vtkCompassRepresentation.h"
 #include "vtkEvent.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkTimerLog.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkTimerLog.h"
 
 vtkStandardNewMacro(vtkCompassWidget);
 

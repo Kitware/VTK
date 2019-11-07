@@ -15,12 +15,12 @@
 #include <vtkGDALRasterReader.h>
 
 // VTK includes
-#include <vtkImageActor.h>
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkCompositePolyDataMapper.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
+#include <vtkImageActor.h>
 #include <vtkInformation.h>
 #include <vtkLookupTable.h>
 #include <vtkMapper.h>
@@ -30,9 +30,9 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkTestUtilities.h>

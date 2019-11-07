@@ -17,8 +17,8 @@
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
@@ -33,13 +33,13 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkShortArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkShortArray.h"
-#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkRandomAttributeGenerator);
 

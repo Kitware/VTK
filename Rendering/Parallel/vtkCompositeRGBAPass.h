@@ -31,8 +31,8 @@
 #ifndef vtkCompositeRGBAPass_h
 #define vtkCompositeRGBAPass_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkMultiProcessController;
 

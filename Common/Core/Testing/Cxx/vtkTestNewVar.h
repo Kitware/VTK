@@ -21,8 +21,8 @@
 #ifndef vtkTestNewVar_h
 #define vtkTestNewVar_h
 
-#include "vtkObject.h"
 #include "vtkNew.h"
+#include "vtkObject.h"
 
 class vtkPoints2D;
 

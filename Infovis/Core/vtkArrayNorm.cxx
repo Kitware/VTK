@@ -19,16 +19,16 @@
 
 =========================================================================*/
 
+#include "vtkArrayNorm.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include "vtkArrayNorm.h"
 
-#include <sstream>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -12,11 +12,11 @@
 #include "vtkDataSetMapper.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkOBJReader.h"
-#include "vtkSTLReader.h"
-#include "vtkPolyDataReader.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataReader.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkSTLReader.h"
 #include "vtkXMLGenericDataObjectReader.h"
 
 @implementation VTKLoader

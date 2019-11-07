@@ -28,14 +28,14 @@
 #include "vtkSmartPointer.h"
 #include "vtksys/SystemTools.hxx"
 
-#include <sstream>
+#include "vtkOBJImporterInternals.h"
 #include <cctype>
 #include <cstdio>
 #include <list>
-#include <set>
 #include <map>
 #include <memory>
-#include "vtkOBJImporterInternals.h"
+#include <set>
+#include <sstream>
 
 vtkStandardNewMacro(vtkOBJImporter)
 vtkStandardNewMacro(vtkOBJPolyDataProcessor)

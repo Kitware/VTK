@@ -37,8 +37,8 @@
 #ifndef vtkMergeFields_h
 #define vtkMergeFields_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkDataArray;
 class vtkFieldData;

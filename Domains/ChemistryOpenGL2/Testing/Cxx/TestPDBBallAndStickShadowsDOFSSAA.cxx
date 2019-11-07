@@ -12,40 +12,40 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkMolecule.h"
 #include "vtkLight.h"
+#include "vtkMolecule.h"
+#include "vtkNew.h"
 #include "vtkOpenGLMoleculeMapper.h"
 #include "vtkOpenGLSphereMapper.h"
-#include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkShaderProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkPDBReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkShaderProperty.h"
 
+#include "vtkCameraPass.h"
 #include "vtkDepthOfFieldPass.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRenderPassCollection.h"
 #include "vtkRenderStepsPass.h"
+#include "vtkSSAAPass.h"
 #include "vtkSequencePass.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkCameraPass.h"
-#include "vtkRenderPassCollection.h"
-#include "vtkSSAAPass.h"
 
 #include "vtkLookupTable.h"
 #include "vtkPeriodicTable.h"
 
-#include "vtkTimerLog.h"
 #include "vtkCamera.h"
+#include "vtkTimerLog.h"
 
 int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
 {

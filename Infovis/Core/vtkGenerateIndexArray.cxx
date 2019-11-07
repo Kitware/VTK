@@ -12,11 +12,11 @@
 
 =========================================================================*/
 
+#include "vtkGenerateIndexArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDemandDrivenPipeline.h"
-#include "vtkGenerateIndexArray.h"
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"

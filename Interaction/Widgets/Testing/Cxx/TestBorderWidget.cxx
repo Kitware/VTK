@@ -16,17 +16,17 @@
 // This example tests the vtkBorderWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-#include "vtkBorderWidget.h"
-#include "vtkBorderRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkBorderRepresentation.h"
+#include "vtkBorderWidget.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 
 const char BorderWidgetEventLog[] =
   "# StreamVersion 1\n"

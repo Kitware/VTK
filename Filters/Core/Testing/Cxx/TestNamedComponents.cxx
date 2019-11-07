@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkArrayCalculator.h"
 #include "vtkCellData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -21,7 +22,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkArrayCalculator.h"
 
 int TestNamedComponents(int , char *[])
 {

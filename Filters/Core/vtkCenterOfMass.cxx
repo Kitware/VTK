@@ -14,13 +14,13 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkCenterOfMass.h"
 
-#include "vtkPointSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 
 #include <cassert>

@@ -17,8 +17,8 @@
 #include "vtkTesting.h"
 #include "vtkTestingInteractor.h"
 
-#include <string>
 #include <cstdio> // For remove
+#include <string>
 
 int PNGCompare(int argc, char *argv[])
 {

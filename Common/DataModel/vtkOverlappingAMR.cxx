@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkOverlappingAMR.h"
-#include "vtkUniformGridAMRDataIterator.h"
-#include "vtkObjectFactory.h"
 #include "vtkAMRInformation.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUniformGrid.h"
-#include "vtkInformationIdTypeKey.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkInformationIdTypeKey.h"
+#include "vtkObjectFactory.h"
+#include "vtkUniformGrid.h"
+#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUnsignedCharArray.h"
 #include <vector>
 
 vtkStandardNewMacro(vtkOverlappingAMR);

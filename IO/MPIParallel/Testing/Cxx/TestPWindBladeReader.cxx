@@ -20,23 +20,23 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkMPIController.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGeometryFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMPIController.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 
 void AddColor(vtkDataSet* grid)
 {

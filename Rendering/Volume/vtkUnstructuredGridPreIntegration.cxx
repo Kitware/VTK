@@ -24,13 +24,13 @@
 
 #include "vtkUnstructuredGridPreIntegration.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkDoubleArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridPartialPreIntegration.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <algorithm>
 #include <cmath>

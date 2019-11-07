@@ -38,8 +38,8 @@
 #ifndef vtkProcess_h
 #define vtkProcess_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 class vtkMultiProcessController;
 

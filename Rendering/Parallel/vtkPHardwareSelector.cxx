@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkPHardwareSelector.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 class vtkPHardwareSelector::vtkObserver : public vtkCommand
 {

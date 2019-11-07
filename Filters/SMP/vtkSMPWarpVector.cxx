@@ -20,10 +20,10 @@
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkSMPTools.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 
 
 //----------------------------------------------------------------------------

@@ -13,7 +13,6 @@
 
   =========================================================================*/
 
-#include <vtkStructuredGridAppend.h>
 #include <vtkCellData.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
@@ -23,8 +22,9 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
-#include <vtkStructuredGrid.h>
 #include <vtkSmartPointer.h>
+#include <vtkStructuredGrid.h>
+#include <vtkStructuredGridAppend.h>
 
 namespace
 {

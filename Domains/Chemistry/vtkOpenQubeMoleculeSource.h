@@ -23,8 +23,8 @@
 #ifndef vtkOpenQubeMoleculeSource_h
 #define vtkOpenQubeMoleculeSource_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkDomainsChemistryModule.h" // For export macro
 
 class vtkMolecule;
 

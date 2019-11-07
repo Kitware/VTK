@@ -20,26 +20,26 @@
 #include "vtkDebugLeaks.h"
 
 #include "vtkIdList.h"
-#include "vtkQuadraticEdge.h"
-#include "vtkQuadraticTriangle.h"
-#include "vtkQuadraticQuad.h"
-#include "vtkQuadraticHexahedron.h"
-#include "vtkQuadraticTetra.h"
-#include "vtkQuadraticWedge.h"
-#include "vtkQuadraticPyramid.h"
 #include "vtkPoints.h"
+#include "vtkQuadraticEdge.h"
+#include "vtkQuadraticHexahedron.h"
+#include "vtkQuadraticPyramid.h"
+#include "vtkQuadraticQuad.h"
+#include "vtkQuadraticTetra.h"
+#include "vtkQuadraticTriangle.h"
+#include "vtkQuadraticWedge.h"
 
 #include <sstream>
 
 // New quadratic cells
 #include "vtkBiQuadraticQuad.h"
-#include "vtkQuadraticLinearQuad.h"
-#include "vtkQuadraticLinearWedge.h"
-#include "vtkBiQuadraticQuadraticWedge.h"
-#include "vtkTriQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticTriangle.h"
 #include "vtkCubicLine.h"
+#include "vtkQuadraticLinearQuad.h"
+#include "vtkQuadraticLinearWedge.h"
+#include "vtkTriQuadraticHexahedron.h"
 
 static void  ComputeDataValues(vtkPoints *pts, double *edgeValues);
 

@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOverlappingAMR.h"
 #include "vtkAMRGaussianPulseSource.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkUniformGridAMRDataIterator.h"
 
 #include <iostream>

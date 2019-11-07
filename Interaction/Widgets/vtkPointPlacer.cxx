@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkPointPlacer.h"
 
+#include "vtkCoordinate.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkCoordinate.h"
 
 vtkStandardNewMacro(vtkPointPlacer);
 

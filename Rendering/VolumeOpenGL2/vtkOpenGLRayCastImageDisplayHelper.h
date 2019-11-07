@@ -27,8 +27,8 @@
 #ifndef vtkOpenGLRayCastImageDisplayHelper_h
 #define vtkOpenGLRayCastImageDisplayHelper_h
 
-#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkRayCastImageDisplayHelper.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 class vtkFixedPointRayCastImage;
 class vtkOpenGLHelper;

@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkTextActor3D.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCamera.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
-#include "vtkTransform.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkTransform.h"
 #include "vtkWindow.h"
-#include "vtkMatrix4x4.h"
-#include "vtkMath.h"
 
 vtkObjectFactoryNewMacro(vtkTextActor3D)
 

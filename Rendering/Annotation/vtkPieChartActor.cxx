@@ -16,21 +16,21 @@
 
 #include "vtkAxisActor2D.h"
 #include "vtkCellArray.h"
-#include "vtkFieldData.h"
 #include "vtkCellData.h"
+#include "vtkFieldData.h"
+#include "vtkGlyphSource2D.h"
+#include "vtkLegendBoxActor.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkLegendBoxActor.h"
-#include "vtkGlyphSource2D.h"
-#include "vtkProperty2D.h"
-#include "vtkTrivialProducer.h"
 
 #include <string>
 #include <vector>

@@ -37,9 +37,9 @@
 #ifndef vtkLegendScaleActor_h
 #define vtkLegendScaleActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
-#include "vtkProp.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
+#include "vtkProp.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAxisActor2D;
 class vtkTextProperty;

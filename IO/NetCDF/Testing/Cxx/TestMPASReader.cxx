@@ -27,9 +27,9 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
@@ -37,8 +37,8 @@
 
 
 
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
+#include "vtkPointData.h"
 
 int TestMPASReader( int argc, char *argv[] )
 {

@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkAbstractCellLinks.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
 vtkAbstractCellLinks::vtkAbstractCellLinks()

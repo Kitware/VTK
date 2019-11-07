@@ -23,8 +23,8 @@
 #ifndef vtkNewickTreeWriter_h
 #define vtkNewickTreeWriter_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkStdString.h"       // For get/set ivars
 
 class vtkTree;

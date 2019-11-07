@@ -24,10 +24,10 @@
 #ifndef vtkOpenGLCellToVTKCellMap_h
 #define vtkOpenGLCellToVTKCellMap_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkObject.h"
-#include "vtkStateStorage.h" // used for ivars
 #include "vtkNew.h" // for ivars
+#include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkStateStorage.h" // used for ivars
 
 class vtkCellArray;
 class vtkPoints;

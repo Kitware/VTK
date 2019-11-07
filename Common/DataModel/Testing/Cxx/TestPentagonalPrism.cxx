@@ -13,19 +13,19 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkCellType.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkPentagonalPrism.h"
 #include "vtkHexagonalPrism.h"
+#include "vtkPentagonalPrism.h"
 
+#include "vtkCellArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include <sstream>
-#include <vector>
-#include <string>
 #include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism();
 vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism();

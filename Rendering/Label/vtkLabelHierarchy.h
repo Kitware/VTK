@@ -61,8 +61,8 @@
 #ifndef vtkLabelHierarchy_h
 #define vtkLabelHierarchy_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkPointSet.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkAbstractArray;
 class vtkCamera;

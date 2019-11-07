@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSortFieldData.h"
-#include "vtkIntArray.h"
-#include "vtkStringArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkVariantArray.h"
 #include "vtkFieldData.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkSortFieldData.h"
+#include "vtkStringArray.h"
+#include "vtkVariantArray.h"
 
-#include <sstream> // to_string chokes some compilers
 #include <locale> // C++ locale
+#include <sstream> // to_string chokes some compilers
 
 // A simple test sorts on one of the components of a 3-tuple array, and then
 // orders all of the arrays based on the sort indices.

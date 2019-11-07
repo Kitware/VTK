@@ -30,8 +30,8 @@
 #ifndef vtkAndroidRenderWindowInteractor_h
 #define vtkAndroidRenderWindowInteractor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 struct AInputEvent;
 

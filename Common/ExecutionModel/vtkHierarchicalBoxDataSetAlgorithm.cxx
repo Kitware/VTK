@@ -16,9 +16,9 @@
 
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
+#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSetAlgorithm);

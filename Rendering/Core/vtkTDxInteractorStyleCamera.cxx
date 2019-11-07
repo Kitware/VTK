@@ -15,15 +15,15 @@
 
 #include "vtkTDxInteractorStyleCamera.h"
 
-#include "vtkTransform.h"
-#include <cassert>
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTDxMotionEventInfo.h"
-#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
 #include "vtkTDxInteractorStyleSettings.h"
+#include "vtkTDxMotionEventInfo.h"
+#include "vtkTransform.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkTDxInteractorStyleCamera);
 

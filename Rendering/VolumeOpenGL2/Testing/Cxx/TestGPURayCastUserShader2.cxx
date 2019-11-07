@@ -31,10 +31,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkShaderProperty.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkShaderProperty.h"
 
 #include <TestGPURayCastUserShader2_FS.h>
 

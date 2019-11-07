@@ -27,8 +27,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkPolygon.h"
 #include "vtkPolyLine.h"
+#include "vtkPolygon.h"
 #include "vtkStringArray.h"
 
 #include <sstream>

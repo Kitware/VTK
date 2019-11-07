@@ -21,8 +21,8 @@
 #include "vtkNew.h"
 #include "vtkPhyloXMLTreeReader.h"
 #include "vtkPhyloXMLTreeWriter.h"
-#include "vtkTesting.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkTree.h"
 #include "vtkUnsignedCharArray.h"
 

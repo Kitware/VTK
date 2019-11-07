@@ -15,34 +15,33 @@
 
 #include "vtkAMRResampleFilter.h"
 #include "vtkAMRInformation.h"
-#include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkMultiProcessController.h"
-#include "vtkUniformGrid.h"
-#include "vtkIndent.h"
 #include "vtkAMRUtilities.h"
 #include "vtkBoundingBox.h"
-#include "vtkMath.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkFieldData.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkCell.h"
-#include "vtkExtentRCBPartitioner.h"
-#include "vtkUniformGridPartitioner.h"
+#include "vtkCellData.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataArray.h"
+#include "vtkExtentRCBPartitioner.h"
+#include "vtkFieldData.h"
+#include "vtkIndent.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
+#include "vtkUniformGridPartitioner.h"
 
 #include "vtkTimerLog.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <sstream>
-#include <cmath>
-#include <algorithm>
 
 
 vtkStandardNewMacro( vtkAMRResampleFilter );

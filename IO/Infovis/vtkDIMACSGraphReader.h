@@ -56,9 +56,9 @@
 #ifndef vtkDIMACSGraphReader_h
 #define vtkDIMACSGraphReader_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
-#include "vtkStdString.h" // For string API
+#include "vtkIOInfovisModule.h" // For export macro
+#include "vtkStdString.h"       // For string API
 
 class VTKIOINFOVIS_EXPORT vtkDIMACSGraphReader : public vtkGraphAlgorithm
 {

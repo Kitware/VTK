@@ -17,12 +17,12 @@
 // .SECTION Description
 // this program tests the FindClosestPoint method
 
-#include "vtkStaticCellLocator.h"
 #include "vtkCellLocator.h" // used as reference
 #include "vtkCylinderSource.h"
-#include "vtkPolyData.h"
 #include "vtkGenericCell.h"
+#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLocator.h"
 
 
 int TestStaticCellLocator(int,char *[])

@@ -23,8 +23,8 @@
 #include "vtkPolygon.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <vector>
 #include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkCookieCutter);
 vtkCxxSetObjectMacro(vtkCookieCutter,Locator,vtkIncrementalPointLocator)

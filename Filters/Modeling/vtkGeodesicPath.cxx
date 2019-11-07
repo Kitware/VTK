@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkGeodesicPath.h"
 
+#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkExecutive.h"
 
 
 //-----------------------------------------------------------------------------

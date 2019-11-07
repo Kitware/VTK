@@ -31,8 +31,8 @@
 #ifndef vtkIcicleView_h
 #define vtkIcicleView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class VTKVIEWSINFOVIS_EXPORT vtkIcicleView : public vtkTreeAreaView
 {

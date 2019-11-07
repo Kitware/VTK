@@ -28,15 +28,15 @@
 
 #include "vtkPKMeansStatistics.h"
 
-#include "vtkMath.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMPIController.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkDoubleArray.h"
 
 #include "vtksys/CommandLineArguments.hxx"
 

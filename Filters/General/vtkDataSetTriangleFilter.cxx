@@ -24,11 +24,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 

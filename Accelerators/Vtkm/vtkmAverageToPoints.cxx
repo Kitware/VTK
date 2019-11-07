@@ -22,8 +22,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ArrayConverters.h"
+#include "vtkmlib/DataSetConverters.h"
 
 #include "vtkmFilterPolicy.h"
 

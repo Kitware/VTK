@@ -35,19 +35,19 @@
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStructuredGridGeometryFilter.h"
+#include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkStructuredGridGeometryFilter.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTetra.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridBase.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
-#include "vtkStructuredData.h"
 
 #include <algorithm>
 #include <cassert>

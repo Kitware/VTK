@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkDataObjectReader.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkDataObject.h"
 #include "vtkExecutive.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkFieldData.h"
-#include "vtkDataObject.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkDataObjectReader);
 

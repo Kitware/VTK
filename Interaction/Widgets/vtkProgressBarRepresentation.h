@@ -25,8 +25,8 @@
 #ifndef vtkProgressBarRepresentation_h
 #define vtkProgressBarRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor2D;
 class vtkPoints;

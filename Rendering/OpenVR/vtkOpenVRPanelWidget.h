@@ -25,8 +25,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRPanelWidget_h
 #define vtkOpenVRPanelWidget_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class vtkOpenVRPanelRepresentation;
 class vtkPropMap;

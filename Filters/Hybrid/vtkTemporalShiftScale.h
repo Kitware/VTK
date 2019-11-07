@@ -33,8 +33,8 @@
 #ifndef vtkTemporalShiftScale_h
 #define vtkTemporalShiftScale_h
 
-#include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersHybridModule.h" // For export macro
 
 
 class VTKFILTERSHYBRID_EXPORT vtkTemporalShiftScale: public vtkAlgorithm

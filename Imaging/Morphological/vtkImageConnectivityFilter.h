@@ -93,8 +93,8 @@
 #ifndef vtkImageConnectivityFilter_h
 #define vtkImageConnectivityFilter_h
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkIntArray;

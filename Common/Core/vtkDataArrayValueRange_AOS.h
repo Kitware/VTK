@@ -23,8 +23,8 @@
 #include "vtkDataArrayMeta.h"
 #include "vtkDataArrayValueRange_Generic.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <type_traits>
 

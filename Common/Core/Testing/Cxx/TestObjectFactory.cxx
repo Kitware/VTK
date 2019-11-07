@@ -19,8 +19,8 @@
 #include "vtkOutputWindow.h"
 #include "vtkOverrideInformation.h"
 #include "vtkOverrideInformationCollection.h"
-#include "vtkVersion.h"
 #include "vtkPoints.h"
+#include "vtkVersion.h"
 
 static int failed = 0;
 

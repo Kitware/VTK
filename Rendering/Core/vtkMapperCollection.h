@@ -27,10 +27,10 @@
 #ifndef vtkMapperCollection_h
 #define vtkMapperCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkMapper.h" // Needed for direct access to mapper methods in
-                       // inline functions
+#include "vtkMapper.h"              // Needed for direct access to mapper methods in
+                                    // inline functions
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
 {

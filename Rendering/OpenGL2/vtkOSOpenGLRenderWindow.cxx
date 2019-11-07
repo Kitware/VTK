@@ -29,12 +29,12 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/osmesa.h>
 
 #include "vtkOSOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLProperty.h"
-#include "vtkOpenGLTexture.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
-#include "vtkOpenGLActor.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLTexture.h"
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"

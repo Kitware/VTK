@@ -17,8 +17,8 @@
 // .SECTION Description
 // this program tests the LookupTableWithEnabling
 
-#include "vtkLookupTableWithEnabling.h"
 #include "vtkDebugLeaks.h"
+#include "vtkLookupTableWithEnabling.h"
 
 void TestOLT(vtkLookupTableWithEnabling *lut1)
 {

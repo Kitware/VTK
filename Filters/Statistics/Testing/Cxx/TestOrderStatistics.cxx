@@ -12,14 +12,14 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
-#include "vtkStringArray.h"
 #include "vtkMath.h"
-#include "vtkTable.h"
-#include "vtkOrderStatistics.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkOrderStatistics.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 
-#include <vector>
 #include <map>
+#include <vector>
 
 //=============================================================================
 int TestOrderStatistics( int, char *[] )

@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkMergeFilter.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkCommand.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkFloatArray.h"
+#include "vtkCommand.h"
 #include "vtkDataObjectGenerator.h"
-#include "vtkTestErrorObserver.h"
+#include "vtkFloatArray.h"
 #include "vtkMathUtilities.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkTestErrorObserver.h"
 
 #include <cstdio>
 #include <sstream>

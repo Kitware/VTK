@@ -14,20 +14,20 @@
 =========================================================================*/
 #include "vtkMultiNewickTreeReader.h"
 
-#include "vtkNew.h"
-#include "vtkTree.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkNew.h"
+#include "vtkNewickTreeReader.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkNewickTreeReader.h"
-#include "vtkMultiPieceDataSet.h"
-#include "vtkSmartPointer.h"
+#include "vtkTree.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 vtkStandardNewMacro(vtkMultiNewickTreeReader);
 

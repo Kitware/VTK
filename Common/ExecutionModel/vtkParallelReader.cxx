@@ -20,8 +20,8 @@
 #include "vtkReaderExecutive.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <vector>
 #include <numeric>
+#include <vector>
 
 struct vtkParallelReaderInternal
 {

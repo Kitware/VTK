@@ -22,8 +22,8 @@
 #define QTestApp_h
 
 #include <QApplication>
-#include <QVector>
 #include <QByteArray>
+#include <QVector>
 
 class QTestApp
 {

@@ -1,6 +1,6 @@
-#include "vtkSeedWidget.h"
-#include "vtkSeedRepresentation.h"
 #include "vtkHandleWidget.h"
+#include "vtkSeedRepresentation.h"
+#include "vtkSeedWidget.h"
 
 #include <cstdlib>
 #include <iostream>

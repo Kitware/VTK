@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtk_glew.h"
 #include "vtkTextureUnitManager.h"
+#include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"

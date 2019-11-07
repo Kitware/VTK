@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkExtractDataOverTime.h"
 
-#include "vtkPointSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkDoubleArray.h"
+#include "vtkPointSet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkExtractDataOverTime);

@@ -18,9 +18,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkPointData.h"
 
 #include <QApplication>
 #include <QImage>

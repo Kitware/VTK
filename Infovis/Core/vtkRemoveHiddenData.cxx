@@ -23,6 +23,7 @@
 #include "vtkAnnotationLayers.h"
 #include "vtkCellData.h"
 #include "vtkConvertSelection.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedGraph.h"
 #include "vtkExtractSelectedRows.h"
@@ -32,13 +33,12 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkDataSet.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
 
 
 vtkStandardNewMacro(vtkRemoveHiddenData);

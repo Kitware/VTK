@@ -13,19 +13,19 @@
 
  =========================================================================*/
 #include "vtkAMRGaussianPulseSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
+#include "vtkAMRBox.h"
+#include "vtkAMRUtilities.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkAMRUtilities.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStructuredExtent.h"
-#include "vtkCell.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkAMRBox.h"
+#include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkStructuredExtent.h"
+#include "vtkUniformGrid.h"
 
 #include <cassert>
 

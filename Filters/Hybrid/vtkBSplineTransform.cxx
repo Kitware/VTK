@@ -16,9 +16,9 @@
 
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
-#include "vtkObjectFactory.h"
 
 #include <cmath>
 

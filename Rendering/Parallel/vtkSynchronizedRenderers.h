@@ -30,10 +30,10 @@
 #ifndef vtkSynchronizedRenderers_h
 #define vtkSynchronizedRenderers_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkUnsignedCharArray.h" // needed for vtkUnsignedCharArray.
+#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkUnsignedCharArray.h" // needed for vtkUnsignedCharArray.
 
 class vtkFXAAOptions;
 class vtkRenderer;

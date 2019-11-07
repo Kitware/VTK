@@ -27,8 +27,8 @@
 #endif
 
 #include "vtkWindows.h"
-#include <winuser.h>
 #include <vfw.h>
+#include <winuser.h>
 
 #ifdef _MSC_VER
 #pragma warning (pop)

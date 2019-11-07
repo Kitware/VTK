@@ -30,8 +30,8 @@
 #ifndef vtkAnimationScene_h
 #define vtkAnimationScene_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAnimationCue.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkAnimationCue;
 class vtkCollection;

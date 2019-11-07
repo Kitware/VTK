@@ -13,12 +13,12 @@
 
 =========================================================================*/
 
+#include <vtkMath.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphere.h>
-#include <vtkMath.h>
 
-#include <vector>
 #include <cstdlib>
+#include <vector>
 
 int TestComputeBoundingSphere(int, char*[])
 {

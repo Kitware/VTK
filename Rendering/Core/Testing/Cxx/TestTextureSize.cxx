@@ -21,17 +21,17 @@
 #include <vtkFloatArray.h>
 #include <vtkImageData.h>
 #include <vtkNew.h>
+#include <vtkPNGWriter.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper2D.h>
-#include <vtkPNGWriter.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTexture.h>
 #include <vtkTexturedActor2D.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
 
 vtkImageData* createTexture2D(int width, int height, int comp)
 {

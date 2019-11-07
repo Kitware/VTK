@@ -17,9 +17,9 @@
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenQubeElectronicData.h"
-#include "vtkMolecule.h"
 
 #include <openqube/basisset.h>
 #include <openqube/basissetloader.h>

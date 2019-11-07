@@ -19,18 +19,18 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
-#include "vtkNew.h"
-#include "vtkTree.h"
-#include "vtkTreeDFSIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTree.h"
+#include "vtkTreeDFSIterator.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 vtkStandardNewMacro(vtkNewickTreeReader);
 

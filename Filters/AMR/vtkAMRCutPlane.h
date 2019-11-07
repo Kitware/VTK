@@ -27,8 +27,8 @@
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <vector> // For STL vector
 #include <map> // For STL map
+#include <vector> // For STL vector
 
 class vtkMultiBlockDataSet;
 class vtkOverlappingAMR;

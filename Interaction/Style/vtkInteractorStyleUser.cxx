@@ -13,11 +13,11 @@
 
 =========================================================================*/
 #include "vtkInteractorStyleUser.h"
-#include "vtkMath.h"
 #include "vtkCellPicker.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
 
 
 vtkStandardNewMacro(vtkInteractorStyleUser);

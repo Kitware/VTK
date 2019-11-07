@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkSubdivisionFilter.h"
 
-#include "vtkCellIterator.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellIterator.h"
 #include "vtkEdgeTable.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -27,8 +27,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <sstream>
 #include <map>
+#include <sstream>
 
 // Construct object with number of subdivisions set to 1, check for
 // triangles set to 1

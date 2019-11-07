@@ -20,19 +20,18 @@
 
 #include "vtkFixedWidthTextReader.h"
 #include "vtkCommand.h"
+#include "vtkIOStream.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
-#include "vtkPointData.h"
-#include "vtkInformation.h"
-#include "vtkStringArray.h"
-#include "vtkStdString.h"
-#include "vtkIOStream.h"
 
 #include <algorithm>
-#include <vector>
 #include <fstream>
+#include <vector>
 
 #include <cctype>
 

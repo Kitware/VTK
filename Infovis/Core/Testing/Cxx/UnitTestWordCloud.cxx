@@ -18,16 +18,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkWordCloud.h"
 #include "vtkSmartPointer.h"
+#include "vtkWordCloud.h"
 
-#include "vtkTestErrorObserver.h"
 #include "vtkExecutive.h"
+#include "vtkTestErrorObserver.h"
 
-#include <iostream>
-#include <sstream>
 #include <algorithm>
+#include <iostream>
 #include <random>
+#include <sstream>
 
 namespace
 {

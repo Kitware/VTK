@@ -21,9 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkArrayData.h"
 #include "vtkArrayIteratorIncludes.h"
-#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkCollection.h"
-#include "vtkPExtractHistogram2D.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageMedian3D.h"
@@ -31,15 +29,17 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPExtractHistogram2D.h"
 #include "vtkPointData.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedIntArray.h"
 
 #include <set>
-#include <vector>
 #include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkPPairwiseExtractHistogram2D);
 vtkCxxSetObjectMacro(vtkPPairwiseExtractHistogram2D, Controller, vtkMultiProcessController);

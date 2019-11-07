@@ -24,9 +24,9 @@
 #ifndef vtkSignedCharArray_h
 #define vtkSignedCharArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDataArray.h"
 #include "vtkAOSDataArrayTemplate.h" // Real Superclass
+#include "vtkCommonCoreModule.h"     // For export macro
+#include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.
 #ifndef __VTK_WRAP__

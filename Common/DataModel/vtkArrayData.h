@@ -40,8 +40,8 @@
 #ifndef vtkArrayData_h
 #define vtkArrayData_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkArray.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
 class vtkArray;

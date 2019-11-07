@@ -16,22 +16,21 @@
 // This example tests the vtkCheckerboardWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-#include "vtkCheckerboardWidget.h"
 #include "vtkCheckerboardRepresentation.h"
-#include "vtkSliderRepresentation3D.h"
-#include "vtkImageCanvasSource2D.h"
-#include "vtkImageWrapPad.h"
+#include "vtkCheckerboardWidget.h"
+#include "vtkCommand.h"
+#include "vtkImageActor.h"
 #include "vtkImageCanvasSource2D.h"
 #include "vtkImageCheckerboard.h"
-#include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
 #include "vtkImageData.h"
-#include "vtkRenderer.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageWrapPad.h"
+#include "vtkInteractorEventRecorder.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkRenderer.h"
+#include "vtkSliderRepresentation3D.h"
+#include "vtkSmartPointer.h"
 
 const char eventLog[] =
 "# StreamVersion 1\n"

@@ -32,8 +32,8 @@
 #ifndef vtkFollower_h
 #define vtkFollower_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 

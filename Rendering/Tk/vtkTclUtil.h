@@ -16,8 +16,8 @@
 #ifndef vtkTclUtil_h
 #define vtkTclUtil_h
 
-#include "vtkObject.h"
 #include "vtkCommand.h"
+#include "vtkObject.h"
 #include "vtkTcl.h"
 
 #ifdef _WIN32

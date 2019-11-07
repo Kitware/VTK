@@ -19,13 +19,13 @@
 //
 
 // First include the required header files for the VTK classes we are using.
+#include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderWindow.h"
-#include "vtkCamera.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 int main()
 {

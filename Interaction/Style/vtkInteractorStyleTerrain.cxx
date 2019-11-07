@@ -15,8 +15,8 @@
 #include "vtkInteractorStyleTerrain.h"
 
 #include "vtkActor.h"
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkExtractEdges.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"

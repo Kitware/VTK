@@ -12,16 +12,16 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
 int TestBondColorModeDiscreteByAtom(int, char *[])

@@ -36,8 +36,8 @@
 #ifndef vtkCornerAnnotation_h
 #define vtkCornerAnnotation_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkTextMapper;
 class vtkImageMapToWindowLevelColors;

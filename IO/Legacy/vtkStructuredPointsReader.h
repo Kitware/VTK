@@ -31,8 +31,8 @@
 #ifndef vtkStructuredPointsReader_h
 #define vtkStructuredPointsReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkStructuredPoints;
 

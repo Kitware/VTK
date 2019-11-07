@@ -20,16 +20,15 @@
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkIdTypeArray.h"
 
 #include <map>
 

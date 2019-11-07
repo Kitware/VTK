@@ -31,11 +31,11 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include <QDesignerCustomWidgetInterface>
 #include <QDesignerCustomWidgetCollectionInterface>
+#include <QDesignerCustomWidgetInterface>
 #include <QObject>
-#include <QtPlugin>
 #include <QWidget>
+#include <QtPlugin>
 
 // implement Designer Custom Widget interface
 class QVTKWidgetPlugin : public QDesignerCustomWidgetInterface

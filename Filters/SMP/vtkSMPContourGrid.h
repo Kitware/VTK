@@ -23,8 +23,8 @@
 #ifndef vtkSMPContourGrid_h
 #define vtkSMPContourGrid_h
 
-#include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkContourGrid.h"
+#include "vtkFiltersSMPModule.h" // For export macro
 
 class VTKFILTERSSMP_EXPORT vtkSMPContourGrid : public vtkContourGrid
 {

@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkImageStencilData.h"
 
+#include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkImageStencilSource.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkDemandDrivenPipeline.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkDataArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageStencilData);
 

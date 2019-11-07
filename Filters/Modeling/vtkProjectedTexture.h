@@ -32,8 +32,8 @@
 #ifndef vtkProjectedTexture_h
 #define vtkProjectedTexture_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersModelingModule.h" // For export macro
 
 #define VTK_PROJECTED_TEXTURE_USE_PINHOLE 0
 #define VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS 1

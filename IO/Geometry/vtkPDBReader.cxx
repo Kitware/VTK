@@ -15,12 +15,12 @@
 
 #include "vtkPDBReader.h"
 
+#include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-#include "vtkIdTypeArray.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>

@@ -33,8 +33,8 @@
 #ifndef vtkFixedPointRayCastImage_h
 #define vtkFixedPointRayCastImage_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkFixedPointRayCastImage : public vtkObject
 {

@@ -16,21 +16,21 @@
  * This test is equivalent to TestGPURayCastCompositeMaskBlend but with but
  * with texture-streaming on.
  */
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkXMLImageDataReader.h"
+#include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkImageCheckerboard.h"
 #include "vtkImageData.h"
+#include "vtkImageGridSource.h"
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkImageGridSource.h"
-#include "vtkImageCheckerboard.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkCamera.h"
+#include "vtkXMLImageDataReader.h"
 
 int TestGPURayCastTextureStreamingMask(int argc, char *argv[])
 {

@@ -26,15 +26,15 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
-#include "vtkPLYReader.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 #include "vtkOSPRayTestInteractor.h"

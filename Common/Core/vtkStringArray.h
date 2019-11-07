@@ -27,9 +27,9 @@
 #ifndef vtkStringArray_h
 #define vtkStringArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
-#include "vtkStdString.h" // needed for vtkStdString definition
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkStdString.h"        // needed for vtkStdString definition
 
 class vtkStringArrayLookup;
 

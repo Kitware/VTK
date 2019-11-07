@@ -18,6 +18,7 @@
 #include "vtkConeSource.h"
 #include "vtkDataObject.h"
 #include "vtkDataReader.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLargeInteger.h"
@@ -26,7 +27,6 @@
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkPipelineSize);

@@ -36,8 +36,8 @@
 #ifndef vtkExtractSelectedFrustum_h
 #define vtkExtractSelectedFrustum_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkPlanes;
 class vtkInformation;

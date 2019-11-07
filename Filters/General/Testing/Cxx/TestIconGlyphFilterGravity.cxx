@@ -12,20 +12,20 @@
 #include "vtkSmartPointer.h"
 #include <vtkIconGlyphFilter.h>
 
-#include <vtkTexturedActor2D.h>
 #include <vtkAppendPolyData.h>
 #include <vtkDoubleArray.h>
+#include <vtkImageData.h>
+#include <vtkPNGReader.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
 #include <vtkPointSet.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper2D.h>
-#include <vtkPNGReader.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkTexture.h>
-#include <vtkImageData.h>
+#include <vtkTexturedActor2D.h>
 
 #include <vtkTestUtilities.h>
 

@@ -31,8 +31,8 @@
 #ifndef vtkOrientedPolygonalHandleRepresentation3D_h
 #define vtkOrientedPolygonalHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractPolygonalHandleRepresentation3D.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkOrientedPolygonalHandleRepresentation3D
                 : public vtkAbstractPolygonalHandleRepresentation3D

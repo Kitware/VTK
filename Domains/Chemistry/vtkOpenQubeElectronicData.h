@@ -21,9 +21,9 @@
 #ifndef vtkOpenQubeElectronicData_h
 #define vtkOpenQubeElectronicData_h
 
-#include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"
-#include "vtkNew.h" // for vtkNew
+#include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkNew.h"                    // for vtkNew
 
 namespace OpenQube {
   class BasisSet;

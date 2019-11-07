@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkSparseArrayToTable.h"
 #include "vtkArrayData.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
@@ -27,7 +28,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
-#include "vtkSparseArrayToTable.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 

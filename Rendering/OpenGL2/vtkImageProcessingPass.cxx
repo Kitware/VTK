@@ -15,22 +15,22 @@
 
 #include "vtkImageProcessingPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
-#include "vtkRenderer.h"
 #include "vtkOpenGLFramebufferObject.h"
-#include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderState.h"
+#include "vtkRenderer.h"
+#include "vtkTextureObject.h"
 #include "vtk_glew.h"
+#include <cassert>
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkImageProcessingPass developers.
 //#define VTK_IMAGE_PROCESSING_PASS_DEBUG
 
-#include "vtkPixelBufferObject.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
+#include "vtkPixelBufferObject.h"
 
 vtkCxxSetObjectMacro(vtkImageProcessingPass,DelegatePass,vtkRenderPass);
 

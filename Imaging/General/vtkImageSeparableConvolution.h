@@ -30,8 +30,8 @@
 #define vtkImageSeparableConvolution_h
 
 
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 class vtkFloatArray;
 

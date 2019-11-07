@@ -18,8 +18,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkReebGraph.h"
 
 vtkStandardNewMacro(vtkPolyDataToReebGraphFilter);

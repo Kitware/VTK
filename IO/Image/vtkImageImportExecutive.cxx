@@ -20,9 +20,9 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkAlgorithmOutput.h"
+#include "vtkImageImport.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkImageImport.h"
 
 vtkStandardNewMacro(vtkImageImportExecutive);
 

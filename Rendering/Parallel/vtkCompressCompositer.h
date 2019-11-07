@@ -30,8 +30,8 @@
 #ifndef vtkCompressCompositer_h
 #define vtkCompressCompositer_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkCompositer.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkTimerLog;
 class vtkDataArray;

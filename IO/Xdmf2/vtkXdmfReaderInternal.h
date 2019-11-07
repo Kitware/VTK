@@ -52,15 +52,15 @@
 //?
 #include VTKXDMF2_HEADER(XdmfSet.h)
 
-#include <string>
-#include <vector>
-#include <set>
-#include <map>
-#include <vtksys/SystemTools.hxx>
+#include <algorithm>
 #include <cassert>
 #include <functional>
-#include <algorithm>
+#include <map>
+#include <set>
 #include <sstream>
+#include <string>
+#include <vector>
+#include <vtksys/SystemTools.hxx>
 
 class vtkXdmfDomain;
 class VTKIOXDMF2_EXPORT vtkXdmfDocument

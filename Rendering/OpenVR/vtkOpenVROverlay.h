@@ -21,13 +21,13 @@
 #ifndef vtkOpenVROverlay_h
 #define vtkOpenVROverlay_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkObject.h"
-#include <openvr.h> // for ivars
-#include <map> // ivars
-#include <vector> // ivars
 #include "vtkNew.h" // for ivars
+#include "vtkObject.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkWeakPointer.h" // for ivars
+#include <map> // ivars
+#include <openvr.h> // for ivars
+#include <vector> // ivars
 
 class vtkJPEGReader;
 class vtkOpenVROverlaySpot;

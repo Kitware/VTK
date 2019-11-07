@@ -15,9 +15,9 @@
 #include "vtkTcl.h"
 #include "vtkTk.h"
 
+#include "vtkImageData.h"
 #include "vtkTkImageViewerWidget.h"
 #include "vtkTkRenderWidget.h"
-#include "vtkImageData.h"
 #include "vtkVersionMacros.h"
 
 //----------------------------------------------------------------------------

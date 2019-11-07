@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricFigure8Klein.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricFigure8Klein);
 

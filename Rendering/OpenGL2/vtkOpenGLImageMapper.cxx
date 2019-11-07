@@ -24,17 +24,17 @@
 #
 #include "vtkWindow.h"
 
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellArray.h"
-#include "vtkTrivialProducer.h"
-#include "vtkTexturedActor2D.h"
 #include "vtkTexture.h"
+#include "vtkTexturedActor2D.h"
+#include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkNew.h"
 

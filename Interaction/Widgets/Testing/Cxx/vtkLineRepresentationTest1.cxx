@@ -5,10 +5,10 @@
 
 #include "WidgetTestingMacros.h"
 
+#include "vtkFollower.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkFollower.h"
 
 int vtkLineRepresentationTest1(int , char * [] )
 {

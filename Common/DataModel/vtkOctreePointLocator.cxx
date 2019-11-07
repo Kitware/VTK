@@ -29,8 +29,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOctreePointLocatorNode.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <list>

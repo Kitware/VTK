@@ -32,12 +32,12 @@
 #ifndef vtkQtTreeView_h
 #define vtkQtTreeView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
+#include "vtkSmartPointer.h" // Needed for member variables
 #include <QList> // Needed for member variables
 #include <QPointer> // Needed for member variables
-#include "vtkSmartPointer.h" // Needed for member variables
 
 class QAbstractItemDelegate;
 class QAbstractItemView;

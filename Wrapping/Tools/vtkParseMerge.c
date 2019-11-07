@@ -19,15 +19,15 @@
   under the terms of the Visualization Toolkit 2015 copyright.
 -------------------------------------------------------------------------*/
 
-#include "vtkParse.h"
-#include "vtkParseMain.h"
 #include "vtkParseMerge.h"
+#include "vtkParse.h"
 #include "vtkParseData.h"
 #include "vtkParseExtras.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "vtkParseMain.h"
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* add a class to the MergeInfo */
 int vtkParseMerge_PushClass(MergeInfo *info, const char *classname)

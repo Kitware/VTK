@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkVoxelGrid.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkDoubleArray.h"
-#include "vtkPointSet.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkLinearKernel.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkLinearKernel.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkSMPThreadLocalObject.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vector>
 

@@ -27,9 +27,9 @@
 #include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 

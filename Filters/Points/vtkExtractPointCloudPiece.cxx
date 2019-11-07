@@ -21,8 +21,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 // #include "vtkPolyData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkExtractPointCloudPiece);
 

@@ -27,8 +27,8 @@
 #ifndef vtkPointConnectivityFilter_h
 #define vtkPointConnectivityFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkPointConnectivityFilter : public vtkDataSetAlgorithm
 {

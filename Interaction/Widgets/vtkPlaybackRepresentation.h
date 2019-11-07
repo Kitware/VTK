@@ -27,8 +27,8 @@
 #ifndef vtkPlaybackRepresentation_h
 #define vtkPlaybackRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkRenderer;
 class vtkRenderWindowInteractor;

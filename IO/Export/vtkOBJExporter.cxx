@@ -25,16 +25,16 @@
 #include "vtkImageFlip.h"
 #include "vtkMapper.h"
 #include "vtkNew.h"
+#include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkNumberToString.h"
 
 #include "vtksys/SystemTools.hxx"
 

@@ -14,24 +14,24 @@
 =========================================================================*/
 // Plot the SPH kernel functions and derivatives.
 
-#include "vtkSmartPointer.h"
 #include "vtkSPHCubicKernel.h"
 #include "vtkSPHQuarticKernel.h"
 #include "vtkSPHQuinticKernel.h"
+#include "vtkSmartPointer.h"
 #include "vtkWendlandQuinticKernel.h"
 
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderWindow.h>
-#include <vtkSmartPointer.h>
-#include <vtkChartXY.h>
 #include <vtkAxis.h>
-#include <vtkTable.h>
-#include <vtkPlot.h>
-#include <vtkFloatArray.h>
-#include <vtkContextView.h>
+#include <vtkChartXY.h>
 #include <vtkContextScene.h>
+#include <vtkContextView.h>
+#include <vtkFloatArray.h>
 #include <vtkPen.h>
+#include <vtkPlot.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkTable.h>
 
 //-----------------------------------------------------------------------------
 // Helper function

@@ -16,10 +16,10 @@
 #include "vtkPlotLine.h"
 
 #include "vtkContext2D.h"
-#include "vtkPen.h"
-#include "vtkRect.h"
-#include "vtkPoints2D.h"
 #include "vtkIdTypeArray.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkRect.h"
 
 #include "vtkObjectFactory.h"
 

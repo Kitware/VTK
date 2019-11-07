@@ -67,9 +67,9 @@
 #ifndef vtkLineWidget_h
 #define vtkLineWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
-#include "vtkLineSource.h" // For passing calls to it
+#include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkLineSource.h"               // For passing calls to it
 
 class vtkActor;
 class vtkPolyDataMapper;

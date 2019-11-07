@@ -36,12 +36,12 @@
 #ifndef vtkDendrogramItem_h
 #define vtkDendrogramItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 #include "vtkNew.h"               // For vtkNew ivars
-#include "vtkStdString.h"         // For SetGet ivars
 #include "vtkSmartPointer.h"      // For vtkSmartPointer ivars
+#include "vtkStdString.h"         // For SetGet ivars
 #include "vtkVector.h"            // For vtkVector2f ivar
 
 class vtkColorLegend;

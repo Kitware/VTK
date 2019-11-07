@@ -71,8 +71,8 @@
 #ifndef vtkCellValidator_h
 #define vtkCellValidator_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkCell;
 class vtkGenericCell;

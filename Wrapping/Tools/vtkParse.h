@@ -21,9 +21,9 @@
 #ifndef vtkParse_h
 #define vtkParse_h
 
-#include "vtkWrappingToolsModule.h"
-#include "vtkParseType.h"
 #include "vtkParseData.h"
+#include "vtkParseType.h"
+#include "vtkWrappingToolsModule.h"
 #include <stdio.h>
 
 #ifdef __cplusplus

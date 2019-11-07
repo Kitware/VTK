@@ -24,8 +24,8 @@
 #define vtkDatabaseToTableReader_h
 
 #include "vtkIOSQLModule.h" // For export macro
-#include <string> // STL Header
 #include "vtkTableAlgorithm.h"
+#include <string> // STL Header
 
 class vtkSQLDatabase;
 class vtkStringArray;

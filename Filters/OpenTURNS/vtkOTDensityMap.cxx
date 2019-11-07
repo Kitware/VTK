@@ -33,9 +33,9 @@
 #include "vtkOTIncludes.h"
 #include "vtkOTUtilities.h"
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <algorithm>
 
 vtkInformationKeyMacro(vtkOTDensityMap, DENSITY, Double);
 vtkStandardNewMacro(vtkOTDensityMap);

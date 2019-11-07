@@ -19,15 +19,15 @@
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
 
 #include "vtkCamera.h"
-#include "vtkDataSetMapper.h"
 #include "vtkCellData.h"
+#include "vtkDataSetMapper.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilter( int argc, char* argv[] )
 {

@@ -16,34 +16,33 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkCharArray.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
-#include "vtkMath.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProp3D.h"
-#include "vtkTransform.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkCharArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
+#include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkDataArray.h"
 
 #include <algorithm>
-#include <limits>
 #include <cstdlib>
+#include <limits>
 
 namespace {
 

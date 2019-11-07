@@ -29,10 +29,10 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
-#include "vtkSmartPointer.h"  // Needed to hold SP ivars
 #include "vtkContextPolygon.h" // For vtkContextPolygon
 #include "vtkRect.h"           // For vtkRectd ivar
+#include "vtkSmartPointer.h"  // Needed to hold SP ivars
+#include "vtkStdString.h"     // Needed to hold TooltipLabelFormat ivar
 
 class vtkVariant;
 class vtkTable;

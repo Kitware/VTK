@@ -18,11 +18,11 @@
 #include "vtkDebugLeaks.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/Glob.hxx>
-#include <vtksys/SystemTools.hxx>
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <algorithm>
+#include <vtksys/Glob.hxx>
+#include <vtksys/SystemTools.hxx>
 
 
 //----------------------------------------------------------------------------

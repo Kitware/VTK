@@ -23,8 +23,8 @@
 #ifndef vtkSQLiteToTableReader_h
 #define vtkSQLiteToTableReader_h
 
-#include "vtkIOSQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"
+#include "vtkIOSQLModule.h" // For export macro
 
 class vtkSQLiteDatabase;
 

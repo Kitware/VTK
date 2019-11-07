@@ -15,9 +15,9 @@
 
 #include "vtkXYZMolReader.h"
 
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-#include "vtkIdTypeArray.h"
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"

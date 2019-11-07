@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkDataArray.h"
 #include "vtkGenericCell.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 
 #include "vtkActor.h"
 #include "vtkCellLocator.h"
@@ -30,14 +30,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTriangleFilter.h"
 
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkRegressionTestImage.h"
 
 // This test reproduces the cell locator bug in FindCellsAlongLine
 int TestFindCellsAlongLine()

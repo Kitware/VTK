@@ -14,8 +14,8 @@
 #ifndef vtkOpenGLIndexBufferObject_h
 #define vtkOpenGLIndexBufferObject_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkOpenGLBufferObject.h"
+#include "vtkRenderingOpenGL2Module.h" // for export macro
 
 
 /**

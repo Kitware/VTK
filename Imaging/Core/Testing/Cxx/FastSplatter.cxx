@@ -9,15 +9,15 @@
 
 // Simple test of vtkFastSplatter
 
+#include "vtkFastSplatter.h"
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
-#include "vtkFastSplatter.h"
 #include "vtkImageViewer2.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \

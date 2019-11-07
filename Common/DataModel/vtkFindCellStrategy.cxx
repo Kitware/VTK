@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkFindCellStrategy.h"
 
-#include "vtkPointSet.h"
 #include "vtkLogger.h"
+#include "vtkPointSet.h"
 
 //----------------------------------------------------------------------------
 vtkFindCellStrategy::vtkFindCellStrategy ()

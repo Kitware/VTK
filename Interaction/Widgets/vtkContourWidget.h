@@ -123,8 +123,8 @@
 #ifndef vtkContourWidget_h
 #define vtkContourWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkContourRepresentation;
 class vtkPolyData;

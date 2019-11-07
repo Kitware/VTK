@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkWindows.h"
 #include "vtkAVIWriter.h"
+#include "vtkWindows.h"
 
 #include "vtkImageData.h"
 #include "vtkInformation.h"

@@ -16,22 +16,22 @@
 // to vtkQuadricClustering ; so instead of seeing a point cloud during
 // interaction, (when run with -I) you will see a low res kline.
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
-#include "vtkPolyData.h"
+#include "vtkDataSetMapper.h"
 #include "vtkLODActor.h"
 #include "vtkLoopSubdivisionFilter.h"
-#include "vtkDataSetMapper.h"
+#include "vtkMaskPoints.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkQuadricClustering.h"
-#include "vtkMaskPoints.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 
 int TestLODActor( int argc, char* argv[])
 {

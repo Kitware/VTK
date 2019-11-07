@@ -15,20 +15,20 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkNamedColors.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkTexture.h"
-#include "vtkPNMReader.h"
-#include "vtkSphereSource.h"
-#include "vtkTexturedSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkNamedColors.h"
+#include "vtkPNMReader.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRIBExporter.h"
 #include "vtkRIBProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
+#include "vtkTexture.h"
+#include "vtkTexturedSphereSource.h"
 
 static vtkSmartPointer<vtkRIBProperty> cloth(const char *freq,
                                              const char *depth);

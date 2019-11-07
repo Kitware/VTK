@@ -25,8 +25,8 @@
 #ifndef vtkDijkstraGraphInternals_h
 #define vtkDijkstraGraphInternals_h
 
-#include <vector>
 #include <map>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 class vtkDijkstraGraphInternals

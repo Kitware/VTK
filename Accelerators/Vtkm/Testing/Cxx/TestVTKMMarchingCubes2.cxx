@@ -18,15 +18,15 @@
 #include "vtkElevationFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
-#include "vtkmContour.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkmContour.h"
 
 const int EXTENT = 30;
 int TestVTKMMarchingCubes2(int argc, char* argv[])

@@ -14,35 +14,35 @@
  =========================================================================*/
 
 #include "vtkAMREnzoReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
-#include "vtkDataArraySelection.h"
 #include "vtkDataArray.h"
-#include "vtkPolyData.h"
+#include "vtkDataArraySelection.h"
 #include "vtkIndent.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkPolyData.h"
+#include "vtkUniformGrid.h"
 #include "vtksys/SystemTools.hxx"
 
-#include "vtkDataSet.h"
 #include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkLongLongArray.h"
-#include "vtkUnsignedIntArray.h"
+#include "vtkShortArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedShortArray.h"
 
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
 
-#include <sstream>
-#include <vector>
-#include <string>
 #include <cassert>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "vtkAMREnzoReaderInternal.h"
 

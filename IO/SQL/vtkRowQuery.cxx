@@ -19,9 +19,9 @@
 -------------------------------------------------------------------------*/
 #include "vtkRowQuery.h"
 
+#include "algorithm"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
-#include "algorithm"
 #include "vtkVariantArray.h"
 
 #include <cctype>

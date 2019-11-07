@@ -102,13 +102,13 @@
 #define vtkMultiThreshold_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkMath.h" // for Inf() and NegInf()
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <vector> // for lists of threshold rules
 #include <map> // for IntervalRules map
 #include <set> // for UpdateDependents()
 #include <string> // for holding array names in NormKey
+#include <vector> // for lists of threshold rules
 
 class vtkCell;
 class vtkCellData;

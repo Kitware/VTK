@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkGreedyTerrainDecimation.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPriorityQueue.h"
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
-#include "vtkTriangle.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPriorityQueue.h"
+#include "vtkTriangle.h"
 
 #include <vector>
 

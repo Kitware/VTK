@@ -14,13 +14,12 @@
 =========================================================================*/
 #include "vtkQWidgetRepresentation.h"
 
-#include <QtWidgets/QWidget>
 #include "vtkActor.h"
 #include "vtkCellPicker.h"
 #include "vtkEventData.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLState.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPickingManager.h"
 #include "vtkPlaneSource.h"
@@ -28,6 +27,7 @@
 #include "vtkProperty.h"
 #include "vtkQWidgetTexture.h"
 #include "vtkRenderer.h"
+#include <QtWidgets/QWidget>
 
 #include "vtk_glew.h"
 

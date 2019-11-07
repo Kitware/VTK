@@ -14,21 +14,21 @@
 =========================================================================*/
 
 #include "vtkCellTreeLocator.h"
-#include <cstdlib>
-#include <cassert>
-#include <cmath>
-#include <stack>
-#include <vector>
-#include <limits>
-#include <algorithm>
-#include "vtkObjectFactory.h"
+#include "vtkBoundingBox.h"
+#include "vtkCellArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdListCollection.h"
-#include "vtkSmartPointer.h"
-#include "vtkCellArray.h"
-#include "vtkPolyData.h"
-#include "vtkBoundingBox.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <limits>
+#include <stack>
+#include <vector>
 
 vtkStandardNewMacro(vtkCellTreeLocator);
 

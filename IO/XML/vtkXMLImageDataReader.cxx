@@ -16,12 +16,12 @@
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkXMLDataElement.h"
-#include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformationVector.h"
+#include "vtkXMLDataElement.h"
 
 vtkStandardNewMacro(vtkXMLImageDataReader);
 

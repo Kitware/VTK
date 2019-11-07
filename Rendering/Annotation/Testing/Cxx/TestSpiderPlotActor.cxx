@@ -13,22 +13,22 @@
 
 =========================================================================*/
 // This tests the spider plot capabilities in VTK.
-#include "vtkSpiderPlotActor.h"
-#include "vtkFloatArray.h"
 #include "vtkDataObject.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkLegendBoxActor.h"
 #include "vtkMath.h"
-#include "vtkTextProperty.h"
-#include "vtkRenderer.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty2D.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkProperty2D.h"
-#include "vtkLegendBoxActor.h"
+#include "vtkRenderer.h"
+#include "vtkSpiderPlotActor.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
 int TestSpiderPlotActor( int argc, char * argv [] )

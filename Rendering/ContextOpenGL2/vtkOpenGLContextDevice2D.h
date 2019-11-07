@@ -30,11 +30,11 @@
 #ifndef vtkOpenGLContextDevice2D_h
 #define vtkOpenGLContextDevice2D_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextDevice2D.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
-#include <vector> // STL Header
 #include <list> // for std::list
+#include <vector> // STL Header
 
 class vtkMatrix4x4;
 class vtkOpenGLExtensionManager;

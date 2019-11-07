@@ -5,11 +5,11 @@
 #include <vtkIdList.h>
 #include <vtkMultiProcessController.h>
 #include <vtkPoints.h>
-#include <vtkUnstructuredGrid.h>
 #include <vtkTestUtilities.h>
-#include <vtkXMLUnstructuredGridReader.h>
-#include <vtkXMLPUnstructuredGridWriter.h>
+#include <vtkUnstructuredGrid.h>
 #include <vtkXMLPUnstructuredGridReader.h>
+#include <vtkXMLPUnstructuredGridWriter.h>
+#include <vtkXMLUnstructuredGridReader.h>
 
 using namespace std;
 

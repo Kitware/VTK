@@ -39,8 +39,8 @@
 #ifndef vtkMapArrayValues_h
 #define vtkMapArrayValues_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkMapType;
 class vtkVariant;

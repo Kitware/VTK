@@ -13,23 +13,23 @@
 
 =========================================================================*/
 
+#include "vtkColorTransferControlPointsItem.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
-#include "vtkContext2D.h"
-#include "vtkIdTypeArray.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkColorTransferControlPointsItem.h"
+#include "vtkContext2D.h"
+#include "vtkContextScene.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
-#include "vtkContextScene.h"
 
 // to handle mouse.GetButton
 #include "vtkContextMouseEvent.h"
 
+#include <algorithm>
 #include <cassert>
 #include <limits>
-#include <algorithm>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorTransferControlPointsItem);

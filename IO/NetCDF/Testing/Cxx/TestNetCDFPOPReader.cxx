@@ -24,10 +24,10 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 

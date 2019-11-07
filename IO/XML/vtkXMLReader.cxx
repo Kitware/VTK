@@ -48,11 +48,11 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <functional>
 #include <locale> // C++ locale
 #include <sstream>
 #include <vector>
-#include <cctype>
 
 vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
 vtkCxxSetObjectMacro(vtkXMLReader,ParserErrorObserver,vtkCommand);

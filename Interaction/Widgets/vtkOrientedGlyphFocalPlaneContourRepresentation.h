@@ -31,8 +31,8 @@
 #ifndef vtkOrientedGlyphFocalPlaneContourRepresentation_h
 #define vtkOrientedGlyphFocalPlaneContourRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkFocalPlaneContourRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty2D;
 class vtkActor2D;

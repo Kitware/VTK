@@ -22,8 +22,8 @@
 #ifndef vtkOSPRayActorNode_h
 #define vtkOSPRayActorNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkActorNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkTimeStamp.h" //for mapper changed time
 #include "vtkWeakPointer.h" //also for mapper changed time
 

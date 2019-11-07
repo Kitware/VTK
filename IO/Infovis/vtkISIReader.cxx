@@ -18,9 +18,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkISIReader.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkISIReader.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"

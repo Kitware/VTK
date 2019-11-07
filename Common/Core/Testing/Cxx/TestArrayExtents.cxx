@@ -22,10 +22,10 @@
 #include <vtkArrayCoordinates.h>
 #include <vtkArrayExtents.h>
 
+#include "vtkSetGet.h"
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include "vtkSetGet.h"
 
 #define test_expression(expression) \
 { \

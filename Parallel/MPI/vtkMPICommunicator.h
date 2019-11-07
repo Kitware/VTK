@@ -36,8 +36,8 @@
 #ifndef vtkMPICommunicator_h
 #define vtkMPICommunicator_h
 
-#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkCommunicator.h"
+#include "vtkParallelMPIModule.h" // For export macro
 
 class vtkMPIController;
 class vtkProcessGroup;

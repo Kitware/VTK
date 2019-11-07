@@ -7,8 +7,8 @@
  * statement of authorship are reproduced on all copies.
  */
 // QT includes
-#include <QApplication>
 #include "StatsView.h"
+#include <QApplication>
 
 extern int qInitResources_icons();
 

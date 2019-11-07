@@ -15,9 +15,9 @@
 // This tests the vtkBinCellDataFilter class.
 
 #include <vtkBinCellDataFilter.h>
-#include <vtkCellLocator.h>
 #include <vtkCellData.h>
 #include <vtkCellIterator.h>
+#include <vtkCellLocator.h>
 #include <vtkCleanPolyData.h>
 #include <vtkDelaunay3D.h>
 #include <vtkDoubleArray.h>
@@ -26,8 +26,8 @@
 #include <vtkMersenneTwister.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
 #include <vtkPointSource.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>

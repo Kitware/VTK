@@ -70,8 +70,8 @@
 #define vtkMolecule_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkSmartPointer.h"          // For vtkSmartPointer
 #include "vtkUndirectedGraph.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include "vtkAtom.h" // Simple proxy class dependent on vtkMolecule
 #include "vtkBond.h" // Simple proxy class dependent on vtkMolecule

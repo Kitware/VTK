@@ -43,8 +43,8 @@
 #ifndef vtkPComputeHistogram2DOutliers_h
 #define vtkPComputeHistogram2DOutliers_h
 //------------------------------------------------------------------------------
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkComputeHistogram2DOutliers.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 //------------------------------------------------------------------------------
 class vtkMultiProcessController;
 //------------------------------------------------------------------------------

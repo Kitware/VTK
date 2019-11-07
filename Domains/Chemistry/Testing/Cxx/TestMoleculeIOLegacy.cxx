@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -24,8 +24,8 @@
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
 int TestMoleculeIOLegacy(int, char *[])

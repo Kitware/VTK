@@ -15,11 +15,11 @@
 
 #include "vtkPlotGrid.h"
 
-#include "vtkContext2D.h"
-#include "vtkPoints2D.h"
-#include "vtkPen.h"
 #include "vtkAxis.h"
+#include "vtkContext2D.h"
 #include "vtkFloatArray.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
 #include "vtkVector.h"
 
 #include "vtkObjectFactory.h"

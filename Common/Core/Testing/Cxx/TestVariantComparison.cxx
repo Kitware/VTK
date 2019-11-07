@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#include "vtkVariant.h"
 #include "vtkObject.h"
+#include "vtkVariant.h"
 
-#include <map>
 #include <cstdio>
+#include <map>
 
 int
 TestVariantComparison(int, char *[])

@@ -28,8 +28,8 @@
  *
  */
 
-#include <jni.h>
 #include <errno.h>
+#include <jni.h>
 #include <sstream>
 
 #include "vtkNew.h"
@@ -42,16 +42,16 @@
 #include "vtkNrrdReader.h"
 #endif
 
-#include "vtkOpenGLGPUVolumeRayCastMapper.h"
-#include "vtkVolumeProperty.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkVolume.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkConeSource.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
+#include "vtkImageData.h"
+#include "vtkOpenGLGPUVolumeRayCastMapper.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -59,8 +59,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkCommand.h"

@@ -15,24 +15,24 @@
 #include "vtkXMLHierarchicalBoxDataFileConverter.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkExecutive.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStructuredData.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 #include "vtkXMLImageDataReader.h"
-#include "vtkStructuredData.h"
 #include "vtksys/SystemTools.hxx"
-#include "vtkExecutive.h"
-#include "vtkInformation.h"
 
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
 #include <cassert>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataFileConverter);
 //----------------------------------------------------------------------------

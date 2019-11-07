@@ -18,15 +18,15 @@
 // If TranslationMode is set to False from outside, and PlaceWidget is called,
 // the crosshair should be placed at the center of the bounds.
 
-#include "vtkSmartPointer.h"
-#include "vtkSeedWidget.h"
-#include "vtkSeedRepresentation.h"
-#include "vtkRenderer.h"
+#include "vtkHandleWidget.h"
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkHandleWidget.h"
-#include "vtkProperty.h"
-#include "vtkPointHandleRepresentation3D.h"
+#include "vtkRenderer.h"
+#include "vtkSeedRepresentation.h"
+#include "vtkSeedWidget.h"
+#include "vtkSmartPointer.h"
 
 int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

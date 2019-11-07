@@ -16,11 +16,11 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 

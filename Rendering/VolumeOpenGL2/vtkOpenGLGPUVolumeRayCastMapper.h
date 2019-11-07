@@ -61,9 +61,9 @@
 #define vtkOpenGLGPUVolumeRayCastMapper_h
 #include <map>                               // For methods
 
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkNew.h"                          // For vtkNew
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
-#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkShader.h"                       // For methods
 #include "vtkSmartPointer.h"                 // For smartptr
 

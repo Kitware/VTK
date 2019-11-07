@@ -26,8 +26,8 @@
 #ifndef vtkSphericalDirectionEncoder_h
 #define vtkSphericalDirectionEncoder_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkDirectionEncoder.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkSphericalDirectionEncoder : public vtkDirectionEncoder
 {

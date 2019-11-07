@@ -32,8 +32,8 @@
 #ifndef vtkQtInitialization_h
 #define vtkQtInitialization_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
 class QApplication;
 

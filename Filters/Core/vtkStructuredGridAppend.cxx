@@ -17,13 +17,13 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkNew.h"
-#include "vtkStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include <cassert>
 

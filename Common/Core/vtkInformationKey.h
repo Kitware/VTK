@@ -30,8 +30,8 @@
 #define vtkInformationKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkObject.h"           // Need vtkTypeMacro
 #include "vtkObjectBase.h"
-#include "vtkObject.h" // Need vtkTypeMacro
 
 class vtkInformation;
 

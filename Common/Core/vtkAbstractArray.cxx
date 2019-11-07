@@ -21,14 +21,21 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationVariantVectorKey.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkMath.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkNew.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
+#include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
 #include "vtkUnicodeStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -36,18 +43,11 @@
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
-#include "vtkInformationVector.h"
-#include "vtkInformationDoubleVectorKey.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkInformationInformationVectorKey.h"
-#include "vtkInformationVariantVectorKey.h"
-#include "vtkNew.h"
-#include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 #include <set>
-#include <cmath>
 
 vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
 vtkInformationKeyMacro(vtkAbstractArray, PER_COMPONENT, InformationVector);

@@ -24,10 +24,10 @@
 #include "vtkLookupTable.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkSmartPointer.h"
 
 //----------------------------------------------------------------------------

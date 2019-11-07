@@ -25,8 +25,8 @@
 #ifndef vtkOpenGLRenderUtilities_h
 #define vtkOpenGLRenderUtilities_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include "vtk_glew.h" // Needed for GLuint.
 #include <string> // for std::string

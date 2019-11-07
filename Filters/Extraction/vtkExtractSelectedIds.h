@@ -31,8 +31,8 @@
 #ifndef vtkExtractSelectedIds_h
 #define vtkExtractSelectedIds_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkSelection;
 class vtkSelectionNode;

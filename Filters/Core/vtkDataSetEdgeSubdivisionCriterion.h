@@ -36,8 +36,8 @@
  * vtkEdgeSubdivisionCriterion
 */
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkCell;
 class vtkDataSet;

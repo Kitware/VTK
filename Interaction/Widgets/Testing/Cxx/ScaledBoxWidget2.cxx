@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkAppendPolyData.h"
-#include "vtkBoxWidget2.h"
 #include "vtkBoxRepresentation.h"
+#include "vtkBoxWidget2.h"
+#include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
@@ -25,11 +25,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkTransformFilter.h"
 #include "vtkTransform.h"
-#include "vtkCamera.h"
+#include "vtkTransformFilter.h"
 
 // Callback for the interaction
 class vtkSBWCallback2 : public vtkCommand

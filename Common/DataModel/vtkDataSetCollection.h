@@ -23,8 +23,8 @@
 #ifndef vtkDataSetCollection_h
 #define vtkDataSetCollection_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkDataSet.h" // Needed for inline methods.
 

@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkRenderLargeImage.h"
 
-#include "vtkMath.h"
+#include "vtkActor2D.h"
+#include "vtkActor2DCollection.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkProp.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkActor2DCollection.h"
-#include "vtkActor2D.h"
-#include "vtkProp.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vector>
 //----------------------------------------------------------------------------

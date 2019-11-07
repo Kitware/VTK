@@ -27,8 +27,8 @@
 #ifndef vtkEnsembleSource_h
 #define vtkEnsembleSource_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 struct vtkEnsembleSourceInternal;
 class vtkTable;

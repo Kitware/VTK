@@ -19,9 +19,9 @@
 
 #include "vtkPDistributedDataFilter.h"
 
+#include "vtkBSPCuts.h"
 #include "vtkBox.h"
 #include "vtkBoxClipDataSet.h"
-#include "vtkBSPCuts.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -65,9 +65,9 @@ vtkStandardNewMacro(vtkPDistributedDataFilter)
 #define TEMP_INSIDE_BOX_FLAG      "___D3___WHERE"
 #define TEMP_NODE_ID_NAME         "___D3___GlobalNodeIds"
 
-#include <set>
-#include <map>
 #include <algorithm>
+#include <map>
+#include <set>
 
 namespace
 {

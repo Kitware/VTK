@@ -22,9 +22,9 @@
 #ifndef vtkOpenGLPointGaussianMapper_h
 #define vtkOpenGLPointGaussianMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPointGaussianMapper.h"
-#include <vector> // for ivar
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <vector>                      // for ivar
 
 class vtkOpenGLPointGaussianMapperHelper;
 

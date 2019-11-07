@@ -56,8 +56,8 @@
 #ifndef vtkStaticPointLocator2D_h
 #define vtkStaticPointLocator2D_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkIdList;
 struct vtkBucketList2D;

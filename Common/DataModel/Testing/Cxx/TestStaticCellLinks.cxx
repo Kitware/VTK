@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkStaticCellLinks.h"
-#include "vtkStaticCellLinksTemplate.h"
-#include "vtkSmartPointer.h"
-#include "vtkImageData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
 #include "vtkExtractGeometry.h"
+#include "vtkImageData.h"
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
+#include "vtkStaticCellLinks.h"
+#include "vtkStaticCellLinksTemplate.h"
 #include "vtkTimerLog.h"
+#include "vtkUnstructuredGrid.h"
 
 // Test the building of static cell links in both unstructured and structured
 // grids.

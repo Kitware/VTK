@@ -24,9 +24,9 @@
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
-#include <vector>    // STL vector header
 #include <map>       // STL map header
 #include <utility>   // for STL pair
+#include <vector>    // STL vector header
 
 // Forward Declarations
 class vtkOverlappingAMR;

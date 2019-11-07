@@ -15,7 +15,6 @@
 #include "vtkPExtractVOI.h"
 
 // VTK includes
-#include "vtkStructuredExtent.h"
 #include "vtkExtractStructuredGridHelper.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -25,6 +24,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredExtent.h"
 #include "vtkStructuredImplicitConnectivity.h"
 
 #include <cassert>

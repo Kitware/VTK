@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLGL2PSHelperImpl_h
 #define vtkOpenGLGL2PSHelperImpl_h
 
-#include "vtkRenderingGL2PSOpenGL2Module.h" // For export macro
 #include "vtkOpenGLGL2PSHelper.h"
+#include "vtkRenderingGL2PSOpenGL2Module.h" // For export macro
 
 class vtkMatrix4x4;
 class vtkPoints;

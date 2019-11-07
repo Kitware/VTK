@@ -20,34 +20,33 @@
 //  domain and ensure that the created ghost data have the correct fields.
 
 // C++ includes
-#include <iostream>
-#include <sstream>
 #include <cassert>
+#include <iostream>
+#include <set>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <set>
 
 // VTK includes
+#include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkUniformGrid.h"
+#include "vtkDoubleArray.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
+#include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
-#include "vtkDataObject.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
-#include "vtkXMLImageDataWriter.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIntArray.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDoubleArray.h"
-#include "vtkCell.h"
-#include "vtkUniformGridPartitioner.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
 #include "vtkUniformGridGhostDataGenerator.h"
+#include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
+#include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkMathUtilities.h"
 
 //------------------------------------------------------------------------------
 bool CheckNodeFieldsForGrid( vtkUniformGrid *grid )

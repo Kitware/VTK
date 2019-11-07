@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkGaussianCubeReader.h"
 
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"

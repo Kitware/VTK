@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkPolygonalSurfacePointPlacer.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkProp.h"
-#include "vtkPropCollection.h"
-#include "vtkPolyDataCollection.h"
-#include "vtkCellPicker.h"
-#include "vtkAssemblyPath.h"
 #include "vtkAssemblyNode.h"
-#include "vtkInteractorObserver.h"
-#include "vtkMapper.h"
-#include "vtkPolyData.h"
-#include "vtkMath.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCellData.h"
+#include "vtkCellPicker.h"
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
+#include "vtkInteractorObserver.h"
+#include "vtkMapper.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataCollection.h"
+#include "vtkProp.h"
+#include "vtkPropCollection.h"
+#include "vtkRenderer.h"
 
 #include <vector>
 

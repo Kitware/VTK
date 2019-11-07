@@ -19,8 +19,8 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataConnectivityFilter.h>
-#include <vtkSphereSource.h>
 #include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
 
 namespace
 {

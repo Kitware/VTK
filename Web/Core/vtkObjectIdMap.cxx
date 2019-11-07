@@ -19,8 +19,8 @@
 #include "vtkWeakPointer.h"
 
 #include <map>
-#include <string>
 #include <set>
+#include <string>
 
 
 struct vtkObjectIdMap::vtkInternals

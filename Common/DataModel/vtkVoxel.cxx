@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkVoxel.h"
 
+#include "vtkBox.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
+#include "vtkMarchingCubesTriangleCases.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkPoints.h"
-#include "vtkBox.h"
-#include "vtkMarchingCubesTriangleCases.h"
 
 vtkStandardNewMacro(vtkVoxel);
 

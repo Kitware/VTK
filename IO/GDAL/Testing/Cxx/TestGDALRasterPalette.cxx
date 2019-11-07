@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
 #include <vtkGDALRasterReader.h>
@@ -20,12 +21,10 @@
 #include <vtkImageProperty.h>
 #include <vtkLookupTable.h>
 #include <vtkNew.h>
-#include <vtkCellData.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkUniformGrid.h>
 
 #include <iostream>

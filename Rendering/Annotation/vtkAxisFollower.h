@@ -29,8 +29,8 @@
 #ifndef vtkAxisFollower_h
 #define vtkAxisFollower_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkFollower.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 #include "vtkWeakPointer.h" // For vtkWeakPointer
 

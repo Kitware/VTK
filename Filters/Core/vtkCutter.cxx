@@ -20,6 +20,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkContourHelper.h"
 #include "vtkContourValues.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataSet.h"
@@ -30,6 +31,7 @@
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
@@ -45,12 +47,8 @@
 #include "vtkStructuredGrid.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkSynchronizedTemplatesCutter3D.h"
-#include "vtkUnstructuredGridBase.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkTimerLog.h"
-#include "vtkSmartPointer.h"
-#include "vtkContourHelper.h"
+#include "vtkUnstructuredGridBase.h"
 
 #include <algorithm>
 #include <cmath>

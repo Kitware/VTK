@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkRadiusOutlierRemoval.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkStaticPointLocator.h"
+#include "vtkIdList.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
 
 
 vtkStandardNewMacro(vtkRadiusOutlierRemoval);

@@ -13,16 +13,16 @@
 
 =========================================================================*/
 #include "vtkDistanceRepresentation.h"
-#include "vtkHandleRepresentation.h"
+#include "vtkBox.h"
 #include "vtkCoordinate.h"
 #include "vtkEventData.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkBox.h"
+#include "vtkHandleRepresentation.h"
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
-#include "vtkWindow.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkWindow.h"
 
 vtkCxxSetObjectMacro(vtkDistanceRepresentation,HandleRepresentation,vtkHandleRepresentation);
 

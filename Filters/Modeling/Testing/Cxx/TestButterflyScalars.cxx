@@ -17,21 +17,20 @@
 
 #include "vtkSmartPointer.h"
 
+#include "vtkButterflySubdivisionFilter.h"
 #include "vtkCylinderSource.h"
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkButterflySubdivisionFilter.h"
 #include "vtkLoopSubdivisionFilter.h"
-#include "vtkTriangleFilter.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTriangleFilter.h"
+#include "vtkUnsignedCharArray.h"
 
 //----------------------------------------------------------------------------
 int TestButterflyScalars(int argc, char * argv[])

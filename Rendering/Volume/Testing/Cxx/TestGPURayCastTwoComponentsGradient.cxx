@@ -20,14 +20,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTesting.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
+#include "vtkUnsignedShortArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkUnsignedShortArray.h"
 
 int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
 {

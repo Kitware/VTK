@@ -18,15 +18,15 @@
 #include "vtkLinearSubdivisionFilter.h"
 #include "vtkLoopSubdivisionFilter.h"
 
-#include "vtkPolyData.h"
-#include "vtkTriangle.h"
-#include "vtkQuad.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkQuad.h"
+#include "vtkTriangle.h"
 
 
-#include "vtkExecutive.h"
 #include "vtkCommand.h"
+#include "vtkExecutive.h"
 #include "vtkTestErrorObserver.h"
 
 #include <sstream>

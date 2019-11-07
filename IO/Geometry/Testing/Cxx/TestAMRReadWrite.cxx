@@ -15,16 +15,16 @@
 // .NAME Test of vtkSimplePointsReader and vtkSimplePointsWriter
 // .SECTION Description
 //
-#include "vtkSmartPointer.h"
-#include "vtkSetGet.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkAMRInformation.h"
-#include "vtkUniformGrid.h"
-#include "vtkNew.h"
 #include "vtkAMREnzoReader.h"
-#include "vtkTestUtilities.h"
-#include "vtkCompositeDataWriter.h"
+#include "vtkAMRInformation.h"
 #include "vtkCompositeDataReader.h"
+#include "vtkCompositeDataWriter.h"
+#include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
+#include "vtkUniformGrid.h"
 
 namespace
 {

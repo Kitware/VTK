@@ -21,7 +21,6 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
-#include "vtkMapArrayValues.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -35,6 +34,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTableWithEnabling.h"
+#include "vtkMapArrayValues.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneSource.h"

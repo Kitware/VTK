@@ -14,24 +14,24 @@
 =========================================================================*/
 #include "vtkFacetWriter.h"
 
-#include "vtkUnstructuredGrid.h"
-#include "vtkObjectFactory.h"
-#include "vtkErrorCode.h"
-#include "vtkCellType.h"
 #include "vtkCellArray.h"
-#include "vtkGarbageCollector.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkInformationVector.h"
+#include "vtkCellType.h"
+#include "vtkErrorCode.h"
+#include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
-#include "vtkUnsignedIntArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkSmartPointer.h"
+#include "vtkUnsignedIntArray.h"
 
-#include <sys/stat.h>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
 vtkStandardNewMacro(vtkFacetWriter);

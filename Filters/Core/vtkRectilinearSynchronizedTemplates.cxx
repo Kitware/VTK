@@ -28,8 +28,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolygonBuilder.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 #include "vtkSynchronizedTemplates3D.h"
@@ -37,8 +39,6 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkPolygonBuilder.h"
-#include "vtkSmartPointer.h"
 
 #include <cmath>
 

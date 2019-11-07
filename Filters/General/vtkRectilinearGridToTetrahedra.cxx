@@ -16,7 +16,6 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkSignedCharArray.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
@@ -25,6 +24,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 

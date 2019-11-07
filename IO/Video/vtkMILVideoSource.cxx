@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkMILVideoSource.h"
-#include "vtkTimerLog.h"
-#include "vtkObjectFactory.h"
 #include "vtkCriticalSection.h"
+#include "vtkObjectFactory.h"
+#include "vtkTimerLog.h"
 
-#include <mil.h>
 #include <cctype>
 #include <cstring>
+#include <mil.h>
 
 vtkStandardNewMacro(vtkMILVideoSource);
 

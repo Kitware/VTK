@@ -109,8 +109,8 @@
 #ifndef vtkHardwareSelector_h
 #define vtkHardwareSelector_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include <string> // for std::string
 

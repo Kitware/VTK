@@ -14,20 +14,19 @@
 =========================================================================*/
 #include "vtkStaticPointLocator2D.h"
 
+#include "vtkBoundingBox.h"
+#include "vtkBox.h"
 #include "vtkCellArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
+#include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkBoundingBox.h"
-#include "vtkBox.h"
-#include "vtkLine.h"
-#include "vtkPlane.h"
-#include "vtkBoundingBox.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 
 #include <vector>
 

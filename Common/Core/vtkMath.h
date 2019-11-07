@@ -41,13 +41,13 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkTypeTraits.h" // For type traits
 #include "vtkSmartPointer.h" // For vtkSmartPointer.
+#include "vtkTypeTraits.h" // For type traits
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
-#include <cassert> // assert() in inline implementations.
 #include <algorithm> // for std::clamp
+#include <cassert> // assert() in inline implementations.
 
 #ifndef DBL_MIN
 #  define VTK_DBL_MIN    2.2250738585072014e-308

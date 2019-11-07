@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkParametricRandomHills.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkObjectFactory.h"
 
 #include <ctime>
 

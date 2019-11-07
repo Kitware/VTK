@@ -28,8 +28,8 @@
 #ifndef vtkOBJExporter_h
 #define vtkOBJExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 #include <fstream> // For ofstream
 #include <map> // For map
 #include <vector> // For string

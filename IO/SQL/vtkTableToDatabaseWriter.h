@@ -24,8 +24,8 @@
 #define vtkTableToDatabaseWriter_h
 
 #include "vtkIOSQLModule.h" // For export macro
-#include <string> // STL Header
 #include "vtkWriter.h"
+#include <string> // STL Header
 
 class vtkSQLDatabase;
 class vtkStringArray;

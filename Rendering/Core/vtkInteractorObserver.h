@@ -45,8 +45,8 @@
 #ifndef vtkInteractorObserver_h
 #define vtkInteractorObserver_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkAbstractPropPicker;
 class vtkAssemblyPath;

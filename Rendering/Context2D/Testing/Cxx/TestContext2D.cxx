@@ -22,9 +22,9 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 

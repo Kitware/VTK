@@ -20,8 +20,8 @@
 #include "vtkCollection.h"
 #include "vtkContourTriangulator.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
@@ -38,16 +38,16 @@
 #include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtk_pugixml.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <array>
 #include <cstring>
 #include <iostream>
-#include <unordered_map>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
+#include <unordered_map>
 #include <vector>
 
 class vtkCityGMLReader::Implementation

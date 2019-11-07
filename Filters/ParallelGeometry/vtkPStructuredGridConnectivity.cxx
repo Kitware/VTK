@@ -13,11 +13,11 @@
 
  =========================================================================*/
 #include "vtkPStructuredGridConnectivity.h"
-#include "vtkObjectFactory.h"
-#include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkMPICommunicator.h"
+#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
+#include "vtkObjectFactory.h"
 
 #include <cassert>
 #include <fstream>

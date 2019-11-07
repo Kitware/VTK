@@ -44,8 +44,8 @@
 #ifndef vtkBooleanTexture_h
 #define vtkBooleanTexture_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 class VTKIMAGINGHYBRID_EXPORT vtkBooleanTexture : public vtkImageAlgorithm
 {

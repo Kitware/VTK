@@ -14,33 +14,33 @@
 =========================================================================*/
 
 #include "vtkCompositeRGBAPass.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
-#include "vtkFrameBufferObjectBase.h"
+#include "vtkRenderState.h"
 #include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
+#include <cassert>
 
 // to be able to dump intermediate result into png files for debugging.
 // only for vtkCompositeRGBAPass developers.
 //#define VTK_COMPOSITE_RGBAPASS_DEBUG
 
-#include "vtkPNGWriter.h"
+#include "vtkCamera.h"
+#include "vtkImageData.h"
+#include "vtkImageExtractComponents.h"
 #include "vtkImageImport.h"
 #include "vtkImageShiftScale.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
-#include "vtkMultiProcessController.h"
-#include <sstream>
-#include "vtkTimerLog.h"
-#include "vtkStdString.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkPKdTree.h"
-#include "vtkCamera.h"
 #include "vtkIntArray.h"
+#include "vtkMultiProcessController.h"
+#include "vtkPKdTree.h"
+#include "vtkPNGWriter.h"
+#include "vtkPixelBufferObject.h"
+#include "vtkPointData.h"
+#include "vtkStdString.h"
+#include "vtkTimerLog.h"
+#include <sstream>
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
 //#include <unistd.h>

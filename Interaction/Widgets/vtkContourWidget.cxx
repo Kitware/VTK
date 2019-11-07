@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkContourWidget.h"
-#include "vtkOrientedGlyphContourRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkCommand.h"
+#include "vtkEvent.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkWidgetCallbackMapper.h"
-#include "vtkSphereSource.h"
+#include "vtkOrientedGlyphContourRepresentation.h"
+#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
-#include "vtkEvent.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkContourWidget);
 

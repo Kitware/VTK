@@ -3,7 +3,6 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkmDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -17,6 +16,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkmDataArray.h"
 
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
 #include <vtkm/cont/testing/MakeTestDataSet.h>

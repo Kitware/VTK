@@ -16,13 +16,13 @@
 
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkImageData.h"
 
 #include <vtksys/SystemTools.hxx>
 

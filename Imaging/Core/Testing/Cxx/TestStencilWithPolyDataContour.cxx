@@ -13,25 +13,25 @@
 
 =========================================================================*/
 
-#include "vtkImageData.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataToImageStencil.h"
-#include "vtkTransform.h"
-#include "vtkImageStencil.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
+#include "vtkCellArray.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
 #include "vtkImageSliceMapper.h"
-#include "vtkImageProperty.h"
+#include "vtkImageStencil.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataToImageStencil.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 // this contour used to cause trouble
 static double contour[262][2] = {

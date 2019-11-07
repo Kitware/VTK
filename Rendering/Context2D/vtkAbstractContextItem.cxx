@@ -14,9 +14,9 @@
 =========================================================================*/
 
 #include "vtkAbstractContextItem.h"
-#include "vtkObjectFactory.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScenePrivate.h"
+#include "vtkObjectFactory.h"
 
 // STL headers
 #include <algorithm>

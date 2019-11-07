@@ -12,28 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
-#include <cassert>
 
 #include "vtkOpenVROverlay.h"
-#include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkOpenVRRenderWindow.h"
+#include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 
 #include "vtkEventData.h"
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
-#include "vtkOpenVRInteractorStyle.h"
+#include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenVRCamera.h"
+#include "vtkOpenVRInteractorStyle.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
-#include "vtkMatrix4x4.h"
 
 vtkStandardNewMacro(vtkOpenVRRenderWindowInteractor);
 

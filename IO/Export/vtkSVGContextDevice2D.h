@@ -39,9 +39,9 @@
 #ifndef vtkSVGContextDevice2D_h
 #define vtkSVGContextDevice2D_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkContextDevice2D.h"
-#include "vtkNew.h" // For vtkNew!
+#include "vtkIOExportModule.h" // For export macro
+#include "vtkNew.h"            // For vtkNew!
 
 #include <array> // For std::array!
 

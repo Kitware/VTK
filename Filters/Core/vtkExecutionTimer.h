@@ -32,8 +32,8 @@
 #ifndef vtkExecutionTimer_h
 #define vtkExecutionTimer_h
 
-#include "vtkObject.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkObject.h"
 
 class vtkAlgorithm;
 class vtkCallbackCommand;

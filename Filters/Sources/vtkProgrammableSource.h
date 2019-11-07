@@ -38,8 +38,8 @@
 #ifndef vtkProgrammableSource_h
 #define vtkProgrammableSource_h
 
-#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersSourcesModule.h" // For export macro
 
 class vtkGraph;
 class vtkMolecule;

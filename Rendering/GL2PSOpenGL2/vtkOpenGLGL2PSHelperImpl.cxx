@@ -27,11 +27,11 @@
 #include "vtkPath.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkTransformFeedback.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
+#include "vtkTransformFeedback.h"
 
 #include "vtk_gl2ps.h"
 

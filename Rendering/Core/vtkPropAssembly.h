@@ -44,8 +44,8 @@
 #ifndef vtkPropAssembly_h
 #define vtkPropAssembly_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkPropAssembly : public vtkProp
 {

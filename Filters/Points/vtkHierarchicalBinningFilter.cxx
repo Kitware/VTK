@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkHierarchicalBinningFilter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkPointSet.h"
-#include "vtkPoints.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkPointData.h"
 #include "vtkFieldData.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkHierarchicalBinningFilter);

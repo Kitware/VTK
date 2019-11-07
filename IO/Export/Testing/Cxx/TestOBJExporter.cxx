@@ -17,8 +17,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkNew.h"
 #include "vtkOBJExporter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 

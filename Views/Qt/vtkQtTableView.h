@@ -32,11 +32,11 @@
 #ifndef vtkQtTableView_h
 #define vtkQtTableView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
-#include <QPointer> // Needed to hold the view
 #include "vtkSmartPointer.h" // Needed for member variables
+#include <QPointer> // Needed to hold the view
 
 class vtkAddMembershipArray;
 class vtkApplyColors;

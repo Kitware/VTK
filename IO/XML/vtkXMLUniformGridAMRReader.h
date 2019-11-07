@@ -31,9 +31,9 @@
 #ifndef vtkXMLUniformGridAMRReader_h
 #define vtkXMLUniformGridAMRReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLCompositeDataReader.h"
+#include "vtkIOXMLModule.h"  // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include "vtkXMLCompositeDataReader.h"
 
 class vtkOverlappingAMR;
 class vtkUniformGridAMR;

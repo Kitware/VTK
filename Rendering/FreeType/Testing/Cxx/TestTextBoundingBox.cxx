@@ -14,19 +14,19 @@
 =========================================================================*/
 
 #include <iostream>
-#include <vtkVersion.h>
-#include <vtkSmartPointer.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
 #include <vtkNew.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTextRenderer.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
+#include <vtkTextRenderer.h>
+#include <vtkVersion.h>
 
 int TestTextBoundingBox(int, char *[])
 {

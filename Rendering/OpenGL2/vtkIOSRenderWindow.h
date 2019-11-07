@@ -42,8 +42,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkIOSRenderWindow_h
 #define vtkIOSRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWindow
 {

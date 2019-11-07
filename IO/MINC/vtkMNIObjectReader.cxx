@@ -54,16 +54,16 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkProperty.h"
 #include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cctype>
 

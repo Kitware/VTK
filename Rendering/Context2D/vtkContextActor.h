@@ -24,10 +24,10 @@
 #ifndef vtkContextActor_h
 #define vtkContextActor_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkNew.h" // For ivars
 #include "vtkProp.h"
-#include "vtkNew.h"          // For ivars
-#include "vtkSmartPointer.h" // For ivars
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkSmartPointer.h"             // For ivars
 
 class vtkContext2D;
 class vtkContext3D;

@@ -15,22 +15,22 @@
 // VTK includes
 #include "vtkBoxWidget.h"
 #include "vtkCamera.h"
-#include "vtkCommand.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkCommand.h"
 #include "vtkDICOMImageReader.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkImageResample.h"
 #include "vtkMetaImageReader.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlanes.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
-#include "vtkFixedPointVolumeRayCastMapper.h"
 
 #define VTI_FILETYPE 1
 #define MHA_FILETYPE 2

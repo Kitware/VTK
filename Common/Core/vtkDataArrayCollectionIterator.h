@@ -24,8 +24,8 @@
 #ifndef vtkDataArrayCollectionIterator_h
 #define vtkDataArrayCollectionIterator_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollectionIterator.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 class vtkDataArray;
 class vtkDataArrayCollection;

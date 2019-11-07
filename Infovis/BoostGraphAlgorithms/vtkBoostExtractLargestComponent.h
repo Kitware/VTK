@@ -26,8 +26,8 @@
 #ifndef vtkBoostExtractLargestComponent_h
 #define vtkBoostExtractLargestComponent_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class vtkGraph;
 

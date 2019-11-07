@@ -2,12 +2,11 @@
 // Varying tube radius and independent RGB colors with an unsignedCharArray
 // Contributed by Marcus Thamson
 
-#include <vtkPolyData.h>
-#include <vtkPoints.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
-#include <vtkPolyData.h>
 #include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 
 #include <vtkCell.h>
 #include <vtkCellData.h>
@@ -17,14 +16,14 @@
 #include <vtkSmartPointer.h>
 #include <vtkTubeFilter.h>
 
-#include <vtkDataSetMapper.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
-#include <vtkRenderer.h>
+#include <vtkCamera.h>
+#include <vtkDataSetMapper.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkCamera.h>
-#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkRenderer.h>
 
 #include <vtkMath.h>
 

@@ -37,9 +37,9 @@
 #ifndef vtkArrayNorm_h
 #define vtkArrayNorm_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkArrayRange.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkArrayNorm : public vtkArrayDataAlgorithm
 {

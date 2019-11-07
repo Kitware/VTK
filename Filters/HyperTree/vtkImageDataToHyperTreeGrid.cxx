@@ -18,7 +18,6 @@
 #include <vtkCellData.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkDoubleArray.h>
-#include <vtkDoubleArray.h>
 #include <vtkHyperTree.h>
 #include <vtkHyperTreeGrid.h>
 #include <vtkIdTypeArray.h>

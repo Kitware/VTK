@@ -14,13 +14,13 @@
 =========================================================================*/
 
 #include "vtkAxis.h"
-#include "vtkContextActor.h"
-#include "vtkContext2D.h"
-#include "vtkContextDevice2D.h"
 #include "vtkChartXY.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkColorTransferFunctionItem.h"
 #include "vtkCompositeTransferFunctionItem.h"
+#include "vtkContext2D.h"
+#include "vtkContextActor.h"
+#include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDoubleArray.h"
@@ -30,10 +30,10 @@
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 

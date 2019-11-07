@@ -26,8 +26,8 @@
 #ifndef vtkFreeTypeTools_h
 #define vtkFreeTypeTools_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkSmartPointer.h" // For smart pointer
 #include "vtkTextRenderer.h" // For Metrics struct
 #include "vtkUnicodeString.h" // For vtkUnicodeStringValueType

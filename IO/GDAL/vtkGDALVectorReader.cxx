@@ -15,10 +15,10 @@
 #include "vtkGDALVectorReader.h"
 
 // VTK includes
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDoubleArray.h"
-#include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,8 +26,8 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
 #include "vtkPolyData.h"
+#include "vtkStringArray.h"
 
 // GDAL OGR includes
 #include <ogrsf_frmts.h>

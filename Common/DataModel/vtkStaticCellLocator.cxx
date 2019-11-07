@@ -14,25 +14,25 @@
 =========================================================================*/
 #include "vtkStaticCellLocator.h"
 
+#include "vtkBoundingBox.h"
+#include "vtkBox.h"
 #include "vtkCellArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkGenericCell.h"
-#include "vtkDoubleArray.h"
-#include "vtkMergePoints.h"
-#include "vtkPlane.h"
-#include "vtkBox.h"
-#include "vtkBoundingBox.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 
-#include <queue>
 #include <functional>
+#include <queue>
 
 vtkStandardNewMacro(vtkStaticCellLocator);
 

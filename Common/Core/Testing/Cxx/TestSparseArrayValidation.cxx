@@ -20,8 +20,8 @@
 =========================================================================*/
 
 #include <vtkArrayPrint.h>
-#include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
+#include <vtkSparseArray.h>
 #include <vtkTestErrorObserver.h>
 
 #include <iostream>

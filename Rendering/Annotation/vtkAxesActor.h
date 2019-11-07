@@ -48,8 +48,8 @@
 #ifndef vtkAxesActor_h
 #define vtkAxesActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkActor;
 class vtkCaptionActor2D;

@@ -21,8 +21,8 @@
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPointDataToCellData.h>
-#include <vtkPoints.h>
 #include <vtkPointLocator.h>
+#include <vtkPoints.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkSmartPointer.h>
 #include <vtkTriangle.h>

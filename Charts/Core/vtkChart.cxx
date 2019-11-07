@@ -16,13 +16,13 @@
 #include "vtkChart.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
-#include "vtkTransform2D.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkTransform2D.h"
 
 #include "vtkAnnotationLink.h"
 #include "vtkContextScene.h"
-#include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
+#include "vtkTextProperty.h"
 
 //-----------------------------------------------------------------------------
 vtkChart::MouseActions::MouseActions()

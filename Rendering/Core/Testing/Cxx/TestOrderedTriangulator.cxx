@@ -19,15 +19,15 @@
 // It shows the effect of the delaunay criteria compare to an iso parametric
 // case where this criteria does not apply.
 
+#include "vtkDataSetMapper.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkDataSetMapper.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
 static double para_coord1[24] = {

@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkImageOrthoPlanes.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkImagePlaneWidget.h"
-#include "vtkMath.h"
-#include "vtkMatrix4x4.h"
+#include "vtkAlgorithm.h"
 #include "vtkCallbackCommand.h"
 #include "vtkImageData.h"
-#include "vtkTransform.h"
-#include "vtkAlgorithm.h"
+#include "vtkImagePlaneWidget.h"
 #include "vtkImageReslice.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTransform.h"
 
 #include <cmath>
 

@@ -24,33 +24,33 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkDataSetSurfaceFilter.h"
 #include "vtkDataArray.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractEdges.h"
 #include "vtkGlyph3D.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
 #include "vtkShrinkFilter.h"
 #include "vtkSmartPointer.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "vtkOSPRayTestInteractor.h"
 

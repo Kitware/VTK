@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkDummyCommunicator.h"
 #include "vtkDummyController.h"
+#include "vtkDummyCommunicator.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkDummyController);

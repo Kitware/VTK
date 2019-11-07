@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCamera.h"
-#include "vtkCubeAxesActor2D.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCone.h"
+#include "vtkCubeAxesActor2D.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
@@ -29,15 +29,15 @@
 #include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSampleFunction.h"
 #include "vtkSmartPointer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkTestingInteractor.h"
-#include "vtkVolumeProperty.h"
 #include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
 #include <string>
 

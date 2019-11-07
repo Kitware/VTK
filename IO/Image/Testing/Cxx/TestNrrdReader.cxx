@@ -23,10 +23,10 @@
 #include "vtkCamera.h"
 #include "vtkImageMapper.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
 #include "vtkTestUtilities.h"
 

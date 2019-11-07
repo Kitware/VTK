@@ -12,8 +12,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
-#import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import <UIKit/UIKit.h>
 
 // Note: This file should be includable by both pure Objective-C and Objective-C++ source files.
 // To achieve this, we use the neat technique below:

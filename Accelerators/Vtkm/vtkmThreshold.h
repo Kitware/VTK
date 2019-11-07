@@ -31,8 +31,8 @@
 #ifndef vtkmThreshold_h
 #define vtkmThreshold_h
 
-#include "vtkThreshold.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkThreshold.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmThreshold : public vtkThreshold
 {

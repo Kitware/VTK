@@ -24,9 +24,9 @@
 #ifndef vtkPTSReader_h
 #define vtkPTSReader_h
 
+#include "vtkBoundingBox.h"      // For Bounding Box Data Member
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkBoundingBox.h" // For Bounding Box Data Member
 
 
 class VTKIOGEOMETRY_EXPORT vtkPTSReader : public vtkPolyDataAlgorithm

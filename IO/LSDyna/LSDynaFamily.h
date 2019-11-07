@@ -30,14 +30,14 @@
 
 #include "vtkType.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <vector>
 
 //this is needs to be moved over to fseekpos and ftellpos
 //in the future

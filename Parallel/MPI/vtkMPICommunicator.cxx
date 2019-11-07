@@ -16,19 +16,19 @@
 #include "vtkMPICommunicator.h"
 
 #include "vtkImageData.h"
+#include "vtkMPI.h"
 #include "vtkMPIController.h"
-#include "vtkProcessGroup.h"
 #include "vtkObjectFactory.h"
+#include "vtkProcessGroup.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkToolkits.h"
-#include "vtkMPI.h"
-#include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vector>
 #include <cassert>
+#include <vector>
 
 static inline void  vtkMPICommunicatorDebugBarrier(MPI_Comm* handle)
 {

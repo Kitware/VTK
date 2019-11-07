@@ -77,8 +77,8 @@
 #ifndef vtkProgrammableAttributeDataFilter_h
 #define vtkProgrammableAttributeDataFilter_h
 
-#include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersProgrammableModule.h" // For export macro
 
 class vtkDataSetCollection;
 

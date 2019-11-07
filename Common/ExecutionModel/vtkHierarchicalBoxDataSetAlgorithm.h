@@ -25,8 +25,8 @@
 #ifndef vtkHierarchicalBoxDataSetAlgorithm_h
 #define vtkHierarchicalBoxDataSetAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkHierarchicalBoxDataSet;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHierarchicalBoxDataSetAlgorithm : public vtkAlgorithm

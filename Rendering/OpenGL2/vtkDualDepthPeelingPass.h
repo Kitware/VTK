@@ -51,8 +51,8 @@
 #ifndef vtkDualDepthPeelingPass_h
 #define vtkDualDepthPeelingPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthPeelingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include <array> // For std::array!
 

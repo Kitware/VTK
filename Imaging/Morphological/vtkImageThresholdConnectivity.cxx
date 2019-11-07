@@ -15,17 +15,16 @@
 
 #include "vtkImageThresholdConnectivity.h"
 
-#include "vtkMath.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 #include "vtkImageStencilData.h"
 #include "vtkImageStencilIterator.h"
-#include "vtkImageIterator.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkImageStencilData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 
 #include <stack>

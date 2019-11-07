@@ -19,12 +19,12 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkKdNode.h"
-#include "vtkCell.h"
 #include "vtkBox.h"
+#include "vtkCell.h"
 #include "vtkMath.h"
-#include "vtkPoints.h"
-#include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlanesIntersection.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);

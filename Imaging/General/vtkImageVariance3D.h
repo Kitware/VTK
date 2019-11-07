@@ -28,8 +28,8 @@
 #define vtkImageVariance3D_h
 
 
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 class vtkImageEllipsoidSource;
 

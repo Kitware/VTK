@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkVRMLImporter.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkVRMLImporter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestVRMLNormals( int argc, char * argv [] )
 {

@@ -21,10 +21,10 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPostgreSQLDatabase.h"
+#include "vtkPostgreSQLDatabasePrivate.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkPostgreSQLDatabasePrivate.h"
 
 #include <cassert>
 #include <limits> // man, I hope all platforms have this nowadays

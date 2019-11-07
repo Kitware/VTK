@@ -35,8 +35,8 @@
 #ifndef vtkmExtractVOI_h
 #define vtkmExtractVOI_h
 
-#include "vtkExtractVOI.h"
 #include "vtkAcceleratorsVTKmModule.h" // for export macro
+#include "vtkExtractVOI.h"
 
 
 class VTKACCELERATORSVTKM_EXPORT vtkmExtractVOI : public vtkExtractVOI

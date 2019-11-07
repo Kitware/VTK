@@ -26,9 +26,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
-#include <vtksys/SystemTools.hxx>
 #include <fstream>
 #include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 #include "vtk_sqlite.h"
 

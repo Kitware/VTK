@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkCellLocator.h"
 
+#include "vtkBox.h"
 #include "vtkCellArray.h"
 #include "vtkGenericCell.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkBox.h"
 
 #include <cmath>
 

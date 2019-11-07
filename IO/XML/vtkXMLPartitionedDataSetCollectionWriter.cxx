@@ -20,7 +20,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
-#include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkXMLPartitionedDataSetCollectionWriter);
 //----------------------------------------------------------------------------

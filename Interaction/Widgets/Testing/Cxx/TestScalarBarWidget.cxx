@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 
+#include "vtkActor.h"
+#include "vtkInteractorEventRecorder.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
-#include "vtkScalarBarWidget.h"
-#include "vtkStructuredGridGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
+#include "vtkScalarBarWidget.h"
 #include "vtkStructuredGrid.h"
+#include "vtkStructuredGridGeometryFilter.h"
 
 #include "vtkTestUtilities.h"
 

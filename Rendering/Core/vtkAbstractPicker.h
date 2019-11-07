@@ -58,8 +58,8 @@
 #ifndef vtkAbstractPicker_h
 #define vtkAbstractPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkProp;

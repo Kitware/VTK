@@ -16,15 +16,15 @@
 // .SECTION Description
 //
 
-#include "vtkPLYReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkPLYReader.h"
 
 #include "vtkActor.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 

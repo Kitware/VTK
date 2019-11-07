@@ -16,8 +16,8 @@
 #ifndef vtkTestDriver_h
 #define vtkTestDriver_h
 
-#include <exception> // for std::exception
 #include "vtkFloatingPointExceptions.h"
+#include <exception> // for std::exception
 
 #include <clocale> // C setlocale()
 #include <locale> // C++ locale

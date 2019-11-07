@@ -41,8 +41,8 @@
 #ifndef vtkStaticCellLocator_h
 #define vtkStaticCellLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 
 // Forward declarations for PIMPL

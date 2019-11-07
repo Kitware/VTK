@@ -15,23 +15,23 @@
 
 // This tests B-spline image warping
 
-#include "vtkImageBSplineInterpolator.h"
-#include "vtkImageBSplineCoefficients.h"
-#include "vtkImageReslice.h"
 #include "vtkBSplineTransform.h"
-#include "vtkTransformToGrid.h"
-#include "vtkThinPlateSplineTransform.h"
-#include "vtkImageViewer.h"
-#include "vtkImageGridSource.h"
+#include "vtkImageBSplineCoefficients.h"
+#include "vtkImageBSplineInterpolator.h"
 #include "vtkImageBlend.h"
+#include "vtkImageGridSource.h"
 #include "vtkImageMapToColors.h"
+#include "vtkImageReslice.h"
+#include "vtkImageViewer.h"
 #include "vtkLookupTable.h"
 #include "vtkPoints.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkThinPlateSplineTransform.h"
+#include "vtkTransformToGrid.h"
 
 int TestBSplineWarp(int argc, char *argv[])
 {

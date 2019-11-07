@@ -18,15 +18,15 @@
 
 #include "vtkQuadraticLinearWedge.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
-#include "vtkWedge.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticTriangle.h"
-#include "vtkPoints.h"
+#include "vtkWedge.h"
 
 vtkStandardNewMacro (vtkQuadraticLinearWedge);
 

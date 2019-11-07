@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkSPHKernel.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkSPHKernel,CutoffArray,vtkDataArray);
 vtkCxxSetObjectMacro(vtkSPHKernel,DensityArray,vtkDataArray);

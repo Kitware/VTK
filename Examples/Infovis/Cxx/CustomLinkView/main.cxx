@@ -10,8 +10,8 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-#include "QVTKOpenGLNativeWidget.h"
 #include "CustomLinkView.h"
+#include "QVTKOpenGLNativeWidget.h"
 
 extern int qInitResources_icons();
 

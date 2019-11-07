@@ -17,20 +17,20 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkIOSRenderWindowInteractor.h"
 #include "vtkRenderingOpenGL2ObjectFactory.h"
 
-#include "vtkNew.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkIOSRenderWindow.h"
 #include "vtkIOSRenderWindowInteractor.h"
+#include "vtkInteractorStyleMultiTouchCamera.h"
+#include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkCommand.h"
-#include "vtkInteractorStyleMultiTouchCamera.h"
 
 
 @interface MyGLKViewController () {

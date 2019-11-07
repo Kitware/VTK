@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderer.h"
 
 #include "vtkOpenGLHelper.h"
 

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricCatalanMinimal.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricCatalanMinimal);
 //----------------------------------------------------------------------------//

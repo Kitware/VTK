@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkImageRGBToHSI.h"
 
-#include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
 #include <cmath>

@@ -16,9 +16,9 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
-#include "vtkTree.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkTree.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */

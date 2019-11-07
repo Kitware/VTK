@@ -27,8 +27,8 @@
 Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 #endif
 
-#include "vtkConfigure.h"
 #include "vtkABI.h"
+#include "vtkConfigure.h"
 
 /*
  * This is a support for files on the disk that are larger than 2GB.

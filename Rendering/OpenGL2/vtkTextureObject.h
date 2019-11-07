@@ -24,9 +24,9 @@
 #ifndef vtkTextureObject_h
 #define vtkTextureObject_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // for render context
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWeakPointer.h"            // for render context
 
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;

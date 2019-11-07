@@ -52,8 +52,8 @@
 #ifndef vtkDataArrayDispatcher_h
 #define vtkDataArrayDispatcher_h
 
-#include "vtkType.h" //Required for vtkIdType
 #include "vtkDataArray.h" //required for constructor of the vtkDataArrayFunctor
+#include "vtkType.h" //Required for vtkIdType
 #include <map> //Required for the storage of template params to runtime params
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -28,8 +28,8 @@
 #define vtkParametricKuen_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
+#include "vtkMath.h"                              // for vtkMath::Pi()
 #include "vtkParametricFunction.h"
-#include "vtkMath.h" // for vtkMath::Pi()
 
 class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
   vtkParametricFunction

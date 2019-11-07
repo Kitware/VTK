@@ -28,8 +28,8 @@
 #define vtkContourHelper_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkSmartPointer.h" //for a member variable
 #include "vtkPolygonBuilder.h" //for a member variable
+#include "vtkSmartPointer.h" //for a member variable
 
 class vtkIncrementalPointLocator;
 class vtkCellArray;

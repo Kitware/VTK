@@ -14,10 +14,10 @@
 =========================================================================*/
 #include <vtkColorTransferFunction.h>
 #include <vtkGlyph3D.h>
-#include <vtkImageData.h>
-#include <vtkImageReslice.h>
-#include <vtkImageMapToColors.h>
 #include <vtkImageAppendComponents.h>
+#include <vtkImageData.h>
+#include <vtkImageMapToColors.h>
+#include <vtkImageReslice.h>
 #include <vtkInformation.h>
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>

@@ -87,9 +87,9 @@
 #ifndef vtkMultiBlockPLOT3DReader_h
 #define vtkMultiBlockPLOT3DReader_h
 
-#include <vector>  // For holding function-names
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkParallelReader.h"
+#include <vector>  // For holding function-names
 
 class vtkDataArray;
 class vtkDataSetAttributes;

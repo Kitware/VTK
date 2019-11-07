@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#include "vtkMath.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkObjectFactory.h"
 #include "vtkIncrementalOctreeNode.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro( vtkIncrementalOctreeNode );
 

@@ -20,17 +20,17 @@
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
-#include "vtkPointData.h"
 #include "vtkContourFilter.h"
 #include "vtkHyperTreeGridToDualGrid.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
-#include "vtkProperty.h"
+#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestHyperTreeGridTernary3DDualContourMaterial( int argc, char* argv[] )
 {

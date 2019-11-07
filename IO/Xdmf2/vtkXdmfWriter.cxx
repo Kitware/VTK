@@ -33,8 +33,8 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
@@ -56,8 +56,8 @@
 #include VTKXDMF2_HEADER(XdmfTopology.h)
 
 #include <algorithm>
-#include <map>
 #include <cstdio>
+#include <map>
 #include <sstream>
 #include <vector>
 

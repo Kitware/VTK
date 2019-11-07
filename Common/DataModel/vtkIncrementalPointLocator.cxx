@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkObjectFactory.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkObjectFactory.h"
 
 
 vtkIncrementalPointLocator::vtkIncrementalPointLocator() = default;

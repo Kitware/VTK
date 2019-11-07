@@ -14,8 +14,8 @@
 
 #include <algorithm>
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -27,10 +27,10 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProp3DCollection.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderedAreaPicker.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSphereSource.h"

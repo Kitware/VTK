@@ -16,9 +16,9 @@
 #include "vtkCoordinate.h"
 #include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkPointPlacer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 #include "assert.h"
 

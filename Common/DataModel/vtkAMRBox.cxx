@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkAMRBox.h"
 
-#include "vtkUnsignedCharArray.h"
 #include "vtkCellData.h"
-#include "vtkType.h"
-#include "vtkStructuredData.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkStructuredData.h"
+#include "vtkType.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
-#include <cstring>
 #include <cassert>
-#include <sstream>
+#include <cstring>
 #include <fstream>
+#include <sstream>
 
 //-----------------------------------------------------------------------------
 vtkAMRBox::vtkAMRBox()

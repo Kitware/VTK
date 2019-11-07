@@ -14,11 +14,11 @@
 #include "vtkSurfaceLICInterface.h"
 
 #include "vtkFloatArray.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkImageData.h"
 #include "vtkLineIntegralConvolution2D.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -33,23 +33,23 @@
 #include "vtkSurfaceLICComposite.h"
 #include "vtkTextureObjectVS.h"
 
-#include "vtkOpenGLVertexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 
 #include "vtkLICNoiseHelper.h"
 #include "vtkSurfaceLICHelper.h"
 
-#include <cstring>
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <deque>
 #include <limits>
 #include <vector>
-#include <deque>
-#include <cstdlib>
 
-#include "vtkSurfaceLICInterface_SC.h"
 #include "vtkSurfaceLICInterface_CE.h"
 #include "vtkSurfaceLICInterface_DCpy.h"
+#include "vtkSurfaceLICInterface_SC.h"
 #include "vtkTextureObjectVS.h"
 
 typedef vtkLineIntegralConvolution2D vtkLIC2D;

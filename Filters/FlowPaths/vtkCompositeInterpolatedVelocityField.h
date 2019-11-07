@@ -33,8 +33,8 @@
 #ifndef vtkCompositeInterpolatedVelocityField_h
 #define vtkCompositeInterpolatedVelocityField_h
 
-#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkAbstractInterpolatedVelocityField.h"
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 
 #include <vector> // STL Header; Required for vector
 

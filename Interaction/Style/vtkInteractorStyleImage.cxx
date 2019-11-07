@@ -19,15 +19,15 @@
 #include "vtkPropCollection.h"
 
 #include "vtkCallbackCommand.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkCamera.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkImageSlice.h"
 #include "vtkImageMapper3D.h"
 #include "vtkImageProperty.h"
+#include "vtkImageSlice.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkInteractorStyleImage);
 

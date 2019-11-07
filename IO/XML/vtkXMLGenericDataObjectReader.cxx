@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXMLGenericDataObjectReader.h"
 
+#include "vtkCommand.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -31,16 +32,15 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPImageDataReader.h"
-#include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPPolyDataReader.h"
 #include "vtkXMLPRectilinearGridReader.h"
 #include "vtkXMLPStructuredGridReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
+#include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkCommand.h"
 
 #include <cassert>
 

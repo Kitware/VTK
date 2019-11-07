@@ -14,9 +14,9 @@
 =========================================================================*/
 
 #include "vtkImageSliceCollection.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageSlice.h"
 #include "vtkImageProperty.h"
+#include "vtkImageSlice.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageSliceCollection);
 

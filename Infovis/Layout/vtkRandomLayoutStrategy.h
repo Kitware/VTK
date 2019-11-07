@@ -32,8 +32,8 @@
 #ifndef vtkRandomLayoutStrategy_h
 #define vtkRandomLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkRandomLayoutStrategy : public vtkGraphLayoutStrategy
 {

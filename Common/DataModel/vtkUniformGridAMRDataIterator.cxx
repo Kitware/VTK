@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkUniformGridAMR.h"
 #include "vtkUniformGridAMRDataIterator.h"
-#include "vtkAMRInformation.h"
 #include "vtkAMRDataInternals.h"
-#include "vtkObjectFactory.h"
+#include "vtkAMRInformation.h"
 #include "vtkDataObject.h"
-#include "vtkUniformGrid.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkUniformGrid.h"
+#include "vtkUniformGridAMR.h"
 #include <cassert>
 
 //----------------------------------------------------------------

@@ -24,18 +24,17 @@
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
+#include "vtkQuadric.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkTextProperty.h"
-#include "vtkQuadric.h"
 
 int TestHyperTreeGridBinaryHyperbolicParaboloidMaterial( int argc, char* argv[] )
 {

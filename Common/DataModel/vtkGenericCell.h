@@ -30,8 +30,8 @@
 #ifndef vtkGenericCell_h
 #define vtkGenericCell_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericCell : public vtkCell
 {

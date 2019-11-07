@@ -49,9 +49,9 @@
 #ifndef vtkSelectEnclosedPoints_h
 #define vtkSelectEnclosedPoints_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-#include "vtkIntersectionCounter.h" // to count intersections along ray
+#include "vtkFiltersModelingModule.h" // For export macro
+#include "vtkIntersectionCounter.h"   // to count intersections along ray
 
 class vtkUnsignedCharArray;
 class vtkAbstractCellLocator;

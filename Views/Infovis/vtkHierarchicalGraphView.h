@@ -41,8 +41,8 @@
 #ifndef vtkHierarchicalGraphView_h
 #define vtkHierarchicalGraphView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkGraphLayoutView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkRenderedHierarchyRepresentation;
 

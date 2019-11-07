@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkAbstractInterpolatedVelocityField.h"
 
+#include "vtkClosestPointStrategy.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkGenericCell.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkDataSet.h"
-#include "vtkDataArray.h"
-#include "vtkPointData.h"
-#include "vtkGenericCell.h"
-#include "vtkClosestPointStrategy.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 #include <map>
 #include <utility> //make_pair

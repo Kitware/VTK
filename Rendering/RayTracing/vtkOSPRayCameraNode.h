@@ -22,8 +22,8 @@
 #ifndef vtkOSPRayCameraNode_h
 #define vtkOSPRayCameraNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkCameraNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 class vtkInformationIntegerKey;
 class vtkCamera;

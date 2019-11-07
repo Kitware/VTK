@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkCutter.h"
-#include "vtkRTAnalyticSource.h"
-#include "vtkPolyData.h"
-#include "vtkPlane.h"
-#include "vtkPolygonBuilder.h"
-#include "vtkPoints.h"
 #include "vtkDataSetTriangleFilter.h"
-#include "vtkPointDataToCellData.h"
 #include "vtkImageDataToPointSet.h"
+#include "vtkPlane.h"
+#include "vtkPointDataToCellData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygonBuilder.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkSmartPointer.h"
 #include <cassert>
 
 bool TestStructured(int type)

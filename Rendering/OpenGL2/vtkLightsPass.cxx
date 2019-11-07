@@ -15,9 +15,9 @@
 
 #include "vtkLightsPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkLightsPass);
 

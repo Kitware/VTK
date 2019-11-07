@@ -22,10 +22,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
-#include <ctime>
 
 vtkStandardNewMacro(vtkDateToNumeric);
 //----------------------------------------------------------------------------

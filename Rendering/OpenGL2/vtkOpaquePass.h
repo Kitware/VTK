@@ -31,8 +31,8 @@
 #ifndef vtkOpaquePass_h
 #define vtkOpaquePass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDefaultPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpaquePass : public vtkDefaultPass
 {

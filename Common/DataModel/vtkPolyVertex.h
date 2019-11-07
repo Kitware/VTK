@@ -23,8 +23,8 @@
 #ifndef vtkPolyVertex_h
 #define vtkPolyVertex_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkVertex;
 class vtkIncrementalPointLocator;

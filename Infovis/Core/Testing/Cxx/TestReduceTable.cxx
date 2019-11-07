@@ -15,8 +15,8 @@
 
 #include "vtkReduceTable.h"
 
-#include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"

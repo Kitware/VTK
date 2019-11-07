@@ -24,10 +24,10 @@
 #define vtkChartXYZ_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkColor.h"            // For vtkColor4ub
 #include "vtkContextItem.h"
-#include "vtkColor.h"        // For vtkColor4ub
-#include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkNew.h"          // For ivars
+#include "vtkRect.h"         // For vtkRectf ivars
 #include "vtkSmartPointer.h" // For ivars
 #include <vector>            // For ivars
 

@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkButterflySubdivisionFilter.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 

@@ -19,10 +19,10 @@
 #include "vtkGenericRenderWindowInteractor.h"
 #include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 
 vtkStandardNewMacro(vtkRenderViewBase);
 

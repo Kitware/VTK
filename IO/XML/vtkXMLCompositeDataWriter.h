@@ -27,8 +27,8 @@
 #define vtkXMLCompositeDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
+#include "vtkStdString.h"   // needed for vtkStdString.
 #include "vtkXMLWriter.h"
-#include "vtkStdString.h" // needed for vtkStdString.
 
 class vtkCallbackCommand;
 class vtkCompositeDataSet;

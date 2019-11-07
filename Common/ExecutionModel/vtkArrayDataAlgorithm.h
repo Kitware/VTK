@@ -44,9 +44,9 @@
 #ifndef vtkArrayDataAlgorithm_h
 #define vtkArrayDataAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
 #include "vtkArrayData.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 

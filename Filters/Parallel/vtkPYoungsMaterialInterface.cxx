@@ -22,9 +22,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkPYoungsMaterialInterface);
 vtkCxxSetObjectMacro(vtkPYoungsMaterialInterface, Controller, vtkMultiProcessController);

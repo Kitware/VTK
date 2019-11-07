@@ -1,9 +1,9 @@
 #ifndef vtkMultiBaselineRegressionTest_h
 #define vtkMultiBaselineRegressionTest_h
 
-#include "vtkTesting.h"
 #include "vtkNew.h"
 #include "vtkRenderWindow.h"
+#include "vtkTesting.h"
 
 #include "vtksys/SystemTools.hxx"
 

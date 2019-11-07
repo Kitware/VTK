@@ -49,8 +49,8 @@
 #ifndef vtkGaussianBlurPass_h
 #define vtkGaussianBlurPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageProcessingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;

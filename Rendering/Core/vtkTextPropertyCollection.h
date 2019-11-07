@@ -26,9 +26,9 @@
 #ifndef vtkTextPropertyCollection_h
 #define vtkTextPropertyCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkTextProperty.h" // for inline functions
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkTextProperty.h"        // for inline functions
 
 class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
 {

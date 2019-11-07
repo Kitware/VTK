@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkSpatialRepresentationFilter.h"
 
-#include "vtkLocator.h"
-#include "vtkInformation.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkLocator.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"

@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkXMLStructuredGridReader.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
-#include "vtkInformation.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 

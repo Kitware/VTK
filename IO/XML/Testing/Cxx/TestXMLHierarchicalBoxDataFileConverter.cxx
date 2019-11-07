@@ -4,8 +4,8 @@
 #include "vtkXMLGenericDataObjectReader.h"
 #include "vtkXMLHierarchicalBoxDataFileConverter.h"
 
-#include <vtksys/SystemTools.hxx>
 #include <string>
+#include <vtksys/SystemTools.hxx>
 
 #define VTK_SUCCESS 0
 #define VTK_FAILURE 1

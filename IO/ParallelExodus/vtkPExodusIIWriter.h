@@ -68,13 +68,13 @@
 #ifndef vtkPExodusIIWriter_h
 #define vtkPExodusIIWriter_h
 
+#include "vtkExodusIIWriter.h"
 #include "vtkIOParallelExodusModule.h" // For export macro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkExodusIIWriter.h"
 
-#include <vector> // STL Header
 #include <map>    // STL Header
 #include <string> // STL Header
+#include <vector> // STL Header
 
 class vtkModelMetadata;
 class vtkDoubleArray;

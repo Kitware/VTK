@@ -18,19 +18,19 @@
 // this program tests the rendering of an vtkActor with a translucent texture
 // with depth peeling.
 
+#include "vtkActor.h"
+#include "vtkImageData.h"
+#include "vtkPNGReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTexture.h"
-#include "vtkImageData.h"
-#include "vtkPNGReader.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkTexture.h"
 
 int TestTextureRGBADepthPeeling(int argc, char *argv[])
 {

@@ -27,14 +27,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
 
 #include <algorithm>
-#include <vector>
 #include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkTableToTreeFilter);
 

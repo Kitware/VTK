@@ -24,8 +24,8 @@
 #ifndef vtkPassThroughFilter_h
 #define vtkPassThroughFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkFieldData;
 

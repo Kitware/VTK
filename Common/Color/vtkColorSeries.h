@@ -47,9 +47,9 @@
 #ifndef vtkColorSeries_h
 #define vtkColorSeries_h
 
+#include "vtkColor.h" // Needed for vtkColor[34]ub
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkColor.h" // Needed for vtkColor[34]ub
 #include "vtkStdString.h" // Needed for arguments
 
 class vtkLookupTable;

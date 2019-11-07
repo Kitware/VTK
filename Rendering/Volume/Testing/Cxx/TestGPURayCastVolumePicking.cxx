@@ -18,6 +18,8 @@
 // the volume.
 // Use 'p' for poin picking and 'r' for area selection.
 
+#include "vtkInteractorStyleRubberBandPick.h"
+#include "vtkRenderedAreaPicker.h"
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
@@ -39,17 +41,15 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include "vtkInteractorStyleRubberBandPick.h"
-#include "vtkRenderedAreaPicker.h"
 
 #include "vtkCommand.h"
-#include "vtkHardwareSelector.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
 #include "vtkConeSource.h"
-#include "vtkSphereSource.h"
+#include "vtkHardwareSelector.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
+#include "vtkSphereSource.h"
 
 
 namespace {

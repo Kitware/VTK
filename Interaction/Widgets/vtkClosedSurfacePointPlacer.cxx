@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkClosedSurfacePointPlacer.h"
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkPlane.h"
-#include "vtkPlanes.h"
-#include "vtkPlaneCollection.h"
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
-#include "vtkCamera.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPlanes.h"
+#include "vtkRenderer.h"
 
 #include <algorithm>
 #include <vector>

@@ -14,30 +14,30 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkPolyhedron.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCellLocator.h"
+#include "vtkEdgeTable.h"
+#include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkMeanValueCoordinatesInterpolator.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkQuad.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
-#include "vtkQuad.h"
-#include "vtkPolygon.h"
-#include "vtkLine.h"
-#include "vtkEdgeTable.h"
-#include "vtkPolyData.h"
-#include "vtkCellLocator.h"
-#include "vtkGenericCell.h"
-#include "vtkPointLocator.h"
-#include "vtkMeanValueCoordinatesInterpolator.h"
-#include "vtkCellData.h"
 #include "vtkVector.h"
-#include "vtkMath.h"
 
+#include <functional>
 #include <map>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <functional>
 
 using namespace std;
 

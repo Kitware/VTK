@@ -25,15 +25,15 @@
 #ifndef vtkPSurfaceLICComposite_h
 #define vtkPSurfaceLICComposite_h
 
+#include "vtkOpenGLRenderWindow.h" // for context
+#include "vtkPPixelTransfer.h" // for pixel transfer
+#include "vtkPixelExtent.h" // for pixel extent
+#include "vtkRenderingParallelLICModule.h" // for export macro
 #include "vtkSurfaceLICComposite.h"
 #include "vtkWeakPointer.h" // for ren context
-#include "vtkOpenGLRenderWindow.h" // for context
-#include "vtkRenderingParallelLICModule.h" // for export macro
-#include "vtkPixelExtent.h" // for pixel extent
-#include "vtkPPixelTransfer.h" // for pixel transfer
 #include <deque> // for deque
-#include <vector> // for vector
 #include <list> // for list
+#include <vector> // for vector
 
 class vtkFloatArray;
 class vtkRenderWindow;

@@ -30,8 +30,8 @@
 #ifndef vtkCollapseVerticesByArray_h
 #define vtkCollapseVerticesByArray_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkCollapseVerticesByArrayInternal;
 

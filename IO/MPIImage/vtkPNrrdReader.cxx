@@ -27,17 +27,17 @@
 #include "vtkStringArray.h"
 
 #include <algorithm>
+#include <istream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <vtksys/SystemTools.hxx>
-#include <istream>
-#include <sstream>
 
+#include "vtkMPI.h"
+#include "vtkSmartPointer.h"
+#include <cctype>
 #include <cmath>
 #include <cstring>
-#include <cctype>
-#include "vtkSmartPointer.h"
-#include "vtkMPI.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

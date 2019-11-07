@@ -15,11 +15,11 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGLRenderWindow.h"
 
-#import "vtkIOSRenderWindow.h"
-#import "vtkRenderWindowInteractor.h"
 #import "vtkCommand.h"
+#import "vtkIOSRenderWindow.h"
 #import "vtkIdList.h"
 #import "vtkObjectFactory.h"
+#import "vtkRenderWindowInteractor.h"
 #import "vtkRendererCollection.h"
 
 #import <sstream>

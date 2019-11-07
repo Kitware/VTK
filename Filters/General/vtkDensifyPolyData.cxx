@@ -16,15 +16,15 @@
 #include "vtkDensifyPolyData.h"
 
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMath.h"
 #include <vector>
 
 //----------------------------------------------------------------------------

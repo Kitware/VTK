@@ -16,9 +16,9 @@
 
 #include <mpi.h>
 
-#include "vtkProcess.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
+#include "vtkProcess.h"
 
 namespace
 {

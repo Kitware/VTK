@@ -10,22 +10,22 @@
 //          not exist in the volume, it will be skipped.
 //
 //
-#include <vtkMetaImageReader.h>
+#include <vtkGeometryFilter.h>
 #include <vtkImageAccumulate.h>
 #include <vtkImageWrapPad.h>
 #include <vtkMaskFields.h>
+#include <vtkMetaImageReader.h>
+#include <vtkSmartPointer.h>
 #include <vtkThreshold.h>
 #include <vtkTransformFilter.h>
-#include <vtkGeometryFilter.h>
 #include <vtkXMLPolyDataWriter.h>
-#include <vtkSmartPointer.h>
 
-#include <vtkTransform.h>
+#include <sstream>
+#include <vtkCellData.h>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
-#include <vtkCellData.h>
+#include <vtkTransform.h>
 #include <vtkUnstructuredGrid.h>
-#include <sstream>
 
 int main (int argc, char *argv[])
 {

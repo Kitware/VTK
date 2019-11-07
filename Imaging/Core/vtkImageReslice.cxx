@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkImageReslice.h"
 
-#include "vtkIntArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
+#include "vtkImageInterpolator.h"
+#include "vtkImagePointDataIterator.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
-#include "vtkPointData.h"
-#include "vtkImagePointDataIterator.h"
-#include "vtkImageInterpolator.h"
-#include "vtkGarbageCollector.h"
 
 #include "vtkImageInterpolatorInternals.h"
 
@@ -37,8 +37,8 @@
 # undef VTK_USE_UINT64
 # define VTK_USE_UINT64 0
 
-#include <climits>
 #include <cfloat>
+#include <climits>
 #include <cmath>
 #include <cstdint>
 

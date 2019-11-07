@@ -34,12 +34,12 @@
 
 #include "QVTKWidget.h"
 
-#include "QVTKPaintEngine.h"
-#include "QVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
+#include "QVTKInteractorAdapter.h"
+#include "QVTKPaintEngine.h"
 
-#include "qevent.h"
 #include "qapplication.h"
+#include "qevent.h"
 #include "qpainter.h"
 #include "qsignalmapper.h"
 #include "qtimer.h"
@@ -51,22 +51,22 @@
 #endif
 
 #if defined(Q_OS_WIN)
-# include <windows.h>
 # include <QSysInfo>
+# include <windows.h>
 #endif
 
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkRenderWindow.h"
+#include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
+#include "vtkConfigure.h"
+#include "vtkImageData.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkOStrStreamWrapper.h"
 #include "vtkObjectFactory.h"
-#include "vtkCallbackCommand.h"
-#include "vtkConfigure.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkImageData.h"
 #include "vtkPointData.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkUnsignedCharArray.h"
 
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"

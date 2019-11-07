@@ -75,8 +75,8 @@
 #ifndef vtkBoxWidget_h
 #define vtkBoxWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkCellPicker;

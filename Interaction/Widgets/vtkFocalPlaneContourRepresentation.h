@@ -33,8 +33,8 @@
 #ifndef vtkFocalPlaneContourRepresentation_h
 #define vtkFocalPlaneContourRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkHandleRepresentation;
 

@@ -57,8 +57,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/RegularExpression.hxx>
 
-#include <cmath>
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <list>
 #include <sstream>

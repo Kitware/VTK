@@ -19,13 +19,13 @@
 #include "vtkDataSet.h"
 #include "vtkEdgeTable.h"
 #include "vtkGenericCell.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkExtractEdges);
 

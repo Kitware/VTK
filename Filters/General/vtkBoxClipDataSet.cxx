@@ -23,7 +23,9 @@
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
+#include "vtkIdList.h"
 #include "vtkImageData.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -32,8 +34,6 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkIdList.h"
-#include "vtkIncrementalPointLocator.h"
 
 #include <cmath>
 #include <vector>

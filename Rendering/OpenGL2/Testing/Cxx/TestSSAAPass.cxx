@@ -21,21 +21,21 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkNew.h"
-#include "vtkPLYReader.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
+#include "vtkNew.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPLYReader.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
-#include "vtkSSAAPass.h"
 #include "vtkRenderStepsPass.h"
+#include "vtkSSAAPass.h"
 
 #include "vtkCellArray.h"
 #include "vtkTimerLog.h"

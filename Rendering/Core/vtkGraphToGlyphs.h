@@ -33,9 +33,9 @@
 #ifndef vtkGraphToGlyphs_h
 #define vtkGraphToGlyphs_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // for SP ivars
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // for SP ivars
 
 class vtkDistanceToCamera;
 class vtkGraphToPoints;

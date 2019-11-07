@@ -29,8 +29,8 @@
 #ifndef vtkLogoRepresentation_h
 #define vtkLogoRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkImageData;
 class vtkImageProperty;

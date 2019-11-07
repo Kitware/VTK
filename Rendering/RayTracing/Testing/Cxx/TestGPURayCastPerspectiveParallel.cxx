@@ -17,24 +17,24 @@
 // with the composite method.
 
 #include "vtkNew.h"
-#include "vtkSphere.h"
 #include "vtkSampleFunction.h"
+#include "vtkSphere.h"
 
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkTestUtilities.h"
+#include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
+#include "vtkOSPRayPass.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
+#include "vtkPointData.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkDataArray.h"
-#include "vtkOSPRayPass.h"
 
 
 int TestGPURayCastPerspectiveParallel(int argc,

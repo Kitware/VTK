@@ -16,19 +16,19 @@
 // This example tests the vtkCaptionWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-#include "vtkCaptionWidget.h"
-#include "vtkCaptionRepresentation.h"
-#include "vtkCaptionActor2D.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkTextActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkCaptionActor2D.h"
+#include "vtkCaptionRepresentation.h"
+#include "vtkCaptionWidget.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
 const char eventLog[] =

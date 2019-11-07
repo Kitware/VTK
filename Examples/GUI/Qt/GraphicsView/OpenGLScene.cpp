@@ -1,14 +1,14 @@
 
 #include "OpenGLScene.hpp"
-#include "TreeRingViewItem.h"
 #include "GraphLayoutViewItem.h"
-#include "WebView.h"
-#include <QGraphicsProxyWidget>
-#include <QGraphicsLinearLayout>
-#include <QGraphicsSceneMouseEvent>
-#include <QSignalTransition>
-#include <QPropertyAnimation>
 #include "QBoolAnimation.h"
+#include "TreeRingViewItem.h"
+#include "WebView.h"
+#include <QGraphicsLinearLayout>
+#include <QGraphicsProxyWidget>
+#include <QGraphicsSceneMouseEvent>
+#include <QPropertyAnimation>
+#include <QSignalTransition>
 
 OpenGLScene::OpenGLScene(QGLContext* ctx, QObject* p)
   : QGraphicsScene(p), mContext(ctx)

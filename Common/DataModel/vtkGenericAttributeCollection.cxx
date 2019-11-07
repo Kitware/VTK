@@ -15,12 +15,12 @@
 
 #include "vtkGenericAttributeCollection.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkGenericAttribute.h"
+#include "vtkObjectFactory.h"
 
 
-#include <vector>
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 

@@ -25,8 +25,8 @@
 #ifndef vtkPolyDataWriter_h
 #define vtkPolyDataWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkPolyData;
 

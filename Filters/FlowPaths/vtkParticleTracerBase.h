@@ -29,11 +29,11 @@
 #define vtkParticleTracerBase_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkSmartPointer.h" // For protected ivars.
 
-#include <vector> // STL Header
 #include <list>   // STL Header
+#include <vector> // STL Header
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;

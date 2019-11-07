@@ -13,14 +13,14 @@
 
  =========================================================================*/
 #include "vtkUniformGridAMRAlgorithm.h"
-#include "vtkObjectFactory.h"
-#include "vtkUniformGridAMR.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDemandDrivenPipeline.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGridAMR.h"
 
 vtkStandardNewMacro(vtkUniformGridAMRAlgorithm);
 

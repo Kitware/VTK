@@ -15,22 +15,22 @@
 
 // Test for vtkTensorProbeWidget class
 //
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkDoubleArray.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
+#include "vtkSmartPointer.h"
 #include "vtkTensorProbeRepresentation.h"
 #include "vtkTensorProbeWidget.h"
-#include "vtkCamera.h"
-#include "vtkDoubleArray.h"
+#include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPolyDataWriter.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkTesting.h"
 
 const char TestTensorProbeWidgetEventLog[] =
   "# StreamVersion 1 i\n"

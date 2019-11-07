@@ -29,12 +29,12 @@
 #include "vtkSmartPointer.h"
 #include "vtkVertexListIterator.h"
 
-#include "vtkGraph.h"
 #include "vtkBoostGraphAdapter.h"
+#include "vtkGraph.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/version.hpp>
-#include <vector>
 #include <utility>
+#include <vector>
 
 using namespace boost;
 

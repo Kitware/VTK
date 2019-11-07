@@ -23,8 +23,8 @@
 #ifndef vtkPostgreSQLToTableReader_h
 #define vtkPostgreSQLToTableReader_h
 
-#include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"
+#include "vtkIOPostgreSQLModule.h" // For export macro
 
 class vtkPostgreSQLDatabase;
 

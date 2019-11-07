@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkTableToSparseArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -30,7 +31,6 @@
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkTableToSparseArray.h"
 
 #include <algorithm>
 

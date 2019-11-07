@@ -28,8 +28,8 @@
 #ifndef vtkCompositePolyDataMapper_h
 #define vtkCompositePolyDataMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkPolyDataMapper;
 class vtkInformation;

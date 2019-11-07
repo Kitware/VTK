@@ -46,11 +46,11 @@
 #include "vtkLookupTable.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiThreader.h"
-#include "vtkPointData.h"
 #include "vtkPNGWriter.h"
+#include "vtkPointData.h"
 #include "vtkROIStencilSource.h"
-#include "vtkSmartPointer.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
@@ -58,10 +58,10 @@
 
 #include <vtksys/Process.h>
 
+#include <cmath>
+#include <cstdlib>
 #include <string>
 #include <vector>
-#include <cstdlib>
-#include <cmath>
 
 // By default, the entry point is "main" (stand-alone program)
 #ifndef IMAGE_BENCHMARK_MAIN

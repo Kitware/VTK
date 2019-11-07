@@ -16,15 +16,15 @@
 // .SECTION Description
 //
 
-#include "vtkSmartPointer.h"
-#include "vtkSQLiteDatabase.h"
 #include "vtkSQLQuery.h"
+#include "vtkSQLiteDatabase.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTableReader.h"
 #include "vtkTableWriter.h"
 
-#include "vtkTableToSQLiteWriter.h"
 #include "vtkSQLiteToTableReader.h"
+#include "vtkTableToSQLiteWriter.h"
 
 #include "vtksys/SystemTools.hxx"
 

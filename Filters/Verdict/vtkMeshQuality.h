@@ -62,8 +62,8 @@
 #ifndef vtkMeshQuality_h
 #define vtkMeshQuality_h
 
-#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersVerdictModule.h" // For export macro
 
 class vtkCell;
 class vtkDataArray;

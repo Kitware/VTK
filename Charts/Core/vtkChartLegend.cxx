@@ -15,20 +15,20 @@
 
 #include "vtkChartLegend.h"
 
-#include "vtkContext2D.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
 #include "vtkChart.h"
+#include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkPen.h"
 #include "vtkPlot.h"
-#include "vtkTextProperty.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
+#include "vtkTextProperty.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 #include "vtkWeakPointer.h"
-#include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
 
 #include "vtkObjectFactory.h"
 

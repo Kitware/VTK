@@ -31,11 +31,11 @@
 #define vtkPlotPoints_h
 
 #include "vtkChartsCoreModule.h" // For export macro
+#include "vtkNew.h"             // For ivars
 #include "vtkPlot.h"
+#include "vtkRenderingCoreEnums.h" // For marker enum
 #include "vtkScalarsToColors.h" // For VTK_COLOR_MODE_DEFAULT and _MAP_SCALARS
 #include "vtkStdString.h"       // For color array name
-#include "vtkNew.h"             // For ivars
-#include "vtkRenderingCoreEnums.h" // For marker enum
 
 class vtkCharArray;
 class vtkContext2D;

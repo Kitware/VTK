@@ -14,19 +14,19 @@
 =========================================================================*/
 
 #include "vtkOpenGLImageAlgorithmHelper.h"
-#include "vtkObjectFactory.h"
-#include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtk_glew.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPointData.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkTextureObject.h"
+#include "vtk_glew.h"
 
 vtkStandardNewMacro(vtkOpenGLImageAlgorithmHelper);
 

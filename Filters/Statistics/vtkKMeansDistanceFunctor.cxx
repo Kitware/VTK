@@ -1,11 +1,11 @@
 #include "vtkKMeansDistanceFunctor.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
 
 vtkStandardNewMacro(vtkKMeansDistanceFunctor);
 

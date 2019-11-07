@@ -14,9 +14,9 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkGenericGlyph3DFilter.h"
 
-#include "vtkGenericDataSet.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
+#include "vtkGenericDataSet.h"
 #include "vtkGenericPointIterator.h"
 
 #include "vtkCell.h"

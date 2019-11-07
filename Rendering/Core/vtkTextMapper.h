@@ -29,8 +29,8 @@
 #ifndef vtkTextMapper_h
 #define vtkTextMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkNew.h" // For vtkNew
 

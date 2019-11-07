@@ -23,9 +23,9 @@
 
 =========================================================================*/
 #include "vtkPolynomialSolversUnivariate.h"
-#include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 #include <cmath>
 

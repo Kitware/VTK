@@ -19,14 +19,14 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkDelimitedTextReader.h>
+#include <vtkIOStream.h>
 #include <vtkMergeTables.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
+#include <vtkTestUtilities.h>
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
-#include <vtkTestUtilities.h>
-#include <vtkIOStream.h>
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

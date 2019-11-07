@@ -15,8 +15,8 @@
 #include "vtkMoleculeToAtomBallFilter.h"
 
 #include "vtkCellArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkMolecule.h"
+#include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"

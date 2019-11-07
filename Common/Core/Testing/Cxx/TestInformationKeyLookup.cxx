@@ -18,9 +18,9 @@
 #include "vtkAbstractArray.h"
 #include "vtkDataArray.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVariantVectorKey.h"
-#include "vtkInformationInformationVectorKey.h"
 
 // Lookup a key and test that it matches what it should.
 namespace {

@@ -24,8 +24,8 @@
 #ifndef vtkChartBox_h
 #define vtkChartBox_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
+#include "vtkChartsCoreModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkPlotBox;

@@ -48,8 +48,8 @@
 #ifndef vtkLabeledDataMapper_h
 #define vtkLabeledDataMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 #include <cassert> // For assert macro
 

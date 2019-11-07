@@ -21,16 +21,16 @@
 // Thanks to Andrew Wilson from Sandia National Laboratories for implementing
 // this test.
 
+#include "DatabaseSchemaWith2Tables.h"
+#include "vtkRowQueryToTable.h"
+#include "vtkSQLDatabaseSchema.h"
+#include "vtkSQLQuery.h"
 #include "vtkSQLiteDatabase.h"
 #include "vtkSmartPointer.h"
-#include "vtkSQLQuery.h"
-#include "vtkSQLDatabaseSchema.h"
-#include "vtkRowQueryToTable.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "DatabaseSchemaWith2Tables.h"
 
 #include "vtkTestErrorObserver.h"
 

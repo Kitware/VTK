@@ -16,13 +16,13 @@
 #include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtkViewport.h"
-#include "vtkIdList.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
-#include "vtkGenericCell.h"
 #include "vtkCellData.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkCGMWriter);
 

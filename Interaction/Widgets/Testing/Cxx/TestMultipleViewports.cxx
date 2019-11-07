@@ -16,20 +16,18 @@
 // This example tests laying out widgets in multiple viewports.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkNew.h"
-#include "vtkBorderWidget.h"
+#include "vtkActor.h"
 #include "vtkBorderRepresentation.h"
+#include "vtkBorderWidget.h"
+#include "vtkCommand.h"
 #include "vtkHandleWidget.h"
+#include "vtkNew.h"
+#include "vtkPlaneSource.h"
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
-#include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPlaneSource.h"
+#include "vtkRenderer.h"
 
 int TestMultipleViewports( int , char *[] )
 {

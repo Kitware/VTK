@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkWidgetCallbackMapper.h"
-#include "vtkWidgetEventTranslator.h"
 #include "vtkAbstractWidget.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkWidgetEventTranslator.h"
 #include <map>
 
 vtkStandardNewMacro(vtkWidgetCallbackMapper);

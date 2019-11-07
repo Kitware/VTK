@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkImplicitVolume.h"
 #include "vtkImageData.h"
-#include "vtkTestErrorObserver.h"
+#include "vtkImplicitVolume.h"
 #include "vtkMathUtilities.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestErrorObserver.h"
 
 #include <cstdio>
 #include <sstream>

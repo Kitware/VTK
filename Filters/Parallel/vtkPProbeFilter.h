@@ -24,8 +24,8 @@
 #ifndef vtkPProbeFilter_h
 #define vtkPProbeFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkCompositeDataProbeFilter.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkMultiProcessController;
 

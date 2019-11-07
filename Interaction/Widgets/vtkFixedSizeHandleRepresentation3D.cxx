@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkFixedSizeHandleRepresentation3D.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkSphereSource.h"
-#include "vtkRenderer.h"
-#include "vtkMath.h"
-#include "vtkTransformPolyDataFilter.h"
-#include "vtkTransform.h"
 #include "vtkCamera.h"
 #include "vtkInteractorObserver.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
 
 vtkStandardNewMacro(vtkFixedSizeHandleRepresentation3D);
 

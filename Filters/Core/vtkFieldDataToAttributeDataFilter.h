@@ -55,8 +55,8 @@
 #ifndef vtkFieldDataToAttributeDataFilter_h
 #define vtkFieldDataToAttributeDataFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 #define VTK_DATA_OBJECT_FIELD 0
 #define VTK_POINT_DATA_FIELD 1

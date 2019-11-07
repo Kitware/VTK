@@ -18,13 +18,13 @@
 
 #include "vtkTriQuadraticHexahedron.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkBiQuadraticQuad.h"
 #include "vtkDoubleArray.h"
 #include "vtkHexahedron.h"
 #include "vtkMath.h"
-#include "vtkQuadraticEdge.h"
-#include "vtkBiQuadraticQuad.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkQuadraticEdge.h"
 
 vtkStandardNewMacro (vtkTriQuadraticHexahedron);
 

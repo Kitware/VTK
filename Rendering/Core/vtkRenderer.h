@@ -35,8 +35,8 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkViewport.h"
 
-#include "vtkVolumeCollection.h" // Needed for access in inline members
 #include "vtkActorCollection.h" // Needed for access in inline members
+#include "vtkVolumeCollection.h" // Needed for access in inline members
 
 class vtkFXAAOptions;
 class vtkRenderWindow;

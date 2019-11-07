@@ -38,10 +38,10 @@
 #include "vtkWebGLExporter.h"
 #include "vtkWebGLObject.h"
 
-#include <vector>
 #include <map>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkWebGLPolyData);
 //*****************************************************************************

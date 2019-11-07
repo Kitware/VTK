@@ -16,15 +16,15 @@
 =========================================================================*/
 #include "vtkUnstructuredGridQuadricDecimation.h"
 
-#include "vtkUnstructuredGrid.h"
-#include "vtkPoints.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkPointData.h"
 #include "vtkCellArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkUnstructuredGrid.h"
 #include <map>
 
 class vtkUnstructuredGridQuadricDecimationEdge;

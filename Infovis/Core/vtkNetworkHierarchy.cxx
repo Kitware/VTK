@@ -20,6 +20,7 @@
 
 #include "vtkNetworkHierarchy.h"
 
+#include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -30,15 +31,14 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkGraph.h"
 #include "vtkTree.h"
 #include "vtkVariant.h"
 
+#include <algorithm>
 #include <map>
+#include <sstream>
 #include <utility>
 #include <vector>
-#include <sstream>
-#include <algorithm>
 
 vtkStandardNewMacro(vtkNetworkHierarchy);
 

@@ -1,5 +1,5 @@
-#include "vtkPolyLineWidget.h"
 #include "vtkPolyLineRepresentation.h"
+#include "vtkPolyLineWidget.h"
 
 #include <cstdlib>
 #include <iostream>

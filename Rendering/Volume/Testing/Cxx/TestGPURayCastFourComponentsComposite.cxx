@@ -16,19 +16,19 @@
 // This test volume renders the vase dataset with 4 dependent components the
 // composite method with no shading.
 
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkTestUtilities.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkImageShiftScale.h"
+#include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkTransform.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkXMLImageDataReader.h"
 
 int TestGPURayCastFourComponentsComposite(int argc,
                                           char *argv[])

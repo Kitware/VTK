@@ -19,18 +19,18 @@
 
 #include "vtkNew.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
-#include "vtkPNGReader.h"
-#include "vtkTransform.h"
 #include "vtkImageReslice.h"
+#include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkPNGReader.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTransform.h"
 
 #include "vtkTestUtilities.h"
 

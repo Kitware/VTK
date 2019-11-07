@@ -27,8 +27,8 @@
 #ifndef vtkLightCollection_h
 #define vtkLightCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkLight;
 

@@ -18,9 +18,9 @@
 #include "vtkCommand.h"
 #include "vtkInteractorStyleJoystickActor.h"
 #include "vtkInteractorStyleJoystickCamera.h"
+#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 

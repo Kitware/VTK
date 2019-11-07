@@ -3,10 +3,10 @@
 #import "BasicVTKView.h"
 #import "CustomView.h"
 
-#import "vtkInteractorStyleSwitch.h"
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkConeSource.h"
 #import "vtkCylinderSource.h"
+#import "vtkInteractorStyleSwitch.h"
 #import "vtkPolyDataMapper.h"
 #import "vtkSmartPointer.h"
 #import "vtkTextActor.h"

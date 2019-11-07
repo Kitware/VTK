@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkProp.h"
-#include "vtkObjectFactory.h"
 #include "vtkAssemblyPaths.h"
 #include "vtkCommand.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationKey.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkInformationDoubleVectorKey.h"
+#include "vtkObjectFactory.h"
 #include "vtkShaderProperty.h"
 #include <cassert>
 

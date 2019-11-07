@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkImageAccumulate.h"
 #include "vtkImageData.h"
 #include "vtkImageSinusoidSource.h"
-#include "vtkImageAccumulate.h"
 #include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
 

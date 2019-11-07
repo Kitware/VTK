@@ -27,20 +27,20 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <mpi.h>
 
-#include "vtkDescriptiveStatistics.h"
-#include "vtkPAutoCorrelativeStatistics.h"
-#include "vtkPDescriptiveStatistics.h"
 #include "vtkCorrelativeStatistics.h"
-#include "vtkPCorrelativeStatistics.h"
+#include "vtkDescriptiveStatistics.h"
 #include "vtkMultiCorrelativeStatistics.h"
+#include "vtkPAutoCorrelativeStatistics.h"
+#include "vtkPCorrelativeStatistics.h"
+#include "vtkPDescriptiveStatistics.h"
 #include "vtkPMultiCorrelativeStatistics.h"
 #include "vtkPPCAStatistics.h"
 
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkMath.h"
 #include "vtkMPIController.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"

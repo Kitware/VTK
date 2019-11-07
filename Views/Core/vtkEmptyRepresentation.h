@@ -26,9 +26,9 @@
 #ifndef vtkEmptyRepresentation_h
 #define vtkEmptyRepresentation_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkDataRepresentation.h"
-#include "vtkSmartPointer.h" // For SP ivars
+#include "vtkSmartPointer.h"    // For SP ivars
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkConvertSelectionDomain;
 

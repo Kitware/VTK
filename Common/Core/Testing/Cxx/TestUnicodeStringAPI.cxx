@@ -21,8 +21,8 @@
 
 #include <vtkUnicodeString.h>
 
-#include <iterator>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <stdexcept>
 

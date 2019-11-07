@@ -43,9 +43,9 @@ Ph.D. thesis of Christian BOUCHENY.
 #define EDL_LOW_RESOLUTION_ON 1
 
 #include "vtkDepthImageProcessingPass.h"
+#include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer
-#include "vtkOpenGLHelper.h" // used for ivars
 
 class vtkOpenGLRenderWindow;
 class vtkOpenGLFramebufferObject;

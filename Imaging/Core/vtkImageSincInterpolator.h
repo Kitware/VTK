@@ -31,8 +31,8 @@
 #ifndef vtkImageSincInterpolator_h
 #define vtkImageSincInterpolator_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkAbstractImageInterpolator.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 #define VTK_LANCZOS_WINDOW 0
 #define VTK_KAISER_WINDOW  1

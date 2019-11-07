@@ -10,11 +10,11 @@
 // Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkContingencyStatistics.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
-#include "vtkContingencyStatistics.h"
 
 //=============================================================================
 int TestContingencyStatistics( int, char *[] )

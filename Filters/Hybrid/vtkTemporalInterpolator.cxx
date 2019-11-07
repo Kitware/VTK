@@ -16,18 +16,18 @@
 
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkMultiBlockDataSet.h"
 
 #include <algorithm>
 #include <vector>

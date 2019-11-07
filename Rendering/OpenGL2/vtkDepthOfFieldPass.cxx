@@ -18,17 +18,16 @@
 #include <cassert>
 
 #include "vtkCamera.h"
-#include "vtkRenderState.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLFramebufferObject.h"
-#include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
-#include "vtkShaderProgram.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkRenderState.h"
+#include "vtkRenderer.h"
+#include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 
 #include "vtkOpenGLHelper.h"
 

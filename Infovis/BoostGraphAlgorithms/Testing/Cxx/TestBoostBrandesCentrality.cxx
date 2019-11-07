@@ -29,19 +29,19 @@
 #include "vtkGraphLayoutView.h"
 #include "vtkGraphToPolyData.h"
 #include "vtkGraphWriter.h"
-#include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
-#include <boost/version.hpp>
 #include "vtkBoostBiconnectedComponents.h"
+#include <boost/version.hpp>
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

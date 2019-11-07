@@ -13,22 +13,22 @@
 
 =========================================================================*/
 #include "vtkRectilinearWipeRepresentation.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkPolyDataMapper2D.h"
 #include "vtkActor2D.h"
-#include "vtkProperty2D.h"
+#include "vtkCellArray.h"
 #include "vtkCoordinate.h"
 #include "vtkDoubleArray.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkRenderer.h"
-#include "vtkImageRectilinearWipe.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkImageRectilinearWipe.h"
 #include "vtkInteractorObserver.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 
 
 vtkStandardNewMacro(vtkRectilinearWipeRepresentation);

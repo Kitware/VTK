@@ -31,8 +31,8 @@
 #ifndef vtkHierarchicalGraphPipeline_h
 #define vtkHierarchicalGraphPipeline_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;

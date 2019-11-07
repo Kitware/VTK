@@ -26,8 +26,8 @@
 #ifndef vtkTransmitStructuredDataPiece_h
 #define vtkTransmitStructuredDataPiece_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkMultiProcessController;
 

@@ -16,9 +16,9 @@
 // .SECTION Description
 //
 
-#include "vtkXMLParser.h"
-#include "vtkOutputWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
+#include "vtkXMLParser.h"
 
 
 class vtkMyXML : public vtkXMLParser

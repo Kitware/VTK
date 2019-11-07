@@ -28,8 +28,8 @@
 #ifndef vtkProbeSelectedLocations_h
 #define vtkProbeSelectedLocations_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class VTKFILTERSEXTRACTION_EXPORT vtkProbeSelectedLocations : public vtkExtractSelectionBase
 {

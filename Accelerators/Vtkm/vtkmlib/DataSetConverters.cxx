@@ -18,8 +18,8 @@
 
 #include "ArrayConverters.h"
 #include "CellSetConverters.h"
-#include "PolyDataConverter.h"
 #include "ImageDataConverter.h"
+#include "PolyDataConverter.h"
 #include "UnstructuredGridConverter.h"
 
 #include "vtkmDataArray.h"

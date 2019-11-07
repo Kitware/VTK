@@ -25,9 +25,9 @@
 #ifndef vtkContextInteractorStyle_h
 #define vtkContextInteractorStyle_h
 
-#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 #include "vtkNew.h" // For ivars
+#include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkWeakPointer.h" // For ivars
 
 class vtkContextMouseEvent;

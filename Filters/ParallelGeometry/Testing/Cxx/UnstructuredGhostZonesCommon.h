@@ -16,8 +16,8 @@
 #define UNSTRUCTUREDGHOSTZONESCOMMON_H_
 
 // VTK includes
-#include "vtkMathUtilities.h"
 #include "vtkMPIUtilities.h"
+#include "vtkMathUtilities.h"
 
 // C/C++ includes
 #include <cmath>

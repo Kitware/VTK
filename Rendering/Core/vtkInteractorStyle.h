@@ -92,8 +92,8 @@
 #ifndef vtkInteractorStyle_h
 #define vtkInteractorStyle_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorObserver.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 // Motion flags
 

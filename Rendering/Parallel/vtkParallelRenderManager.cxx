@@ -20,21 +20,21 @@
 =========================================================================*/
 #include "vtkParallelRenderManager.h"
 
-#include "vtkActorCollection.h"
 #include "vtkActor.h"
+#include "vtkActorCollection.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkDoubleArray.h"
-#include "vtkLightCollection.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h" // needed for vtkMultiProcessStream.
 #include "vtkPolyDataMapper.h"
-#include "vtkRendererCollection.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 

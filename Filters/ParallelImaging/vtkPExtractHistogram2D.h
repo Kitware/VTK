@@ -39,8 +39,8 @@
 #ifndef vtkPExtractHistogram2D_h
 #define vtkPExtractHistogram2D_h
 
-#include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkExtractHistogram2D.h"
+#include "vtkFiltersParallelImagingModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;

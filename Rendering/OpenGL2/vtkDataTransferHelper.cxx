@@ -16,12 +16,12 @@
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkTextureObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkPixelBufferObject.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
+#include "vtkTextureObject.h"
 #include <cassert>
 
 static void vtkGetDimensions(int extents[6], int dims[3])

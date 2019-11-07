@@ -48,8 +48,8 @@
 #ifndef vtkCellDerivatives_h
 #define vtkCellDerivatives_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 #define VTK_VECTOR_MODE_PASS_VECTORS      0
 #define VTK_VECTOR_MODE_COMPUTE_GRADIENT  1

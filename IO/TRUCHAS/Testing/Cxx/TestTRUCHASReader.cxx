@@ -19,9 +19,9 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkTesting.h"
-#include "vtkTestUtilities.h"
 #include "vtkTRUCHASReader.h"
+#include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkInformation.h"

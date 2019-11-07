@@ -34,8 +34,8 @@
 #define vtkImageOpenClose3D_h
 
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkImageDilateErode3D;
 

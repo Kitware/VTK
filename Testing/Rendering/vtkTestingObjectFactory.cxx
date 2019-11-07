@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkTestingObjectFactory.h"
-#include "vtkVersion.h"
 #include "vtkTestingInteractor.h"
+#include "vtkVersion.h"
 
 vtkStandardNewMacro(vtkTestingObjectFactory);
 

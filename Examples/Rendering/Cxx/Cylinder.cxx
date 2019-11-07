@@ -16,14 +16,14 @@
 // This simple example shows how to do basic rendering and pipeline
 // creation using C++.
 //
+#include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCylinderSource.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkProperty.h"
-#include "vtkCamera.h"
+#include "vtkRenderer.h"
 
 int main()
 {

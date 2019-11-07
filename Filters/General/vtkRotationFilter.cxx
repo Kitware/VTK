@@ -19,11 +19,11 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkMath.h"
 #include "vtkTransform.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkRotationFilter);
 

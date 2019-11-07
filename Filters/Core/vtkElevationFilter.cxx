@@ -16,15 +16,15 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
-#include "vtkPointSet.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
+#include "vtkPointSet.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkElevationFilter);
 

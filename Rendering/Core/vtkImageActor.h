@@ -31,8 +31,8 @@
 #ifndef vtkImageActor_h
 #define vtkImageActor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkImageSlice.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkAlgorithm;
 class vtkPropCollection;

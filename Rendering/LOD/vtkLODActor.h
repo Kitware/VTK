@@ -56,8 +56,8 @@
 #ifndef vtkLODActor_h
 #define vtkLODActor_h
 
-#include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingLODModule.h" // For export macro
 
 class vtkMapper;
 class vtkMapperCollection;

@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#include "vtkMatrix3x3.h"
-#include "vtkTransform2D.h"
-#include "vtkPoints2D.h"
-#include "vtkNew.h"
 #include "vtkMathUtilities.h"
+#include "vtkMatrix3x3.h"
+#include "vtkNew.h"
+#include "vtkPoints2D.h"
+#include "vtkTransform2D.h"
 
 int TestMatrix3x3(int,char *[])
 {

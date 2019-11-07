@@ -51,8 +51,8 @@
 #define vtkSphereTree_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
-#include "vtkPlane.h" // to specify the cutting plane
 #include "vtkObject.h"
+#include "vtkPlane.h" // to specify the cutting plane
 
 class vtkDoubleArray;
 class vtkDataArray;

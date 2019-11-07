@@ -16,14 +16,14 @@
 
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkWedge.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
-#include "vtkPoints.h"
+#include "vtkWedge.h"
 
 vtkStandardNewMacro(vtkQuadraticWedge);
 

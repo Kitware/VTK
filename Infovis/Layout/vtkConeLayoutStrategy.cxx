@@ -22,12 +22,12 @@ the U.S. Government retains certain rights in this software.
 #include "vtkConeLayoutStrategy.h"
 
 #include "vtkGraph.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
-#include "vtkOutEdgeIterator.h"
-#include "vtkMutableDirectedGraph.h"
 #include "vtkGraphEdge.h"
+#include "vtkMath.h"
+#include "vtkMutableDirectedGraph.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
+#include "vtkPoints.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name)                                  \
