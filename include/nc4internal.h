@@ -67,11 +67,11 @@ typedef enum {NCNAT, NCVAR, NCDIM, NCATT, NCTYP, NCFLD, NCGRP} NC_SORT;
 #define X_INT64_MIN     (-9223372036854775807LL-1LL)
 #define X_INT64_MAX     9223372036854775807LL
 #define X_UINT64_MAX    18446744073709551615ULL
-#ifdef WIN32 /* Windows, of course, has to be a *little* different. */
+#ifdef _WIN32 /* Windows, of course, has to be a *little* different. */
 #define X_FLOAT_MAX     3.402823466e+38f
 #else
 #define X_FLOAT_MAX     3.40282347e+38f
-#endif /* WIN32 */
+#endif /* _WIN32 */
 #define X_FLOAT_MIN     (-X_FLOAT_MAX)
 #define X_DOUBLE_MAX    1.7976931348623157e+308
 #define X_DOUBLE_MIN    (-X_DOUBLE_MAX)
