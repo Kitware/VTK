@@ -526,8 +526,10 @@ Options:
     current source directory. If alternate baseline images are required,
     `<NAME>` may be suffixed by `_1`, `_2`, etc. The valid image is passed via
     the `-V` flag.
-  - `NO_RT`: If `NO_RT` is specified, `-B` is passed instead of `-V` assuming
-    `NO_VALID` is not specified.
+  - `NO_RT`: If `NO_RT` is specified, `-B` is passed instead of `-V`, only
+     providing a baseline dir, assuming `NO_VALID` is not specified.
+  - `DIRECT_DATA` : If `DIRECT_DATA` is specified, the baseline path will be provided
+     as is, without the use of ExternalData_add_test.
   - `JUST_VALID`: Only applies when both `NO_VALID` and `NO_RT` are not
     present. If it is not specified, `-A` is passed with path to the directory
     of the `vtkTclTest2Py` Python package and the test is run via the
@@ -550,6 +552,7 @@ function (vtk_add_test_python)
     NO_VALID
     NO_OUTPUT
     NO_RT
+    DIRECT_DATA
     JUST_VALID
     )
   _vtk_test_parse_args("${python_options}" "py" ${ARGN})
@@ -572,9 +575,17 @@ function (vtk_add_test_python)
     set(_A "")
     if (NOT local_NO_VALID)
       if (local_NO_RT)
-        set(_B -B "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/,REGEX:${test_name}(-.*)?(_[0-9]+)?.png}")
+        if (local_DIRECT_DATA)
+          set(_B -B "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/")
+        else ()
+          set(_B -B "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/,REGEX:${test_name}(-.*)?(_[0-9]+)?.png}")
+        endif()
       else ()
-        set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+        if (local_DIRECT_DATA)
+          set(_V -V "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/${test_name}.png")
+        else ()
+          set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+        endif()
         if (NOT local_JUST_VALID)
           # TODO: This should be fixed to also work from an installed VTK.
           set(rtImageTest "${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py")
@@ -588,16 +599,26 @@ function (vtk_add_test_python)
       set(_T -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}")
     endif ()
 
-    ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
-      NAME    "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
-      COMMAND ${_vtk_test_python_pre_args}
-              "${_vtk_testing_python_exe}" --enable-bt
-              ${rtImageTest}
-              "${CMAKE_CURRENT_SOURCE_DIR}/${test_file}.py"
-              ${args}
-              ${${_vtk_build_test}_ARGS}
-              ${${name}_ARGS}
-              ${_D} ${_B} ${_T} ${_V} ${_A})
+    if (NOT _vtk_build_TEST_FILE_DIRECTORY)
+      set(_vtk_build_TEST_FILE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+
+    set(testArgs NAME "${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
+                 COMMAND ${_vtk_test_python_pre_args}
+                         "${_vtk_testing_python_exe}" ${_vtk_test_python_args} --enable-bt
+                         ${rtImageTest}
+                         "${_vtk_build_TEST_FILE_DIRECTORY}/${test_file}.py"
+                         ${args}
+                         ${${_vtk_build_test}_ARGS}
+                         ${${name}_ARGS}
+                         ${_D} ${_B} ${_T} ${_V} ${_A})
+
+    if (local_DIRECT_DATA)
+      add_test(${testArgs})
+    else ()
+      ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}" ${testArgs})
+    endif()
+
     set_tests_properties("${_vtk_build_test}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}"
       PROPERTIES
         LABELS "${_vtk_build_test_labels}"
