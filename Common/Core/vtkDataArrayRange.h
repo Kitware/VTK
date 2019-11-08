@@ -116,13 +116,16 @@ public:
  * template <typename ArrayType>
  * void PrintMagnitudes(ArrayType *array)
  * {
- *   for (const auto& tuple : vtk::DataArrayTupleRange(array))
+ *   using T = vtk::GetAPIType<ArrayType>;
+ *
+ *   for (const auto tuple : vtk::DataArrayTupleRange(array))
  *   {
  *     double mag = 0.;
- *     for (const auto& comp : tuple)
+ *     for (const T comp : tuple)
  *     {
- *       mag += static_cast<double>(comp) * static_cast<double>(comp));
+ *       mag += static_cast<double>(comp) * static_cast<double>(comp);
  *     }
+ *     mag = std::sqrt(mag);
  *     std::cerr << mag < "\n";
  *   }
  * }
@@ -240,7 +243,7 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  *   using T = vtk::GetAPIType<ArrayType>;
  *
  *   T sum = 0.;
- *   for (const auto& val : vtk::DataArrayValueRange(array))
+ *   for (const T val : vtk::DataArrayValueRange(array))
  *   {
  *     sum += val;
  *   }
