@@ -85,7 +85,6 @@ set(vtk_cmake_module_files
   FindOpenSlide.cmake
   FindOpenVR.cmake
   FindOSMesa.cmake
-  FindPostgreSQL.cmake
   FindTBB.cmake
   FindTHEORA.cmake
   Findutf8cpp.cmake
@@ -116,6 +115,7 @@ set(vtk_cmake_patch_files
   patches/3.16/FindMPI/test_mpi.c
   patches/3.16/FindMPI/test_mpi.f90.in
   patches/3.16/FindMPI.cmake
+  patches/3.16/FindPostgreSQL.cmake
   patches/99/FindGDAL.cmake
   patches/99/FindHDF5.cmake
   patches/99/FindJPEG.cmake
