@@ -38,7 +38,8 @@ set_property(SOURCE vtkParseMain.c
 
 vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
-  HEADERS ${headers})
+  HEADERS ${headers}
+  FORCE_STATIC)
 # This is a hard-coded path because `vtkType.h` from `VTK::CommonCore` is
 # used for VTK's integer types. However, it is not a public dependency. In
 # order for the compile tools project to be as minimal as possible, the
