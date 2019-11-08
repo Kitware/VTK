@@ -114,11 +114,6 @@ public:
   }
 };
 
-template<typename T>
-struct BlockTraits
-{
-};
-
 /**
  * This is the main implementation of the global id generation algorithm.
  * The code is similar for both point and cell ids generation except small
@@ -135,23 +130,21 @@ struct BlockTraits
  * - communicate back the assigned unique id to the source block where the point
  *   (or cell) came from.
  */
-template<typename BlockT>
-static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
+template<typename ElementBlockT>
+static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool cell_centers)
 {
-  using BlockTraitsT = BlockTraits<BlockT>;
-
   self->UpdateProgress(0.0);
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(self->GetController());
 
   vtkLogStartScope(TRACE, "extract points");
   auto datasets = vtkDIYUtilities::GetDataSets(dobj);
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(),
-                   [](vtkDataSet* ds) {
+                   [&cell_centers](vtkDataSet* ds) {
                      return ds == nullptr || ds->GetNumberOfPoints() == 0 ||
-                       (BlockTraitsT::UseCellCenters && ds->GetNumberOfCells() == 0);
+                       (cell_centers && ds->GetNumberOfCells() == 0);
                    }),
     datasets.end());
-  const auto points = vtkDIYUtilities::ExtractPoints(datasets, BlockTraitsT::UseCellCenters);
+  const auto points = vtkDIYUtilities::ExtractPoints(datasets, cell_centers);
   vtkLogEndScope("extract points");
 
   // get the bounds for the domain globally.
@@ -161,15 +154,15 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
   const int local_num_blocks = static_cast<int>(points.size());
   vtkDIYExplicitAssigner assigner(comm, local_num_blocks, /*pow-of-2*/ true);
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
-    [](void* b) { delete static_cast<BlockT*>(b); });
+  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new ElementBlockT); },
+    [](void* b) { delete static_cast<ElementBlockT*>(b); });
 
   vtkLogStartScope(TRACE, "populate master");
   std::vector<int> gids;
   assigner.local_gids(comm.rank(), gids);
   for (size_t lid = 0; lid < gids.size(); ++lid)
   {
-    auto block = new BlockT();
+    auto block = new ElementBlockT();
     if (lid < points.size() && points[lid] != nullptr)
     {
       assert(datasets[lid] != nullptr);
@@ -185,24 +178,44 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
   vtkLogStartScope(TRACE, "kdtree");
   // use diy::kdtree to shuffle points around so that all spatially co-located
   // points are within a block.
-  diy::kdtree_sampling(master, assigner, 3, gdomain, BlockTraitsT::GetPoints(), /*hist_bins=*/512);
+  diy::kdtree(master, assigner, 3, gdomain, &ElementBlockT::Elements, /*hist_bins=*/512);
   vtkLogEndScope("kdtree");
   self->UpdateProgress(0.50);
 
   vtkLogStartScope(TRACE, "merge-points");
   // iterate over all local blocks to give them unique ids.
-  master.foreach ([](BlockT* b,                        // local block
+  master.foreach ([](ElementBlockT* b,                 // local block
                     const diy::Master::ProxyWithLink&) // communication proxy
-    { BlockTraitsT::DoLocalMerge(b); });
+    { b->MergeElements(); });
+  vtkLogEndScope("merge-points");
+  self->UpdateProgress(0.75);
 
-  const int nblocks = assigner.nblocks();
-  // exchange unique ids count so that we can determine global id offsets
-  diy::all_to_all(master, assigner, [&nblocks](BlockT* b, const diy::ReduceProxy& rp) {
+  // now communicate point ownership information and assign ids to locally owned
+  // points.
+  vtkLogStartScope(TRACE, "exchange-ownership-ids");
+  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
     if (rp.round() == 0)
     {
-      for (int dest_gid = rp.gid() + 1; dest_gid < nblocks; ++dest_gid)
+      // now enqueue ownership information.
+      b->EnqueueOwnershipInformation(rp);
+    }
+    else
+    {
+      // now dequeue owership information and process locally to assign ids
+      // to locally owned points and flag ghost points.
+      b->DequeueOwnershipInformation(rp);
+    }
+  });
+  vtkLogEndScope("exchange-ownership-ids");
+
+  // exchange unique ids count so that we can determine global id offsets
+  vtkLogStartScope(TRACE, "exchange-unique-ids");
+  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
+    if (rp.round() == 0)
+    {
+      for (int i = rp.gid() + 1; i < rp.nblocks(); ++i)
       {
-        rp.enqueue(rp.out_link().target(dest_gid), BlockTraitsT::GetUniqueIdsCount(b));
+        rp.enqueue(rp.out_link().target(i), b->UniqueElementsCount);
       }
     }
     else
@@ -214,43 +227,38 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self)
         rp.dequeue(src_gid, msg);
         offset += msg;
       }
-      BlockTraitsT::OffsetUniqueIds(b, offset);
+      b->AddOffset(offset);
     }
   });
-  vtkLogEndScope("merge-points");
-  self->UpdateProgress(0.75);
+  vtkLogEndScope("exchange-unique-ids");
 
-  // now communicate global ids.
-  vtkLogStartScope(TRACE, "exchange-global-ids");
-  diy::all_to_all(master, assigner, [](BlockT* b, const diy::ReduceProxy& rp) {
+  // exchange assigned ids.
+  vtkLogStartScope(TRACE, "exchange-assigned-ids");
+  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
     if (rp.round() == 0)
     {
-      // now enqueue data for source blocks.
-      const auto num_points = BlockTraitsT::GetNumberOfPoints(b);
-      for (size_t cc = 0; cc < num_points; ++cc)
-      {
-        rp.enqueue(rp.out_link().target(BlockTraitsT::GetPointSourceGID(b, cc)),
-          BlockTraitsT::GetIDMessage(b, cc));
-      }
+      b->EnqueueReplies(rp);
     }
     else
     {
-      // now dequeue global id information and update local points.
-      using msg_type = decltype(BlockTraitsT::GetIDMessage(nullptr, 0));
-      msg_type msg;
-      for (int i = 0; i < rp.in_link().size(); ++i)
-      {
-        const int in_gid = rp.in_link().target(i).gid;
-        while (rp.incoming(in_gid))
-        {
-          rp.dequeue(in_gid, msg);
-          BlockTraitsT::SetIDMessage(b, msg);
-        }
-      }
+      b->DequeueReplies(rp);
     }
   });
-  vtkLogEndScope("exchange-global-ids");
+  vtkLogEndScope("exchange-assigned-ids");
 
+  // final back communication to assign ids to ghosted points.
+  vtkLogStartScope(TRACE, "exchange-ghosted-ids");
+  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
+    if (rp.round() == 0)
+    {
+      b->EnqueueGhostedIds(rp);
+    }
+    else
+    {
+      b->DequeueGhostedIds(rp);
+    }
+  });
+  vtkLogEndScope("exchange-ghosted-ids");
   self->UpdateProgress(1.0);
   return true;
 }
@@ -267,125 +275,54 @@ namespace
  */
 struct PointTT
 {
+  static const int attr_type = vtkDataObject::POINT;
+
   vtkTuple<double, 3> coords;
   int source_gid;
-  vtkIdType source_ptid;
+  vtkIdType source_id;
 
   // note: there's loss of precision here, but that's okay. this is only used by
   // DIY when building the kdtree
   float operator[](unsigned int index) const { return static_cast<float>(this->coords[index]); }
-};
 
-struct PointBlockT
-{
-public:
-  vtkDataSet* Dataset{ nullptr };
-  std::vector<PointTT> Points;
-  std::vector<vtkIdType> Ids;
-  std::vector<unsigned char> GhostPointFlags;
-  vtkIdType UniquePointsCount{ 0 };
-
-  // these are final arrays that are generated.
-  vtkIdTypeArray* GlobalIds = nullptr;
-  vtkUnsignedCharArray* GhostPoints = nullptr;
-
-  void Initialize(int gid, vtkPoints* pts, vtkDataSet* dataset)
+  static std::vector<PointTT> GetElements(int gid, vtkPoints* pts, vtkDataSet*)
   {
-    this->Dataset = dataset;
-    this->Points.resize(pts->GetNumberOfPoints());
-    vtkSMPTools::For(0, pts->GetNumberOfPoints(), [this, pts, gid](vtkIdType start, vtkIdType end) {
-      for (vtkIdType cc = start; cc < end; ++cc)
-      {
-        auto& pt = this->Points[cc];
-        pts->GetPoint(cc, pt.coords.GetData());
-        pt.source_gid = gid;
-        pt.source_ptid = cc;
-      }
+    std::vector<PointTT> elems;
+    elems.resize(pts->GetNumberOfPoints());
+    vtkSMPTools::For(
+      0, pts->GetNumberOfPoints(), [&elems, pts, gid](vtkIdType start, vtkIdType end) {
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          auto& pt = elems[cc];
+          pts->GetPoint(cc, pt.coords.GetData());
+          pt.source_gid = gid;
+          pt.source_id = cc;
+        }
+      });
+    return elems;
+  }
+
+  static void Sort(std::vector<PointTT>& points)
+  {
+    // let's sort the points by source-id. This ensures that when a point is
+    // duplicated among multiple blocks, the block with lower block-id owns the
+    // point. Thus, keeping the numbering consistent.
+    std::sort(points.begin(), points.end(), [](const PointTT& a, const PointTT& b) {
+      return (a.source_gid == b.source_gid) ? (a.source_id < b.source_id)
+                                            : (a.source_gid < b.source_gid);
     });
   }
 
-  void MergePoints()
+  static std::vector<vtkIdType> GenerateMergeMap(const std::vector<PointTT>& points)
   {
-    std::vector<vtkIdType> mergemap(this->Points.size(), -1);
-    if (this->Points.size() > 0)
+    std::vector<vtkIdType> mergemap(points.size(), -1);
+    if (points.size() == 0)
     {
-      vtkNew<vtkStaticPointLocator> locator;
-      locator->SetDataSet(this->CreateDataSet());
-      locator->BuildLocator();
-      locator->MergePoints(0.0, &mergemap[0]);
+      return mergemap;
     }
 
-    // locator's mergemap does not remove unused id i.e. if we have 3 pts
-    // `0, 1, 2` and the first two are the same, then the mergemap will be `0,
-    // 0, 2`. We want to make it `0, 0, 1` so that it represents contiguous ids.
-    // we can also update the ghost points flags at the same time.
-    this->GhostPointFlags.resize(this->Points.size(), 0);
-    vtkIdType nextid=0;
-    for (vtkIdType cc = 0, max = static_cast<vtkIdType>(mergemap.size()); cc < max; ++cc)
-    {
-      if (mergemap[cc] != cc)
-      {
-        mergemap[cc] = mergemap[mergemap[cc]];
-        this->GhostPointFlags[cc] = vtkDataSetAttributes::DUPLICATEPOINT;
-      }
-      else
-      {
-        mergemap[cc] = nextid++;
-        this->GhostPointFlags[cc] = 0;
-      }
-    }
-    this->Ids = std::move(mergemap);
-    this->UniquePointsCount = nextid;
-    assert(nextid ==
-        std::accumulate(this->GhostPointFlags.begin(), this->GhostPointFlags.end(), 0,
-        [](vtkIdType sum, unsigned char ghost_flag) { return sum + (ghost_flag == 0 ? 1 : 0); }));
-  }
+    auto numPts = static_cast<vtkIdType>(points.size());
 
-  void AddOffset(const vtkIdType offset)
-  {
-    vtkSMPTools::For(0, static_cast<vtkIdType>(this->Ids.size()),
-      [&offset, this](vtkIdType start, vtkIdType end) {
-        for (vtkIdType cc = start; cc < end; ++cc)
-        {
-          this->Ids[cc] += offset;
-        }
-      });
-  }
-
-  void AllocateOutputArrays()
-  {
-    if (this->GlobalIds == nullptr)
-    {
-      this->GlobalIds = vtkIdTypeArray::New();
-      this->GlobalIds->SetName("GlobalPointIds");
-      this->GlobalIds->SetNumberOfTuples(this->Dataset->GetNumberOfPoints());
-      this->Dataset->GetPointData()->SetGlobalIds(this->GlobalIds);
-      this->GlobalIds->FastDelete();
-    }
-    if (this->GhostPoints == nullptr)
-    {
-      this->GhostPoints = vtkUnsignedCharArray::New();
-      this->GhostPoints->SetName(vtkDataSetAttributes::GhostArrayName());
-      this->GhostPoints->SetNumberOfTuples(this->Dataset->GetNumberOfPoints());
-      this->Dataset->GetPointData()->AddArray(this->GhostPoints);
-      this->GhostPoints->FastDelete();
-    }
-  }
-
-  void SetGlobalId(vtkIdType pt_id, vtkIdType global_id)
-  {
-    this->GlobalIds->SetTypedComponent(pt_id, 0, global_id);
-  }
-
-  void SetGhostPointFlag(vtkIdType pt_id, unsigned char flag)
-  {
-    this->GhostPoints->SetTypedComponent(pt_id, 0, flag);
-  }
-
-private:
-  vtkSmartPointer<vtkDataSet> CreateDataSet()
-  {
-    auto numPts = static_cast<vtkIdType>(this->Points.size());
     vtkNew<vtkUnstructuredGrid> grid;
     vtkNew<vtkPoints> pts;
     pts->SetDataTypeToDouble();
@@ -393,44 +330,37 @@ private:
     vtkSMPTools::For(0, numPts, [&](vtkIdType start, vtkIdType end) {
       for (vtkIdType cc = start; cc < end; ++cc)
       {
-        pts->SetPoint(cc, this->Points[cc].coords.GetData());
+        pts->SetPoint(cc, points[cc].coords.GetData());
       }
     });
     grid->SetPoints(pts);
-    return grid;
+
+    vtkNew<vtkStaticPointLocator> locator;
+    locator->SetDataSet(grid);
+    locator->BuildLocator();
+    locator->MergePoints(0.0, &mergemap[0]);
+    return mergemap;
   }
 };
 
 struct CellTT
 {
+  static const int attr_type = vtkDataObject::CELL;
   vtkTuple<double, 3> center;
   int source_gid;
-  vtkIdType source_cellid;
+  vtkIdType source_id;
   std::vector<vtkIdType> point_ids;
 
   // note: there's loss of precision here, but that's okay. this is only used by
   // DIY when building the kdtree
   float operator[](unsigned int index) const { return static_cast<float>(this->center[index]); }
-};
 
-struct CellBlockT
-{
-public:
-  vtkDataSet* Dataset{ nullptr };
-  std::vector<CellTT> Cells;
-  std::vector<vtkIdType> Ids;
-  vtkIdType UniqueCellsCount;
-
-  // these are final arrays that are generated.
-  vtkIdTypeArray* GlobalIds = nullptr;
-
-  void Initialize(int gid, vtkPoints* centers, vtkDataSet* ds)
+  static std::vector<CellTT> GetElements(int gid, vtkPoints* centers, vtkDataSet* ds)
   {
-    this->Dataset = ds;
-
     const vtkIdType ncells = ds->GetNumberOfCells();
     assert(centers->GetNumberOfPoints() == ncells);
-    this->Cells.resize(ncells);
+
+    std::vector<CellTT> elems(ncells);
 
     vtkSMPThreadLocalObject<vtkIdList> tlIdList;
     if (ncells > 0)
@@ -445,10 +375,10 @@ public:
       auto ids = tlIdList.Local();
       for (vtkIdType cc = start; cc < end; ++cc)
       {
-        auto& cell = this->Cells[cc];
+        auto& cell = elems[cc];
         centers->GetPoint(cc, cell.center.GetData());
         cell.source_gid = gid;
-        cell.source_cellid = cc;
+        cell.source_id = cc;
 
         ds->GetCellPoints(cc, ids);
         cell.point_ids.resize(ids->GetNumberOfIds());
@@ -458,79 +388,267 @@ public:
         }
       }
     });
+
+    return elems;
   }
 
-  void MergeCells()
+  static void Sort(std::vector<CellTT>& cells)
   {
-    this->UniqueCellsCount = 0;
-    this->Ids.resize(this->Cells.size(), -1);
+    // here, we are sorting such that for duplicated cells, we always order the
+    // cell on the lower block before the one on the higher block. This is
+    // essential to keep the cell numbering consistent.
+    std::sort(cells.begin(), cells.end(), [](const CellTT& lhs, const CellTT& rhs) {
+      return (lhs.point_ids == rhs.point_ids ? lhs.source_gid < rhs.source_gid
+                                             : lhs.point_ids < rhs.point_ids);
+    });
+  }
 
-    std::sort(this->Cells.begin(), this->Cells.end(),
-      [](const CellTT& lhs, const CellTT& rhs) { return lhs.point_ids < rhs.point_ids; });
-
-    if (this->Cells.size() > 0)
+  static std::vector<vtkIdType> GenerateMergeMap(const std::vector<CellTT>& cells)
+  {
+    std::vector<vtkIdType> mergemap(cells.size(), -1);
+    if (cells.size() == 0)
     {
-      this->Ids[0] = 0;
-      vtkIdType nextid = 1;
-      for (size_t cc = 1, max = this->Cells.size(); cc < max; ++cc)
+      return mergemap;
+    }
+
+    mergemap[0] = 0;
+    for (size_t cc = 1, max = cells.size(); cc < max; ++cc)
+    {
+      if (cells[cc - 1].point_ids == cells[cc].point_ids)
       {
-        if (this->Cells[cc - 1].point_ids == this->Cells[cc].point_ids)
+        mergemap[cc] = mergemap[cc - 1];
+      }
+      else
+      {
+        mergemap[cc] = cc;
+      }
+    }
+    return mergemap;
+  }
+};
+
+struct MessageItemTT
+{
+  vtkIdType elem_id;
+  vtkIdType index;
+};
+
+template<typename ElementT>
+struct BlockT
+{
+private:
+  void Enqueue(const diy::ReduceProxy& rp)
+  {
+    for (const auto& pair : this->OutMessage)
+    {
+      rp.enqueue(rp.out_link().target(pair.first), pair.second);
+    }
+    this->OutMessage.clear();
+  }
+
+public:
+  vtkDataSet* Dataset{ nullptr };
+  std::vector<ElementT> Elements;
+  std::vector<vtkIdType> MergeMap;
+  vtkIdType UniqueElementsCount{ 0 };
+  std::map<int, std::vector<MessageItemTT> > OutMessage;
+
+  vtkSmartPointer<vtkIdTypeArray> GlobalIds = nullptr;
+  vtkSmartPointer<vtkUnsignedCharArray> GhostArray = nullptr;
+
+  void Initialize(int self_gid, vtkPoints* points, vtkDataSet* dataset)
+  {
+    this->Dataset = dataset;
+    this->Elements = ElementT::GetElements(self_gid, points, dataset);
+
+    if (dataset)
+    {
+      this->GlobalIds = vtkSmartPointer<vtkIdTypeArray>::New();
+      this->GlobalIds->SetName(
+        ElementT::attr_type == vtkDataObject::POINT ? "GlobalPointIds" : "GlobalCellIds");
+      this->GlobalIds->SetNumberOfTuples(points->GetNumberOfPoints());
+      this->GlobalIds->FillValue(-1);
+      dataset->GetAttributes(ElementT::attr_type)->SetGlobalIds(this->GlobalIds);
+
+      this->GhostArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      this->GhostArray->SetName(vtkDataSetAttributes::GhostArrayName());
+      this->GhostArray->SetNumberOfTuples(points->GetNumberOfPoints());
+      this->GhostArray->FillValue(vtkDataSetAttributes::DUPLICATEPOINT);
+
+      // we're only adding ghost points, not cells.
+      if (ElementT::attr_type == vtkDataObject::POINT)
+      {
+        dataset->GetAttributes(ElementT::attr_type)->AddArray(this->GhostArray);
+      }
+    }
+  }
+
+  void MergeElements()
+  {
+    // sort to make elements on lower gid's the primary elements
+    ElementT::Sort(this->Elements);
+    this->MergeMap = ElementT::GenerateMergeMap(this->Elements);
+
+    std::vector<char> needs_replies(this->MergeMap.size());
+    for (size_t cc = 0, max = this->MergeMap.size(); cc < max; ++cc)
+    {
+      if (this->MergeMap[cc] != static_cast<vtkIdType>(cc))
+      {
+        needs_replies[this->MergeMap[cc]] = 1;
+      }
+    }
+
+    // populate out-message.
+    for (size_t cc = 0, max = this->MergeMap.size(); cc < max; ++cc)
+    {
+      if (this->MergeMap[cc] == static_cast<vtkIdType>(cc))
+      {
+        const auto& elem = this->Elements[cc];
+
+        MessageItemTT datum;
+        datum.elem_id = elem.source_id;
+        datum.index = needs_replies[cc] == 1 ? static_cast<vtkIdType>(cc) : vtkIdType(-1);
+        this->OutMessage[elem.source_gid].push_back(datum);
+      }
+    }
+  }
+
+  void EnqueueOwnershipInformation(const diy::ReduceProxy& rp) { this->Enqueue(rp); }
+  void DequeueOwnershipInformation(const diy::ReduceProxy& rp)
+  {
+    decltype(this->OutMessage) inmessage;
+    for (int i = 0; i < rp.in_link().size(); ++i)
+    {
+      const int in_gid = rp.in_link().target(i).gid;
+      while (rp.incoming(in_gid))
+      {
+        auto& ownerships = inmessage[in_gid];
+        rp.dequeue(in_gid, ownerships);
+      }
+    }
+
+    // we should not have received any message if we don't have a dataset.
+    assert(this->Dataset != nullptr || inmessage.size() == 0);
+    if (!this->Dataset)
+    {
+      return;
+    }
+
+    for (const auto& pair : inmessage)
+    {
+      for (const auto& data : pair.second)
+      {
+        this->GhostArray->SetTypedComponent(data.elem_id, 0, 0);
+      }
+    }
+
+    // Assign global ids starting with 0 for locally owned elems.
+    this->UniqueElementsCount = 0;
+    for (vtkIdType cc = 0, max = this->GhostArray->GetNumberOfTuples(); cc < max; ++cc)
+    {
+      if (this->GhostArray->GetTypedComponent(cc, 0) == 0)
+      {
+        this->GlobalIds->SetTypedComponent(cc, 0, this->UniqueElementsCount);
+        this->UniqueElementsCount++;
+      }
+    }
+
+    // Generate message send back assigned global ids to requesting blocks.
+    for (const auto& pair : inmessage)
+    {
+      for (const auto& data : pair.second)
+      {
+        if (data.index != -1)
         {
-          this->Ids[cc] = this->Ids[cc - 1];
-        }
-        else
-        {
-          this->Ids[cc] = nextid++;
+          MessageItemTT reply;
+          reply.index = data.index;
+          reply.elem_id = this->GlobalIds->GetTypedComponent(data.elem_id, 0);
+          this->OutMessage[pair.first].push_back(reply);
         }
       }
-      this->UniqueCellsCount = nextid;
     }
   }
 
   void AddOffset(const vtkIdType offset)
   {
+    if (this->GlobalIds == nullptr || offset == 0)
+    {
+      return;
+    }
     vtkSMPTools::For(
-      0, static_cast<vtkIdType>(this->Ids.size()), [&offset, this](vtkIdType start, vtkIdType end) {
+      0, this->GlobalIds->GetNumberOfTuples(), [&offset, this](vtkIdType start, vtkIdType end) {
         for (vtkIdType cc = start; cc < end; ++cc)
         {
-          this->Ids[cc] += offset;
+          const auto id = this->GlobalIds->GetTypedComponent(cc, 0);
+          if (id != -1)
+          {
+            this->GlobalIds->SetTypedComponent(cc, 0, id + offset);
+          }
         }
       });
-  }
 
-  void AllocateOutputArrays()
-  {
-    if (this->GlobalIds == nullptr)
+    // offset replies too.
+    for (auto& pair : this->OutMessage)
     {
-      this->GlobalIds = vtkIdTypeArray::New();
-      this->GlobalIds->SetName("GlobalCellIds");
-      this->GlobalIds->SetNumberOfTuples(this->Dataset->GetNumberOfCells());
-      this->Dataset->GetCellData()->SetGlobalIds(this->GlobalIds);
-      this->GlobalIds->FastDelete();
+      for (auto& data : pair.second)
+      {
+        data.elem_id += offset;
+      }
     }
   }
 
-  void SetGlobalId(vtkIdType cell_id, vtkIdType global_id)
+  void EnqueueReplies(const diy::ReduceProxy& rp) { this->Enqueue(rp); }
+  void DequeueReplies(const diy::ReduceProxy& rp)
   {
-    this->GlobalIds->SetTypedComponent(cell_id, 0, global_id);
+    for (int i = 0; i < rp.in_link().size(); ++i)
+    {
+      const int in_gid = rp.in_link().target(i).gid;
+      while (rp.incoming(in_gid))
+      {
+        std::vector<MessageItemTT> ownerships;
+        rp.dequeue(in_gid, ownerships);
+        for (const auto& data : ownerships)
+        {
+          // we're changing the id in our local storage to now be the global
+          // id.
+          this->Elements[data.index].source_id = data.elem_id;
+        }
+      }
+    }
+
+    const auto& mergemap = this->MergeMap;
+    for (size_t cc = 0, max = mergemap.size(); cc < max; ++cc)
+    {
+      if (mergemap[cc] != static_cast<vtkIdType>(cc))
+      {
+        auto& original_elem = this->Elements[mergemap[cc]];
+        auto& duplicate_elem = this->Elements[cc];
+
+        MessageItemTT data;
+        data.elem_id = original_elem.source_id;
+        data.index = duplicate_elem.source_id;
+        this->OutMessage[duplicate_elem.source_gid].push_back(data);
+      }
+    }
   }
 
-private:
-  vtkSmartPointer<vtkDataSet> CreateDataSet()
+  void EnqueueGhostedIds(const diy::ReduceProxy& rp) { this->Enqueue(rp); }
+  void DequeueGhostedIds(const diy::ReduceProxy& rp)
   {
-    auto numCells = static_cast<vtkIdType>(this->Cells.size());
-    vtkNew<vtkUnstructuredGrid> grid;
-    vtkNew<vtkPoints> pts;
-    pts->SetDataTypeToDouble();
-    pts->SetNumberOfPoints(numCells);
-    vtkSMPTools::For(0, numCells, [&](vtkIdType start, vtkIdType end) {
-      for (vtkIdType cc = start; cc < end; ++cc)
+    for (int i = 0; i < rp.in_link().size(); ++i)
+    {
+      const int in_gid = rp.in_link().target(i).gid;
+      while (rp.incoming(in_gid))
       {
-        pts->SetPoint(cc, this->Cells[cc].center.GetData());
+        std::vector<MessageItemTT> ownerships;
+        rp.dequeue(in_gid, ownerships);
+        assert(this->Dataset != nullptr || ownerships.size() == 0);
+        for (const auto& data : ownerships)
+        {
+          this->GlobalIds->SetTypedComponent(data.index, 0, data.elem_id);
+        }
       }
-    });
-    grid->SetPoints(pts);
-    return grid;
+    }
   }
 };
 }
@@ -544,7 +662,7 @@ struct Serialization< ::CellTT>
   {
     diy::save(bb, c.center);
     diy::save(bb, c.source_gid);
-    diy::save(bb, c.source_cellid);
+    diy::save(bb, c.source_id);
     diy::save(bb, c.point_ids);
   }
   static void load(BinaryBuffer& bb, CellTT& c)
@@ -553,74 +671,8 @@ struct Serialization< ::CellTT>
 
     diy::load(bb, c.center);
     diy::load(bb, c.source_gid);
-    diy::load(bb, c.source_cellid);
+    diy::load(bb, c.source_id);
     diy::load(bb, c.point_ids);
-  }
-};
-}
-
-namespace impl
-{
-template<>
-struct BlockTraits< ::PointBlockT>
-{
-  using BlockT = ::PointBlockT;
-  static constexpr bool UseCellCenters = false;
-  static std::vector< ::PointTT>& GetPoints(BlockT* block) { return block->Points; }
-  static std::vector< ::PointTT> BlockT::*GetPoints() { return &BlockT::Points; }
-  static void DoLocalMerge(BlockT* b) { b->MergePoints(); }
-  static vtkIdType GetUniqueIdsCount(const BlockT* b) { return b->UniquePointsCount; }
-  static void OffsetUniqueIds(BlockT* b, vtkIdType offset)
-  {
-    if (offset > 0)
-    {
-      b->AddOffset(offset);
-    }
-  }
-  static size_t GetNumberOfPoints(const BlockT* b) { return b->Points.size(); }
-  static int GetPointSourceGID(const BlockT* b, size_t index)
-  {
-    return b->Points[index].source_gid;
-  }
-  static std::tuple<vtkIdType, vtkIdType, unsigned char> GetIDMessage(const BlockT* b, size_t index)
-  {
-    return std::make_tuple(
-      b->Points[index].source_ptid, b->Ids[index], b->GhostPointFlags[index]);
-  }
-  static void SetIDMessage(BlockT* b, const std::tuple<vtkIdType, vtkIdType, unsigned char>& msg)
-  {
-    b->AllocateOutputArrays();
-    b->SetGlobalId(std::get<0>(msg), std::get<1>(msg));
-    b->SetGhostPointFlag(std::get<0>(msg), std::get<2>(msg));
-  }
-};
-
-template<>
-struct BlockTraits< ::CellBlockT>
-{
-  using BlockT = ::CellBlockT;
-  static constexpr bool UseCellCenters = true;
-  static std::vector< ::CellTT> BlockT::*GetPoints() { return &BlockT::Cells; }
-  static void DoLocalMerge(BlockT* b) { b->MergeCells(); }
-  static vtkIdType GetUniqueIdsCount(const BlockT* b) { return b->UniqueCellsCount; }
-  static void OffsetUniqueIds(BlockT* b, vtkIdType offset)
-  {
-    if (offset > 0)
-    {
-      b->AddOffset(offset);
-    }
-  }
-  static size_t GetNumberOfPoints(const BlockT* b) { return b->Cells.size(); }
-  static int GetPointSourceGID(const BlockT* b, size_t index) { return b->Cells[index].source_gid; }
-  static std::pair<vtkIdType, vtkIdType> GetIDMessage(const BlockT* b, size_t index)
-  {
-    auto& cell = b->Cells[index];
-    return std::make_pair(cell.source_cellid, b->Ids[index]);
-  }
-  static void SetIDMessage(BlockT* b, const std::pair<vtkIdType, vtkIdType>& msg)
-  {
-    b->AllocateOutputArrays();
-    b->SetGlobalId(msg.first, msg.second);
   }
 };
 }
@@ -654,7 +706,7 @@ int vtkGenerateGlobalIds::RequestData(
   {
     this->SetProgressShiftScale(0, 0.5);
     vtkLogScopeF(TRACE, "generate global point ids");
-    if (!impl::GenerateIds<PointBlockT>(outputDO, this))
+    if (!impl::GenerateIds<BlockT<PointTT> >(outputDO, this, false))
     {
       this->SetProgressShiftScale(0, 1.0);
       return 0;
@@ -665,12 +717,13 @@ int vtkGenerateGlobalIds::RequestData(
   {
     this->SetProgressShiftScale(0.5, 0.5);
     vtkLogScopeF(TRACE, "generate global cell ids");
-    if (!impl::GenerateIds<CellBlockT>(outputDO, this))
+    if (!impl::GenerateIds<BlockT<CellTT> >(outputDO, this, true))
     {
       this->SetProgressShiftScale(0, 1.0);
       return 0;
     }
   }
+
   this->SetProgressShiftScale(0, 1.0);
   return 1;
 }
