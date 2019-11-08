@@ -26,6 +26,7 @@
 #ifndef vtkParseData_h
 #define vtkParseData_h
 
+#include "vtkWrappingToolsModule.h"
 #include "vtkParseType.h"
 #include "vtkParseString.h"
 
@@ -299,14 +300,23 @@ extern "C" {
  * Initializer methods
  */
 /*@{*/
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitFile(FileInfo *file_info);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitNamespace(NamespaceInfo *namespace_info);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitClass(ClassInfo *cls);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitFunction(FunctionInfo *func);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitValue(ValueInfo *val);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitEnum(EnumInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitUsing(UsingInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitTemplate(TemplateInfo *arg);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitComment(CommentInfo *arg);
 /*@}*/
 
@@ -316,13 +326,21 @@ void vtkParse_InitComment(CommentInfo *arg);
  * Strings are not deep-copied, they are assumed to be persistent.
  */
 /*@{*/
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyNamespace(NamespaceInfo *data, const NamespaceInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyClass(ClassInfo *data, const ClassInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyFunction(FunctionInfo *data, const FunctionInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyValue(ValueInfo *data, const ValueInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyEnum(EnumInfo *data, const EnumInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyUsing(UsingInfo *data, const UsingInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyTemplate(TemplateInfo *data, const TemplateInfo *orig);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_CopyComment(CommentInfo *data, const CommentInfo *orig);
 /*@}*/
 
@@ -332,14 +350,23 @@ void vtkParse_CopyComment(CommentInfo *data, const CommentInfo *orig);
  * Strings are not freed, they are assumed to be persistent.
  */
 /*@{*/
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeFile(FileInfo *file_info);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeNamespace(NamespaceInfo *namespace_info);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeClass(ClassInfo *cls);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeFunction(FunctionInfo *func);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeValue(ValueInfo *val);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeEnum(EnumInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeUsing(UsingInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeTemplate(TemplateInfo *arg);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeComment(CommentInfo *arg);
 /*@}*/
 
@@ -347,12 +374,14 @@ void vtkParse_FreeComment(CommentInfo *arg);
 /**
  * Add a string to an array of strings, grow array as necessary.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddStringToArray(
   const char ***valueArray, int *count, const char *value);
 
 /**
  * Expand the Item array for classes and namespaces.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddItemToArray(
   ItemInfo **valueArray, int *count, parse_item_t type, int idx);
 
@@ -361,25 +390,45 @@ void vtkParse_AddItemToArray(
  * Add various items to the structs.
  */
 /*@{*/
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddIncludeToFile(FileInfo *info, FileInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddClassToClass(ClassInfo *info, ClassInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddFunctionToClass(ClassInfo *info, FunctionInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddEnumToClass(ClassInfo *info, EnumInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddConstantToClass(ClassInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddVariableToClass(ClassInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddTypedefToClass(ClassInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddUsingToClass(ClassInfo *info, UsingInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddCommentToClass(ClassInfo *info, CommentInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddNamespaceToNamespace(NamespaceInfo *info,NamespaceInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddClassToNamespace(NamespaceInfo *info, ClassInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddFunctionToNamespace(NamespaceInfo *info, FunctionInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddEnumToNamespace(NamespaceInfo *info, EnumInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddConstantToNamespace(NamespaceInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddVariableToNamespace(NamespaceInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddTypedefToNamespace(NamespaceInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddUsingToNamespace(NamespaceInfo *info, UsingInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddCommentToNamespace(NamespaceInfo *info, CommentInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddParameterToFunction(FunctionInfo *info, ValueInfo *item);
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_AddParameterToTemplate(TemplateInfo *info, ValueInfo *item);
 /*@}*/
 

@@ -43,6 +43,7 @@
 #ifndef vtkParsePreprocess_h
 #define vtkParsePreprocess_h
 
+#include "vtkWrappingToolsModule.h"
 #include "vtkParseString.h"
 
 /**
@@ -147,6 +148,7 @@ extern "C" {
  * parser to decide which errors are fatal.  The preprocessor
  * only considers syntax errors and I/O errors to be fatal.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParsePreprocess_HandleDirective(
   PreprocessInfo *info, const char *directive);
 
@@ -159,6 +161,7 @@ int vtkParsePreprocess_HandleDirective(
  * Error return values are VTK_PARSE_MACRO_UNDEFINED and
  * VTK_PARSE_SYNTAX_ERRORS.  Undefined macros evaluate to zero.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParsePreprocess_EvaluateExpression(
   PreprocessInfo *info, const char *text,
   preproc_int_t *val, int *is_unsigned);
@@ -169,6 +172,7 @@ int vtkParsePreprocess_EvaluateExpression(
  * cross-compiling, use VTK_PARSE_UNDEF and then define the macros
  * for the target platform.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_AddStandardMacros(
   PreprocessInfo *info, preproc_platform_t platform);
 
@@ -176,6 +180,7 @@ void vtkParsePreprocess_AddStandardMacros(
  * Add a preprocessor symbol, including a definition.  Return
  * values are VTK_PARSE_OK and VTK_PARSE_MACRO_REDEFINED.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParsePreprocess_AddMacro(
   PreprocessInfo *info, const char *name, const char *definition);
 
@@ -183,6 +188,7 @@ int vtkParsePreprocess_AddMacro(
  * Remove a preprocessor symbol.  Return values are VTK_PARSE_OK
  * and VTK_PARSE_MACRO_UNDEFINED.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParsePreprocess_RemoveMacro(
   PreprocessInfo *info, const char *name);
 
@@ -190,12 +196,14 @@ int vtkParsePreprocess_RemoveMacro(
  * Go through macros in order of definition.
  * Pass NULL to start.  Will return NULL when done.
  */
+VTKWRAPPINGTOOLS_EXPORT
 MacroInfo *vtkParsePreprocess_NextMacro(
   PreprocessInfo *info, MacroInfo *macro);
 
 /**
  * Return a preprocessor symbol struct, or NULL if not found.
  */
+VTKWRAPPINGTOOLS_EXPORT
 MacroInfo *vtkParsePreprocess_GetMacro(
   PreprocessInfo *info, const char *name);
 
@@ -204,12 +212,14 @@ MacroInfo *vtkParsePreprocess_GetMacro(
  * with args in parentheses, otherwise the argstring can be NULL.
  * returns NULL if the wrong number of arguments were given.
  */
+VTKWRAPPINGTOOLS_EXPORT
 const char *vtkParsePreprocess_ExpandMacro(
   PreprocessInfo *info, MacroInfo *macro, const char *argstring);
 
 /**
  * Free an expanded macro
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_FreeMacroExpansion(
   PreprocessInfo *info, MacroInfo *macro, const char *text);
 
@@ -217,6 +227,7 @@ void vtkParsePreprocess_FreeMacroExpansion(
  * Fully process a string with the preprocessor, and
  * return a new string or NULL if a fatal error occurred.
  */
+VTKWRAPPINGTOOLS_EXPORT
 const char *vtkParsePreprocess_ProcessString(
   PreprocessInfo *info, const char *text);
 
@@ -226,6 +237,7 @@ const char *vtkParsePreprocess_ProcessString(
  * the original string, because ProcessString will just
  * return the original string if no processing was needed.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_FreeProcessedString(
   PreprocessInfo *info, const char *text);
 
@@ -233,6 +245,7 @@ void vtkParsePreprocess_FreeProcessedString(
  * Add an include directory.  The directories that were added
  * first will be searched first.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_IncludeDirectory(
   PreprocessInfo *info, const char *name);
 
@@ -243,6 +256,7 @@ void vtkParsePreprocess_IncludeDirectory(
  * If already_loaded is set, then the file was already loaded.  This
  * preprocessor never loads the same file twice.
  */
+VTKWRAPPINGTOOLS_EXPORT
 const char *vtkParsePreprocess_FindIncludeFile(
   PreprocessInfo *info, const char *filename, preproc_search_t order,
   int *already_loaded);
@@ -251,28 +265,33 @@ const char *vtkParsePreprocess_FindIncludeFile(
  * Process a file as if included from a source file.  The return value
  * will be VTK_PARSE_OK if no errors occurred.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParsePreprocess_IncludeFile(
   PreprocessInfo *info, const char *filename, preproc_search_t order);
 
 /**
  * Initialize a preprocessor symbol struct.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_InitMacro(MacroInfo *symbol);
 
 /**
  * Free a preprocessor macro struct
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_FreeMacro(MacroInfo *macro);
 
 /**
  * Initialize a preprocessor struct.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_Init(
   PreprocessInfo *info, const char *filename);
 
 /**
  * Free a preprocessor struct and its contents;
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParsePreprocess_Free(PreprocessInfo *info);
 
 #ifdef __cplusplus

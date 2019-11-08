@@ -38,8 +38,7 @@ set_property(SOURCE vtkParseMain.c
 
 vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
-  HEADERS ${headers}
-  FORCE_STATIC)
+  HEADERS ${headers})
 
 set(vtk_wrapping_tools_no_install)
 if (NOT _vtk_build_INSTALL_HEADERS)

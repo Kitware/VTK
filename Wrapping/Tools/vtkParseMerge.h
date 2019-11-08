@@ -27,6 +27,7 @@
 #ifndef vtkParseMerge_h
 #define vtkParseMerge_h
 
+#include "vtkWrappingToolsModule.h"
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 
@@ -54,17 +55,20 @@ extern "C" {
  * The returned MergeInfo object provides information about which class
  * each inherited method was inherited from.
  */
+VTKWRAPPINGTOOLS_EXPORT
 MergeInfo *vtkParseMerge_MergeSuperClasses(
   FileInfo *finfo, NamespaceInfo *data, ClassInfo *classInfo);
 
 /**
  * Create an initialized MergeInfo object.
  */
+VTKWRAPPINGTOOLS_EXPORT
 MergeInfo *vtkParseMerge_CreateMergeInfo(ClassInfo *classInfo);
 
 /**
  * Free the MergeInfo object.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParseMerge_FreeMergeInfo(MergeInfo *info);
 
 /**
@@ -75,6 +79,7 @@ void vtkParseMerge_FreeMergeInfo(MergeInfo *info);
  * by using declarations.  The hintfile can also be NULL, if there is
  * no hints file.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParseMerge_MergeHelper(
   FileInfo *finfo, const NamespaceInfo *data, const HierarchyInfo *hinfo,
   const char *classname, int nhintfiles, char **hintfiles, MergeInfo *info,

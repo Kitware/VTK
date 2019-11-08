@@ -26,6 +26,7 @@
 #ifndef vtkParseMangle_h
 #define vtkParseMangle_h
 
+#include "vtkWrappingToolsModule.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -37,6 +38,7 @@ extern "C" {
  * The result is placed in new_name, which must be large enough
  * to accept the result.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_MangledTypeName(const char *name, char *new_name);
 
 /**
@@ -44,6 +46,7 @@ size_t vtkParse_MangledTypeName(const char *name, char *new_name);
  * integer literals.  It guesses type from suffix "u", "ul",
  * "ull", "l", "ll" so only certain types are supported.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_MangledLiteral(const char *name, char *new_name);
 
 #ifdef __cplusplus

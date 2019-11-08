@@ -43,6 +43,7 @@
 #ifndef vtkParseMain_h
 #define vtkParseMain_h
 
+#include "vtkWrappingToolsModule.h"
 #include "vtkParseData.h"
 #include <stdio.h>
 
@@ -69,17 +70,20 @@ extern "C" {
 /**
  * Return the options provided on the command line
  */
+VTKWRAPPINGTOOLS_EXPORT
 OptionInfo *vtkParse_GetCommandLineOptions(void);
 
 /**
  * The main function, parses the file and returns the result.
  */
+VTKWRAPPINGTOOLS_EXPORT
 FileInfo *vtkParse_Main(int argc, char *argv[]);
 
 /**
  * A main function that can take multiple input files.
  * It does not parse the files.  It will exit on error.
  */
+VTKWRAPPINGTOOLS_EXPORT
 StringCache *vtkParse_MainMulti(int argc, char *argv[]);
 
 #ifdef __cplusplus
