@@ -27,6 +27,8 @@ with additional system information.
 #include <windows.h>
 #include <GL/gl.h>
 
+#include <GL/gl.h>
+
 class CheckOpenGLVersion {
 public:
   CheckOpenGLVersion( HINSTANCE hInstance );
