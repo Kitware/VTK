@@ -125,6 +125,11 @@ The following variable can be set to guide the search for HDF5 libraries and inc
 include(SelectLibraryConfigurations)
 include(FindPackageHandleStandardArgs)
 
+# We haven't found HDF5 yet. Clear its state in case it is set in the parent
+# scope somewhere else. We can't rely on it because different components may
+# have been requested for this call.
+set(HDF5_FOUND OFF)
+
 # List of the valid HDF5 components
 set(HDF5_VALID_LANGUAGE_BINDINGS C CXX Fortran)
 
