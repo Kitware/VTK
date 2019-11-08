@@ -40,14 +40,6 @@ vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
   HEADERS ${headers}
   FORCE_STATIC)
-# This is a hard-coded path because `vtkType.h` from `VTK::CommonCore` is
-# used for VTK's integer types. However, it is not a public dependency. In
-# order for the compile tools project to be as minimal as possible, the
-# `VTK::CommonCore` target should also not be created.
-vtk_module_include("${ns}::WrappingTools"
-  PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../Common/Core"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../Utilities/KWIML")
 
 set(vtk_wrapping_tools_no_install)
 if (NOT _vtk_build_INSTALL_HEADERS)
