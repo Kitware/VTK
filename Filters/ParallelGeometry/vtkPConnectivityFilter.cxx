@@ -89,8 +89,8 @@ struct ExchangeBoundsWorker : public WorkerBase
     memcpy(this->Bounds, bounds, 6*sizeof(double));
     this->AllBoundsArray = allBoundsArray;
 
-    vtkArrayDispatch::DispatchByArray<PointArrayTypes> dispatcher;
-    return dispatcher.Execute(this->AllBoundsArray, *this);
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
+    return Dispatcher::Execute(this->AllBoundsArray, *this);
   }
 
   template< class TArray >
@@ -144,8 +144,8 @@ struct FindMyNeighborsWorker : public WorkerBase
     // Output
     this->MyNeighbors = &myNeighbors;
 
-    vtkArrayDispatch::DispatchByArray<PointArrayTypes> dispatcher;
-    return dispatcher.Execute(this->AllBoundsArray, *this);
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
+    return Dispatcher::Execute(this->AllBoundsArray, *this);
   }
 
   template< class TArray >
@@ -218,8 +218,8 @@ struct AssemblePointsAndRegionIdsWorker : public WorkerBase
     this->PointsForMyNeighbors = &pointsForMyNeighbors;
     this->RegionIdsForMyNeighbors = &regionIdsForMyNeighbors;
 
-    vtkArrayDispatch::DispatchByArray<PointArrayTypes> dispatcher;
-    return dispatcher.Execute(allBoundsArray, *this);
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
+    return Dispatcher::Execute(allBoundsArray, *this);
   }
 
   template< class TArray >
@@ -314,8 +314,8 @@ struct SendReceivePointsWorker : public WorkerBase
     this->PointsFromMyNeighbors = &pointsFromMyNeighbors;
     this->RegionIdsFromMyNeighbors = &regionIdsFromMyNeighbors;
 
-    vtkArrayDispatch::DispatchByArray<PointArrayTypes> dispatcher;
-    return dispatcher.Execute(allBoundsArray, *this);
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
+    return Dispatcher::Execute(allBoundsArray, *this);
   }
 
   template< class TArray >

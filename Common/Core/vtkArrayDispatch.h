@@ -108,12 +108,12 @@
  * bool result = Dispatcher<...>::Execute(array, worker);
  * @endcode
  *
- * The dispatcher can also be instantiated into an object, e.g.:
+ * For convenience, the dispatcher may be aliased to a shorter name, e.g.:
  *
  * @code
- * vtkArrayDispatch::SomeDispatcher<...> myDispatcher;
+ * using MyDispatcher = vtkArrayDispatch::SomeDispatcher<...>;
  * MyWorker worker;
- * bool result = myDispatcher.Execute(array, worker);
+ * bool result = MyDispatcher::Execute(array, worker);
  * @endcode
  *
  * Return value:
