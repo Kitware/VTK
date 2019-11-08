@@ -92,7 +92,7 @@ set(TestSystemInformation_ARGS ${CMAKE_BINARY_DIR})
 set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOutputWindow.txt)
 
 if (VTK_BUILD_SCALED_SOA_ARRAYS)
-  set(scale_soa_test TestScaledSOADataArrayDispatchers.cxx TestScaledSOADataArrayTemplate.cxx)
+  set(scale_soa_test TestScaledSOADataArrayTemplate.cxx)
 endif ()
 
 

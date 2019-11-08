@@ -150,13 +150,13 @@ private:
       assert(array->GetNumberOfTuples() == this->ValidPointMask->GetNumberOfTuples());
       assert(array->GetNumberOfComponents() == this->ValidPointMask->GetNumberOfComponents());
 
-      vtkArrayDispatch::Dispatch2ByArray<
+      using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<
           vtkArrayDispatch::Arrays, // First array is input, can be anything.
           vtkTypeList::Create<vtkCharArray> // Second is always vtkCharArray.
-          > dispatcher;
+          >;
       ComputeArrayRange worker;
 
-      if (!dispatcher.Execute(array, this->ValidPointMask, worker))
+      if (!Dispatcher::Execute(array, this->ValidPointMask, worker))
       {
         vtkGenericWarningMacro(
               <<"Error computing range. Unsupported array type: "
@@ -168,10 +168,10 @@ private:
     }
     else
     {
-      vtkArrayDispatch::Dispatch dispatcher;
+      using Dispatcher = vtkArrayDispatch::Dispatch;
       ComputeArrayRange worker;
 
-      if (!dispatcher.Execute(array, worker))
+      if (!Dispatcher::Execute(array, worker))
       {
         vtkGenericWarningMacro(
               <<"Error computing range. Unsupported array type: "
@@ -426,10 +426,10 @@ public:
       CopyToPoints worker2(&data[2], 4, numValues, vtkVector2d(ss[0], ss[2]),
                            useLog[0]);
 
-      vtkArrayDispatch::Dispatch dispatcher;
+      using Dispatcher = vtkArrayDispatch::Dispatch;
 
-      if (!dispatcher.Execute(array, worker1) ||
-          !dispatcher.Execute(array, worker2))
+      if (!Dispatcher::Execute(array, worker1) ||
+          !Dispatcher::Execute(array, worker2))
       {
         vtkGenericWarningMacro("Error creating points, unsupported array type: "
                                << array->GetClassName()
@@ -459,10 +459,10 @@ public:
     CopyToPoints worker2(&data[3], 4, numValues2, vtkVector2d(ss[1], ss[3]),
                          useLog[1]);
 
-    vtkArrayDispatch::Dispatch dispatcher;
+    using Dispatcher = vtkArrayDispatch::Dispatch;
 
-    if (!dispatcher.Execute(array1, worker1) ||
-        !dispatcher.Execute(array2, worker2))
+    if (!Dispatcher::Execute(array1, worker1) ||
+        !Dispatcher::Execute(array2, worker2))
     {
       vtkGenericWarningMacro("Error creating points: Array dispatch failed.");
     }
