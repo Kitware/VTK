@@ -712,6 +712,48 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
   return errors;
 }
 
+int TestMultiComponent() {
+  int errors = 0;
+  auto array = vtkSmartPointer<vtkFloatArray>::New();
+  array->SetNumberOfComponents( 3 );
+  static const float data[3][3] = { {1.,2.,3.}, {2.,3.,4.}, {3.,4.,5.} };
+  for ( auto tuple : data ) {
+    array->InsertNextTypedTuple( tuple );
+  }
+
+  // a list of values and the index expected to be returned
+  static const int expected[][2] = { {2,0}, {3,0}, {4,1}, {5,2}, { 6,-1} };
+  for ( auto e : expected ) {
+    vtkIdType index = array->LookupTypedValue( e[0] );
+    if ( index != e[1] ) {
+      cerr << "TestMultiComponent: "
+           << "index of "<<e[0]
+           << " expected "<<e[1]
+           << " actual "<<index;
+      ++errors;
+    }
+  }
+
+  // overwrite 3.0 (3rd component of 1st tuple) with NaN.
+  array->SetTypedComponent( 0,2,std::numeric_limits<float>::quiet_NaN());
+
+  // We need to trigger rebuilding the auxiliary data structures explicitly
+  array->ClearLookup();
+  vtkIdType index = array->LookupValue(std::numeric_limits<float>::quiet_NaN());
+  if ( 0 != index ) {
+    cerr << "TestMultiComponent: lookup of NaN: "
+         << "expected 0 actual "<<index;
+    ++errors;
+  }
+  index = array->LookupValue( 3. );
+  if ( 1 != index ) {
+    cerr << "TestMultiComponent: lookup of value 3.: "
+         << "expected 1 actual "<<index;
+    ++errors;
+  }
+  return errors;
+}
+
 int TestArrayLookup(int argc, char* argv[])
 {
   vtkIdType min = 100;
@@ -785,5 +827,6 @@ int TestArrayLookup(int argc, char* argv[])
     errors += TestArrayLookupBit(numVal);
     cerr << endl;
   }
+  errors += TestMultiComponent();
   return errors;
 }

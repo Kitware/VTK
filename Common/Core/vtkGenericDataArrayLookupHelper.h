@@ -133,11 +133,11 @@ private:
 
     this->ValueMap.reserve(this->AssociatedArray->GetNumberOfTuples() *
                            this->AssociatedArray->GetNumberOfComponents());
-    for (auto i = 0; i < this->AssociatedArray->GetNumberOfTuples(); ++i)
+    for (vtkIdType i = 0; i < this->AssociatedArray->GetNumberOfTuples(); ++i)
     {
-      for (auto c = 0; c < this->AssociatedArray->GetNumberOfComponents(); ++c)
+      for (int c = 0; c < this->AssociatedArray->GetNumberOfComponents(); ++c)
       {
-        auto value = this->AssociatedArray->GetValue(i);
+        auto value = this->AssociatedArray->GetTypedComponent(i,c);
         if (::detail::isnan(value))
         {
           NanIndices.push_back( i );
