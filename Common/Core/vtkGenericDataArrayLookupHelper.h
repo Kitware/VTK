@@ -131,19 +131,16 @@ private:
       return;
     }
 
-    this->ValueMap.reserve(this->AssociatedArray->GetNumberOfTuples() *
-                           this->AssociatedArray->GetNumberOfComponents());
-    for (vtkIdType i = 0; i < this->AssociatedArray->GetNumberOfTuples(); ++i)
+    vtkIdType num = this->AssociatedArray->GetNumberOfValues();
+    this->ValueMap.reserve(num);
+    for (vtkIdType i = 0; i < num; ++i)
     {
-      for (int c = 0; c < this->AssociatedArray->GetNumberOfComponents(); ++c)
+      auto value = this->AssociatedArray->GetValue(i);
+      if (::detail::isnan(value))
       {
-        auto value = this->AssociatedArray->GetTypedComponent(i,c);
-        if (::detail::isnan(value))
-        {
-          NanIndices.push_back( i );
-        }
-        this->ValueMap[ value ].push_back( i );
+        NanIndices.push_back( i );
       }
+      this->ValueMap[ value ].push_back( i );
     }
   }
 

@@ -722,7 +722,7 @@ int TestMultiComponent() {
   }
 
   // a list of values and the index expected to be returned
-  static const int expected[][2] = { {2,0}, {3,0}, {4,1}, {5,2}, { 6,-1} };
+  static const int expected[][2] = { {2,1}, {3,2}, {4,5}, {5,8}, { 6,-1} };
   for ( auto e : expected ) {
     vtkIdType index = array->LookupTypedValue( e[0] );
     if ( index != e[1] ) {
@@ -740,13 +740,13 @@ int TestMultiComponent() {
   // We need to trigger rebuilding the auxiliary data structures explicitly
   array->ClearLookup();
   vtkIdType index = array->LookupValue(std::numeric_limits<float>::quiet_NaN());
-  if ( 0 != index ) {
+  if ( 2 != index ) {
     cerr << "TestMultiComponent: lookup of NaN: "
          << "expected 0 actual "<<index;
     ++errors;
   }
   index = array->LookupValue( 3. );
-  if ( 1 != index ) {
+  if ( 4 != index ) {
     cerr << "TestMultiComponent: lookup of value 3.: "
          << "expected 1 actual "<<index;
     ++errors;
