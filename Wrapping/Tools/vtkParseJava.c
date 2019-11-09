@@ -25,7 +25,7 @@ HierarchyInfo *hierarchyInfo = NULL;
 StringCache *stringCache = NULL;
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
-extern FunctionInfo *currentFunction;
+FunctionInfo *currentFunction;
 
 void output_temp(FILE *fp,int i)
 {
