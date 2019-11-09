@@ -26,6 +26,7 @@
 #ifndef vtkParseExtras_h
 #define vtkParseExtras_h
 
+#include "vtkWrappingToolsModule.h"
 #include "vtkParseData.h"
 #include <stddef.h>
 
@@ -48,6 +49,7 @@ extern "C" {
  * character or an underscore, and include only alphanumeric
  * characters or underscores. Return the number of characters.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_IdentifierLength(const char *text);
 
 /**
@@ -56,6 +58,7 @@ size_t vtkParse_IdentifierLength(const char *text);
  * Examples are "name", "::name", "name<arg>", "name::name2",
  * "::name::name2<arg1,arg2>".
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_NameLength(const char *text);
 
 /**
@@ -63,6 +66,7 @@ size_t vtkParse_NameLength(const char *text);
  * if a '::' is encountered.  Return the number of characters.
  * Examples are "name" and "name<arg>"
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_UnscopedNameLength(const char *text);
 
 /**
@@ -70,6 +74,7 @@ size_t vtkParse_UnscopedNameLength(const char *text);
  * quotes, a string in double quotes, or a name, or a name followed
  * by arguments in parentheses.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_LiteralLength(const char *text);
 
 /**
@@ -80,6 +85,7 @@ size_t vtkParse_LiteralLength(const char *text);
  * appears in the type name, then the const bit flag is set for the
  * type, but "const" will not appear in the returned classname.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_BasicTypeFromString(
   const char *text, unsigned int *type,
   const char **classname, size_t *classname_len);
@@ -89,6 +95,7 @@ size_t vtkParse_BasicTypeFromString(
  * Only simple text strings are supported, e.g. "const T **".
  * Returns the number of characters consumed.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_ValueInfoFromString(
   ValueInfo *val, StringCache *cache, const char *text);
 
@@ -109,6 +116,7 @@ size_t vtkParse_ValueInfoFromString(
  * 'const' or 'volatile' qualifiers.  Use VTK_PARSE_EVERYTHING to generate
  * the entire declaration for a variable or parameter.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_ValueInfoToString(
   ValueInfo *data, char *text, unsigned int flags);
 
@@ -119,6 +127,7 @@ size_t vtkParse_ValueInfoToString(
  * to VTK_PARSE_RETURN_VALUE to print only the return value for the function,
  * or VTK_PARSE_PARAMETER_LIST to print only the parameter list.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_FunctionInfoToString(
   FunctionInfo *func, char *text, unsigned int flags);
 
@@ -127,6 +136,7 @@ size_t vtkParse_FunctionInfoToString(
  *
  * See vtkParse_ValueInfoToString() for basic usage.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_TemplateInfoToString(
   TemplateInfo *func, char *text, unsigned int flags);
 
@@ -140,6 +150,7 @@ size_t vtkParse_TemplateInfoToString(
  * the constness of the functions match.  This means that the signatures
  * are not identical unless the return value is 7 or higher (.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParse_CompareFunctionSignature(
   const FunctionInfo *func1, const FunctionInfo *func2);
 
@@ -147,12 +158,14 @@ int vtkParse_CompareFunctionSignature(
  * Expand a typedef within a variable, parameter, or typedef declaration.
  * The expansion is done in-place.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_ExpandTypedef(ValueInfo *valinfo, ValueInfo *typedefinfo);
 
 /**
  * Expand any unrecognized types within a variable, parameter, or typedef
  * that match any of the supplied typedefs. The expansion is done in-place.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_ExpandTypedefs(
   ValueInfo *valinfo, StringCache *cache,
   int n, const char *name[], const char *val[],
@@ -163,6 +176,7 @@ void vtkParse_ExpandTypedefs(
  * a Dimension size, replace it with the corresponding val string.
  * This is used to replace constants with their values.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_ExpandValues(
   ValueInfo *valinfo, StringCache *cache,
   int n, const char *name[], const char *val[]);
@@ -170,6 +184,7 @@ void vtkParse_ExpandValues(
 /**
  * Search and replace, return the initial string if no replacements
  * occurred, else return a new string allocated with malloc. */
+VTKWRAPPINGTOOLS_EXPORT
 const char *vtkParse_StringReplace(
   const char *str1, int n, const char *name[], const char *val[]);
 
@@ -178,6 +193,7 @@ const char *vtkParse_StringReplace(
  * class type ID.  Returns the full number of characters that
  * were consumed during the decomposition.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_DecomposeTemplatedType(
   const char *text, const char **classname,
   int n, const char ***args, const char *defaults[]);
@@ -185,6 +201,7 @@ size_t vtkParse_DecomposeTemplatedType(
 /**
  * Free the list of strings returned by ExtractTemplateArgs.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeTemplateDecomposition(
   const char *classname, int n, const char **args);
 
@@ -195,6 +212,7 @@ void vtkParse_FreeTemplateDecomposition(
  * If an error occurs, the error will be printed to stderr and NULL will
  * be returned.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InstantiateClassTemplate(
   ClassInfo *data, StringCache *cache, int n, const char *args[]);
 
@@ -205,17 +223,20 @@ void vtkParse_InstantiateClassTemplate(
  * (if present) will be used.  If an error occurs, the error will be
  * printed to stderr and NULL will be returned.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_IntantiateFunctionTemplate(
   FunctionInfo *data, int n, const char *args[]);
 
 /**
  * Get a zero-terminated array of the types in vtkTemplateMacro.
  */
+VTKWRAPPINGTOOLS_EXPORT
 const char **vtkParse_GetTemplateMacroTypes(void);
 
 /**
  * Get a zero-terminated array of the types in vtkArray.
  */
+VTKWRAPPINGTOOLS_EXPORT
 const char **vtkParse_GetArrayTypes(void);
 
 

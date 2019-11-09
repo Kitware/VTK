@@ -43,6 +43,7 @@
 #ifndef vtkParseString_h
 #define vtkParseString_h
 
+#include "vtkWrappingToolsModule.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -69,15 +70,9 @@ typedef enum _parse_char_type
 } parse_char_type;
 
 /**
- * Character type lookup table
+ * check if a char is of a certain type
  */
-extern unsigned char parse_charbits[256];
-
-/**
- * Macro to check if a char is of a certain type
- */
-#define vtkParse_CharType(c, bits) \
-  ((parse_charbits[(unsigned char)(c)] & (bits)) != 0)
+VTKWRAPPINGTOOLS_EXPORT int vtkParse_CharType(char c, int bits);
 
 /**
  * Whitespace types that can be used with the tokenizer.
@@ -152,12 +147,14 @@ typedef struct _StringTokenizer
 /**
  * Initialize the tokenizer and get the first token.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitTokenizer(
   StringTokenizer *tokens, const char *text, parse_space_t wstype);
 
 /**
  * Return the next preprocessor token, or '0' if none left.
  */
+VTKWRAPPINGTOOLS_EXPORT
 int vtkParse_NextToken(StringTokenizer *tokens);
 
 /**
@@ -165,6 +162,7 @@ int vtkParse_NextToken(StringTokenizer *tokens);
  * Return the number of chars until the first non-whitespace token.
  * Set spacetype to WS_DEFAULT, WS_PREPROC, or WS_COMMENT.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_SkipWhitespace(
   const char *cp, parse_space_t spacetype);
 
@@ -172,24 +170,28 @@ size_t vtkParse_SkipWhitespace(
  * Skip over a comment, C style or C++ style.
  * Return the number of chars until the end of the comment.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_SkipComment(const char *cp);
 
 /**
  * Skip over a string in double or single quotes.
  * Return the number of chars until the end of the quotes.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_SkipQuotes(const char *cp);
 
 /**
  * Skip over a number.  Uses preprocessor semantics.
  * Return the number of chars until the end of the number.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_SkipNumber(const char *cp);
 
 /**
  * Skip over an identifier.
  * Return the number of chars until the end of the identifier.
  */
+VTKWRAPPINGTOOLS_EXPORT
 size_t vtkParse_SkipId(const char *cp);
 
 /**
@@ -199,6 +201,7 @@ size_t vtkParse_SkipId(const char *cp);
  * whitespace or an operator character before the end of the string.
  * It can be used on null-terminated strings as well, of course.
  */
+VTKWRAPPINGTOOLS_EXPORT
 unsigned int vtkParse_HashId(const char *cp);
 
 /**
@@ -206,6 +209,7 @@ unsigned int vtkParse_HashId(const char *cp);
  * The character pointer will be advanced by one if an error occurred,
  * and the return value will be the value of the first octet.
  */
+VTKWRAPPINGTOOLS_EXPORT
 unsigned int vtkParse_DecodeUtf8(const char **cpp, int *error_flag);
 
 /**
@@ -224,12 +228,14 @@ typedef struct _StringCache
 /**
  * Initialize the string cache.
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_InitStringCache(StringCache *cache);
 
 /**
  * Allocate a new string from the cache.
  * A total of n+1 bytes will be allocated, to leave room for null.
  */
+VTKWRAPPINGTOOLS_EXPORT
 char *vtkParse_NewString(StringCache *cache, size_t n);
 
 /**
@@ -238,6 +244,7 @@ char *vtkParse_NewString(StringCache *cache, size_t n);
  * At most 'n' chars will be copied, and the string will be terminated.
  * If a null pointer is provided, then a null pointer will be returned.
  */
+VTKWRAPPINGTOOLS_EXPORT
 const char *vtkParse_CacheString(
   StringCache *cache, const char *cp, size_t n);
 
@@ -245,6 +252,7 @@ const char *vtkParse_CacheString(
  * Free all strings that were created with vtkParse_NewString() or
  * with vtkParse_CacheString().
  */
+VTKWRAPPINGTOOLS_EXPORT
 void vtkParse_FreeStringCache(StringCache *cache);
 
 #ifdef __cplusplus

@@ -25,7 +25,7 @@ HierarchyInfo *hierarchyInfo = NULL;
 StringCache *stringCache = NULL;
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
-extern FunctionInfo *currentFunction;
+FunctionInfo *currentFunction;
 ClassInfo *CurrentData;
 
 void output_proto_vars(FILE *fp, int i)
