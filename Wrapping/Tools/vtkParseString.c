@@ -34,7 +34,7 @@
  */
 
 /** Array for quick lookup of char types */
-unsigned char parse_charbits[256] = {
+const unsigned char parse_charbits[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0,
   CPRE_HSPACE, /* tab */
   CPRE_VSPACE, CPRE_VSPACE, CPRE_VSPACE, /* newline, vtab, form feed */
@@ -83,6 +83,12 @@ unsigned char parse_charbits[256] = {
 
 #define parse_chartype(c, bits) \
   ((parse_charbits[(unsigned char)(c)] & (bits)) != 0)
+
+/** Check if a char is of a certain type */
+int vtkParse_CharType(char c, int bits)
+{
+  return parse_chartype(c, bits);
+}
 
 /** Skip over a comment. */
 size_t vtkParse_SkipComment(const char *text)

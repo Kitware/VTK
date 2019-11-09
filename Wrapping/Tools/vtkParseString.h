@@ -70,15 +70,9 @@ typedef enum _parse_char_type
 } parse_char_type;
 
 /**
- * Character type lookup table
+ * check if a char is of a certain type
  */
-extern unsigned char parse_charbits[256];
-
-/**
- * Macro to check if a char is of a certain type
- */
-#define vtkParse_CharType(c, bits) \
-  ((parse_charbits[(unsigned char)(c)] & (bits)) != 0)
+VTKWRAPPINGTOOLS_EXPORT int vtkParse_CharType(char c, int bits);
 
 /**
  * Whitespace types that can be used with the tokenizer.
