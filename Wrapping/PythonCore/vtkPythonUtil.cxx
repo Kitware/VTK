@@ -28,6 +28,7 @@
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
 
+#include <atomic>
 #include <cstring>
 #include <sstream>
 #include <map>
@@ -62,7 +63,7 @@ public:
 // of the vtk/python garbage collection system, because it contains
 // exactly one pointer reference for each VTK object known to python)
 class vtkPythonObjectMap
-  : public std::map<vtkObjectBase*, std::pair<PyObject *, vtkAtomicInt32> >
+  : public std::map<vtkObjectBase*, std::pair<PyObject *, std::atomic<int32_t>>>
 {
 public:
   ~vtkPythonObjectMap();

@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAtomicTypes.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiThreader.h"
 
 #include <algorithm>
+#include <atomic>
 
-static vtkAtomicInt32 TotalAtomic(0);
-static vtkAtomicInt64 TotalAtomic64(0);
+static std::atomic<int32_t> TotalAtomic(0);
+static std::atomic<int64_t> TotalAtomic64(0);
 static const int Target = 1000000;
 static int Values32[Target+1];
 static int Values64[Target+1];

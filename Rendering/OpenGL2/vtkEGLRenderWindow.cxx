@@ -15,7 +15,7 @@
 
 #include "vtkEGLRenderWindow.h"
 
-#include "vtkAtomicTypes.h"
+#include "vtkType.h"
 #include "vtkCommand.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
@@ -26,6 +26,7 @@
 #include "vtk_glew.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <atomic>
 #include <cassert>
 #include <sstream>
 #include <EGL/egl.h>
@@ -50,7 +51,7 @@ namespace
    */
   class vtkEGLDisplayInitializationHelper
   {
-    static std::map<EGLDisplay, vtkAtomicInt64> DisplayUsageCounts;
+    static std::map<EGLDisplay, std::atomic<int64_t>> DisplayUsageCounts;
 public:
     static EGLBoolean Initialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
     {
@@ -69,7 +70,7 @@ public:
     }
   };
 
-  std::map<EGLDisplay, vtkAtomicInt64>
+  std::map<EGLDisplay, std::atomic<int64_t>>
     vtkEGLDisplayInitializationHelper::DisplayUsageCounts;
 
   struct vtkEGLDeviceExtensions

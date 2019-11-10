@@ -15,7 +15,6 @@
 #include "vtkSelection.h"
 
 #include "vtkAbstractArray.h"
-#include "vtkAtomicTypes.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -33,6 +32,7 @@
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 
+#include <atomic>
 #include <cassert>
 #include <cctype>
 #include <iterator>
@@ -403,7 +403,7 @@ std::string vtkSelection::AddNode(vtkSelectionNode* node)
     }
   }
 
-  static vtkAtomicUInt64 counter = 0;
+  static std::atomic<uint64_t> counter(0U);
   std::string name = std::string("node") + convert_to_string(++counter);
   while (internals.Items.find(name) != internals.Items.end())
   {

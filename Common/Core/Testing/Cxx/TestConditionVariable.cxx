@@ -1,15 +1,14 @@
-#include "vtkAtomicTypes.h"
 #include "vtkConditionVariable.h"
 #include "vtkMultiThreader.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <cstdlib>
-
+#include <atomic>
 
 typedef struct {
   vtkMutexLock* Lock;
   vtkConditionVariable* Condition;
-  vtkAtomicInt32 Done;
+  std::atomic<int32_t> Done;
   int NumberOfWorkers;
 } vtkThreadUserData;
 
