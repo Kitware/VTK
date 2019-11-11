@@ -159,14 +159,14 @@ namespace boost {
     public iterator_facade<vtk_vertex_iterator,
                            vtkIdType,
                            bidirectional_traversal_tag,
-                           vtkIdType,
+                           const vtkIdType&,
                            vtkIdType>
   {
     public:
       explicit vtk_vertex_iterator(vtkIdType i = 0) : index(i) {}
 
     private:
-      vtkIdType dereference() const { return index; }
+      const vtkIdType& dereference() const { return index; }
 
       bool equal(const vtk_vertex_iterator& other) const
         { return index == other.index; }
@@ -183,7 +183,7 @@ namespace boost {
     public iterator_facade<vtk_edge_iterator,
                            vtkEdgeType,
                            forward_traversal_tag,
-                           vtkEdgeType,
+                           const vtkEdgeType&,
                            vtkIdType>
   {
     public:
@@ -243,11 +243,16 @@ namespace boost {
             iter = nullptr;
           }
         }
+
+        RecalculateEdge();
       }
 
     private:
-      vtkEdgeType dereference() const
-        { return vtkEdgeType(vertex, iter->Target, iter->Id); }
+      const vtkEdgeType& dereference() const
+      {
+        assert(iter);
+        return edge;
+      }
 
       bool equal(const vtk_edge_iterator& other) const
         { return vertex == other.vertex && iter == other.iter; }
@@ -277,6 +282,7 @@ namespace boost {
             inc();
           }
         }
+        RecalculateEdge();
       }
 
       void inc()
@@ -304,12 +310,21 @@ namespace boost {
         }
       }
 
+      void RecalculateEdge()
+      {
+        if (iter)
+        {
+          edge = vtkEdgeType(vertex, iter->Target, iter->Id);
+        }
+      }
+
       bool directed;
       vtkIdType vertex;
       vtkIdType lastVertex;
       const vtkOutEdgeType * iter;
       const vtkOutEdgeType * end;
       vtkGraph *graph;
+      vtkEdgeType edge;
 
       friend class iterator_core_access;
   };
@@ -318,12 +333,12 @@ namespace boost {
     public iterator_facade<vtk_out_edge_pointer_iterator,
                            vtkEdgeType,
                            bidirectional_traversal_tag,
-                           vtkEdgeType,
+                           const vtkEdgeType&,
                            ptrdiff_t>
   {
     public:
       explicit vtk_out_edge_pointer_iterator(vtkGraph *g = 0, vtkIdType v = 0, bool end = false) :
-        vertex(v)
+        vertex(v), iter(nullptr)
       {
         if (g)
         {
@@ -334,19 +349,42 @@ namespace boost {
             iter += nedges;
           }
         }
+        RecalculateEdge();
       }
 
     private:
-      vtkEdgeType dereference() const { return vtkEdgeType(vertex, iter->Target, iter->Id); }
+      const vtkEdgeType& dereference() const
+      {
+        assert(iter);
+        return edge;
+      }
 
       bool equal(const vtk_out_edge_pointer_iterator& other) const
       { return iter == other.iter; }
 
-      void increment() { iter++; }
-      void decrement() { iter--; }
+      void increment()
+      {
+        iter++;
+        RecalculateEdge();
+      }
+
+      void decrement()
+      {
+        iter--;
+        RecalculateEdge();
+      }
+
+      void RecalculateEdge()
+      {
+        if (iter)
+        {
+          edge = vtkEdgeType(vertex, iter->Target, iter->Id);
+        }
+      }
 
       vtkIdType vertex;
       const vtkOutEdgeType *iter;
+      vtkEdgeType edge;
 
       friend class iterator_core_access;
   };
@@ -355,12 +393,12 @@ namespace boost {
     public iterator_facade<vtk_in_edge_pointer_iterator,
                            vtkEdgeType,
                            bidirectional_traversal_tag,
-                           vtkEdgeType,
+                           const vtkEdgeType&,
                            ptrdiff_t>
   {
     public:
       explicit vtk_in_edge_pointer_iterator(vtkGraph *g = 0, vtkIdType v = 0, bool end = false) :
-        vertex(v)
+        vertex(v), iter(nullptr)
       {
         if (g)
         {
@@ -371,19 +409,42 @@ namespace boost {
             iter += nedges;
           }
         }
+        RecalculateEdge();
       }
 
     private:
-      vtkEdgeType dereference() const { return vtkEdgeType(iter->Source, vertex, iter->Id); }
+      const vtkEdgeType& dereference() const
+      {
+        assert(iter);
+        return edge;
+      }
 
       bool equal(const vtk_in_edge_pointer_iterator& other) const
       { return iter == other.iter; }
 
-      void increment() { iter++; }
-      void decrement() { iter--; }
+      void increment()
+      {
+        iter++;
+        RecalculateEdge();
+      }
+
+      void decrement()
+      {
+        iter--;
+        RecalculateEdge();
+      }
+
+      void RecalculateEdge()
+      {
+        if (iter)
+        {
+          edge = vtkEdgeType(iter->Source, vertex, iter->Id);
+        }
+      }
 
       vtkIdType vertex;
       const vtkInEdgeType *iter;
+      vtkEdgeType edge;
 
       friend class iterator_core_access;
   };
