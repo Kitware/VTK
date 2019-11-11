@@ -904,6 +904,9 @@ public:
   VTK_ITER_INLINE
   void GetTuple(APIType *tuple) const noexcept
   {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() ==
+                    this->NumComps.value);
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     acc.Get(this->TupleId, tuple);
   }
@@ -998,6 +1001,7 @@ public:
     return !(*this == o);
   }
 
+  VTK_ITER_INLINE
   const_reference operator[](size_type i) const noexcept
   {
     return const_reference{this->Array,
@@ -1076,7 +1080,7 @@ public:
   using iterator = ComponentIterator<ArrayType, TupleSize>;
   using const_iterator = ConstComponentIterator<ArrayType, TupleSize>;
   using reference = ComponentReference<ArrayType, TupleSize>;
-  using const_reference = value_type;
+  using const_reference = ConstComponentReference<ArrayType, TupleSize>;
 
   VTK_ITER_INLINE
   TupleReference() noexcept : Array(nullptr), TupleId(0) {}
@@ -1110,6 +1114,9 @@ public:
   VTK_ITER_INLINE
   void GetTuple(APIType *tuple) const noexcept
   {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() ==
+                    this->NumComps.value);
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     acc.Get(this->TupleId, tuple);
   }
@@ -1118,6 +1125,9 @@ public:
   VTK_ITER_INLINE
   void SetTuple(const APIType *tuple) noexcept
   {
+    VTK_ITER_ASSUME(this->NumComps.value > 0);
+    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() ==
+                    this->NumComps.value);
     vtkDataArrayAccessor<ArrayType> acc{this->Array};
     acc.Set(this->TupleId, tuple);
   }
@@ -1357,7 +1367,7 @@ public:
   const_reference operator[](size_type i) const noexcept
   {
     // Let the reference type do the lookup during implicit conversion.
-    return reference{this->Array, this->NumComps, this->TupleId, i};
+    return const_reference{this->Array, this->NumComps, this->TupleId, i};
   }
 
   VTK_ITER_INLINE
