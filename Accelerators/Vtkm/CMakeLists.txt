@@ -50,6 +50,7 @@ set(impl_classes
   vtkmExtractVOI
   vtkmGradient
   vtkmHistogram
+  vtkmImageConnectivity
   vtkmLevelOfDetail
   vtkmNDHistogram
   vtkmPointElevation
