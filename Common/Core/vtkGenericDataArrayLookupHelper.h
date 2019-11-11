@@ -99,7 +99,7 @@ public:
     auto indices = FindIndexVec(elem);
     if (indices)
     {
-      ids->Allocate(indices->size());
+      ids->Allocate(static_cast<vtkIdType>(indices->size()));
       for (auto index : *indices)
       {
         ids->InsertNextId(index);
