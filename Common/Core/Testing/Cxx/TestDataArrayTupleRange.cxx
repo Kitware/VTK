@@ -1087,7 +1087,7 @@ struct UnitTestTupleReferenceAPI
     // This means we must explicitly use the value_type, reference or
     // const_reference typedefs on containers, or
     // std::iterator_traits<IterT>::value_type /
-    // std::iterator_triats<IterT>::reference on iterators when calling
+    // std::iterator_traits<IterT>::reference on iterators when calling
     // operator[].
 
     using ConstRange = typename std::add_const<Range>::type;
@@ -1171,7 +1171,7 @@ struct UnitTestTupleReferenceAPI
     // This means we must explicitly use the value_type, reference or
     // const_reference typedefs on containers, or
     // std::iterator_traits<IterT>::value_type /
-    // std::iterator_triats<IterT>::reference on iterators when calling
+    // std::iterator_traits<IterT>::reference on iterators when calling
     // operator[].
 
     auto iter = this->GetTestingIterator(range, 0);
