@@ -361,7 +361,8 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 }
 
 //----------------------------------------------------------------------------
-void vtkPythonInterpreter::PrependPythonPath(const char* anchor, const char* landmark)
+void vtkPythonInterpreter::PrependPythonPath(
+  const char* anchor, const char* landmark, bool add_landmark)
 {
   const std::vector<std::string> prefixes = {
     VTK_PYTHON_SITE_PACKAGES_SUFFIX
@@ -376,9 +377,13 @@ void vtkPythonInterpreter::PrependPythonPath(const char* anchor, const char* lan
 
   vtkNew<vtkResourceFileLocator> locator;
   locator->SetLogVerbosity(vtkPythonInterpreter::GetLogVerbosity() + 1);
-  const std::string path = locator->Locate(anchor, prefixes, landmark);
+  std::string path = locator->Locate(anchor, prefixes, landmark);
   if (!path.empty())
   {
+    if (add_landmark)
+    {
+      path = path + "/" + landmark;
+    }
     vtkPythonInterpreter::PrependPythonPath(path.c_str());
   }
 }
@@ -732,7 +737,14 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   }
 #endif
 
+#if defined(VTK_BUILD_SHARED_LIBS)
   vtkPythonInterpreter::PrependPythonPath(vtkdir.c_str(), "vtkmodules/__init__.py");
+#else
+  // since there may be other packages not zipped (e.g. mpi4py), we added path to _vtk.zip
+  // to the search path as well.
+  vtkPythonInterpreter::PrependPythonPath(vtkdir.c_str(), "_vtk.zip", /*add_landmark*/ false);
+  vtkPythonInterpreter::PrependPythonPath(vtkdir.c_str(), "_vtk.zip", /*add_landmark*/ true);
+#endif
 }
 
 //----------------------------------------------------------------------------
