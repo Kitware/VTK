@@ -288,12 +288,20 @@ function (_vtk_module_wrap_python_library name)
       OUTPUT  "${_vtk_python_module_file}"
       CONTENT "${_vtk_python_module_contents}")
 
-    # TODO: Strip the `$<CONFIGURATION>` from the module destination for
-    # installs.
-    install(
-      FILES       "${_vtk_python_module_file}"
-      DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
-      COMPONENT   "${_vtk_python_COMPONENT}")
+    # Set `python_modules` to provide the list of python files that go along with
+    # this module
+    vtk_module_set_property("${_vtk_python_module}" APPEND
+      PROPERTY  "python_modules"
+      VALUE     "${_vtk_python_module_file}")
+
+    if (NOT _vtk_python_BUILD_STATIC)
+      # TODO: Strip the `$<CONFIGURATION>` from the module destination for
+      # installs.
+      install(
+        FILES       "${_vtk_python_module_file}"
+        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
+        COMPONENT   "${_vtk_python_COMPONENT}")
+    endif ()
   endforeach ()
 
   if (NOT _vtk_python_library_sources)
@@ -764,7 +772,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     # Next, we generate a Python module that can be imported to import any
     # static artifacts e.g. all wrapping Python modules in static builds,
     # (eventually, frozen modules etc.)
-    set(_vtk_python_static_importer_name "_${_vtk_python_TARGET_NAME}_importer")
+    string(REPLACE "." "_" _vtk_python_static_importer_name "_${_vtk_python_PYTHON_PACKAGE}_static")
     set(_vtk_python_static_importer_file
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_static_importer_name}.c")
     set(_vtk_python_static_importer_content "// generated file, do not edit!
@@ -817,7 +825,7 @@ PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
     endif()
     set_property(TARGET "${_vtk_python_static_importer_name}"
       PROPERTY
-        LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
+        LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}")
     get_property(_vtk_python_is_multi_config GLOBAL
       PROPERTY GENERATOR_IS_MULTI_CONFIG)
     if (_vtk_python_is_multi_config)
@@ -827,7 +835,7 @@ PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
         string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
         set_property(TARGET "${_vtk_python_static_importer_name}"
           PROPERTY
-            "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
+            "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}")
       endforeach ()
     endif ()
     set_property(TARGET "${_vtk_python_static_importer_name}"
@@ -841,8 +849,8 @@ PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
     install(
       TARGETS             "${_vtk_python_static_importer_name}"
       COMPONENT           "${_vtk_python_COMPONENT}"
-      RUNTIME DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
-      LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
+      RUNTIME DESTINATION "${_vtk_python_MODULE_DESTINATION}"
+      LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}"
       ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
   endif ()
 endfunction ()
@@ -950,11 +958,13 @@ function (vtk_module_add_python_package name)
       COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory")
     list(APPEND _vtk_add_python_package_file_outputs
       "${_vtk_add_python_package_file_output}")
-
-    install(
-      FILES       "${_vtk_add_python_package_name}"
-      DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_path}"
-      COMPONENT   "${_vtk_add_python_package_COMPONENT}")
+    # XXX
+    if (BUILD_SHARED_LIBS)
+      install(
+        FILES       "${_vtk_add_python_package_name}"
+        DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_path}"
+        COMPONENT   "${_vtk_add_python_package_COMPONENT}")
+    endif()
   endforeach ()
 
   get_property(_vtk_add_python_package_module GLOBAL
@@ -962,6 +972,12 @@ function (vtk_module_add_python_package name)
   add_custom_target("${_vtk_add_python_package_module}-${_vtk_add_python_package_PACKAGE}" ALL
     DEPENDS
       ${_vtk_add_python_package_file_outputs})
+
+  # Set `python_modules` to provide the list of python files that go along with
+  # this module
+  set_property(TARGET "${_vtk_add_python_package_module}-${_vtk_add_python_package_PACKAGE}"
+    PROPERTY
+      "python_modules" "${_vtk_add_python_package_file_outputs}")
 endfunction ()
 
 #[==[
@@ -1009,6 +1025,14 @@ function (vtk_module_add_python_module name)
   foreach (_vtk_add_python_module_package IN LISTS _vtk_add_python_module_PACKAGES)
     add_dependencies("${_vtk_add_python_module_target_name}"
       "${_vtk_build_module}-${_vtk_add_python_module_package}")
+
+    # get the list of python files and add them on the module.
+    get_property(_vtk_module_python_modules
+      TARGET "${_vtk_add_python_module_target_name}-${_vtk_add_python_module_package}"
+      PROPERTY "python_modules")
+    set_property(TARGET "${_vtk_add_python_module_target_name}" APPEND
+      PROPERTY
+        "python_modules" "${_vtk_module_python_modules}")
   endforeach ()
   if (NOT _vtk_build_module STREQUAL _vtk_add_python_module_target_name)
     add_library("${_vtk_build_module}" ALIAS

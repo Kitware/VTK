@@ -12,5 +12,5 @@ from __future__ import absolute_import
 try:
     from . import vtkCommonCore
 except ImportError:
-    from . import _vtkpythonmodules_importer
+    import _vtkmodules_static
 #------------------------------------------------------------------------------
