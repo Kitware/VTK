@@ -15,7 +15,9 @@
 
 #include "vtkSMPWarpVector.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -47,76 +49,48 @@ vtkSMPWarpVector::vtkSMPWarpVector()
 vtkSMPWarpVector::~vtkSMPWarpVector() = default;
 
 //----------------------------------------------------------------------------
-template <class T1, class T2>
+template <class PointArrayType, class VecArrayType>
 class vtkSMPWarpVectorOp
 {
+  using ScaleT = vtk::GetAPIType<PointArrayType>;
 public:
+  PointArrayType* InPoints;
+  PointArrayType* OutPoints;
+  VecArrayType* InVector;
+  double scaleFactor;
 
-  T1 *InPoints;
-  T1 *OutPoints;
-  T2 *InVector;
-  T1 scaleFactor;
-
-  void  operator()(vtkIdType begin, vtkIdType end)
+  void  operator()(vtkIdType begin, vtkIdType end) const
   {
-    T1* inPts = this->InPoints + 3*begin;
-    T1* outPts = this->OutPoints + 3*begin;
-    T2* inVec = this->InVector + 3*begin;
-    T1 sf = this->scaleFactor;
-    vtkIdType size = 3*(end-begin);
-    vtkIdType nend = begin + size;
+    auto inPts = vtk::DataArrayTupleRange<3>(this->InPoints, begin, end);
+    auto inVec = vtk::DataArrayTupleRange<3>(this->InVector, begin, end);
+    auto outPts = vtk::DataArrayTupleRange<3>(this->OutPoints, begin, end);
+    const ScaleT sf = static_cast<ScaleT>(this->scaleFactor);
 
-    for (vtkIdType index = begin; index < nend; index++)
+    const vtkIdType size = end - begin;
+    for (vtkIdType index = 0; index < size; index++)
     {
-      *outPts = *inPts + sf * (T1)(*inVec);
-      inPts++; outPts++; inVec++;
-      /*
-      *outPts = *inPts + sf * (T1)(*inVec);
-      inPts++; outPts++; inVec++;
-      *outPts = *inPts + sf * (T1)(*inVec);
-      inPts++; outPts++; inVec++;
-      */
+      outPts[index][0] = inPts[index][0] + sf * static_cast<ScaleT>(inVec[index][0]);
+      outPts[index][1] = inPts[index][1] + sf * static_cast<ScaleT>(inVec[index][1]);
+      outPts[index][2] = inPts[index][2] + sf * static_cast<ScaleT>(inVec[index][2]);
     }
   }
 };
 
 //----------------------------------------------------------------------------
-template <class T1, class T2>
-void vtkSMPWarpVectorExecute2(vtkSMPWarpVector *self,
-                              T1 *inIter,
-                              T1 *outIter,
-                              T2 *inVecIter,
-                              vtkIdType size)
+struct vtkSMPWarpVectorExecute
 {
-  vtkSMPWarpVectorOp<T1, T2> op;
-  op.InPoints = inIter;
-  op.OutPoints = outIter;
-  op.InVector = inVecIter;
-  op.scaleFactor = (T1)self->GetScaleFactor();
-
-  vtkSMPTools::For(0, size, op);
-}
-
-//----------------------------------------------------------------------------
-template <class T>
-void vtkSMPWarpVectorExecute(vtkSMPWarpVector *self,
-                             T *inIter,
-                             T *outIter,
-                             vtkIdType size,
-                             vtkDataArray *vectors)
-{
-  void *inVecIter = vectors->GetVoidPointer(0);
-
-  // call templated function
-  switch (vectors->GetDataType())
+  template <class T1, class T2>
+  void operator()(T1 *inPtsArray, T2 *inVecArray, vtkDataArray *outDataArray,
+                  double scaleFactor) const
   {
-    vtkTemplateMacro(
-      vtkSMPWarpVectorExecute2(self, inIter, outIter,
-                               (VTK_TT *)(inVecIter), size));
-    default:
-      break;
+
+    T1 *outArray = vtkArrayDownCast<T1>(outDataArray); // known to be same as
+                                                       // input
+    vtkSMPWarpVectorOp<T1, T2> op{inPtsArray, outArray, inVecArray,
+                                  scaleFactor};
+    vtkSMPTools::For(0, inPtsArray->GetNumberOfTuples(), op);
   }
-}
+};
 
 //----------------------------------------------------------------------------
 int vtkSMPWarpVector::RequestData(
@@ -171,22 +145,10 @@ int vtkSMPWarpVector::RequestData(
   vtkDataArray* inpts = input->GetPoints()->GetData();
   vtkDataArray* outpts = output->GetPoints()->GetData();
 
-  void* inIter = inpts->GetVoidPointer(0);
-  void* outIter = outpts->GetVoidPointer(0);
-
-  // call templated function
-  switch (input->GetPoints()->GetDataType())
+  if(!vtkArrayDispatch::Dispatch2::Execute(inpts, vectors, vtkSMPWarpVectorExecute{}, outpts, this->ScaleFactor))
   {
-    vtkTemplateMacro(
-      vtkSMPWarpVectorExecute(this,
-                              (VTK_TT *)(inIter),
-                              (VTK_TT *)(outIter),
-                              numPts,
-                              vectors));
-    default:
-      break;
+    vtkSMPWarpVectorExecute{}(inpts, vectors, outpts, this->ScaleFactor);
   }
-
 
   // now pass the data.
   output->GetPointData()->CopyNormalsOff(); // distorted geometry
