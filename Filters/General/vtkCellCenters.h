@@ -42,6 +42,8 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
+class vtkDoubleArray;
+
 class VTKFILTERSGENERAL_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
 {
 public:
@@ -73,6 +75,11 @@ public:
   vtkGetMacro(CopyArrays, bool);
   vtkBooleanMacro(CopyArrays, bool);
   //@}
+
+  /**
+   * Compute centers of cells from a dataset, storing them in the centers array.
+   */
+  static void ComputeCellCenters(vtkDataSet* dataset, vtkDoubleArray* centers);
 
 protected:
   vtkCellCenters() = default;

@@ -18,15 +18,83 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkCellCenters);
+
+namespace {
+
+class CellCenterFunctor {
+public:
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    if (this->DataSet == nullptr)
+    {
+      return;
+    }
+
+    if (this->CellCenters == nullptr)
+    {
+      return;
+    }
+
+    std::vector<double> weights(this->DataSet->GetMaxCellSize());
+    vtkNew<vtkGenericCell> cell;
+    for (vtkIdType cellId = begin; cellId < end; ++cellId)
+    {
+      this->DataSet->GetCell(cellId, cell);
+      double x[3] = {0.0};
+      if (cell->GetCellType() != VTK_EMPTY_CELL)
+      {
+        double pcoords[3];
+        int subId = cell->GetParametricCenter(pcoords);
+        cell->EvaluateLocation(subId, pcoords, x, weights.data());
+      }
+      else
+      {
+        x[0] = 0.0;
+        x[1] = 0.0;
+        x[2] = 0.0;
+      }
+      this->CellCenters->SetTypedTuple(cellId, x);
+    }
+  }
+
+  vtkDataSet* DataSet;
+  vtkDoubleArray* CellCenters;
+};
+
+} // end anonymous namespace
+
+//----------------------------------------------------------------------------
+void vtkCellCenters::ComputeCellCenters(vtkDataSet* dataset, vtkDoubleArray* centers)
+{
+  CellCenterFunctor functor;
+  functor.DataSet = dataset;
+  functor.CellCenters = centers;
+
+  // Call this once one the main thread before calling on multiple threads.
+  // According to the documentation for vtkDataSet::GetCell(vtkIdType, vtkGenericCell*),
+  // this is required to make this call subsequently thread safe
+  if (dataset->GetNumberOfCells() > 0)
+  {
+    vtkNew<vtkGenericCell> cell;
+    dataset->GetCell(0, cell);
+  }
+
+  // Now split the work among threads.
+  vtkSMPTools::For(0, dataset->GetNumberOfCells(), functor);
+}
 
 //----------------------------------------------------------------------------
 // Generate points
@@ -49,7 +117,9 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   vtkNew<vtkPoints> newPts;
+  newPts->SetDataTypeToDouble();
   newPts->SetNumberOfPoints(numCells);
+  vtkDoubleArray* pointArray = vtkDoubleArray::SafeDownCast(newPts->GetData());
 
   vtkNew<vtkIdList> pointIdList;
   pointIdList->SetNumberOfIds(numCells);
@@ -57,39 +127,37 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkIdList> cellIdList;
   cellIdList->SetNumberOfIds(numCells);
 
-  vtkIdType pointId = 0;
-  vtkIdType numPoints = numCells;
-  std::vector<double> weights(input->GetMaxCellSize());
+  vtkCellCenters::ComputeCellCenters(input, pointArray);
+
+  // Remove points that would have been produced by empty cells
+  // This should be multithreaded someday
   bool hasEmptyCells = false;
   vtkTypeBool abort = 0;
   vtkIdType progressInterval = numCells / 10 + 1;
-  for (vtkIdType cellId = 0; cellId < numCells && !abort; cellId++)
+  vtkIdType numPoints = 0;
+  for (vtkIdType cellId = 0; cellId < numCells && !abort; ++cellId)
   {
     if (!(cellId % progressInterval))
     {
       vtkDebugMacro(<< "Processing #" << cellId);
-      this->UpdateProgress(0.9 * cellId / numCells);
+      this->UpdateProgress((0.5 * cellId / numCells) + 0.5);
       abort = this->GetAbortExecute();
     }
 
-    vtkCell* cell = input->GetCell(cellId);
-    if (cell->GetCellType() != VTK_EMPTY_CELL)
+    if (input->GetCellType(cellId) != VTK_EMPTY_CELL)
     {
-      double x[3], pcoords[3];
-      int subId = cell->GetParametricCenter(pcoords);
-      cell->EvaluateLocation(subId, pcoords, x, weights.data());
-      newPts->SetPoint(pointId, x);
-      pointIdList->SetId(pointId, pointId);
-      cellIdList->SetId(pointId, cellId);
-      pointId++;
+      newPts->SetPoint(numPoints, newPts->GetPoint(cellId));
+      pointIdList->SetId(numPoints, numPoints);
+      cellIdList->SetId(numPoints, cellId);
+      numPoints++;
     }
     else
     {
       hasEmptyCells = true;
-      numPoints--;
     }
   }
-  if(abort)
+
+  if (abort)
   {
     return 0;
   }
