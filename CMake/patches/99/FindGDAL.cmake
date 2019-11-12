@@ -62,6 +62,7 @@ GDAL installation prefix.
 
 find_path(GDAL_INCLUDE_DIR gdal.h
   HINTS
+    ${GDAL_ROOT}
     ENV GDAL_DIR
     ENV GDAL_ROOT
   PATH_SUFFIXES
@@ -77,6 +78,7 @@ if(UNIX)
     # libgdal.so...
     find_program(GDAL_CONFIG gdal-config
         HINTS
+          ${GDAL_ROOT}
           ENV GDAL_DIR
           ENV GDAL_ROOT
         PATH_SUFFIXES bin
@@ -134,6 +136,7 @@ endif()
 find_library(GDAL_LIBRARY
   NAMES ${_gdal_lib} gdal gdal_i gdal1.5.0 gdal1.4.0 gdal1.3.2 GDAL
   HINTS
+     ${GDAL_ROOT}
      ENV GDAL_DIR
      ENV GDAL_ROOT
      ${_gdal_libpath}
