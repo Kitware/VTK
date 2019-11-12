@@ -103,7 +103,7 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
   output->SetCells(cells.Get());
 
   // Initialize the cell array
-  cells->Allocate(expectedCells * 9);
+  cells->AllocateEstimate(expectedCells, 8);
   vtkIdType ids[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
   for (vtkIdType i = 0; i < expectedCells; i++)
   {
@@ -151,7 +151,8 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
       return 0;
     }
 
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     input->GetCellPoints(i, npts, pts);
     if (cellType == VTK_VOXEL)
     {
@@ -164,11 +165,11 @@ int vtkUnstructuredGridToExplicitStructuredGrid::RequestData(vtkInformation*,
       ids[5] = pts[5];
       ids[6] = pts[7];
       ids[7] = pts[6];
-      cells->ReplaceCell(cellId * 9, 8, ids);
+      cells->ReplaceCellAtId(cellId, 8, ids);
     }
     else
     {
-      cells->ReplaceCell(cellId * 9, 8, pts);
+      cells->ReplaceCellAtId(cellId, 8, pts);
     }
     output->GetCellData()->CopyData(input->GetCellData(), i, cellId);
     if (expectedCells != nbCells)

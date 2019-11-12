@@ -185,7 +185,9 @@ int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
 void vtkGreedyTerrainDecimation::UpdateTriangles(vtkIdType ptId)
 {
   vtkIdType ncells;
-  vtkIdType *cells, npts, *pts;
+  vtkIdType *cells;
+  vtkIdType npts;
+  const vtkIdType *pts;
 
   this->Mesh->GetPointCells(ptId,ncells,cells);
   for (vtkIdType i=0; i<ncells; i++)
@@ -294,7 +296,9 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
                                                    int& status)
 {
   int i, j, ir, ic, inside, i2, i3;
-  vtkIdType *pts, npts, newNei;
+  const vtkIdType *pts;
+  vtkIdType npts;
+  vtkIdType newNei;
   double p[3][3], n[2], vp[2], vx[2], dp, minProj;
 
   // get local triangle info
@@ -407,7 +411,11 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
   }
 
   int i;
-  vtkIdType *pts, npts, numNei, nei, p3;
+  const vtkIdType *pts;
+  vtkIdType npts;
+  vtkIdType numNei;
+  vtkIdType nei;
+  vtkIdType p3;
   double x1[3], x2[3], x3[3];
   vtkIdList *neighbors;
   vtkIdType swapTri[3];
@@ -466,7 +474,10 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
 vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtId)
 {
   vtkIdType ptId, nei[3], tri[4];
-  vtkIdType nodes[4][3], pts[3], numNeiPts, *neiPts;
+  vtkIdType nodes[4][3];
+  vtkIdType pts[3];
+  vtkIdType numNeiPts;
+  const vtkIdType *neiPts;
   vtkIdType i, p1=0, p2=0;
   int ij[2];
   double x[3];
@@ -818,7 +829,7 @@ int vtkGreedyTerrainDecimation::RequestData(
 
   // Insert initial triangles into output mesh
   triangles = vtkCellArray::New();
-  triangles->Allocate(numTris,3);
+  triangles->AllocateEstimate(numTris, 3);
 
   triangles->InsertNextCell(3);
   triangles->InsertCellPoint(0); triangles->InsertCellPoint(1); triangles->InsertCellPoint(3);

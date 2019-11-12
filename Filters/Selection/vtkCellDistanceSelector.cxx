@@ -202,7 +202,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
             for ( int i = 0; i < nIndices; ++ i )
             {
               vtkIdType cellIndex = static_cast<vtkIdType>( outIndices->GetTuple1( i ) );
-              vtkIdType * points;
+              const vtkIdType * points;
               vtkIdType n;
               ug_input->GetCellPoints(cellIndex, n, points);
               for ( int k = 0; k < n; ++ k )
@@ -236,7 +236,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
             for ( int i = 0; i < nIndices; ++ i )
             {
               vtkIdType cellIndex = static_cast<vtkIdType>( outIndices->GetTuple1( i) );
-              vtkIdType* points;
+              const vtkIdType* points;
               vtkIdType n;
               pd_input->GetCellPoints(cellIndex, n, points);
               for ( int k = 0; k < n; ++ k )

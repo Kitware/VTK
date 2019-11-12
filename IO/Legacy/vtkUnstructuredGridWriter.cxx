@@ -159,8 +159,9 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
   // Create a copy of the cell data with the face streams expanded.
   // Do this before writing anything so that we know the size.
   // Use ints to represent vtkIdTypes, since that's what the superclass does.
-  std::vector<int> cells;
-  cells.reserve(grid->GetNumberOfCells() * grid->GetMaxCellSize());
+  vtkNew<vtkCellArray> expandedCells;
+  expandedCells->AllocateEstimate(grid->GetNumberOfCells(),
+                                  grid->GetMaxCellSize());
 
   vtkSmartPointer<vtkCellIterator> it =
       vtkSmartPointer<vtkCellIterator>::Take(grid->NewCellIterator());
@@ -169,48 +170,23 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
   {
     if (it->GetCellType() != VTK_POLYHEDRON)
     {
-      vtkIdType cellSize = it->GetNumberOfPoints();
-      cells.push_back(static_cast<int>(cellSize));
-      std::copy(it->GetPointIds()->GetPointer(0),
-                it->GetPointIds()->GetPointer(cellSize),
-                std::back_inserter(cells));
+      expandedCells->InsertNextCell(it->GetPointIds());
     }
     else
     {
-      vtkIdType cellSize = it->GetFaces()->GetNumberOfIds();
-      cells.push_back(static_cast<int>(cellSize));
-      std::copy(it->GetFaces()->GetPointer(0),
-                it->GetFaces()->GetPointer(cellSize),
-                std::back_inserter(cells));
+      expandedCells->InsertNextCell(it->GetFaces());
     }
   }
 
-  if (cells.empty())
+  if (expandedCells->GetNumberOfCells() == 0)
   { // Nothing to do.
     return 1;
   }
 
-  *fp << label << " " << grid->GetNumberOfCells() << " "
-      << cells.size() << "\n";
-
-  if ( this->FileType == VTK_ASCII )
-  { // Write each cell out to a separate line, must traverse:
-    std::vector<int>::const_iterator cellStart = cells.begin();
-    std::vector<int>::const_iterator cellEnd;
-    vtkIdType nCells = grid->GetNumberOfCells();
-    while (nCells-- > 0)
-    {
-      cellEnd = cellStart + (*cellStart + 1);
-      while (cellStart != cellEnd)
-        *fp << static_cast<int>(*cellStart++) << " ";
-      *fp << "\n";
-    }
-  }
-  else
+  if (!this->WriteCells(fp, expandedCells, label))
   {
-    // Just dump the cell data
-    vtkByteSwap::SwapWrite4BERange(&cells[0], cells.size(), fp);
-    *fp << "\n";
+    vtkErrorMacro("Error while writing expanded face stream.");
+    return 0;
   }
 
   fp->flush();

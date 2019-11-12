@@ -236,7 +236,7 @@ void vtkProjectSphereFilter::TransformCellInformation(
   }
   else if(poly)
   {
-    poly->Allocate(numberOfCells);
+    poly->AllocateEstimate(numberOfCells, 3);
     connectivity = poly->GetPolys();
   }
   output->GetCellData()->CopyAllOn();
@@ -500,12 +500,9 @@ void vtkProjectSphereFilter::SetCellInformation(
   {
     vtkIdType prevCellId = output->GetNumberOfCells()+i-numberOfNewCells-1;
     vtkIdType newCellId = prevCellId + 1;
-    vtkIdType *pts, numPts;
-    vtkIdType loc = output->GetCellLocationsArray()->GetValue(prevCellId);
-    output->GetCells()->GetCell(loc,numPts,pts);
-
-    output->GetCellLocationsArray()->InsertNextValue(loc+numPts+1);
-    output->GetCells()->GetCell(loc+numPts+1,numPts,pts);
+    vtkIdType numPts;
+    const vtkIdType *pts;
+    output->GetCells()->GetCellAtId(newCellId, numPts, pts);
     if(cell->GetCellDimension() == 0)
     {
       if(numPts > 2)

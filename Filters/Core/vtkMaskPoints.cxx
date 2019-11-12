@@ -584,11 +584,11 @@ int vtkMaskPoints::RequestData(
     vtkCellArray *verts = vtkCellArray::New();
     if (this->SingleVertexPerCell)
     {
-      verts->Allocate(id*2);
+      verts->AllocateEstimate(id, 1);
     }
     else
     {
-      verts->Allocate(verts->EstimateSize(1,id+1));
+      verts->AllocateEstimate(1, id+1);
       verts->InsertNextCell(id+1);
     }
     for ( ptId=0; ptId<(id+1) && !abort; ptId++)

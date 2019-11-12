@@ -502,7 +502,8 @@ int TestXMLMappedUnstructuredGridIO(int argc, char *argv[])
   bool same = compareFiles(f1, f2);
   if (!same)
   {
-    return 1;
+    std::cerr << "Error comparing files in appended mode.\n";
+    return EXIT_FAILURE;
   }
   w->SetDataModeToAscii();
   w2->SetDataModeToAscii();
@@ -512,7 +513,8 @@ int TestXMLMappedUnstructuredGridIO(int argc, char *argv[])
   same = compareFiles(f1, f2);
   if (!same)
   {
-    return 1;
+    std::cerr << "Error comparing files in ascii mode.\n";
+    return EXIT_FAILURE;
   }
   w->SetDataModeToBinary();
   w2->SetDataModeToBinary();
@@ -522,7 +524,8 @@ int TestXMLMappedUnstructuredGridIO(int argc, char *argv[])
   same = compareFiles(f1, f2);
   if (!same)
   {
-    return 1;
+    std::cerr << "Error comparing files in binary mode.\n";
+    return EXIT_FAILURE;
   }
 
   // clean up after ourselves: remove written files and free temp dir name

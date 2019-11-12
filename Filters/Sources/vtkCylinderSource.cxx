@@ -102,7 +102,7 @@ int vtkCylinderSource::RequestData(
   newTCoords->SetName("TCoords");
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
+  newPolys->AllocateEstimate(numPolys, this->Resolution);
 //
 // Generate points and point data for sides
 //

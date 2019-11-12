@@ -16,6 +16,7 @@
 
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCharArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"

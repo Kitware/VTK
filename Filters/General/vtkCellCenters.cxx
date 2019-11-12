@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -123,7 +124,8 @@ int vtkCellCenters::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     vtkNew<vtkCellArray> verts;
-    verts->SetCells(numPoints, iArray);
+    verts->AllocateEstimate(numPoints, 1);
+    verts->ImportLegacyFormat(iArray);
     output->SetVerts(verts);
     outCD->ShallowCopy(outPD);
   }

@@ -41,13 +41,11 @@ vtkUnstructuredGrid &operator<<(
 
     vtkCellArray *cells=vtkCellArray::New();
     vtkUnsignedCharArray *types=vtkUnsignedCharArray::New();
-    vtkIdTypeArray *locs=vtkIdTypeArray::New();
 
-    data.SetCells(types,locs,cells);
+    data.SetCells(types, cells);
 
     cells->Delete();
     types->Delete();
-    locs->Delete();
   }
 
   // cell to node

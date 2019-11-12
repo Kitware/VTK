@@ -382,7 +382,7 @@ void vtkResliceCursor::BuildPolyData()
                          this->Thickness[2] / 2.0 };
 
   points->Allocate(24);
-  lines->Allocate(lines->Allocate(lines->EstimateSize(18,4)));
+  lines->AllocateEstimate(18, 4);
 
   double pts[30][3];
   for (int i = 0; i < 3; i++)
@@ -445,7 +445,7 @@ void vtkResliceCursor::BuildPolyData()
 
     vtkSmartPointer< vtkCellArray > slabPolys =
       vtkSmartPointer< vtkCellArray >::New();
-    slabPolys->Allocate(slabPolys->EstimateSize(6,4));
+    slabPolys->AllocateEstimate(6, 4);
 
     for (int i = 0; i < 6; i++)
     {

@@ -16,6 +16,7 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkGlyph3D.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInteractorStyleRubberBandPick.h"
 #include "vtkKdTree.h"
 #include "vtkPoints.h"
@@ -121,7 +122,7 @@ int TestKdTreeRepresentation(int argc, char *argv[])
   VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints( num_points );
-  pointData->Allocate(num_points);
+  pointData->AllocateEstimate(num_points, 1);
   for (vtkIdType i = 0; i < num_points; ++i)
   {
     points->SetPoint( i, p[i] );

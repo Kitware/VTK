@@ -250,12 +250,12 @@ int vtkGlyph2D::RequestData(
   // Setting up for calls to PolyData::InsertNextCell()
   if (this->IndexMode != VTK_INDEXING_OFF )
   {
-    output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
+    output->AllocateEstimate(numPts * numSourceCells, 3);
   }
   else
   {
-    output->Allocate(this->GetSource(0, inputVector[1]),
-                     3*numPts*numSourceCells, numPts*numSourceCells);
+    output->AllocateProportional(this->GetSource(0, inputVector[1]),
+                                 static_cast<double>(numSourceCells));
   }
 
   // Traverse all Input points, transforming Source points and copying

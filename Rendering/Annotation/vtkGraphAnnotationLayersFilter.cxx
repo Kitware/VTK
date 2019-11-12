@@ -32,6 +32,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkGraphAnnotationLayersFilter);
 

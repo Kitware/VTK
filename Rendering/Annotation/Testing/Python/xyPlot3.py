@@ -103,11 +103,14 @@ xyplot.SetLabelFormat("%-#6.2f")
 #Okay exercise data object stuff
 ds2do = vtk.vtkDataSetToDataObjectFilter()
 ds2do.SetInputConnection(probe.GetOutputPort())
+ds2do.ModernTopologyOff() # Backwards compatibility
 ds2do.Update()
 ds2do2 = vtk.vtkDataSetToDataObjectFilter()
 ds2do2.SetInputConnection(probe.GetOutputPort())
+ds2do2.ModernTopologyOff() # Backwards compatibility
 ds2do3 = vtk.vtkDataSetToDataObjectFilter()
 ds2do3.SetInputConnection(probe.GetOutputPort())
+ds2do3.ModernTopologyOff() # Backwards compatibility
 ds2do3.Update()
 xyplot3 = vtk.vtkXYPlotActor()
 xyplot3.AddDataObjectInput(ds2do.GetOutput())

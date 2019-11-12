@@ -141,7 +141,8 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   // Use fast path if polydata
   if ( data->GetDataObjectType() == VTK_POLY_DATA )
   {
-    vtkIdType *pts, npts;
+    vtkIdType npts;
+    const vtkIdType *pts;
 
     vtkPolyData *pdata = static_cast<vtkPolyData *>(data);
     // traverse data to determine number of uses of each point

@@ -40,7 +40,7 @@ CreateBoxStencilData(double d1, double d2 )
   // Create two stencil data from polydata's
 
   vtkPolyData * pd = vtkPolyData::New();
-  pd->Allocate(1, 1);
+  pd->AllocateEstimate(1, 4);
   vtkPoints * points = vtkPoints::New();
   points->InsertNextPoint( d1, d1, 0.0 );
   points->InsertNextPoint( d2, d1, 0.0 );

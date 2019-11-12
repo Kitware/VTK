@@ -208,11 +208,11 @@ public:
   vtkGetMacro(OutputPointsPrecision,int);
   //@}
 
-  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter() override;
+
+  vtkTypeBool ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // Usual data generation method
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,

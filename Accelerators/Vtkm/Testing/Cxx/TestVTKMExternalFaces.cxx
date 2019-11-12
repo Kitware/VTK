@@ -43,10 +43,10 @@ namespace {
 bool Convert2DUnstructuredGridToPolyData(vtkUnstructuredGrid *in,
                                          vtkPolyData *out)
 {
-  out->Allocate();
+  vtkIdType numCells = in->GetNumberOfCells();
+  out->AllocateEstimate(numCells, 1);
   out->SetPoints(in->GetPoints());
 
-  vtkIdType numCells = in->GetNumberOfCells();
   for (vtkIdType i = 0; i < numCells; ++i)
   {
     vtkCell *cell = in->GetCell(i);

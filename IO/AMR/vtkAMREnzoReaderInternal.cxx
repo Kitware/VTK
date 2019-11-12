@@ -26,6 +26,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"

@@ -678,7 +678,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pco
 // Compute the triangle normal from a points list, and a list of point ids
 // that index into the points list.
 void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts),
-                                vtkIdType *pts, double n[3])
+                                const vtkIdType *pts, double n[3])
 {
   double v1[3], v2[3], v3[3];
 

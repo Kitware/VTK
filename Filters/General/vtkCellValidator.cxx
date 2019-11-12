@@ -318,13 +318,15 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
       {
         polyhedronFaces->InsertNextCell(cell->GetFace(i));
       }
+      vtkNew<vtkIdTypeArray> faceBuffer;
+      polyhedronFaces->ExportLegacyFormat(faceBuffer);
       vtkNew<vtkUnstructuredGrid> ugrid;
       ugrid->SetPoints(cell->GetPoints());
       ugrid->InsertNextCell(VTK_POLYHEDRON,
                             cell->GetNumberOfPoints(),
                             cell->GetPointIds()->GetPointer(0),
                             polyhedronFaces->GetNumberOfCells(),
-                            polyhedronFaces->GetPointer());
+                            faceBuffer->GetPointer(0));
 
       vtkPolyhedron *polyhedron =
         vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));

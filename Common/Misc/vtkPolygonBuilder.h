@@ -44,7 +44,7 @@ public:
   /**
    * Insert a triangle as a triplet of point IDs.
    */
-  void InsertTriangle(vtkIdType* abc);
+  void InsertTriangle(const vtkIdType* abc);
 
   /**
    * Populate polys with lists of polygons, defined as sequential external

@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
+#include "vtkCellTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
@@ -346,7 +347,7 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
   numPoints = numCells = 0;
   this->EstimateStructuredDataArraySizes( ext, wholeExt, numPoints,numCells );
   gridPnts->Allocate( numPoints );
-  gridCells->Allocate( numCells );
+  gridCells->AllocateEstimate(numCells, 1);
   output->SetPoints( gridPnts );
   gridPnts->Delete();
   output->SetPolys( gridCells );
@@ -509,7 +510,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   if (this->UseStrips)
   {
     outStrips = vtkCellArray::New();
-    outStrips->Allocate(cellArraySize);
+    outStrips->AllocateEstimate(cellArraySize, 1);
     output->SetStrips(outStrips);
     outStrips->Delete();
 
@@ -519,8 +520,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
   else
   {
     outPolys = vtkCellArray::New();
-    outPolys->Allocate(
-      outPolys->EstimateSize(cellArraySize, 4));
+    outPolys->AllocateEstimate(cellArraySize, 4);
     output->SetPolys(outPolys);
     outPolys->Delete();
   }
@@ -1122,7 +1122,7 @@ int vtkDataSetSurfaceFilter::StructuredWithBlankingExecute(vtkStructuredGrid *in
   // we don't know what type of data the input points are so
   // we keep the output points to have the default type (float)
   newPts->Allocate(numPts,numPts/2);
-  output->Allocate(4*numCells,numCells/2);
+  output->AllocateEstimate(numCells, 3);
   outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   outputCD->CopyGlobalIdsOn();
@@ -1298,7 +1298,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   // we don't know what type of data the input points are so
   // we keep the output points to have the default type (float)
   newPts->Allocate(numPts,numPts/2);
-  output->Allocate(4*numCells,numCells/2);
+  output->AllocateEstimate(numCells, 3);
   outputPD->CopyGlobalIdsOn();
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   outputCD->CopyGlobalIdsOn();
@@ -1605,7 +1605,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   newPts->SetDataType(input->GetPoints()->GetData()->GetDataType());
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(4*numCells,numCells/2);
+  newPolys->AllocateEstimate(numCells, 3);
   newVerts = vtkCellArray::New();
   newLines = vtkCellArray::New();
 
@@ -2401,8 +2401,9 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
 //        the end index of the polygon in the array
 //        the cellId of the polygon
 //----------------------------------------------------------------------------
-void vtkDataSetSurfaceFilter::InsertPolygonInHash(vtkIdType* ids,
-                                                  int numPts, vtkIdType sourceId)
+void vtkDataSetSurfaceFilter::InsertPolygonInHash(const vtkIdType* ids,
+                                                  int numPts,
+                                                  vtkIdType sourceId)
 {
   // sanity check
   if (numPts == 0)

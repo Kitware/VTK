@@ -31,6 +31,8 @@
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
+
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
@@ -445,7 +447,7 @@ int vtkPLYReader::RequestData(
       // Create a polygonal array
       numPolys = numElems;
       vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
-      polys->Allocate(polys->EstimateSize(numPolys,3),numPolys/2);
+      polys->AllocateEstimate(numPolys, 3);
       plyFace face;
       vtkIdType vtkVerts[256];
 

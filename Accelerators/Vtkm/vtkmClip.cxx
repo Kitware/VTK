@@ -32,17 +32,16 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ImplicitFunctionConverter.h"
 #include "vtkmlib/PolyDataConverter.h"
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/cont/RuntimeDeviceTracker.h>
 
 #include <vtkm/filter/ClipWithField.h>
+#include <vtkm/filter/ClipWithField.hxx>
 #include <vtkm/filter/ClipWithImplicitFunction.h>
+#include <vtkm/filter/ClipWithImplicitFunction.hxx>
 
 #include <algorithm>
 

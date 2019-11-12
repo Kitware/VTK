@@ -66,17 +66,6 @@ int vtkTypedDataArray<Scalar>::GetDataTypeSize()
 
 //------------------------------------------------------------------------------
 template <typename Scalar> inline
-void vtkTypedDataArray<Scalar>::SetNumberOfValues(vtkIdType number)
-{
-  if (this->Allocate(number))
-  {
-    this->MaxId = number - 1;
-  }
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-template <typename Scalar> inline
 typename vtkTypedDataArray<Scalar>::ValueType
 vtkTypedDataArray<Scalar>::GetTypedComponent(vtkIdType tupleIdx, int comp) const
 {

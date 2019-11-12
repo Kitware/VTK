@@ -215,8 +215,8 @@ protected:
                         vtkIdType sourceId);
   virtual void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                        vtkIdType sourceId, vtkIdType faceId = -1);
-  virtual void InsertPolygonInHash(vtkIdType* ids, int numpts,
-                           vtkIdType sourceId);
+  virtual void InsertPolygonInHash(const vtkIdType* ids, int numpts,
+                                   vtkIdType sourceId);
   void InitQuadHashTraversal();
   vtkFastGeomQuad *GetNextVisibleQuadFromHash();
 

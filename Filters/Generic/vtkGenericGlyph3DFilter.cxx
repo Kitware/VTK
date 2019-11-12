@@ -285,7 +285,7 @@ int vtkGenericGlyph3DFilter::RequestData(
   if (!this->GetSource(0))
   {
     defaultSource = vtkPolyData::New();
-    defaultSource->Allocate();
+    defaultSource->AllocateExact(1024, 1024);
     vtkPoints *defaultPoints = vtkPoints::New();
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
@@ -396,11 +396,11 @@ int vtkGenericGlyph3DFilter::RequestData(
   // Setting up for calls to PolyData::InsertNextCell()
   if (this->IndexMode != VTK_INDEXING_OFF )
   {
-    output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
+    output->AllocateEstimate(3*numPts*numSourceCells, numPts*numSourceCells);
   }
   else
   {
-    output->Allocate(this->GetSource(0),3*numPts*numSourceCells,numPts*numSourceCells);
+    output->AllocateCopy(this->GetSource(0));
   }
 
   // Traverse all Input points, transforming Source points and copying

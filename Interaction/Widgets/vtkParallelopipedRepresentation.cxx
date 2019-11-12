@@ -334,7 +334,7 @@ vtkParallelopipedRepresentation::vtkParallelopipedRepresentation()
   // The face of the polyhedron
   vtkIdType pts[4] = { 4, 5, 6, 7 };
   vtkCellArray * cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(1,4));
+  cells->AllocateEstimate(1, 4);
   cells->InsertNextCell(4,pts); //temporary, replaced later
   this->HexFacePolyData = vtkPolyData::New();
   this->HexFaceMapper   = vtkPolyDataMapper::New();
@@ -512,7 +512,9 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
     // Bring the node that had the chair back to the 4th corner of the
     // parallelopiped. We will use vector addition by finding the 4th point of
     // a parallelogram from the other 3 points.
-    vtkIdType neighborPtIds[3], npts = 0, *cellPtIds = nullptr;
+    vtkIdType neighborPtIds[3];
+    vtkIdType npts = 0;
+    const vtkIdType *cellPtIds = nullptr;
     this->Topology->GetNeighbors( this->ChairHandleIdx, neighborPtIds );
 
     // First find 4 points that form a parallelogram and contain the chaired
@@ -559,7 +561,8 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
 // depth of the cavity.
 void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
 {
-  vtkIdType npts = 0, *cellPtIds = nullptr;
+  vtkIdType npts = 0;
+  const vtkIdType *cellPtIds = nullptr;
 
   // If we have a chair somewhere else, remove it. We can have only one
   // chair at a time.
@@ -1017,7 +1020,8 @@ int vtkParallelopipedRepresentation
         (this->ChairHandleIdx == -1) ? 0 :
           this->ChairHandleIdx + 1, cells, nodes );
 
-      vtkIdType npts = 0, *cellPtIds = nullptr;
+      vtkIdType npts = 0;
+      const vtkIdType *cellPtIds = nullptr;
       cells->InitTraversal();
       cells->GetNextCell(npts, cellPtIds);
 
@@ -1244,7 +1248,8 @@ void vtkParallelopipedRepresentation::GetBoundingPlanes( vtkPlaneCollection *pc 
   vtkSmartPointer< vtkCellArray > cellArray = vtkSmartPointer<vtkCellArray>::New();
   this->Topology->PopulateTopology( this->ChairHandleIdx + 1, cellArray );
 
-  vtkIdType npts = 0, *ptIds = nullptr;
+  vtkIdType npts = 0;
+  const vtkIdType *ptIds = nullptr;
 
   // For each planar cell in our object, we need to find the plane it lies on
   for (cellArray->InitTraversal(); cellArray->GetNextCell(npts, ptIds); )

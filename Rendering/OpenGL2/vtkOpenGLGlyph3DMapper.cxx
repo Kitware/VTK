@@ -31,6 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkOpenGLError.h"
 #include "vtkSmartPointer.h"
 #include "vtkQuaternion.h"
@@ -255,7 +256,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   if (!this->UseSourceTableTree && this->GetSource(0) == nullptr)
   {
     vtkPolyData *defaultSource = vtkPolyData::New();
-    defaultSource->Allocate();
+    defaultSource->AllocateEstimate(0, 0, 1, 2, 0, 0, 0, 0);
     vtkPoints *defaultPoints = vtkPoints::New();
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0., 0., 0.);

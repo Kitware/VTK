@@ -15,7 +15,6 @@
 //=============================================================================
 
 #include "ArrayConverters.h"
-#include "Storage.h"
 
 #include <vtkm/cont/ArrayHandleGroupVecVariable.h>
 

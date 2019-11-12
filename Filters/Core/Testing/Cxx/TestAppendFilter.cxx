@@ -99,7 +99,7 @@ void CreateDataset(vtkPolyData* dataset,
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkNew<vtkIdList> ids;
-  dataset->Allocate(numberOfPoints);
+  dataset->AllocateEstimate(numberOfPoints, 1);
   for (vtkIdType i = 0; i < numberOfPoints; ++i)
   {
     points->InsertNextPoint( vtkMath::Random(), vtkMath::Random(), vtkMath::Random() );
@@ -444,12 +444,12 @@ bool TestToleranceModes()
   vtkIdType ptIds[] = {0, 1};
 
   vtkNew<vtkPolyData> polydata1;
-  polydata1->Allocate(3, 10);
+  polydata1->AllocateEstimate(3, 10);
   polydata1->SetPoints(points1);
   polydata1->InsertNextCell(VTK_LINE, 2, ptIds);
 
   vtkNew<vtkPolyData> polydata2;
-  polydata2->Allocate(3, 10);
+  polydata2->AllocateEstimate(3, 10);
   polydata2->SetPoints(points2);
   polydata2->InsertNextCell(VTK_LINE, 2, ptIds);
 

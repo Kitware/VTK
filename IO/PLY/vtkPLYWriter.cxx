@@ -24,6 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
 #include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cstddef>
 
@@ -236,7 +237,7 @@ void vtkPLYWriter::WriteData()
   face.verts = verts;
   vtkPLY::ply_put_element_setup (ply, "face");
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   for (polys->InitTraversal(), i = 0; i < numPolys; i++)
   {
     polys->GetNextCell(npts,pts);

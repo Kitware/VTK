@@ -33,7 +33,7 @@ namespace
 void WriteFaces(std::ofstream& f, vtkCellArray* faces, bool withNormals, bool withTCoords)
 {
   vtkIdType npts;
-  vtkIdType* indx;
+  const vtkIdType* indx;
   for (faces->InitTraversal(); faces->GetNextCell(npts, indx);)
   {
     f << "f";
@@ -61,7 +61,7 @@ void WriteFaces(std::ofstream& f, vtkCellArray* faces, bool withNormals, bool wi
 void WriteLines(std::ofstream& f, vtkCellArray* lines)
 {
   vtkIdType npts;
-  vtkIdType* indx;
+  const vtkIdType* indx;
   for (lines->InitTraversal(); lines->GetNextCell(npts, indx);)
   {
     f << "l";
@@ -225,7 +225,7 @@ void vtkOBJWriter::WriteData()
   vtkNew<vtkCellArray> polyStrips;
   if (strips->GetNumberOfCells() > 0)
   {
-    vtkIdType* ptIds = nullptr;
+    const vtkIdType* ptIds = nullptr;
     for (strips->InitTraversal(); strips->GetNextCell(npts, ptIds);)
     {
       vtkTriangleStrip::DecomposeStrip(npts, ptIds, polyStrips);

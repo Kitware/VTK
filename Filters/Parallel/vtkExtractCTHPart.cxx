@@ -48,6 +48,7 @@
 #include "vtkTimerLog.h"
 #include "vtkToolkits.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
@@ -839,7 +840,7 @@ void vtkExtractCTHPart::ExtractExteriorSurface(
     }
 
     vtkCellArray *outPolys = vtkCellArray::New();
-    outPolys->Allocate(cellArraySize);
+    outPolys->AllocateEstimate(cellArraySize, 1);
     output->SetPolys(outPolys);
     outPolys->Delete();
 

@@ -20,7 +20,6 @@
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
 #include "PortalTraits.h"
-#include "vtkmTags.h"
 
 class vtkDataArray;
 class vtkPoints;

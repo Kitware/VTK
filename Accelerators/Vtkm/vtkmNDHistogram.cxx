@@ -26,7 +26,6 @@
 #include "vtkSparseArray.h"
 #include "vtkTable.h"
 
-#include "vtkmlib/Storage.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ArrayConverters.h"
 

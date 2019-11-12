@@ -477,13 +477,15 @@ void vtkLSDynaPart::AddCell(const int& cellType, const vtkIdType& npts, vtkIdTyp
 //-----------------------------------------------------------------------------
 void vtkLSDynaPart::BuildToplogy()
 {
-  //make the unstrucuted grid data point to the Cells memory
-  this->BuildCells();
-
   //determine the number of points that this part has
   //and what points those are in the global point map
   //fixup the cell topology to use the local parts point ids
+  // This must come before BuildCells since it remaps the point ids in the
+  // connectivity structures.
   this->BuildUniquePoints();
+
+  //make the unstrucuted grid data point to the Cells memory
+  this->BuildCells();
 
   this->TopologyBuilt = true;
 }
@@ -908,23 +910,18 @@ void vtkLSDynaPart::BuildCells()
 
   //set the idtype array as the cellarray
   vtkCellArray *cells = vtkCellArray::New();
-  cells->SetCells(this->NumberOfCells,cellArray);
+  cells->ImportLegacyFormat(cellArray);
   cellArray->FastDelete();
 
   //now copy the cell types from the vector to
   vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
   cellTypes->SetVoidArray(&this->Cells->types[0],this->NumberOfCells,1);
 
-  //last is the cell locations
-  vtkIdTypeArray *cellLocations = vtkIdTypeArray::New();
-  cellLocations->SetVoidArray(&this->Cells->locations[0],this->NumberOfCells,1);
-
   //actually set up the grid
-  this->Grid->SetCells(cellTypes,cellLocations,cells,nullptr,nullptr);
+  this->Grid->SetCells(cellTypes, cells,nullptr,nullptr);
 
   //remove references
   cellTypes->FastDelete();
-  cellLocations->FastDelete();
   cells->FastDelete();
 }
 

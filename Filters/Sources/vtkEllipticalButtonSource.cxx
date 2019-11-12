@@ -96,8 +96,9 @@ int vtkEllipticalButtonSource::RequestData(
   tcoords->SetNumberOfTuples(numPts);
 
   vtkCellArray *newPolys = vtkCellArray::New();
-  newPolys->Allocate(this->CircumferentialResolution*
-                     (this->TextureResolution*this->ShoulderResolution));
+  newPolys->AllocateEstimate(this->CircumferentialResolution*
+                             (this->TextureResolution*this->ShoulderResolution),
+                             1);
 
   // Create the texture region.  --------------------------------------------
   // Start by determining the resolution in the width and height directions.
@@ -295,7 +296,7 @@ int vtkEllipticalButtonSource::RequestData(
       tcoords->SetTuple(i+numPts, tcoords->GetTuple(i));
     }
     //do the polygons
-    vtkIdType *ipts = nullptr;
+    const vtkIdType *ipts = nullptr;
     vtkIdType opts[4];
 
     vtkIdType npts = 0;

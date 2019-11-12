@@ -523,12 +523,12 @@ namespace {
 
     // Process a polyline
     void CropLine(vtkIdType cellId, vtkIdType cellOffset, vtkIdType npts,
-      vtkIdType *pts, vtkPolygon *loop, double *l, double loopBds[6],
+      const vtkIdType *pts, vtkPolygon *loop, double *l, double loopBds[6],
       double n[3]);
 
     // Process a polygon
     void CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtkPolygon *poly,
-      vtkIdType npts, vtkIdType *pts, vtkPolygon *loop, double *l,
+      vtkIdType npts, const vtkIdType *pts, vtkPolygon *loop, double *l,
       double loopBds[6], double n[3]);
 
   protected:
@@ -576,7 +576,7 @@ namespace {
   }
 
   void vtkCookieCutterHelper::CropLine(vtkIdType cellId, vtkIdType cellOffset,
-                                       vtkIdType npts, vtkIdType *pts,
+                                       vtkIdType npts, const vtkIdType *pts,
                                        vtkPolygon *loop, double *l,
                                        double loopBds[6], double n[3])
   {
@@ -783,7 +783,7 @@ namespace {
 
   void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset,
                                        vtkPolygon *poly, vtkIdType npts,
-                                       vtkIdType *pts, vtkPolygon *loop,
+                                       const vtkIdType *pts, vtkPolygon *loop,
                                        double *l, double loopBds[6], double n[3])
   {
     // Make sure that this is a valid polygon
@@ -971,7 +971,8 @@ namespace {
     // Build loops (i.e., output polygons)
     vtkIdType numInsertedPts, *cells, thisCell, nextId, startId;
     vtkIdType ncells;
-    vtkIdType thisNPts, *thisPts;
+    vtkIdType thisNPts;
+    const vtkIdType *thisPts;
     std::vector<char> visited(numPts,0);
     // Each unvisited, connected point generates a loop
     for (i=0; i<numPts; ++i)
@@ -1094,16 +1095,16 @@ int vtkCookieCutter::RequestData(
 
   vtkCellArray *inVerts = input->GetVerts();
   vtkCellArray *outVerts = vtkCellArray::New();
-  outVerts->Allocate(inVerts->GetNumberOfCells(),1);
+  outVerts->AllocateCopy(inVerts);
 
   vtkCellArray *inLines = input->GetLines();
   vtkCellArray *outLines = vtkCellArray::New();
-  outLines->Allocate(inLines->GetNumberOfCells(),1);
+  outLines->AllocateCopy(inLines);
 
   vtkCellArray *inPolys = input->GetPolys();
   vtkCellArray *inStrips = input->GetStrips();
   vtkCellArray *outPolys = vtkCellArray::New();
-  outPolys->Allocate(inPolys->GetNumberOfCells(),1);
+  outPolys->AllocateCopy(inPolys);
 
   // Locator used to merge potentially duplicate points
   if (this->Locator == nullptr)
@@ -1123,7 +1124,9 @@ int vtkCookieCutter::RequestData(
 
   // Process loops from second input. Note that the cell id in vtkPolyData
   // starts with verts, then lines, then polys, then strips.
-  vtkIdType npts, *pts, cellId=0;
+  vtkIdType npts;
+  const vtkIdType *pts;
+  vtkIdType cellId=0;
   vtkCellArray *loopPolys = loops->GetPolys();
   for (loopPolys->InitTraversal(); loopPolys->GetNextCell(npts,pts); )
   {

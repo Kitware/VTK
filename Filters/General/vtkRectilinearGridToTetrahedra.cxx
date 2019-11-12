@@ -217,12 +217,12 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   {
     case (VTK_VOXEL_TO_5_TET):
       NodePoints->Allocate(numPts);
-      TetList->Allocate(numPts*5*5,numPts);
+      TetList->AllocateEstimate(numPts * 5, 4);
     break;
     case (VTK_VOXEL_TO_5_AND_12_TET):
     case (VTK_VOXEL_TO_12_TET):
       NodePoints->Allocate(numPts*2);
-      TetList->Allocate(numPts*5*12,numPts);
+      TetList->AllocateEstimate(numPts * 12, 4);
     break;
   }
 

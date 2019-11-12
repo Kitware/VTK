@@ -70,13 +70,14 @@ int vtkMoleculeToAtomBallFilter::RequestData(
   // Preallocate memory
   points->Allocate(numAtoms * sphereSource->GetOutput()->GetPoints()->
                    GetNumberOfPoints());
-  polys->Allocate(numAtoms * sphereSource->GetOutput()->GetPolys()->
-                  GetNumberOfCells());
+  polys->AllocateEstimate(numAtoms * sphereSource->GetOutput()->GetPolys()->GetNumberOfCells(),
+                          3);
   atomicNums->Allocate(numAtoms * sphereSource->GetOutput()->GetPoints()->
                    GetNumberOfPoints());
 
   // Initialize some variables for later
-  vtkIdType numCellPoints, *cellPoints;
+  vtkIdType numCellPoints;
+  const vtkIdType *cellPoints;
   double scaledRadius;
   unsigned short atomicNum;
   vtkVector3f pos;

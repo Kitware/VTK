@@ -15,19 +15,23 @@
 #include "vtkMeanValueCoordinatesInterpolator.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkMath.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
+#include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
+#include "vtkConfigure.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkCellArray.h"
-#include "vtkConfigure.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkPoints.h"
 
-// test git commit.
+#include <algorithm>
 
 vtkStandardNewMacro(vtkMeanValueCoordinatesInterpolator);
 
 // Special class that can iterate over different type of triangle representations
+// This is needed since we may be provided just a connectivity vtkIdList instead
+// of a vtkCellArray.
 class vtkMVCTriIterator
 {
 public:
@@ -45,7 +49,8 @@ public:
       this->NumberOfTriangles = numIds / offset;
       this->Id = 0;
   }
-  vtkIdType* operator++()
+
+  const vtkIdType* operator++()
   {
       this->Current += this->Offset;
       this->Id++;
@@ -57,35 +62,45 @@ public:
 class vtkMVCPolyIterator
 {
 public:
+  vtkSmartPointer<vtkCellArrayIterator> Iter;
   vtkIdType CurrentPolygonSize;
-  vtkIdType *Polygons;
-  vtkIdType *Current;
-  vtkIdType NumberOfPolygons;
+  const vtkIdType *Current;
   vtkIdType Id;
   vtkIdType MaxPolygonSize;
+  vtkIdType NumberOfPolygons;
 
-  vtkMVCPolyIterator(vtkIdType numPolys, vtkIdType maxCellSize, vtkIdType *t)
+  vtkMVCPolyIterator(vtkCellArray *cells)
   {
-      this->CurrentPolygonSize = t[0];
-      this->Polygons = t;
-      this->Current = t+1;
-      this->NumberOfPolygons = numPolys;
-      this->Id = 0;
-      this->MaxPolygonSize = maxCellSize;
+    this->NumberOfPolygons = cells->GetNumberOfCells();
+    this->MaxPolygonSize = cells->GetMaxCellSize();
+    this->Iter = vtk::TakeSmartPointer(cells->NewIterator());
+    this->Iter->GoToFirstCell();
+    if (!this->Iter->IsDoneWithTraversal())
+    {
+      this->Iter->GetCurrentCell(this->CurrentPolygonSize, this->Current);
+    }
+    else
+    {
+      this->CurrentPolygonSize = 0;
+      this->Current = nullptr;
+    }
+    this->Id = this->Iter->GetCurrentCellId();
   }
-  vtkIdType* operator++()
+
+  const vtkIdType* operator++()
   {
-      this->Current += this->CurrentPolygonSize + 1;
-      this->Id++;
-      if (this->Id < this->NumberOfPolygons)
-      {
-        this->CurrentPolygonSize = *(this->Current-1);
-      }
-      else
-      {
-        this->CurrentPolygonSize = VTK_ID_MAX;
-      }
-      return this->Current;
+    this->Iter->GoToNextCell();
+    if (!this->Iter->IsDoneWithTraversal())
+    {
+      this->Iter->GetCurrentCell(this->CurrentPolygonSize, this->Current);
+    }
+    else
+    {
+      this->CurrentPolygonSize = 0;
+      this->Current = nullptr;
+    }
+    this->Id = this->Iter->GetCurrentCellId();
+    return this->Current;
   }
 };
 
@@ -151,7 +166,7 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
   double **u =  new double* [iter.MaxPolygonSize];
   double *alpha = new double [iter.MaxPolygonSize];
   double *theta =  new double [iter.MaxPolygonSize];
-  vtkIdType *poly = iter.Current;
+  const vtkIdType *poly = iter.Current;
   while ( iter.Id < iter.NumberOfPolygons)
   {
     int nPolyPts = iter.CurrentPolygonSize;
@@ -564,39 +579,34 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
     return;
   }
 
+  // We can use a fast path if:
+  // 1) The mesh only consists of triangles, and
+  // 2) `cells` is using vtkIdType for storage.
+  bool canFastPath =
+#ifdef VTK_USE_64BIT_IDS
+      cells->IsStorage64Bit();
+#else // VTK_USE_64BIT_IDS
+      !cells->IsStorage64Bit();
+#endif // VTK_USE_64BIT_IDS
+
   // check if input is a triangle mesh
-  bool isATriangleMesh = true;
-  if (cells->GetMaxCellSize() != 3)
+  if (canFastPath)
   {
-    isATriangleMesh = false;
-  }
-  else
-  {
-    vtkIdType npts;
-    vtkIdType* pids;
-    for (cells->InitTraversal(); cells->GetNextCell(npts,pids);)
-    {
-      if (npts != 3)
-      {
-        isATriangleMesh = false;
-        break;
-      }
-    }
+    canFastPath = (cells->IsHomogeneous() == 3);
   }
 
-  vtkIdType *t = cells->GetPointer();
-
-  if (isATriangleMesh)
+  if (canFastPath)
   {
-    // Below the vtkCellArray has four entries per triangle {(3,i,j,k), (3,i,j,k), ....}
-    vtkMVCTriIterator iter(cells->GetNumberOfConnectivityEntries(), 4, t);
+    vtkIdType *t = static_cast<vtkIdType*>(cells->GetConnectivityArray()->GetVoidPointer(0));
+
+    vtkMVCTriIterator iter(cells->GetNumberOfConnectivityIds(), 3, t);
 
     vtkMeanValueCoordinatesInterpolator::
       ComputeInterpolationWeightsForTriangleMesh(x,pts,iter,weights);
   }
   else
   {
-    vtkMVCPolyIterator iter(cells->GetNumberOfCells(), cells->GetMaxCellSize(), t);
+    vtkMVCPolyIterator iter(cells);
 
     vtkMeanValueCoordinatesInterpolator::
       ComputeInterpolationWeightsForPolygonMesh(x,pts,iter,weights);

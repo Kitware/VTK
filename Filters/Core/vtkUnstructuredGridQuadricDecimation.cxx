@@ -1495,12 +1495,10 @@ int vtkUnstructuredGridQuadricDecimationTetMesh::LoadUnstructuredGrid(
   VTK_PRECHECK(L) = new int[4 * tCount];
   vtkCellArray *vt = vgrid->GetCells();
   vtkIdType npts;
-  vtkIdType *idx;
-  vtkIdType curIdx = 0;
+  const vtkIdType *idx;
   for (int i=0; i<tCount; i++)
   {
-    vt->GetCell(curIdx, npts, idx);
-    curIdx += (npts+1);
+    vt->GetCellAtId(i, npts, idx);
     if (npts==4)
     {
       for (int k=0; k<4; k++)

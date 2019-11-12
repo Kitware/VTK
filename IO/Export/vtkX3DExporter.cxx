@@ -42,6 +42,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkX3DExporterFIWriter.h"
 #include "vtkX3DExporterXMLWriter.h"
 #include "vtkX3D.h"
@@ -932,7 +933,7 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   std::vector<int> cellIndexVector;
 
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
 
   if (cellType == VTK_POLYGON || cellType == VTK_POLY_LINE)
   {
@@ -1139,7 +1140,7 @@ static bool vtkX3DExporterWriterRenderVerts(
   {
     vtkIdType cellId = 0;
     vtkIdType npts = 0;
-    vtkIdType *indx = nullptr;
+    const vtkIdType *indx = nullptr;
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); cellId++)
     {
       for (vtkIdType cc=0; cc < npts; cc++)

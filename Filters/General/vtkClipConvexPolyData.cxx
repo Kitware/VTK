@@ -209,7 +209,7 @@ int vtkClipConvexPolyData::RequestData(
   // Copy the polygons from the polys array to the internal
   // data structure
   vtkIdType npts;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   polys->InitTraversal();
   while ( polys->GetNextCell(npts, pts) )
   {

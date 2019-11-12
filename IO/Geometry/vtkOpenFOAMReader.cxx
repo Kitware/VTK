@@ -6911,8 +6911,9 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     vtkIdType boundaryStartFace =
         (!this->BoundaryDict.empty() ? this->BoundaryDict[0].StartFace : 0);
     this->AllBoundaries = vtkPolyData::New();
-    this->AllBoundaries->Allocate(facesPoints->GetNumberOfElements()
-        - boundaryStartFace);
+    this->AllBoundaries->AllocateEstimate(facesPoints->GetNumberOfElements()
+                                          - boundaryStartFace,
+                                          1);
   }
   this->BoundaryPointMap = new vtkFoamLabelArrayVector;
 
@@ -7036,7 +7037,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
         for (vtkIdType faceI = abStartFace; faceI < abEndFace; faceI++)
         {
           vtkIdType nPoints;
-          vtkIdType *points;
+          const vtkIdType *points;
           this->AllBoundaries->GetCellPoints(faceI, nPoints, points);
           if (beI.BoundaryType == vtkFoamBoundaryEntry::PHYSICAL)
           {
@@ -7074,7 +7075,7 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
     // set the name of boundary
     this->SetBlockName(boundaryMesh, activeBoundaryI, beI.BoundaryName.c_str());
 
-    bm->Allocate(nFaces);
+    bm->AllocateEstimate(nFaces, 1);
     vtkIdType nBoundaryPoints = nBoundaryPointsList->GetValue(boundaryI);
 
     // create global to boundary-local point map and boundary points
@@ -8311,7 +8312,7 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     pointArray->Delete();
 
     // create lagrangian mesh
-    meshI->Allocate(nParticles);
+    meshI->AllocateEstimate(nParticles, 1);
     for (vtkIdType i = 0; i < nParticles; i++)
     {
       meshI->InsertNextCell(VTK_VERTEX, 1, &i);
@@ -8493,7 +8494,7 @@ bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(
     vtkPolyData *pzm = vtkPolyData::New();
 
     // set pointZone size
-    pzm->Allocate(nPoints);
+    pzm->AllocateEstimate(nPoints, 1);
 
     // insert points
     for (vtkIdType j = 0; j < nPoints; j++)
@@ -8587,7 +8588,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(vtkMultiBlockDataSet *faceZoneMes
     vtkPolyData *fzm = vtkPolyData::New();
 
     // set faceZone size
-    fzm->Allocate(nFaces);
+    fzm->AllocateEstimate(nFaces, 1);
 
     // allocate array for converting int vector to vtkIdType vector:
     // workaround for 64bit machines

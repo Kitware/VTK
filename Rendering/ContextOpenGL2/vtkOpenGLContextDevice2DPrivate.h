@@ -45,6 +45,7 @@
 #include "vtkTexture.h"
 #include "vtkStdString.h"
 #include "vtkUnicodeString.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
 #include <list>

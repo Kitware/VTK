@@ -154,7 +154,7 @@ int vtkConnectivityFilter::RequestData(
 
   if (pdOutput)
   {
-    pdOutput->Allocate(numCells, numCells);
+    pdOutput->AllocateExact(numCells, 3);
   }
   if (ugOutput)
   {

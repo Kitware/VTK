@@ -230,13 +230,13 @@ int vtkGenericGeometryFilter::RequestData(
   {
     estimatedSize = 1024;
   }
-  output->Allocate(numCells);
+  output->AllocateEstimate(numCells, 1);
 
   vtkPoints *newPts = vtkPoints::New();
   vtkCellArray *cellArray = vtkCellArray::New();
 
   newPts->Allocate(estimatedSize,numPts);
-  cellArray->Allocate(numCells);
+  cellArray->AllocateEstimate(numCells, 1);
 
 
   // prepare the output attributes

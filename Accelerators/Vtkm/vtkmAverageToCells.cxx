@@ -23,13 +23,11 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/Storage.h"
 
-#include "vtkmCellSetExplicit.h"
-#include "vtkmCellSetSingleType.h"
 #include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/CellAverage.h>
+#include <vtkm/filter/CellAverage.hxx>
 
 vtkStandardNewMacro(vtkmAverageToCells)
 

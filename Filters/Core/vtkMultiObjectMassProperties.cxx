@@ -82,7 +82,9 @@ struct ComputeProperties
     double *volumes = this->Volumes + polyId;
     const unsigned char *orient = this->Orient + polyId;
     const double *c = this->Center;
-    vtkIdType npts, *pts, numTris;
+    vtkIdType npts;
+    const vtkIdType *pts;
+    vtkIdType numTris;
     vtkPolygon*& poly = this->Polygon.Local();
     vtkIdList*& tris = this->Triangles.Local();
     int i;
@@ -428,8 +430,10 @@ void vtkMultiObjectMassProperties::
 TraverseAndMark (vtkPolyData *output, vtkIdType *objectIds,
                  vtkDataArray *valid, unsigned char *orient)
 {
-  vtkIdType i, j, k, numIds, polyId, npts, *pts, p0, p1, numNei, neiId;
-  vtkIdType numNeiPts, *neiPts;
+  vtkIdType i, j, k, numIds, polyId, npts, p0, p1, numNei, neiId;
+  const vtkIdType *pts;
+  vtkIdType numNeiPts;
+  const vtkIdType *neiPts;
   vtkIdList *wave = this->Wave;
   vtkIdList *wave2 = this->Wave2;
   vtkIdList *tmpWave;

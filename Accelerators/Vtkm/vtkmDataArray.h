@@ -31,6 +31,7 @@
 #include <vtkm/cont/VariantArrayHandle.h> // For vtkm::cont::VariantArrayHandle
 #include <vtkm/ListTag.h> // For vtkm::ListTagBase
 #include <vtkm/VecFromPortal.h> // For vtkm::VecFromPortal
+#include <vtkm/VecTraits.h> // For vtkm::VecTraits
 
 #include <memory> // For unique_ptr
 

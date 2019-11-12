@@ -39,6 +39,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <sstream>
 
@@ -688,7 +689,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
   RtPoint vertexPoints[512];
   double poly_norm[3];
   double vertexTCoords[512][2];
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   int k, kk;
   int rep, j, interpolation;
@@ -917,7 +918,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
   RtPoint vertexPoints[512];
   double poly_norm[3];
   double vertexTCoords[512][2];
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   int p1, p2, p3;
   int k, kk;

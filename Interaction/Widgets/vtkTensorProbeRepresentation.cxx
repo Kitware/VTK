@@ -108,9 +108,10 @@ void vtkTensorProbeRepresentation
     double displayPos[2], double closestWorldPos[3], vtkIdType &cellId,
     int maxSpeed )
 {
-  vtkIdType npts=0, *ptIds=nullptr;
+  vtkIdType npts=0;
+  const vtkIdType *ptIds=nullptr;
 
-  this->Trajectory->GetLines()->GetCell( 0, npts, ptIds );
+  this->Trajectory->GetLines()->GetCellAtId( 0, npts, ptIds );
   vtkPoints *points = this->Trajectory->GetPoints();
 
   vtkIdType minCellId = vtkMath::Max( this->ProbeCellId - maxSpeed, static_cast<vtkIdType>(0) );

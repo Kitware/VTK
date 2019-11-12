@@ -118,7 +118,8 @@ int vtkTubeFilter::RequestData(
   vtkIdType i;
   double range[2], maxSpeed=0;
   vtkCellArray *newStrips;
-  vtkIdType npts=0, *pts=nullptr;
+  vtkIdType npts=0;
+  const vtkIdType *ptsOrig=nullptr;
   vtkIdType offset=0;
   vtkFloatArray *newTCoords=nullptr;
   int abort=0;
@@ -161,7 +162,7 @@ int vtkTubeFilter::RequestData(
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(3*numNewPts);
   newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
+  newStrips->AllocateEstimate(1, numNewPts);
   vtkCellArray *singlePolyline = vtkCellArray::New();
 
   // Point data: copy scalars, vectors, tcoords. Normals may be computed here.
@@ -244,7 +245,7 @@ int vtkTubeFilter::RequestData(
   // the line cellIds start after the last vert cellId
   inCellId = input->GetNumberOfVerts();
   for (inLines->InitTraversal();
-       inLines->GetNextCell(npts,pts) && !abort; inCellId++)
+       inLines->GetNextCell(npts,ptsOrig) && !abort; inCellId++)
   {
     this->UpdateProgress((double)inCellId/numLines);
     abort = this->GetAbortExecute();
@@ -255,8 +256,8 @@ int vtkTubeFilter::RequestData(
     {
       continue; //skip tubing this polyline
     }
-    std::vector<vtkIdType> ptsCopy(pts, pts + npts);
-    pts = &(ptsCopy[0]);
+    std::vector<vtkIdType> ptsCopy(ptsOrig, ptsOrig + npts);
+    vtkIdType *pts = ptsCopy.data();
 
     // remove degenerate lines to avoid warnings
     npts = static_cast<vtkIdType>(std::unique(pts, pts + npts, IdPointsEqual(inPts)) -
@@ -339,7 +340,7 @@ int vtkTubeFilter::RequestData(
 }
 
 int vtkTubeFilter::GeneratePoints(vtkIdType offset,
-                                  vtkIdType npts, vtkIdType *pts,
+                                  vtkIdType npts, const vtkIdType *pts,
                                   vtkPoints *inPts, vtkPoints *newPts,
                                   vtkPointData *pd, vtkPointData *outPD,
                                   vtkFloatArray *newNormals,
@@ -570,7 +571,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
 }
 
 void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts,
-                                   vtkIdType* vtkNotUsed(pts),
+                                   const vtkIdType* vtkNotUsed(pts),
                                    vtkIdType inCellId,
                                    vtkCellData *cd, vtkCellData *outCD,
                                    vtkCellArray *newStrips)
@@ -672,7 +673,7 @@ void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts,
 }
 
 void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
-                                          vtkIdType npts, vtkIdType *pts,
+                                          vtkIdType npts, const vtkIdType *pts,
                                           vtkPoints *inPts,
                                           vtkDataArray *inScalars,
                                           vtkFloatArray *newTCoords)

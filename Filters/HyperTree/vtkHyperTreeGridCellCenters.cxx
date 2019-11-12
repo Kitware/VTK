@@ -181,7 +181,7 @@ void vtkHyperTreeGridCellCenters::ProcessTrees()
   {
     vtkIdType np = this->Points->GetNumberOfPoints();
     vtkCellArray* vertices = vtkCellArray::New();
-    vertices->Allocate(np * 2);
+    vertices->AllocateEstimate(np, 1);
     for( vtkIdType i = 0; i < np ; ++ i )
     {
       vertices->InsertNextCell( 1, &i );

@@ -24,6 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkTextProperty.h"
 #include "vtkSphereSource.h"
 #include "vtkNew.h"

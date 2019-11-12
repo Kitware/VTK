@@ -971,10 +971,15 @@ int vtkOBJPolyDataProcessor::RequestData(
         tcoord_polys->InitTraversal();
         normal_polys->InitTraversal();
 
-        vtkIdType dummy_warning_prevention_mechanism[1];
-        vtkIdType n_pts=-1,*pts=dummy_warning_prevention_mechanism;
-        vtkIdType n_tcoord_pts=-1,*tcoord_pts=dummy_warning_prevention_mechanism;
-        vtkIdType n_normal_pts=-1,*normal_pts=dummy_warning_prevention_mechanism;
+        vtkIdType n_pts=-1;
+        const vtkIdType *pts;
+        vtkIdType n_tcoord_pts=-1;
+        const vtkIdType *tcoord_pts;
+        vtkIdType n_normal_pts=-1;
+        const vtkIdType *normal_pts;
+
+        vtkNew<vtkIdList> tmpCell;
+
         for (int i = 0; i < polys->GetNumberOfCells(); ++i)
         {
           polys->GetNextCell(n_pts,pts);
@@ -996,6 +1001,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           }
           else
           {
+            tmpCell->SetNumberOfIds(n_pts);
             // copy the corresponding points, tcoords and normals across
             for (int j = 0; j < n_pts; ++j)
             {
@@ -1011,10 +1017,12 @@ int vtkOBJPolyDataProcessor::RequestData(
               }
               // copy the vertex into the new structure and update
               // the vertex index in the polys structure (pts is a pointer into it)
-              pts[j] = new_points->InsertNextPoint(points->GetPoint(pts[j]));
+              tmpCell->SetId(j,
+                             new_points->InsertNextPoint(points->GetPoint(pts[j])));
             }
+            polys->ReplaceCellAtId(i, tmpCell);
             // copy this poly (pointing at the new points) into the new polys list
-            new_polys->InsertNextCell(n_pts,pts);
+            new_polys->InsertNextCell(tmpCell);
           }
         }
 

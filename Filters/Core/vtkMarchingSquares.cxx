@@ -377,7 +377,7 @@ else
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(estimatedSize,2));
+  newLines->AllocateEstimate(estimatedSize, 2);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == nullptr )

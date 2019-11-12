@@ -109,7 +109,7 @@ namespace {
                               std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(nullptr);
+    const vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -136,7 +136,7 @@ namespace {
                              std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(nullptr);
+    const vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -167,7 +167,7 @@ namespace {
                                      std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(nullptr);
+    const vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -197,7 +197,7 @@ namespace {
                                  std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(nullptr);
+    const vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -351,11 +351,11 @@ namespace {
     }
     unsigned int cell_id = 0;
 
-    vtkIdType      *pts = 0;
+    const vtkIdType      *pts = 0;
     vtkIdType      npts = 0;
 
-    size_t triCount = cells->GetNumberOfConnectivityEntries()
-      - 3*cells->GetNumberOfCells();
+    size_t triCount = cells->GetNumberOfConnectivityIds()
+      - 2*cells->GetNumberOfCells();
     size_t targetSize = wireframeTriStrips ? 2*(triCount*2+1)
       : triCount*3;
     indexArray.reserve(targetSize);

@@ -217,7 +217,7 @@ vtkPolyData *vtk3DSImporter::GeneratePolyData (vtk3DSMesh *mesh)
 
   face = mesh->face;
   mesh->aCellArray = triangles = vtkCellArray::New ();
-  triangles->Allocate(mesh->faces * 3);
+  triangles->AllocateEstimate(mesh->faces, 3);
   for (i = 0; i < mesh->faces; i++, face++)
   {
     triangles->InsertNextCell (3);

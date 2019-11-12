@@ -35,6 +35,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <limits>
 
@@ -248,7 +249,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;

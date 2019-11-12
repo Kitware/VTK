@@ -18,6 +18,7 @@
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellTypes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkImplicitFunction.h"
@@ -291,7 +292,7 @@ struct ExtractCells : public ExtractCellsBase
           lOrigins.emplace_back(cellId); //to support cell data copying
         }
       }//if implicit function intersects
-      c += cellIter->Next(cellId); //move to the next cell
+      c = cellIter->Next(); //move to the next cell
     }//for all cells in this batch
   }
 
@@ -302,22 +303,19 @@ struct ExtractCells : public ExtractCellsBase
     // length of the cell array.
     vtkIdType numCells = 0;
     vtkIdType size = 0;
-    auto ldEnd = this->LocalData.end();
-    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    for (const auto &threadData : this->LocalData)
     {
-      numCells += (*ldItr).LocalNumCells;
-      size += static_cast<vtkIdType>((*ldItr).LocalCells.size());
+      numCells += threadData.LocalNumCells;
+      size += static_cast<vtkIdType>(threadData.LocalCells.size());
       this->NumThreadsUsed++;
     }
     this->OutputNumCells = numCells;
     this->TotalSize = size;
 
     // Now allocate the cell array, offset array, and cell types array.
-    vtkIdType *cptr = this->Cells->WritePointer(numCells,size);
-    vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
+    this->Cells->AllocateExact(numCells, size - numCells);
+    vtkNew<vtkUnsignedCharArray> cellTypes;
     unsigned char *ctptr = static_cast<unsigned char*>(cellTypes->WriteVoidPointer(0,numCells));
-    vtkIdTypeArray *cellLocs = vtkIdTypeArray::New();
-    vtkIdType *clptr = static_cast<vtkIdType*>(cellLocs->WriteVoidPointer(0,numCells));
 
     // If cell data is requested, roll up generating cell ids
     vtkIdType *cellMap=nullptr;
@@ -327,39 +325,24 @@ struct ExtractCells : public ExtractCellsBase
     }
 
     // Now composite the cell-related information
-    vtkIdType offset, globalOffset=0;
-    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    for (const auto &threadData : this->LocalData)
     {
-      auto & lCells = (*ldItr).LocalCells;
-      auto & lTypes = (*ldItr).LocalTypes;
-      auto & lOrigins = (*ldItr).LocalOrigins;
-      numCells = (*ldItr).LocalNumCells;
-      vtkIdType npts;
-      offset = 0;
-      for (auto i=0; i<numCells; ++i)
+      const auto &lCells = threadData.LocalCells;
+      const auto &lTypes = threadData.LocalTypes;
+      const auto &lOrigins = threadData.LocalOrigins;
+      numCells = threadData.LocalNumCells;
+
+      this->Cells->AppendLegacyFormat(lCells.data(),
+                                      static_cast<vtkIdType>(lCells.size()));
+      ctptr = std::copy_n(lTypes.cbegin(), numCells, ctptr);
+      if ( this->CopyCellData )
       {
-        *ctptr++ = lTypes[i]; //cell type
-        *clptr++ = offset + globalOffset; //offset location
-        npts = lCells[offset++];
-        *cptr++ = npts;
-        for (auto j=0; j<npts; ++j)
-        {
-          *cptr++ = lCells[offset++];
-        }
-        if ( this->CopyCellData )
-        {
-          *cellMap++ = lOrigins[i];
-        }
-      }//over all the cells in this thread
-      globalOffset += offset;
+        cellMap = std::copy_n(lOrigins.cbegin(), numCells, cellMap);
+      }
     }//for this thread
 
     // Define the grid
-    this->Grid->SetCells(cellTypes,cellLocs,this->Cells,nullptr,nullptr);
-
-    // Clean up
-    cellTypes->Delete();
-    cellLocs->Delete();
+    this->Grid->SetCells(cellTypes, this->Cells);
 
   }//Reduce
 
@@ -416,7 +399,7 @@ struct ExtractPointsAndCells : public ExtractCellsBase
           lOrigins.emplace_back(cellId); //to support cell data copying
         }
       }//if implicit function intersects
-      c += cellIter->Next(cellId); //move to the next cell
+      c = cellIter->Next(); //move to the next cell
     }//for all cells in this batch
   }
 
@@ -439,61 +422,53 @@ struct ExtractPointsAndCells : public ExtractCellsBase
     // length of the cell array.
     vtkIdType numCells = 0;
     vtkIdType size = 0;
-    auto ldEnd = this->LocalData.end();
-    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    for (const auto& threadData : this->LocalData)
     {
-      numCells += (*ldItr).LocalNumCells;
-      size += static_cast<vtkIdType>((*ldItr).LocalCells.size());
+      numCells += threadData.LocalNumCells;
+      size += static_cast<vtkIdType>(threadData.LocalCells.size());
       this->NumThreadsUsed++;
     }
     this->OutputNumCells = numCells;
     this->TotalSize = size;
 
     // Now allocate the cell array, offset array, and cell types array.
-    vtkIdType *cptr = this->Cells->WritePointer(numCells,size);
-    vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
+    this->Cells->AllocateExact(numCells, size - numCells);
+    vtkNew<vtkUnsignedCharArray> cellTypes;
     unsigned char *ctptr = static_cast<unsigned char*>(cellTypes->WriteVoidPointer(0,numCells));
-    vtkIdTypeArray *cellLocs = vtkIdTypeArray::New();
-    vtkIdType *clptr = static_cast<vtkIdType*>(cellLocs->WriteVoidPointer(0,numCells));
 
     // If cell data is requested, roll up generating cell ids
     vtkIdType *cellMap=nullptr;
     this->CellMap = cellMap = new vtkIdType [numCells];
 
     // Now composite the cell-related information
-    vtkIdType offset, globalOffset=0;
-    for ( auto ldItr=this->LocalData.begin(); ldItr != ldEnd; ++ldItr )
+    for (const auto &threadData : this->LocalData)
     {
-      auto & lCells = (*ldItr).LocalCells;
-      auto & lTypes = (*ldItr).LocalTypes;
-      auto & lOrigins = (*ldItr).LocalOrigins;
-      numCells = (*ldItr).LocalNumCells;
-      vtkIdType npts;
-      offset = 0;
+      const auto &lCells = threadData.LocalCells;
+      const auto &lTypes = threadData.LocalTypes;
+      const auto &lOrigins = threadData.LocalOrigins;
+      numCells = threadData.LocalNumCells;
+
+      ctptr = std::copy_n(lTypes.cbegin(), numCells, ctptr);
+      if ( this->CopyCellData )
+      {
+        cellMap = std::copy_n(lOrigins.cbegin(), numCells, cellMap);
+      }
+
+      // Need to do this in a loop since the pointIds are mapped through ptMap:
+      auto threadCells = lCells.cbegin();
       for (auto i=0; i<numCells; ++i)
       {
-        *ctptr++ = lTypes[i]; //cell type
-        *clptr++ = offset + globalOffset; //offset location
-        npts = lCells[offset++];
-        *cptr++ = npts;
+        const vtkIdType npts = *threadCells++;
+        this->Cells->InsertNextCell(static_cast<int>(npts));
         for (auto j=0; j<npts; ++j)
         {
-          *cptr++ = ptMap[lCells[offset++]];
-        }
-        if ( this->CopyCellData )
-        {
-          *cellMap++ = lOrigins[i];
+          this->Cells->InsertCellPoint(ptMap[*threadCells++]);
         }
       }//over all the cells in this thread
-      globalOffset += offset;
     }//for this thread
 
     // Define the grid
-    this->Grid->SetCells(cellTypes,cellLocs,this->Cells,nullptr,nullptr);
-
-    // Clean up
-    cellTypes->Delete();
-    cellLocs->Delete();
+    this->Grid->SetCells(cellTypes, this->Cells);
 
   }//Reduce
 
@@ -639,10 +614,8 @@ ProcessPiece(vtkUnstructuredGrid *input, vtkImplicitFunction *f,
   vtkCellArray *newCells = vtkCellArray::New();
 
   // Set up the cells for processing. A specialized iterator is used to traverse the cells.
-  vtkIdType *conn = cells->GetPointer();
   unsigned char *cellTypes = static_cast<unsigned char*>(input->GetCellTypesArray()->GetVoidPointer(0));
-  vtkIdType *locs = static_cast<vtkIdType*>(input->GetCellLocationsArray()->GetVoidPointer(0));
-  CellIter *cellIter = new CellIter(numCells,cellTypes,conn,locs);
+  CellIter *cellIter = new CellIter(numCells,cellTypes,cells);
 
   // Classify the cell points based on the specified implicit function. A
   // fast path is available for planes.

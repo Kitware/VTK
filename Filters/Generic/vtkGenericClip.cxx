@@ -161,12 +161,11 @@ int vtkGenericClip::RequestData(
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD[2];
   vtkIdType npts=0;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   int cellType = 0;
   int j;
   vtkIdType estimatedSize;
   vtkUnsignedCharArray *types[2];
-  vtkIdTypeArray *locs[2];
   int numOutputs = 1;
   vtkGenericAdaptorCell *cell;
 
@@ -202,23 +201,19 @@ int vtkGenericClip::RequestData(
 
   vtkCellArray *conn[2];
   conn[0] = vtkCellArray::New();
-  conn[0]->Allocate(estimatedSize,estimatedSize/2);
+  conn[0]->AllocateEstimate(estimatedSize, 1);
   conn[0]->InitTraversal();
   types[0] = vtkUnsignedCharArray::New();
   types[0]->Allocate(estimatedSize,estimatedSize/2);
-  locs[0] = vtkIdTypeArray::New();
-  locs[0]->Allocate(estimatedSize,estimatedSize/2);
 
   if(this->GenerateClippedOutput)
   {
     numOutputs = 2;
     conn[1] = vtkCellArray::New();
-    conn[1]->Allocate(estimatedSize,estimatedSize/2);
+    conn[1]->AllocateEstimate(estimatedSize, 1);
     conn[1]->InitTraversal();
     types[1] = vtkUnsignedCharArray::New();
     types[1]->Allocate(estimatedSize,estimatedSize/2);
-    locs[1] = vtkIdTypeArray::New();
-    locs[1]->Allocate(estimatedSize,estimatedSize/2);
   }
 
   // locator used to merge potentially duplicate points
@@ -333,7 +328,6 @@ int vtkGenericClip::RequestData(
     {
       for (j=0; j < numNew[i]; j++)
       {
-        locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
         conn[i]->GetNextCell(npts,pts);
 
         //For each new cell added, got to set the type of the cell
@@ -364,18 +358,16 @@ int vtkGenericClip::RequestData(
   cellIt->Delete();
 
   output->SetPoints(newPoints);
-  output->SetCells(types[0], locs[0], conn[0]);
+  output->SetCells(types[0], conn[0]);
   conn[0]->Delete();
   types[0]->Delete();
-  locs[0]->Delete();
 
   if ( this->GenerateClippedOutput )
   {
     clippedOutput->SetPoints(newPoints);
-    clippedOutput->SetCells(types[1], locs[1], conn[1]);
+    clippedOutput->SetCells(types[1], conn[1]);
     conn[1]->Delete();
     types[1]->Delete();
-    locs[1]->Delete();
   }
 
   newPoints->Delete();

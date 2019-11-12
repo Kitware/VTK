@@ -42,7 +42,7 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   VTK_CREATE(vtkPolyData, poly);
   VTK_CREATE(vtkPoints, pts);
   VTK_CREATE(vtkCellArray, cells);
-  cells->Allocate(cells->EstimateSize(numPoints ,1));
+  cells->AllocateEstimate(numPoints, 1);
   pts->SetNumberOfPoints(numPoints);
   double x[3];
   for (vtkIdType i = 0; i < numPoints; ++i)

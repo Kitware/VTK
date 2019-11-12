@@ -50,7 +50,7 @@ namespace
 {
 void DegreeElevate(vtkCell* lowerOrderCell,
                    vtkIncrementalPointLocator* pointLocator,
-                   vtkUnsignedCharArray *types, vtkIdTypeArray *locations,
+                   vtkUnsignedCharArray *types,
                    vtkCellArray* cells, vtkPointData *inPd, vtkPointData *outPd,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
@@ -118,7 +118,6 @@ void DegreeElevate(vtkCell* lowerOrderCell,
   }
 
   vtkIdType newCellId = cells->InsertNextCell(higherOrderCell);
-  locations->InsertNextValue(cells->GetTraversalLocation());
   types->InsertNextValue(higherOrderCell->GetCellType());
   outCd->CopyData(inCd,cellId,newCellId);
 
@@ -212,7 +211,6 @@ int vtkLinearToQuadraticCellsFilter::RequestData(
                                   outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkNew<vtkUnsignedCharArray> outputCellTypes;
-  vtkNew<vtkIdTypeArray> outputCellLocations;
   vtkNew<vtkCellArray> outputCellConnectivities;
 
   output->SetPoints(vtkNew<vtkPoints>());
@@ -256,15 +254,14 @@ int vtkLinearToQuadraticCellsFilter::RequestData(
   {
     it->GetCell(cell);
     DegreeElevate(cell, this->Locator, outputCellTypes,
-                  outputCellLocations, outputCellConnectivities,
+                  outputCellConnectivities,
                   input->GetPointData(), output->GetPointData(),
                   input->GetCellData(), it->GetCellId(), output->GetCellData());
   }
   it->Delete();
   cell->Delete();
 
-  output->SetCells(outputCellTypes, outputCellLocations,
-                   outputCellConnectivities);
+  output->SetCells(outputCellTypes, outputCellConnectivities);
 
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();

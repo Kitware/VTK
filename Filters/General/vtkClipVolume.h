@@ -231,11 +231,9 @@ private:
   vtkIdType             NumberOfCells;
   vtkCellArray          *Connectivity;
   vtkUnsignedCharArray  *Types;
-  vtkIdTypeArray        *Locations;
   vtkIdType             NumberOfClippedCells;
   vtkCellArray          *ClippedConnectivity;
   vtkUnsignedCharArray  *ClippedTypes;
-  vtkIdTypeArray        *ClippedLocations;
 
 private:
   vtkClipVolume(const vtkClipVolume&) = delete;

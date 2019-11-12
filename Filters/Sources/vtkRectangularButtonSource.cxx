@@ -106,7 +106,7 @@ int vtkRectangularButtonSource::RequestData(
   tcoords->SetNumberOfTuples(numPts);
 
   vtkCellArray *newPolys = vtkCellArray::New();
-  newPolys->Allocate(numCells);
+  newPolys->AllocateEstimate(numCells, 1);
 
   // Generate the points and texture coordinates-----------------------------
   //

@@ -1237,7 +1237,8 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(
       ncells++;
       npts = ia->GetValue(i);
     }
-    carray->SetCells(ncells,ia);
+    carray->AllocateExact(ncells, ia->GetNumberOfValues() - ncells);
+    carray->ImportLegacyFormat(ia);
   }
   // Otherwise, we'll copy the data by inserting it into a vtkCellArray
   else

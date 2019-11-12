@@ -86,7 +86,7 @@ int vtkArcPlotter::RequestData(
   vtkIdType numPts, i;
   double x[3], normal[3], point[3], aveNormal[3];
   vtkIdType id;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   double x1[3], x2[3], x21[3], n[3];
   vtkFloatArray *lineNormals;
@@ -154,7 +154,7 @@ int vtkArcPlotter::RequestData(
   lineNormals->SetNumberOfComponents(3);
 
   newLines = vtkCellArray::New();
-  newLines->Allocate(inLines->GetSize());
+  newLines->AllocateCopy(inLines);
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
   {

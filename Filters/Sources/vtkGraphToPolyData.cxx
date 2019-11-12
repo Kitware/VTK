@@ -118,7 +118,8 @@ int vtkGraphToPolyData::RequestData(
     }
     vtkSmartPointer<vtkCellArray> newLines =
       vtkSmartPointer<vtkCellArray>::New();
-    newLines->SetCells(numEdges, cells);
+    newLines->AllocateExact(numEdges, cells->GetNumberOfValues() - numEdges);
+    newLines->ImportLegacyFormat(cells);
 
     // Send the data to output.
     output->SetLines(newLines);
@@ -140,7 +141,7 @@ int vtkGraphToPolyData::RequestData(
     outputCellData->CopyAllocate(inputCellData);
     vtkSmartPointer<vtkCellArray> newLines =
       vtkSmartPointer<vtkCellArray>::New();
-    newLines->Allocate(newLines->EstimateSize(numEdges, 2));
+    newLines->AllocateEstimate(numEdges, 2);
     vtkIdType points[2];
 
     // Only create lines for non-ghost edges

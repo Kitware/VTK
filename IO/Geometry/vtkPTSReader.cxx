@@ -25,6 +25,7 @@
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkPTSReader);
 

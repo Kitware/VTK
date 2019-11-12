@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkDecimatePolylineFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
@@ -23,7 +25,6 @@
 #include "vtkLine.h"
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
-#include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPriorityQueue.h"
@@ -46,7 +47,7 @@ public:
     bool removable;
   };
 
-  Polyline(vtkIdType* vertexOrdering, vtkIdType size)
+  Polyline(const vtkIdType* vertexOrdering, vtkIdType size)
   {
     this->Size = size;
     Vertices = new Vertex[size];
@@ -170,7 +171,7 @@ int vtkDecimatePolylineFilter::RequestData(
   }
 
   vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(numLines,2);
+  newLines->AllocateExact(numLines, numLines * 2);
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *inCD = input->GetCellData();
@@ -178,21 +179,24 @@ int vtkDecimatePolylineFilter::RequestData(
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
-  vtkIdType *linePtr = inputLines->GetPointer();
+  auto lineIter =
+      vtkSmartPointer<vtkCellArrayIterator>::Take(inputLines->NewIterator());
   vtkIdType firstVertexIndex = 0;
+
   vtkIdType polylineSize = 0;
+  const vtkIdType *polyLineVerts;
 
   std::map<vtkIdType,vtkIdType> pointIdMap;
   // Decimate each polyline (represented as a single cell) in series
-  for ( vtkIdType lineId=0; lineId < numLines;
-        lineId++, firstVertexIndex += polylineSize)
+  for (lineIter->GoToFirstCell();
+       !lineIter->IsDoneWithTraversal();
+       lineIter->GoToNextCell(), firstVertexIndex += polylineSize)
   {
-    polylineSize = linePtr[firstVertexIndex + lineId];
+    lineIter->GetCurrentCell(polylineSize, polyLineVerts);
 
     // construct a polyline as a doubly linked list
     vtkDecimatePolylineFilter::Polyline* polyline = new
-      vtkDecimatePolylineFilter::Polyline(&(linePtr[firstVertexIndex + lineId + 1]),
-                                          polylineSize);
+      vtkDecimatePolylineFilter::Polyline(polyLineVerts, polylineSize);
 
     double error;
     for (vtkIdType vertexIdx=0; vertexIdx < polyline->Size; ++vertexIdx)

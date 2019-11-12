@@ -287,7 +287,7 @@ struct CuttingFunctor
   }
 
   // Check if a list of points intersects the plane
-  bool ArePointsAroundPlane(vtkIdType& npts, vtkIdType*& pts)
+  bool ArePointsAroundPlane(vtkIdType& npts, const vtkIdType* pts)
   {
     unsigned char onOneSideOfPlane = this->InOutArray[pts[0]];
     for ( vtkIdType i=1; onOneSideOfPlane && i < npts; ++i )
@@ -328,15 +328,15 @@ struct CuttingFunctor
     locator->InitPointInsertion(newPts, bounds, this->Input->GetNumberOfPoints());
 
     vtkCellArray*& newVerts = this->NewVerts.Local();
-    newVerts->Allocate(estimatedSize, estimatedSize);
+    newVerts->AllocateEstimate(estimatedSize, 1);
     output->SetVerts(newVerts);
 
     vtkCellArray*& newLines = this->NewLines.Local();
-    newLines->Allocate(estimatedSize, estimatedSize);
+    newLines->AllocateEstimate(estimatedSize, 2);
     output->SetLines(newLines);
 
     vtkCellArray*& newPolys = this->NewPolys.Local();
-    newPolys->Allocate(estimatedSize, estimatedSize);
+    newPolys->AllocateEstimate(estimatedSize, 4);
     output->SetPolys(newPolys);
 
     vtkDoubleArray*& cellScalars = this->CellScalars.Local();
@@ -578,7 +578,8 @@ struct UnstructuredGridFunctor : public PointSetFunctor
 
   bool IsCellSlicedByPlane(vtkIdType cellId)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     this->Grid->GetCellPoints(cellId, npts, pts);
     return this->ArePointsAroundPlane(npts, pts);
   }
@@ -719,7 +720,8 @@ struct PolyDataFunctor : public PointSetFunctor
 
   bool IsCellSlicedByPlane(vtkIdType cellId)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     this->PolyData->GetCellPoints(cellId, npts, pts);
     return this->ArePointsAroundPlane(npts, pts);
   }

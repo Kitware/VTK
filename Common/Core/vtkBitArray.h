@@ -176,15 +176,6 @@ public:
   int GetValue(vtkIdType id);
 
   /**
-   * Fast method based setting of values without memory checks. First
-   * use SetNumberOfValues then use SetValue to actually set them.
-   * Specify the number of values for this object to hold. Does an
-   * allocation as well as setting the MaxId ivar. Used in conjunction with
-   * SetValue() method for fast insertion.
-   */
-  void SetNumberOfValues(vtkIdType number) override;
-
-  /**
    * Set the data at a particular index. Does not do range checking. Make sure
    * you use the method SetNumberOfValues() before inserting data.
    */
@@ -333,13 +324,6 @@ private:
   void UpdateLookup();
 
 };
-
-inline void vtkBitArray::SetNumberOfValues(vtkIdType number)
-{
-  this->Allocate(number);
-  this->MaxId = number - 1;
-  this->DataChanged();
-}
 
 inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {

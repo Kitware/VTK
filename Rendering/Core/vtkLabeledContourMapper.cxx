@@ -181,7 +181,7 @@ struct vtkLabeledContourMapper::Private
   // The position will be no less than skipDistance along the line from the
   // starting location. This can be used to ensure that labels are placed a
   // minimum distance apart.
-  bool NextLabel(vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
+  bool NextLabel(vtkPoints *points, vtkIdType &numIds, const vtkIdType *&ids,
                  const LabelMetric &metrics, LabelInfo &info,
                  double targetSmoothness, double skipDistance);
 
@@ -601,7 +601,7 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
 
   // Create the list of metrics, but no text property information yet.
   vtkIdType numPts;
-  vtkIdType *ids;
+  const vtkIdType *ids;
   for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
   {
     this->Internal->LabelMetrics.push_back(LabelMetric());
@@ -695,7 +695,7 @@ bool vtkLabeledContourMapper::PlaceLabels()
 
   // Identify smooth parts of the isoline for labeling
   vtkIdType numIds;
-  vtkIdType *origIds;
+  const vtkIdType *origIds;
   this->Internal->LabelInfos.reserve(this->Internal->LabelMetrics.size());
   for (lines->InitTraversal(); lines->GetNextCell(numIds, origIds); ++metric)
   {
@@ -714,7 +714,7 @@ bool vtkLabeledContourMapper::PlaceLabels()
            itEnd = tols.end(); it != itEnd && infos.empty(); ++it)
       {
         vtkIdType nIds = numIds;
-        vtkIdType *ids = origIds;
+        const vtkIdType *ids = origIds;
         while (this->Internal->NextLabel(points, nIds, ids, *metric, info, *it,
                                          this->SkipDistance))
         {
@@ -1214,7 +1214,7 @@ bool vtkLabeledContourMapper::Private::PixelIsVisible(
 
 //------------------------------------------------------------------------------
 bool vtkLabeledContourMapper::Private::NextLabel(
-    vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
+    vtkPoints *points, vtkIdType &numIds, const vtkIdType *&ids,
     const LabelMetric &metrics, LabelInfo &info, double targetSmoothness,
     double skipDistance)
 {

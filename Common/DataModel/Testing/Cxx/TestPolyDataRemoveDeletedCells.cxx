@@ -34,7 +34,7 @@ int CheckDeletedCells()
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
   poly->SetPoints(points);
   points->Delete();
-  poly->Allocate(10);
+  poly->AllocateEstimate(10, 1);
   for(vtkIdType i=0;i<10;i++)
   {
     poly->InsertNextCell(VTK_VERTEX, 1, &i);
@@ -95,7 +95,7 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
   pts->InsertNextPoint(10, 2, 0); // 11
 
   vtkPolyData *pd = vtkPolyData::New();
-  pd->Allocate(numCells);
+  pd->AllocateEstimate(numCells, 1);
   pd->SetPoints(pts);
 
   pts->Delete();

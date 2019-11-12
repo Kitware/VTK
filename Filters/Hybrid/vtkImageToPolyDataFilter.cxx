@@ -239,7 +239,7 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
   //
   numCells = dims[0] * dims[1];
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numCells,4));
+  newPolys->AllocateEstimate(numCells, 4);
 
   polyColors = vtkUnsignedCharArray::New();
   polyColors->SetNumberOfValues(3*numCells); //for rgb
@@ -287,7 +287,7 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
   // Setup data
   newPts = vtkPoints::New();
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(dims[0]*dims[1]/10,4));
+  newPolys->AllocateEstimate(dims[0]*dims[1]/10, 4);
 
   polyColors = vtkUnsignedCharArray::New();
   polyColors->Allocate(3*dims[0]*dims[1]/10); //for rgb
@@ -400,7 +400,7 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
   pointDescr->Allocate(numPixels/2, numPixels/2);
 
   vtkCellArray *edgeConn = vtkCellArray::New();
-  edgeConn->Allocate(numPixels/2, numPixels/2);
+  edgeConn->AllocateEstimate(numPixels/2, 1);
   vtkPolyData *edges = vtkPolyData::New();
   edges->SetPoints(points);
   edges->SetLines(edgeConn);
@@ -798,7 +798,7 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
 {
   vtkCellArray *newPolys, *inPolys;
   int i, numPts;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
 
   // Copy the points via reference counting
@@ -810,7 +810,7 @@ void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges,
   //
   inPolys = edges->GetPolys();
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(inPolys->GetSize());
+  newPolys->AllocateCopy(inPolys);
 
   for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
   {
@@ -1171,7 +1171,11 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
   vtkPoints *points = edges->GetPoints();
   vtkIdType numPts = points->GetNumberOfPoints(), ptId;
   int i, j, k, *polyId, *polyId2, edgeId;
-  vtkIdType *cells, *pts, *cells2, npts, cellId;
+  vtkIdType *cells;
+  const vtkIdType *pts;
+  vtkIdType *cells2;
+  vtkIdType npts;
+  vtkIdType cellId;
   int numPolyPts, p1, p2;
   vtkIdType ncells, ncells2;
   unsigned char *polyVisited, *ptr;
@@ -1189,7 +1193,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
 
   // Create connectivity array for polygon definition
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys,25));
+  newPolys->AllocateEstimate(numPolys, 25);
 
   // Loop over all edge points tracking around each polygon
   for (ptId=0; ptId<numPts; ptId++)
@@ -1274,7 +1278,9 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
   int connId;
   double x[3], xconn[3], xave[3], factor;
   vtkIdType ncells;
-  vtkIdType *cells, *pts, npts;
+  vtkIdType *cells;
+  const vtkIdType *pts;
+  vtkIdType npts;
 
 
   // For each smoothing operation, loop over points. Points that can be
@@ -1343,7 +1349,8 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
   vtkIdType npts;
   double x[3], xPrev[3], xNext[3];
   vtkIdType ncells;
-  vtkIdType *cells, *pts;
+  vtkIdType *cells;
+  const vtkIdType *pts;
 
   // Loop over all points, finding those that are connected to just two
   // edges. If the point is colinear to the previous and next edge point,

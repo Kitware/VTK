@@ -176,28 +176,28 @@ int vtkTensorGlyph::RequestData(
   if ( (sourceCells=source->GetVerts())->GetNumberOfCells() > 0 )
   {
     cells = vtkCellArray::New();
-    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
+    cells->AllocateEstimate(sourceCells->GetNumberOfCells(), numDirs * numPts);
     output->SetVerts(cells);
     cells->Delete();
   }
   if ( (sourceCells=this->GetSource()->GetLines())->GetNumberOfCells() > 0 )
   {
     cells = vtkCellArray::New();
-    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
+    cells->AllocateEstimate(sourceCells->GetNumberOfCells(), numDirs * numPts);
     output->SetLines(cells);
     cells->Delete();
   }
   if ( (sourceCells=this->GetSource()->GetPolys())->GetNumberOfCells() > 0 )
   {
     cells = vtkCellArray::New();
-    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
+    cells->AllocateEstimate(sourceCells->GetNumberOfCells(), numDirs * numPts);
     output->SetPolys(cells);
     cells->Delete();
   }
   if ( (sourceCells=this->GetSource()->GetStrips())->GetNumberOfCells() > 0 )
   {
     cells = vtkCellArray::New();
-    cells->Allocate(numDirs*numPts*sourceCells->GetSize());
+    cells->AllocateEstimate(sourceCells->GetNumberOfCells(), numDirs * numPts);
     output->SetStrips(cells);
     cells->Delete();
   }

@@ -603,10 +603,12 @@ void vtkVRMLImporter::exitNode()
           vtkCellArray* polys = this->CurrentMapper->GetInput()->GetPolys();
           polys->InitTraversal();
           this->CurrentTCoordCells->InitTraversal();
-          vtkIdType npts, *pts;
+          vtkIdType npts;
+          const vtkIdType *pts;
           while (polys->GetNextCell(npts, pts))
           {
-            vtkIdType nTCoordPts, *tcoordPts;
+            vtkIdType nTCoordPts;
+            const vtkIdType *tcoordPts;
             this->CurrentTCoordCells->GetNextCell(nTCoordPts, tcoordPts);
             if (npts != nTCoordPts)
             {
@@ -630,10 +632,12 @@ void vtkVRMLImporter::exitNode()
           vtkCellArray* polys = this->CurrentMapper->GetInput()->GetPolys();
           polys->InitTraversal();
           this->CurrentNormalCells->InitTraversal();
-          vtkIdType npts, *pts;
+          vtkIdType npts;
+          const vtkIdType *pts;
           while (polys->GetNextCell(npts, pts))
           {
-            vtkIdType nNormalPts, *normalPts;
+            vtkIdType nNormalPts;
+            const vtkIdType *normalPts;
             this->CurrentNormalCells->GetNextCell(nNormalPts, normalPts);
             if (npts != nNormalPts)
             {
@@ -712,15 +716,21 @@ void vtkVRMLImporter::exitNode()
       {
         this->CurrentNormalCells->InitTraversal();
       }
-      vtkIdType npts, *pts;
+
+      vtkNew<vtkIdList> tmpCell;
+
+      vtkIdType npts;
+      const vtkIdType *pts;
       for (vtkIdType i = 0; polys->GetNextCell(npts, pts); i++)
       {
-        vtkIdType n_tcoord_pts = 0, *tcoord_pts = nullptr;
+        vtkIdType n_tcoord_pts = 0;
+        const vtkIdType *tcoord_pts = nullptr;
         if (this->CurrentTCoordCells)
         {
           this->CurrentTCoordCells->GetNextCell(n_tcoord_pts, tcoord_pts);
         }
-        vtkIdType n_normal_pts = 0, *normal_pts = nullptr;
+        vtkIdType n_normal_pts = 0;
+        const vtkIdType *normal_pts = nullptr;
         if (this->CurrentNormalCells)
         {
           this->CurrentNormalCells->GetNextCell(n_normal_pts, normal_pts);
@@ -746,6 +756,7 @@ void vtkVRMLImporter::exitNode()
         }
         else
         {
+          tmpCell->SetNumberOfIds(npts);
           // copy the corresponding points, tcoords and normals across
           for (vtkIdType j = 0; j < npts; j++)
           {
@@ -769,11 +780,13 @@ void vtkVRMLImporter::exitNode()
             }
             // copy the vertex into the new structure and update
             // the vertex index in the polys structure (pts is a pointer into it)
-            pts[j] = newPoints->InsertNextPoint(
-              this->CurrentPoints->GetPoint(pts[j]));
+            tmpCell->SetId(j,
+                           newPoints->InsertNextPoint(
+                             this->CurrentPoints->GetPoint(pts[j])));
           }
+          polys->ReplaceCellAtId(i, tmpCell);
           // copy this poly (pointing at the new points) into the new polys list
-          newPolys->InsertNextCell(npts, pts);
+          newPolys->InsertNextCell(tmpCell);
         }
       }
 
@@ -1142,7 +1155,8 @@ void vtkVRMLImporter::exitField()
     vtkCellArray *cells = (pd->GetNumberOfPolys() > 0) ?
       pd->GetPolys() : pd->GetLines();
     cells->InitTraversal();
-    vtkIdType *pts, npts;
+    const vtkIdType *pts;
+    vtkIdType npts;
     // At this point we either have colors index by vertex or faces
     // If faces, num of color indexes must match num of faces else
     // we assume index by vertex.

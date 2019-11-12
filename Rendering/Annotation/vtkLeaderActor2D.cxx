@@ -74,10 +74,10 @@ vtkLeaderActor2D::vtkLeaderActor2D()
   this->LeaderPoints = vtkPoints::New();
 
   this->LeaderLines = vtkCellArray::New();
-  this->LeaderLines->EstimateSize(1,2);
+  this->LeaderLines->AllocateEstimate(1, 2);
 
   this->LeaderArrows = vtkCellArray::New();
-  this->LeaderArrows->EstimateSize(2,3);
+  this->LeaderArrows->AllocateEstimate(2, 3);
 
   this->Leader = vtkPolyData::New();
   this->Leader->SetPoints(this->LeaderPoints);

@@ -22,6 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
@@ -462,7 +463,7 @@ int vtkClipClosedSurface::RequestData(
 
     // Check if the input has polys and quads or just triangles
     vtkIdType npts = 0;
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     vtkCellArray *inPolys = input->GetPolys();
     inPolys->InitTraversal();
     while (inPolys->GetNextCell(npts, pts))
@@ -806,7 +807,8 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
     pointMap[i] = -1;
   }
 
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkCellArray *cellArrays[4];
   cellArrays[0] = output->GetVerts();
   cellArrays[1] = output->GetLines();
@@ -854,19 +856,25 @@ void vtkClipClosedSurface::SqueezeOutputPoints(
   }
 
   // Change the cell pointIds to reflect the new point array
+  vtkNew<vtkIdList> repCell;
   for (arrayId = 0; arrayId < 4; arrayId++)
   {
     vtkCellArray *cellArray = cellArrays[arrayId];
     if (cellArray)
     {
-      cellArray->InitTraversal();
-      while (cellArray->GetNextCell(npts, pts))
+      auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(
+            cellArray->NewIterator());
+      for (cellIter->GoToFirstCell();
+           !cellIter->IsDoneWithTraversal();
+           cellIter->GoToNextCell())
       {
-        for (vtkIdType ii = 0; ii < npts; ii++)
+        cellIter->GetCurrentCell(repCell);
+        for (vtkIdType ii = 0; ii < repCell->GetNumberOfIds(); ii++)
         {
-          vtkIdType pointId = pts[ii];
-          pts[ii] = pointMap[pointId];
+          const vtkIdType pointId = repCell->GetId(ii);
+          repCell->SetId(ii, pointMap[pointId]);
         }
+        cellIter->ReplaceCurrentCell(repCell);
       }
     }
   }
@@ -984,7 +992,7 @@ void vtkClipClosedSurface::ClipLines(
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
   {
     vtkIdType numPts = 0;
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     inputCells->GetNextCell(numPts, pts);
 
     vtkIdType i1 = pts[0];
@@ -1061,7 +1069,7 @@ void vtkClipClosedSurface::ClipAndContourPolys(
   for (vtkIdType cellId = 0; cellId < numCells; cellId++)
   {
     vtkIdType numPts = 0;
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     inputCells->GetNextCell(numPts, pts);
     idList->Reset();
 
@@ -1182,7 +1190,8 @@ void vtkClipClosedSurface::BreakPolylines(
   // Break the input lines into segments
   inputLines->InitTraversal();
   vtkIdType cellId = 0;
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   while (inputLines->GetNextCell(npts, pts))
   {
     if (inputScalars)
@@ -1257,7 +1266,7 @@ void vtkClipClosedSurface::BreakTriangleStrips(
   }
 
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
 
   inputStrips->InitTraversal();
 

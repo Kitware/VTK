@@ -171,7 +171,7 @@ void vtkExtractSelectedIdsCopyCells(vtkDataSet* input, T* output,
   signed char* inArray, vtkIdType* pointMap)
 {
   vtkIdType numCells = input->GetNumberOfCells();
-  output->Allocate(numCells / 4);
+  output->AllocateEstimate(numCells / 4, 1);
 
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
@@ -969,7 +969,7 @@ int vtkExtractSelectedIds::ExtractPoints(
       {
         vtkPolyData* outputPD = vtkPolyData::SafeDownCast(output);
         vtkCellArray *newVerts = vtkCellArray::New();
-        newVerts->Allocate(newVerts->EstimateSize(numPts,1));
+        newVerts->AllocateEstimate(numPts, 1);
         for (i = 0; i < numPts; ++i)
         {
           newVerts->InsertNextCell(1, &i);

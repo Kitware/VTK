@@ -26,6 +26,7 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -2178,57 +2179,23 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 
 int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *label)
 {
-  if ( ! cells )
+  if (!cells || cells->GetNumberOfCells() < 1)
   {
     return 1;
   }
 
-  vtkIdType ncells=cells->GetNumberOfCells();
-  vtkIdType size=cells->GetNumberOfConnectivityEntries();
+  vtkIdType offsetsSize = cells->GetNumberOfOffsets();
+  vtkIdType connSize = cells->GetNumberOfConnectivityIds();
+  bool is64Bit = cells->IsStorage64Bit();
 
-  if ( ncells < 1 )
-  {
-    return 1;
-  }
+  int type = is64Bit ? VTK_TYPE_INT64 : VTK_TYPE_INT32;
 
-  *fp << label << " " << ncells << " " << size << "\n";
+  *fp << label << " " << offsetsSize << " " << connSize << "\n";
 
-  if ( this->FileType == VTK_ASCII )
-  {
-    vtkIdType j;
-    vtkIdType *pts = nullptr;
-    vtkIdType npts = 0;
-    for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
-    {
-      // currently writing vtkIdType as int
-      *fp << static_cast<int>(npts) << " ";
-      for (j=0; j<npts; j++)
-      {
-        // currently writing vtkIdType as int
-        *fp << static_cast<int>(pts[j]) << " ";
-      }
-      *fp << "\n";
-    }
-  }
-  else
-  {
-    // swap the bytes if necessary
-    // currently writing vtkIdType as int
-    vtkIdType *tempArray = cells->GetPointer();
-    int arraySize = cells->GetNumberOfConnectivityEntries();
-    int *intArray = new int[arraySize];
-    int i;
-
-    for (i = 0; i < arraySize; i++)
-    {
-      intArray[i] = tempArray[i];
-    }
-
-    vtkByteSwap::SwapWrite4BERange(intArray,size,fp);
-    delete [] intArray;
-  }
-
-  *fp << "\n";
+  this->WriteArray(fp, type, cells->GetOffsetsArray(),
+                   "OFFSETS %s\n", offsetsSize, 1);
+  this->WriteArray(fp, type, cells->GetConnectivityArray(),
+                   "CONNECTIVITY %s\n", connSize, 1);
 
   fp->flush();
   if (fp->fail())

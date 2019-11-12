@@ -119,7 +119,7 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   outPoints->Allocate(4 * numPoints);
 
   vtkCellArray * outCells = vtkCellArray::New();
-  outCells->Allocate(outCells->EstimateSize(numPoints, 4));
+  outCells->AllocateEstimate(numPoints, 4);
 
   vtkFloatArray *outTCoords = vtkFloatArray::New();
   outTCoords->SetNumberOfComponents(2);

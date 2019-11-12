@@ -118,7 +118,7 @@ int vtkSplitByCellScalarFilter::RequestData(
     }
     if (inputPD)
     {
-      vtkPolyData::SafeDownCast(ds)->Allocate();
+      vtkPolyData::SafeDownCast(ds)->AllocateCopy(inputPD);
     }
     ds->GetCellData()->CopyGlobalIdsOn();
     ds->GetCellData()->CopyAllocate(inCD);

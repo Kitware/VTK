@@ -95,7 +95,7 @@ vtkLegendScaleActor::vtkLegendScaleActor()
   vtkIdType pts[4];
   this->LegendPoints->SetNumberOfPoints(10);
   vtkCellArray *legendPolys = vtkCellArray::New();
-  legendPolys->Allocate(legendPolys->EstimateSize(4,4));
+  legendPolys->AllocateEstimate(4, 4);
   pts[0] = 0; pts[1] = 1; pts[2] = 6; pts[3] = 5;
   legendPolys->InsertNextCell(4,pts);
   pts[0] = 1; pts[1] = 2; pts[2] = 7; pts[3] = 6;

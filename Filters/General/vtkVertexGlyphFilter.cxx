@@ -101,7 +101,7 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   VTK_CREATE(vtkCellArray, cells);
-  cells->Allocate(2*numPoints);
+  cells->AllocateEstimate(numPoints, 1);
 
   for (vtkIdType i = 0; i < numPoints; i++)
   {

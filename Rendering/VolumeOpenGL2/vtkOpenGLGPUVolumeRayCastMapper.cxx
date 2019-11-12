@@ -1176,7 +1176,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     vtkNew<vtkUnsignedIntArray> polys;
     polys->SetNumberOfComponents(3);
     vtkIdType npts;
-    vtkIdType* pts;
+    const vtkIdType* pts;
 
     // See if the volume transform is orientation-preserving
     // and orient polygons accordingly

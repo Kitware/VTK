@@ -75,7 +75,7 @@ int RunParallelConnectivity(const char* fname, vtkAlgorithm::DesiredOutputPrecis
 
   // Test factory override mechanism instantiated as a vtkPConnectivityFilter.
   vtkNew<vtkConnectivityFilter> connectivity;
-  if (connectivity->IsA("vtkConnectivityFiltetr"))
+  if (!connectivity->IsA("vtkPConnectivityFilter"))
   {
     std::cerr << "Expected vtkConnectivityFilter filter to be instantiated "
               << "as a vtkPConnectivityFilter with MPI support enabled, but "

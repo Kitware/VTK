@@ -110,7 +110,7 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   this->FramePoints = vtkPoints::New();
   this->FramePoints->SetNumberOfPoints(4);
   this->FramePolygon = vtkCellArray::New();
-  this->FramePolygon->Allocate(this->FramePolygon->EstimateSize(1,5));
+  this->FramePolygon->AllocateEstimate(1, 5);
   this->FramePolygon->InsertNextCell(4);
   this->FramePolygon->InsertCellPoint(0);
   this->FramePolygon->InsertCellPoint(1);

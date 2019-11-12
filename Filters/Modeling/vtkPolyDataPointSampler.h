@@ -128,9 +128,9 @@ protected:
 
   void SampleEdge(vtkPoints *pts, double x0[3], double x1[3]);
   void SampleTriangle(vtkPoints *newPts, vtkPoints *inPts,
-                      vtkIdType *pts);
+                      const vtkIdType *pts);
   void SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
-                      vtkIdType npts, vtkIdType *pts);
+                      vtkIdType npts, const vtkIdType *pts);
 
 private:
   vtkPolyDataPointSampler(const vtkPolyDataPointSampler&) = delete;

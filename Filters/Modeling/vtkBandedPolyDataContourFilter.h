@@ -165,7 +165,7 @@ protected:
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *inScalars,
                vtkDoubleArray *outScalars,
                vtkPointData *inPD, vtkPointData *outPD, vtkIdType edgePts[]);
-  int InsertCell(vtkCellArray *cells, int npts, vtkIdType *pts,
+  int InsertCell(vtkCellArray *cells, int npts, const vtkIdType *pts,
                  int cellId, double s, vtkFloatArray *newS);
   int InsertLine(vtkCellArray *cells, vtkIdType pt1, vtkIdType pt2,
                  int cellId, double s, vtkFloatArray *newS);

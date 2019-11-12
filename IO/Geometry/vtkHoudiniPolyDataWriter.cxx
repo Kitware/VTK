@@ -19,6 +19,7 @@
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
@@ -34,6 +35,7 @@
 #include "vtkShortArray.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
@@ -313,7 +315,8 @@ void vtkHoudiniPolyDataWriter::WriteData()
     nPrims += input->GetNumberOfPolys();
 
     vtkCellArray* stripArray = input->GetStrips();
-    vtkIdType nPts, *pts;
+    vtkIdType nPts;
+    const vtkIdType *pts;
 
     stripArray->InitTraversal();
     while (stripArray->GetNextCell(nPts, pts))
@@ -419,7 +422,9 @@ void vtkHoudiniPolyDataWriter::WriteData()
   {
     // Write vertex data as a particle system
     vtkCellArray* vertArray = input->GetVerts();
-    vtkIdType nPts, *pts, cellId;
+    vtkIdType nPts;
+    const vtkIdType *pts;
+    vtkIdType cellId;
 
     if (input->GetNumberOfVerts() > 1)
     {
@@ -454,7 +459,9 @@ void vtkHoudiniPolyDataWriter::WriteData()
     file << "Run " << input->GetNumberOfLines() << " Poly" <<endl;
 
     vtkCellArray* lineArray = input->GetLines();
-    vtkIdType nPts, *pts, cellId;
+    vtkIdType nPts;
+    const vtkIdType *pts;
+    vtkIdType cellId;
 
     cellId = input->GetNumberOfVerts();
 
@@ -480,7 +487,9 @@ void vtkHoudiniPolyDataWriter::WriteData()
     file << "Run " << input->GetNumberOfPolys() << " Poly" <<endl;
 
     vtkCellArray* polyArray = input->GetPolys();
-    vtkIdType nPts, *pts, cellId;
+    vtkIdType nPts;
+    const vtkIdType *pts;
+    vtkIdType cellId;
 
     cellId = (input->GetNumberOfVerts() + input->GetNumberOfLines());
 
@@ -504,7 +513,9 @@ void vtkHoudiniPolyDataWriter::WriteData()
   {
     // Write triangle strip data as polygons
     vtkCellArray* stripArray = input->GetStrips();
-    vtkIdType nPts, *pts, cellId;
+    vtkIdType nPts;
+    const vtkIdType *pts;
+    vtkIdType cellId;
 
     cellId = (input->GetNumberOfVerts() +
               input->GetNumberOfLines() +

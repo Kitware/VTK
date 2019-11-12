@@ -37,6 +37,7 @@
 #undef  vtkXMLOffsetsManager_DoNotInclude
 
 #include <cassert>
+#include <utility>
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -44,10 +45,6 @@ vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
   this->NumberOfPieces = 1;
   this->WritePiece = -1;
   this->GhostLevel = 0;
-  this->CellPoints = vtkIdTypeArray::New();
-  this->CellOffsets = vtkIdTypeArray::New();
-  this->CellPoints->SetName("connectivity");
-  this->CellOffsets->SetName("offsets");
 
   this->CurrentPiece = 0;
   this->FieldDataOM->Allocate(0);
@@ -64,8 +61,6 @@ vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::~vtkXMLUnstructuredDataWriter()
 {
-  this->CellPoints->Delete();
-  this->CellOffsets->Delete();
   this->Faces->Delete();
   this->FaceOffsets->Delete();
 
@@ -810,6 +805,8 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(
     const char *name, vtkCellIterator *cellIter, vtkIdType numCells,
     vtkIndent indent, OffsetsManagerGroup *cellsManager)
 {
+  this->ConvertCells(cellIter, numCells, 3);
+
   vtkNew<vtkUnsignedCharArray> types;
   types->Allocate(numCells);
   vtkIdType nPolyhedra(0);
@@ -961,8 +958,17 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedDataWorker(
 void vtkXMLUnstructuredDataWriter::ConvertCells(
     vtkCellIterator *cellIter, vtkIdType numCells, vtkIdType cellSizeEstimate)
 {
-  this->CellPoints->Allocate(numCells * cellSizeEstimate);
-  this->CellOffsets->Allocate(numCells);
+  vtkNew<vtkAOSDataArrayTemplate<vtkIdType>> conn;
+  vtkNew<vtkAOSDataArrayTemplate<vtkIdType>> offsets;
+
+  conn->SetName("connectivity");
+  offsets->SetName("offsets");
+
+  conn->Allocate(numCells * cellSizeEstimate);
+  offsets->Allocate(numCells);
+
+  // Offsets array skips the leading 0 and includes the connectivity array size
+  // at the end.
 
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal();
        cellIter->GoToNextCell())
@@ -971,40 +977,66 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(
     vtkIdType *end = begin + cellIter->GetNumberOfPoints();
     while (begin != end)
     {
-      this->CellPoints->InsertNextValue(*begin++);
+      conn->InsertNextValue(*begin++);
     }
 
-    this->CellOffsets->InsertNextValue(this->CellPoints->GetNumberOfTuples());
+    offsets->InsertNextValue(conn->GetNumberOfTuples());
   }
 
-  this->CellPoints->Squeeze();
-  this->CellOffsets->Squeeze();
+  conn->Squeeze();
+  offsets->Squeeze();
+
+  this->CellPoints = std::move(conn);
+  this->CellOffsets = std::move(offsets);
 }
+
+namespace {
+
+struct ConvertCellsVisitor
+{
+  vtkSmartPointer<vtkDataArray> Offsets;
+  vtkSmartPointer<vtkDataArray> Connectivity;
+
+  template <typename CellStateT>
+  void operator()(CellStateT &state)
+  {
+    using ArrayT = typename CellStateT::ArrayType;
+
+    vtkNew<ArrayT> offsets;
+    vtkNew<ArrayT> conn;
+
+    // Shallow copy will let us change the name of the array to what the
+    // writer expects without actually copying the array data:
+    conn->ShallowCopy(state.GetConnectivity());
+    conn->SetName("connectivity");
+    this->Connectivity = std::move(conn);
+
+    // The file format for offsets always skips the first offset, because
+    // it's always zero. Use SetArray and GetPointer to create a view
+    // of the offsets array that starts at index=1:
+    auto *offsetsIn = state.GetOffsets();
+    const vtkIdType numOffsets = offsetsIn->GetNumberOfValues();
+    if (numOffsets >= 2)
+    {
+      offsets->SetArray(offsetsIn->GetPointer(1),
+                        numOffsets - 1,
+                        1 /*save*/);
+    }
+    offsets->SetName("offsets");
+
+    this->Offsets = std::move(offsets);
+  }
+};
+
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
 {
-  vtkIdTypeArray* connectivity = cells->GetData();
-  vtkIdType numberOfCells = cells->GetNumberOfCells();
-  vtkIdType numberOfTuples = connectivity->GetNumberOfTuples();
-
-  this->CellPoints->SetNumberOfTuples(numberOfTuples - numberOfCells);
-  this->CellOffsets->SetNumberOfTuples(numberOfCells);
-
-  vtkIdType* inCell = connectivity->GetPointer(0);
-  vtkIdType* outCellPointsBase = this->CellPoints->GetPointer(0);
-  vtkIdType* outCellPoints = outCellPointsBase;
-  vtkIdType* outCellOffset = this->CellOffsets->GetPointer(0);
-
-  vtkIdType i;
-  for(i=0;i < numberOfCells; ++i)
-  {
-    vtkIdType numberOfPoints = *inCell++;
-    memcpy(outCellPoints, inCell, sizeof(vtkIdType)*numberOfPoints);
-    outCellPoints += numberOfPoints;
-    inCell += numberOfPoints;
-    *outCellOffset++ = outCellPoints - outCellPointsBase;
-  }
+  ConvertCellsVisitor visitor;
+  cells->Visit(visitor);
+  this->CellPoints = std::move(visitor.Connectivity);
+  this->CellOffsets = std::move(visitor.Offsets);
 }
 
 //----------------------------------------------------------------------------
@@ -1103,8 +1135,12 @@ void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
 {
   // Calculate the fraction of cell specification data contributed by
   // each of the connectivity, offset, and type arrays.
-  vtkIdType connectSize = this->CellPoints->GetNumberOfTuples();
-  vtkIdType offsetSize = this->CellOffsets->GetNumberOfTuples();
+  vtkIdType connectSize = this->CellPoints
+      ? this->CellPoints->GetNumberOfTuples()
+      : 0;
+  vtkIdType offsetSize = this->CellOffsets
+      ? this->CellOffsets->GetNumberOfTuples()
+      : 0;
   vtkIdType faceSize = this->Faces ? this->Faces->GetNumberOfTuples() : 0;
   vtkIdType faceoffsetSize = this->FaceOffsets ?
                                this->FaceOffsets->GetNumberOfTuples() : 0;

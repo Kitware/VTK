@@ -16,13 +16,16 @@
 
 #include "vtkDataSet.h"
 #include "vtkDemandDrivenPipeline.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
@@ -607,7 +610,8 @@ void vtkVolumeOutlineSource::GenerateLines(
             // Check to make sure line segment isn't already there
             int foundDuplicate = 0;
             lines->InitTraversal();
-            vtkIdType npts, *pts;
+            vtkIdType npts;
+            const vtkIdType *pts;
             for (int cellId = 0; lines->GetNextCell(npts, pts); cellId++)
             {
               if (pts[0] == pointId0 && pts[1] == pointId1)
@@ -653,7 +657,8 @@ void vtkVolumeOutlineSource::GeneratePoints(
   unsigned int pointBits1 = 0;
   unsigned int pointBits2 = 0;
 
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkCellArray *cellArrays[2];
   cellArrays[0] = lines;
   cellArrays[1] = polys;
@@ -682,6 +687,7 @@ void vtkVolumeOutlineSource::GeneratePoints(
   int ptId = 0;
   int newPtId = 0;
 
+  vtkNew<vtkIdList> repCell;
   for (int i = 0; i < 4; i++)
   {
     // If we're halfway done, switch over to the next 32 bits
@@ -704,15 +710,23 @@ void vtkVolumeOutlineSource::GeneratePoints(
           for (int arrayId = 0; arrayId < 2; arrayId++)
           {
             // Go through the cells, substitute old Id for new Id
-            if (cellArrays[arrayId])
+            vtkCellArray *cells = cellArrays[arrayId];
+            if (cells)
             {
-              cellArrays[arrayId]->InitTraversal();
-              while (cellArrays[arrayId]->GetNextCell(npts, pts))
+              auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
+              for (cellIter->GoToFirstCell();
+                   !cellIter->IsDoneWithTraversal();
+                   cellIter->GoToNextCell())
               {
-                for (int ii = 0; ii < npts; ii++)
+                cellIter->GetCurrentCell(repCell);
+                for (int ii = 0; ii < repCell->GetNumberOfIds(); ii++)
                 {
-                  if (pts[ii] == ptId) { pts[ii] = newPtId; }
+                  if (repCell->GetId(ii) == ptId)
+                  {
+                    repCell->SetId(ii, newPtId);
+                  }
                 }
+                cellIter->ReplaceCurrentCell(repCell);
               }
             }
           }

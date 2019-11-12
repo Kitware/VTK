@@ -519,7 +519,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   double x[3]; x[2] = 0.0;
   if ( this->IndependentVariables == VTK_IV_COLUMN )
   {
-    lines->Allocate(lines->EstimateSize(numRows,numColumns));
+    lines->AllocateEstimate(numRows, numColumns);
     for (j=0; j<numRows; j++)
     {
       lines->InsertNextCell(numColumns);
@@ -550,7 +550,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   }
   else //row
   {
-    lines->Allocate(lines->EstimateSize(numColumns,numRows));
+    lines->AllocateEstimate(numColumns, numRows);
     for (j=0; j<numComponents; j++)
     {
       int array_comp;

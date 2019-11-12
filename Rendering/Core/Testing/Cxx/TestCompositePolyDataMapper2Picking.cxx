@@ -21,6 +21,7 @@
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"

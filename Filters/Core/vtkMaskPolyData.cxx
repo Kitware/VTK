@@ -50,7 +50,7 @@ int vtkMaskPolyData::RequestData(
   vtkIdType id;
   vtkPointData *pd;
   vtkIdType numCells;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   int abortExecute=0;
 
@@ -64,7 +64,7 @@ int vtkMaskPolyData::RequestData(
     return 1;
   }
 
-  output->Allocate(input,numCells);
+  output->AllocateCopy(input);
   input->BuildCells();
 
   // Traverse topological lists and traverse

@@ -827,18 +827,22 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
       da->SetNumberOfComponents(1);
       vtkUnstructuredGrid *ugrid = vtkUnstructuredGrid::SafeDownCast(ds);
       const int ESTIMATE=4; /*celltype+numids+id0+id1 or celtype+id0+id1+id2*/
+      auto countConnSize = [](vtkCellArray *ca)
+      {
+        return ca->GetNumberOfCells() + ca->GetNumberOfConnectivityIds();
+      };
       if (ugrid)
       {
-        da->Allocate(ugrid->GetCells()->GetSize()*ESTIMATE);
+        da->Allocate(countConnSize(ugrid->GetCells()) * ESTIMATE);
       }
       else
       {
         vtkPolyData *pd = vtkPolyData::SafeDownCast(ds);
-        vtkIdType sizev = pd->GetVerts()->GetSize();
-        vtkIdType sizel = pd->GetLines()->GetSize();
-        vtkIdType sizep = pd->GetPolys()->GetSize();
-        vtkIdType sizes = pd->GetStrips()->GetSize();
-        vtkIdType rtotal = sizev+sizel+sizep+sizes;
+        const vtkIdType sizev = countConnSize(pd->GetVerts());
+        const vtkIdType sizel = countConnSize(pd->GetLines());
+        const vtkIdType sizep = countConnSize(pd->GetPolys());
+        const vtkIdType sizes = countConnSize(pd->GetStrips());
+        const vtkIdType rtotal = sizev+sizel+sizep+sizes;
         da->Allocate(rtotal*ESTIMATE);
       }
 

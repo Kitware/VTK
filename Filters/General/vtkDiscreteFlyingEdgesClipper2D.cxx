@@ -214,10 +214,10 @@ public:
   ContourMap<T> *CMap;
 
   // Output data. Threads write to partitioned memory.
-  T         *Scalars;
-  vtkIdType *NewPolys;
-  float     *NewPoints;
-  T         *NewScalars; //cell scalars if requested
+  T            *Scalars;
+  vtkCellArray *NewPolys;
+  float        *NewPoints;
+  T            *NewScalars; //cell scalars if requested
 
   // Instantiate and initialize key data members.
   vtkDiscreteClipperAlgorithm();
@@ -264,25 +264,51 @@ public:
     { return this->VertUses[dCase]; }
 
   // Produce the primitives for this pixel cell.
-  void GeneratePolys(unsigned char dCase, unsigned char numPolys,
-                     vtkIdType ptIds[9], vtkIdType &rowConnLen)
+  struct GeneratePolysImpl
   {
-    vtkIdType *prim, vid;
-    unsigned char connLen = this->VertCases[dCase][1];
-    const unsigned char *verts = this->VertCases[dCase] + 3;
-    prim = this->NewPolys + rowConnLen;
-    for (int i=0; i < numPolys; ++i)
+    template <typename CellStateT>
+    void operator()(CellStateT &state,
+                    const unsigned char *verts,
+                    int numPolys,
+                    const vtkIdType ptIds[9],
+                    vtkIdType &cellOffsetBegin,
+                    vtkIdType &cellConnBegin)
     {
-      prim[0] = *verts++;
-      for (int j=1; j <= prim[0]; ++j)
+      using ValueType = typename CellStateT::ValueType;
+      auto *offsets = state.GetOffsets();
+      auto *conn = state.GetConnectivity();
+
+      size_t vid{0};
+      while (numPolys-- > 0)
       {
-        vid = *verts++;
-        vid = (vid <= 3 ? vid : (vid <= 13 ? (vid-6) : 8) );
-        prim[j] = ptIds[vid];
+        int nPts = static_cast<int>(*verts++);
+        offsets->SetValue(cellOffsetBegin++,
+                          static_cast<ValueType>(cellConnBegin));
+        while (nPts-- > 0)
+        {
+          // Can't just do vtkCellArray::AppendLegacyFormat bc of this funky
+          // conversion:
+          vid = static_cast<size_t>(*verts++);
+          vid = (vid <= 3 ? vid : (vid <= 13 ? (vid-6) : 8) );
+          conn->SetValue(cellConnBegin++,
+                         static_cast<ValueType>(ptIds[vid]));
+        }
       }
-      prim += (prim[0] + 1);
+      // Write the last offset:
+      offsets->SetValue(cellOffsetBegin, cellConnBegin);
     }
-    rowConnLen += connLen;
+  };
+  void GeneratePolys(unsigned char dCase, unsigned char numPolys,
+                     vtkIdType ptIds[9], vtkIdType &cellOffsetBegin,
+                     vtkIdType &cellConnBegin)
+  {
+    const unsigned char *verts = this->VertCases[dCase] + 3;
+    this->NewPolys->Visit(GeneratePolysImpl{},
+                          verts,
+                          numPolys,
+                          ptIds,
+                          cellOffsetBegin,
+                          cellConnBegin);
   }
 
   // Produce the output points on the dyad. Special cases exist on the
@@ -1063,7 +1089,8 @@ GenerateOutput(T* rowPtr, vtkIdType row)
   // further identified for processing, meaning generating points and
   // polygons. Begin by setting up point ids on pixel edges.
   vtkIdType polyNum = eMD0[2];
-  vtkIdType rowConnLen = eMD0[3];
+  vtkIdType cellOffsetBegin = eMD0[2];
+  vtkIdType cellConnBegin = eMD0[3] - eMD0[2];
   vtkIdType ids[9]; //the ids of generated points
   unsigned char numPolys;
 
@@ -1115,7 +1142,7 @@ GenerateOutput(T* rowPtr, vtkIdType row)
       }
 
       // Generate polygons for this case
-      this->GeneratePolys(dCase,numPolys,ids,rowConnLen);
+      this->GeneratePolys(dCase,numPolys,ids,cellOffsetBegin,cellConnBegin);
 
       // If requested, generate cell scalars for the polygons in this case
       if ( this->NewScalars )
@@ -1291,8 +1318,8 @@ ContourImage(vtkDiscreteFlyingEdgesClipper2D *self, T *scalars, vtkPoints *newPt
   {
     newPts->GetData()->WriteVoidPointer(0,3*totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
-    newPolys->WritePointer(numOutPolys,outConnLen);
-    algo.NewPolys = static_cast<vtkIdType*>(newPolys->GetPointer());
+    newPolys->ResizeExact(numOutPolys, outConnLen - numOutPolys);
+    algo.NewPolys = newPolys;
     if (newScalars)
     {
       newScalars->WriteVoidPointer(0,numOutPolys);

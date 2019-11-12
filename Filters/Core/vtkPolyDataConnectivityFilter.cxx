@@ -88,7 +88,9 @@ int vtkPolyDataConnectivityFilter::RequestData(
   vtkIdType cellId, newCellId, i, pt;
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkIdType *cells, *pts, npts, id, n;
+  vtkIdType *cells, id, n;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkIdType ncells;
   vtkIdType maxCellsInRegion;
   vtkIdType largestRegionId = 0;
@@ -308,28 +310,28 @@ int vtkPolyDataConnectivityFilter::RequestData(
   if ( (n=input->GetVerts()->GetNumberOfCells()) > 0 )
   {
     vtkCellArray *newVerts = vtkCellArray::New();
-    newVerts->Allocate(n,n);
+    newVerts->AllocateEstimate(n, 1);
     output->SetVerts(newVerts);
     newVerts->Delete();
   }
   if ( (n=input->GetLines()->GetNumberOfCells()) > 0 )
   {
     vtkCellArray *newLines = vtkCellArray::New();
-    newLines->Allocate(2*n,n);
+    newLines->AllocateEstimate(n, 2);
     output->SetLines(newLines);
     newLines->Delete();
   }
   if ( (n=input->GetPolys()->GetNumberOfCells()) > 0 )
   {
     vtkCellArray *newPolys = vtkCellArray::New();
-    newPolys->Allocate(3*n,n);
+    newPolys->AllocateEstimate(n, 3);
     output->SetPolys(newPolys);
     newPolys->Delete();
   }
   if ( (n=input->GetStrips()->GetNumberOfCells()) > 0 )
   {
     vtkCellArray *newStrips = vtkCellArray::New();
-    newStrips->Allocate(5*n,n);
+    newStrips->AllocateEstimate(n, 5);
     output->SetStrips(newStrips);
     newStrips->Delete();
   }
@@ -453,7 +455,9 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
 {
   vtkIdType cellId, ptId, numIds, i;
   int j, k;
-  vtkIdType *pts, *cells, npts;
+  vtkIdType *cells;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkIdType ncells;
   const vtkIdType numCells = this->Mesh->GetNumberOfCells();
 

@@ -597,7 +597,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
 
   this->StartAttribute(attributeID, true, false);
 

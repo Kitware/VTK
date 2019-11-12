@@ -165,7 +165,7 @@ int vtkCleanPolyData::RequestData(
   vtkIdType i;
   vtkIdType ptId;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   double x[3];
   double newx[3];
   vtkIdType *pointMap=nullptr; //used if no merging
@@ -234,7 +234,7 @@ int vtkCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inVerts->GetNumberOfCells() > 0 )
   {
     newVerts = vtkCellArray::New();
-    newVerts->Allocate(inVerts->GetSize());
+    newVerts->AllocateEstimate(inVerts->GetNumberOfCells(), 1);
 
     vtkDebugMacro(<<"Starting Verts "<<inCellID);
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts);
@@ -278,7 +278,7 @@ int vtkCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inLines->GetNumberOfCells() > 0 )
   {
     newLines = vtkCellArray::New();
-    newLines->Allocate(inLines->GetSize());
+    newLines->AllocateEstimate(inLines->GetNumberOfCells(), 2);
     outLineData = vtkCellData::New();
     outLineData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
     outLineData->CopyAllocate(inputCD);
@@ -326,7 +326,7 @@ int vtkCleanPolyData::RequestData(
         if (!newVerts)
         {
           newVerts = vtkCellArray::New();
-          newVerts->Allocate(5);
+          newVerts->AllocateEstimate(5, 1);
         }
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
@@ -348,7 +348,8 @@ int vtkCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inPolys->GetNumberOfCells() > 0 )
   {
     newPolys = vtkCellArray::New();
-    newPolys->Allocate(inPolys->GetSize());
+    newPolys->AllocateExact(inPolys->GetNumberOfCells(),
+                            inPolys->GetNumberOfConnectivityIds());
     outPolyData = vtkCellData::New();
     outPolyData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
     outPolyData->CopyAllocate(inputCD);
@@ -399,7 +400,7 @@ int vtkCleanPolyData::RequestData(
         if (!newLines)
         {
           newLines = vtkCellArray::New();
-          newLines->Allocate(5);
+          newLines->AllocateEstimate(5, 2);
           outLineData = vtkCellData::New();
           outLineData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
           outLineData->CopyAllocate(inputCD);
@@ -418,7 +419,7 @@ int vtkCleanPolyData::RequestData(
         if (!newVerts)
         {
           newVerts = vtkCellArray::New();
-          newVerts->Allocate(5);
+          newVerts->AllocateEstimate(5, 1);
         }
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
@@ -439,7 +440,8 @@ int vtkCleanPolyData::RequestData(
   if ( !this->GetAbortExecute() && inStrips->GetNumberOfCells() > 0 )
   {
     newStrips = vtkCellArray::New();
-    newStrips->Allocate(inStrips->GetSize());
+    newStrips->AllocateExact(inStrips->GetNumberOfCells(),
+                             inStrips->GetNumberOfConnectivityIds());
     outStrpData = vtkCellData::New();
     outStrpData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
     outStrpData->CopyAllocate(inputCD);
@@ -490,7 +492,7 @@ int vtkCleanPolyData::RequestData(
         if (!newPolys)
         {
           newPolys = vtkCellArray::New();
-          newPolys->Allocate(5);
+          newPolys->AllocateEstimate(5, 3);
           outPolyData = vtkCellData::New();
           outPolyData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
           outPolyData->CopyAllocate(inputCD);
@@ -509,7 +511,7 @@ int vtkCleanPolyData::RequestData(
         if (!newLines)
         {
           newLines = vtkCellArray::New();
-          newLines->Allocate(5);
+          newLines->AllocateEstimate(5, 2);
           outLineData = vtkCellData::New();
           outLineData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
           outLineData->CopyAllocate(inputCD);
@@ -528,7 +530,7 @@ int vtkCleanPolyData::RequestData(
         if (!newVerts)
         {
           newVerts = vtkCellArray::New();
-          newVerts->Allocate(5);
+          newVerts->AllocateEstimate(5, 1);
         }
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);

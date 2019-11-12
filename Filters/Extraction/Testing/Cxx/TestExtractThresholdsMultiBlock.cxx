@@ -18,6 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelection.h"
 #include "vtkIdFilter.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMultiBlockDataGroupFilter.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"

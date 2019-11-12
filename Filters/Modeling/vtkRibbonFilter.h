@@ -164,15 +164,15 @@ protected:
   double TextureLength; //this length is mapped to [0,1) texture space
 
   // Helper methods
-  int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
+  int GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdType *pts,
                      vtkPoints *inPts, vtkPoints *newPts,
                      vtkPointData *pd, vtkPointData *outPD,
                      vtkFloatArray *newNormals, vtkDataArray *inScalars,
                      double range[2], vtkDataArray *inNormals);
-  void GenerateStrip(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
+  void GenerateStrip(vtkIdType offset, vtkIdType npts, const vtkIdType *pts,
                      vtkIdType inCellId, vtkCellData *cd, vtkCellData *outCD,
                      vtkCellArray *newStrips);
-  void GenerateTextureCoords(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
+  void GenerateTextureCoords(vtkIdType offset, vtkIdType npts, const vtkIdType *pts,
                              vtkPoints *inPts, vtkDataArray *inScalars,
                              vtkFloatArray *newTCoords);
   vtkIdType ComputeOffset(vtkIdType offset,vtkIdType npts);

@@ -1473,7 +1473,8 @@ int vtkSplineWidget::IsClosed()
     return 0;
   }
 
-  int numEntries = lineData->GetLines()->GetNumberOfConnectivityEntries();
+  int numEntries = lineData->GetLines()->GetNumberOfConnectivityIds() +
+      lineData->GetLines()->GetNumberOfCells();
 
   double p0[3];
   double p1[3];

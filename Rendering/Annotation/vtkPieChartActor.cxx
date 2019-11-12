@@ -24,6 +24,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkLegendBoxActor.h"
@@ -465,7 +466,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
   vtkPoints *webPts = vtkPoints::New();
   webPts->Allocate(this->N+1);
   vtkCellArray *webLines = vtkCellArray::New();
-  webLines->Allocate(this->N,2);
+  webLines->AllocateEstimate(this->N, 2);
   this->WebData->SetPoints(webPts);
   this->WebData->SetLines(webLines);
   vtkIdType ptId, pIds[2];
@@ -573,7 +574,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
 
   double *color, delTheta;
   vtkIdType numDivs;
-  polys->Allocate(polys->EstimateSize(this->N,12));
+  polys->AllocateEstimate(this->N, 12);
 
   pIds[0] = pts->InsertNextPoint(this->Center);
   for (i=0; i<this->N; i++)

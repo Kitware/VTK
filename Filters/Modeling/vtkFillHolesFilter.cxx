@@ -59,7 +59,9 @@ int vtkFillHolesFilter::RequestData(
   vtkDebugMacro(<<"Executing hole fill operation");
 
   // check the input, build data structures as necessary
-  vtkIdType numPts, npts, *pts;
+  vtkIdType numPts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkPoints *inPts=input->GetPoints();
   vtkIdType numPolys = input->GetNumberOfPolys();
   vtkIdType numStrips = input->GetNumberOfStrips();
@@ -82,7 +84,7 @@ int vtkFillHolesFilter::RequestData(
     }
     else
     {
-      newPolys->Allocate(newPolys->EstimateSize(numStrips,5));
+      newPolys->AllocateEstimate(numStrips, 5);
     }
     vtkCellArray *inStrips = input->GetStrips();
     for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
@@ -103,7 +105,7 @@ int vtkFillHolesFilter::RequestData(
   //
   vtkPolyData *Lines = vtkPolyData::New();
   vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate(numPts/10);
+  newLines->AllocateEstimate(numPts/10, 1);
   Lines->SetLines(newLines);
   Lines->SetPoints(inPts);
 

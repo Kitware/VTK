@@ -238,7 +238,7 @@ vtkIdType vtkPointPicker::IntersectDataSetWithLine(const double p1[3],
       {
         cells->InitTraversal();
         vtkIdType  n_cell_pts = 0;
-        vtkIdType *pt_ids = nullptr;
+        const vtkIdType *pt_ids = nullptr;
         while( cells->GetNextCell( n_cell_pts, pt_ids ) )
         {
           for ( vtkIdType ptIndex=0; ptIndex<n_cell_pts; ptIndex++)

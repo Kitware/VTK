@@ -127,7 +127,8 @@ int vtkDijkstraImageContourLineInterpolator::InterpolateLine(
 
   vtkPolyData *pd = this->DijkstraImageGeodesicPath->GetOutput();
 
-  vtkIdType npts = 0, *pts = nullptr;
+  vtkIdType npts = 0;
+  const vtkIdType *pts = nullptr;
   pd->GetLines()->InitTraversal();
   pd->GetLines()->GetNextCell( npts, pts );
 

@@ -362,7 +362,8 @@ struct MapUGridToSpanSpace
   {
     vtkUnstructuredGrid *grid = this->Grid;
     TS *scalars = this->Scalars;
-    vtkIdType i, npts, *pts;
+    vtkIdType i, npts;
+    const vtkIdType *pts;
     double s, sMin, sMax;
 
     for ( ; cellId < endCellId; ++cellId )

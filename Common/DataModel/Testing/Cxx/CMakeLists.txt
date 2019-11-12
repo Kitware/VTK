@@ -7,6 +7,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestVectorOperators.cxx
   TestAMRBox.cxx
   TestBiQuadraticQuad.cxx
+  TestCellArray.cxx
   TestCompositeDataSets.cxx
   TestCompositeDataSetRange.cxx
   TestComputeBoundingSphere.cxx
@@ -52,7 +53,6 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestTreeDFSIterator.cxx
   TestTriangle.cxx
   TimePointLocators.cxx
-  otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx
   otherCellTypes.cxx

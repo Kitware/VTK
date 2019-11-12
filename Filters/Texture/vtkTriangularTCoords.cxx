@@ -49,7 +49,7 @@ int vtkTriangularTCoords::RequestData(
   vtkIdType numNewPts, numNewPolys, polyAllocSize;
   vtkFloatArray *newTCoords;
   vtkIdType newId, numCells, cellId;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType newIds[3];
   vtkIdType npts = 0;
   int errorLogging = 1;
@@ -102,7 +102,7 @@ int vtkTriangularTCoords::RequestData(
   newPoints->Allocate(numNewPts);
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(polyAllocSize);
+  newPolys->AllocateEstimate(polyAllocSize, 1);
 
   pointData->CopyTCoordsOff();
   pointData->CopyAllocate(pd);

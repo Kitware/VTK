@@ -169,7 +169,7 @@ protected:
   double     TextureLength; //this length is mapped to [0,1) texture space
 
   //helper methods
-  int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
+  int GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdType *pts,
                      vtkPoints *inPts, vtkPoints *newPts, vtkPointData *pd,
                      vtkPointData *outPD, int genTCoords,
                      vtkFloatArray *newTCoords);

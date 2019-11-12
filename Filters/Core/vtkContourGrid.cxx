@@ -190,11 +190,11 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
 
   newPts->Allocate(estimatedSize,estimatedSize);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize,estimatedSize);
+  newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
-  newLines->Allocate(estimatedSize,estimatedSize);
+  newLines->AllocateEstimate(estimatedSize, 2);
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(estimatedSize,estimatedSize);
+  newPolys->AllocateEstimate(estimatedSize, 4);
   cellScalars = inScalars->NewInstance();
   cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());

@@ -96,7 +96,7 @@ void vtkMCubesWriter::WriteMCubes(FILE *fp, vtkPoints *pts,
   pointType point;
   int i;
   vtkIdType npts;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
 
   //  Write out triangle polygons.  In not a triangle polygon, create
   //  triangles.

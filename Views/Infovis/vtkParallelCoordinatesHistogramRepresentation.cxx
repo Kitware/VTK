@@ -29,6 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkExtractHistogram2D.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageGaussianSmooth.h"
 #include "vtkImageMedian3D.h"

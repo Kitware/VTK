@@ -143,7 +143,6 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   vtkCellData *inCD = nullptr;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  vtkIdType *pStrips, *pLines, *pPolys,*pVerts;
 
   vtkDebugMacro(<<"Appending polydata");
 
@@ -208,20 +207,20 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       {
         if (ds->GetVerts())
         {
-          sizeVerts += ds->GetVerts()->GetNumberOfConnectivityEntries();
+          sizeVerts += ds->GetVerts()->GetNumberOfConnectivityIds();
         }
         if (ds->GetLines())
         {
-          sizeLines += ds->GetLines()->GetNumberOfConnectivityEntries();
+          sizeLines += ds->GetLines()->GetNumberOfConnectivityIds();
         }
         // keep track of the size of the poly cell array
         if (ds->GetPolys())
         {
-          sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
+          sizePolys += ds->GetPolys()->GetNumberOfConnectivityIds();
         }
         if (ds->GetStrips())
         {
-          sizeStrips += ds->GetStrips()->GetNumberOfConnectivityEntries();
+          sizeStrips += ds->GetStrips()->GetNumberOfConnectivityIds();
         }
 
         numCells += ds->GetNumberOfCells();
@@ -296,36 +295,36 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   newPts->SetNumberOfPoints(numPts);
 
   newVerts = vtkCellArray::New();
-  pVerts = newVerts->WritePointer(numVerts, sizeVerts);
+  bool allocated = newVerts->AllocateExact(numVerts, sizeVerts);
 
-  if (sizeVerts > 0 && !pVerts)
+  if (sizeVerts > 0 && !allocated)
   {
     vtkErrorMacro(<<"Memory allocation failed in append filter");
     return 0;
   }
 
   newLines = vtkCellArray::New();
-  pLines = newLines->WritePointer(numLines, sizeLines);
+  allocated = newLines->AllocateExact(numLines, sizeLines);
 
-  if (sizeLines > 0 && !pLines)
+  if (sizeLines > 0 && !allocated)
   {
     vtkErrorMacro(<<"Memory allocation failed in append filter");
     return 0;
   }
 
   newPolys = vtkCellArray::New();
-  pPolys = newPolys->WritePointer(numPolys, sizePolys);
+  allocated = newPolys->AllocateExact(numPolys, sizePolys);
 
-  if (sizePolys > 0 && !pPolys)
+  if (sizePolys > 0 && !allocated)
   {
     vtkErrorMacro(<<"Memory allocation failed in append filter");
     return 0;
   }
 
   newStrips = vtkCellArray::New();
-  pStrips = newStrips->WritePointer(numStrips, sizeStrips);
+  allocated = newStrips->AllocateExact(numStrips, sizeStrips);
 
-  if (sizeStrips > 0 && !pStrips)
+  if (sizeStrips > 0 && !allocated)
   {
     vtkErrorMacro(<<"Memory allocation failed in append filter");
     return 0;
@@ -387,10 +386,10 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         vtkIdType stripsIndex = polysIndex + ds->GetNumberOfPolys();
 
         // copy the cells
-        pVerts = this->AppendCells(pVerts, inVerts, ptOffset);
-        pLines = this->AppendCells(pLines, inLines, ptOffset);
-        pPolys = this->AppendCells(pPolys, inPolys, ptOffset);
-        pStrips = this->AppendCells(pStrips, inStrips, ptOffset);
+        this->AppendCells(newVerts, inVerts, ptOffset);
+        this->AppendCells(newLines, inLines, ptOffset);
+        this->AppendCells(newPolys, inPolys, ptOffset);
+        this->AppendCells(newStrips, inStrips, ptOffset);
 
         // copy cell data
         outputCD->CopyData(cellList, inCD, countCD, vertOffset, ds->GetNumberOfVerts(), vertsIndex);
@@ -607,38 +606,10 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
 }
 
 //----------------------------------------------------------------------------
-// returns the next pointer in dest
-vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
-                                          vtkIdType offset)
+void vtkAppendPolyData::AppendCells(vtkCellArray *dst, vtkCellArray *src,
+                                    vtkIdType offset)
 {
-  vtkIdType *pSrc, *end, *pNum;
-
-  if (src == nullptr)
-  {
-    return pDest;
-  }
-
-  pSrc = src->GetPointer();
-  end = pSrc + src->GetNumberOfConnectivityEntries();
-  pNum = pSrc;
-
-  while (pSrc < end)
-  {
-    if (pSrc == pNum)
-    {
-      // move cell pointer to next cell
-      pNum += 1+*pSrc;
-      // copy the number of cells
-      *pDest++ = *pSrc++;
-    }
-    else
-    {
-      // offset the point index
-      *pDest++ = offset + *pSrc++;
-    }
-  }
-
-  return pDest;
+  dst->Append(src, offset);
 }
 
 //----------------------------------------------------------------------------

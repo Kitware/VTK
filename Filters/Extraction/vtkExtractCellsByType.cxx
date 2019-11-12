@@ -185,7 +185,9 @@ ExtractPolyDataCells(vtkDataSet *inDS, vtkDataSet *outDS,
 
   // Verts
   outCD->CopyAllocate(inCD);
-  vtkIdType i, npts, *pts;
+  vtkIdType i;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkCellArray *inVerts = input->GetVerts();
   if ( this->ExtractCellType(VTK_VERTEX) || this->ExtractCellType(VTK_POLY_VERTEX) )
   {

@@ -20,8 +20,10 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -224,7 +226,8 @@ void vtkJSONDataSetWriter::WriteData()
                  << this->WriteArray(points->GetData(), "vtkPoints", "points").c_str();
 
     // Verts
-    vtkDataArray* cells = polyData->GetVerts()->GetData();
+    vtkNew<vtkIdTypeArray> cells;
+    polyData->GetVerts()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"verts\": "
@@ -232,7 +235,7 @@ void vtkJSONDataSetWriter::WriteData()
     }
 
     // Lines
-    cells = polyData->GetLines()->GetData();
+    polyData->GetLines()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"lines\": "
@@ -240,7 +243,7 @@ void vtkJSONDataSetWriter::WriteData()
     }
 
     // Strips
-    cells = polyData->GetStrips()->GetData();
+    polyData->GetStrips()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"strips\": "
@@ -248,7 +251,7 @@ void vtkJSONDataSetWriter::WriteData()
     }
 
     // Polys
-    cells = polyData->GetPolys()->GetData();
+    polyData->GetPolys()->ExportLegacyFormat(cells);
     if (cells->GetNumberOfValues())
     {
       metaJsonFile << ",\n  \"polys\": "

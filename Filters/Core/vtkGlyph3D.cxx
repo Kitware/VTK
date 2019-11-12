@@ -252,7 +252,7 @@ bool vtkGlyph3D::Execute(
   if ( source == nullptr )
   {
     vtkNew<vtkPolyData> defaultSource;
-    defaultSource->Allocate();
+    defaultSource->AllocateExact(0, 0, 1, 2, 0, 0, 0, 0);
     vtkNew<vtkPoints> defaultPoints;
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
@@ -401,15 +401,7 @@ bool vtkGlyph3D::Execute(
   }
 
   // Setting up for calls to PolyData::InsertNextCell()
-  if (this->IndexMode != VTK_INDEXING_OFF )
-  {
-    output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
-  }
-  else
-  {
-    output->Allocate(source,
-                     3*numPts*numSourceCells, numPts*numSourceCells);
-  }
+  output->AllocateEstimate(numPts*numSourceCells, 3);
 
   transformedSourcePts->SetDataTypeToDouble();
   transformedSourcePts->Allocate(numSourcePts);

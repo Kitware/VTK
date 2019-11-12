@@ -13,18 +13,23 @@
 
 =========================================================================*/
 #include "vtkXMLUnstructuredDataReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkXMLDataElement.h"
-#include "vtkPoints.h"
-#include "vtkIdTypeArray.h"
-#include "vtkUnsignedCharArray.h"
+
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
-#include "vtkPointSet.h"
+#include "vtkDataArrayRange.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkXMLDataElement.h"
 
 #include <cassert>
-
+#include <utility>
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -93,17 +98,6 @@ vtkXMLUnstructuredDataReader
 }
 
 //----------------------------------------------------------------------------
-template <class TIn, class TOut>
-void vtkXMLUnstructuredDataReaderCopyArray(TIn* in, TOut* out,
-                                           vtkIdType length)
-{
-  for(vtkIdType i = 0; i < length; ++i)
-  {
-    out[i] = static_cast<TOut>(in[i]);
-  }
-}
-
-//----------------------------------------------------------------------------
 vtkIdTypeArray*
 vtkXMLUnstructuredDataReader::ConvertToIdTypeArray(vtkDataArray* a)
 {
@@ -116,22 +110,7 @@ vtkXMLUnstructuredDataReader::ConvertToIdTypeArray(vtkDataArray* a)
 
   // Need to convert the data.
   ida = vtkIdTypeArray::New();
-  ida->SetNumberOfComponents(a->GetNumberOfComponents());
-  ida->SetNumberOfTuples(a->GetNumberOfTuples());
-  vtkIdType length = a->GetNumberOfComponents() * a->GetNumberOfTuples();
-  vtkIdType* idBuffer = ida->GetPointer(0);
-  switch (a->GetDataType())
-  {
-    vtkTemplateMacro(
-      vtkXMLUnstructuredDataReaderCopyArray(
-                      static_cast<VTK_TT*>(a->GetVoidPointer(0)),
-                      idBuffer, length));
-    default:
-      vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
-                    << " to vtkIdTypeArray.");
-      ida->Delete();
-      ida = nullptr;
-  }
+  ida->ShallowCopy(a);
   a->Delete();
   return ida;
 }
@@ -149,22 +128,7 @@ vtkXMLUnstructuredDataReader::ConvertToUnsignedCharArray(vtkDataArray* a)
 
   // Need to convert the data.
   uca = vtkUnsignedCharArray::New();
-  uca->SetNumberOfComponents(a->GetNumberOfComponents());
-  uca->SetNumberOfTuples(a->GetNumberOfTuples());
-  vtkIdType length = a->GetNumberOfComponents() * a->GetNumberOfTuples();
-  unsigned char* ucBuffer = uca->GetPointer(0);
-  switch (a->GetDataType())
-  {
-    vtkTemplateMacro(
-      vtkXMLUnstructuredDataReaderCopyArray(
-        static_cast<VTK_TT*>(a->GetVoidPointer(0)),
-        ucBuffer, length));
-    default:
-      vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
-                    << " to vtkUnsignedCharArray.");
-      uca->Delete();
-      uca = nullptr;
-  }
+  uca->ShallowCopy(a);
   a->Delete();
   return uca;
 }
@@ -534,9 +498,85 @@ int vtkXMLUnstructuredDataReader::ReadPieceData()
   return 1;
 }
 
+namespace {
+
+struct ValidateOffsets
+{
+  bool Valid{false};
+  vtkIdType ConnSize{0};
+
+  template <typename ArrayT>
+  void operator()(ArrayT* offsets)
+  {
+    using ValueType = vtk::GetAPIType<ArrayT>;
+
+    auto range = vtk::DataArrayValueRange<1>(offsets);
+
+    if (range.size() == 0)
+    {
+      this->Valid = false;
+      return;
+    }
+
+    // First offset must be zero:
+    if (*range.cbegin() != 0)
+    {
+      this->Valid = false;
+      return;
+    }
+
+    // Ensure that offsets are increasing:
+    auto it = std::adjacent_find(range.cbegin(), range.cend(),
+      [](const ValueType a, const ValueType b) -> bool
+      {
+        return b < a;
+      }
+    );
+
+    this->Valid = it == range.cend();
+
+    if (this->Valid)
+    { // The last entry in the offsets is the size of the connectivity
+      this->ConnSize = static_cast<vtkIdType>(*(range.cend() - 1));
+    }
+  }
+};
+
+struct ConstructCellArray
+{
+  vtkCellArray *CellArray;
+  vtkDataArray *Connectivity;
+  bool ConnectivityIsValid;
+
+  ConstructCellArray(vtkCellArray *cellArray,
+                     vtkDataArray *connectivity)
+    : CellArray{cellArray}
+    , Connectivity{connectivity}
+    , ConnectivityIsValid{false}
+  {
+  }
+
+  template <typename ArrayT>
+  void operator()(ArrayT *offsets)
+  {
+    // Connectivity should have the same type as offsets:
+    ArrayT *conn = vtkArrayDownCast<ArrayT>(this->Connectivity);
+    if (!conn)
+    {
+      this->ConnectivityIsValid = false;
+      return;
+    }
+
+    this->CellArray->SetData(offsets, conn);
+    this->ConnectivityIsValid = true;
+  }
+};
+
+} // end anon namespace
+
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
-                                                vtkIdType totalNumberOfCells,
+                                                vtkIdType vtkNotUsed(totalNumberOfCells),
                                                 vtkXMLDataElement* eCells,
                                                 vtkCellArray* outCells)
 {
@@ -568,177 +608,203 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   {
     return 0;
   }
-  vtkXMLDataElement* eOffsets = this->FindDataArrayWithName(eCells, "offsets");
-  if(!eOffsets && !this->AbortExecute)
+
+  // ------------------------ Read offsets -------------------------------------
+  vtkSmartPointer<vtkDataArray> cellOffsets;
   {
-    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"offsets\" array could not be found.");
-    return 0;
+    vtkXMLDataElement* eOffsets = this->FindDataArrayWithName(eCells, "offsets");
+    if(!eOffsets && !this->AbortExecute)
+    {
+      vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"offsets\" array could not be found.");
+      return 0;
+    }
+
+    if (this->AbortExecute)
+    {
+      return 0;
+    }
+
+    auto aOffsets = vtk::TakeSmartPointer(this->CreateArray(eOffsets));
+    if (!aOffsets)
+    {
+      vtkErrorMacro("Cell offsets array missing from " << eCells->GetName());
+      return 0;
+    }
+
+    if (!aOffsets->IsA("vtkDataArray"))
+    {
+      vtkErrorMacro("Cannot cast cell offsets from " << eCells->GetName() <<
+                    " to vtkDataArray.");
+      return 0;
+    }
+
+    cellOffsets = vtkArrayDownCast<vtkDataArray>(aOffsets.Get());
+
+    if (cellOffsets->GetNumberOfComponents() != 1)
+    {
+      vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"offsets\" array could not be created"
+                    << " with one component.");
+      return 0;
+    }
+
+    // The file format skips the first 0 in the offsets array, so set the first
+    // value in the array to 0 and read the data into the array starting at
+    // index 1.
+    cellOffsets->SetNumberOfTuples(numberOfCells + 1);
+    cellOffsets->SetComponent(0, 0, 0);
+    if (!this->ReadArrayValues(eOffsets, 1,
+                               cellOffsets, 0,
+                               numberOfCells, CELL_DATA) &&
+        !this->AbortExecute)
+    {
+      vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"offsets\" array is not long enough.");
+      return 0;
+    }
   }
+
   if (this->AbortExecute)
   {
-    return 0;
-  }
-  vtkAbstractArray* ac1 = this->CreateArray(eOffsets);
-  vtkDataArray* c1 = vtkArrayDownCast<vtkDataArray>(ac1);
-  if(!c1 || (c1->GetNumberOfComponents() != 1))
-  {
-    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"offsets\" array could not be created"
-                  << " with one component.");
-    if (ac1)
-    {
-      ac1->Delete();
-    }
-    return 0;
-  }
-  c1->SetNumberOfTuples(numberOfCells);
-  if(!this->ReadArrayValues(eOffsets, 0, c1,
-                            0, numberOfCells, CELL_DATA) && !this->AbortExecute)
-  {
-    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"offsets\" array is not long enough.");
-    if (ac1)
-    {
-      ac1->Delete();
-    }
-    return 0;
-  }
-  if (this->AbortExecute)
-  {
-    if (ac1)
-    {
-      ac1->Delete();
-    }
-    return 0;
-  }
-  vtkIdTypeArray* cellOffsets = this->ConvertToIdTypeArray(c1);
-  if(!cellOffsets)
-  {
-    vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"offsets\" array could not be"
-                  << " converted to a vtkIdTypeArray.");
     return 0;
   }
 
-  // Check the contents of the cell offsets array.
-  vtkIdType* coffset = cellOffsets->GetPointer(0);
-  vtkIdType lastOffset = 0;
-  vtkIdType i;
-  for(i=0; i < numberOfCells; ++i)
+  // Validate the offsets
+  ValidateOffsets offsetValidator;
+  using SupportedArrays = vtkCellArray::InputArrayList;
+  using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
+  if (!Dispatch::Execute(cellOffsets, offsetValidator))
   {
-    if(coffset[i] < lastOffset)
-    {
-      vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                    << " in piece " << this->Piece
-                    << " because the \"offsets\" array is"
-                    << " not monotonically increasing or starts with a"
-                    << " value less than 1.");
-      cellOffsets->Delete();
-      return 0;
-    }
-    lastOffset = coffset[i];
+    vtkErrorMacro("Error reading cell offsets: Unsupported array type: "
+                  << cellOffsets->GetClassName());
+    return 0;
+  }
+  if (!offsetValidator.Valid)
+  {
+    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                  << " in piece " << this->Piece
+                  << " because the \"offsets\" array is"
+                  << " not monotonically increasing or starts with a"
+                  << " value other than 0.");
+    return 0;
   }
 
   // Set range of progress for connectivity array.
   this->SetProgressRange(progressRange, 1, fractions);
 
-  // Read the cell point connectivity array.
-  vtkIdType cpLength = cellOffsets->GetValue(numberOfCells-1);
-  vtkXMLDataElement* eConn = this->FindDataArrayWithName(eCells, "connectivity");
-  if(!eConn)
-  {
-    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"connectivity\" array could not be found.");
-    cellOffsets->Delete();
-    return 0;
-  }
-  vtkAbstractArray* ac0 = this->CreateArray(eConn);
-  vtkDataArray* c0 = vtkArrayDownCast<vtkDataArray>(ac0);
-  if(!c0 || (c0->GetNumberOfComponents() != 1))
-  {
-    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"connectivity\" array could not be created"
-                  << " with one component.");
-    cellOffsets->Delete();
-    if (ac0) { ac0->Delete(); }
-    return 0;
-  }
-  c0->SetNumberOfTuples(cpLength);
-  if (this->AbortExecute)
-  {
-    cellOffsets->Delete();
-    if (ac0) { ac0->Delete(); }
-    return 0;
-  }
-  if(!this->ReadArrayValues(eConn, 0, c0, 0, cpLength, CELL_DATA) && !this->AbortExecute)
-  {
-    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"connectivity\" array is not long enough.");
-    cellOffsets->Delete();
-    return 0;
-  }
-  if (this->AbortExecute)
-  {
-    cellOffsets->Delete();
-    if (ac0) { ac0->Delete(); }
-    return 0;
-  }
-  vtkIdTypeArray* cellPoints = this->ConvertToIdTypeArray(c0);
-  if(!cellPoints)
-  {
-    vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
-                  << " in piece " << this->Piece
-                  << " because the \"connectivity\" array could not be"
-                  << " converted to a vtkIdTypeArray.");
-    cellOffsets->Delete();
-    return 0;
-  }
+  const vtkIdType connLength = offsetValidator.ConnSize;
 
-
-  // Allocate memory in the output connectivity array.
-  vtkIdType curSize = 0;
-  if (this->Piece > this->StartPiece && outCells->GetData())
+  // ------------------------ Read connectivity---------------------------------
+  vtkSmartPointer<vtkDataArray> conn;
   {
-    // Refer to BUG #12202 and BUG #12690. The (this->Piece > this->StartPiece)
-    // check ensures that when we are reading multiple timesteps, we don't end
-    // up appending to existing cell arrays infinitely. An earlier version of
-    // the fix assumed that vtkXMLUnstructuredDataReader read only 1 piece at a
-    // time, which was incorrect (and hence BUG #12690).
-    curSize = outCells->GetData()->GetNumberOfTuples();
-  }
-
-  vtkIdType newSize = curSize+numberOfCells+cellPoints->GetNumberOfTuples();
-  vtkIdType* cptr = outCells->WritePointer(totalNumberOfCells, newSize);
-  cptr += curSize;
-
-  // Copy the connectivity data.
-  vtkIdType previousOffset = 0;
-  for(i=0; i < numberOfCells; ++i)
-  {
-    vtkIdType length = cellOffsets->GetValue(i)-previousOffset;
-    *cptr++ = length;
-    vtkIdType* sptr = cellPoints->GetPointer(previousOffset);
-    // Copy the point indices, but increment them for the appended
-    // version's index.
-    vtkIdType j;
-    for(j=0;j < length; ++j)
+    vtkXMLDataElement* eConn = this->FindDataArrayWithName(eCells, "connectivity");
+    if(!eConn)
     {
-      cptr[j] = sptr[j]+this->StartPoint;
+      vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"connectivity\" array could not be found.");
+      return 0;
     }
-    cptr += length;
-    previousOffset += length;
+
+    if (this->AbortExecute)
+    {
+      return 0;
+    }
+
+    auto aConn = vtk::TakeSmartPointer(this->CreateArray(eConn));
+    if (!aConn)
+    {
+      vtkErrorMacro("Cell connectivity array missing from " << eCells->GetName());
+      return 0;
+    }
+
+    if (!aConn->IsA("vtkDataArray"))
+    {
+      vtkErrorMacro("Cannot cast cell connectivity from " << eCells->GetName() <<
+                    " to vtkDataArray.");
+      return 0;
+    }
+    conn = vtkArrayDownCast<vtkDataArray>(aConn.Get());
+
+    if (conn->GetNumberOfComponents() != 1)
+    {
+      vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"connectivity\" array could not be created"
+                    << " with one component.");
+      return 0;
+    }
+
+    conn->SetNumberOfTuples(connLength);
+
+    if (this->AbortExecute)
+    {
+      return 0;
+    }
+
+    if (!this->ReadArrayValues(eConn, 0,
+                               conn, 0,
+                               connLength, CELL_DATA) &&
+        !this->AbortExecute)
+    {
+      vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"connectivity\" array is not long enough.");
+      return 0;
+    }
+
+    if (this->AbortExecute)
+    {
+      return 0;
+    }
   }
 
-  cellPoints->Delete();
-  cellOffsets->Delete();
+  //------------------- Construct vtkCellArray ---------------------------------
+
+  if (outCells->GetNumberOfCells() == 0)
+  { // First execution: Directly construct output cell array:
+    ConstructCellArray builder{outCells, conn};
+    if (!Dispatch::Execute(cellOffsets, builder))
+    {
+      vtkErrorMacro("Cannot read cell data from " << eCells->GetName()
+                    << ". Offset array type is invalid.");
+      return 0;
+    }
+
+    if (!builder.ConnectivityIsValid)
+    {
+      vtkErrorMacro("Cannot read cell data from " << eCells->GetName()
+                    << ". Offsets and connectivity arrays must be the same "
+                    "type.");
+      return 0;
+    }
+  }
+  else
+  { // Construct a temporary vtkCellArray that holds the arrays, and then
+    // append to the input outCells.
+    vtkNew<vtkCellArray> tmpCells;
+    ConstructCellArray builder{tmpCells, conn};
+    if (!Dispatch::Execute(cellOffsets, builder))
+    {
+      vtkErrorMacro("Cannot read cell data from " << eCells->GetName()
+                    << ". Offset array type is invalid.");
+      return 0;
+    }
+
+    if (!builder.ConnectivityIsValid)
+    {
+      vtkErrorMacro("Cannot read cell data from " << eCells->GetName()
+                    << ". Offsets and connectivity arrays must be the same "
+                    "type.");
+      return 0;
+    }
+
+    outCells->Append(tmpCells, this->StartPoint);
+  }
 
   return 1;
 }
@@ -749,7 +815,6 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
                                                 vtkIdTypeArray* outFaces,
                                                 vtkIdTypeArray* outFaceOffsets)
 {
-
   if(numberOfCells <= 0)
   {
     return 1;

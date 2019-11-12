@@ -101,8 +101,8 @@ int TestOBJReaderRelative( int argc, char *argv[] )
 
   vtkIdType npts_rel;
   vtkIdType npts_abs;
-  vtkIdType *pts_rel;
-  vtkIdType *pts_abs;
+  const vtkIdType *pts_rel;
+  const vtkIdType *pts_abs;
 
   polys_rel->InitTraversal();
   polys_abs->InitTraversal();

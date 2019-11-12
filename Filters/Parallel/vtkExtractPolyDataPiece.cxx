@@ -175,7 +175,7 @@ int vtkExtractPolyDataPiece::RequestData(
   // Filter the cells.
 
   numPts = input->GetNumberOfPoints();
-  output->Allocate(input->GetNumberOfCells());
+  output->AllocateCopy(input);
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
 

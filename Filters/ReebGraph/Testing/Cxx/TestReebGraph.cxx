@@ -2405,7 +2405,7 @@ int LoadVolumeMesh(vtkUnstructuredGrid *vMesh)
 // put whatever mesh you like here.
 int LoadSurfaceMesh(vtkPolyData *sMesh)
 {
-  sMesh->Allocate();
+  sMesh->AllocateExact(1024, 1024);
 
   vtkPoints *points = vtkPoints::New();
   points->InsertNextPoint( -0.774167, 0.632981, 0);
@@ -4391,7 +4391,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
   double  *point = (double *) malloc(sizeof(double)*3);
 
   vtkPolyData *embeddedSkeleton = vtkPolyData::New();
-  embeddedSkeleton->Allocate();
+  embeddedSkeleton->AllocateExact(1024, 1024);
 
   vtkPoints   *skeletonSamples = vtkPoints::New();
   skeletonSamples->SetNumberOfPoints(
@@ -4514,7 +4514,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
   double  *point = (double *) malloc(sizeof(double)*3);
 
   vtkPolyData *embeddedSkeleton = vtkPolyData::New();
-  embeddedSkeleton->Allocate();
+  embeddedSkeleton->AllocateExact(1024, 1024);
 
   vtkPoints   *skeletonSamples = vtkPoints::New();
   skeletonSamples->SetNumberOfPoints(

@@ -817,7 +817,7 @@ int vtkContinuousScatterplot::RequestData(
       // The current fragment needs to be converted to a polygonal mesh.
       // Array for recording the vertices of the polygonal mesh.
       polyhedra->Initialize();
-      polyhedra->Allocate((vtkIdType)outputQ[co]->size());
+      polyhedra->AllocateEstimate(static_cast<vtkIdType>(outputQ[co]->size()), 1);
 
       // for each face of the fragment
       vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();

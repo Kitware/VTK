@@ -102,7 +102,7 @@ void CreateDataset(vtkPointSet* dataset,
   auto datasetUG = vtkUnstructuredGrid::SafeDownCast(dataset);
   if (datasetPD)
   {
-    datasetPD->Allocate(numberOfPoints);
+    datasetPD->AllocateEstimate(numberOfPoints, 1);
   }
   if (datasetUG)
   {
@@ -525,12 +525,12 @@ bool TestToleranceModes()
   vtkIdType ptIds[] = {0, 1};
 
   vtkNew<vtkPolyData> polydata1;
-  polydata1->Allocate(3, 10);
+  polydata1->AllocateEstimate(3, 10);
   polydata1->SetPoints(points1);
   polydata1->InsertNextCell(VTK_LINE, 2, ptIds);
 
   vtkNew<vtkPolyData> polydata2;
-  polydata2->Allocate(3, 10);
+  polydata2->AllocateEstimate(3, 10);
   polydata2->SetPoints(points2);
   polydata2->InsertNextCell(VTK_LINE, 2, ptIds);
 

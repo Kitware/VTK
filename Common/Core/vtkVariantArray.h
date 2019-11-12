@@ -283,13 +283,6 @@ public:
   void SetArrayFreeFunction(void (*callback)(void *)) override;
 
   /**
-   * Specify the number of values for this object to hold. Does an
-   * allocation as well as setting the MaxId ivar. Used in conjunction with
-   * SetValue() method for fast insertion.
-   */
-  void SetNumberOfValues(vtkIdType number) override;
-
-  /**
    * Return the number of values in the array.
    */
   vtkIdType GetNumberOfValues() { return this->MaxId + 1; }

@@ -356,24 +356,17 @@ void TestExplicitDataSet()
   vtkm::Id numCells = cellset.GetNumberOfCells();
 
   vtkNew<vtkUnsignedCharArray> shapes;
-  vtkNew<vtkIdTypeArray> offsets;
   vtkNew<vtkCellArray> connectivity;
   shapes->SetNumberOfComponents(1);
   shapes->SetNumberOfTuples(numCells);
-  offsets->SetNumberOfComponents(1);
-  offsets->SetNumberOfTuples(numCells);
-  vtkIdType currOffset = 0;
   for (vtkm::Id i = 0; i < numCells; ++i)
   {
     shapes->SetValue(i, cellset.GetCellShape(i));
-    offsets->SetValue(i, currOffset);
 
     vtkIdType ptIds[8];
     int count = cellset.GetNumberOfPointsInCell(i);
     cellset.GetCellPointIds(i, ptIds);
     connectivity->InsertNextCell(count, ptIds);
-
-    currOffset += count + 1;
   }
 
   vtkNew<vtkFloatArray> pointField, cellField;
@@ -386,7 +379,7 @@ void TestExplicitDataSet()
 
   vtkNew<vtkUnstructuredGrid> dsVtk;
   dsVtk->SetPoints(points);
-  dsVtk->SetCells(shapes, offsets, connectivity);
+  dsVtk->SetCells(shapes, connectivity);
   dsVtk->GetPointData()->AddArray(pointField);
   dsVtk->GetCellData()->AddArray(cellField);
 

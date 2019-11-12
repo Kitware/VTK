@@ -161,7 +161,7 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   int i;
   double *x;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkPoints *inPts;
   vtkCellArray *inPolys;
   vtkPolyData *input= this->GetInput();

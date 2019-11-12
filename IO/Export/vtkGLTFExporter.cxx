@@ -41,6 +41,7 @@
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -184,7 +185,7 @@ void WriteBufferAndView(vtkCellArray *ca, const char *fileName, bool inlineData,
 {
   vtkUnsignedIntArray *ia = vtkUnsignedIntArray::New();
   vtkIdType npts;
-  vtkIdType *indx;
+  const vtkIdType *indx;
   for (ca->InitTraversal(); ca->GetNextCell(npts,indx); )
   {
     for (int j = 0; j < npts; ++j)

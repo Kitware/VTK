@@ -15,12 +15,14 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkCellLinks.h"
 #include "vtkCellTypes.h"
 #include "vtkConvexPointSet.h"
 #include "vtkCubicLine.h"
+#include "vtkDataArrayRange.h"
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
@@ -78,6 +80,37 @@
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
+//----------------------------------------------------------------------------
+vtkIdTypeArray *vtkUnstructuredGrid::GetCellLocationsArray()
+{
+  if (!this->CellLocations)
+  {
+    this->CellLocations = vtkSmartPointer<vtkIdTypeArray>::New();
+  }
+  this->CellLocations->DeepCopy(this->Connectivity->GetOffsetsArray());
+  this->CellLocations->SetNumberOfValues(this->GetNumberOfCells());
+
+  return this->CellLocations;
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
+                                   vtkIdTypeArray *,
+                                   vtkCellArray *cells)
+{
+  this->SetCells(cellTypes, cells);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
+                                   vtkIdTypeArray *,
+                                   vtkCellArray *cells,
+                                   vtkIdTypeArray *faceLocations,
+                                   vtkIdTypeArray *faces)
+{
+  this->SetCells(cellTypes, cells, faceLocations, faces);
+}
+
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {
   this->Vertex = nullptr;
@@ -128,76 +161,14 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 
-  this->Connectivity = nullptr;
-  this->Types = nullptr;
-  this->Locations = nullptr;
-  this->Links = nullptr;
-
-  this->DistinctCellTypes = nullptr;
   this->DistinctCellTypesUpdateMTime = 0;
 
-  this->Faces = nullptr;
-  this->FaceLocations = nullptr;
-
-  this->Allocate(1000,1000);
-}
-
-//----------------------------------------------------------------------------
-// Allocate memory space for data insertion. Execute this method before
-// inserting any cells into object.
-void vtkUnstructuredGrid::Allocate (vtkIdType numCells, int extSize)
-{
-  if ( numCells < 1 )
-  {
-    numCells = 1000;
-  }
-  if ( extSize < 1 )
-  {
-    extSize = 1000;
-  }
-
-  if ( this->Connectivity )
-  {
-    this->Connectivity->UnRegister(this);
-  }
-  this->Connectivity = vtkCellArray::New();
-  this->Connectivity->Allocate(numCells,4*extSize);
-  this->Connectivity->Register(this);
-  this->Connectivity->Delete();
-
-  if ( this->Types )
-  {
-    this->Types->UnRegister(this);
-  }
-  this->Types = vtkUnsignedCharArray::New();
-  this->Types->Allocate(numCells,extSize);
-  this->Types->Register(this);
-  this->Types->Delete();
-
-  if ( this->Locations )
-  {
-    this->Locations->UnRegister(this);
-  }
-  this->Locations = vtkIdTypeArray::New();
-  this->Locations->Allocate(numCells,extSize);
-  this->Locations->Register(this);
-  this->Locations->Delete();
-
-  if ( this->DistinctCellTypes )
-  {
-    this->DistinctCellTypes->UnRegister(this);
-  }
-  this->DistinctCellTypes = vtkCellTypes::New();
-  this->DistinctCellTypesUpdateMTime = 0;
-  this->DistinctCellTypes->Register(this);
-  this->DistinctCellTypes->Delete();
+  this->AllocateExact(1024, 1024);
 }
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid::~vtkUnstructuredGrid()
 {
-  this->Cleanup();
-
   if(this->Vertex)
   {
     this->Vertex->Delete();
@@ -390,83 +361,11 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
   // If ds is a vtkUnstructuredGrid, do a shallow copy of the cell data.
   if (vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(ds))
   {
-    if (this->Connectivity != ug->Connectivity)
-    {
-      if ( this->Connectivity )
-      {
-        this->Connectivity->UnRegister(this);
-      }
-      this->Connectivity = ug->Connectivity;
-      if (this->Connectivity)
-      {
-        this->Connectivity->Register(this);
-      }
-    }
-
-    if (this->Links != ug->Links)
-    {
-      if ( this->Links )
-      {
-        this->Links->UnRegister(this);
-      }
-      this->Links = ug->Links;
-      if (this->Links)
-      {
-        this->Links->Register(this);
-      }
-    }
-
-    if (this->Types != ug->Types)
-    {
-      if ( this->Types )
-      {
-        this->Types->UnRegister(this);
-      }
-      this->Types = ug->Types;
-      if (this->Types)
-      {
-        this->Types->Register(this);
-      }
-    }
-
-    if (this->Locations != ug->Locations)
-    {
-      if ( this->Locations )
-      {
-        this->Locations->UnRegister(this);
-      }
-      this->Locations = ug->Locations;
-      if (this->Locations)
-      {
-        this->Locations->Register(this);
-      }
-    }
-
-    if (this->Faces != ug->Faces)
-    {
-      if ( this->Faces )
-      {
-        this->Faces->UnRegister(this);
-      }
-      this->Faces = ug->Faces;
-      if (this->Faces)
-      {
-        this->Faces->Register(this);
-      }
-    }
-
-    if (this->FaceLocations != ug->FaceLocations)
-    {
-      if ( this->FaceLocations )
-      {
-        this->FaceLocations->UnRegister(this);
-      }
-      this->FaceLocations = ug->FaceLocations;
-      if (this->FaceLocations)
-      {
-        this->FaceLocations->Register(this);
-      }
-    }
+    this->Connectivity = ug->Connectivity;
+    this->Links = ug->Links;
+    this->Types = ug->Types;
+    this->Faces = ug->Faces;
+    this->FaceLocations = ug->FaceLocations;
   }
 
   this->Superclass::CopyStructure(ds);
@@ -475,47 +374,13 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::Cleanup()
 {
-  if ( this->Connectivity )
-  {
-    this->Connectivity->UnRegister(this);
-    this->Connectivity = nullptr;
-  }
-
-  if ( this->Links )
-  {
-    this->Links->UnRegister(this);
-    this->Links = nullptr;
-  }
-
-  if ( this->Types )
-  {
-    this->Types->UnRegister(this);
-    this->Types = nullptr;
-  }
-
-  if (this->DistinctCellTypes)
-  {
-    this->DistinctCellTypes->UnRegister(this);
-    this->DistinctCellTypes = nullptr;
-  }
-
-  if ( this->Locations )
-  {
-    this->Locations->UnRegister(this);
-    this->Locations = nullptr;
-  }
-
-  if ( this->Faces )
-  {
-    this->Faces->UnRegister(this);
-    this->Faces = nullptr;
-  }
-
-  if ( this->FaceLocations )
-  {
-    this->FaceLocations->UnRegister(this);
-    this->FaceLocations = nullptr;
-  }
+  this->Connectivity = nullptr;
+  this->Links = nullptr;
+  this->Types = nullptr;
+  this->DistinctCellTypes = nullptr;
+  this->DistinctCellTypesUpdateMTime = 0;
+  this->Faces = nullptr;
+  this->FaceLocations = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -536,7 +401,6 @@ void vtkUnstructuredGrid::Initialize()
 //----------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
 {
-
   vtkDebugMacro(<< "Returning cell type " << static_cast<int>(this->Types->GetValue(cellId)));
   return static_cast<int>(this->Types->GetValue(cellId));
 }
@@ -544,17 +408,12 @@ int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
 //----------------------------------------------------------------------------
 vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 {
-  vtkIdType i;
-  vtkIdType loc;
+  vtkIdType numPts;
+  const vtkIdType *pts;
+  this->Connectivity->GetCellAtId(cellId, numPts, pts);
+
   vtkCell *cell = nullptr;
-  vtkIdType *pts, numPts;
-
-  loc = this->Locations->GetValue(cellId);
-  vtkDebugMacro(<< "location = " <<  loc);
-  this->Connectivity->GetCell(loc,numPts,pts);
-
-  int cellType = static_cast<int>(this->Types->GetValue(cellId));
-  switch (cellType)
+  switch (this->Types->GetValue(cellId))
   {
     case VTK_VERTEX:
       if(!this->Vertex)
@@ -892,10 +751,10 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
   // Copy the points over to the cell.
   cell->PointIds->SetNumberOfIds(numPts);
   cell->Points->SetNumberOfPoints(numPts);
-  for (i=0; i<numPts; i++)
+  for (vtkIdType i = 0; i < numPts; i++)
   {
-    cell->PointIds->SetId(i,pts[i]);
-    cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
+    cell->PointIds->SetId(i, pts[i]);
+    cell->Points->SetPoint(i, this->Points->GetPoint(pts[i]));
   }
 
   // Some cells require special initialization to build data structures
@@ -911,14 +770,13 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  vtkIdType loc;
-  vtkIdType *pts, numPts;
 
   int cellType = static_cast<int>(this->Types->GetValue(cellId));
   cell->SetCellType(cellType);
 
-  loc = this->Locations->GetValue(cellId);
-  this->Connectivity->GetCell(loc,numPts,pts);
+  vtkIdType numPts;
+  const vtkIdType *pts;
+  this->Connectivity->GetCellAtId(cellId, numPts, pts);
 
   cell->PointIds->SetNumberOfIds(numPts);
 
@@ -971,14 +829,11 @@ namespace { //anonymous
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  vtkIdType i;
-  vtkIdType loc;
-  double x[3];
-  vtkIdType *pts, numPts;
+  vtkIdType numPts;
+  const vtkIdType *pts;
+  this->Connectivity->GetCellAtId(cellId, numPts, pts);
 
-  loc = this->Locations->GetValue(cellId);
-  this->Connectivity->GetCell(loc,numPts,pts);
-
+  // very
   // carefully compute the bounds
   if (numPts)
   {
@@ -995,6 +850,7 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
     }
     else
     {
+      double x[3];
       this->Points->GetPoint( pts[0], x );
       bounds[0] = x[0];
       bounds[2] = x[1];
@@ -1002,7 +858,7 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
       bounds[1] = x[0];
       bounds[3] = x[1];
       bounds[5] = x[2];
-      for (i=1; i < numPts; i++)
+      for (vtkIdType i = 1; i < numPts; i++)
       {
         this->Points->GetPoint( pts[i], x );
         bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
@@ -1020,62 +876,13 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   }
 }
 
-// Define threaded functor supporting GetMaxCellSize()
-namespace {
-  struct MaxCellSize
-  {
-    const vtkIdType *Conn;
-    const vtkIdType *Locs;
-    int MaxSize; //Reduced maximum size (over all threads)
-    vtkSMPThreadLocal<int> LocalMaxSize; //for this thread
-    MaxCellSize(const vtkIdType *conn, const vtkIdType *locs) :
-      Conn(conn), Locs(locs), MaxSize(0) {}
-    void Initialize()
-    {
-      int& localMaxSize = this->LocalMaxSize.Local();
-      localMaxSize = 0;
-    }
-    void operator()(vtkIdType cellId, vtkIdType endCellId)
-    {
-      const vtkIdType *conn = this->Conn;
-      const vtkIdType *locs = this->Locs;
-      int size;
-      int& localMaxSize = this->LocalMaxSize.Local();
-      for ( ; cellId < endCellId; ++cellId )
-      {
-        size = static_cast<int>(*(conn + locs[cellId]));
-        localMaxSize = (size > localMaxSize ? size : localMaxSize);
-      }
-    }
-    void Reduce()
-    {
-      auto mEnd=this->LocalMaxSize.end();
-      auto mIter=this->LocalMaxSize.begin();
-      for ( ; mIter != mEnd; ++mIter )
-      {
-        this->MaxSize = ( *mIter > this->MaxSize ? *mIter : this->MaxSize );
-      }
-    }
-  };
-}//anonymous namespace
-
 //----------------------------------------------------------------------------
 // Return the number of points from the cell defined by the maximum number of
 // points/
 int vtkUnstructuredGrid::GetMaxCellSize()
 {
-  // Try threaded fast path first, it should always be called except in
-  // exceptional situations.
-  if (this->Connectivity && this->Locations)
-  {
-    MaxCellSize maxSize(this->Connectivity->GetPointer(),
-                        static_cast<vtkIdType*>(this->Locations->GetVoidPointer(0)));
-    vtkIdType numCells = this->Connectivity->GetNumberOfCells();
-    vtkSMPTools::For(0,numCells, 10000, maxSize);
-    return maxSize.MaxSize;
-  }
-  else if (this->Connectivity)
-  {
+  if (this->Connectivity)
+  { // The internal implementation is threaded.
     return this->Connectivity->GetMaxCellSize();
   }
   else
@@ -1106,13 +913,7 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdList *ptIds
     return this->InsertNextCell(type, dataPtr[0], dataPtr+1);
   }
 
-  vtkIdType npts = ptIds->GetNumberOfIds();
-  // insert connectivity
   this->Connectivity->InsertNextCell(ptIds);
-  // insert type and storage information
-  vtkDebugMacro(<< "insert location "
-                << this->Connectivity->GetInsertLocation(npts));
-  this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
 
   // If faces have been created, we need to pad them (we are not creating
   // a polyhedral cell in this method)
@@ -1130,17 +931,12 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdList *ptIds
 // cell topology. Using a special input format, this function also support
 // polyhedron cells.
 vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdType npts,
-                                              const vtkIdType ptIds[])
+                                                      const vtkIdType ptIds[])
 {
   if (type != VTK_POLYHEDRON)
   {
     // insert connectivity
-    this->Connectivity->InsertNextCell(npts,ptIds);
-    // insert type and storage information
-    vtkDebugMacro(<< "insert location "
-                  << this->Connectivity->GetInsertLocation(npts));
-    this->Locations->InsertNextValue(
-      this->Connectivity->GetInsertLocation(npts));
+    this->Connectivity->InsertNextCell(npts, ptIds);
 
     // If faces have been created, we need to pad them (we are not creating
     // a polyhedral cell in this method)
@@ -1159,9 +955,9 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdType npts,
     // we only want to allocate when necessary.
     if ( ! this->Faces )
     {
-      this->Faces = vtkIdTypeArray::New();
+      this->Faces = vtkSmartPointer<vtkIdTypeArray>::New();
       this->Faces->Allocate(this->Types->GetSize());
-      this->FaceLocations = vtkIdTypeArray::New();
+      this->FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
       this->FaceLocations->Allocate(this->Types->GetSize());
       // FaceLocations must be padded until the current position
       for(vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
@@ -1170,10 +966,9 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdType npts,
       }
     }
 
-    // insert cell location
-    this->Locations->InsertNextValue(this->Connectivity->GetData()->GetMaxId()+1);
     // insert face location
     this->FaceLocations->InsertNextValue(this->Faces->GetMaxId()+1);
+
     // insert cell connectivity and faces stream
     vtkUnstructuredGrid::DecomposeAPolyhedronCell(
         npts, ptIds, realnpts, this->Connectivity, this->Faces);
@@ -1186,9 +981,11 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdType npts,
 // Insert/create cell in object by type and list of point and face ids
 // defining cell topology. This method is meant for face-explicit cells (e.g.
 // polyhedron).
-vtkIdType vtkUnstructuredGrid::
-InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType pts[],
-               vtkIdType nfaces, const vtkIdType faces[])
+vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type,
+                                                      vtkIdType npts,
+                                                      const vtkIdType pts[],
+                                                      vtkIdType nfaces,
+                                                      const vtkIdType faces[])
 {
   if (type != VTK_POLYHEDRON)
   {
@@ -1197,18 +994,14 @@ InternalInsertNextCell(int type, vtkIdType npts, const vtkIdType pts[],
   // Insert connectivity (points that make up polyhedron)
   this->Connectivity->InsertNextCell(npts,pts);
 
-  // Insert location of cell in connectivity array
-  this->Locations->InsertNextValue(
-    this->Connectivity->GetInsertLocation(npts));
-
   // Now insert faces; allocate storage if necessary.
   // We defer allocation for the faces because they are not commonly used and
   // we only want to allocate when necessary.
   if ( ! this->Faces )
   {
-    this->Faces = vtkIdTypeArray::New();
+    this->Faces = vtkSmartPointer<vtkIdTypeArray>::New();
     this->Faces->Allocate(this->Types->GetSize());
-    this->FaceLocations = vtkIdTypeArray::New();
+    this->FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
     this->FaceLocations->Allocate(this->Types->GetSize());
     // FaceLocations must be padded until the current position
     for(vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
@@ -1247,10 +1040,10 @@ int vtkUnstructuredGrid::InitializeFacesRepresentation(vtkIdType numPrevCells)
     return 0;
   }
 
-  this->Faces = vtkIdTypeArray::New();
+  this->Faces = vtkSmartPointer<vtkIdTypeArray>::New();
   this->Faces->Allocate(this->Types->GetSize());
 
-  this->FaceLocations = vtkIdTypeArray::New();
+  this->FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
   this->FaceLocations->Allocate(this->Types->GetSize());
   // FaceLocations must be padded until the current position
   for(vtkIdType i = 0; i < numPrevCells; i++)
@@ -1285,117 +1078,58 @@ vtkIdType *vtkUnstructuredGrid::GetFaces(vtkIdType cellId)
 }
 
 //----------------------------------------------------------------------------
+vtkIdTypeArray *vtkUnstructuredGrid::GetFaces()
+{
+  return this->Faces;
+}
+
+//----------------------------------------------------------------------------
+vtkIdTypeArray *vtkUnstructuredGrid::GetFaceLocations()
+{
+  return this->FaceLocations;
+}
+
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(int type, vtkCellArray *cells)
 {
-  int *types = new int [cells->GetNumberOfCells()];
-  for (vtkIdType i = 0; i < cells->GetNumberOfCells(); i++)
-  {
-    types[i] = type;
-  }
+  vtkNew<vtkUnsignedCharArray> types;
+  types->SetNumberOfComponents(1);
+  types->SetNumberOfValues(cells->GetNumberOfCells());
+  types->FillValue(static_cast<unsigned char>(type));
 
   this->SetCells(types, cells);
-
-  delete [] types;
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
 {
-  // check if cells contain any polyhedron cell
-  vtkIdType ncells = cells->GetNumberOfCells();
-  bool containPolyhedron = false;
-  vtkIdType i;
-  for (i = 0; i < ncells; i++)
-  {
-    if (types[i] == VTK_POLYHEDRON)
-    {
-      containPolyhedron = true;
-      break; // We can terminate early
-    }
-  }
+  const vtkIdType ncells = cells->GetNumberOfCells();
 
-  vtkIdType npts, nfaces, realnpts, *pts;
+  // Convert the types into a vtkUnsignedCharArray:
+  vtkNew<vtkUnsignedCharArray> cellTypes;
+  cellTypes->SetNumberOfTuples(ncells);
+  auto typeRange = vtk::DataArrayValueRange<1>(cellTypes);
+  std::transform(types, types + ncells, typeRange.begin(),
+    [](int t) -> unsigned char { return static_cast<unsigned char>(t); }
+  );
 
-  vtkIdTypeArray *cellLocations = vtkIdTypeArray::New();
-  cellLocations->Allocate(ncells);
-  vtkUnsignedCharArray *cellTypes = vtkUnsignedCharArray::New();
-  cellTypes->Allocate(ncells);
-
-  if (!containPolyhedron)
-  {
-    // only need to build types and locations
-    for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
-    {
-      cellTypes->InsertNextValue(static_cast<unsigned char>(types[i]));
-      cellLocations->InsertNextValue(cells->GetTraversalLocation(npts));
-    }
-
-    this->SetCells(cellTypes, cellLocations, cells, nullptr, nullptr);
-
-    cellTypes->Delete();
-    cellLocations->Delete();
-    return;
-  }
-
-  // If a polyhedron cell exists, its input cellArray is of special format.
-  // [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
-  // We need to convert it into new cell connectivities of standard format,
-  // update cellLocations as well as create faces and facelocations.
-  vtkCellArray   *newCells = vtkCellArray::New();
-  newCells->Allocate(cells->GetActualMemorySize());
-  vtkIdTypeArray *faces = vtkIdTypeArray::New();
-  faces->Allocate(cells->GetActualMemorySize());
-  vtkIdTypeArray *faceLocations = vtkIdTypeArray::New();
-  faceLocations->Allocate(ncells);
-
-  for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
-  {
-    cellTypes->InsertNextValue(static_cast<unsigned char>(types[i]));
-    cellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
-    if (types[i] != VTK_POLYHEDRON)
-    {
-      newCells->InsertNextCell(npts, pts);
-      faceLocations->InsertNextValue(-1);
-    }
-    else
-    {
-      faceLocations->InsertNextValue(faces->GetMaxId()+1);
-      vtkUnstructuredGrid::DecomposeAPolyhedronCell(
-        pts, realnpts, nfaces, newCells, faces);
-    }
-  }
-
-  this->SetCells(cellTypes, cellLocations, newCells, faceLocations, faces);
-
-  cellTypes->Delete();
-  cellLocations->Delete();
-  newCells->Delete();
-  faces->Delete();
-  faceLocations->Delete();
+  this->SetCells(cellTypes, cells);
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
-                                   vtkIdTypeArray *cellLocations,
                                    vtkCellArray *cells)
 {
   // check if cells contain any polyhedron cell
-  vtkIdType ncells = cells->GetNumberOfCells();
-  bool containPolyhedron = false;
-  vtkIdType i;
-  for (i = 0; i < ncells; i++)
-  {
-    if (cellTypes->GetValue(i) == VTK_POLYHEDRON)
-    {
-      containPolyhedron = true;
-      break; // We can terminate early
-    }
-  }
+  const vtkIdType ncells = cells->GetNumberOfCells();
+  const auto typeRange = vtk::DataArrayValueRange<1>(cellTypes);
+  const bool containPolyhedron =
+      std::find(typeRange.cbegin(), typeRange.cend(), VTK_POLYHEDRON) !=
+      typeRange.cend();
 
-  // directly set connectivity and location if there is no polyhedron
   if (!containPolyhedron)
   {
-    this->SetCells(cellTypes, cellLocations, cells, nullptr, nullptr);
+    this->SetCells(cellTypes, cells, nullptr, nullptr);
     return;
   }
 
@@ -1403,125 +1137,82 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
   // [nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
   // We need to convert it into new cell connectivities of standard format,
   // update cellLocations as well as create faces and facelocations.
-  vtkCellArray   *newCells = vtkCellArray::New();
-  newCells->Allocate(cells->GetActualMemorySize());
-  vtkIdTypeArray *newCellLocations = vtkIdTypeArray::New();
-  newCellLocations->Allocate(ncells);
-  vtkIdTypeArray *faces = vtkIdTypeArray::New();
-  faces->Allocate(cells->GetActualMemorySize());
-  vtkIdTypeArray *faceLocations = vtkIdTypeArray::New();
+  vtkNew<vtkCellArray> newCells;
+  newCells->AllocateExact(ncells, cells->GetNumberOfConnectivityIds());
+
+  vtkNew<vtkIdTypeArray> faces;
+  faces->Allocate(ncells + cells->GetNumberOfConnectivityIds());
+
+  vtkNew<vtkIdTypeArray> faceLocations;
   faceLocations->Allocate(ncells);
 
-  vtkIdType npts, nfaces, realnpts, *pts;
-  for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
+  auto cellIter =
+      vtkSmartPointer<vtkCellArrayIterator>::Take(cells->NewIterator());
+
+  for (cellIter->GoToFirstCell();
+       !cellIter->IsDoneWithTraversal();
+       cellIter->GoToNextCell())
   {
-    newCellLocations->InsertNextValue(newCells->GetData()->GetMaxId()+1);
-    if (cellTypes->GetValue(i) != VTK_POLYHEDRON)
+    vtkIdType npts;
+    const vtkIdType *pts;
+    cellIter->GetCurrentCell(npts, pts);
+    const vtkIdType cellId = cellIter->GetCurrentCellId();
+
+    if (cellTypes->GetValue(cellId) != VTK_POLYHEDRON)
     {
       newCells->InsertNextCell(npts, pts);
       faceLocations->InsertNextValue(-1);
     }
     else
     {
-      faceLocations->InsertNextValue(faces->GetMaxId()+1);
+      vtkIdType realnpts;
+      vtkIdType nfaces;
+      faceLocations->InsertNextValue(faces->GetMaxId() + 1);
       vtkUnstructuredGrid::DecomposeAPolyhedronCell(
         pts, realnpts, nfaces, newCells, faces);
     }
   }
 
-  // set the new cells
-  this->SetCells(cellTypes, newCellLocations, newCells, faceLocations, faces);
-
-  newCells->Delete();
-  newCellLocations->Delete();
-  faces->Delete();
-  faceLocations->Delete();
+  this->SetCells(cellTypes, newCells, faceLocations, faces);
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
-                                   vtkIdTypeArray *cellLocations,
                                    vtkCellArray *cells,
                                    vtkIdTypeArray *faceLocations,
                                    vtkIdTypeArray *faces)
 {
-  if ( this->Connectivity )
-  {
-    this->Connectivity->UnRegister(this);
-  }
   this->Connectivity = cells;
-  if ( this->Connectivity )
-  {
-    this->Connectivity->Register(this);
-  }
-
-  if ( this->Types )
-  {
-    this->Types->UnRegister(this);
-  }
   this->Types = cellTypes;
-  if ( this->Types )
-  {
-    this->Types->Register(this);
-  }
-
-  if ( this->Locations )
-  {
-    this->Locations->UnRegister(this);
-  }
-  this->Locations = cellLocations;
-  if ( this->Locations )
-  {
-    this->Locations->Register(this);
-  }
-
-  if ( this->Faces )
-  {
-    this->Faces->UnRegister(this);
-  }
   this->Faces = faces;
-  if ( this->Faces )
-  {
-    this->Faces->Register(this);
-  }
-
-  if ( this->FaceLocations )
-  {
-    this->FaceLocations->UnRegister(this);
-  }
   this->FaceLocations = faceLocations;
-  if ( this->FaceLocations )
-  {
-    this->FaceLocations->Register(this);
-  }
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::BuildLinks()
 {
-  // Remove the old links if they are already built
-  if (this->Links)
-  {
-    this->Links->UnRegister(this);
-  }
-
   // Create appropriate locator. Currently it's either a vtkCellLocator (when
   // the dataset is editable) or vtkStaticCellLocator (when the dataset is
   // not editable).
   vtkIdType numPts = this->GetNumberOfPoints();
   if ( ! this->Editable )
   {
-    this->Links = vtkStaticCellLinks::New();
+    this->Links = vtkSmartPointer<vtkStaticCellLinks>::New();
   }
   else
   {
-    this->Links = vtkCellLinks::New();
-    static_cast<vtkCellLinks*>(this->Links)->Allocate(numPts);
+    vtkNew<vtkCellLinks> links;
+    links->Allocate(numPts);
+    this->Links = std::move(links);
   }
 
   this->Links->BuildLinks(this);
-  this->Links->Register(this);
-  this->Links->Delete();
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractCellLinks *vtkUnstructuredGrid::GetCellLinks()
+{
+  return this->Links;
 }
 
 //----------------------------------------------------------------------------
@@ -1531,7 +1222,7 @@ GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType* &cells)
   if ( ! this->Editable )
   {
     vtkStaticCellLinks *links =
-      static_cast<vtkStaticCellLinks*>(this->Links);
+      static_cast<vtkStaticCellLinks*>(this->Links.Get());
 
     ncells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
@@ -1539,7 +1230,7 @@ GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType* &cells)
   else
   {
     vtkCellLinks *links =
-      static_cast<vtkCellLinks*>(this->Links);
+      static_cast<vtkCellLinks*>(this->Links.Get());
 
     ncells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
@@ -1562,17 +1253,7 @@ GetPointCells(vtkIdType ptId, unsigned short& ncells, vtkIdType*& cells)
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
-  vtkIdType i, loc;
-  vtkIdType *pts, numPts;
-
-  loc = this->Locations->GetValue(cellId);
-  this->Connectivity->GetCell(loc,numPts,pts);
-  ptIds->SetNumberOfIds(numPts);
-  for (i=0; i<numPts; i++)
-  {
-    ptIds->SetId(i,pts[i]);
-  }
-
+  this->Connectivity->GetCellAtId(cellId, ptIds);
 }
 
 namespace
@@ -1635,7 +1316,7 @@ void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
     }
     else
     {
-      this->DistinctCellTypes = vtkCellTypes::New();
+      this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
       this->DistinctCellTypes->Register(this);
       this->DistinctCellTypes->Delete();
     }
@@ -1650,6 +1331,12 @@ void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
   }
 
   types->DeepCopy(this->DistinctCellTypes);
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray *vtkUnstructuredGrid::GetCellTypesArray()
+{
+  return this->Types;
 }
 
 //----------------------------------------------------------------------------
@@ -1686,7 +1373,7 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdList *ptIds)
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdType& nfaces,
-                                        vtkIdType* &ptIds)
+                                        vtkIdType const *&ptIds)
 {
   if (this->GetCellType(cellId) != VTK_POLYHEDRON)
   {
@@ -1700,7 +1387,7 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdType& nfaces,
   }
 
   vtkIdType loc = this->FaceLocations->GetValue(cellId);
-  vtkIdType* facePtr = this->Faces->GetPointer(loc);
+  const vtkIdType* facePtr = this->Faces->GetPointer(loc);
 
   nfaces = *facePtr;
   ptIds = facePtr+1;
@@ -1720,14 +1407,14 @@ void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
   if ( ! this->Editable )
   {
     vtkStaticCellLinks *links =
-      static_cast<vtkStaticCellLinks*>(this->Links);
+      static_cast<vtkStaticCellLinks*>(this->Links.Get());
     numCells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
   else
   {
     vtkCellLinks *links =
-      static_cast<vtkCellLinks*>(this->Links);
+      static_cast<vtkCellLinks*>(this->Links.Get());
     numCells = links->GetNcells(ptId);
     cells = links->GetCells(ptId);
   }
@@ -1763,10 +1450,6 @@ void vtkUnstructuredGrid::Reset()
   {
     this->Types->Reset();
   }
-  if ( this->Locations )
-  {
-    this->Locations->Reset();
-  }
   if ( this->DistinctCellTypes )
   {
     this->DistinctCellTypes->Reset();
@@ -1796,10 +1479,6 @@ void vtkUnstructuredGrid::Squeeze()
   {
     this->Types->Squeeze();
   }
-  if ( this->Locations )
-  {
-    this->Locations->Squeeze();
-  }
   if ( this->Faces )
   {
     this->Faces->Squeeze();
@@ -1821,7 +1500,7 @@ void vtkUnstructuredGrid::Squeeze()
 void vtkUnstructuredGrid::RemoveReferenceToCell(vtkIdType ptId,
                                                 vtkIdType cellId)
 {
-  static_cast<vtkCellLinks*>(this->Links)->RemoveCellReference(cellId, ptId);
+  static_cast<vtkCellLinks*>(this->Links.Get())->RemoveCellReference(cellId, ptId);
 }
 
 //----------------------------------------------------------------------------
@@ -1832,7 +1511,7 @@ void vtkUnstructuredGrid::RemoveReferenceToCell(vtkIdType ptId,
 // should be set to "Editable".
 void vtkUnstructuredGrid::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 {
-  static_cast<vtkCellLinks*>(this->Links)->AddCellReference(cellId, ptId);
+  static_cast<vtkCellLinks*>(this->Links.Get())->AddCellReference(cellId, ptId);
 }
 
 //----------------------------------------------------------------------------
@@ -1841,7 +1520,7 @@ void vtkUnstructuredGrid::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 // "Editable".
 void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
 {
-  static_cast<vtkCellLinks*>(this->Links)->ResizeCellList(ptId,size);
+  static_cast<vtkCellLinks*>(this->Links.Get())->ResizeCellList(ptId,size);
 }
 
 //----------------------------------------------------------------------------
@@ -1852,10 +1531,7 @@ void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
 void vtkUnstructuredGrid::InternalReplaceCell(vtkIdType cellId, int npts,
                                               const vtkIdType pts[])
 {
-  vtkIdType loc;
-
-  loc = this->Locations->GetValue(cellId);
-  this->Connectivity->ReplaceCell(loc,npts,pts);
+  this->Connectivity->ReplaceCellAtId(cellId, npts, pts);
 }
 
 //----------------------------------------------------------------------------
@@ -1870,7 +1546,7 @@ vtkIdType vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
 
   id = this->InsertNextCell(type,npts,pts);
 
-  vtkCellLinks *clinks = static_cast<vtkCellLinks*>(this->Links);
+  vtkCellLinks *clinks = static_cast<vtkCellLinks*>(this->Links.Get());
   for (i=0; i<npts; i++)
   {
     clinks->ResizeCellList(pts[i],1);
@@ -1899,11 +1575,6 @@ unsigned long vtkUnstructuredGrid::GetActualMemorySize()
     size += this->Types->GetActualMemorySize();
   }
 
-  if ( this->Locations )
-  {
-    size += this->Locations->GetActualMemorySize();
-  }
-
   if ( this->Faces )
   {
     size += this->Faces->GetActualMemorySize();
@@ -1923,66 +1594,13 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
   if (vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(dataObject))
   {
     // I do not know if this is correct but.
+    // ^ I really hope this comment lives for another 20 years.
 
-    if (this->Connectivity)
-    {
-      this->Connectivity->UnRegister(this);
-    }
     this->Connectivity = grid->Connectivity;
-    if (this->Connectivity)
-    {
-      this->Connectivity->Register(this);
-    }
-
-    if (this->Links)
-    {
-      this->Links->Delete();
-    }
     this->Links = grid->Links;
-    if (this->Links)
-    {
-      this->Links->Register(this);
-    }
-
-    if (this->Types)
-    {
-      this->Types->UnRegister(this);
-    }
     this->Types = grid->Types;
-    if (this->Types)
-    {
-      this->Types->Register(this);
-    }
-
-    if (this->Locations)
-    {
-      this->Locations->UnRegister(this);
-    }
-    this->Locations = grid->Locations;
-    if (this->Locations)
-    {
-      this->Locations->Register(this);
-    }
-
-    if (this->Faces)
-    {
-      this->Faces->UnRegister(this);
-    }
     this->Faces = grid->Faces;
-    if (this->Faces)
-    {
-      this->Faces->Register(this);
-    }
-
-    if (this->FaceLocations)
-    {
-      this->FaceLocations->UnRegister(this);
-    }
     this->FaceLocations = grid->FaceLocations;
-    if (this->FaceLocations)
-    {
-      this->FaceLocations->Register(this);
-    }
   }
   else if (vtkUnstructuredGridBase *ugb =
            vtkUnstructuredGridBase::SafeDownCast(dataObject))
@@ -2012,87 +1630,54 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
 
   if ( grid != nullptr )
   {
-    if ( this->Connectivity )
-    {
-      this->Connectivity->UnRegister(this);
-      this->Connectivity = nullptr;
-    }
     if (grid->Connectivity)
     {
-      this->Connectivity = vtkCellArray::New();
+      this->Connectivity = vtkSmartPointer<vtkCellArray>::New();
       this->Connectivity->DeepCopy(grid->Connectivity);
-      this->Connectivity->Register(this);
-      this->Connectivity->Delete();
+    }
+    else
+    {
+      this->Connectivity = nullptr;
     }
 
-    if ( this->Links )
-    {
-      this->Links->UnRegister(this);
-      this->Links = nullptr;
-    }
-    if ( this->Types )
-    {
-      this->Types->UnRegister(this);
-      this->Types = nullptr;
-    }
     if (grid->Types)
     {
-      this->Types = vtkUnsignedCharArray::New();
+      this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
       this->Types->DeepCopy(grid->Types);
-      this->Types->Register(this);
-      this->Types->Delete();
+    }
+    else
+    {
+      this->Types = nullptr;
     }
 
-    if ( this->Locations )
-    {
-      this->Locations->UnRegister(this);
-      this->Locations = nullptr;
-    }
-    if (grid->Locations)
-    {
-      this->Locations = vtkIdTypeArray::New();
-      this->Locations->DeepCopy(grid->Locations);
-      this->Locations->Register(this);
-      this->Locations->Delete();
-    }
-
-    if (this->DistinctCellTypes)
-    {
-      this->DistinctCellTypes->UnRegister(this);
-      this->DistinctCellTypes = nullptr;
-    }
     if (grid->DistinctCellTypes)
     {
-      this->DistinctCellTypes = vtkCellTypes::New();
+      this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
       this->DistinctCellTypes->DeepCopy(grid->DistinctCellTypes);
-      this->DistinctCellTypes->Register(this);
-      this->DistinctCellTypes->Delete();
+    }
+    else
+    {
+      this->DistinctCellTypes = nullptr;
     }
 
-    if ( this->Faces )
+    if (this->Faces)
     {
-      this->Faces->UnRegister(this);
+      this->Faces = vtkSmartPointer<vtkIdTypeArray>::New();
+      this->Faces->DeepCopy(grid->Faces);
+    }
+    else
+    {
       this->Faces = nullptr;
     }
-    if (grid->Faces)
-    {
-      this->Faces = vtkIdTypeArray::New();
-      this->Faces->DeepCopy(grid->Faces);
-      this->Faces->Register(this);
-      this->Faces->Delete();
-    }
 
-    if ( this->FaceLocations )
+    if (this->FaceLocations)
     {
-      this->FaceLocations->UnRegister(this);
-      this->FaceLocations = nullptr;
-    }
-    if (grid->FaceLocations)
-    {
-      this->FaceLocations = vtkIdTypeArray::New();
+      this->FaceLocations = vtkSmartPointer<vtkIdTypeArray>::New();
       this->FaceLocations->DeepCopy(grid->FaceLocations);
-      this->FaceLocations->Register(this);
-      this->FaceLocations->Delete();
+    }
+    else
+    {
+      this->FaceLocations = nullptr;
     }
 
     // Skip the unstructured grid base implementation, as it uses a less
@@ -2123,6 +1708,36 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
 }
 
+//----------------------------------------------------------------------------
+bool vtkUnstructuredGrid::AllocateExact(vtkIdType numCells,
+                                        vtkIdType connectivitySize)
+{
+  if ( numCells < 1 )
+  {
+    numCells = 1024;
+  }
+  if ( connectivitySize < 1 )
+  {
+    connectivitySize = 1024;
+  }
+
+  this->DistinctCellTypesUpdateMTime = 0;
+  this->DistinctCellTypes = vtkSmartPointer<vtkCellTypes>::New();
+  this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  this->Connectivity = vtkSmartPointer<vtkCellArray>::New();
+
+  bool result = this->Connectivity->AllocateExact(numCells, connectivitySize);
+  if (result)
+  {
+    result = this->Types->Allocate(numCells) != 0;
+  }
+  if (result)
+  {
+    result = this->DistinctCellTypes->Allocate(VTK_NUMBER_OF_CELL_TYPES) != 0;
+  }
+
+  return result;
+}
 
 //----------------------------------------------------------------------------
 // Return the cells that use the ptIds provided. This is a set (intersection)
@@ -2161,7 +1776,7 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
   if ( ! this->Editable )
   {
     vtkStaticCellLinks *links =
-      static_cast<vtkStaticCellLinks*>(this->Links);
+      static_cast<vtkStaticCellLinks*>(this->Links.Get());
 
     for (auto i=0; i<numPts; ++i)
     {
@@ -2178,7 +1793,7 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
   else
   {
     vtkCellLinks *links =
-      static_cast<vtkCellLinks*>(this->Links);
+      static_cast<vtkCellLinks*>(this->Links.Get());
 
     for (auto i=0; i<numPts; ++i)
     {
@@ -2200,7 +1815,7 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
   {
     if ( minCells[i] != cellId ) //don't include current cell
     {
-      vtkIdType *cellPts;
+      const vtkIdType *cellPts;
       vtkIdType npts;
       this->GetCellPoints(minCells[i],npts,cellPts);
       match=true;
@@ -2374,7 +1989,7 @@ void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkCellArray * polyhedronCell
        vtkIdType & numCellPts, vtkIdType & nCellfaces,
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {
-  vtkIdType *cellStream = nullptr;
+  const vtkIdType *cellStream = nullptr;
   vtkIdType cellLength = 0;
 
   polyhedronCell->InitTraversal();
@@ -2385,7 +2000,7 @@ void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkCellArray * polyhedronCell
 }
 
 //----------------------------------------------------------------------------
-void vtkUnstructuredGrid::DecomposeAPolyhedronCell(vtkIdType *cellStream,
+void vtkUnstructuredGrid::DecomposeAPolyhedronCell(const vtkIdType *cellStream,
        vtkIdType & numCellPts, vtkIdType & nCellFaces,
        vtkCellArray * cellArray, vtkIdTypeArray * faces)
 {

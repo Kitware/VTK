@@ -61,30 +61,30 @@ namespace
    * Make the cells containing the ordered point Ids.
    *
    */
-  void AddTriCells(vtkIdType *&idPtr,
+  void AddTriCells(vtkCellArray *cellArray,
                    int id1, int id2, int id3, int id4,
                    bool clockwise)
   {
-    *(idPtr++) = 3;
+    cellArray->InsertNextCell(3);
     if (clockwise)
     {
-      *(idPtr++) = id1;
-      *(idPtr++) = id2;
-      *(idPtr++) = id3;
-      *(idPtr++) = 3;
-      *(idPtr++) = id1;
-      *(idPtr++) = id3;
-      *(idPtr++) = id4;
+      cellArray->InsertCellPoint(id1);
+      cellArray->InsertCellPoint(id2);
+      cellArray->InsertCellPoint(id3);
+      cellArray->InsertNextCell(3);
+      cellArray->InsertCellPoint(id1);
+      cellArray->InsertCellPoint(id3);
+      cellArray->InsertCellPoint(id4);
     }
     else
     {
-      *(idPtr++) = id1;
-      *(idPtr++) = id3;
-      *(idPtr++) = id2;
-      *(idPtr++) = 3;
-      *(idPtr++) = id1;
-      *(idPtr++) = id4;
-      *(idPtr++) = id3;
+      cellArray->InsertCellPoint(id1);
+      cellArray->InsertCellPoint(id3);
+      cellArray->InsertCellPoint(id2);
+      cellArray->InsertNextCell(3);
+      cellArray->InsertCellPoint(id1);
+      cellArray->InsertCellPoint(id4);
+      cellArray->InsertCellPoint(id3);
     }
   }
 
@@ -106,8 +106,7 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
 
   vtkIdType numCells = (PtsU + this->ParametricFunction->GetJoinU() - 1) *
                        (PtsV + this->ParametricFunction->GetJoinV() - 1) * 2;
-  cells->Allocate(numCells * 4, 1000);
-  vtkIdType *idPtr = cells->WritePointer(numCells, numCells * 4);
+  cells->AllocateExact(numCells, numCells * 3);
 
   for (int i = 0; i < PtsU - 1; ++i)
   {
@@ -118,7 +117,7 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
       id2 = id1 + PtsV;
       id3 = id2 + 1;
       id4 = id1 + 1;
-      AddTriCells(idPtr, id1, id2, id3, id4, clockwise);
+      AddTriCells(cells, id1, id2, id3, id4, clockwise);
     }
     // If necessary, connect the ends of the triangle strip.
     if (this->ParametricFunction->GetJoinV())
@@ -135,7 +134,7 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
         id3 = i * PtsV;
         id4 = (i + 1) * PtsV;
       }
-      AddTriCells(idPtr, id1, id2, id3, id4, clockwise);
+      AddTriCells(cells, id1, id2, id3, id4, clockwise);
     }
   }
   // If required, connect the last triangle strip to the first by
@@ -157,7 +156,7 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
         id2 = j;
         id4 = id2 + 1;
       }
-      AddTriCells(idPtr, id1, id2, id3, id4, clockwise);
+      AddTriCells(cells, id1, id2, id3, id4, clockwise);
     }
 
     // If necessary, connect the ends of the triangle strip.
@@ -191,7 +190,7 @@ void vtkParametricFunctionSource::MakeTriangles(vtkCellArray * cells,
           id4 = 0;
         }
       }
-      AddTriCells(idPtr, id1, id2, id3, id4, clockwise);
+      AddTriCells(cells, id1, id2, id3, id4, clockwise);
     }
   }
   cells->Modified();
@@ -253,7 +252,7 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector
   vtkIdType i;
   double x[3], Du[3], t[3];
 
-  lines->Allocate(lines->EstimateSize(1, numPts));
+  lines->AllocateEstimate(1, numPts);
   lines->InsertNextCell(numPts);
 
   // Insert points and cell points

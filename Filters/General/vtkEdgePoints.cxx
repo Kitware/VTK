@@ -104,7 +104,7 @@ int vtkEdgePoints::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize/2);
   newVerts = vtkCellArray::New();
-  newVerts->Allocate(estimatedSize, estimatedSize/2);
+  newVerts->AllocateEstimate(estimatedSize, 1);
   cellScalars = inScalars->NewInstance();
   cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());

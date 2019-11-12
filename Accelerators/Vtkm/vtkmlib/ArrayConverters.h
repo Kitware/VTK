@@ -19,7 +19,9 @@
 
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
 #include "vtkmConfig.h"                //required for general vtkm setup
-#include "vtkmTags.h"
+
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkSOADataArrayTemplate.h"
 
 #include <vtkm/cont/Field.h>
 #include <vtkm/cont/ArrayHandleSOA.h>

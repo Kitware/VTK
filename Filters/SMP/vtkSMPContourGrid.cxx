@@ -64,9 +64,12 @@ struct vtkLocalDataType
 {
   vtkPolyData* Output;
   vtkSMPMergePoints* Locator;
-  vtkIdList* VertOffsets;
-  vtkIdList* LineOffsets;
-  vtkIdList* PolyOffsets;
+  vtkIdList* VertCellOffsets;
+  vtkIdList* VertConnOffsets;
+  vtkIdList* LineCellOffsets;
+  vtkIdList* LineConnOffsets;
+  vtkIdList* PolyCellOffsets;
+  vtkIdList* PolyConnOffsets;
 
   vtkLocalDataType() : Output(nullptr)
   {
@@ -133,9 +136,12 @@ public:
     {
       (*dataIter).Output->Delete();
       (*dataIter).Locator->Delete();
-      (*dataIter).VertOffsets->Delete();
-      (*dataIter).LineOffsets->Delete();
-      (*dataIter).PolyOffsets->Delete();
+      (*dataIter).VertCellOffsets->Delete();
+      (*dataIter).VertConnOffsets->Delete();
+      (*dataIter).LineCellOffsets->Delete();
+      (*dataIter).LineConnOffsets->Delete();
+      (*dataIter).PolyCellOffsets->Delete();
+      (*dataIter).PolyConnOffsets->Delete();
       ++dataIter;
     }
   }
@@ -147,9 +153,12 @@ public:
 
     vtkPointLocator* locator;
     vtkPolyData* output;
-    vtkIdList* vertOffsets;
-    vtkIdList* lineOffsets;
-    vtkIdList* polyOffsets;
+    vtkIdList* vertCellOffsets;
+    vtkIdList* vertConnOffsets;
+    vtkIdList* lineCellOffsets;
+    vtkIdList* lineConnOffsets;
+    vtkIdList* polyCellOffsets;
+    vtkIdList* polyConnOffsets;
 
     vtkLocalDataType& localData = this->LocalData.Local();
 
@@ -159,14 +168,20 @@ public:
     localData.Locator = vtkSMPMergePoints::New();
     locator = localData.Locator;
 
-    localData.VertOffsets = vtkIdList::New();
-    vertOffsets = localData.VertOffsets;
+    localData.VertCellOffsets = vtkIdList::New();
+    vertCellOffsets = localData.VertCellOffsets;
+    localData.VertConnOffsets = vtkIdList::New();
+    vertConnOffsets = localData.VertConnOffsets;
 
-    localData.LineOffsets = vtkIdList::New();
-    lineOffsets = localData.LineOffsets;
+    localData.LineCellOffsets = vtkIdList::New();
+    lineCellOffsets = localData.LineCellOffsets;
+    localData.LineConnOffsets = vtkIdList::New();
+    lineConnOffsets = localData.LineConnOffsets;
 
-    localData.PolyOffsets = vtkIdList::New();
-    polyOffsets = localData.PolyOffsets;
+    localData.PolyCellOffsets = vtkIdList::New();
+    polyCellOffsets = localData.PolyCellOffsets;
+    localData.PolyConnOffsets = vtkIdList::New();
+    polyConnOffsets = localData.PolyConnOffsets;
 
     vtkPoints*& newPts = this->NewPts.Local();
 
@@ -198,9 +213,12 @@ public:
 
     newPts->Allocate(estimatedSize, estimatedSize);
 
-    vertOffsets->Allocate(estimatedSize);
-    lineOffsets->Allocate(estimatedSize);
-    polyOffsets->Allocate(estimatedSize);
+    vertCellOffsets->Allocate(estimatedSize);
+    vertConnOffsets->Allocate(estimatedSize);
+    lineCellOffsets->Allocate(estimatedSize);
+    lineConnOffsets->Allocate(estimatedSize);
+    polyCellOffsets->Allocate(estimatedSize);
+    polyConnOffsets->Allocate(estimatedSize);
 
     //locator->SetPoints(newPts);
     locator->InitPointInsertion (newPts,
@@ -208,15 +226,15 @@ public:
                                  this->Input->GetNumberOfPoints());
 
     vtkCellArray*& newVerts = this->NewVerts.Local();
-    newVerts->Allocate(estimatedSize,estimatedSize);
+    newVerts->AllocateExact(estimatedSize,estimatedSize);
     output->SetVerts(newVerts);
 
     vtkCellArray*& newLines = this->NewLines.Local();
-    newLines->Allocate(estimatedSize,estimatedSize);
+    newLines->AllocateExact(estimatedSize,estimatedSize);
     output->SetLines(newLines);
 
     vtkCellArray*& newPolys = this->NewPolys.Local();
-    newPolys->Allocate(estimatedSize,estimatedSize);
+    newPolys->AllocateExact(estimatedSize,estimatedSize);
     output->SetPolys(newPolys);
 
     vtkDataArray*& cellScalars = this->CellScalars.Local();
@@ -256,9 +274,12 @@ public:
 
     vtkPointLocator* loc = localData.Locator;
 
-    vtkIdList* vertOffsets = localData.VertOffsets;
-    vtkIdList* lineOffsets = localData.LineOffsets;
-    vtkIdList* polyOffsets = localData.PolyOffsets;
+    vtkIdList* vertCellOffsets = localData.VertCellOffsets;
+    vtkIdList* vertConnOffsets = localData.VertConnOffsets;
+    vtkIdList* lineCellOffsets = localData.LineCellOffsets;
+    vtkIdList* lineConnOffsets = localData.LineConnOffsets;
+    vtkIdList* polyCellOffsets = localData.PolyCellOffsets;
+    vtkIdList* polyConnOffsets = localData.PolyConnOffsets;
 
     const double* values = this->Values;
     int numValues = this->NumValues;
@@ -316,9 +337,12 @@ public:
           {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
             {
-              vtkIdType begVertSize = vrts->GetNumberOfConnectivityEntries();
-              vtkIdType begLineSize = lines->GetNumberOfConnectivityEntries();
-              vtkIdType begPolySize = polys->GetNumberOfConnectivityEntries();
+              vtkIdType begVertCellSize = vrts->GetNumberOfCells();
+              vtkIdType begVertConnSize = vrts->GetNumberOfConnectivityIds();
+              vtkIdType begLineCellSize = lines->GetNumberOfCells();
+              vtkIdType begLineConnSize = lines->GetNumberOfConnectivityIds();
+              vtkIdType begPolyCellSize = polys->GetNumberOfCells();
+              vtkIdType begPolyConnSize = polys->GetNumberOfConnectivityIds();
               cell->Contour(values[i],
                             cs,
                             loc,
@@ -337,17 +361,29 @@ public:
               // So we create a semi-random-access structures in parallel. This
               // is only useful for merging since each of these indices can point
               // to multiple cells.
-              if (vrts->GetNumberOfConnectivityEntries() > begVertSize)
+              if (vrts->GetNumberOfCells() > begVertCellSize)
               {
-                vertOffsets->InsertNextId(begVertSize);
+                vertCellOffsets->InsertNextId(begVertCellSize);
               }
-              if (lines->GetNumberOfConnectivityEntries() > begLineSize)
+              if (vrts->GetNumberOfConnectivityIds() > begVertConnSize)
               {
-                lineOffsets->InsertNextId(begLineSize);
+                vertConnOffsets->InsertNextId(begVertConnSize);
               }
-              if (polys->GetNumberOfConnectivityEntries() > begPolySize)
+              if (lines->GetNumberOfCells() > begLineCellSize)
               {
-                polyOffsets->InsertNextId(begPolySize);
+                lineCellOffsets->InsertNextId(begLineCellSize);
+              }
+              if (lines->GetNumberOfConnectivityIds() > begLineConnSize)
+              {
+                lineConnOffsets->InsertNextId(begLineConnSize);
+              }
+              if (polys->GetNumberOfCells() > begPolyCellSize)
+              {
+                polyCellOffsets->InsertNextId(begPolyCellSize);
+              }
+              if (polys->GetNumberOfConnectivityIds() > begPolyConnSize)
+              {
+                polyConnOffsets->InsertNextId(begPolyConnSize);
               }
             }
           }
@@ -375,9 +411,12 @@ public:
           //Okay let's grab the cell and contour it
           numCellsContoured++;
           this->Input->GetCell(cellid, cell);
-          vtkIdType begVertSize = vrts->GetNumberOfConnectivityEntries();
-          vtkIdType begLineSize = lines->GetNumberOfConnectivityEntries();
-          vtkIdType begPolySize = polys->GetNumberOfConnectivityEntries();
+          vtkIdType begVertCellSize = vrts->GetNumberOfCells();
+          vtkIdType begVertConnSize = vrts->GetNumberOfConnectivityIds();
+          vtkIdType begLineCellSize = lines->GetNumberOfCells();
+          vtkIdType begLineConnSize = lines->GetNumberOfConnectivityIds();
+          vtkIdType begPolyCellSize = polys->GetNumberOfCells();
+          vtkIdType begPolyConnSize = polys->GetNumberOfConnectivityIds();
           cell->Contour(scalarTree->GetScalarValue(),
                         cs,
                         loc,
@@ -396,17 +435,29 @@ public:
           // So we create a semi-random-access structures in parallel. This
           // is only useful for merging since each of these indices can point
           // to multiple cells.
-          if (vrts->GetNumberOfConnectivityEntries() > begVertSize)
+          if (vrts->GetNumberOfCells() > begVertCellSize)
           {
-            vertOffsets->InsertNextId(begVertSize);
+            vertCellOffsets->InsertNextId(begVertCellSize);
           }
-          if (lines->GetNumberOfConnectivityEntries() > begLineSize)
+          if (vrts->GetNumberOfConnectivityIds() > begVertConnSize)
           {
-            lineOffsets->InsertNextId(begLineSize);
+            vertConnOffsets->InsertNextId(begVertConnSize);
           }
-          if (polys->GetNumberOfConnectivityEntries() > begPolySize)
+          if (lines->GetNumberOfCells() > begLineCellSize)
           {
-            polyOffsets->InsertNextId(begPolySize);
+            lineCellOffsets->InsertNextId(begLineCellSize);
+          }
+          if (lines->GetNumberOfConnectivityIds() > begLineConnSize)
+          {
+            lineConnOffsets->InsertNextId(begLineConnSize);
+          }
+          if (polys->GetNumberOfCells() > begPolyCellSize)
+          {
+            polyCellOffsets->InsertNextId(begPolyCellSize);
+          }
+          if (polys->GetNumberOfConnectivityIds() > begPolyConnSize)
+          {
+            polyConnOffsets->InsertNextId(begPolyConnSize);
           }
         }//for all cells in this batch
       }//for this batch of cells
@@ -504,11 +555,15 @@ void DoContour(vtkSMPContourGrid* filter,
     std::vector<vtkSMPMergePolyDataHelper::InputData> mpData;
     while(itr != end)
     {
-      mpData.push_back(vtkSMPMergePolyDataHelper::InputData((*itr).Output,
-                                                            (*itr).Locator,
-                                                            (*itr).VertOffsets,
-                                                            (*itr).LineOffsets,
-                                                            (*itr).PolyOffsets));
+      mpData.push_back(vtkSMPMergePolyDataHelper::InputData(
+                         (*itr).Output,
+                         (*itr).Locator,
+                         (*itr).VertCellOffsets,
+                         (*itr).VertConnOffsets,
+                         (*itr).LineCellOffsets,
+                         (*itr).LineConnOffsets,
+                         (*itr).PolyCellOffsets,
+                         (*itr).PolyConnOffsets));
       ++itr;
     }
 

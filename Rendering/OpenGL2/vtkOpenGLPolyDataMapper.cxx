@@ -19,6 +19,7 @@
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLight.h"
@@ -60,6 +61,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
 // Bring in our fragment lit shader symbols.

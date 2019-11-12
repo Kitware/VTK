@@ -23,6 +23,7 @@
 #include "vtkPSLACReader.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDummyController.h"
 #include "vtkIdTypeArray.h"
@@ -589,7 +590,8 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
                                        compositeOutput->GetDataSet(outputIter));
     vtkCellArray *cells = ugrid->GetCells();
 
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     for (cells->InitTraversal(); cells->GetNextCell(npts, pts); )
     {
       for (vtkIdType i = 0; i < npts; i++)
@@ -614,7 +616,8 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
                                          surfaceOutput->GetDataSet(outputIter));
       vtkCellArray *cells = ugrid->GetCells();
 
-      vtkIdType npts, *pts;
+      vtkIdType npts;
+      const vtkIdType *pts;
       for (cells->InitTraversal(); cells->GetNextCell(npts, pts); )
       {
         for (vtkIdType i = 0; i < npts; i++)
@@ -729,13 +732,19 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
                                        compositeOutput->GetDataSet(outputIter));
     vtkCellArray *cells = ugrid->GetCells();
 
-    vtkIdType npts, *pts;
-    for (cells->InitTraversal(); cells->GetNextCell(npts, pts); )
+    vtkNew<vtkIdList> cell;
+    auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
+    for (cellIter->GoToFirstCell();
+         !cellIter->IsDoneWithTraversal();
+         cellIter->GoToNextCell())
     {
-      for (vtkIdType i = 0; i < npts; i++)
+      cellIter->GetCurrentCell(cell);
+      for (vtkIdType i = 0; i < cell->GetNumberOfIds(); i++)
       {
-        pts[i] = this->PInternal->GlobalToLocalIds[pts[i]];
+        const vtkIdType id = cell->GetId(i);
+        cell->SetId(i, this->PInternal->GlobalToLocalIds[id]);
       }
+      cellIter->ReplaceCurrentCell(cell);
     }
   }
 

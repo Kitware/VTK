@@ -68,7 +68,7 @@ vtkImageCroppingRegionsWidget::vtkImageCroppingRegionsWidget()
   for (i = 0; i < 9; i++)
   {
     this->RegionPolyData[i] = vtkPolyData::New();
-    this->RegionPolyData[i]->Allocate(1, 1);
+    this->RegionPolyData[i]->AllocateEstimate(0, 0, 0, 0, 1, 4, 0, 0);
     this->RegionPolyData[i]->SetPoints(points);
   }
 

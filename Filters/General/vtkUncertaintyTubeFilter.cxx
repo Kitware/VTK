@@ -224,7 +224,9 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
 
-  vtkIdType npts, *pts, idx;
+  vtkIdType npts;
+  const vtkIdType *pts;
+  vtkIdType idx;
   vtkCellArray *singlePolyline = vtkCellArray::New();
   double *normal;
   for (k=0, inLines->InitTraversal();
@@ -341,8 +343,7 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(7500);
   newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfTubes,
-                                              VTK_CELL_SIZE));
+  newStrips->AllocateEstimate(3*this->NumberOfTubes, VTK_CELL_SIZE);
   //
   // Loop over all polylines generating points
   //

@@ -97,7 +97,8 @@ int vtkTerrainContourLineInterpolator::InterpolateLine( vtkRenderer *,
   vtkPoints *interpolatedPts      = interpolatedPd->GetPoints();
   vtkCellArray *interpolatedCells = interpolatedPd->GetLines();
 
-  vtkIdType *ptIdx, npts = 0;
+  const vtkIdType *ptIdx;
+  vtkIdType npts = 0;
 
   // Add an ordered set of lines to the representation...
   // The Projected path is a recursive filter and will not generate an ordered

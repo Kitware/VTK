@@ -83,7 +83,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   vtkIdType numPts, numCells, numPolys, numStrips, i;
   int j, k;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType p1, p2;
   double x[3], y[3], deltaX[3], xNew[3];
   double x1[3], x2[3], x3[3], l1[3], l2[3];
@@ -239,7 +239,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
     vtkIdType cellId;
     int numNei, nei, edge;
     vtkIdType numNeiPts;
-    vtkIdType *neiPts;
+    const vtkIdType *neiPts;
     double normal[3], neiNormal[3];
     vtkIdList *neighbors;
 
@@ -318,7 +318,11 @@ int vtkWindowedSincPolyDataFilter::RequestData(
           {
             vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
             Mesh->GetCellPoints(nei,numNeiPts,neiPts);
-            vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
+            vtkPolygon::ComputeNormal(inPts,
+                                      numNeiPts,
+                                      // vtkCell API needs fixing...
+                                      const_cast<vtkIdType*>(neiPts),
+                                      neiNormal);
 
             if ( vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle )
             {

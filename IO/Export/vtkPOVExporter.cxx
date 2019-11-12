@@ -477,7 +477,8 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
   // assuming polygon are simple and can be triangulated into "fans"
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetPolys();
-  vtkIdType npts = 0, *pts = nullptr;
+  vtkIdType npts = 0;
+  const vtkIdType *pts = nullptr;
 
   // first pass,
   // calculate how many triangles there will be after triangulation
@@ -570,7 +571,8 @@ void vtkPOVExporter::WriteTriangleStrips(
   // convert triangle strips into triangles
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetStrips();
-  vtkIdType npts = 0, *pts = nullptr;
+  vtkIdType npts = 0;
+  const vtkIdType *pts = nullptr;
 
   // first pass, calculate how many triangles there will be after conversion
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)

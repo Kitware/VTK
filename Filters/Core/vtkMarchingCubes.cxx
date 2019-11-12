@@ -473,7 +473,7 @@ int vtkMarchingCubes::RequestData(
   }
 
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(estimatedSize,3));
+  newPolys->AllocateEstimate(estimatedSize, 3);
 
   if (this->ComputeScalars)
   {

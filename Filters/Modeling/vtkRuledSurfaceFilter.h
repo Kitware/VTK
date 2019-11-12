@@ -191,9 +191,9 @@ private:
 
   void  Resample(vtkPolyData *output, vtkPolyData *input,
                  vtkPoints *inPts, vtkPoints *newPts,
-                 int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
+                 int npts, const vtkIdType *pts, int npts2, const vtkIdType *pts2);
   void  PointWalk(vtkPolyData *output, vtkPoints *inPts,
-                  int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
+                  int npts, const vtkIdType *pts, int npts2, const vtkIdType *pts2);
 
 private:
   vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&) = delete;

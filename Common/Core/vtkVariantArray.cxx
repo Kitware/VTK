@@ -687,14 +687,6 @@ vtkIdType vtkVariantArray::InsertNextValue(vtkVariant value)
 }
 
 //----------------------------------------------------------------------------
-void vtkVariantArray::SetNumberOfValues(vtkIdType number)
-{
-  this->Allocate(number);
-  this->MaxId = number - 1;
-  this->DataChanged();
-}
-
-//----------------------------------------------------------------------------
 vtkVariant* vtkVariantArray::GetPointer(vtkIdType id)
 {
   return this->Array + id;

@@ -70,7 +70,9 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Prepare output
   double x0[3], x1[3];
-  vtkIdType i, *pts, npts;
+  vtkIdType i;
+  const vtkIdType *pts;
+  vtkIdType npts;
   vtkPoints *newPts = input->GetPoints()->NewInstance();
   this->Distance2 = this->Distance*this->Distance;
 
@@ -214,7 +216,7 @@ int vtkPolyDataPointSampler::RequestData(vtkInformation *vtkNotUsed(request),
   {
     vtkIdType id, numPts = newPts->GetNumberOfPoints();
     vtkCellArray *verts = vtkCellArray::New();
-    verts->Allocate(numPts+1);
+    verts->AllocateEstimate(numPts+1, 1);
     verts->InsertNextCell(numPts);
     for ( id=0; id < numPts; id++)
     {
@@ -253,7 +255,7 @@ void vtkPolyDataPointSampler::SampleEdge(vtkPoints *pts, double x0[3], double x1
 
 //------------------------------------------------------------------------
 void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts,
-                                             vtkIdType *pts)
+                                             const vtkIdType *pts)
 {
   double x0[3], x1[3], x2[3];
   inPts->GetPoint(pts[0],x0);
@@ -291,7 +293,7 @@ void vtkPolyDataPointSampler::SampleTriangle(vtkPoints *newPts, vtkPoints *inPts
 
 //------------------------------------------------------------------------
 void vtkPolyDataPointSampler::SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
-                                            vtkIdType npts, vtkIdType *pts)
+                                            vtkIdType npts, const vtkIdType *pts)
 {
   // Specialize for quads
   if ( npts == 4 )

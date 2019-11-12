@@ -34,7 +34,7 @@ int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkPointData *outputPD)
 {
   double *weights, *weights1, *weights2;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType cellId, newId, i, j;
   int edgeId;
   vtkIdType npts = 0;
@@ -272,7 +272,7 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
   vtkSmartPointer<vtkIdList> cellIds = vtkSmartPointer<vtkIdList>::New();
   vtkIdType *cells;
   vtkIdType ncells;
-  vtkIdType *pts;
+  const vtkIdType *pts;
   vtkIdType npts;
   int i, j;
   vtkIdType p0, p3;

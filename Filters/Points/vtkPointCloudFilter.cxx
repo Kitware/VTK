@@ -318,7 +318,7 @@ void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData *output)
 
   // Okay create a cell array and assign it to the output
   vtkCellArray *verts = vtkCellArray::New();
-  verts->EstimateSize(1,numPts);
+  verts->AllocateEstimate(1, numPts);
 
   verts->InsertNextCell(numPts);
   for (vtkIdType ptId=0; ptId < numPts; ++ptId)

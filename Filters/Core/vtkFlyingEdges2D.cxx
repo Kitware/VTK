@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -94,10 +95,10 @@ public:
   int Axis2;
 
   // Output data. Threads write to partitioned memory.
-  T         *Scalars;
-  T         *NewScalars;
-  vtkIdType *NewLines;
-  float     *NewPoints;
+  T            *Scalars;
+  T            *NewScalars;
+  vtkCellArray *NewLines;
+  float        *NewPoints;
 
   // Instantiate and initialize key data members.
   vtkFlyingEdges2DAlgorithm();
@@ -141,18 +142,40 @@ public:
   }
 
   // Produce the line segments for this pixel cell.
+  struct GenerateLinesImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT &state,
+                    const unsigned char *edges,
+                    int numLines,
+                    vtkIdType *eIds,
+                    vtkIdType &lineId)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto *offsets = state.GetOffsets();
+      auto *conn = state.GetConnectivity();
+
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + lineId;
+      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connIter = connRange.begin() + (lineId * 2);
+
+      for (int i = 0; i < numLines; ++i)
+      {
+        *offsetIter++ = static_cast<ValueType>(2 * lineId++);
+        *connIter++ = eIds[*edges++];
+        *connIter++ = eIds[*edges++];
+      }
+
+      // Write the last offset:
+      *offsetIter = static_cast<ValueType>(2 * lineId);
+    }
+  };
   void GenerateLines(unsigned char eCase, unsigned char numLines, vtkIdType *eIds,
                     vtkIdType &lineId)
   {
-      vtkIdType *line;
-      const unsigned char *edges = this->EdgeCases[eCase] + 1;
-      for (int i=0; i < numLines; ++i, edges+=2)
-      {
-        line = this->NewLines + 3*lineId++;
-        line[0] = 2;
-        line[1] = eIds[edges[0]];
-        line[2] = eIds[edges[1]];
-      }
+    const unsigned char *edges = this->EdgeCases[eCase] + 1;
+    this->NewLines->Visit(GenerateLinesImpl{}, edges, numLines, eIds, lineId);
   }
 
   // Interpolate along a pixel axes edge.
@@ -750,8 +773,8 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     {
       newPts->GetData()->WriteVoidPointer(0,3*totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
-      newLines->WritePointer(numOutLines,3*numOutLines);
-      algo.NewLines = static_cast<vtkIdType*>(newLines->GetPointer());
+      newLines->ResizeExact(numOutLines, 2 * numOutLines);
+      algo.NewLines = newLines;
       if (newScalars)
       {
         vtkIdType numPrevPts = newScalars->GetNumberOfTuples();

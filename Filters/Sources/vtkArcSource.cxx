@@ -187,7 +187,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
   newTCoords->Allocate( 2 * numPts );
   newTCoords->SetName( "Texture Coordinates" );
   vtkCellArray *newLines = vtkCellArray::New();
-  newLines->Allocate( newLines->EstimateSize( numLines, 2 ) );
+  newLines->AllocateEstimate(numLines, 2);
 
   double theta = 0.0;
   // Iterate over angle increments

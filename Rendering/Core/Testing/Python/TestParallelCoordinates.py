@@ -12,6 +12,7 @@ reader.SetVectorsName("displacement9")
 reader.SetScalarsName("thickness9")
 ds2do = vtk.vtkDataSetToDataObjectFilter()
 ds2do.SetInputConnection(reader.GetOutputPort())
+ds2do.ModernTopologyOff() # Backwards compatibility
 ds2do.Update()
 actor = vtk.vtkParallelCoordinatesActor()
 actor.SetInputConnection(ds2do.GetOutputPort())

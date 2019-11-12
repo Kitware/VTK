@@ -297,16 +297,24 @@ static int CompareDataObjects(vtkDataObject *obj1, vtkDataObject *obj2)
 
     vtkPolyData *pd1 = vtkPolyData::SafeDownCast(ps1);
     vtkPolyData *pd2 = vtkPolyData::SafeDownCast(ps2);
+
+    auto compareCellArrays = [](vtkCellArray *ca1, vtkCellArray *ca2) -> bool
+    {
+      return (CompareDataArrays(ca1->GetOffsetsArray(),
+                                ca2->GetOffsetsArray()) &&
+              CompareDataArrays(ca1->GetConnectivityArray(),
+                                ca2->GetConnectivityArray()));
+    };
+
     if (pd1 && pd2)
     {
-      if (!CompareDataArrays(pd1->GetVerts()->GetData(),
-                             pd2->GetVerts()->GetData())) return 0;
-      if (!CompareDataArrays(pd1->GetLines()->GetData(),
-                             pd2->GetLines()->GetData())) return 0;
-      if (!CompareDataArrays(pd1->GetPolys()->GetData(),
-                             pd2->GetPolys()->GetData())) return 0;
-      if (!CompareDataArrays(pd1->GetStrips()->GetData(),
-                             pd2->GetStrips()->GetData())) return 0;
+      if (!compareCellArrays(pd1->GetVerts(), pd2->GetVerts()) ||
+          !compareCellArrays(pd1->GetLines(), pd2->GetLines()) ||
+          !compareCellArrays(pd1->GetPolys(), pd2->GetPolys()) ||
+          !compareCellArrays(pd1->GetStrips(), pd2->GetStrips()))
+      {
+        return 0;
+      }
     }
   }
 

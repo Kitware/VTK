@@ -71,7 +71,7 @@ vtkBoxWidget::vtkBoxWidget()
   // the picking.
   vtkIdType pts[4];
   vtkCellArray *cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(6,4));
+  cells->AllocateEstimate(6, 4);
   pts[0] = 3; pts[1] = 0; pts[2] = 4; pts[3] = 7;
   cells->InsertNextCell(4,pts);
   pts[0] = 1; pts[1] = 2; pts[2] = 6; pts[3] = 5;
@@ -90,7 +90,7 @@ vtkBoxWidget::vtkBoxWidget()
 
   // The face of the hexahedra
   cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(1,4));
+  cells->AllocateEstimate(1, 4);
   cells->InsertNextCell(4,pts); //temporary, replaced later
   this->HexFacePolyData = vtkPolyData::New();
   this->HexFacePolyData->SetPoints(this->Points);
@@ -109,7 +109,7 @@ vtkBoxWidget::vtkBoxWidget()
   this->HexOutline = vtkActor::New();
   this->HexOutline->SetMapper(this->OutlineMapper);
   cells = vtkCellArray::New();
-  cells->Allocate(cells->EstimateSize(15,2));
+  cells->AllocateEstimate(15, 2);
   this->OutlinePolyData->SetLines(cells);
   cells->Delete();
 
@@ -523,10 +523,10 @@ void vtkBoxWidget::HighlightFace(int cellId)
   if ( cellId >= 0 )
   {
     vtkIdType npts;
-    vtkIdType *pts;
+    const vtkIdType *pts;
     vtkCellArray *cells = this->HexFacePolyData->GetPolys();
     this->HexPolyData->GetCellPoints(cellId, npts, pts);
-    cells->ReplaceCell(0,npts,pts);
+    cells->ReplaceCellAtId(0,npts,pts);
     cells->Modified();
     this->CurrentHexFace = cellId;
     this->HexFace->SetProperty(this->SelectedFaceProperty);

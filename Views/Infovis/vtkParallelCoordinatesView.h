@@ -145,7 +145,7 @@ protected:
 
   int AddLassoBrushPoint(double *p);
   int SetBrushLine(int line, double *p1, double *p2);
-  void GetBrushLine(int line, vtkIdType &npts, vtkIdType* &ptids);
+  void GetBrushLine(int line, vtkIdType &npts, vtkIdType const *&ptids);
   int SetAngleBrushLine(double *p1, double *p2);
   int SetFunctionBrushLine1(double *p1, double *p2);
   int SetFunctionBrushLine2(double *p1, double *p2);

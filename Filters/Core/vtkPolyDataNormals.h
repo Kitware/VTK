@@ -195,6 +195,8 @@ private:
   vtkIdList *Wave;
   vtkIdList *Wave2;
   vtkIdList *CellIds;
+  vtkIdList *CellPoints;
+  vtkIdList *NeighborPoints;
   vtkIdList *Map;
   vtkPolyData *OldMesh;
   vtkPolyData *NewMesh;

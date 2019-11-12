@@ -62,7 +62,7 @@ int vtkAppendArcLength::RequestData(
 
   vtkCellArray* lines = output->GetLines();
   vtkIdType numCellPoints;
-  vtkIdType* cellPoints;
+  const vtkIdType* cellPoints;
   lines->InitTraversal();
   while (lines->GetNextCell(numCellPoints, cellPoints))
   {

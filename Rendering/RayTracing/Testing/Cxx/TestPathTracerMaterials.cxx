@@ -43,6 +43,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSuperquadricSource.h"
 #include "vtkTexture.h"
+#include "vtkUnsignedCharArray.h"
 
 // !! NOTE this test will output different images based on the OSPRay version,
 // !! since the available materials changed with OSPRay v1.6.

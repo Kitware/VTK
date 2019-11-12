@@ -29,6 +29,9 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <sstream>
+#include <string>
+
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -37,6 +40,8 @@ vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 {
   this->Geometry = 1;
   this->Topology = 1;
+  this->LegacyTopology = 1;
+  this->ModernTopology = 1;
   this->PointData = 1;
   this->CellData = 1;
   this->FieldData = 1;
@@ -157,34 +162,53 @@ int vtkDataSetToDataObjectFilter::RequestData(
 
   if (this->Topology)
   {
+    // Helper lambda to add cell arrays to the field data:
+    auto addCellConnArrays = [&](vtkCellArray *ca, const std::string& name)
+    {
+      if (!ca || ca->GetNumberOfCells() == 0)
+      {
+        return;
+      }
+
+
+      // For backwards compatibility:
+      if (this->LegacyTopology)
+      {
+        vtkNew<vtkIdTypeArray> legacy;
+        ca->ExportLegacyFormat(legacy);
+        legacy->SetName(name.c_str());
+        fd->AddArray(legacy);
+      }
+
+      // For modern cell storage:
+      if (this->ModernTopology)
+      {
+        {
+          const std::string connName = name + ".Connectivity";
+          auto conn = vtk::TakeSmartPointer(ca->GetConnectivityArray()->NewInstance());
+          conn->ShallowCopy(ca->GetConnectivityArray());
+          conn->SetName(connName.c_str());
+          fd->AddArray(conn);
+        }
+
+        {
+          const std::string offsetsName = name + ".Offsets";
+          auto offsets = vtk::TakeSmartPointer(ca->GetOffsetsArray()->NewInstance());
+          offsets->ShallowCopy(ca->GetOffsetsArray());
+          offsets->SetName(offsetsName.c_str());
+          fd->AddArray(offsets);
+        }
+      }
+    };
+
     if ( input->GetDataObjectType() == VTK_POLY_DATA )
     {
       vtkPolyData *pd=static_cast<vtkPolyData *>(input);
-      vtkCellArray *ca;
-      if ( pd->GetVerts()->GetNumberOfCells() > 0 )
-      {
-        ca = pd->GetVerts();
-        ca->GetData()->SetName("Verts");
-        fd->AddArray( ca->GetData() );
-      }
-      if ( pd->GetLines()->GetNumberOfCells() > 0 )
-      {
-        ca = pd->GetLines();
-        ca->GetData()->SetName("Lines");
-        fd->AddArray( ca->GetData() );
-      }
-      if ( pd->GetPolys()->GetNumberOfCells() > 0 )
-      {
-        ca = pd->GetPolys();
-        ca->GetData()->SetName("Polys");
-        fd->AddArray( ca->GetData() );
-      }
-      if ( pd->GetStrips()->GetNumberOfCells() > 0 )
-      {
-        ca = pd->GetStrips();
-        ca->GetData()->SetName("Strips");
-        fd->AddArray( ca->GetData() );
-      }
+
+      addCellConnArrays(pd->GetVerts(), "Verts");
+      addCellConnArrays(pd->GetLines(), "Lines");
+      addCellConnArrays(pd->GetPolys(), "Polys");
+      addCellConnArrays(pd->GetStrips(), "Strips");
     }
 
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
@@ -234,8 +258,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       vtkCellArray *ca=static_cast<vtkUnstructuredGrid *>(input)->GetCells();
       if ( ca != nullptr && ca->GetNumberOfCells() > 0 )
       {
-        ca->GetData()->SetName("Cells");
-        fd->AddArray( ca->GetData() );
+        addCellConnArrays(ca, "Cells");
 
         vtkIdType numCells=input->GetNumberOfCells();
         vtkIntArray *types=vtkIntArray::New();

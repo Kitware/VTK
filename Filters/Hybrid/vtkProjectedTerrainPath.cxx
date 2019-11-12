@@ -192,7 +192,9 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   // in the list (i,i+1) form an edge; the next two (i+1,i+2) form the
   // next edge, and so on. The list contains point ids referring to
   // the this->Points array.
-  vtkIdType j, npts=0, *pts=nullptr;
+  vtkIdType j;
+  vtkIdType npts=0;
+  const vtkIdType *pts=nullptr;
   this->EdgeList = new EdgeListType;
   this->PositiveLineError = vtkPriorityQueue::New();
   this->NegativeLineError = vtkPriorityQueue::New();
@@ -218,7 +220,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
 
   //Okay now dump out the edges from the edge list into the output polydata
   vtkCellArray *outLines = vtkCellArray::New();
-  outLines->Allocate(outLines->EstimateSize(static_cast<vtkIdType>(this->EdgeList->size()),2));
+  outLines->AllocateEstimate(static_cast<vtkIdType>(this->EdgeList->size()), 2);
   for (EdgeListIterator iter=this->EdgeList->begin();
        iter != this->EdgeList->end();
        ++iter)

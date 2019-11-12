@@ -44,6 +44,7 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
+#include "vtkCellTypes.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"

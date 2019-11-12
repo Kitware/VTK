@@ -53,7 +53,7 @@ int TestNamedComponents(int , char *[])
     pointCoords->InsertTuple(i,loc);
   }
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
-  poly->Allocate(numCells, numCells);
+  poly->AllocateExact(numCells, numCells);
   poly->SetPoints(points);
   poly->GetPointData()->AddArray( pointCoords );
   pointCoords->Delete();
@@ -108,7 +108,8 @@ int TestNamedComponents(int , char *[])
 
   for (i = 0; i < numCells; i++)
   {
-    vtkIdType npts, *pts;
+    vtkIdType npts;
+    const vtkIdType *pts;
     poly->GetCellPoints(i, npts, pts);
     vtkIdType data[4] = {npts, pts[0], 0, 0};
     for(vtkIdType j=1;j<npts;j++)

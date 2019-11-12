@@ -136,7 +136,9 @@ int vtkDecimatePro::RequestData(
   vtkCellArray *newPolys;
   double error, previousError=0.0, reduction;
   int type;
-  vtkIdType *pts, npts, totalEliminated, numRecycles, numPops;
+  vtkIdType npts;
+  const vtkIdType *pts;
+  vtkIdType totalEliminated, numRecycles, numPops;
   vtkIdType ncells;
   vtkIdType pt1, pt2, cellId, fedges[2];
   vtkIdType *cells;
@@ -190,11 +192,9 @@ int vtkDecimatePro::RequestData(
   this->SplitState = VTK_STATE_UNSPLIT;
 
   // Lets check to make sure there are only triangles in the input.
-  vtkIdType *pPolys;
-  pPolys = input->GetPolys()->GetPointer();
-  for (i = 0; i < numTris; ++i)
   {
-    if (*pPolys != 3)
+    const vtkIdType cellSize = input->GetPolys()->IsHomogeneous();
+    if (cellSize != 3)
     {
       vtkErrorMacro("DecimatePro does not accept polygons that are not triangles.");
       output->CopyStructure(input);
@@ -202,7 +202,6 @@ int vtkDecimatePro::RequestData(
       output->GetCellData()->PassData(input->GetCellData());
       return 1;
     }
-    pPolys += 4;
   }
 
   // Build cell data structure. Need to copy triangle connectivity data
@@ -415,7 +414,7 @@ int vtkDecimatePro::RequestData(
 
   // Now renumber connectivity
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(3,numTris-totalEliminated));
+  newPolys->AllocateEstimate(numTris - totalEliminated, 3);
 
   for (cellId=0; cellId < numTris; cellId++)
   {
@@ -509,7 +508,7 @@ int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, vtkIdType numTris,
   vtkDecimatePro::LocalVertex sn;
   vtkIdType startVertex, nextVertex, numNormals;
   int i, j, vtype;
-  vtkIdType *verts;
+  const vtkIdType *verts;
   double *x1, *x2, *normal;
   double v1[3], v2[3], center[3];
   //
@@ -863,7 +862,8 @@ void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
   vtkIdType id, fedge1, fedge2, i, j;
   vtkIdType tri, veryFirst;
   int numSplitTris;
-  vtkIdType *verts, nverts;
+  const vtkIdType *verts;
+  vtkIdType nverts;
   double error;
   vtkIdType startTri, p[2];
   int maxGroupSize;

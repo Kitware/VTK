@@ -83,7 +83,7 @@ int vtkFeatureEdges::RequestData(
   double cosAngle = 0;
   vtkIdType lineIds[2];
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkCellArray *inPolys, *inStrips, *newPolys;
   vtkFloatArray *polyNormals = nullptr;
   vtkIdType numPts, numCells, numPolys, numStrips, nei;
@@ -141,7 +141,7 @@ int vtkFeatureEdges::RequestData(
     }
     else
     {
-      newPolys->Allocate(newPolys->EstimateSize(numStrips,5));
+      newPolys->AllocateEstimate(numStrips, 5);
     }
     inStrips = input->GetStrips();
     for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
@@ -178,7 +178,7 @@ int vtkFeatureEdges::RequestData(
 
   newPts->Allocate(numPts/10,numPts);
   newLines = vtkCellArray::New();
-  newLines->Allocate(numPts/10);
+  newLines->AllocateEstimate(numPts/20, 2);
   if ( this->Coloring )
   {
     newScalars = vtkFloatArray::New();

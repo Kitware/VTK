@@ -161,7 +161,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
         subCoordinates->SetNumberOfComponents(3);
         subField->SetNumberOfComponents(1);
 
-        subMesh->Allocate();
+        subMesh->AllocateExact(1024, 1024);
 
 
         std::vector<bool>   visitedTriangles(inputMesh->GetNumberOfCells());

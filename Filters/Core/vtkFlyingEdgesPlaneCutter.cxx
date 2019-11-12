@@ -15,6 +15,7 @@
 #include "vtkFlyingEdgesPlaneCutter.h"
 
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
@@ -121,12 +122,12 @@ public:
   double *Normal; //define plane normal
 
   // Output data. Threads write to partitioned memory.
-  T         *NewScalars;
-  vtkIdType *NewTris;
-  float     *NewPoints;
-  float     *NewNormals;
-  bool       InterpolateAttributes;
-  ArrayList  Arrays;
+  T            *NewScalars;
+  vtkCellArray *NewTris;
+  float        *NewPoints;
+  float        *NewNormals;
+  bool          InterpolateAttributes;
+  ArrayList     Arrays;
 
   // Setup algorithm
   vtkFlyingEdgesPlaneCutterAlgorithm();
@@ -172,19 +173,41 @@ public:
                            vtkIdType *eMD[4]);
 
   // Produce the output triangles for this voxel cell.
+  struct GenerateTrisImpl
+  {
+    template <typename CellStateT>
+    void operator()(CellStateT& state,
+                    const unsigned char *edges,
+                    int numTris,
+                    vtkIdType *eIds,
+                    vtkIdType &triId)
+    {
+      using ValueType = typename CellStateT::ValueType;
+      auto *offsets = state.GetOffsets();
+      auto *conn = state.GetConnectivity();
+
+      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetIter = offsetRange.begin() + triId;
+      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connIter = connRange.begin() + (triId * 3);
+
+      for (int i = 0; i < numTris; ++i)
+      {
+        *offsetIter++ = static_cast<ValueType>(3 * triId++);
+        *connIter++ = eIds[*edges++];
+        *connIter++ = eIds[*edges++];
+        *connIter++ = eIds[*edges++];
+      }
+
+      // Write the last offset:
+      *offsetIter = static_cast<ValueType>(3 * triId);
+    }
+  };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType *eIds,
                     vtkIdType &triId)
   {
-      vtkIdType *tri;
-      const unsigned char *edges = this->EdgeCases[eCase] + 1;
-      for (int i=0; i < numTris; ++i, edges+=3)
-      {
-        tri = this->NewTris + 4*triId++;
-        tri[0] = 3;
-        tri[1] = eIds[edges[0]];
-        tri[2] = eIds[edges[1]];
-        tri[3] = eIds[edges[2]];
-      }
+    const unsigned char *edges = this->EdgeCases[eCase] + 1;
+    this->NewTris->Visit(GenerateTrisImpl{}, edges, numTris, eIds, triId);
   }
 
   // Interpolate along a voxel axes edge.
@@ -1091,8 +1114,8 @@ Contour(vtkFlyingEdgesPlaneCutter *self, vtkImageData *input, vtkDataArray *inSc
   {
     newPts->GetData()->WriteVoidPointer(0,3*totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
-    newTris->WritePointer(numOutTris,4*numOutTris);
-    algo.NewTris = static_cast<vtkIdType*>(newTris->GetPointer());
+    newTris->ResizeExact(numOutTris, 3 * numOutTris);
+    algo.NewTris = newTris;
 
     if (newScalars)
     {

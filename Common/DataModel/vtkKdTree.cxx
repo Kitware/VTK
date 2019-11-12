@@ -40,6 +40,7 @@
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkCallbackCommand.h"
 
@@ -3181,8 +3182,8 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData *pd)
   }
 
   // points and quads for level 0 bounding box
-  int npoints = 8;
-  int npolys  = 6;
+  vtkIdType npoints = 8;
+  vtkIdType npolys  = 6;
 
   for (i = 1; i < level; i++)
   {
@@ -3194,7 +3195,7 @@ void vtkKdTree::GenerateRepresentationWholeSpace(int level, vtkPolyData *pd)
   pts = vtkPoints::New();
   pts->Allocate(npoints);
   polys = vtkCellArray::New();
-  polys->Allocate(npolys);
+  polys->AllocateEstimate(npolys, 4);
 
   // level 0 bounding box
 
@@ -3338,8 +3339,8 @@ void vtkKdTree::GenerateRepresentationDataBounds(int level, vtkPolyData *pd)
     level = this->Level;
   }
 
-  int npoints = 0;
-  int npolys  = 0;
+  vtkIdType npoints = 0;
+  vtkIdType npolys  = 0;
 
   for (i=0; i < level; i++)
   {
@@ -3351,7 +3352,7 @@ void vtkKdTree::GenerateRepresentationDataBounds(int level, vtkPolyData *pd)
   pts = vtkPoints::New();
   pts->Allocate(npoints);
   polys = vtkCellArray::New();
-  polys->Allocate(npolys);
+  polys->AllocateEstimate(npolys, 4);
 
   _generateRepresentationDataBounds(this->Top, pts, polys, level);
 
@@ -3460,13 +3461,13 @@ void vtkKdTree::GenerateRepresentation(int *regions, int len, vtkPolyData *pd)
     return;
   }
 
-  int npoints = 8 * len;
-  int npolys  = 6 * len;
+  const vtkIdType npoints = 8 * len;
+  const vtkIdType npolys  = 6 * len;
 
   pts = vtkPoints::New();
   pts->Allocate(npoints);
   polys = vtkCellArray::New();
-  polys->Allocate(npolys);
+  polys->AllocateEstimate(npolys, 4);
 
   for (i=0; i<len; i++)
   {

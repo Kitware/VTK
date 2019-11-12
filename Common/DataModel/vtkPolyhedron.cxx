@@ -172,7 +172,6 @@ vtkPolyhedron::vtkPolyhedron()
   this->PolyDataConstructed = 0;
   this->PolyData = vtkPolyData::New();
   this->Polys = vtkCellArray::New();
-  this->PolyConnectivity = vtkIdTypeArray::New();
   this->LocatorConstructed = 0;
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
@@ -196,7 +195,6 @@ vtkPolyhedron::~vtkPolyhedron()
   this->Faces->Delete();
   this->PolyData->Delete();
   this->Polys->Delete();
-  this->PolyConnectivity->Delete();
   this->CellLocator->Delete();
   this->CellIds->Delete();
   this->Cell->Delete();
@@ -233,12 +231,11 @@ void vtkPolyhedron::ConstructPolyData()
     return;
   }
 
-  this->PolyConnectivity->SetNumberOfTuples(this->Faces->GetMaxId() - 1);
-  this->PolyConnectivity->
-    SetArray(this->Faces->GetPointer(1), this->Faces->GetMaxId() - 1, 1);
-  this->Polys->SetNumberOfCells(*(this->Faces->GetPointer(0)));
-  this->Polys->
-    SetCells(*(this->Faces->GetPointer(0)), this->PolyConnectivity);
+  const vtkIdType numCells = *this->Faces->GetPointer(0);
+  const vtkIdType connSize = this->Faces->GetNumberOfValues() - numCells - 1;
+  this->Polys->AllocateExact(numCells, connSize);
+  this->Polys->ImportLegacyFormat(this->Faces->GetPointer(1),
+                                  this->Faces->GetNumberOfValues() - 1);
 
   // Standard setup
   this->PolyData->Initialize();
@@ -325,7 +322,6 @@ void vtkPolyhedron::Initialize()
 
   // Polys have to be reset
   this->Polys->Reset();
-  this->PolyConnectivity->Reset();
 
   // Faces may need renumbering later. This means converting the face ids from
   // global ids to local, canonical ids.

@@ -209,7 +209,7 @@ int vtkFrustumSource::RequestData(
   // Topology
   vtkIdType numPolys=6;
   vtkCellArray *newPolys=vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
+  newPolys->AllocateEstimate(numPolys, 4);
 
   vtkIdType pts[4];
 
@@ -261,7 +261,7 @@ int vtkFrustumSource::RequestData(
     vtkIdType numLines=4;
 
     newLines=vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numLines,2));
+    newLines->AllocateEstimate(numLines, 2);
 
     pts[0]=12; // apex, or first of the two extra near points.
 

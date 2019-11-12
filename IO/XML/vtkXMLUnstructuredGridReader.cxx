@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -134,18 +135,11 @@ void vtkXMLUnstructuredGridReader::SetupOutputData()
       this->GetCurrentOutput());
 
   // Setup the output's cell arrays.
-  vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
+  vtkNew<vtkUnsignedCharArray> cellTypes;
   cellTypes->SetNumberOfTuples(this->GetNumberOfCells());
-  vtkCellArray* outCells = vtkCellArray::New();
+  vtkNew<vtkCellArray> outCells;
 
-  vtkIdTypeArray* locations = vtkIdTypeArray::New();
-  locations->SetNumberOfTuples(this->GetNumberOfCells());
-
-  output->SetCells(cellTypes, locations, outCells);
-
-  locations->Delete();
-  outCells->Delete();
-  cellTypes->Delete();
+  output->SetCells(cellTypes, outCells);
 }
 
 //----------------------------------------------------------------------------
@@ -271,33 +265,6 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
     {
       return 0;
     }
-  }
-
-  // Construct the cell locations.
-  vtkIdTypeArray* locations = output->GetCellLocationsArray();
-  vtkIdType* locs = locations->GetPointer(this->StartCell);
-  vtkIdTypeArray* cellArrayData = output->GetCells()->GetData();
-  vtkIdType startLoc = 0;
-  if (this->StartCell > 0)
-  {
-    // this set the startLoc to point to the location in the cellArray where the
-    // cell for this piece will start writing.
-
-    // Id for last written cell:
-    vtkIdType lastWrittenCell = this->StartCell - 1;
-    vtkIdType locationOfLastWrittenCell = locations->GetValue(lastWrittenCell);
-    startLoc = locationOfLastWrittenCell + 1 +
-      cellArrayData->GetValue(locationOfLastWrittenCell);
-    // startLoc = location-of-last-written-cell + 1 (for put the count for items in the cell)
-    //            + (number of items in the cell).
-  }
-  vtkIdType* begin = output->GetCells()->GetData()->GetPointer(startLoc);
-  vtkIdType* cur = begin;
-  vtkIdType i;
-  for(i=0; i < this->NumberOfCells[this->Piece]; ++i)
-  {
-    locs[i] = startLoc + cur - begin;
-    cur += *cur + 1;
   }
 
   // Set the range of progress for the cell types.

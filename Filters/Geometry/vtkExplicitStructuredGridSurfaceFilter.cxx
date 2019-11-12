@@ -15,6 +15,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <vector>
 
@@ -158,7 +159,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   output->SetPoints(newPts);
 
   vtkNew<vtkCellArray> newCells;
-  newCells->Allocate(5 * numCells / 10, numCells / 2);
+  newCells->AllocateEstimate(numCells / 10, 4);
   output->SetPolys(newCells);
 
   outputPD->CopyGlobalIdsOn();
@@ -169,7 +170,8 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   // Traverse cells to extract geometry
   int abort = 0;
   vtkIdType progressInterval = numCells / 20 + 1;
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   cells->InitTraversal();
   std::vector<vtkIdType> pointIdVector(numPts, -1);
 

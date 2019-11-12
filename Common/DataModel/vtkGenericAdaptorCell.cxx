@@ -411,7 +411,8 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       return;
   }
 
-  vtkIdType npts, *pts = nullptr;
+  vtkIdType npts;
+  const vtkIdType *pts = nullptr;
   double *point = this->InternalPoints->GetPointer(0);
 
   vtkDataArray *scalars = internalPd->GetArray(attributes->GetActiveAttribute());
@@ -636,7 +637,8 @@ void vtkGenericAdaptorCell::Clip(double value,
       return;
   }
 
-  vtkIdType npts, *pts = nullptr;
+  vtkIdType npts;
+  const vtkIdType *pts = nullptr;
   double *point  = this->InternalPoints->GetPointer(0);
 
   vtkDataArray *scalars=internalPd->GetArray(attributes->GetActiveAttribute());
@@ -858,7 +860,7 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
     }
 
     vtkIdType npts = 0;
-    vtkIdType *pts = nullptr;
+    const vtkIdType *pts = nullptr;
     double *point  = this->InternalPoints->GetPointer(0);
 
 
@@ -1038,7 +1040,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
                        this->InternalCellArray, internalPd);
 
   vtkIdType npts=0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   double *point = this->InternalPoints->GetPointer(0);
 
   // for each cell-centered attribute: copy the value

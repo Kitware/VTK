@@ -34,6 +34,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkPolygon.h"
 
 #include <map>
@@ -190,8 +191,6 @@ int vtkPolyDataSilhouette::RequestData(
       break;
   }
 
-  vtkIdType nPolys = input->GetNumberOfPolys();
-  vtkIdTypeArray* polysArray = input->GetPolys()->GetData();
   vtkPoints* inPoints = input->GetPoints();
 
   if( input->GetMTime() > this->PreComp->mtime.GetMTime() )
@@ -201,13 +200,23 @@ int vtkPolyDataSilhouette::RequestData(
     this->PreComp->mtime.Modified();
     this->PreComp->edges.clear();
 
-    vtkIdType* polys = polysArray->GetPointer(0);
+    vtkCellArray* polyCells = input->GetPolys();
+    auto polyIter =
+        vtkSmartPointer<vtkCellArrayIterator>::Take(polyCells->NewIterator());
 
-    for(vtkIdType i=0;i<nPolys;i++)
+    for (polyIter->GoToFirstCell();
+         !polyIter->IsDoneWithTraversal();
+         polyIter->GoToNextCell())
     {
-      int np = *(polys); ++polys;
+      vtkIdType np;
+      const vtkIdType *polys;
+      polyIter->GetCurrentCell(np, polys);
+
       double normal[3];
-      vtkPolygon::ComputeNormal(inPoints, np, polys, normal);
+      vtkPolygon::ComputeNormal(inPoints,
+                                static_cast<int>(np),
+                                const_cast<vtkIdType*>(polys),
+                                normal);
 
       for(int j=0;j<np;j++)
       {
@@ -239,7 +248,6 @@ int vtkPolyDataSilhouette::RequestData(
           tn.rightNormal[2] = normal[2];
         }
       }
-      polys += np;
     }
 
     delete [] this->PreComp->edgeFlag;
@@ -332,7 +340,8 @@ int vtkPolyDataSilhouette::RequestData(
     {
       this->PreComp->lines = vtkCellArray::New();
     }
-    this->PreComp->lines->SetCells( silhouetteEdges, la );
+    this->PreComp->lines->AllocateEstimate(silhouetteEdges, 2);
+    this->PreComp->lines->ImportLegacyFormat(la);
     la->Delete();
   }
 

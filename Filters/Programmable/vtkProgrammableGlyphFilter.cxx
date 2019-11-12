@@ -131,7 +131,7 @@ int vtkProgrammableGlyphFilter::RequestData(
   outputPD->CopyScalarsOff(); //'cause we control the coloring process
   outputCD->CopyScalarsOff();
 
-  output->Allocate(numSourceCells*numPts,numSourceCells*numPts);
+  output->AllocateEstimate(numSourceCells*numPts, 1);
   outputPD->CopyAllocate(sourcePD, numSourcePts*numPts, numSourcePts*numPts);
   outputCD->CopyAllocate(sourceCD, numSourceCells*numPts, numSourceCells*numPts);
   newPts = vtkPoints::New();

@@ -83,7 +83,8 @@ int vtkSplineFilter::RequestData(
   vtkCellArray *newLines;
   vtkIdType numNewPts, numNewCells;
   vtkPoints *newPts;
-  vtkIdType npts=0, *pts=nullptr;
+  vtkIdType npts=0;
+  const vtkIdType *pts=nullptr;
   vtkIdType offset=0;
   vtkFloatArray *newTCoords=nullptr;
   int abort=0;
@@ -112,7 +113,7 @@ int vtkSplineFilter::RequestData(
   newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(1,numNewPts));
+  newLines->AllocateEstimate(1, numNewPts);
 
   // Point data
   if ( (this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS &&
@@ -204,7 +205,7 @@ int vtkSplineFilter::RequestData(
 }
 
 int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
-                                    vtkIdType *pts, vtkPoints *inPts,
+                                    const vtkIdType *pts, vtkPoints *inPts,
                                     vtkPoints *newPts, vtkPointData *pd,
                                     vtkPointData *outPD, int genTCoords,
                                     vtkFloatArray *newTCoords)

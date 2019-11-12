@@ -851,7 +851,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(
   pointIds = new int[this->NumberOfMeasuredPoints];
   coords = new float [this->NumberOfMeasuredPoints*3];
   points->Allocate(this->NumberOfMeasuredPoints);
-  pd->Allocate(this->NumberOfMeasuredPoints);
+  pd->AllocateEstimate(this->NumberOfMeasuredPoints, 1);
 
   this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
   this->ReadFloatArray(coords, this->NumberOfMeasuredPoints*3);

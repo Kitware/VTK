@@ -26,11 +26,13 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkLegendBoxActor.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkProperty2D.h"
+
 #include <string>
 #include <vector>
 
@@ -590,7 +592,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
   vtkPoints *webPts = vtkPoints::New();
   webPts->Allocate(this->NumberOfRings*VTK_RING_PTS);
   vtkCellArray *webLines = vtkCellArray::New();
-  webLines->Allocate(this->N+this->NumberOfRings,VTK_RING_PTS);
+  webLines->AllocateEstimate(this->N+this->NumberOfRings, VTK_RING_PTS);
   this->WebData->SetPoints(webPts);
   this->WebData->SetLines(webLines);
   vtkIdType ptId, pIds[VTK_RING_PTS+1];
@@ -707,7 +709,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
   char buf[1024];
   if ( this->IndependentVariables == VTK_IV_COLUMN )
   {
-    lines->Allocate(lines->EstimateSize(numRows,numColumns));
+    lines->AllocateEstimate(numRows, numColumns);
     for (j=0; j<numRows; j++)
     {
       lines->InsertNextCell(numColumns+1);
@@ -743,7 +745,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
   }
   else //row
   {
-    lines->Allocate(lines->EstimateSize(numColumns,numRows));
+    lines->AllocateEstimate(numColumns, numRows);
     for (j=0; j<numComponents; j++)
     {
       int array_comp;

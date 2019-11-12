@@ -54,6 +54,7 @@
 #include <vtkSignedCharArray.h>
 #include <vtkShortArray.h>
 #include <vtkStringArray.h>
+#include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
 #include <vtkUnsignedLongArray.h>
 #include <vtkUnsignedLongLongArray.h>
@@ -254,7 +255,8 @@ int TestVolumeOfRevolutionFilter( int argc, char * argv [] )
     vtkCellIterator *it = ug->NewCellIterator();
     for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
     {
-      vtkIdType npts, *ptIds;
+      vtkIdType npts;
+      const vtkIdType *ptIds;
       ug->GetCellPoints(it->GetCellId(), npts, ptIds);
       vtkIdType numberOfPoints = it->GetNumberOfPoints();
       if (npts != numberOfPoints)

@@ -96,7 +96,7 @@ bool vtkPolygon::IsConvex()
 // that index into the points list. Parameter pts can be nullptr, indicating that
 // the polygon indexing is {0, 1, ..., numPts-1}. This version will handle
 // non-convex polygons.
-void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
+void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, const vtkIdType *pts,
                                double *n)
 {
   int i;
@@ -1965,8 +1965,8 @@ int vtkPolygon::IntersectPolygonWithPolygon(int npts, double *pts,double bounds[
 // Compute the area of the polygon (oriented in 3D space). It uses an
 // efficient approach where the area is computed in 2D and then projected into
 // 3D space.
-double vtkPolygon::ComputeArea(vtkPoints *p, vtkIdType numPts, vtkIdType *pts,
-                               double n[3])
+double vtkPolygon::ComputeArea(vtkPoints *p, vtkIdType numPts,
+                               const vtkIdType *pts, double n[3])
 {
   if ( numPts < 3 )
   {

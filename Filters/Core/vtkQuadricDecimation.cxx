@@ -199,7 +199,8 @@ int vtkQuadricDecimation::RequestData(
   vtkPointData *pointData;
   vtkIdType endPtIds[2];
   vtkIdList *outputCellList;
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkIdType numDeletedTris=0;
 
   // check some assumptions about the data
@@ -396,7 +397,7 @@ int vtkQuadricDecimation::RequestData(
   }
 
   output->Reset();
-  output->Allocate(this->Mesh, outputCellList->GetNumberOfIds());
+  output->AllocateCopy(this->Mesh);
   output->GetPointData()->CopyAllocate(this->Mesh->GetPointData(),1);
   output->CopyCells(this->Mesh, outputCellList);
 
@@ -428,7 +429,8 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   vtkIdType ptId;
   int i, j;
   vtkCellArray *polys;
-  vtkIdType npts, *pts=nullptr;
+  vtkIdType npts;
+  const vtkIdType *pts=nullptr;
   double point0[3], point1[3], point2[3];
   double n[3];
   double tempP1[3], tempP2[3],  d, triArea2;
@@ -599,7 +601,8 @@ void vtkQuadricDecimation::AddBoundaryConstraints()
   double *QEM;
   vtkIdType  cellId;
   int i, j;
-  vtkIdType npts, *pts;
+  vtkIdType npts;
+  const vtkIdType *pts;
   double t0[3], t1[3], t2[3];
   double e0[3], e1[3], n[3], c, d, w;
   vtkIdList *cellIds = vtkIdList::New();
@@ -702,7 +705,9 @@ void vtkQuadricDecimation::FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id,
                                               vtkIdList *edges)
 {
   vtkIdType ncells;
-  vtkIdType *cells, npts, *pts, edgeId;
+  vtkIdType *cells, edgeId;
+  vtkIdType npts;
+  const vtkIdType *pts;
   vtkIdType i, j;
 
   edges->Reset();
@@ -1166,7 +1171,9 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
 int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
 {
   int j, numDeleted=0;
-  vtkIdType i, npts, *pts, cellId;
+  vtkIdType i, cellId;
+  vtkIdType npts;
+  const vtkIdType *pts;
 
   this->Mesh->GetPointCells(pt0Id, this->CollapseCellIds);
   for (i = 0; i < this->CollapseCellIds->GetNumberOfIds(); i++)
@@ -1260,7 +1267,9 @@ int vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id,
 const double *x)
 {
   vtkIdType ncells, i;
-  vtkIdType npts, *pts,  ptId, *cells;
+  vtkIdType ptId, *cells;
+  vtkIdType npts;
+  const vtkIdType *pts;
   double pt1[3], pt2[3], pt3[3];
 
   this->Mesh->GetPointCells(pt0Id, ncells, cells);

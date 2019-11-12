@@ -471,7 +471,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   int                  numberOfInputCells;
   int                  currentInputCellIndex;
   vtkIdType            npts = 0;
-  vtkIdType            *pts = nullptr;
+  const vtkIdType      *pts = nullptr;
   double                point1[3], point2[3];
   double                currentZ;
   vtkStructuredPoints  *volume;

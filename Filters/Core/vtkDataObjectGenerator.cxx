@@ -1077,7 +1077,7 @@ void vtkDataObjectGenerator::MakePolyData1(vtkDataSet *ids)
   pts->InsertNextPoint(XO+1.0, YO+0.0, ZO+0.0);
   ds->SetPoints(pts);
   pts->Delete();
-  ds->Allocate();
+  ds->AllocateExact(0, 0, 0, 0, 1, 3, 0, 0);
   vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
   ds->Squeeze();
@@ -1106,7 +1106,7 @@ void vtkDataObjectGenerator::MakePolyData2(vtkDataSet *ids)
   pts->InsertNextPoint(XO+2.0, YO+0.5, ZO+0.5);
   ds->SetPoints(pts);
   pts->Delete();
-  ds->Allocate();
+  ds->AllocateExact(1, 1, 0, 0, 1, 3, 0, 0);
   vtkIdType verts[3] = {0,1,2};
   ds->InsertNextCell(VTK_TRIANGLE, 3, verts);
   vtkIdType points[1] = {3};

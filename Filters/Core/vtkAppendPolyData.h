@@ -138,8 +138,8 @@ protected:
 
 
   // An efficient way to append cells.
-  vtkIdType *AppendCells(vtkIdType *pDest, vtkCellArray *src,
-                         vtkIdType offset);
+  void AppendCells(vtkCellArray *dest, vtkCellArray *src,
+                   vtkIdType offset);
 
  private:
   // hide the superclass' AddInput() from the user and the compiler

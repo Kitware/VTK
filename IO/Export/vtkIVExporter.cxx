@@ -244,7 +244,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
   float tempf2;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;

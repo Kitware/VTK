@@ -40,7 +40,7 @@ vtkCell::~vtkCell()
 //----------------------------------------------------------------------------
 // Instantiate cell from outside
 //
-void vtkCell::Initialize(int npts, vtkIdType *pts, vtkPoints *p)
+void vtkCell::Initialize(int npts, const vtkIdType *pts, vtkPoints *p)
 {
   this->PointIds->Reset();
   this->Points->Reset();

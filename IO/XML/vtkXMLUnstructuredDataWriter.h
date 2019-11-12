@@ -26,6 +26,8 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
+#include <vtkSmartPointer.h> // for vtkSmartPointer
+
 class vtkPointSet;
 class vtkCellArray;
 class vtkCellIterator;
@@ -168,8 +170,8 @@ protected:
   OffsetsManagerArray *CellDataOM;
 
   // Hold the new cell representation arrays while writing a piece.
-  vtkIdTypeArray* CellPoints;
-  vtkIdTypeArray* CellOffsets;
+  vtkSmartPointer<vtkDataArray> CellPoints;
+  vtkSmartPointer<vtkDataArray> CellOffsets;
 
   int CurrentPiece;
 

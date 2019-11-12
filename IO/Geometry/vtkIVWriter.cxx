@@ -64,7 +64,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkIdType i;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = nullptr;
+  const vtkIdType *indx = nullptr;
   vtkUnsignedCharArray *colors=nullptr;
 
   points = pd->GetPoints();

@@ -886,7 +886,7 @@ namespace
   {
     vtkCellArray* pathCells = pathPoly->GetLines();
     AssertGt(pathCells->GetNumberOfCells(),0);
-    vtkIdType* path(0);
+    const vtkIdType* path(0);
     vtkIdType nPoints(0);
     pathCells->InitTraversal();
     pathCells->GetNextCell(nPoints,path);
@@ -1869,7 +1869,7 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   double* newPoint = headPoly->GetPoint(0);
   AssertEq(headPoly->GetPointData()->GetNumberOfArrays(),pathPoly->GetPointData()->GetNumberOfArrays());
 
-  vtkIdType* path(0);
+  const vtkIdType* path(0);
   vtkIdType nPoints(0);
   pathCells->InitTraversal();
   pathCells->GetNextCell(nPoints,path);

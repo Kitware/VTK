@@ -123,6 +123,7 @@ void vtkCellIterator::GetCell(vtkGenericCell *cell)
   cell->SetPointIds(this->GetPointIds());
   cell->SetPoints(this->GetPoints());
 
+  cell->SetFaces(nullptr);
   if (cell->RequiresExplicitFaceRepresentation())
   {
     vtkIdList *faces = this->GetFaces();

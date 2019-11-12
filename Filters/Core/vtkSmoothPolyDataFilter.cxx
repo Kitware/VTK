@@ -306,7 +306,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   vtkIdType numPts, numCells, i, numPolys, numStrips;
   int j, k;
   vtkIdType npts = 0;
-  vtkIdType *pts = nullptr;
+  const vtkIdType *pts = nullptr;
   vtkIdType p1, p2;
   double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
@@ -429,7 +429,7 @@ int vtkSmoothPolyDataFilter::RequestData(
     vtkIdType cellId;
     int numNei, nei, edge;
     vtkIdType numNeiPts;
-    vtkIdType *neiPts;
+    const vtkIdType *neiPts;
     double normal[3], neiNormal[3];
     vtkIdList *neighbors;
 

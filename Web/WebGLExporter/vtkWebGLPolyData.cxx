@@ -22,6 +22,7 @@
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkGenericCell.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -32,6 +33,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangleFilter.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkWebGLDataSet.h"
 #include "vtkWebGLExporter.h"
 #include "vtkWebGLObject.h"
@@ -409,8 +411,13 @@ void vtkWebGLPolyData::GetLines(vtkTriangleFilter* polydata, vtkActor* actor, in
   // Index
   //Array of 3 Values. [#number of index, i1, i2]
   //Discarting the first value
-  int* index = new int[lines->GetData()->GetSize()*2/3];
-  for (int i=0; i< lines->GetData()->GetSize(); i++) if (i%3 != 0) index[i*2/3] = lines->GetData()->GetValue(i);
+  vtkDataArray *conn = lines->GetConnectivityArray();
+  const vtkIdType connSize = conn->GetNumberOfValues();
+  int* index = new int[static_cast<size_t>(connSize)];
+  for (vtkIdType i = 0; i < connSize; ++i)
+  {
+    index[i] = static_cast<int>(conn->GetComponent(i, 0));
+  }
   // Point
   double point[3];
   float* points = new float[polydata->GetOutput(0)->GetNumberOfPoints()*3];
@@ -425,7 +432,8 @@ void vtkWebGLPolyData::GetLines(vtkTriangleFilter* polydata, vtkActor* actor, in
   unsigned char* color = new unsigned char[polydata->GetOutput(0)->GetNumberOfPoints()*4];
   this->GetColorsFromPolyData(color, polydata->GetOutput(0), actor);
 
-  object->SetLine(points, polydata->GetOutput(0)->GetNumberOfPoints(), index, lines->GetData()->GetSize()*2/3, color, lineMaxSize);
+  object->SetLine(points, polydata->GetOutput(0)->GetNumberOfPoints(), index,
+                  static_cast<int>(connSize), color, lineMaxSize);
 }
 
 void vtkWebGLPolyData::SetPoints(float *points, int numberOfPoints, unsigned char *colors, int maxSize)
@@ -528,7 +536,8 @@ void vtkWebGLPolyData::GetPolygonsFromPointData(vtkTriangleFilter* polydata, vtk
 
   vtkCellArray* poly = data->GetPolys();
   vtkPointData* point = data->GetPointData();
-  vtkIdTypeArray* ndata = poly->GetData();
+  vtkNew<vtkIdTypeArray> ndata;
+  poly->ExportLegacyFormat(ndata);
   vtkDataSetAttributes* attr = (vtkDataSetAttributes*)point;
 
   //Vertices
