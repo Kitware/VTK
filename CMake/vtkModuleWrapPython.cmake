@@ -460,7 +460,7 @@ vtk_module_wrap_python(
   [BUILD_STATIC <ON|OFF>]
   [INSTALL_HEADERS <ON|OFF>]
 
-  [DEPENDS <target1> <target2>]
+  [DEPENDS <target>...]
 
   [MODULE_DESTINATION <destination>]
   [STATIC_MODULE_DESTINATION <destination>]
