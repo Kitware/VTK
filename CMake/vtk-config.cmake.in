@@ -58,10 +58,19 @@ set(_vtk_real_components)
 foreach (_vtk_component IN LISTS "${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS")
   if (_vtk_component MATCHES "^vtk" AND NOT _vtk_component STREQUAL "vtksys")
     string(SUBSTRING "${_vtk_component}" 3 -1 _vtk_actual_component)
-    if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
-      message(DEPRECATION
+    if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION)
+      if (NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_QUIETLY)
+        message(DEPRECATION
+          "The new name for the '${_vtk_component}' component is "
+          "'${_vtk_actual_component}'")
+      endif ()
+    elseif (${CMAKE_FIND_PACKAGE_NAME}_FIND_VERSION VERSION_LESS 8.90)
+      # Ignore for compatibility.
+    else ()
+      message(FATAL_ERROR
         "The new name for the '${_vtk_component}' component is "
-        "'${_vtk_actual_component}'")
+        "'${_vtk_actual_component}'. By requesting at least version 8.90, the "
+        "new component names are now required.")
     endif ()
     list(APPEND _vtk_real_components
       "${_vtk_actual_component}")
