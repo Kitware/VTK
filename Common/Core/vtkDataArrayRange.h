@@ -42,6 +42,59 @@
 #include <iterator>
 #include <type_traits>
 
+/**
+ * @file vtkDataArrayRange.h
+ *
+ * The vtkDataArrayRange.h header provides utilities to convert vtkDataArrays
+ * into "range" objects that behave like STL ranges. There are two types of
+ * ranges: TupleRange and ValueRange.
+ *
+ * See Testing/Cxx/ExampleDataArrayRangeAPI.cxx for an illustrative example of
+ * how these ranges and their associated iterators and references are used.
+ *
+ * These ranges unify the different memory layouts supported by VTK and provide
+ * a consistent interface to processing them with high efficiency. Whether a
+ * range is constructed from a vtkDataArray, vtkFloatArray, or even
+ * vtkScaledSOADataArrayTemplate, the same range-based algorithm implementation
+ * can be used to provide the best performance possible using the input array's
+ * API.
+ *
+ * Constructing a range using a derived subclass of vtkDataArray (such as
+ * vtkFloatArray) will always give better performance than a range constructed
+ * from a vtkDataArray pointer, since the vtkDataArray API requires virtual
+ * calls and type conversion. Using a more derived type generally allows the
+ * compiler to optimize out any function calls and emit assembly that directly
+ * operates on the array's raw memory buffer(s). See vtkArrayDispatch for
+ * utilities to convert an unknown vtkDataArray into a more derived type.
+ * Testing/Cxx/ExampleDataArrayRangeDispatch.cxx demonstrates how ranges may
+ * be used with the dispatcher system.
+ *
+ * # TupleRanges
+ *
+ * A TupleRange traverses a vtkDataArray tuple-by-tuple, providing iterators
+ * and reference objects that refer to conceptual tuples. The tuple references
+ * themselves may be iterated upon to access individual components.
+ *
+ * TupleRanges are created via the function vtk::DataArrayTupleRange. See
+ * that function's documentation for more information about creating
+ * TupleRanges.
+ *
+ * # ValueRanges
+ *
+ * A ValueRange will traverse a vtkDataArray in "value index" order, e.g. as
+ * if walking a pointer into an AOS layout array:
+ *
+ * ```
+ * Array:    {X, X, X}, {X, X, X}, {X, X, X}, ...
+ * TupleIdx:  0  0  0    1  1  1    2  2  2
+ * CompIdx:   0  1  2    0  1  2    0  1  2
+ * ValueIdx:  0  1  2    3  4  5    6  7  8
+ * ```
+ *
+ * ValueRanges are created via the function vtk::DataArrayValueRange. See that
+ * function's documentation for more information about creating ValueRanges.
+ */
+
 VTK_ITER_OPTIMIZE_START
 
 namespace vtk
@@ -50,6 +103,9 @@ namespace vtk
 namespace detail
 {
 
+// Internal detail: This utility is not directly needed by users of
+// DataArrayRange.
+//
 // These classes are used to detect when specializations exist for a given
 // array type. They are necessary because given:
 //
