@@ -420,7 +420,7 @@ struct CellTT
       }
       else
       {
-        mergemap[cc] = cc;
+        mergemap[cc] = static_cast<vtkIdType>(cc);
       }
     }
     return mergemap;
