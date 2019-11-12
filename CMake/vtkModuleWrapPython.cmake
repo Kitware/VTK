@@ -769,89 +769,91 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
           ${_vtk_python_all_modules})
     endif ()
 
-    # Next, we generate a Python module that can be imported to import any
-    # static artifacts e.g. all wrapping Python modules in static builds,
-    # (eventually, frozen modules etc.)
-    string(REPLACE "." "_" _vtk_python_static_importer_name "_${_vtk_python_PYTHON_PACKAGE}_static")
-    set(_vtk_python_static_importer_file
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_static_importer_name}.c")
-    set(_vtk_python_static_importer_content "// generated file, do not edit!
+    if (_vtk_python_BUILD_STATIC)
+      # Next, we generate a Python module that can be imported to import any
+      # static artifacts e.g. all wrapping Python modules in static builds,
+      # (eventually, frozen modules etc.)
+      string(REPLACE "." "_" _vtk_python_static_importer_name "_${_vtk_python_PYTHON_PACKAGE}_static")
+      set(_vtk_python_static_importer_file
+        "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/static_python/${_vtk_python_static_importer_name}.c")
+      set(_vtk_python_static_importer_content "// generated file, do not edit!
 #include <vtkPython.h>
 #include \"${_vtk_python_TARGET_NAME}.h\"
 
-static PyMethodDef Py${_vtk_python_static_importer_name}_Methods[] = {
-{NULL, NULL, 0, NULL}};
+  static PyMethodDef Py${_vtk_python_static_importer_name}_Methods[] = {
+  {NULL, NULL, 0, NULL}};
 #if PY_VERSION_HEX >= 0x03000000
-static PyModuleDef ${_vtk_python_static_importer_name}Module = {
-  PyModuleDef_HEAD_INIT,
-  \"${_vtk_python_static_importer_name}\", // m_name
-  \"module to import static components for ${_vtk_python_TARGET_NAME}\", // m_doc
-  0, // m_size
-  Py${_vtk_python_static_importer_name}_Methods, // m_methods
-  NULL, // m_reload
-  NULL, // m_traverse
-  NULL, // m_clear
-  NULL  // m_free
-};
+  static PyModuleDef ${_vtk_python_static_importer_name}Module = {
+    PyModuleDef_HEAD_INIT,
+    \"${_vtk_python_static_importer_name}\", // m_name
+    \"module to import static components for ${_vtk_python_TARGET_NAME}\", // m_doc
+    0, // m_size
+    Py${_vtk_python_static_importer_name}_Methods, // m_methods
+    NULL, // m_reload
+    NULL, // m_traverse
+    NULL, // m_clear
+    NULL  // m_free
+  };
 #endif
 
 #if PY_VERSION_HEX >= 0x03000000
-PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}(void)
+  PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}(void)
 #else
-PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
+  PyMODINIT_FUNC init${_vtk_python_static_importer_name}(void)
 #endif
-{
-  // since this gets called after `Py_Initialize`, this will import the static
-  // modules and not just update the init table.
-  ${_vtk_python_TARGET_NAME}_load();
+  {
+    // since this gets called after `Py_Initialize`, this will import the static
+    // modules and not just update the init table.
+    ${_vtk_python_TARGET_NAME}_load();
 #if PY_VERSION_HEX >= 0x03000000
-  return PyModule_Create(&${_vtk_python_static_importer_name}Module);
+    return PyModule_Create(&${_vtk_python_static_importer_name}Module);
 #else
-  Py_InitModule(\"${_vtk_python_static_importer_name}\", Py${_vtk_python_static_importer_name}_Methods);
+    Py_InitModule(\"${_vtk_python_static_importer_name}\", Py${_vtk_python_static_importer_name}_Methods);
 #endif
-}\n")
+  }\n")
 
-    # TODO: Install this header.
-    file(GENERATE
-      OUTPUT  "${_vtk_python_static_importer_file}"
-      CONTENT "${_vtk_python_static_importer_content}")
+      # TODO: Install this header.
+      file(GENERATE
+        OUTPUT  "${_vtk_python_static_importer_file}"
+        CONTENT "${_vtk_python_static_importer_content}")
 
-    add_library("${_vtk_python_static_importer_name}" MODULE
-      ${_vtk_python_static_importer_file})
-    if (WIN32 AND NOT CYGWIN)
-      set_property(TARGET "${_vtk_python_static_importer_name}"
-        PROPERTY
-          SUFFIX ".pyd")
-    endif()
-    set_property(TARGET "${_vtk_python_static_importer_name}"
-      PROPERTY
-        LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}")
-    get_property(_vtk_python_is_multi_config GLOBAL
-      PROPERTY GENERATOR_IS_MULTI_CONFIG)
-    if (_vtk_python_is_multi_config)
-      # XXX(MultiNinja): This isn't going to work in general since MultiNinja
-      # will error about overlapping output paths.
-      foreach (_vtk_python_config IN LISTS CMAKE_CONFIGURATION_TYPES)
-        string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
+      add_library("${_vtk_python_static_importer_name}" MODULE
+        ${_vtk_python_static_importer_file})
+      if (WIN32 AND NOT CYGWIN)
         set_property(TARGET "${_vtk_python_static_importer_name}"
           PROPERTY
-            "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}")
-      endforeach ()
-    endif ()
-    set_property(TARGET "${_vtk_python_static_importer_name}"
-      PROPERTY
-        PREFIX "")
-    target_link_libraries("${_vtk_python_static_importer_name}"
-      PRIVATE
-        ${_vtk_python_TARGET_NAME}
-        VTK::WrappingPythonCore
-        VTK::Python)
-    install(
-      TARGETS             "${_vtk_python_static_importer_name}"
-      COMPONENT           "${_vtk_python_COMPONENT}"
-      RUNTIME DESTINATION "${_vtk_python_MODULE_DESTINATION}"
-      LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}"
-      ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
+            SUFFIX ".pyd")
+      endif()
+      set_property(TARGET "${_vtk_python_static_importer_name}"
+        PROPERTY
+          LIBRARY_OUTPUT_DIRECTORY "${_vtk_python_MODULE_DESTINATION}")
+      get_property(_vtk_python_is_multi_config GLOBAL
+        PROPERTY GENERATOR_IS_MULTI_CONFIG)
+      if (_vtk_python_is_multi_config)
+        # XXX(MultiNinja): This isn't going to work in general since MultiNinja
+        # will error about overlapping output paths.
+        foreach (_vtk_python_config IN LISTS CMAKE_CONFIGURATION_TYPES)
+          string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
+          set_property(TARGET "${_vtk_python_static_importer_name}"
+            PROPERTY
+              "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}")
+        endforeach ()
+      endif ()
+      set_property(TARGET "${_vtk_python_static_importer_name}"
+        PROPERTY
+          PREFIX "")
+      target_link_libraries("${_vtk_python_static_importer_name}"
+        PRIVATE
+          ${_vtk_python_TARGET_NAME}
+          VTK::WrappingPythonCore
+          VTK::Python)
+      install(
+        TARGETS             "${_vtk_python_static_importer_name}"
+        COMPONENT           "${_vtk_python_COMPONENT}"
+        RUNTIME DESTINATION "${_vtk_python_MODULE_DESTINATION}"
+        LIBRARY DESTINATION "${_vtk_python_MODULE_DESTINATION}"
+        ARCHIVE DESTINATION "${_vtk_python_STATIC_MODULE_DESTINATION}")
+    endif () # if (_vtk_python_BUILD_STATIC)
   endif ()
 endfunction ()
 
