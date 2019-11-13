@@ -48,8 +48,6 @@ polyMapper.ScalarVisibilityOff()
 polyActor  = vtk.vtkActor()
 polyActor.SetMapper( polyMapper )
 polyActor.GetProperty().SetColor( 0,0,1 )
-polyActor.GetProperty().EdgeVisibilityOn()
-polyActor.GetProperty().SetEdgeColor( 1,1,1 )
 
 ren2.AddViewProp( polyActor )
 ren2.SetViewport( 0.5,0,1.0,1.0 )

@@ -80,8 +80,6 @@ polyCutMapper.SetInputData(polyCutter.GetOutput())
 
 polyCutActor=vtk.vtkActor()
 polyCutActor.SetMapper(polyCutMapper)
-polyCutActor.GetProperty().EdgeVisibilityOn()
-polyCutActor.GetProperty().SetEdgeColor(1,1,1)
 
 polyCutRen = vtk.vtkRenderer()
 polyCutRen.AddActor(polyCutActor)
