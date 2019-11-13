@@ -137,8 +137,15 @@ public:
    * using `PrependPythonPath`. Applications can use this to add paths to custom modules
    * in the module search path. This is also needed for static builds to assist the
    * interpreter in locating the path to `vtk` package.
+   *
+   * When `add_landmark` is true, then instead of adding the path to the
+   * landmark to the module search path, the successfully located landmark itself is
+   * added to the module search path. This is helpful when using zip-modules,
+   * for example, since in that case, the zip file itself should be added to the
+   * module search path and not its location.
    */
-  static void PrependPythonPath(const char* anchor, const char* landmark);
+  static void PrependPythonPath(
+    const char* anchor, const char* landmark, bool add_landmark = false);
   //@}
 
   //@{

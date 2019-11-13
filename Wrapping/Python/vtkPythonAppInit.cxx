@@ -101,7 +101,14 @@ int main(int argc, char **argv)
   if (argc > 0 && vtksys::SystemTools::FindProgramPath(argv[0], fullpath, error))
   {
     const auto dir = vtksys::SystemTools::GetProgramPath(fullpath);
+#if defined(VTK_BUILD_SHARED_LIBS)
     vtkPythonInterpreter::PrependPythonPath(dir.c_str(), "vtkmodules/__init__.py");
+#else
+    // since there may be other packages not zipped (e.g. mpi4py), we added path to _vtk.zip
+    // to the search path as well.
+    vtkPythonInterpreter::PrependPythonPath(dir.c_str(), "_vtk.zip", /*add_landmark=*/false);
+    vtkPythonInterpreter::PrependPythonPath(dir.c_str(), "_vtk.zip", /*add_landmark=*/true);
+#endif
   }
 
   return vtkPythonInterpreter::PyMain(argc, argv);
