@@ -11,8 +11,7 @@ The following variables are provided by this module:
   * `VTK_MINOR_VERSION`: The minor version of VTK found.
   * `VTK_BUILD_VERSION`: The build version of VTK found.
   * `VTK_AVAILABLE_COMPONENTS`: Components available with VTK.
-  * `VTK_PREFIX_PATH`: Install prefixes for VTK. May include additional paths
-    for other prefixes.
+  * `VTK_PREFIX_PATH`: Install prefix for VTK.
   * `VTK_LEGACY_REMOVE`: Whether VTK's deprecated APIs are
     compiled out or not.
   * `VTK_HAS_VTKm`: If VTK provides VTK-m.
@@ -98,8 +97,6 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtk-prefix.cmake")
 set("${CMAKE_FIND_PACKAGE_NAME}_PREFIX_PATH"
   "${_vtk_module_import_prefix}")
 unset(_vtk_module_import_prefix)
-list(APPEND "${CMAKE_FIND_PACKAGE_NAME}_PREFIX_PATH"
-  @vtk_prefix_paths@)
 list(INSERT CMAKE_PREFIX_PATH 0
   ${${CMAKE_FIND_PACKAGE_NAME}_PREFIX_PATH})
 
