@@ -20,6 +20,7 @@
 
 #include "vtkExtractSelectedRows.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkCellArray.h"
@@ -27,6 +28,7 @@
 #include "vtkCommand.h"
 #include "vtkConvertSelection.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractSelection.h"
@@ -94,31 +96,23 @@ void vtkExtractSelectedRows::SetAnnotationLayersConnection(vtkAlgorithmOutput* i
   this->SetInputConnection(2, in);
 }
 
-template <class T>
-void vtkCopySelectedRows(
-  vtkAbstractArray* list, vtkTable* input,
-  vtkTable* output, vtkIdTypeArray* originalRowIds,
-  vtkExtractSelectedRows* self)
-{
-  bool addOriginalRowIdsArray = self->GetAddOriginalRowIdsArray();
-
-  const T* rawPtr = static_cast<T*>(list->GetVoidPointer(0));
-  vtkIdType numTuples = list->GetNumberOfTuples();
-  if (list->GetNumberOfComponents() != 1 && numTuples > 0)
-  {
-    vtkGenericWarningMacro("NumberOfComponents expected to be 1.");
-  }
-  for (vtkIdType j = 0; j < numTuples; ++j)
-  {
-    vtkIdType val = static_cast<vtkIdType>(rawPtr[j]);
-    output->InsertNextRow(input->GetRow(val));
-    if (addOriginalRowIdsArray)
+namespace {
+struct vtkCopySelectedRows {
+  template <class ArrayT>
+  void operator()(ArrayT *list, vtkTable *input, vtkTable *output,
+                  vtkIdTypeArray *originalRowIds,
+                  bool addOriginalRowIdsArray) const {
+    for (auto value : vtk::DataArrayValueRange(list))
     {
-      originalRowIds->InsertNextValue(val);
+      vtkIdType val = static_cast<vtkIdType>(value);
+      output->InsertNextRow(input->GetRow(val));
+      if (addOriginalRowIdsArray) {
+        originalRowIds->InsertNextValue(val);
+      }
     }
   }
-}
-
+};
+} // namespace
 
 //----------------------------------------------------------------------------
 int vtkExtractSelectedRows::RequestData(
@@ -195,7 +189,7 @@ int vtkExtractSelectedRows::RequestData(
     vtkSelectionNode* node = converted->GetNode(i);
     if (node->GetFieldType() == vtkSelectionNode::ROW)
     {
-      vtkAbstractArray* list = node->GetSelectionList();
+      vtkDataArray* list = vtkDataArray::SafeDownCast(node->GetSelectionList());
       if (list)
       {
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());
@@ -216,9 +210,16 @@ int vtkExtractSelectedRows::RequestData(
         }
         else
         {
-          switch (list->GetDataType())
-          {
-            vtkTemplateMacro(vtkCopySelectedRows<VTK_TT>(list, input, output, originalRowIds, this));
+          if (list->GetNumberOfComponents() != 1) {
+            vtkGenericWarningMacro("NumberOfComponents expected to be 1.");
+          }
+
+          using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>;
+          if (!Dispatcher::Execute(list, vtkCopySelectedRows{},input, output, originalRowIds,
+                                   this->AddOriginalRowIdsArray))
+          { // fallback for unsupported array types and non-integral value types:
+            vtkCopySelectedRows{}(list, input, output, originalRowIds,
+                                  this->AddOriginalRowIdsArray);
           }
         }
       }

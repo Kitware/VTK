@@ -124,11 +124,12 @@
  *
  * Workers:
  * The dispatch requires a Worker functor that performs the work.
- * For single array, the functor must be callable with the array object as an
- * argument. For 2-array dispatch, the arguments must be (array1, array2).
- * For 3-array dispatch, the arguments must be (array1, array2, array3).
+ * For single array, the functor must be callable where the first parameter is
+ * an array object. For 2-array dispatch, the first two arguments must be (array1, array2).
+ * For 3-array dispatch, the first three arguments must be (array1, array2, array3).
  * Workers are passed by reference, so stateful functors are permitted if
- * additional input/output data is needed.
+ * additional input/output data is needed and not being passed as additional
+ * parameters to the Execute method.
  *
  * A simple worker implementation for triple dispatch:
  * @code
