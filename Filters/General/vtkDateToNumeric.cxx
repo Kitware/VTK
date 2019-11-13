@@ -27,6 +27,15 @@
 #include <iomanip>
 #include <ctime>
 
+// old versions of gcc are missing some pices of c++11 such as std::get_time
+// so use
+
+#if (defined(__GNUC__) && (__GNUC__ < 5)) || defined (ANDROID)
+#define USE_STRPTIME
+#include "time.h"
+#endif
+
+
 vtkStandardNewMacro(vtkDateToNumeric);
 //----------------------------------------------------------------------------
 vtkDateToNumeric::vtkDateToNumeric() :
@@ -95,6 +104,15 @@ int vtkDateToNumeric::RequestData(
         std::string useFormat;
         for (auto & format : formats)
         {
+#ifdef USE_STRPTIME
+          struct tm atime;
+          auto result = strptime(inval.c_str() ,format.c_str(), &atime);
+          if (result)
+          {
+            useFormat = format;
+            break;
+          }
+#else
           std::tm tm = {};
           std::stringstream ss(inval);
           ss >> std::get_time(&tm, format.c_str());
@@ -103,6 +121,7 @@ int vtkDateToNumeric::RequestData(
             useFormat = format;
             break;
           }
+#endif
         }
         if (useFormat.size())
         {
@@ -114,6 +133,15 @@ int vtkDateToNumeric::RequestData(
           for (vtkIdType i = 0; i < inarray->GetNumberOfValues(); ++i)
           {
             inval = inarray->GetValue(i);
+#ifdef USE_STRPTIME
+            struct tm atime;
+            auto result = strptime(inval.c_str() ,useFormat.c_str(), &atime);
+            if (result)
+            {
+              auto etime = mktime(&atime);
+              newArray->InsertNextValue(etime);
+            }
+#else
             std::tm tm = {};
             std::stringstream ss(inval);
             ss >> std::get_time(&tm, useFormat.c_str());
@@ -122,6 +150,7 @@ int vtkDateToNumeric::RequestData(
               auto etime = std::mktime(&tm);
               newArray->InsertNextValue(etime);
             }
+#endif
             else
             {
               newArray->InsertNextValue(0.0);
