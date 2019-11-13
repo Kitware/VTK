@@ -105,7 +105,10 @@ set(vtk_cmake_module_files
   vtkObjectFactory.h.in
   vtkTestingDriver.cmake
   vtkTestingRenderingDriver.cmake
-  vtkTopologicalSort.cmake)
+  vtkTopologicalSort.cmake
+  vtk-use-file-compat.cmake
+  vtk-use-file-deprecated.cmake
+  vtk-use-file-error.cmake)
 set(vtk_cmake_patch_files
   patches/3.13/FindZLIB.cmake
   patches/3.16/FindMPI/fortranparam_mpi.f90.in
