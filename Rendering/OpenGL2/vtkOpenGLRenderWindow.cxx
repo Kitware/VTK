@@ -1186,7 +1186,12 @@ void vtkOpenGLRenderWindow::StereoUpdate()
 
   if (this->StereoRender && this->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
   {
-    if (this->GetDoubleBuffer())
+    if (this->UseOffScreenBuffers && this->OffScreenFramebuffer)
+    {
+      this->OffScreenFramebuffer->ActivateReadBuffer(0);
+      this->OffScreenFramebuffer->ActivateDrawBuffer(0);
+    }
+    else if (this->GetDoubleBuffer())
     {
       this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
       this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackLeftBuffer()));
@@ -1229,7 +1234,12 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
 
   if (this->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
   {
-    if (this->GetDoubleBuffer())
+    if (this->UseOffScreenBuffers && this->OffScreenFramebuffer)
+    {
+      this->OffScreenFramebuffer->ActivateReadBuffer(1);
+      this->OffScreenFramebuffer->ActivateDrawBuffer(1);
+    }
+    else if (this->GetDoubleBuffer())
     {
       this->GetState()->vtkglDrawBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
       this->GetState()->vtkglReadBuffer(static_cast<GLenum>(this->GetBackRightBuffer()));
