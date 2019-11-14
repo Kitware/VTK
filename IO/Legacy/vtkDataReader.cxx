@@ -3154,8 +3154,8 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 
 int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
 {
-  vtkIdType offsetsSize;
-  vtkIdType connSize;
+  vtkIdType offsetsSize{0};
+  vtkIdType connSize{0};
   char buffer[256];
 
   if (!(this->Read(&offsetsSize) &&
