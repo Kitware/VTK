@@ -23,8 +23,8 @@ The following variables are provided by this module:
     Python parts of the module API are available.
   * `VTK_WRAP_JAVA`: If VTK itself provides Java wrapping. If so, the
     Java parts of the module API are available.
-  * `VTK_PYTHONPATH`: Where VTK's Python modules live. Unset if Python is not
-    available.
+  * `VTK_PYTHONPATH`: Where VTK's Python modules live inside the install
+    prefix. Unset if Python is not available.
   * `VTK_LIBRARIES`: The list of modules specified by `COMPONENTS` and
     `OPTIONAL_COMPONENTS`. However, if no components are specified, all
     available components are added to this variable. This may be used in
@@ -153,9 +153,7 @@ if (${CMAKE_FIND_PACKAGE_NAME}_WRAP_PYTHON)
   include("${CMAKE_CURRENT_LIST_DIR}/VTKPython-targets.cmake")
   include("${CMAKE_CURRENT_LIST_DIR}/vtkmodules-vtk-python-module-properties.cmake")
   include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleWrapPython.cmake")
-  include("${CMAKE_CURRENT_LIST_DIR}/vtk-python.cmake")
-else ()
-  set("${CMAKE_FIND_PACKAGE_NAME}_PYTHONPATH")
+  set("${CMAKE_FIND_PACKAGE_NAME}_PYTHONPATH" "@VTK_PYTHON_SITE_PACKAGES_SUFFIX@")
 endif ()
 
 set("${CMAKE_FIND_PACKAGE_NAME}_WRAP_JAVA" "@VTK_WRAP_JAVA@")
