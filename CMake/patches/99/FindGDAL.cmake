@@ -139,6 +139,10 @@ find_library(GDAL_LIBRARY
      ${GDAL_ROOT}
      ENV GDAL_DIR
      ENV GDAL_ROOT
+     # This is last because `gdal-config` may not exist if it was built with
+     # CMake. Looking for it out-of-order with the include path may end up with
+     # a CMake-built include path and a autoconf-built libpath from the
+     # `gdal-config` tool.
      ${_gdal_libpath}
   PATH_SUFFIXES lib
 )
