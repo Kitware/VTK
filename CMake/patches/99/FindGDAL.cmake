@@ -60,17 +60,6 @@ GDAL installation prefix.
 #
 #include "gdal.h"
 
-find_path(GDAL_INCLUDE_DIR gdal.h
-  HINTS
-    ${GDAL_ROOT}
-    ENV GDAL_DIR
-    ENV GDAL_ROOT
-  PATH_SUFFIXES
-     include/gdal
-     include/GDAL
-     include
-)
-
 if(UNIX)
     # Use gdal-config to obtain the library version (this should hopefully
     # allow us to -lgdal1.x.y where x.y are correct version)
@@ -132,6 +121,17 @@ if(UNIX)
         endif()
     endif()
 endif()
+
+find_path(GDAL_INCLUDE_DIR gdal.h
+  HINTS
+    ${GDAL_ROOT}
+    ENV GDAL_DIR
+    ENV GDAL_ROOT
+  PATH_SUFFIXES
+     include/gdal
+     include/GDAL
+     include
+)
 
 find_library(GDAL_LIBRARY
   NAMES ${_gdal_lib} gdal gdal_i gdal1.5.0 gdal1.4.0 gdal1.3.2 GDAL
