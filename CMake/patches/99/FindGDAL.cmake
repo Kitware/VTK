@@ -66,10 +66,12 @@ find_path(GDAL_INCLUDE_DIR gdal.h
     ENV GDAL_DIR
     ENV GDAL_ROOT
   PATH_SUFFIXES
-     include/gdal
-     include/GDAL
-     include
+    include/gdal
+    include/GDAL
+    include
+  DOC "Path to the GDAL include directory"
 )
+mark_as_advanced(GDAL_INCLUDE_DIR)
 
 # GDAL name its library when built with CMake as `gdal${major}${minor}`.
 set(_gdal_versions
@@ -84,10 +86,12 @@ endforeach ()
 find_library(GDAL_LIBRARY
   NAMES ${_gdal_libnames} gdal gdal_i gdal1.5.0 gdal1.4.0 gdal1.3.2 GDAL
   HINTS
-     ${GDAL_ROOT}
-     ENV GDAL_DIR
-     ENV GDAL_ROOT
+    ${GDAL_ROOT}
+    ENV GDAL_DIR
+    ENV GDAL_ROOT
+  DOC "Path to the GDAL library"
 )
+mark_as_advanced(GDAL_LIBRARY)
 
 if (EXISTS "${GDAL_INCLUDE_DIR}/gdal_version.h")
     file(STRINGS "${GDAL_INCLUDE_DIR}/gdal_version.h" _gdal_version
