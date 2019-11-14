@@ -21,8 +21,6 @@ endif ()
 
 _vtk_module_write_import_prefix("${vtk_cmake_build_dir}/vtk-prefix.cmake" "${vtk_cmake_destination}")
 
-set(vtk_prefix_paths)
-
 set(vtk_python_version "")
 if (VTK_WRAP_PYTHON)
   set(vtk_python_version "${VTK_PYTHON_VERSION}")
@@ -32,14 +30,6 @@ configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"
   @ONLY)
-
-if (NOT DEFINED VTK_RELOCATABLE_INSTALL)
-  option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
-  mark_as_advanced(VTK_RELOCATABLE_INSTALL)
-endif ()
-if (VTK_RELOCATABLE_INSTALL)
-  set(vtk_prefix_paths)
-endif ()
 
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
@@ -140,6 +130,11 @@ foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_f
 endforeach ()
 
 include(vtkInstallCMakePackageHelpers)
+
+if (NOT DEFINED VTK_RELOCATABLE_INSTALL)
+  option(VTK_RELOCATABLE_INSTALL "Do not embed hard-coded paths into the install" ON)
+  mark_as_advanced(VTK_RELOCATABLE_INSTALL)
+endif ()
 if (NOT VTK_RELOCATABLE_INSTALL)
   list(APPEND vtk_cmake_files_to_install
     "${vtk_cmake_build_dir}/vtk-find-package-helpers.cmake")
