@@ -147,11 +147,11 @@ virtual type Get##name () { \
 //
 #define vtkSetStringMacro(name) \
 virtual void Set##name (const char* _arg) \
-  vtkSetStringBodyMacro(name)
+  vtkSetStringBodyMacro(name, _arg)
 
 // This macro defines a body of set string macro. It can be used either in
 // the header file using vtkSetStringMacro or in the implementation.
-#define vtkSetStringBodyMacro(name) \
+#define vtkSetStringBodyMacro(name, _arg) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
   if ( this->name == nullptr && _arg == nullptr) { return;} \
