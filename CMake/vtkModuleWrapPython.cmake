@@ -635,7 +635,7 @@ function (vtk_module_wrap_python)
 
       list(APPEND CMAKE_INSTALL_RPATH
         "${_vtk_python_origin_rpath}")
-    endif()
+    endif ()
   endif ()
 
   set(_vtk_python_sorted_modules ${_vtk_python_MODULES})

@@ -3899,6 +3899,24 @@ function (vtk_module_add_executable name)
       PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
   endif ()
 
+  # Set up rpaths
+  set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
+  if (UNIX)
+    file(RELATIVE_PATH _vtk_add_executable_relpath
+      "/prefix/${_vtk_build_RUNTIME_DESTINATION}"
+      "/prefix/${_vtk_build_LIBRARY_DESTINATION}")
+    if (APPLE)
+      set(_vtk_add_executable_origin_rpath_prefix
+        "@executable_path")
+    else ()
+      set(_vtk_add_executable_origin_rpath_prefix
+        "$ORIGIN")
+    endif ()
+
+    list(APPEND CMAKE_INSTALL_RPATH
+      "${_vtk_add_executable_origin_rpath_prefix}/${_vtk_add_executable_relpath}")
+  endif ()
+
   add_executable("${_vtk_add_executable_target_name}"
     ${_vtk_add_executable_UNPARSED_ARGUMENTS})
 

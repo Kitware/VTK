@@ -3,6 +3,24 @@ if (NOT DEFINED VTK_INSTALL_PYTHON_EXES)
   mark_as_advanced(VTK_INSTALL_PYTHON_EXES)
 endif ()
 
+# Set up rpaths
+set(CMAKE_BUILD_RPATH_USE_ORIGIN 1)
+if (UNIX)
+  file(RELATIVE_PATH vtkpython_relpath
+    "/prefix/${CMAKE_INSTALL_BINDIR}"
+    "/prefix/${CMAKE_INSTALL_LIBDIR}")
+  if (APPLE)
+    set(vtkpython_rpath_prefix
+      "@executable_path")
+  else ()
+    set(vtkpython_rpath_prefix
+      "$ORIGIN")
+  endif ()
+
+  list(APPEND CMAKE_INSTALL_RPATH
+    "${vtkpython_rpath_prefix}/${vtkpython_relpath}")
+endif ()
+
 add_executable(vtkpython
   vtkpython.rc
   vtkPythonAppInit.cxx)
