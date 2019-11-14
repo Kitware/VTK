@@ -836,7 +836,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
           string(TOUPPER "${_vtk_python_config}" _vtk_python_config_upper)
           set_property(TARGET "${_vtk_python_static_importer_name}"
             PROPERTY
-              "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${_vtk_python_MODULE_DESTINATION}")
+              "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}")
         endforeach ()
       endif ()
       set_property(TARGET "${_vtk_python_static_importer_name}"
