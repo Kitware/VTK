@@ -34,6 +34,8 @@ vtkPolyDataMapper::vtkPolyDataMapper()
   this->NumberOfPieces = 1;
   this->NumberOfSubPieces = 1;
   this->GhostLevel = 0;
+  this->SeamlessU = false;
+  this->SeamlessV = false;
 }
 
 //----------------------------------------------------------------------------
@@ -166,6 +168,8 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetGhostLevel(m->GetGhostLevel());
     this->SetNumberOfPieces(m->GetNumberOfPieces());
     this->SetNumberOfSubPieces(m->GetNumberOfSubPieces());
+    this->SetSeamlessU(m->GetSeamlessU());
+    this->SetSeamlessV(m->GetSeamlessV());
   }
 
   // Now do superclass

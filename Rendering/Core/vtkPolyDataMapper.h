@@ -88,6 +88,23 @@ public:
   vtkGetMacro(GhostLevel, int);
   //@}
 
+  //@{
+  /**
+   * Accessors / Mutators for handling seams on wrapping surfaces. Letters U and V stand for
+   * texture coordinates (u,v).
+   *
+   * @note Implementation taken from the work of Marco Tarini:
+   * Cylindrical and Toroidal Parameterizations Without Vertex Seams
+   * Journal of Graphics Tools, 2012, number 3, volume 16, pages 144-150.
+   */
+  vtkSetMacro(SeamlessU, bool);
+  vtkGetMacro(SeamlessU, bool);
+  vtkBooleanMacro(SeamlessU, bool);
+  vtkSetMacro(SeamlessV, bool);
+  vtkGetMacro(SeamlessV, bool);
+  vtkBooleanMacro(SeamlessV, bool);
+  //@}
+
   /**
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
@@ -156,6 +173,7 @@ protected:
   int NumberOfPieces;
   int NumberOfSubPieces;
   int GhostLevel;
+  bool SeamlessU, SeamlessV;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
