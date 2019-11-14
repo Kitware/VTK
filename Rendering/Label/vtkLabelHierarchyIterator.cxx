@@ -31,8 +31,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,Hierarchy,vtkLabelHierarchy);

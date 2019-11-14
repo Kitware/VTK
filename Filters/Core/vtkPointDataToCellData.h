@@ -37,8 +37,8 @@
 #ifndef vtkPointDataToCellData_h
 #define vtkPointDataToCellData_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkPointDataToCellData : public vtkDataSetAlgorithm
 {

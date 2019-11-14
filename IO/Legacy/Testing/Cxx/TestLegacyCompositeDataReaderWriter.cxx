@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkAMRGaussianPulseSource.h"
-#include "vtkOverlappingAMR.h"
-#include "vtkGenericDataObjectWriter.h"
 #include "vtkGenericDataObjectReader.h"
+#include "vtkGenericDataObjectWriter.h"
 #include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkTesting.h"
 
 #define TEST_SUCCESS 0

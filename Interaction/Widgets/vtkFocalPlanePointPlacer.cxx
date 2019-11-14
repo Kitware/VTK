@@ -15,11 +15,11 @@
 #include "vtkFocalPlanePointPlacer.h"
 
 #include "vtkCamera.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPlane.h"
-#include "vtkPlanes.h"
 #include "vtkPlaneCollection.h"
+#include "vtkPlanes.h"
 #include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkFocalPlanePointPlacer);

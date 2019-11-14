@@ -3,9 +3,9 @@
 #include "QVTKPaintEngine.h"
 #include "QVTKWidget.h"
 
+#include "vtkImageData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkImageData.h"
 #include "vtkSmartPointer.h"
 
 #include <QCache>

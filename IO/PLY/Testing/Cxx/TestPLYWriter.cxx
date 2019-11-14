@@ -20,8 +20,8 @@
 
 #include "vtkFloatArray.h"
 #include "vtkPLYReader.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 
 #include <cmath>

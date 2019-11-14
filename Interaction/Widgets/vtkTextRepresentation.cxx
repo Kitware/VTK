@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkTextRepresentation.h"
-#include "vtkTextActor.h"
-#include "vtkTextProperty.h"
-#include "vtkTextRenderer.h"
+#include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkStdString.h"
-#include "vtkCommand.h"
+#include "vtkTextActor.h"
+#include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkWindow.h"
 
 class vtkTextRepresentationObserver : public vtkCommand

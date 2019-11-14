@@ -32,11 +32,11 @@
 #ifndef vtkClosestPointStrategy_h
 #define vtkClosestPointStrategy_h
 
+#include "vtkCell.h" //inline SelectCell
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkFindCellStrategy.h"
-#include "vtkPointSet.h" //inline SelectCell
-#include "vtkCell.h" //inline SelectCell
 #include "vtkGenericCell.h" //inline SelectCell
+#include "vtkPointSet.h" //inline SelectCell
 
 #include <set> // For tracking visited cells
 

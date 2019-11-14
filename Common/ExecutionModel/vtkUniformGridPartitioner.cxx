@@ -14,16 +14,16 @@
  =========================================================================*/
 
 #include "vtkUniformGridPartitioner.h"
-#include "vtkObjectFactory.h"
-#include "vtkIndent.h"
 #include "vtkExtentRCBPartitioner.h"
-#include "vtkUniformGrid.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkStructuredData.h"
-#include "vtkStructuredExtent.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredData.h"
+#include "vtkStructuredExtent.h"
+#include "vtkUniformGrid.h"
 
 #include <cassert>
 

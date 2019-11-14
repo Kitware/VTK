@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkQuadraticPyramid.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkTetra.h"
-#include "vtkPyramid.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPyramid.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
-#include "vtkPoints.h"
+#include "vtkTetra.h"
 
 vtkStandardNewMacro(vtkQuadraticPyramid);
 

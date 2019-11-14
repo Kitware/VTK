@@ -15,13 +15,13 @@
 #include "vtkNonOverlappingAMRLevelIdScalars.h"
 
 #include "vtkCellData.h"
-#include "vtkUniformGridAMR.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
+#include "vtkUniformGridAMR.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkNonOverlappingAMR.h"
 
 #include <cassert>
 

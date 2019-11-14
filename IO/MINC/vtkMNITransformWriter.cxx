@@ -50,27 +50,27 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkMath.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkMINCImageAttributes.h"
-#include "vtkMINCImageWriter.h"
-#include "vtkMINC.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkCollection.h"
-#include "vtkTransform.h"
-#include "vtkHomogeneousTransform.h"
-#include "vtkGeneralTransform.h"
-#include "vtkThinPlateSplineTransform.h"
-#include "vtkGridTransform.h"
 #include "vtkDoubleArray.h"
+#include "vtkGeneralTransform.h"
+#include "vtkGridTransform.h"
+#include "vtkHomogeneousTransform.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMINC.h"
+#include "vtkMINCImageAttributes.h"
+#include "vtkMINCImageWriter.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkThinPlateSplineTransform.h"
+#include "vtkTransform.h"
 
-#include <ctime>
 #include <cctype>
 #include <cstdio>
+#include <ctime>
 
 #include <stack>
 #include <vtksys/SystemTools.hxx>

@@ -29,8 +29,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkTable.h"
 
-#include <QModelIndex>
 #include <QColor>
+#include <QModelIndex>
 
 #include <cassert>
 

@@ -28,9 +28,9 @@
 #ifndef vtkOpenGLGlyph3DMapper_h
 #define vtkOpenGLGlyph3DMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkGlyph3DMapper.h"
-#include "vtkNew.h" // For vtkNew
+#include "vtkNew.h"                    // For vtkNew
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLGlyph3DHelper;
 class vtkBitArray;

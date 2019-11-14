@@ -38,8 +38,8 @@
 #ifndef vtkLegendBoxActor_h
 #define vtkLegendBoxActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkActor;
 class vtkDoubleArray;

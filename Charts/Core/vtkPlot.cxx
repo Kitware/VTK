@@ -16,15 +16,15 @@
 #include "vtkPlot.h"
 
 #include "vtkAxis.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
-#include "vtkTable.h"
+#include "vtkContextMapper2D.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
-#include "vtkContextMapper2D.h"
-#include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 #include <sstream>
 
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);

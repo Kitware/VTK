@@ -46,8 +46,8 @@
 #define vtkPairwiseExtractHistogram2D_h
 
 #include "vtkFiltersImagingModule.h" // For export macro
-#include "vtkStatisticsAlgorithm.h"
 #include "vtkSmartPointer.h"  //needed for smart pointer ivars
+#include "vtkStatisticsAlgorithm.h"
 class vtkCollection;
 class vtkExtractHistogram2D;
 class vtkImageData;

@@ -25,14 +25,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkLongArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLongArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkStringArray.h"
 #include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 

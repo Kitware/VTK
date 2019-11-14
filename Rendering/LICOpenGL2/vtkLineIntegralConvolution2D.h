@@ -93,8 +93,8 @@
 #define vtkLineIntegralConvolution2D_h
 
 #include "vtkObject.h"
-#include "vtkWeakPointer.h" // for ren context
 #include "vtkRenderingLICOpenGL2Module.h" // for export macro
+#include "vtkWeakPointer.h" // for ren context
 #include <deque> // for deque
 
 class vtkOpenGLFramebufferObject;

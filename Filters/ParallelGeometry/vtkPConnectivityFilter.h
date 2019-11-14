@@ -130,8 +130,8 @@
 #ifndef vtkPConnectivityFilter_h
 #define vtkPConnectivityFilter_h
 
-#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkConnectivityFilter.h"
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 
 class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPConnectivityFilter : public vtkConnectivityFilter
 {

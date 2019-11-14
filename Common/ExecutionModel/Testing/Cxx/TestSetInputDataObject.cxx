@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkPolyData.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataNormals.h"
 
 #define TEST_SUCCESS 0

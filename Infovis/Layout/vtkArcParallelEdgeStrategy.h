@@ -28,8 +28,8 @@
 #ifndef vtkArcParallelEdgeStrategy_h
 #define vtkArcParallelEdgeStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkGraph;
 

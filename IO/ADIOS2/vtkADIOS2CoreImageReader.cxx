@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include <array>
-#include <map>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_map>
 
-#include "vtkADIOS2CoreImageReader.h"
 #include "Core/vtkADIOS2CoreArraySelection.h"
 #include "Core/vtkADIOS2CoreTypeTraits.h"
+#include "vtkADIOS2CoreImageReader.h"
 
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -39,17 +39,13 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #ifdef IOADIOS2_HAVE_MPI
-#include "vtkMultiProcessController.h" // For the MPI controller member
 #include "vtkMPI.h"
 #include "vtkMPIController.h"
+#include "vtkMultiProcessController.h" // For the MPI controller member
 #endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -57,15 +53,19 @@
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStdString.h"
-#include "vtkStringArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtksys/SystemTools.hxx"
+#include "vtkStringArray.h"
 #include "vtkType.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
+#include "vtkUnsignedShortArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <adios2.h> // adios2
+#include <istream>  // istringStream
 #include <string>
-#include <istream> // istringStream
 
 //----------------------------------------------------------------------------
 // Helper functions

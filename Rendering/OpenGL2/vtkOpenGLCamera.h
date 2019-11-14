@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLCamera_h
 #define vtkOpenGLCamera_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkCamera.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLRenderer;
 class vtkMatrix3x3;

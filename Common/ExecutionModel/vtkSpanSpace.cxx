@@ -15,16 +15,16 @@
 #include "vtkSpanSpace.h"
 
 #include "vtkCell.h"
-#include "vtkGenericCell.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDataSet.h"
 #include "vtkDataArray.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkUnstructuredGrid.h"
 
 // Methods and functors for processing in parallel
 namespace { //begin anonymous namespace

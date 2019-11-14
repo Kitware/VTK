@@ -30,8 +30,8 @@
 #ifndef vtkGraphMapper_h
 #define vtkGraphMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
 

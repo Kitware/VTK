@@ -17,8 +17,8 @@
 
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 

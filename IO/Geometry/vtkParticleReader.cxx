@@ -14,24 +14,24 @@
 =========================================================================*/
 #include "vtkParticleReader.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkByteSwap.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
-#include <vector>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkParticleReader);
 

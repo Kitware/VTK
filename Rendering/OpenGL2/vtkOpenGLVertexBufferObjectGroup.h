@@ -60,11 +60,11 @@
 #ifndef vtkOpenGLVertexBufferObjectGroup_h
 #define vtkOpenGLVertexBufferObjectGroup_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <map> // for methods
-#include <vector> // for ivars
 #include <string> // for ivars
+#include <vector> // for ivars
 
 class vtkDataArray;
 class vtkOpenGLVertexArrayObject;

@@ -14,11 +14,10 @@
 =========================================================================*/
 #include "vtkBinCellDataFilter.h"
 
+#include "vtkAbstractCellLocator.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkAbstractCellLocator.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
@@ -27,6 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>

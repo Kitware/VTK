@@ -31,8 +31,8 @@
 #ifndef vtkTensorProbeWidget_h
 #define vtkTensorProbeWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkTensorProbeRepresentation;
 class vtkPolyData;

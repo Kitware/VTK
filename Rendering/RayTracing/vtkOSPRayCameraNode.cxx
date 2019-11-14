@@ -15,15 +15,15 @@
 #include "vtkOSPRayCameraNode.h"
 
 #include "vtkCamera.h"
-#include "vtkWindow.h"
 #include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayRendererNode.h"
-#include "vtkRenderer.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkViewNodeCollection.h"
+#include "vtkWindow.h"
 
 #include "RTWrapper/RTWrapper.h"
 

@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkStripper.h"
 
-#include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkPolyData.h"
-#include "vtkIdTypeArray.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkStripper);
 

@@ -39,8 +39,8 @@
 #ifndef vtkFiniteDifferenceGradientEstimator_h
 #define vtkFiniteDifferenceGradientEstimator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkEncodedGradientEstimator.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class VTKRENDERINGVOLUME_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEncodedGradientEstimator
 {

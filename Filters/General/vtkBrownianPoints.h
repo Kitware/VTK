@@ -27,8 +27,8 @@
 #ifndef vtkBrownianPoints_h
 #define vtkBrownianPoints_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkBrownianPoints : public vtkDataSetAlgorithm
 {

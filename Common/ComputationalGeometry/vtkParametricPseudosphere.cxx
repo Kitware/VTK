@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricPseudosphere.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricPseudosphere);
 //----------------------------------------------------------------------------//

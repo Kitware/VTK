@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkPlot3DMetaReader.h"
 
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiBlockPLOT3DReader.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtksys/SystemTools.hxx>
 
 #include <map>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "vtk_jsoncpp.h"
 

@@ -29,9 +29,9 @@
 #ifndef vtkProp3DAxisFollower_h
 #define vtkProp3DAxisFollower_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3DFollower.h"
-#include "vtkWeakPointer.h" // For vtkWeakPointer
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkWeakPointer.h"               // For vtkWeakPointer
 
 class vtkAxisActor;
 class vtkViewport;

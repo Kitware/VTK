@@ -29,8 +29,8 @@
 #ifndef vtkEdgeLayout_h
 #define vtkEdgeLayout_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkEdgeLayoutStrategy;
 class vtkEventForwarderCommand;

@@ -20,8 +20,8 @@
 #include <sstream>
 using std::ostringstream;
 using std::istringstream;
-#include <vtksys/SystemTools.hxx>
 #include <string>
+#include <vtksys/SystemTools.hxx>
 using std::string;
 #include <locale> // C++ locale
 

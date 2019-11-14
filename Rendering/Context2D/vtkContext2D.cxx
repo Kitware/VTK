@@ -15,19 +15,19 @@
 
 #include "vtkContext2D.h"
 
-#include "vtkPoints2D.h"
-#include "vtkVector.h"
-#include "vtkTransform2D.h"
-#include "vtkContextDevice2D.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
-#include "vtkTextProperty.h"
+#include "vtkContextDevice2D.h"
 #include "vtkFloatArray.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkTextProperty.h"
+#include "vtkTransform2D.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkVector.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 #include <cassert>
 

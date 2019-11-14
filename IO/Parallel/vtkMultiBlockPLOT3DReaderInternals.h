@@ -15,8 +15,8 @@
 #ifndef vtkMultiBlockPLOT3DReaderInternals_h
 #define vtkMultiBlockPLOT3DReaderInternals_h
 
-#include "vtkIOParallelModule.h" // For export macro
 #include "vtkByteSwap.h"
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"

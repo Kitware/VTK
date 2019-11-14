@@ -40,8 +40,8 @@
 #ifndef vtkEnSightGoldBinaryReader_h
 #define vtkEnSightGoldBinaryReader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
+#include "vtkIOEnSightModule.h" // For export macro
 
 
 class vtkMultiBlockDataSet;

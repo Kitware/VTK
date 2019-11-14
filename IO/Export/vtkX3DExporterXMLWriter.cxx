@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkX3DExporterXMLWriter.h"
 
-#include "vtkX3D.h"
-#include "vtkObjectFactory.h"
-#include "vtkDataArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkDataArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkX3D.h"
 
-#include <sstream>
+#include <cassert>
 #include <fstream>
 #include <iomanip>
 #include <ios>
 #include <limits>
+#include <sstream>
 #include <string>
-#include <cassert>
 
 using namespace vtkX3D;
 

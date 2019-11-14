@@ -24,18 +24,18 @@
 // the placement of markers. For instance a vtkPolygonalSurfacePointPlacer
 // will constrain placement of these spherical handles to a surface mesh.
 
-#include "vtkSmartPointer.h"
+#include "vtkActor.h"
+#include "vtkCommand.h"
 #include "vtkFixedSizeHandleRepresentation3D.h"
 #include "vtkHandleWidget.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 

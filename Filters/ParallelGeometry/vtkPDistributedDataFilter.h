@@ -89,8 +89,8 @@
 #ifndef vtkPDistributedDataFilter_h
 #define vtkPDistributedDataFilter_h
 
-#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkDistributedDataFilter.h"
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 
 class vtkBSPCuts;
 class vtkDataArray;

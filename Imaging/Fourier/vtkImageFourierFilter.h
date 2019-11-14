@@ -26,8 +26,8 @@
 #define vtkImageFourierFilter_h
 
 
-#include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingFourierModule.h" // For export macro
 
 /*******************************************************************
                         COMPLEX number stuff

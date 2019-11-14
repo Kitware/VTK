@@ -21,8 +21,8 @@
 #include <vtkDataSet.h>
 #include <vtkElevationFilter.h>
 #include <vtkImageDataToUniformGrid.h>
-#include <vtkMultiBlockDataSet.h>
 #include <vtkMultiBlockDataGroupFilter.h>
+#include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
 #include <vtkPointDataToCellData.h>
 #include <vtkRTAnalyticSource.h>

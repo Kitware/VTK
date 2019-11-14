@@ -44,8 +44,8 @@
 #ifndef vtkDicer_h
 #define vtkDicer_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 #define VTK_DICE_MODE_NUMBER_OF_POINTS 0
 #define VTK_DICE_MODE_SPECIFIED_NUMBER 1

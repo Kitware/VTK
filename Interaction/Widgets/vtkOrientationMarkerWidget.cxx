@@ -22,11 +22,11 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkProp.h"
-#include "vtkRenderer.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
 

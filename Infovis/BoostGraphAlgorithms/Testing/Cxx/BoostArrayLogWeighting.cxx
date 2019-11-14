@@ -21,8 +21,8 @@
 
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
-#include <vtkDiagonalMatrixSource.h>
 #include <vtkBoostLogWeighting.h>
+#include <vtkDiagonalMatrixSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkTypedArray.h>
 

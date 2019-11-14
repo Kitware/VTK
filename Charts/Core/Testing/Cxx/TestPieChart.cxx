@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartPie.h"
+#include "vtkColorSeries.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkIntArray.h"
+#include "vtkNew.h"
 #include "vtkPlot.h"
 #include "vtkPlotPie.h"
-#include "vtkTable.h"
-#include "vtkIntArray.h"
-#include "vtkStringArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkColorSeries.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
 
 #define NUM_ITEMS (5)
 static int data[] = {77938,9109,2070,12806,19514};

@@ -16,14 +16,14 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMergePoints.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkCleanPolyData);
 

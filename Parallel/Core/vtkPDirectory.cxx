@@ -14,13 +14,13 @@
   =========================================================================*/
 #include "vtkPDirectory.h"
 
-#include <vtkMultiProcessController.h>
 #include "vtkObjectFactory.h"
 #include "vtkPSystemTools.h"
 #include "vtkStringArray.h"
+#include <string>
+#include <vtkMultiProcessController.h>
 #include <vtksys/Directory.hxx>
 #include <vtksys/SystemTools.hxx>
-#include <string>
 
 vtkStandardNewMacro(vtkPDirectory);
 

@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkTestErrorObserver.h"
-#include "vtkLookupTable.h"
-#include "vtkColorSeries.h"
 #include "vtkColor.h"
+#include "vtkColorSeries.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkLookupTable.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkTesting.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 

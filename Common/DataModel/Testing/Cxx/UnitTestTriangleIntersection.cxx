@@ -18,25 +18,25 @@
 #include <cmath>
 #include <sstream>
 
-#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 
 #define VISUAL_DEBUG 0
 
 #ifdef VISUAL_DEBUG
+#include <vtkActor.h>
 #include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 namespace
 {

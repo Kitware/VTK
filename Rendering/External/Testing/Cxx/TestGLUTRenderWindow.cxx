@@ -47,10 +47,10 @@
 #include <vtkCubeSource.h>
 #include <vtkExternalOpenGLRenderWindow.h>
 #include <vtkLight.h>
+#include <vtkLogger.h>
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkTesting.h>
-#include <vtkLogger.h>
 
 namespace {
 

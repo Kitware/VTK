@@ -25,9 +25,9 @@
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+#include "vtkSmartPointer.h"
 #include "vtkUndirectedGraph.h"
 
 #include <algorithm>

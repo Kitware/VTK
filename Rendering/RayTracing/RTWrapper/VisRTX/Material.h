@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../Types.h"
-#include "Texture.h"
 #include "OSPRayMDL.h"
+#include "Texture.h"
 
 #include <VisRTX.h>
 #include <cassert>
-#include <string>
-#include <sstream>
 #include <set>
+#include <sstream>
+#include <string>
 
 namespace RTW
 {

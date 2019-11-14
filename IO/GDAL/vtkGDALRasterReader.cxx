@@ -16,15 +16,15 @@
 #include "vtkGDALRasterReader.h"
 
 // VTK includes
+#include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCallbackCommand.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGDAL.h"
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"

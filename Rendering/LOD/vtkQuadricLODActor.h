@@ -50,8 +50,8 @@
 #ifndef vtkQuadricLODActor_h
 #define vtkQuadricLODActor_h
 
-#include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingLODModule.h" // For export macro
 
 class vtkQuadricClustering;
 class vtkPolyDataMapper;

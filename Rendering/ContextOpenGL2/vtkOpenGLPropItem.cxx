@@ -16,12 +16,12 @@
 #include "vtkOpenGLPropItem.h"
 
 #include "vtkCamera.h"
-#include "vtkProp3D.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
+#include "vtkProp3D.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 

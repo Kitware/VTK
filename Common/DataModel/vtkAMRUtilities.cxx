@@ -12,9 +12,9 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
+#include "vtkAMRUtilities.h"
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
-#include "vtkAMRUtilities.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataArray.h"
@@ -24,9 +24,9 @@
 #include "vtkStructuredData.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
+#include <cassert>
 #include <cmath>
 #include <limits>
-#include <cassert>
 
 #define IMIN(ext) ext[0]
 #define IMAX(ext) ext[1]

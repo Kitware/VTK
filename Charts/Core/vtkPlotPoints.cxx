@@ -15,27 +15,27 @@
 
 #include "vtkPlotPoints.h"
 
-#include "vtkNew.h"
-#include "vtkContext2D.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkAxis.h"
+#include "vtkBrush.h"
+#include "vtkCharArray.h"
+#include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkPoints2D.h"
-#include "vtkTable.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
+#include "vtkPoints2D.h"
+#include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 
-#include <vector>
 #include <algorithm>
 #include <limits>
 #include <set>
+#include <vector>
 
 // PIMPL for STL vector...
 struct vtkIndexedVector2f

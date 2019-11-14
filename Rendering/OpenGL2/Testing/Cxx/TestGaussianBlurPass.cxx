@@ -21,23 +21,23 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
 
+#include "vtkCamera.h"
 #include "vtkConeSource.h"
-#include "vtkImageSinusoidSource.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkImageSinusoidSource.h"
 #include "vtkLookupTable.h"
-#include "vtkCamera.h"
+#include "vtkPolyDataMapper.h"
 
 #include "vtkDepthPeelingPass.h"
 #include "vtkGaussianBlurPass.h"

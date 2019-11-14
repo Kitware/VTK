@@ -41,8 +41,8 @@
 #ifndef vtkExternalOpenGLRenderWindow_h
 #define vtkExternalOpenGLRenderWindow_h
 
-#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkRenderingExternalModule.h" // For export macro
 
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderWindow :
   public vtkGenericOpenGLRenderWindow

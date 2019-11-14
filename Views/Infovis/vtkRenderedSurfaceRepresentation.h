@@ -31,8 +31,8 @@
 #ifndef vtkRenderedSurfaceRepresentation_h
 #define vtkRenderedSurfaceRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkAlgorithmOutput;

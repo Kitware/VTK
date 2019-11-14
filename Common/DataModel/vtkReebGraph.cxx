@@ -21,8 +21,8 @@
 #include "vtkReebGraph.h"
 
 #include "vtkCell.h"
-#include "vtkEdgeListIterator.h"
 #include "vtkDataArray.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -31,10 +31,10 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
 
-#include <vector>
-#include <map>
 #include <algorithm>
+#include <map>
 #include <queue>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // Contain all of the internal data structures, and macros, in the

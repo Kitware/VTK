@@ -14,15 +14,15 @@
 =========================================================================*/
 
 #include "vtkCollapseVerticesByArray.h"
-#include "vtkVertexListIterator.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
-#include "vtkIntArray.h"
-#include "vtkVariantArray.h"
-#include "vtkMutableDirectedGraph.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
+#include "vtkEdgeListIterator.h"
+#include "vtkIntArray.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkVariantArray.h"
+#include "vtkVertexListIterator.h"
 
 int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

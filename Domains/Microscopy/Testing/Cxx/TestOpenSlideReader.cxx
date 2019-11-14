@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <vtkImageData.h>
+#include <vtkImageViewer2.h>
 #include <vtkNew.h>
 #include <vtkOpenSlideReader.h>
-#include <vtkRenderer.h>
+#include <vtkPNGWriter.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkImageViewer2.h>
-#include <vtkImageData.h>
-#include <vtkPNGWriter.h>
+#include <vtkRenderer.h>
 
 // VTK includes
 #include <vtkTestUtilities.h>

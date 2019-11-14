@@ -49,8 +49,8 @@
 #ifndef vtkSpiderPlotActor_h
 #define vtkSpiderPlotActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;

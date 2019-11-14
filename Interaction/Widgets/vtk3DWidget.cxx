@@ -15,12 +15,12 @@
 #include "vtk3DWidget.h"
 
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
-#include "vtkDataSet.h"
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTrivialProducer.h"
 
 

@@ -23,6 +23,7 @@
 #include "vtkInteractorStyleUnicam.h"
 
 #include "vtkActor.h"
+#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -34,7 +35,6 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
-#include "vtkCallbackCommand.h"
 
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 

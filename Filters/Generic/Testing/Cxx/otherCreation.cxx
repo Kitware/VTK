@@ -18,24 +18,24 @@
 // this program tests the creation of the BridgeDataSet
 
 #include "vtkBridgeDataSet.h"
-#include "vtkGenericAdaptorCell.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkMath.h"
-#include "vtkIndent.h"
 #include "vtkCellTypes.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericAdaptorCell.h"
+#include "vtkGenericAttribute.h"
+#include "vtkGenericAttributeCollection.h"
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericPointIterator.h"
-#include "vtkGenericAttributeCollection.h"
+#include "vtkIndent.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
-#include "vtkLine.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointData.h"
-#include "vtkGenericAttribute.h"
 #include <cassert>
-#include <string>
 #include <sstream>
+#include <string>
 
 //-----------------------------------------------------------------------------
 // Description:

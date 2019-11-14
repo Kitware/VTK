@@ -31,15 +31,15 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
-#include "vtkWorldPointPicker.h"
 #include "vtkVariant.h"
+#include "vtkWorldPointPicker.h"
 
 vtkStandardNewMacro(vtkInteractorStyleTreeMapHover);
 

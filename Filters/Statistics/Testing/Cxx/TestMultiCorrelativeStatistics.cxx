@@ -12,9 +12,9 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiCorrelativeStatistics.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkMultiCorrelativeStatistics.h"
 
 //=============================================================================
 int TestMultiCorrelativeStatistics( int, char *[] )

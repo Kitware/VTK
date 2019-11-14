@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkRIBProperty.h"
-#include "vtkRIBLight.h"
-#include "vtkRIBExporter.h"
 #include "vtkProperty.h"
+#include "vtkRIBExporter.h"
+#include "vtkRIBLight.h"
+#include "vtkRIBProperty.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkTestUtilities.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkStripper.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkCamera.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkTestErrorObserver.h"
 

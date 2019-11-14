@@ -19,20 +19,20 @@
 
 #include "vtkIdList.h"
 #include "vtkNew.h"
-#include "vtkPolygon.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
 
 // #define VISUAL_DEBUG 1
 
 #ifdef VISUAL_DEBUG
+#include <vtkActor.h>
 #include <vtkCellArray.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #endif
 
 #include <vector>

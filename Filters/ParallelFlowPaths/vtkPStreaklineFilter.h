@@ -26,10 +26,10 @@
 #ifndef vtkPStreaklineFilter_h
 #define vtkPStreaklineFilter_h
 
+#include "vtkFiltersParallelFlowPathsModule.h" // For export macro
+#include "vtkPParticleTracerBase.h"
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkStreaklineFilter.h" //for utility
-#include "vtkPParticleTracerBase.h"
-#include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
 class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter: public vtkPParticleTracerBase
 {

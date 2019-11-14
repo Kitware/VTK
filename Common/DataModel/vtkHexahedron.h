@@ -31,8 +31,8 @@
 #ifndef vtkHexahedron_h
 #define vtkHexahedron_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkLine;
 class vtkQuad;

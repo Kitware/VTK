@@ -31,8 +31,8 @@
 #ifndef vtkNewickTreeReader_h
 #define vtkNewickTreeReader_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOInfovisModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkMutableDirectedGraph;

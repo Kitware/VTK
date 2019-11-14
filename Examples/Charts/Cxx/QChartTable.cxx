@@ -22,17 +22,17 @@
 #include "vtkNew.h"
 #include "vtkPlot.h"
 #include "vtkQtTableView.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 
 #include <QApplication>
-#include <QWidget>
-#include <QMainWindow>
 #include <QHBoxLayout>
+#include <QMainWindow>
 #include <QSurfaceFormat>
+#include <QWidget>
 
 //----------------------------------------------------------------------------
 int main( int argc, char * argv [] )

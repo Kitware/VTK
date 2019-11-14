@@ -26,10 +26,10 @@
 #include "vtk_glew.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <EGL/egl.h>
 #include <atomic>
 #include <cassert>
 #include <sstream>
-#include <EGL/egl.h>
 
 #ifdef ANDROID
 #include <android/native_window.h>

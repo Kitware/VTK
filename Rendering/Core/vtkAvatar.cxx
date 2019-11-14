@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkAvatar.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkAvatar)

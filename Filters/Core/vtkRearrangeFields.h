@@ -54,8 +54,8 @@
 #ifndef vtkRearrangeFields_h
 #define vtkRearrangeFields_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 

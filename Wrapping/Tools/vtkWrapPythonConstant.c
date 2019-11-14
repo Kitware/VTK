@@ -17,10 +17,10 @@
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* -------------------------------------------------------------------- */
 /* The scope, attrib, and valstring parameters are optional and can be

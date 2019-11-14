@@ -34,8 +34,8 @@
 #ifndef vtkEncodedGradientEstimator_h
 #define vtkEncodedGradientEstimator_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkImageData;
 class vtkDirectionEncoder;

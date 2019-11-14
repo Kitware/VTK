@@ -19,18 +19,18 @@
 // + ensuring that the kernel derivative takes on the correct sign
 //   and value on either side of the central point.
 
-#include "vtkSmartPointer.h"
 #include "vtkSPHCubicKernel.h"
 #include "vtkSPHQuarticKernel.h"
 #include "vtkSPHQuinticKernel.h"
+#include "vtkSmartPointer.h"
 #include "vtkWendlandQuinticKernel.h"
 
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 
-#include <string>
 #include <cmath>
 #include <sstream>
+#include <string>
 
 //-----------------------------------------------------------------------------
 // Helper function

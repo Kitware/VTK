@@ -22,10 +22,10 @@
 
 #include <stdio.h>
 
-#include <QTimer>
-#include <QWidget>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QTimer>
+#include <QWidget>
 
 int QTestApp::Error = 0;
 

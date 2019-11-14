@@ -14,17 +14,17 @@
 =========================================================================*/
 
 #include "vtkNIFTIImageWriter.h"
-#include "vtkObjectFactory.h"
-#include "vtkNIFTIImageReader.h"
+#include "vtkCommand.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkErrorCode.h"
-#include "vtkMatrix4x4.h"
 #include "vtkMath.h"
-#include "vtkCommand.h"
+#include "vtkMatrix4x4.h"
+#include "vtkNIFTIImageReader.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVersion.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -37,10 +37,10 @@
 // Header for zlib
 #include "vtk_zlib.h"
 
-#include <cstdio>
-#include <cstring>
 #include <cfloat>
 #include <cmath>
+#include <cstdio>
+#include <cstring>
 
 vtkStandardNewMacro(vtkNIFTIImageWriter);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter,QFormMatrix,vtkMatrix4x4);

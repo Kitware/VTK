@@ -14,11 +14,11 @@
 =========================================================================*/
 #include <cstdlib>
 
-#include "vtkSmartPointer.h"
 #include "vtkSTLReader.h"
 #include "vtkSTLWriter.h"
-#include "vtkTestUtilities.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkPlaneSource.h"

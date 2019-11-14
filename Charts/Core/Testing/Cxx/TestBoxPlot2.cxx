@@ -15,22 +15,22 @@
 
 #include "vtkSmartPointer.h"
 
+#include "vtkAxis.h"
 #include "vtkChartBox.h"
-#include "vtkStatisticsAlgorithm.h"
+#include "vtkCommand.h"
 #include "vtkComputeQuartiles.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkIntArray.h"
 #include "vtkLookupTable.h"
 #include "vtkPlotBox.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStatisticsAlgorithm.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkAxis.h"
 #include "vtkTextProperty.h"
-#include "vtkCommand.h"
 
 #include "vtkTestErrorObserver.h"
 

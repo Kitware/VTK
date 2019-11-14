@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkInteractorStyleJoystickActor.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkProp3D.h"
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
 #include "vtkCellPicker.h"
-#include "vtkTransform.h"
+#include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkProp3D.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTransform.h"
 
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 

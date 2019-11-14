@@ -17,9 +17,9 @@
 #ifndef vtkmlib_Portals_h
 #define vtkmlib_Portals_h
 
+#include "PortalTraits.h"
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
-#include "PortalTraits.h"
 
 class vtkDataArray;
 class vtkPoints;

@@ -30,8 +30,8 @@
 #ifndef vtkSampleFunction_h
 #define vtkSampleFunction_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 class vtkImplicitFunction;
 class vtkDataArray;

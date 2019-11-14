@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkGenericRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkGenericRenderWindowInteractor);
 

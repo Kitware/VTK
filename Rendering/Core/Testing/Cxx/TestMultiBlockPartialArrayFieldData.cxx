@@ -19,16 +19,16 @@
 #include "vtkCylinderSource.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkMath.h"
 
 // Test for multiblock data sets with field data arrays defined on
 // only a subset of the blocks. The expected behavior is to have

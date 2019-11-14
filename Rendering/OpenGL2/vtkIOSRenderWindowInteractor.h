@@ -29,8 +29,8 @@
 #ifndef vtkIOSRenderWindowInteractor_h
 #define vtkIOSRenderWindowInteractor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindowInteractor : public vtkRenderWindowInteractor
 {

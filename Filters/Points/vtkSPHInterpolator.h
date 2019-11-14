@@ -77,8 +77,8 @@
 #ifndef vtkSPHInterpolator_h
 #define vtkSPHInterpolator_h
 
-#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkStdString.h" // For vtkStdString ivars
 #include <vector> //For STL vector
 

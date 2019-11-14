@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkTkRenderWidget.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkTclUtil.h"
 #include "vtkTkInternals.h"
 #include "vtkToolkits.h"
-#include "vtkAlgorithm.h"
-#include "vtkAlgorithmOutput.h"
 #include "vtkVersionMacros.h"
 
 #ifdef _WIN32
@@ -37,8 +37,8 @@
 #endif
 #endif
 
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"

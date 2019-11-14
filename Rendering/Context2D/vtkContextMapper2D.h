@@ -26,8 +26,8 @@
 #ifndef vtkContextMapper2D_h
 #define vtkContextMapper2D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkContext2D;
 class vtkTable;

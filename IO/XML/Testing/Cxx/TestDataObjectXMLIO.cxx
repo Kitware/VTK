@@ -5,8 +5,6 @@
 #include <vtkDelaunay3D.h>
 #include <vtkDirectedGraph.h>
 #include <vtkEdgeListIterator.h>
-#include <vtkXMLGenericDataObjectReader.h>
-#include <vtkXMLDataSetWriter.h>
 #include <vtkFieldData.h>
 #include <vtkFloatArray.h>
 #include <vtkGraph.h>
@@ -30,6 +28,8 @@
 #include <vtkUniformGrid.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVariant.h>
+#include <vtkXMLDataSetWriter.h>
+#include <vtkXMLGenericDataObjectReader.h>
 
 #include <sstream>
 #include <string>

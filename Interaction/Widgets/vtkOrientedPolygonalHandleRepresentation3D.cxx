@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkOrientedPolygonalHandleRepresentation3D.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkCellPicker.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkProperty.h"
 #include "vtkCamera.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkCellPicker.h"
 #include "vtkFollower.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderer.h"
+#include "vtkTransformPolyDataFilter.h"
 
 vtkStandardNewMacro(vtkOrientedPolygonalHandleRepresentation3D);
 

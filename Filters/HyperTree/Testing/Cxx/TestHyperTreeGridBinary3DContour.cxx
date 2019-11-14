@@ -22,15 +22,15 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestHyperTreeGridBinary3DContour( int argc, char* argv[] )
 {

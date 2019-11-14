@@ -12,36 +12,36 @@ PURPOSE.  See the above copyright notice for more information.
 // Description
 // This test creates a vtkImageData with two components.
 // The data is volume rendered considering the two components as independent.
-#include <iostream>
 #include <fstream>
+#include <iostream>
 using namespace std;
 
+#include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkCommand.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkNew.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
-#include "vtkUnsignedShortArray.h"
 #include "vtkImageReader2.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkMatrix4x4.h"
+#include "vtkNew.h"
+#include "vtkOutlineFilter.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkCommand.h"
-#include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkMatrix4x4.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 
 static double* ComputeNormal(double* reference, bool flipSign)

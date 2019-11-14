@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkTestingInteractor.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
 #include "vtkRenderWindow.h"
+#include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 
 vtkStandardNewMacro(vtkTestingInteractor);

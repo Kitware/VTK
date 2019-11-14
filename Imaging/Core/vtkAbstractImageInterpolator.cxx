@@ -14,10 +14,10 @@
 =========================================================================*/
 
 #include "vtkAbstractImageInterpolator.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
 #include "vtkImageInterpolatorInternals.h"
 #include "vtkPointData.h"
-#include "vtkImageData.h"
-#include "vtkDataArray.h"
 #include "vtkTypeTraits.h"
 
 #include "vtkTemplateAliasMacro.h"

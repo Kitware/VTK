@@ -40,11 +40,11 @@
 // version available from Los Alamos National Laboratory.
 
 #include "vtkCompressCompositer.h"
+#include "vtkFloatArray.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
-#include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMultiProcessController.h"
 
 #include "vtkTimerLog.h"
 

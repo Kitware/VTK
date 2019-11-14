@@ -68,8 +68,8 @@
 #ifndef vtkDepthImageToPointCloud_h
 #define vtkDepthImageToPointCloud_h
 
-#include "vtkRenderingImageModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkRenderingImageModule.h" // For export macro
 
 
 class vtkCamera;

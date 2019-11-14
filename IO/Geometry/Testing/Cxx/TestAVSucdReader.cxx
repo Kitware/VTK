@@ -23,8 +23,8 @@
 #include <vtkRenderer.h>
 #include <vtkUnstructuredGrid.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 int TestAVSucdReader(int argc, char* argv[])
 {

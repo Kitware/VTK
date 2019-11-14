@@ -13,9 +13,9 @@
 =========================================================================*/
 
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOutputWindow.h"
+#include "vtkRenderer.h"
 
 #include <sstream>
 

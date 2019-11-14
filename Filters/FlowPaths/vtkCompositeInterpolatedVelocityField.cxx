@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkCompositeInterpolatedVelocityField.h"
 
-#include "vtkMath.h"
-#include "vtkDataSet.h"
 #include "vtkDataArray.h"
-#include "vtkPointData.h"
+#include "vtkDataSet.h"
 #include "vtkGenericCell.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 //----------------------------------------------------------------------------
 vtkCompositeInterpolatedVelocityField::vtkCompositeInterpolatedVelocityField()

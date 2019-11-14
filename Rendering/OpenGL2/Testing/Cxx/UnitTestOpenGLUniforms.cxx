@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkOpenGLUniforms.h"
 #include "vtkNew.h"
+#include "vtkOpenGLUniforms.h"
 
 #include <algorithm>
 #include <vector>

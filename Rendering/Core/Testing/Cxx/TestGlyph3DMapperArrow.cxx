@@ -12,24 +12,24 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
+#include "vtkArrowSource.h"
 #include "vtkCamera.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkExecutive.h"
+#include "vtkExtractGrid.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
-#include "vtkExtractGrid.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkArrowSource.h"
-#include "vtkExecutive.h"
-#include "vtkInformationVector.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
-#include "vtkCompositeDataPipeline.h"
 
 // If USE_FILTER is defined, glyph3D->PolyDataMapper is used instead of
 // Glyph3DMapper.

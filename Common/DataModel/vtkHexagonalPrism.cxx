@@ -22,12 +22,12 @@
 
 #include "vtkHexagonalPrism.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkLine.h"
-#include "vtkQuad.h"
-#include "vtkPolygon.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
+#include "vtkQuad.h"
 
 vtkStandardNewMacro(vtkHexagonalPrism);
 

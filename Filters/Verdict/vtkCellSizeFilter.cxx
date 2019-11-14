@@ -16,8 +16,8 @@
 
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"

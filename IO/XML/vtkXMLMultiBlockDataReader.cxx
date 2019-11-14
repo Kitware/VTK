@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkXMLMultiBlockDataReader.h"
 
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"

@@ -22,13 +22,13 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
 {

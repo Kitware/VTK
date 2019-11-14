@@ -13,9 +13,9 @@
 =========================================================================*/
 #include "vtkRenderWidget.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkAbstractInteractionDevice.h"
 #include "vtkAbstractRenderDevice.h"
+#include "vtkObjectFactory.h"
 #include "vtkRect.h"
 
 vtkStandardNewMacro(vtkRenderWidget)

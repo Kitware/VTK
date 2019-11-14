@@ -35,8 +35,8 @@
 #ifndef vtkFrustumCoverageCuller_h
 #define vtkFrustumCoverageCuller_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCuller.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #define VTK_CULLER_SORT_NONE          0
 #define VTK_CULLER_SORT_FRONT_TO_BACK 1

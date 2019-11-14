@@ -37,8 +37,8 @@
 #ifndef vtkExtractSelectedGraph_h
 #define vtkExtractSelectedGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkSelection;
 class vtkDataSet;

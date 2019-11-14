@@ -15,7 +15,6 @@
 #include "vtkLagrangianBasicIntegrationModel.h"
 
 #include "vtkCellData.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkDataArray.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDataSet.h"
@@ -33,6 +32,7 @@
 #include "vtkQuad.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"

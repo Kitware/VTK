@@ -20,12 +20,12 @@
 #ifndef vtkPythonUtil_h
 #define vtkPythonUtil_h
 
-#include "vtkPython.h"
-#include "vtkPythonCompatibility.h"
-#include "PyVTKReference.h"
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
+#include "PyVTKReference.h"
 #include "PyVTKSpecialObject.h"
+#include "vtkPython.h"
+#include "vtkPythonCompatibility.h"
 
 #if defined(_MSC_VER) // Visual Studio
 // some docstrings trigger "decimal digit terminates octal escape sequence"

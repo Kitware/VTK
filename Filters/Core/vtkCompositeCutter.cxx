@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkCompositeCutter.h"
 
+#include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
@@ -30,12 +31,11 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkAppendPolyData.h"
 
-#include <cmath>
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include <cassert>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCompositeCutter);
 

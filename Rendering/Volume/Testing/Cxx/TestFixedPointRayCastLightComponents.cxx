@@ -19,26 +19,26 @@
 // with the composite method. The diffuse light component is gray, the
 // light specular component is blue.
 
-#include "vtkSphere.h"
 #include "vtkSampleFunction.h"
+#include "vtkSphere.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkVolumeProperty.h"
 #include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkVolumeProperty.h"
 #include <cassert>
-#include "vtkFixedPointVolumeRayCastMapper.h"
 
 int TestFixedPointRayCastLightComponents(int argc,
                                          char *argv[])

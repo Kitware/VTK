@@ -29,9 +29,9 @@
 #ifndef vtkCamera_h
 #define vtkCamera_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkRect.h" // for ivar
+#include "vtkRect.h"                // for ivar
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkHomogeneousTransform;
 class vtkInformation;

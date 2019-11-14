@@ -45,8 +45,8 @@
 #ifndef vtkSVGExporter_h
 #define vtkSVGExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 class vtkContextActor;
 class vtkRenderer;

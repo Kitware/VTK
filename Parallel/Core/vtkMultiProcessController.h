@@ -49,8 +49,8 @@
 #ifndef vtkMultiProcessController_h
 #define vtkMultiProcessController_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 #include "vtkCommunicator.h" // Needed for direct access to communicator
 

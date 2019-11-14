@@ -15,16 +15,16 @@
 #include "vtkOSPRayViewNodeFactory.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayAMRVolumeMapperNode.h"
+#include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayCompositePolyDataMapper2Node.h"
 #include "vtkOSPRayLightNode.h"
-#include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayPolyDataMapperNode.h"
+#include "vtkOSPRayRendererNode.h"
+#include "vtkOSPRayTetrahedraMapperNode.h"
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkOSPRayVolumeNode.h"
-#include "vtkOSPRayTetrahedraMapperNode.h"
 
 vtkViewNode *ren_maker()
 {

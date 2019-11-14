@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkDataSetAttributes.h"
 #include "vtkDataObjectWriter.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDirectedGraph.h"
 #include "vtkEdgeListIterator.h"
 #include "vtkGenericDataObjectReader.h"

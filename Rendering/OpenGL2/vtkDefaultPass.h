@@ -34,8 +34,8 @@
 #ifndef vtkDefaultPass_h
 #define vtkDefaultPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLRenderWindow;
 class vtkDefaultPassLayerList; // Pimpl

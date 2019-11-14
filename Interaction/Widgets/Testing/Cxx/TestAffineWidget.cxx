@@ -18,22 +18,21 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkAffineWidget.h"
 #include "vtkAffineRepresentation2D.h"
+#include "vtkAffineWidget.h"
+#include "vtkCommand.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 #include "vtkImageMapper3D.h"
-#include "vtkRenderer.h"
+#include "vtkImageShiftScale.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkVolume16Reader.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageActor.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
+#include "vtkVolume16Reader.h"
 
 // This callback is responsible for adjusting the point position.
 // It looks in the region around the point and finds the maximum or

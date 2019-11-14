@@ -36,8 +36,8 @@
 #ifndef vtkWindowLevelLookupTable_h
 #define vtkWindowLevelLookupTable_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {

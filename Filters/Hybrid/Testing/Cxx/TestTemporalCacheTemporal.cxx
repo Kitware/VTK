@@ -15,10 +15,10 @@
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkInformation.h"
-#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"

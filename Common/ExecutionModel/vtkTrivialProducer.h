@@ -26,8 +26,8 @@
 #ifndef vtkTrivialProducer_h
 #define vtkTrivialProducer_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataObject;
 

@@ -1,5 +1,5 @@
-#include "vtkmDataArray.h"
 #include "vtkSmartPointer.h"
+#include "vtkmDataArray.h"
 
 #include <vtkm/cont/ArrayHandle.h>
 #include <vtkm/cont/ArrayHandleConstant.h>

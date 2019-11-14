@@ -2,13 +2,13 @@
 #include <vtkArrayPrint.h>
 #include <vtkDenseArray.h>
 #include <vtkDiagonalMatrixSource.h>
-#include <vtkRenderWindow.h>
 #include <vtkGraphLayoutView.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
 #include <vtkViewTheme.h>
 
 int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])

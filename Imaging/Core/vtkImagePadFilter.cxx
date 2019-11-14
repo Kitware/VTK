@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkImagePadFilter.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImagePadFilter);

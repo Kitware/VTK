@@ -15,9 +15,9 @@
 #include "vtkAssemblyPath.h"
 
 #include "vtkAssemblyNode.h"
-#include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
+#include "vtkTransform.h"
 
 vtkStandardNewMacro(vtkAssemblyPath);
 

@@ -62,8 +62,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
-#include "vtkSmartPointer.h" // vtkSmartPointer
 #include "vtkNew.h" // vtkSmartPointer
+#include "vtkSmartPointer.h" // vtkSmartPointer
 // #include "vtkPointData.h" // vtkPointData
 
 #include <cassert> // std::assert

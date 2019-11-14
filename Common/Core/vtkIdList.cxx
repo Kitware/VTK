@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkIdList.h"
-#include "vtkSMPTools.h" //for parallel sort
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h" //for parallel sort
 
 vtkStandardNewMacro(vtkIdList);
 

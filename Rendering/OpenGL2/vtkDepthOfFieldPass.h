@@ -37,8 +37,8 @@
 #ifndef vtkDepthOfFieldPass_h
 #define vtkDepthOfFieldPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthImageProcessingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;

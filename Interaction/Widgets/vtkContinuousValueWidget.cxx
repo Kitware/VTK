@@ -19,9 +19,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkContinuousValueWidget.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
-#include "vtkContinuousValueWidget.h"
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkEvent.h"
 #include "vtkObjectFactory.h"

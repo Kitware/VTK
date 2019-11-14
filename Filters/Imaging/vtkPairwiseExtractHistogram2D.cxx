@@ -22,7 +22,6 @@ PURPOSE.  See the above copyright notice for more information.
 //------------------------------------------------------------------------------
 #include "vtkArrayData.h"
 #include "vtkArrayIteratorIncludes.h"
-#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkCollection.h"
 #include "vtkExtractHistogram2D.h"
 #include "vtkIdTypeArray.h"
@@ -32,6 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -41,10 +41,10 @@ PURPOSE.  See the above copyright notice for more information.
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 //------------------------------------------------------------------------------
 #include <algorithm>
-#include <set>
-#include <vector>
-#include <string>
 #include <map>
+#include <set>
+#include <string>
+#include <vector>
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPairwiseExtractHistogram2D);
 //------------------------------------------------------------------------------

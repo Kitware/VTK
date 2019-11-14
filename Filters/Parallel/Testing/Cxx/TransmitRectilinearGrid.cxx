@@ -18,30 +18,30 @@
 /*
 ** This test only builds if MPI is in use
 */
+#include "vtkMPICommunicator.h"
 #include "vtkObjectFactory.h"
 #include <mpi.h>
-#include "vtkMPICommunicator.h"
 
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkMPIController.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRectilinearGrid.h"
-#include "vtkRectilinearGridReader.h"
-#include "vtkDataObject.h"
-#include "vtkTransmitRectilinearGridPiece.h"
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCompositeRenderManager.h"
 #include "vtkContourFilter.h"
+#include "vtkDataObject.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkElevationFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkProcess.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearGridReader.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCompositeRenderManager.h"
-#include "vtkCamera.h"
-#include "vtkProcess.h"
+#include "vtkRenderer.h"
+#include "vtkTransmitRectilinearGridPiece.h"
 
 namespace
 {

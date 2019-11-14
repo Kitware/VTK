@@ -30,12 +30,12 @@
 #include "vtkQtTimePointUtility.h"
 #include "vtkVariantArray.h"
 
-#include <QtSql/QtSql>
-#include <QtSql/QSqlQuery>
-#include <QString>
-#include <QDateTime>
 #include <QDate>
+#include <QDateTime>
+#include <QString>
 #include <QTime>
+#include <QtSql/QSqlQuery>
+#include <QtSql/QtSql>
 #include <string>
 #include <vector>
 

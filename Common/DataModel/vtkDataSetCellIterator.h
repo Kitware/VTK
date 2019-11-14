@@ -21,9 +21,9 @@
 #ifndef vtkDataSetCellIterator_h
 #define vtkDataSetCellIterator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCellIterator.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkSmartPointer.h"          // For vtkSmartPointer
 
 class vtkDataSet;
 

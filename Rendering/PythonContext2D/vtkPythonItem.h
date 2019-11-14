@@ -30,8 +30,8 @@
 
 #include "vtkPython.h" // Must be first
 
-#include "vtkPythonContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkPythonContext2DModule.h" // For export macro
 
 class vtkSmartPyObject;
 

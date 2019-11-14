@@ -14,9 +14,8 @@
 =========================================================================*/
 
 //#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
+#include "vtkShadowMapBakerPass.h"
 #include "vtkCameraPass.h"
-#include "vtkOpenGLCamera.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
@@ -26,20 +25,21 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpaquePass.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkRenderPassCollection.h"
 #include "vtkOpenGLState.h"
+#include "vtkRenderPassCollection.h"
 #include "vtkRenderState.h"
 #include "vtkSequencePass.h"
 #include "vtkShaderProgram.h"
-#include "vtkShadowMapBakerPass.h"
 #include "vtkTextureObject.h"
 
-#include <sstream>
-#include <cassert>
 #include "vtkStdString.h"
+#include <cassert>
+#include <sstream>
 
 // debugging
 #include "vtkTimerLog.h"

@@ -15,13 +15,13 @@
 #include "vtkExtractLevel.h"
 
 #include "vtkCompositeDataPipeline.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkOverlappingAMR.h"
 
 #include <set>
 #include <vector>

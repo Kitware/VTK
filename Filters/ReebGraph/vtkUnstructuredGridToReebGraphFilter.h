@@ -26,8 +26,8 @@
 #ifndef vtkUnstructuredGridToReebGraphFilter_h
 #define vtkUnstructuredGridToReebGraphFilter_h
 
-#include "vtkFiltersReebGraphModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"
+#include "vtkFiltersReebGraphModule.h" // For export macro
 
 class vtkReebGraph;
 

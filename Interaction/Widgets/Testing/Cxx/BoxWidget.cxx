@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkAppendPolyData.h"
 #include "vtkBoxWidget.h"
 #include "vtkCommand.h"
@@ -24,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 

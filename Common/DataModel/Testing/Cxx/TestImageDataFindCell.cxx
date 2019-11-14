@@ -23,8 +23,8 @@
 
 #include "vtkDebugLeaks.h"
 #include "vtkImageData.h"
-#include "vtkSmartPointer.h"
 #include "vtkMatrix4x4.h"
+#include "vtkSmartPointer.h"
 
 inline int DoTest(
   int extent[6], double origin[3], double spacing[3], double direction[9])

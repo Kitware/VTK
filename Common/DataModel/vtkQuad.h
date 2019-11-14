@@ -25,8 +25,8 @@
 #ifndef vtkQuad_h
 #define vtkQuad_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkLine;
 class vtkTriangle;

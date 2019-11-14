@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkGenericInterpolatedVelocityField.h"
 
-#include "vtkGenericAttributeCollection.h"
-#include "vtkGenericAttribute.h"
-#include "vtkGenericDataSet.h"
-#include "vtkGenericCellIterator.h"
-#include "vtkGenericAdaptorCell.h"
-#include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h" // for vtkDataSetAttributes::VECTORS
+#include "vtkGenericAdaptorCell.h"
+#include "vtkGenericAttribute.h"
+#include "vtkGenericAttributeCollection.h"
+#include "vtkGenericCellIterator.h"
+#include "vtkGenericDataSet.h"
+#include "vtkObjectFactory.h"
 
 #include <vector>
 

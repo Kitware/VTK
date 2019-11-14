@@ -22,9 +22,9 @@
 #ifndef vtkDIYUtilities_h
 #define vtkDIYUtilities_h
 
-#include "vtkParallelDIYModule.h" // for export macros
 #include "vtkObject.h"
-#include "vtkSmartPointer.h" // needed for vtkSmartPointer
+#include "vtkParallelDIYModule.h" // for export macros
+#include "vtkSmartPointer.h"      // needed for vtkSmartPointer
 
 // clang-format off
 #include "vtk_diy2.h" // needed for DIY

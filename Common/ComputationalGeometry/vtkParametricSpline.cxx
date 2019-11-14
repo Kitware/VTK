@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkParametricSpline.h"
-#include "vtkObjectFactory.h"
 #include "vtkCardinalSpline.h"
-#include "vtkPoints.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkParametricSpline);
 

@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 
-#include "vtkImageViewer.h"
-#include "vtkImageReader.h"
-#include "vtkImageImport.h"
 #include "vtkImageExport.h"
-#include "vtkWindowToImageFilter.h"
+#include "vtkImageImport.h"
+#include "vtkImageReader.h"
+#include "vtkImageViewer.h"
 #include "vtkPNMWriter.h"
+#include "vtkWindowToImageFilter.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int ImportExport( int argc, char *argv[] )
 {

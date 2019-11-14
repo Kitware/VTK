@@ -14,22 +14,22 @@
 
 #include "vtkNew.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
 #include "vtkImageReader2.h"
+#include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkOpenGLImageGradient.h"
 #include "vtkPointData.h"
-#include "vtkDataArray.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestOpenGLImageGradient(int argc, char *argv[])
 {

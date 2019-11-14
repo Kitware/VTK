@@ -26,9 +26,9 @@
 #ifndef vtkViewNode_h
 #define vtkViewNode_h
 
+#include "vtkObject.h"
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkWeakPointer.h" //avoid ref loop to parent
-#include "vtkObject.h"
 
 class vtkCollection;
 class vtkViewNodeFactory;

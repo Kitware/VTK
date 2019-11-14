@@ -18,15 +18,15 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkConeSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestOnAndOffScreenConeCxx(int argc, char* argv[])
 {

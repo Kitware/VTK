@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkPixel.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkIncrementalPointLocator.h"
+#include "vtkLine.h"
+#include "vtkMarchingSquaresLineCases.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
-#include "vtkPlane.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkLine.h"
-#include "vtkIncrementalPointLocator.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPoints.h"
-#include "vtkMarchingSquaresLineCases.h"
 
 vtkStandardNewMacro(vtkPixel);
 

@@ -63,11 +63,11 @@
 #ifndef vtkOpenGLState_h
 #define vtkOpenGLState_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <array> // for ivar
-#include <map>   // for ivar
 #include <list> // for ivar
+#include <map>   // for ivar
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;

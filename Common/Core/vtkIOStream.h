@@ -28,9 +28,9 @@
 #pragma warning (push, 3)
 #endif
 
-#include <iostream>  // Include real ansi istream and ostream.
 #include <fstream>   // Include real ansi ifstream and ofstream.
 #include <iomanip>   // Include real ansi io manipulators.
+#include <iostream>  // Include real ansi istream and ostream.
 
 // Need these in global namespace so the same code will work with ansi
 // and old-style streams.

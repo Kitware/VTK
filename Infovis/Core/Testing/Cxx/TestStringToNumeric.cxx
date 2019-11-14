@@ -21,11 +21,11 @@
 #include "vtkDelimitedTextReader.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
+#include "vtkMath.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
-#include "vtkMath.h"
 
 #include "vtkNew.h"
 

@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkPImageWriter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkPipelineSize.h"
+#include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkAlgorithmOutput.h"
+#include "vtkObjectFactory.h"
+#include "vtkPipelineSize.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #define vtkPIWCloseFile \

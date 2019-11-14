@@ -21,13 +21,13 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-#include <mysql.h>
 #include <errmsg.h>
+#include <mysql.h>
 
 
 #if defined(_WIN32)
-# include <string.h>
 # include <locale.h>
+# include <string.h>
 # define LOWERCASE_COMPARE _stricmp
 #else
 # include <strings.h>

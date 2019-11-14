@@ -24,8 +24,8 @@
 #ifndef vtkOpenGLRenderPass_h
 #define vtkOpenGLRenderPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include <string> // For std::string
 

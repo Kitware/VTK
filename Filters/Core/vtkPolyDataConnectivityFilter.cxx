@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkPolyDataConnectivityFilter.h"
 
+#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCell.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"

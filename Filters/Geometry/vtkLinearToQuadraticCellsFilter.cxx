@@ -30,9 +30,6 @@
 #include "vtkPolygon.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
-#include "vtkTriangle.h"
-#include "vtkTetra.h"
-#include "vtkWedge.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticPolygon.h"
@@ -41,8 +38,11 @@
 #include "vtkQuadraticTetra.h"
 #include "vtkQuadraticTriangle.h"
 #include "vtkQuadraticWedge.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkWedge.h"
 
 vtkStandardNewMacro(vtkLinearToQuadraticCellsFilter);
 

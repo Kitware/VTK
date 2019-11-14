@@ -15,12 +15,12 @@
 #include "vtkXMLPRectilinearGridReader.h"
 
 #include "vtkDataArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLRectilinearGridReader.h"
-#include "vtkInformation.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkXMLPRectilinearGridReader);
 

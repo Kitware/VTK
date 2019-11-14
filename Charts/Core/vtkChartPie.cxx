@@ -18,10 +18,10 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkContext2D.h"
-#include "vtkTransform2D.h"
-#include "vtkContextScene.h"
 #include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkPoints2D.h"
+#include "vtkTransform2D.h"
 
 #include "vtkPlotPie.h"
 

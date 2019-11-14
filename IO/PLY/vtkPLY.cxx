@@ -47,16 +47,16 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 */
 
 #include "vtkPLY.h"
-#include "vtkHeap.h"
 #include "vtkByteSwap.h"
+#include "vtkHeap.h"
 #include "vtkMath.h"
 #include <vtksys/SystemTools.hxx>
 
+#include <cassert>
 #include <cstddef>
 #include <cstring>
-#include <cassert>
-#include <limits>
 #include <fstream>
+#include <limits>
 #include <sstream>
 
 /* memory allocation */

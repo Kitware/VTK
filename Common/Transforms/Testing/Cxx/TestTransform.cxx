@@ -15,8 +15,8 @@
 
 #include <iostream>
 
-#include "vtkTransform.h"
 #include "vtkSmartPointer.h"
+#include "vtkTransform.h"
 
 // forward declare test subroutines
 int testUseOfInverse();

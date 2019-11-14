@@ -26,9 +26,9 @@
 #ifndef vtkCompositeSurfaceLICMapper_h
 #define vtkCompositeSurfaceLICMapper_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkCompositePolyDataMapper2.h"
-#include "vtkNew.h" // for ivars
+#include "vtkNew.h"                       // for ivars
+#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
 class vtkSurfaceLICInterface;
 

@@ -22,17 +22,17 @@
 /*******************************************************************/
 #include "vtkXdmfDataArray.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 
-#include "vtkUnsignedCharArray.h"
 #include "vtkCharArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedShortArray.h"
 
 #include "vtk_xdmf2.h"

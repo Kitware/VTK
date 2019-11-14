@@ -15,18 +15,18 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkQuadRotationalExtrusionFilter.h"
 
 #include "vtkCellArray.h"
-#include "vtkGenericCell.h"
-#include "vtkIdList.h"
-#include "vtkMath.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkPolyData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkQuadRotationalExtrusionFilter);
 

@@ -13,12 +13,12 @@
 
 =========================================================================*/
 #include "vtkTemporalShiftScale.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCompositeDataPipeline.h"
 
 #include <cassert>
 

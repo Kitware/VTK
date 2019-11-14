@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkLightCollection.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkLight.h"
+#include "vtkObjectFactory.h"
 
 #include <cmath>
 

@@ -14,8 +14,8 @@
  =========================================================================*/
 #include "vtkPDataSetGhostGenerator.h"
 
-#include "vtkMultiProcessController.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
 
 #include <cassert>
 

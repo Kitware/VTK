@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkDataObjectToDataSetFilter.h"
 
+#include "vtkCellArray.h"
 #include "vtkFieldData.h"
 #include "vtkFieldDataToAttributeDataFilter.h"
-#include "vtkInformationExecutivePortKey.h"
-#include "vtkPolyData.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkCellArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 

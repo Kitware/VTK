@@ -42,8 +42,8 @@
 #ifndef vtkQuantizePolyDataPoints_h
 #define vtkQuantizePolyDataPoints_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkCleanPolyData.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {

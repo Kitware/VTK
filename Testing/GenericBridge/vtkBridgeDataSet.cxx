@@ -21,23 +21,23 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
-#include "vtkDataSet.h"
-#include "vtkCellTypes.h"
-#include "vtkCell.h"
+#include "vtkBridgeAttribute.h"
+#include "vtkBridgeCell.h"
 #include "vtkBridgeCellIterator.h"
 #include "vtkBridgePointIterator.h"
-#include "vtkBridgeCell.h"
-#include "vtkGenericCell.h"
-#include "vtkMath.h"
-#include "vtkGenericAttributeCollection.h"
-#include "vtkPointData.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkBridgeAttribute.h"
+#include "vtkCellTypes.h"
+#include "vtkDataSet.h"
+#include "vtkGenericAttributeCollection.h"
+#include "vtkGenericCell.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericEdgeTable.h"
-#include "vtkSimpleCellTessellator.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSimpleCellTessellator.h"
 
 vtkStandardNewMacro(vtkBridgeDataSet);
 

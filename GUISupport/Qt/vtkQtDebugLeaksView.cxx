@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkQtDebugLeaksView.h"
-#include "vtkQtDebugLeaksModel.h"
 #include "vtkObjectBase.h"
+#include "vtkQtDebugLeaksModel.h"
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -26,8 +26,8 @@
 #include <QSortFilterProxyModel>
 #include <QSplitter>
 #include <QTableView>
-#include <QVBoxLayout>
 #include <QUrl>
+#include <QVBoxLayout>
 
 //-----------------------------------------------------------------------------
 class vtkQtDebugLeaksView::qInternal

@@ -18,15 +18,15 @@
 // .SECTION Description
 //  Simple test for structured grid partitioner
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <cassert>
 
-#include "vtkStructuredGridPartitioner.h"
-#include "vtkStructuredGrid.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkXMLStructuredGridReader.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredGridPartitioner.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkXMLStructuredGridReader.h"
 
 //------------------------------------------------------------------------------
 // Description:

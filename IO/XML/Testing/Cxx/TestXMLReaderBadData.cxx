@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
-#include <vtkXMLGenericDataObjectReader.h>
-#include <vtkXMLDataParser.h>
 #include "vtkTestErrorObserver.h"
+#include <vtkSmartPointer.h>
+#include <vtkXMLDataParser.h>
+#include <vtkXMLGenericDataObjectReader.h>
 
 int TestXMLReaderBadData(int argc, char* argv[])
 {

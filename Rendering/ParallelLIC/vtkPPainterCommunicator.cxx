@@ -15,9 +15,9 @@
 #include "vtkPPainterCommunicator.h"
 
 #include "vtkMPI.h"
-#include "vtkMultiProcessController.h"
-#include "vtkMPIController.h"
 #include "vtkMPICommunicator.h"
+#include "vtkMPIController.h"
+#include "vtkMultiProcessController.h"
 
 #include <vector>
 

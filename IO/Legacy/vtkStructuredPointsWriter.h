@@ -25,8 +25,8 @@
 #ifndef vtkStructuredPointsWriter_h
 #define vtkStructuredPointsWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkImageData;
 

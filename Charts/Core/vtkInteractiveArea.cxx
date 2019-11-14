@@ -14,12 +14,12 @@
 =========================================================================*/
 #include <algorithm>
 
-#include "vtkInteractiveArea.h"
 #include "vtkCommand.h"
 #include "vtkContextClip.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
+#include "vtkInteractiveArea.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlotGrid.h"
 #include "vtkTransform2D.h"

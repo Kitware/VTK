@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkScenePicker.h"
 
+#include "vtkCommand.h"
+#include "vtkDataObject.h"
+#include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkProp.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkHardwareSelector.h"
-#include "vtkCommand.h"
-#include "vtkDataObject.h"
+#include "vtkRenderer.h"
 
 class vtkScenePickerSelectionRenderCommand : public vtkCommand
 {

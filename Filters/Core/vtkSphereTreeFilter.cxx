@@ -13,19 +13,18 @@
 
 =========================================================================*/
 #include "vtkSphereTreeFilter.h"
-#include "vtkSphereTree.h"
+#include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkAbstractArray.h"
-#include "vtkDataArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkSphereTree.h"
+#include "vtkStructuredGrid.h"
 
 vtkStandardNewMacro(vtkSphereTreeFilter);
 vtkCxxSetObjectMacro(vtkSphereTreeFilter,SphereTree,vtkSphereTree);

@@ -16,6 +16,7 @@
 
 #include "vtkEdgeTable.h"
 #include "vtkExecutive.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -26,7 +27,6 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkDelaunay3D);
 

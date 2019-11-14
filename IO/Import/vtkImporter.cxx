@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkImporter.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 
 
 vtkCxxSetObjectMacro(vtkImporter,RenderWindow,vtkRenderWindow);

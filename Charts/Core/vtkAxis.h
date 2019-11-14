@@ -53,10 +53,10 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkVector.h"       // For position variables
 #include "vtkRect.h"         // For bounding rect
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkStdString.h"    // For vtkStdString ivars
+#include "vtkVector.h"       // For position variables
 
 class vtkContext2D;
 class vtkPen;

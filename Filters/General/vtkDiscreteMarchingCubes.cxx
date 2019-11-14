@@ -16,6 +16,7 @@
 #include "vtkDiscreteMarchingCubes.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -30,14 +31,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkCellData.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 

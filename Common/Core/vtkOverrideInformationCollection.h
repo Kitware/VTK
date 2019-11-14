@@ -25,8 +25,8 @@
 #ifndef vtkOverrideInformationCollection_h
 #define vtkOverrideInformationCollection_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 #include "vtkOverrideInformation.h" // Needed for inline methods
 

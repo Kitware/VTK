@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtkCenteredSliderWidget.h"
-#include "vtkSliderRepresentation2D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkWidgetEvent.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSliderRepresentation2D.h"
 #include "vtkTimerLog.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 vtkStandardNewMacro(vtkCenteredSliderWidget);
 

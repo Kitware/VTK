@@ -17,11 +17,11 @@
 // .SECTION Description
 // this program tests the Polygon
 
-#include "vtkPolygon.h"
-#include "vtkPoints.h"
-#include <limits>
-#include "vtkSmartPointer.h"
 #include "vtkIdTypeArray.h"
+#include "vtkPoints.h"
+#include "vtkPolygon.h"
+#include "vtkSmartPointer.h"
+#include <limits>
 
 template<class A>
 bool fuzzyCompare(A a, A b) {

@@ -25,8 +25,8 @@
 #ifndef vtkTreeWriter_h
 #define vtkTreeWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkTree;
 

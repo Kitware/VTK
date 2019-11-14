@@ -24,9 +24,9 @@
 #include <cassert>
 
 #include <algorithm>
-#include <vector>
 #include <list>
 #include <map>
+#include <vector>
 
 // Uncomment the following line to help with debugging. When
 // ENABLE_SYNCHRONIZED_COMMUNICATION is defined, every Send() blocks until the

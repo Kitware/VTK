@@ -15,24 +15,24 @@
 
 #include "vtkContextScene.h"
 
-#include "vtkContextItem.h"
 #include "vtkContext2D.h"
-#include "vtkTransform2D.h"
-#include "vtkMatrix3x3.h"
-#include "vtkContextScenePrivate.h"
-#include "vtkContextMouseEvent.h"
+#include "vtkContextItem.h"
 #include "vtkContextKeyEvent.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScenePrivate.h"
+#include "vtkMatrix3x3.h"
 #include "vtkNew.h"
+#include "vtkTransform2D.h"
 
 // Get my new commands
 #include "vtkCommand.h"
 
-#include "vtkAnnotationLink.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
 #include "vtkAbstractContextBufferId.h"
+#include "vtkAnnotationLink.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 // My STL containers
 #include <cassert>

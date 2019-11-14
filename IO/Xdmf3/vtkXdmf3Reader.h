@@ -30,8 +30,8 @@
 #ifndef vtkXdmf3Reader_h
 #define vtkXdmf3Reader_h
 
-#include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkIOXdmf3Module.h" // For export macro
 
 class vtkXdmf3ArraySelection;
 class vtkGraph;

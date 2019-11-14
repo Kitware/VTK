@@ -26,9 +26,9 @@
 #ifndef vtkParallelAMRUtilities_h
 #define vtkParallelAMRUtilities_h
 
-#include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkAMRUtilities.h"
-#include <vector> // For C++ vector
+#include "vtkFiltersAMRModule.h" // For export macro
+#include <vector>                // For C++ vector
 
 // Forward declarations
 class vtkMultiProcessController;

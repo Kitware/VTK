@@ -35,8 +35,8 @@
 #ifndef vtkGLTFExporter_h
 #define vtkGLTFExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 #include <string> // for std::string
 

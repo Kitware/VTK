@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkMaskPointsFilter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
-#include "vtkPointSet.h"
-#include "vtkPoints.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkMaskPointsFilter);
 

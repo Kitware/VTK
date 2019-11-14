@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkImageMask.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageMask);

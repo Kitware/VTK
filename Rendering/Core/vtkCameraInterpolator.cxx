@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkCameraInterpolator.h"
-#include "vtkObjectFactory.h"
 #include "vtkCamera.h"
+#include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 #include "vtkTupleInterpolator.h"
 #include <list>

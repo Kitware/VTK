@@ -33,8 +33,8 @@
 #define vtkPlotFunctionalBag_h
 
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkPlot.h"
 #include "vtkNew.h"              // Needed to hold SP ivars
+#include "vtkPlot.h"
 
 class vtkDataArray;
 class vtkPlotFuntionalBagInternal;

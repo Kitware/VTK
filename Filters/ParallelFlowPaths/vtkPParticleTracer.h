@@ -26,8 +26,8 @@
 #ifndef vtkPParticleTracer_h
 #define vtkPParticleTracer_h
 
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPParticleTracerBase.h"
+#include "vtkSmartPointer.h" // For protected ivars.
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 

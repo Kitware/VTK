@@ -32,8 +32,8 @@
 #ifndef vtkPDescriptiveStatistics_h
 #define vtkPDescriptiveStatistics_h
 
-#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkDescriptiveStatistics.h"
+#include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;

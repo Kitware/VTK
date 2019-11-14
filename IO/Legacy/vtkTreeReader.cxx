@@ -17,13 +17,13 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkFieldData.h"
-#include "vtkTree.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTree.h"
 
 vtkStandardNewMacro(vtkTreeReader);
 

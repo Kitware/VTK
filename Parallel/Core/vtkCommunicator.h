@@ -32,8 +32,8 @@
 #ifndef vtkCommunicator_h
 #define vtkCommunicator_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include <vector> // needed for std::vector
 

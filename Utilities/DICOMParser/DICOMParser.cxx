@@ -23,16 +23,16 @@
 #pragma warning ( push, 3 )
 #endif
 
-#include "DICOMConfig.h"
 #include "DICOMParser.h"
 #include "DICOMCallback.h"
+#include "DICOMConfig.h"
 
 #include <stdlib.h>
 #if !defined(__MWERKS__)
 #include <math.h>
 #endif
-#include <time.h>
 #include <cassert>
+#include <time.h>
 #if !defined(__MWERKS__)
 #include <sys/types.h>
 #endif

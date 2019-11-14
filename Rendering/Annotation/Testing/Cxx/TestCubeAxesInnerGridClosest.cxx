@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkCubeAxesActor.h"
-#include "vtkLight.h"
 #include "vtkLODActor.h"
+#include "vtkLight.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"

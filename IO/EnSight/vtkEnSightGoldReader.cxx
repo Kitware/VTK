@@ -17,9 +17,9 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -28,10 +28,10 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <cctype>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <map>
 
 vtkStandardNewMacro(vtkEnSightGoldReader);
 

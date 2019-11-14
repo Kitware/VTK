@@ -17,16 +17,16 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkMergePoints.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkIncrementalPointLocator.h"
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 vtkStandardNewMacro(vtkMCubesReader);
 

@@ -27,8 +27,8 @@
 #ifndef vtkAssemblyPaths_h
 #define vtkAssemblyPaths_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkAssemblyPath.h" // Needed for inline methods
 

@@ -14,6 +14,10 @@
 =========================================================================*/
 #include "vtkPTSReader.h"
 
+#include "vtkCellArray.h"
+#include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -21,10 +25,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkDataArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkPTSReader);

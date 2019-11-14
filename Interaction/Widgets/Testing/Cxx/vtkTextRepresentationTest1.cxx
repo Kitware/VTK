@@ -4,13 +4,13 @@
 #include <iostream>
 
 #include "vtkImageData.h"
-#include "vtkTextProperty.h"
 #include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
 
 #include "WidgetTestingMacros.h"
 
-#include "vtkTextActor.h"
 #include "vtkPointHandleRepresentation3D.h"
+#include "vtkTextActor.h"
 
 int vtkTextRepresentationTest1(int , char * [] )
 {

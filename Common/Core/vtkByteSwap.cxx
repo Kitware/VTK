@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkByteSwap.h"
-#include <memory.h>
 #include "vtkObjectFactory.h"
+#include <memory.h>
 
 vtkStandardNewMacro(vtkByteSwap);
 

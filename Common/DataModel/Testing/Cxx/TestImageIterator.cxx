@@ -19,9 +19,9 @@
 // At this point it only creates an object of every supported type.
 
 #include "vtkDebugLeaks.h"
+#include "vtkImageData.h"
 #include "vtkImageIterator.h"
 #include "vtkImageProgressIterator.h"
-#include "vtkImageData.h"
 
 template<class T>
 inline int DoTest(T*)

@@ -19,12 +19,14 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkContourGrid.h"
+#include "vtkContourHelper.h"
 #include "vtkContourValues.h"
 #include "vtkCutter.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageData.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
@@ -42,8 +44,6 @@
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
-#include "vtkIncrementalPointLocator.h"
-#include "vtkContourHelper.h"
 
 #include <cmath>
 

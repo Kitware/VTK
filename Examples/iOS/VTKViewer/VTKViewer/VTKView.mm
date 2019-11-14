@@ -7,9 +7,9 @@
 #import "VTKView.h"
 
 #include "vtkCamera.h"
-#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkIOSRenderWindow.h"
 #include "vtkIOSRenderWindowInteractor.h"
+#include "vtkInteractorStyleMultiTouchCamera.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderingOpenGL2ObjectFactory.h"

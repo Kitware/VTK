@@ -22,22 +22,22 @@
 // Thanks to David Gobbi of Atamai Inc. for contributing this example.
 //
 
-#include "vtkSmartPointer.h"
-#include "vtkImageReader2.h"
-#include "vtkMatrix4x4.h"
-#include "vtkImageReslice.h"
-#include "vtkLookupTable.h"
-#include "vtkImageMapToColors.h"
+#include "vtkCommand.h"
 #include "vtkImageActor.h"
-#include "vtkRenderer.h"
+#include "vtkImageData.h"
+#include "vtkImageMapToColors.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageReader2.h"
+#include "vtkImageReslice.h"
+#include "vtkInformation.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkLookupTable.h"
+#include "vtkMatrix4x4.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkCommand.h"
-#include "vtkImageData.h"
-#include "vtkImageMapper3D.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
 
 // The mouse motion callback, to turn "Slicing" on and off
 class vtkImageInteractionCallback : public vtkCommand

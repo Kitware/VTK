@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkChartParallelCoordinates.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkDoubleArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
 int TestParallelCoordinatesDouble(int , char* [])

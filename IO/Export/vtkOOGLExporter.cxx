@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkOOGLExporter.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkActorCollection.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
@@ -24,6 +23,8 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -32,7 +33,6 @@
 #include "vtkRendererCollection.h"
 #include "vtkTexture.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMatrix4x4.h"
 
 vtkStandardNewMacro(vtkOOGLExporter);
 

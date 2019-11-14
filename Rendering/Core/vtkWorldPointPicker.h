@@ -32,8 +32,8 @@
 #ifndef vtkWorldPointPicker_h
 #define vtkWorldPointPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
 {

@@ -25,9 +25,9 @@
 #ifndef vtkInformationObjectBaseVectorKey_h
 #define vtkInformationObjectBaseVectorKey_h
 
-#include "vtkCommonCoreModule.h" // For export macro
-#include "vtkInformationKey.h"
+#include "vtkCommonCoreModule.h"            // For export macro
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
+#include "vtkInformationKey.h"
 
 class vtkInformationObjectBaseVectorValue;
 

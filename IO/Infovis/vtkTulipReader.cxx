@@ -39,13 +39,13 @@
 #include "vtkVariantArray.h"
 
 #include <cassert>
+#include <cctype>
 #include <fstream>
-#include <sstream>
 #include <map>
 #include <set>
+#include <sstream>
 #include <stack>
 #include <vector>
-#include <cctype>
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it

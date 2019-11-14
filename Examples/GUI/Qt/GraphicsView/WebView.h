@@ -3,8 +3,8 @@
 #define WebView_h
 
 #include <QFrame>
-#include <QWebView>
 #include <QLineEdit>
+#include <QWebView>
 
 class WebView : public QFrame
 {

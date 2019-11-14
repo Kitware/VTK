@@ -31,8 +31,8 @@
 #ifndef vtkAbstractPolygonalHandleRepresentation3D_h
 #define vtkAbstractPolygonalHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty;
 class vtkPolyDataMapper;

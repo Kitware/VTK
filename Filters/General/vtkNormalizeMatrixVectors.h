@@ -32,8 +32,8 @@
 #ifndef vtkNormalizeMatrixVectors_h
 #define vtkNormalizeMatrixVectors_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkNormalizeMatrixVectors : public vtkArrayDataAlgorithm
 {

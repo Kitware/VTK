@@ -51,14 +51,14 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRRenderWindow_h
 #define vtkOpenVRRenderWindow_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
-#include <openvr.h> // for ivars
-#include <vector> // ivars
+#include "vtkEventData.h" // for enums
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtk_glew.h" // used for methods
-#include "vtkEventData.h" // for enums
+#include <openvr.h> // for ivars
+#include <vector> // ivars
 
 class vtkCamera;
 class vtkMatrix4x4;

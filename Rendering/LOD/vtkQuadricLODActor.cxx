@@ -14,20 +14,20 @@
 =========================================================================*/
 #include "vtkQuadricLODActor.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMatrix4x4.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkTexture.h"
-#include "vtkPolyDataAlgorithm.h"
-#include "vtkQuadricClustering.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkFollower.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataAlgorithm.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkQuadricClustering.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTexture.h"
 
 vtkStandardNewMacro(vtkQuadricLODActor);
 

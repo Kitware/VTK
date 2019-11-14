@@ -12,29 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkSmartPointer.h>
 #include <vtkDataSetGradient.h>
 #include <vtkDataSetGradientPrecompute.h>
+#include <vtkSmartPointer.h>
 
-#include <vtkMaskPoints.h>
 #include <vtkArrowSource.h>
 #include <vtkGlyph3D.h>
+#include <vtkMaskPoints.h>
 
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkGenericCell.h>
 #include <vtkPointData.h>
 
-#include <vtkUnstructuredGridReader.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridReader.h>
 
+#include <vtkActor.h>
+#include <vtkCamera.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
-#include <vtkCamera.h>
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include "vtkTestUtilities.h"
 

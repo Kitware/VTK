@@ -23,10 +23,10 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
 #include <cmath>

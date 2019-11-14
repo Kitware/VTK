@@ -18,10 +18,10 @@
 #include "vtkBlueObeliskDataInternal.h"
 #include "vtkBlueObeliskDataParser.h"
 #include "vtkFloatArray.h"
+#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkTypeTraits.h"
-#include "vtkMutexLock.h"
 #include "vtkUnsignedShortArray.h"
 
 #include <vector>

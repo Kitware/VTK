@@ -45,8 +45,8 @@
 #ifndef vtkProcessGroup_h
 #define vtkProcessGroup_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 class vtkMultiProcessController;
 class vtkCommunicator;

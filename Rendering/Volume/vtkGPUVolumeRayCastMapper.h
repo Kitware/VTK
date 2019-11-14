@@ -32,8 +32,8 @@
 #include <unordered_map>              // For std::unordered_map
 #include <vector>                     // For std::vector
 
-#include <vtkRenderingVolumeModule.h> // For export macro
 #include "vtkVolumeMapper.h"
+#include <vtkRenderingVolumeModule.h> // For export macro
 
 
 class vtkContourValues;

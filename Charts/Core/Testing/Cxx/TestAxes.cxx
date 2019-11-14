@@ -18,11 +18,11 @@
 #include "vtkContextView.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
-#include "vtkSmartPointer.h"
-#include "vtkVector.h"
-#include "vtkStringArray.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkVector.h"
 
 #include <vector>
 

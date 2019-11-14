@@ -15,9 +15,9 @@
 
 #include "vtkClearRGBPass.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderState.h"
-#include "vtkOpenGLState.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
+#include "vtkRenderState.h"
 #include "vtk_glew.h"
 
 vtkStandardNewMacro(vtkClearRGBPass);

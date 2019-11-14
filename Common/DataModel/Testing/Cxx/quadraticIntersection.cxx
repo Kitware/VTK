@@ -20,6 +20,7 @@
 
 #include "vtkDebugLeaks.h"
 
+#include "vtkRegressionTestImage.h"
 #include <vtkBiQuadraticQuad.h>
 #include <vtkBiQuadraticQuadraticHexahedron.h>
 #include <vtkBiQuadraticQuadraticWedge.h>
@@ -31,29 +32,28 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkPoints.h>
 #include <vtkQuadraticEdge.h>
-#include <vtkQuadraticTriangle.h>
-#include <vtkQuadraticQuad.h>
 #include <vtkQuadraticHexahedron.h>
-#include <vtkQuadraticTetra.h>
-#include <vtkQuadraticWedge.h>
-#include <vtkQuadraticPyramid.h>
 #include <vtkQuadraticLinearQuad.h>
 #include <vtkQuadraticLinearWedge.h>
-#include "vtkRegressionTestImage.h"
+#include <vtkQuadraticPyramid.h>
+#include <vtkQuadraticQuad.h>
+#include <vtkQuadraticTetra.h>
+#include <vtkQuadraticTriangle.h>
+#include <vtkQuadraticWedge.h>
 #include <vtkSmartPointer.h>
 #include <vtkTriQuadraticHexahedron.h>
 
-#include <vtkVersion.h>
-#include <vtkSmartPointer.h>
-#include <vtkPoints.h>
+#include <vtkActor.h>
 #include <vtkCellArray.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
 #include <vtkProperty.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkVersion.h>
 
 void ViewportRange(int testNum,double* range)
 {

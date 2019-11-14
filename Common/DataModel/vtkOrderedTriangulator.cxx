@@ -15,23 +15,23 @@
 #include "vtkOrderedTriangulator.h"
 
 #include "vtkCellArray.h"
-#include "vtkEdgeTable.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
-#include "vtkTetra.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkHeap.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkEdgeTable.h"
+#include "vtkHeap.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkTetra.h"
+#include "vtkUnstructuredGrid.h"
 
-#include <list>
-#include <vector>
-#include <stack>
-#include <map>
 #include <cassert>
+#include <list>
+#include <map>
+#include <stack>
+#include <vector>
 
 vtkStandardNewMacro(vtkOrderedTriangulator);
 

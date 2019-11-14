@@ -30,8 +30,8 @@
 #ifndef vtkSequencePass_h
 #define vtkSequencePass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkRenderPassCollection;
 

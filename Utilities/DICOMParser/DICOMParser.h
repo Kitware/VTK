@@ -34,8 +34,8 @@
 
 #include "DICOMConfig.h"
 #include "DICOMFile.h"
-#include "DICOMTypes.h"
 #include "DICOMParserMap.h"
+#include "DICOMTypes.h"
 
 class DICOMCallback;
 template <class T> class DICOMMemberCallback;

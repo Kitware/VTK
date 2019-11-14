@@ -31,8 +31,8 @@
 #ifndef vtkPolyDataReader_h
 #define vtkPolyDataReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkPolyData;
 

@@ -28,8 +28,8 @@
 #ifndef vtkPassThroughEdgeStrategy_h
 #define vtkPassThroughEdgeStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkPassThroughEdgeStrategy : public vtkEdgeLayoutStrategy
 {

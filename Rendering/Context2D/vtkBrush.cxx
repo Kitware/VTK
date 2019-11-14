@@ -15,8 +15,8 @@
 
 #include "vtkBrush.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
 

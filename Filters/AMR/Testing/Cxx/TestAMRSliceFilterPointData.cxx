@@ -14,8 +14,8 @@
 =========================================================================*/
 // Test vtkAMRSliceFilter filter.
 
-#include <vtkActor.h>
 #include <vtkAMRSliceFilter.h>
+#include <vtkActor.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCompositeDataDisplayAttributes.h>
@@ -27,11 +27,11 @@
 #include <vtkNamedColors.h>
 #include <vtkNew.h>
 #include <vtkOverlappingAMR.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRTAnalyticSource.h>
+#include <vtkRenderer.h>
 #include <vtkUniformGridAMRDataIterator.h>
 
 #include <array>

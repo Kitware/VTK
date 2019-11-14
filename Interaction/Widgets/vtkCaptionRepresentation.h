@@ -36,8 +36,8 @@
 #ifndef vtkCaptionRepresentation_h
 #define vtkCaptionRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkRenderer;
 class vtkCaptionActor2D;

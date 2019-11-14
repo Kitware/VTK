@@ -43,8 +43,8 @@
 #ifndef vtkLeaderActor2D_h
 #define vtkLeaderActor2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkPoints;
 class vtkCellArray;

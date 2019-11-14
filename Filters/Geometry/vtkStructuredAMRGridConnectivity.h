@@ -31,8 +31,8 @@
 #ifndef vtkStructuredAMRGridConnectivity_h
 #define vtkStructuredAMRGridConnectivity_h
 
-#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkAbstractGridConnectivity.h"
+#include "vtkFiltersGeometryModule.h" // For export macro
 
 #include "vtkStructuredAMRNeighbor.h" // For vtkStructuredAMRNeighbor def.
 

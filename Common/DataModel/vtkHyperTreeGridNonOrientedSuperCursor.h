@@ -38,9 +38,9 @@
 #ifndef vtkHyperTreeGridNonOrientedSuperCursor_h
 #define vtkHyperTreeGridNonOrientedSuperCursor_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // Used internally
-#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkHyperTreeGridGeometryLevelEntry.h" // Used Internally
 

@@ -14,10 +14,10 @@
 #ifndef vtkOpenGLBufferObject_h
 #define vtkOpenGLBufferObject_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
-#include <string> // used for std::string
-#include <vector> // used for method args
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include <string>                      // used for std::string
+#include <vector>                      // used for method args
 
 class vtkCellArray;
 class vtkDataArray;

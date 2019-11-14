@@ -1,11 +1,11 @@
 #include "vtkOpenGLUniforms.h"
-#include "vtkObjectFactory.h"
-#include "vtkShaderProgram.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
-#include <vector>
-#include <cstring>
+#include "vtkObjectFactory.h"
+#include "vtkShaderProgram.h"
 #include <cmath>
+#include <cstring>
+#include <vector>
 
 vtkStandardNewMacro(vtkOpenGLUniforms)
 

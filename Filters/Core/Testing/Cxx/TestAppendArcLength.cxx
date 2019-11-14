@@ -13,11 +13,11 @@
 
 =========================================================================*/
 
-#include <array>
 #include "vtkAppendArcLength.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include <array>
 
 namespace
 {

@@ -13,16 +13,16 @@
 
 =========================================================================*/
 #include "TestVectorFieldSource.h"
+#include <vtkCellArray.h>
 #include <vtkDoubleArray.h>
-#include <vtkPStreamTracer.h>
-#include <vtkMPIController.h>
 #include <vtkIdList.h>
-#include <vtkPoints.h>
+#include <vtkMPIController.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
+#include <vtkPStreamTracer.h>
 #include <vtkPointData.h>
+#include <vtkPoints.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkCellArray.h>
 
 #include <cstdlib>
 

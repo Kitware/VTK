@@ -13,13 +13,13 @@
 
  =========================================================================*/
 #include "vtkAMREnzoParticlesReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
-#include "vtkDataArraySelection.h"
-#include "vtkPointData.h"
-#include "vtkIntArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataArraySelection.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 
 #include <cassert>
 #include <vector>

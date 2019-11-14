@@ -24,8 +24,8 @@
 #ifndef vtkImageDataStreamer_h
 #define vtkImageDataStreamer_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkExtentTranslator;
 

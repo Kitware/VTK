@@ -15,9 +15,9 @@
 #include "vtkImageQuantizeRGBToIndex.h"
 
 #include "vtkImageData.h"
-#include "vtkLookupTable.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"

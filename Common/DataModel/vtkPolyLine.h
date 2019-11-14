@@ -23,8 +23,8 @@
 #ifndef vtkPolyLine_h
 #define vtkPolyLine_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkPoints;
 class vtkCellArray;

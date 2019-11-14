@@ -13,10 +13,10 @@
 =========================================================================*/
 #include "vtkBoxMuellerRandomSequence.h"
 
-#include "vtkMinimalStandardRandomSequence.h"
-#include <cassert>
 #include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkObjectFactory.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkBoxMuellerRandomSequence);
 

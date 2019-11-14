@@ -15,15 +15,14 @@
 #include "vtkPExtractRectilinearGrid.h"
 
 // VTK includes
-#include "vtkStructuredExtent.h"
 #include "vtkExtractStructuredGridHelper.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMPIController.h"
 #include "vtkMPIUtilities.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredExtent.h"
 #include "vtkStructuredImplicitConnectivity.h"

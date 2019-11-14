@@ -27,8 +27,8 @@
 #ifndef vtkRenderPassCollection_h
 #define vtkRenderPassCollection_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkRenderPass;
 

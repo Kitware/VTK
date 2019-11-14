@@ -123,8 +123,8 @@
 #include "vtkObject.h"
 
 #include "vtkAOSDataArrayTemplate.h" // Needed for inline methods
-#include "vtkDataArrayRange.h" // Needed for inline methods
 #include "vtkCell.h" // Needed for inline methods
+#include "vtkDataArrayRange.h" // Needed for inline methods
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 #include "vtkTypeInt32Array.h" // Needed for inline methods
 #include "vtkTypeInt64Array.h" // Needed for inline methods

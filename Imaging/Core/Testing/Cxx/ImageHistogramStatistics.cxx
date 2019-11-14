@@ -17,10 +17,10 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkPNGReader.h"
+#include "vtkImageAccumulate.h"
 #include "vtkImageCast.h"
 #include "vtkImageHistogramStatistics.h"
-#include "vtkImageAccumulate.h"
+#include "vtkPNGReader.h"
 
 #include "vtkTestUtilities.h"
 

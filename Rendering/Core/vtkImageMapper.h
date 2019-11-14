@@ -30,8 +30,8 @@
 #ifndef vtkImageMapper_h
 #define vtkImageMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper2D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkWindow;
 class vtkViewport;

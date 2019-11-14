@@ -29,9 +29,9 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <sys/stat.h>
 #include <cctype>
 #include <string>
+#include <sys/stat.h>
 
 #if defined(_WIN32)
 # define VTK_STAT_STRUCT struct _stat64

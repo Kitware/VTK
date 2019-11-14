@@ -28,8 +28,8 @@
 #ifndef vtkmPointElevation_h
 #define vtkmPointElevation_h
 
-#include "vtkElevationFilter.h"
 #include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkElevationFilter.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmPointElevation : public vtkElevationFilter
 {

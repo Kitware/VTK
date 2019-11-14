@@ -14,16 +14,16 @@
 =========================================================================*/
 
 #include "vtkCommand.h"
-#include "vtkRandomGraphSource.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkGraph.h"
 #include "vtkGraphItem.h"
-#include "vtkVariant.h"
-#include "vtkRenderer.h"
+#include "vtkRandomGraphSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "vtkVariant.h"
 
 #include "vtkObjectFactory.h"
 

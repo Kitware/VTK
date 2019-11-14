@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#include "vtkArrayData.h"
 #include "vtkAdjacencyMatrixToEdgeTable.h"
+#include "vtkArrayData.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
@@ -32,8 +32,8 @@
 #include "vtkTable.h"
 
 #include <algorithm>
-#include <map>
 #include <functional>
+#include <map>
 
 // ----------------------------------------------------------------------
 

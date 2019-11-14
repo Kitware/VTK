@@ -22,8 +22,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkX3D.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 #include <vector>
 
 //#define ENCODEASSTRING 1

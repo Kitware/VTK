@@ -25,9 +25,9 @@
 #ifndef vtkCompositePolyDataMapper2_h
 #define vtkCompositePolyDataMapper2_h
 
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // for vtkSmartPointer
-#include "vtkOpenGLPolyDataMapper.h"
 
 #include "vtkColor.h" // used for ivars
 #include <map> // use for ivars

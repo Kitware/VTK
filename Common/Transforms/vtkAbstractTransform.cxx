@@ -18,9 +18,9 @@
 #include "vtkDataArray.h"
 #include "vtkDebugLeaks.h"
 #include "vtkHomogeneousTransform.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
 

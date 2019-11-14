@@ -24,14 +24,14 @@
 #define vtkExodusIIReaderParser_h
 
 #include "vtkIOExodusModule.h" // For export macro
-#include "vtkXMLParser.h"
 #include "vtkSmartPointer.h"
+#include "vtkXMLParser.h"
 
-#include <sstream>
 #include <map>
-#include <vector>
 #include <set>
+#include <sstream>
 #include <string>
+#include <vector>
 
 class vtkMutableDirectedGraph;
 class vtkStringArray;

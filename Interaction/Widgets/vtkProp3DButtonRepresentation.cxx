@@ -12,21 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPickingManager.h"
 #include "vtkProp3DButtonRepresentation.h"
-#include "vtkProp3D.h"
-#include "vtkPropPicker.h"
-#include "vtkProp3DFollower.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkAssemblyPath.h"
-#include "vtkInteractorObserver.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderWindow.h"
 #include "vtkCamera.h"
-#include "vtkObjectFactory.h"
-#include "vtkSmartPointer.h"
+#include "vtkCoordinate.h"
+#include "vtkInteractorObserver.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
+#include "vtkProp3D.h"
+#include "vtkProp3DFollower.h"
+#include "vtkPropPicker.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include <map>
 
 vtkStandardNewMacro(vtkProp3DButtonRepresentation);

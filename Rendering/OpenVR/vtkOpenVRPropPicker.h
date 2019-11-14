@@ -20,8 +20,8 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRPropPicker_h
 #define vtkOpenVRPropPicker_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkPropPicker.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class vtkProp;
 

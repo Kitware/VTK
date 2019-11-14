@@ -14,31 +14,31 @@
 =========================================================================*/
 
 #include <vtkActor.h>
+#include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkConeSource.h>
 #include <vtkDoubleArray.h>
+#include <vtkImageActor.h>
+#include <vtkImageMapper3D.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkImageMapper3D.h>
 #include <vtkProjectedTetrahedraMapper.h>
 #include <vtkProp3D.h>
 #include <vtkProperty.h>
 #include <vtkRectilinearGrid.h>
 #include <vtkRectilinearGridToTetrahedra.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTesting.h>
 #include <vtkTransform.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVolumeProperty.h>
 #include <vtkWindowToImageFilter.h>
-#include <vtkImageActor.h>
-#include <vtkCamera.h>
 
 
 // Description

@@ -17,13 +17,13 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 

@@ -42,9 +42,9 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-#include <vector>
-#include <set>
 #include <map>
+#include <set>
+#include <vector>
 
 #include <cstdio> // for snprintf
 

@@ -31,8 +31,8 @@
 #ifndef vtkDistanceRepresentation2D_h
 #define vtkDistanceRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkDistanceRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkAxisActor2D;
 class vtkProperty2D;

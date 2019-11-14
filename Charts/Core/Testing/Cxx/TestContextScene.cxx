@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
 #include "vtkBlockItem.h"
+#include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 
 #include "vtkRegressionTestImage.h"
 

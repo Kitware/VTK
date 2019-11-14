@@ -1,6 +1,6 @@
-#include "vtkTextWidget.h"
-#include "vtkTextRepresentation.h"
 #include "vtkTextActor.h"
+#include "vtkTextRepresentation.h"
+#include "vtkTextWidget.h"
 
 #include <cstdlib>
 #include <iostream>

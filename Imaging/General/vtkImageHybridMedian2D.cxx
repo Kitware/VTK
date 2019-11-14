@@ -19,9 +19,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <vector>
 #include <algorithm>
 #include <numeric>
+#include <vector>
 
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 

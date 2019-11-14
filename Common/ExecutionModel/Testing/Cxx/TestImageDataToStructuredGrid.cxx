@@ -12,20 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkUniformGrid.h"
-#include "vtkStructuredGrid.h"
 #include "vtkCell.h"
-#include "vtkMath.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageToStructuredGrid.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUniformGrid.h"
 
 #include <cmath>
+#include <cstring>
 #include <limits>
 #include <string>
-#include <cstring>
 
 // Description:
 // Performs safe division a/b which also checks for underflow & overflow

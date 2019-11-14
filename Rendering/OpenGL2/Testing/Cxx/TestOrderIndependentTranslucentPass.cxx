@@ -19,25 +19,25 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkActor.h"
 #include "vtkGlyph3D.h"
-#include "vtkSphereSource.h"
-#include "vtkImageGridSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkPlaneSource.h"
+#include "vtkImageGridSource.h"
 #include "vtkLookupTable.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPlaneSource.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkSphereSource.h"
 
-#include "vtkRenderStepsPass.h"
 #include "vtkOrderIndependentTranslucentPass.h"
+#include "vtkRenderStepsPass.h"
 
 
 int TestOrderIndependentTranslucentPass(int argc, char* argv[])

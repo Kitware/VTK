@@ -16,12 +16,11 @@
 
 #include "vtkXdmf3Reader.h"
 
-#include "vtksys/SystemTools.hxx"
-#include "vtkDataObjectTypes.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDataObjectTypes.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -37,6 +36,7 @@
 #include "vtkXdmf3HeavyDataHandler.h"
 #include "vtkXdmf3LightDataHandler.h"
 #include "vtkXdmf3SILBuilder.h"
+#include "vtksys/SystemTools.hxx"
 
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(XdmfCurvilinearGrid.hpp)

@@ -18,16 +18,16 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 #include "vtkCellData.h"
-#include "vtkConeLayoutStrategy.h"
 #include "vtkCommand.h"
+#include "vtkConeLayoutStrategy.h"
 #include "vtkDataRepresentation.h"
 #include "vtkGraphLayoutView.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"

@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkImageCanvasSource2D.h"
 
-#include "vtkMath.h"
 #include "vtkImageCast.h"
 #include "vtkImageClip.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>

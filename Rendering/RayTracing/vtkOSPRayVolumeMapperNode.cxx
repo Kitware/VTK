@@ -18,18 +18,18 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkContourValues.h"
 #include "vtkDataArray.h"
-#include "vtkInformation.h"
 #include "vtkImageData.h"
-#include "vtkObjectFactory.h"
+#include "vtkInformation.h"
 #include "vtkOSPRayCache.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
+#include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
-#include "vtkRenderer.h"
 
 #include <algorithm>
 #include <vector>

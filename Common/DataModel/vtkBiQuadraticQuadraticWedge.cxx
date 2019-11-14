@@ -18,14 +18,14 @@
 
 #include "vtkBiQuadraticQuadraticWedge.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkDoubleArray.h"
-#include "vtkWedge.h"
-#include "vtkMath.h"
-#include "vtkQuadraticEdge.h"
 #include "vtkBiQuadraticQuad.h"
-#include "vtkQuadraticTriangle.h"
+#include "vtkDoubleArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkQuadraticEdge.h"
+#include "vtkQuadraticTriangle.h"
+#include "vtkWedge.h"
 
 #include <cassert>
 

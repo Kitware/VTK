@@ -13,11 +13,11 @@
 
 =========================================================================*/
 #include "vtkInteractorStyleTrackball.h"
+#include "vtkCommand.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPropPicker.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 
 vtkStandardNewMacro(vtkInteractorStyleTrackball);
 

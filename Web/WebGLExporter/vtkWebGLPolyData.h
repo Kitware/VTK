@@ -21,8 +21,8 @@
 #ifndef vtkWebGLPolyData_h
 #define vtkWebGLPolyData_h
 
-#include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
+#include "vtkWebGLObject.h"
 
 class vtkActor;
 class vtkMatrix4x4;

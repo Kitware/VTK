@@ -1,15 +1,15 @@
 #include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkImageData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkJPEGReader.h"
-#include "vtkRenderer.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
-#include "vtkRegressionTestImage.h"
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

@@ -25,9 +25,9 @@
 #ifndef vtkOpenGLContextDevice3D_h
 #define vtkOpenGLContextDevice3D_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextDevice3D.h"
 #include "vtkNew.h"             // For ivars.
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include <vector> // STL Header
 
 class vtkBrush;

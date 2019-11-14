@@ -28,13 +28,13 @@
 
 #include "vtkPentagonalPrism.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkLine.h"
-#include "vtkQuad.h"
-#include "vtkPolygon.h"
-#include "vtkTriangle.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkPolygon.h"
+#include "vtkQuad.h"
+#include "vtkTriangle.h"
 
 vtkStandardNewMacro(vtkPentagonalPrism);
 

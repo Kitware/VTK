@@ -29,10 +29,12 @@
 #define vtkXdmf3LightDataHandler_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
-#include <set>
+#include "vtkType.h"
+
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfItem.hpp)
-#include "vtkType.h"
+
+#include <set>
 
 class vtkXdmf3SILBuilder;
 class vtkXdmf3ArraySelection;

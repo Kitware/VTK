@@ -17,15 +17,15 @@
 #include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderUtilities.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkTextureObject.h"
-#include "vtkPixelBufferObject.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
+#include "vtkPixelBufferObject.h"
 #include "vtkRenderbuffer.h"
+#include "vtkTextureObject.h"
 
 #include <cassert>
 #include <vector>

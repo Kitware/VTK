@@ -33,9 +33,9 @@
 #ifndef vtkPiecewiseFunctionAlgorithm_h
 #define vtkPiecewiseFunctionAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkPiecewiseFunction.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkPiecewiseFunction.h"          // makes things a bit easier
 
 class vtkDataSet;
 class vtkDataObject;

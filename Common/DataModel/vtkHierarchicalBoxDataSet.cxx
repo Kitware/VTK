@@ -12,10 +12,10 @@
 
 =========================================================================*/
 #include "vtkHierarchicalBoxDataSet.h"
-#include "vtkObjectFactory.h"
+#include "vtkHierarchicalBoxDataIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkHierarchicalBoxDataIterator.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 

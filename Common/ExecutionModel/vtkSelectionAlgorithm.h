@@ -37,9 +37,9 @@
 #ifndef vtkSelectionAlgorithm_h
 #define vtkSelectionAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkSelection.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkSelection.h"                  // makes things a bit easier
 
 class vtkDataSet;
 

@@ -17,11 +17,11 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTypeTraits.h"
-#include "vtkLookupTable.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types
@@ -30,8 +30,8 @@
 # undef VTK_USE_UINT64
 # define VTK_USE_UINT64 0
 
-#include <climits>
 #include <cfloat>
+#include <climits>
 #include <cmath>
 
 vtkStandardNewMacro(vtkImageResliceToColors);

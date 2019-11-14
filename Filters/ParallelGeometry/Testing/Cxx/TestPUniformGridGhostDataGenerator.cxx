@@ -18,28 +18,27 @@
 // Parallel test that exercises the parallel uniform grid ghost data generator
 
 // C++ includes
+#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <cassert>
 #include <string>
 #include <vector>
 
-#include "vtkMultiProcessController.h"
-#include "vtkUniformGrid.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMathUtilities.h"
-#include "vtkPointData.h"
+#include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkCell.h"
+#include "vtkInformation.h"
 #include "vtkMPIController.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkPUniformGridGhostDataGenerator.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUniformGrid.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMathUtilities.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
-#include "vtkPUniformGridGhostDataGenerator.h"
-#include "vtkInformation.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 //#define DEBUG_ON
 

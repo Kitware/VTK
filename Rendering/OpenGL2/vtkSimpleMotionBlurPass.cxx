@@ -17,21 +17,21 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkOpenGLFramebufferObject.h"
-#include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLState.h"
-#include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLShaderCache.h"
-#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkTextureObject.h"
 
 #include "vtkOpenGLHelper.h"
 
-#include "vtkTextureObjectVS.h"
 #include "vtkSimpleMotionBlurPassFS.h"
+#include "vtkTextureObjectVS.h"
 
 vtkStandardNewMacro(vtkSimpleMotionBlurPass);
 

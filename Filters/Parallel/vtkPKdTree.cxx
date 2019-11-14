@@ -17,6 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#include "vtkPKdTree.h"
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
@@ -27,7 +28,6 @@
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkPKdTree.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSocketController.h"
@@ -35,9 +35,9 @@
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <queue>
 #include <algorithm>
 #include <cassert>
+#include <queue>
 
 namespace
 {

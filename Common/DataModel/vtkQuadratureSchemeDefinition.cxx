@@ -15,10 +15,10 @@
 
 #include "vtkQuadratureSchemeDefinition.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkCellType.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkInformationStringKey.h"
-#include "vtkCellType.h"
+#include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 #include <sstream>
 using std::ostringstream;

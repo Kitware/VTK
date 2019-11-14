@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkActor.h"
 #include "vtkAnnotatedCubeActor.h"
 #include "vtkAppendPolyData.h"
@@ -30,9 +29,10 @@
 #include "vtkPropAssembly.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"

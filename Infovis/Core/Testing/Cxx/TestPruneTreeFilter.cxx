@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-#include "vtkPruneTreeFilter.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPruneTreeFilter.h"
 #include "vtkTree.h"
 
 //----------------------------------------------------------------------------

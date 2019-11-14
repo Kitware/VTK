@@ -23,15 +23,15 @@
 #include "vtkPDFContextDevice2D.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkRenderWindow.h"
 
 #include <vtk_libharu.h>
 
 #include <iomanip>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 
 namespace {
 

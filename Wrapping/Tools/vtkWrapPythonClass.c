@@ -20,14 +20,14 @@
 #include "vtkWrapPythonTemplate.h"
 #include "vtkWrapPythonType.h"
 
+#include "vtkParseExtras.h"
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
-#include "vtkParseExtras.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 
 /* -------------------------------------------------------------------- */

@@ -16,22 +16,22 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkPointGaussianMapper.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkPointGaussianMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 #include "vtkCylinderSource.h"
 

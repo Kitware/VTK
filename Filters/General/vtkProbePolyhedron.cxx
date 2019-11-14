@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkProbePolyhedron.h"
 
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMeanValueCoordinatesInterpolator.h"
 #include "vtkObjectFactory.h"
-#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkMeanValueCoordinatesInterpolator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 
 vtkStandardNewMacro(vtkProbePolyhedron);

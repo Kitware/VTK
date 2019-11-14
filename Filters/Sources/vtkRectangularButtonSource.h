@@ -44,8 +44,8 @@
 #ifndef vtkRectangularButtonSource_h
 #define vtkRectangularButtonSource_h
 
-#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"
+#include "vtkFiltersSourcesModule.h" // For export macro
 
 class vtkCellArray;
 class vtkFloatArray;

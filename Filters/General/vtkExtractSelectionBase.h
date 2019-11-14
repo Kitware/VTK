@@ -24,8 +24,8 @@
 #ifndef vtkExtractSelectionBase_h
 #define vtkExtractSelectionBase_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkExtractSelectionBase : public vtkDataObjectAlgorithm
 {

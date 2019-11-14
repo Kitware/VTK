@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
 #include <vtkRadiusOutlierRemoval.h>
+#include <vtkSmartPointer.h>
 
+#include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
-#include <vtkPointData.h>
 
-#include <vtkUnsignedCharArray.h>
 #include <vtkCharArray.h>
-#include <vtkUnsignedShortArray.h>
-#include <vtkShortArray.h>
-#include <vtkUnsignedIntArray.h>
 #include <vtkIntArray.h>
-#include <vtkUnsignedLongArray.h>
 #include <vtkLongArray.h>
+#include <vtkShortArray.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkUnsignedIntArray.h>
+#include <vtkUnsignedLongArray.h>
+#include <vtkUnsignedShortArray.h>
 
 template<typename T> vtkSmartPointer<T> MakeArray (const std::string &name);
 

@@ -35,8 +35,8 @@
 #ifndef vtkVectorDot_h
 #define vtkVectorDot_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkVectorDot : public vtkDataSetAlgorithm
 {

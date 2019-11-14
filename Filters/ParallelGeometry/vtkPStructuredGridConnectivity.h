@@ -33,8 +33,8 @@
 
 // VTK include directives
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
+#include "vtkMPICommunicator.h"               // Needed for vtkMPICommunicator::Request
 #include "vtkStructuredGridConnectivity.h"
-#include "vtkMPICommunicator.h" // Needed for vtkMPICommunicator::Request
 
 // C++ include directives
 #include <vector> // For STL vector

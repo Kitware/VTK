@@ -39,8 +39,8 @@
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkDataArray;
 class vtkFloatArray;

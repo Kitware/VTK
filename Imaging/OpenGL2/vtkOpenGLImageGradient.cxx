@@ -23,8 +23,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkShaderProgram.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm> // for std::nth_element
 

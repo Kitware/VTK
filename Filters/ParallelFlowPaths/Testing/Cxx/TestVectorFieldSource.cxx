@@ -1,13 +1,13 @@
 #include "TestVectorFieldSource.h"
-#include <vtkInformationVector.h>
-#include <vtkInformation.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkDemandDrivenPipeline.h>
-#include <vtkDataObject.h>
-#include <vtkImageData.h>
 #include <vtkDataArray.h>
-#include <vtkPointData.h>
+#include <vtkDataObject.h>
+#include <vtkDemandDrivenPipeline.h>
+#include <vtkImageData.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
+#include <vtkPointData.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 vtkStandardNewMacro(TestVectorFieldSource);
 

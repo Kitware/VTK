@@ -61,14 +61,14 @@
 
 #include "vtkUnstructuredGrid.h"
 
+#include <cctype>
 #include <cerrno>
 #include <cmath>
-#include <cctype>
 
-#include <vector>
+#include <algorithm>
 #include <list>
 #include <map>
-#include <algorithm>
+#include <vector>
 
 // If we are building against a slightly older VTK version,
 // these cell types are not defined, and won't occur in the input

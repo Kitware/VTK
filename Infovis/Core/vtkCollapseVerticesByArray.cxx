@@ -33,8 +33,8 @@
 #include "vtkVertexListIterator.h"
 
 #include <map>    // Using STL.
-#include <vector> // Using STL.
 #include <string> // Using STL.
+#include <vector> // Using STL.
 
 vtkStandardNewMacro(vtkCollapseVerticesByArray);
 

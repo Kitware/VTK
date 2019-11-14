@@ -25,25 +25,25 @@ existing tests to get an idea of what to do.
 
 #include "vtkRenderTimings.h"
 
-#include "vtkAutoInit.h"
 #include "vtkActor.h"
+#include "vtkAutoInit.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCullerCollection.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkNew.h"
+#include "vtkRenderingOpenGLConfigure.h"
 
 /*=========================================================================
 Define a test for simple triangle mesh surfaces
 =========================================================================*/
 #include "vtkParametricBoy.h"
-#include "vtkParametricTorus.h"
 #include "vtkParametricFunctionSource.h"
+#include "vtkParametricTorus.h"
 
 class surfaceTest : public vtkRTTest
 {
@@ -147,9 +147,9 @@ class surfaceTest : public vtkRTTest
 /*=========================================================================
 Define a test for glyphing
 =========================================================================*/
+#include "vtkElevationFilter.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkPlaneSource.h"
-#include "vtkElevationFilter.h"
 #include "vtkSphereSource.h"
 
 class glyphTest : public vtkRTTest
@@ -250,11 +250,11 @@ class glyphTest : public vtkRTTest
 /*=========================================================================
 Define a test for molecules
 =========================================================================*/
+#include "vtkBoxMuellerRandomSequence.h"
+#include "vtkMath.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
-#include "vtkBoxMuellerRandomSequence.h"
 #include "vtkPointLocator.h"
-#include "vtkMath.h"
 
 class moleculeTest : public vtkRTTest
 {
@@ -511,8 +511,8 @@ class volumeTest : public vtkRTTest
 /*=========================================================================
 Define a test for depth peeling transluscent geometry.
 =========================================================================*/
-#include "vtkParametricTorus.h"
 #include "vtkParametricFunctionSource.h"
+#include "vtkParametricTorus.h"
 #include "vtkProperty.h"
 #include "vtkTransform.h"
 
@@ -641,8 +641,8 @@ class depthPeelingTest : public vtkRTTest
 Define a test for simple triangle mesh surfaces
 =========================================================================*/
 #include "vtkParametricBoy.h"
-#include "vtkParametricTorus.h"
 #include "vtkParametricFunctionSource.h"
+#include "vtkParametricTorus.h"
 
 class manyActorTest : public vtkRTTest
 {

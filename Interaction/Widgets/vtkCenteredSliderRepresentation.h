@@ -36,9 +36,9 @@
 #ifndef vtkCenteredSliderRepresentation_h
 #define vtkCenteredSliderRepresentation_h
 
+#include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
-#include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
 class vtkPoints;
 class vtkCellArray;

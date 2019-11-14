@@ -16,6 +16,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkDoubleArray.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageMandelbrotSource.h"
@@ -27,11 +28,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkSmartPointer.h"
 
 #include <cassert>
 

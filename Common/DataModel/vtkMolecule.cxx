@@ -16,6 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkAbstractElectronicData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkEdgeListIterator.h"
+#include "vtkFloatArray.h"
 #include "vtkGraphInternals.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -27,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkFloatArray.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 

@@ -16,12 +16,12 @@
 
 #include "vtkByteSwap.h"
 #include "vtkDataArray.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkErrorCode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 

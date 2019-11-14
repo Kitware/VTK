@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkLagrangianParticle.h"
 
-#include "vtkStaticCellLocator.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStaticCellLocator.h"
 
 #include <iostream>
 

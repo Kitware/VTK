@@ -8,19 +8,19 @@
  */
 
 
-#include "ui_StatsView.h"
 #include "StatsView.h"
+#include "ui_StatsView.h"
 
 // SQL includes
-#include "vtkSQLiteDatabase.h"
-#include "vtkSQLQuery.h"
-#include "vtkSQLDatabaseSchema.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLDatabaseSchema.h"
+#include "vtkSQLQuery.h"
+#include "vtkSQLiteDatabase.h"
 
 // Stats includes
+#include "vtkCorrelativeStatistics.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkOrderStatistics.h"
-#include "vtkCorrelativeStatistics.h"
 
 // QT includes
 #include <vtkDataObjectToTable.h>

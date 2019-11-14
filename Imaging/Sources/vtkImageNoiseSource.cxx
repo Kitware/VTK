@@ -16,9 +16,9 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 

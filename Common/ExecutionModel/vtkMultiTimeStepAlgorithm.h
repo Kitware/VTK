@@ -27,12 +27,12 @@
 #ifndef vtkMultiTimeStepAlgorithm_h
 #define vtkMultiTimeStepAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkSmartPointer.h" //needed for a private variable
 
-#include <vector> //needed for a private variable
 #include "vtkDataObject.h" // needed for the smart pointer
+#include <vector> //needed for a private variable
 
 class vtkInformationDoubleVectorKey;
 class vtkMultiBlockDataSet;

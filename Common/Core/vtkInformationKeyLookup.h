@@ -26,8 +26,8 @@
 #include "vtkObject.h"
 
 #include <map> // For std::map
-#include <utility> // For std::pair
 #include <string> // For std::string
+#include <utility> // For std::pair
 
 class vtkInformationKey;
 

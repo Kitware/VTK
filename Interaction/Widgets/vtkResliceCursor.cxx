@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkResliceCursor.h"
-#include "vtkMath.h"
+#include "vtkCellArray.h"
 #include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneCollection.h"
-#include "vtkCellArray.h"
-#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
 #include <cmath>

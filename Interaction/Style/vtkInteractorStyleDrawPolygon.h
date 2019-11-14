@@ -27,8 +27,8 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
 
-#include <vector>      // For returning Polygon Points
 #include "vtkVector.h" // For Polygon Points
+#include <vector>      // For returning Polygon Points
 
 class vtkUnsignedCharArray;
 

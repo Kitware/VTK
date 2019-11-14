@@ -41,8 +41,8 @@
 #ifndef vtkBiDimensionalRepresentation2D_h
 #define vtkBiDimensionalRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBiDimensionalRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkHandleRepresentation;
 class vtkCellArray;

@@ -13,20 +13,20 @@
 
 =========================================================================*/
 #include "vtkBYUReader.h"
+#include "vtkDataSetReader.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkPNMReader.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
-#include "vtkTestUtilities.h"
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
-#include "vtkImageData.h"
-#include "vtkDataSetReader.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 

@@ -15,11 +15,11 @@
 
 #include "vtkClearZPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtk_glew.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkClearZPass);
 

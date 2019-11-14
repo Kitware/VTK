@@ -19,8 +19,8 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkInformation.h"
-#include "vtkXMLMultiBlockDataReader.h"
 #include "vtkPolyData.h"
+#include "vtkXMLMultiBlockDataReader.h"
 
 #include "vtkNew.h"
 

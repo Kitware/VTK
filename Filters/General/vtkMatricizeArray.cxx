@@ -19,10 +19,10 @@
 
 =========================================================================*/
 
+#include "vtkMatricizeArray.h"
 #include "vtkCommand.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMatricizeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"

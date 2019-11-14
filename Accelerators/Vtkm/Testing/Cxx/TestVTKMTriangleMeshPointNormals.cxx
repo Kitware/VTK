@@ -20,13 +20,13 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTesting.h"
 #include "vtkTriangleFilter.h"
-#include "vtkmTriangleMeshPointNormals.h"
 #include "vtkXMLPolyDataReader.h"
+#include "vtkmTriangleMeshPointNormals.h"
 
 int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
 {

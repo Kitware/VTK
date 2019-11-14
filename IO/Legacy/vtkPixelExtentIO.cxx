@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkPixelExtentIO.h"
 
-#include "vtkUnstructuredGrid.h"
-#include "vtkCellType.h"
 #include "vtkCellArray.h"
-#include "vtkPoints.h"
 #include "vtkCellData.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIntArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkFloatArray.h"
+#include "vtkCellType.h"
 #include "vtkDataSetWriter.h"
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 using std::deque;
 

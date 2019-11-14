@@ -15,11 +15,11 @@
 
 // Charts includes
 #include "vtkChartXY.h"
+#include "vtkColorTransferControlPointsItem.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkContextInteractorStyle.h"
 #include "vtkContextScene.h"
 #include "vtkControlPointsItem.h"
-#include "vtkColorTransferControlPointsItem.h"
-#include "vtkColorTransferFunction.h"
 
 // Common includes"
 #include "vtkIdTypeArray.h"

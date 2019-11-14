@@ -17,7 +17,6 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkIOSRenderWindowInteractor.h"
 #include "vtkRenderingOpenGL2ObjectFactory.h"
 
-#include "vtkParametricTorus.h"
 #include "vtkParametricBoy.h"
 #include "vtkParametricConicSpiral.h"
 #include "vtkParametricCrossCap.h"

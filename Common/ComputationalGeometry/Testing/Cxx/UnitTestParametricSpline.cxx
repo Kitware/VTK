@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkParametricSpline.h"
 #include "vtkCardinalSpline.h"
 #include "vtkKochanekSpline.h"
-#include "vtkPoints.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkParametricSpline.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
 
 #include <cmath>
 

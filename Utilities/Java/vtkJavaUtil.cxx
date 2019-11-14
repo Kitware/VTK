@@ -18,8 +18,8 @@
 #endif
 #define _INTEGRAL_MAX_BITS 64
 
-#include "vtkObject.h"
 #include "vtkDebugLeaks.h"
+#include "vtkObject.h"
 #include "vtkWindows.h"
 
 #include "vtkJavaUtil.h"

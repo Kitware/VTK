@@ -12,18 +12,18 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkPlaneSource.h"
 #include "vtkElevationFilter.h"
+#include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSuperquadricSource.h"
 
 // If USE_FILTER is defined, glyph3D->PolyDataMapper is used instead of

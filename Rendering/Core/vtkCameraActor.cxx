@@ -16,13 +16,13 @@
 #include "vtkCameraActor.h"
 
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkFrustumSource.h"
 #include "vtkCamera.h"
-#include "vtkPlanes.h"
-#include "vtkProperty.h"
-#include "vtkObjectFactory.h"
+#include "vtkFrustumSource.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlanes.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 
 vtkStandardNewMacro(vtkCameraActor);
 vtkCxxSetObjectMacro(vtkCameraActor, Camera, vtkCamera);

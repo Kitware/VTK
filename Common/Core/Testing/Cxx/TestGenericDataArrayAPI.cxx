@@ -32,15 +32,15 @@
 // Concrete classes for testing:
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCharArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
-#include "vtkSOADataArrayTemplate.h"
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h"
 #endif

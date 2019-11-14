@@ -25,6 +25,7 @@
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageReslice.h"
+#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -37,12 +38,11 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkImagePlaneWidget);
 

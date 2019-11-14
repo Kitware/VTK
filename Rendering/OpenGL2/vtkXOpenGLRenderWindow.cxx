@@ -53,12 +53,12 @@ typedef ptrdiff_t GLsizeiptr;
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 #include "vtkStringOutputWindow.h"
-#include "vtksys/SystemTools.hxx"
 #include "vtkToolkits.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <sstream>
 

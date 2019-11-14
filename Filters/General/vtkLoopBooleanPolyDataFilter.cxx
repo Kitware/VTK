@@ -42,10 +42,10 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <string>
-#include <sstream>
 #include <iostream>
 #include <list>
+#include <sstream>
+#include <string>
 
 //----------------------------------------------------------------------------
 // Helper typedefs and data structures.

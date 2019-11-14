@@ -40,17 +40,17 @@
 
 #include "vtkHausdorffDistancePointSetFilter.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkDoubleArray.h"
 #include "vtkPointData.h"
 
-#include "vtkSmartPointer.h"
-#include "vtkPointSet.h"
-#include "vtkKdTreePointLocator.h"
 #include "vtkCellLocator.h"
 #include "vtkGenericCell.h"
+#include "vtkKdTreePointLocator.h"
+#include "vtkPointSet.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkHausdorffDistancePointSetFilter);
 

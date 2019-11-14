@@ -15,16 +15,16 @@
 #ifndef vtkWordCloud_h
 #define vtkWordCloud_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkSmartPointer.h" // For SmartPointer
 #include "vtkImageData.h" // For ImageData
+#include "vtkInfovisCoreModule.h" // For export macro
+#include "vtkSmartPointer.h" // For SmartPointer
 
-#include <vector> // For stl vector
 #include <array> // For stl array
-#include <string> // For stl string
-#include <set> // for stl multiset
 #include <functional> // for function
+#include <set> // for stl multiset
+#include <string> // For stl string
+#include <vector> // For stl vector
 
 /**
  * @class   vtkWordCloud

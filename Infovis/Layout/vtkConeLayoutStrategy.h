@@ -46,8 +46,8 @@
 #ifndef vtkConeLayoutStrategy_h
 #define vtkConeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkPoints;
 

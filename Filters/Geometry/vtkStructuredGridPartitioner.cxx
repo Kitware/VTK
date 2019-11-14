@@ -13,17 +13,17 @@
 
  =========================================================================*/
 #include "vtkStructuredGridPartitioner.h"
-#include "vtkObjectFactory.h"
-#include "vtkIndent.h"
 #include "vtkExtentRCBPartitioner.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredData.h"
-#include "vtkStructuredExtent.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredData.h"
+#include "vtkStructuredExtent.h"
+#include "vtkStructuredGrid.h"
 
 #include <cassert>
 

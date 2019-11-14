@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricMobius.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricMobius);
 

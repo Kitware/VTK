@@ -12,17 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkMultiVolume.h"
 #include "vtkBoundingBox.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkMultiVolume.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 #include "vtkVolumeProperty.h"
-#include "vtkGPUVolumeRayCastMapper.h"
 
 
 vtkMultiVolume::vtkMultiVolume()

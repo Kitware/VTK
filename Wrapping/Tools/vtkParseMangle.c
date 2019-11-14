@@ -21,11 +21,11 @@
 
 #include "vtkParseMangle.h"
 #include "vtkParseExtras.h"
+#include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
 
 /* Generate a mangled name for a type, use gcc ia64 ABI.
  * The result is placed in new_name, which must be large enough

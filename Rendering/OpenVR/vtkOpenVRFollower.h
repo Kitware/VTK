@@ -21,8 +21,8 @@
 #ifndef vtkOpenVRFollower_h
 #define vtkOpenVRFollower_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkFollower.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRFollower : public vtkFollower
 {

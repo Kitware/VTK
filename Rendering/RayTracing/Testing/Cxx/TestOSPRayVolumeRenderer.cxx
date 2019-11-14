@@ -23,13 +23,15 @@
 #include <vtkImageData.h>
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
+#include <vtkOSPRayPass.h>
 #include <vtkOSPRayVolumeMapper.h>
-#include <vtkPlane.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -40,9 +42,6 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkOSPRayPass.h>
-#include <vtkProperty.h>
 
 #include <vtkAutoInit.h>
 VTK_MODULE_INIT(vtkRenderingRayTracing);

@@ -19,20 +19,20 @@
 // non-identity direction matrix and extracting points of the image data
 // that fall within a sphere.
 
+#include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkSphereSource.h"
+#include "vtkRenderer.h"
 #include "vtkSelectEnclosedPoints.h"
+#include "vtkSphereSource.h"
 #include "vtkThresholdPoints.h"
 
 int TestImageDataOrientation2(int argc,char *argv[])

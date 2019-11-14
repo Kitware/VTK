@@ -20,11 +20,11 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkBridgeCell.h"
 #include "vtkBridgeDataSet.h"
-#include "vtkDataSet.h"
 #include "vtkCell.h"
+#include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkBridgeCellIteratorOnDataSet);
 

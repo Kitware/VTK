@@ -16,9 +16,9 @@
 #ifndef PyVTKEnum_h
 #define PyVTKEnum_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 extern "C"
 {

@@ -35,8 +35,8 @@
 #ifndef vtkExtractSelection_h
 #define vtkExtractSelection_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 #include "vtkSelectionNode.h" // for vtkSelectionNode::SelectionContent
 #include "vtkSmartPointer.h"  // for smart pointer

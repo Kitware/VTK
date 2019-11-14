@@ -27,8 +27,8 @@
 #ifndef vtkTransformFeedback_h
 #define vtkTransformFeedback_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 #include <string> // For string
 #include <vector> // For vector

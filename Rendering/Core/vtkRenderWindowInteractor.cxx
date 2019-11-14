@@ -16,16 +16,16 @@
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkInteractorStyleSwitchBase.h"
 #include "vtkMath.h"
+#include "vtkObserverMediator.h"
+#include "vtkPickingManager.h"
 #include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkDebugLeaks.h"
-#include "vtkObserverMediator.h"
-#include "vtkPickingManager.h"
 
 #include <map>
 

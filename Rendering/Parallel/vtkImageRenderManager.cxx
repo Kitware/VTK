@@ -17,8 +17,8 @@
 #include "vtkFloatArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 

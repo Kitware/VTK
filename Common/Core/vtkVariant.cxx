@@ -20,21 +20,21 @@
 
 #include "vtkVariant.h"
 
-#include "vtkStdString.h"
-#include "vtkUnicodeString.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkAbstractArray.h"
+#include "vtkArrayIteratorIncludes.h"
 #include "vtkDataArray.h"
-#include "vtkVariantArray.h"
-#include "vtkType.h"
-#include "vtkSetGet.h"
-#include "vtkObjectBase.h"
-#include "vtkStringArray.h"
 #include "vtkMath.h"
+#include "vtkObjectBase.h"
+#include "vtkSetGet.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
+#include "vtkType.h"
+#include "vtkUnicodeString.h"
+#include "vtkVariantArray.h"
 
-#include <sstream>
 #include "vtksys/SystemTools.hxx"
 #include <locale> // C++ locale
+#include <sstream>
 
 //----------------------------------------------------------------------------
 

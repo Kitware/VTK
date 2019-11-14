@@ -16,33 +16,33 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include "vtkDataTransferHelper.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageNoiseSource.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkDataTransferHelper.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkLineIntegralConvolution2D.h"
-#include "vtkStructuredExtent.h"
-#include "vtkTextureObject.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkOpenGLError.h"
-#include "vtkOpenGLShaderCache.h"
 #include "vtkShaderProgram.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredExtent.h"
+#include "vtkTextureObject.h"
 
+#include "vtkPixelBufferObject.h"
 #include "vtkPixelExtent.h"
 #include "vtkPixelTransfer.h"
-#include "vtkPixelBufferObject.h"
 
 #include <cassert>
 
-#include "vtkTextureObjectVS.h"
 #include "vtkStructuredGridLIC2D_fs.h"
+#include "vtkTextureObjectVS.h"
 
 #define PRINTEXTENT(ext) \
   ext[0] << ", " << ext[1] << ", " << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]

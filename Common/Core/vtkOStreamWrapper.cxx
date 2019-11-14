@@ -17,9 +17,9 @@
 #include "vtkIOStream.h"
 #include "vtkIndent.h"
 #include "vtkLargeInteger.h"
-#include "vtkStdString.h"
 #include "vtkObjectBase.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkStdString.h"
 
 #include <string>
 

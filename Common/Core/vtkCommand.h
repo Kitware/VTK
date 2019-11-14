@@ -226,8 +226,8 @@
 #define vtkCommand_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkObject.h"           // Need vtkTypeMacro
 #include "vtkObjectBase.h"
-#include "vtkObject.h" // Need vtkTypeMacro
 
 // Define all types of events here.
 // Using this macro makes it possible to avoid mismatches between the event

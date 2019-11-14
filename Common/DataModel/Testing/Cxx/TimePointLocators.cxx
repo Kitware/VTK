@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPointLocator.h"
-#include "vtkStaticPointLocator.h"
 #include "vtkKdTree.h"
 #include "vtkKdTreePointLocator.h"
+#include "vtkMath.h"
 #include "vtkOctreePointLocator.h"
+#include "vtkPointLocator.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStaticPointLocator.h"
 #include "vtkTimerLog.h"
-#include "vtkMath.h"
 
 
 int TimePointLocators(int , char *[])

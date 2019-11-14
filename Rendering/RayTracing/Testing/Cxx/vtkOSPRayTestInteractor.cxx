@@ -18,16 +18,16 @@
 
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOSPRayLightNode.h"
-#include "vtkOSPRayRendererNode.h"
 #include "vtkOSPRayPass.h"
-#include "vtkRendererCollection.h"
+#include "vtkOSPRayRendererNode.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace {
   static std::vector<std::string> ActorNames;

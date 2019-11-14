@@ -56,11 +56,11 @@
 
 #include "vtkOpenFOAMReader.h"
 
-#include <vector>
-#include "vtksys/SystemTools.hxx"
-#include "vtksys/RegularExpression.hxx"
-#include <sstream>
 #include "vtk_zlib.h"
+#include "vtksys/RegularExpression.hxx"
+#include "vtksys/SystemTools.hxx"
+#include <sstream>
+#include <vector>
 
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
@@ -99,8 +99,8 @@
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
 // for getpwnam() / getpwuid()
-#include <sys/types.h>
 #include <pwd.h>
+#include <sys/types.h>
 // for getuid()
 #include <unistd.h>
 #endif

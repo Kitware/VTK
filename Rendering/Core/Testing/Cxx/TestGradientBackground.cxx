@@ -2,12 +2,12 @@
 #include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

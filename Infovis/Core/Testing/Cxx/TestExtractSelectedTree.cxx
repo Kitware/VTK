@@ -13,19 +13,19 @@
 
 =========================================================================*/
 
+#include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkExtractSelectedTree.h"
+#include "vtkGraph.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkTree.h"
-#include "vtkGraph.h"
-#include "vtkIdTypeArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkInformation.h"
+#include "vtkStringArray.h"
+#include "vtkTree.h"
 
 //----------------------------------------------------------------------------
 int TestExtractSelectedTree(int, char*[])

@@ -22,8 +22,8 @@
 #ifndef vtkHierarchicalDataExtractLevel_h
 #define vtkHierarchicalDataExtractLevel_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractLevel.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractLevel : public vtkExtractLevel
 {

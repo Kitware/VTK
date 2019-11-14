@@ -22,16 +22,16 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkDataArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkIntArray.h"
-#include "vtkDataArray.h"
 
-#include "vtkTree.h"
 #include "vtkGraph.h"
+#include "vtkTree.h"
 
 vtkStandardNewMacro(vtkTreeLevelsFilter);
 

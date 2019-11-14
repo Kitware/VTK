@@ -54,8 +54,8 @@
 #ifndef vtkImageTracerWidget_h
 #define vtkImageTracerWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkAbstractPropPicker;
 class vtkActor;

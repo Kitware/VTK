@@ -1,6 +1,6 @@
 
-#include "ui_QtVTKTouchscreenRenderWindows.h"
 #include "QtVTKTouchscreenRenderWindows.h"
+#include "ui_QtVTKTouchscreenRenderWindows.h"
 
 // Available interactions:
 // - Tap: Randomizes background color and moves the sphere actor to the location of the tap point
@@ -21,15 +21,15 @@
 #include <vtkCamera.h>
 #include <vtkCollectionIterator.h>
 #include <vtkCubeSource.h>
+#include <vtkCylinderSource.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkInteractorStyleMultiTouchCamera.h>
+#include <vtkPlane.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 #include <vtkTransform.h>
-#include <vtkPlane.h>
-#include <vtkCylinderSource.h>
 
 vtkNew<vtkActor> cubeActor;
 vtkNew<vtkActor> sphereActor;

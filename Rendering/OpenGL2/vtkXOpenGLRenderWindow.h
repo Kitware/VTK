@@ -25,11 +25,11 @@
 #ifndef vtkXOpenGLRenderWindow_h
 #define vtkXOpenGLRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include <stack> // for ivar
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <X11/Xutil.h> // Needed for X types used in the public interface
+#include <stack> // for ivar
 
 class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;

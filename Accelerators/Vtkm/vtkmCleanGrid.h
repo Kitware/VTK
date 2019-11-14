@@ -26,8 +26,8 @@
 #ifndef vtkmCleanGrid_h
 #define vtkmCleanGrid_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkDataSet;
 class vtkUnstructuredGrid;

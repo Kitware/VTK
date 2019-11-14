@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkNew.h"
-#include "vtkPoints.h"
 #include "vtkClipDataSet.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkXMLUnstructuredGridReader.h"
-#include "vtkDoubleArray.h"
 #include "vtkContourFilter.h"
+#include "vtkDoubleArray.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkXMLPolyDataWriter.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 using namespace std;
 

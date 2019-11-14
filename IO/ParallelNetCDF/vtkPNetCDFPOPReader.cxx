@@ -30,9 +30,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkMPIController.h"
 
 #include "vtk_netcdf.h"
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #ifdef MPI_Comm
     #error MPI_Comm is #define'd somewhere!  That's BAD!  (Try checking netcdf.h.)

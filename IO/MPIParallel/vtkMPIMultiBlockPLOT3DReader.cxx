@@ -19,14 +19,14 @@
 #include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
+#include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
-#include "vtkMPI.h"
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredData.h"
-#include <exception>
 #include <cassert>
+#include <exception>
 
 
 

@@ -23,8 +23,8 @@
 #ifndef vtkAMREnzoReader_h
 #define vtkAMREnzoReader_h
 
-#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
+#include "vtkIOAMRModule.h" // For export macro
 
 #include <map>     // For STL map
 #include <string>  // For std::string

@@ -45,8 +45,8 @@
 #ifndef vtkImageEuclideanDistance_h
 #define vtkImageEuclideanDistance_h
 
-#include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
+#include "vtkImagingGeneralModule.h" // For export macro
 
 #define VTK_EDT_SAITO_CACHED 0
 #define VTK_EDT_SAITO 1

@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageThreshold.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSetAttributes.h"
 
 vtkStandardNewMacro(vtkImageThreshold);
 

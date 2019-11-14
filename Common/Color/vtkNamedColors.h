@@ -66,9 +66,9 @@
 #ifndef vtkNamedColors_h
 #define vtkNamedColors_h
 
+#include "vtkColor.h" // Needed for vtkColor[34]ub
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkColor.h" // Needed for vtkColor[34]ub
 #include "vtkStdString.h" // Needed for arguments
 #include "vtkStringArray.h" // For returning color names
 

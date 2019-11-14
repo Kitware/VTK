@@ -23,11 +23,11 @@
  */
 #include "vtkVisibilitySort.h"
 
-#include "vtkIdList.h"
-#include "vtkDataSet.h"
-#include "vtkMatrix4x4.h"
 #include "vtkCamera.h"
+#include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
+#include "vtkIdList.h"
+#include "vtkMatrix4x4.h"
 
 //-----------------------------------------------------------------------------
 

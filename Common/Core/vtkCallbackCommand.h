@@ -38,8 +38,8 @@
 #ifndef vtkCallbackCommand_h
 #define vtkCallbackCommand_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 class VTKCOMMONCORE_EXPORT vtkCallbackCommand : public vtkCommand
 {

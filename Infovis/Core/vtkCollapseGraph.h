@@ -43,8 +43,8 @@
 #ifndef vtkCollapseGraph_h
 #define vtkCollapseGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkCollapseGraph : public vtkGraphAlgorithm
 {

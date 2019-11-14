@@ -29,8 +29,8 @@
 #ifndef vtkTreeDifferenceFilter_h
 #define vtkTreeDifferenceFilter_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 #include "vtkSmartPointer.h"      // For ivars
 #include <vector>                 // For ivars

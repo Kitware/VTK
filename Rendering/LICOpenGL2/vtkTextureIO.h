@@ -22,13 +22,13 @@
 #ifndef vtkTextureIO_h
 #define vtkTextureIO_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // for export
 #include "vtkPixelExtent.h" // for pixel extent
+#include "vtkRenderingLICOpenGL2Module.h" // for export
 
 // included vtkSystemIncludes in vtkPixelExtent
 #include <cstddef> // for NULL
-#include <string> // for string
 #include <deque> // for deque
+#include <string> // for string
 
 class vtkTextureObject;
 

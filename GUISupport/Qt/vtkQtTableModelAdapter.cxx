@@ -22,7 +22,6 @@
 #include "vtkConvertSelection.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkTable.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -30,20 +29,19 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
-#include "vtkVariant.h"
-#include "vtkDoubleArray.h"
+#include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkVariant.h"
 
 #include <QColor>
-#include <QIcon>
-#include <QPainter>
-#include <QPixmap>
 #include <QHash>
+#include <QIcon>
+#include <QImage>
 #include <QMap>
 #include <QMimeData>
+#include <QPainter>
 #include <QPair>
 #include <QPixmap>
-#include <QImage>
 
 #include <set>
 #include <sstream>

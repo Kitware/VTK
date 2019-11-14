@@ -25,8 +25,8 @@
 #ifndef vtkUnstructuredGridWriter_h
 #define vtkUnstructuredGridWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 class vtkUnstructuredGrid;
 
 class VTKIOLEGACY_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter

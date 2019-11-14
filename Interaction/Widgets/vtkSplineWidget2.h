@@ -26,8 +26,8 @@
 #ifndef vtkSplineWidget2_h
 #define vtkSplineWidget2_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkSplineRepresentation;
 

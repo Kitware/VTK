@@ -57,8 +57,8 @@
 
 #include "vtkImplicitFunction.h" // For vtkImplicitFunction
 #include "vtkNew.h" // Needed for vtkNew
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // Needed for vtkSmartPointer
 
 // STL includes

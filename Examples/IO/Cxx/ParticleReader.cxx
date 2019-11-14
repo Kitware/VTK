@@ -1,7 +1,7 @@
 // Author: Andrew J. P. Maclean
-#include <vtkXMLPolyDataWriter.h>
 #include <vtkParticleReader.h>
 #include <vtkSmartPointer.h>
+#include <vtkXMLPolyDataWriter.h>
 
 int main ( int argc, char* argv[] )
 {

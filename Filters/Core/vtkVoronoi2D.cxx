@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkVoronoi2D.h"
 
-#include "vtkDelaunay2D.h"
-#include "vtkStaticPointLocator2D.h"
 #include "vtkAbstractTransform.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDelaunay2D.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -27,12 +27,12 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkCellData.h"
+#include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkSpheres.h"
+#include "vtkStaticPointLocator2D.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
-#include "vtkSpheres.h"
-#include "vtkSMPTools.h"
-#include "vtkSMPThreadLocalObject.h"
 
 #include <vector>
 

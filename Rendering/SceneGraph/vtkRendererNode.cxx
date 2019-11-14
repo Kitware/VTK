@@ -23,9 +23,9 @@
 #include "vtkLightCollection.h"
 #include "vtkLightNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererNode.h"
-#include "vtkRenderWindow.h"
 #include "vtkViewNodeCollection.h"
 
 //============================================================================

@@ -46,8 +46,8 @@
 #ifndef vtkAssemblyNode_h
 #define vtkAssemblyNode_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkMatrix4x4;

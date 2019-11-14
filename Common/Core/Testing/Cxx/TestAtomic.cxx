@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkMultiThreader.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkMultiThreader.h"
 
 #include <algorithm>
 #include <atomic>

@@ -31,8 +31,8 @@
 #ifndef vtkWriter_h
 #define vtkWriter_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkIOCoreModule.h" // For export macro
 
 class vtkDataObject;
 

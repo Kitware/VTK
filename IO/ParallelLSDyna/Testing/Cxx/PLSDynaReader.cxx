@@ -25,16 +25,16 @@
 #include "vtkCompositeRenderManager.h"
 #include "vtkLookupTable.h"
 #include "vtkMPIController.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPLSDynaReader.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkSmartPointer.h"
 #include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 struct TestArgs
 {

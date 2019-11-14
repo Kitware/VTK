@@ -32,8 +32,8 @@
 #ifndef vtkEGLRenderWindow_h
 #define vtkEGLRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkIdList;
 

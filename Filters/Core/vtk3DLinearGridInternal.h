@@ -40,12 +40,12 @@
 // Include appropriate cell types
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
-#include "vtkTetra.h"
 #include "vtkHexahedron.h"
-#include "vtkWedge.h"
 #include "vtkPyramid.h"
 #include "vtkSmartPointer.h"
+#include "vtkTetra.h"
 #include "vtkVoxel.h"
+#include "vtkWedge.h"
 #include <cmath>
 
 namespace { //anonymous namespace

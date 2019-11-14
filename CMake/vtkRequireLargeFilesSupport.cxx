@@ -1,10 +1,10 @@
 #define _LARGEFILE_SOURCE
 #define _LARGE_FILES
 #define _FILE_OFFSET_BITS 64
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <cassert>
 #include <cstdio>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 int main( int, char **argv )
 {

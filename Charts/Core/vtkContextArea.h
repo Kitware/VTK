@@ -44,8 +44,8 @@
 
 #include "vtkAxis.h" // For enums
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkRect.h" // For vtkRect/vtkVector/vtkTuple
 #include "vtkNew.h" // For vtkNew
+#include "vtkRect.h" // For vtkRect/vtkVector/vtkTuple
 
 class vtkContextClip;
 class vtkContextTransform;

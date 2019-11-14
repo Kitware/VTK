@@ -22,8 +22,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include "vtkTestErrorObserver.h"
 #include "vtkExecutive.h"
+#include "vtkTestErrorObserver.h"
 
 #include <algorithm>
 #include <sstream>

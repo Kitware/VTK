@@ -19,17 +19,17 @@
 
 #include "vtkSmartPointer.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
+#include "vtkImageHistogramStatistics.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
 #include "vtkPNGReader.h"
-#include "vtkImageHistogramStatistics.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkTestUtilities.h"
 

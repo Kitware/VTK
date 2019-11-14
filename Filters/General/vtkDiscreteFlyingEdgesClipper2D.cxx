@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkDiscreteFlyingEdgesClipper2D.h"
 
-#include "vtkImageData.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkCellData.h"
 #include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <cmath>
 #include <algorithm>
-#include <vector>
-#include <set>
+#include <cmath>
 #include <limits>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkDiscreteFlyingEdgesClipper2D);
 

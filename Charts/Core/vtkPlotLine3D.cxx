@@ -15,9 +15,9 @@
 
 #include "vtkPlotLine3D.h"
 
-#include "vtkPen.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
+#include "vtkPen.h"
 
 #include "vtkObjectFactory.h"
 

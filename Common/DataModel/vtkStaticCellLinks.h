@@ -43,8 +43,8 @@
 #ifndef vtkStaticCellLinks_h
 #define vtkStaticCellLinks_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLinks.h"
+#include "vtkCommonDataModelModule.h"   // For export macro
 #include "vtkStaticCellLinksTemplate.h" // For implementations
 
 class vtkDataSet;

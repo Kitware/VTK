@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkBorderWidget.h"
 #include "vtkBorderRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCommand.h"
+#include "vtkEvent.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkWidgetEventTranslator.h"
+#include "vtkRenderer.h"
 #include "vtkWidgetCallbackMapper.h"
-#include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 
 vtkStandardNewMacro(vtkBorderWidget);

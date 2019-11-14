@@ -23,11 +23,11 @@
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
 #include <vtkPlaneCollection.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>

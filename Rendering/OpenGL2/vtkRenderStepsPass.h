@@ -33,8 +33,8 @@
 #ifndef vtkRenderStepsPass_h
 #define vtkRenderStepsPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkSequencePass;
 class vtkCameraPass;

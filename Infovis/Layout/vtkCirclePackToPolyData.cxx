@@ -18,22 +18,22 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 #include "vtkCirclePackToPolyData.h"
+#include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSectorSource.h"
+#include "vtkSmartPointer.h"
+#include "vtkStripper.h"
 #include "vtkTimerLog.h"
 #include "vtkTree.h"
-#include "vtkStripper.h"
-#include "vtkSectorSource.h"
-#include "vtkAppendPolyData.h"
-#include "vtkSmartPointer.h"
 
 #define VTK_CREATE(type, name)                                  \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

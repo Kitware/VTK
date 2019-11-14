@@ -28,8 +28,8 @@
 #ifndef vtkPlaybackWidget_h
 #define vtkPlaybackWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPlaybackRepresentation;
 

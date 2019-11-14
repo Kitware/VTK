@@ -30,8 +30,8 @@
 #ifndef vtkTransposeMatrix_h
 #define vtkTransposeMatrix_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkTransposeMatrix : public vtkArrayDataAlgorithm
 {

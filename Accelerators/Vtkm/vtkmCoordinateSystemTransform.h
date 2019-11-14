@@ -25,8 +25,8 @@
 #ifndef vtkmCoordinateSystemTransform_h
 #define vtkmCoordinateSystemTransform_h
 
-#include "vtkPointSetAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkPointSetAlgorithm.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmCoordinateSystemTransform : public vtkPointSetAlgorithm
 {

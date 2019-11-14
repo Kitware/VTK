@@ -20,9 +20,9 @@
 #ifndef vtkBillboardTextActor3D_h
 #define vtkBillboardTextActor3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkProp3D.h"
 #include "vtkNew.h" // For.... vtkNew!
+#include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // For.... vtkSmartPointer!
 
 class vtkActor;

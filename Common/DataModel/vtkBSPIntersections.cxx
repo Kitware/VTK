@@ -20,11 +20,11 @@
 
 #include "vtkBSPIntersections.h"
 #include "vtkBSPCuts.h"
-#include "vtkKdNode.h"
-#include "vtkObjectFactory.h"
 #include "vtkCell.h"
-#include "vtkPoints.h"
+#include "vtkKdNode.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 
 #include <set>
 

@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkContourHelper.h"
 
-#include "vtkIncrementalPointLocator.h"
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPolygonBuilder.h"
-#include "vtkIdListCollection.h"
 #include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkIdListCollection.h"
+#include "vtkIncrementalPointLocator.h"
+#include "vtkPointData.h"
+#include "vtkPolygonBuilder.h"
 
 vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator *locator,
                                    vtkCellArray *verts,

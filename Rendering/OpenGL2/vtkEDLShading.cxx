@@ -22,10 +22,10 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkEDLShading.h"
 
 #include "vtkCamera.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -41,10 +41,10 @@ Ph.D. thesis of Christian BOUCHENY.
 #include <string>
 
 
-#include "vtkTextureObjectVS.h"
-#include "vtkEDLShadeFS.h"
-#include "vtkEDLComposeFS.h"
 #include "vtkEDLBilateralFilterFS.h"
+#include "vtkEDLComposeFS.h"
+#include "vtkEDLShadeFS.h"
+#include "vtkTextureObjectVS.h"
 
 //#define VTK_EDL_SHADING_DEBUG
 

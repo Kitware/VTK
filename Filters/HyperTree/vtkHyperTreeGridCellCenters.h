@@ -44,8 +44,8 @@
 #ifndef vtkHyperTreeGridCellCenters_h
 #define vtkHyperTreeGridCellCenters_h
 
-#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkCellCenters.h"
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 
 class vtkBitArray;
 class vtkDataSetAttributes;

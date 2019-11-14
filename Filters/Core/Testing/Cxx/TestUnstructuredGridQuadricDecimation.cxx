@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkSmartPointer.h>
 #include <vtkCleanPolyData.h>
 #include <vtkDelaunay3D.h>
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
 #include <vtkPointSource.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridQuadricDecimation.h>
 

@@ -56,8 +56,8 @@ All rights reserve
 #ifndef vtkCubeAxesActor_h
 #define vtkCubeAxesActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAxisActor;
 class vtkCamera;

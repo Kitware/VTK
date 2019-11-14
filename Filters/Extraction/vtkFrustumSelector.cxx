@@ -24,9 +24,9 @@
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 #include "vtkSelectionNode.h"
 #include "vtkSignedCharArray.h"
-#include "vtkSMPTools.h"
 #include "vtkVoxel.h"
 
 #include <vector>

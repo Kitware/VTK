@@ -12,17 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkRTAnalyticSource.h"
-#include "vtkNew.h"
-#include "vtkImageGradient.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
-#include "vtkStreamTracer.h"
+#include "vtkImageGradient.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkPointData.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
-#include "vtkDoubleArray.h"
+#include "vtkStreamTracer.h"
 #include <cassert>
 
 int TestFieldNames(int, char*[])

@@ -25,8 +25,8 @@
 #ifndef vtkOpenGLContextBufferId_h
 #define vtkOpenGLContextBufferId_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkAbstractContextBufferId.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;

@@ -37,8 +37,8 @@
 #define vtkPostgreSQLDatabasePrivate_h
 
 #include "vtkStdString.h"
-#include "vtkType.h"
 #include "vtkTimeStamp.h"
+#include "vtkType.h"
 
 #include <libpq-fe.h>
 #include <map>

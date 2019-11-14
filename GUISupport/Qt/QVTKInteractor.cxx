@@ -48,12 +48,12 @@
 #endif
 
 #include <QEvent>
+#include <QResizeEvent>
 #include <QSignalMapper>
 #include <QTimer>
-#include <QResizeEvent>
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 
 QVTKInteractorInternal::QVTKInteractorInternal(QVTKInteractor* p)

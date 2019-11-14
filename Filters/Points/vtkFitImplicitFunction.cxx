@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkFitImplicitFunction.h"
 
+#include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkImplicitFunction.h"
 #include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkFitImplicitFunction);

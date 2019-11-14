@@ -44,8 +44,8 @@
 #ifndef vtkParallelRenderManager_h
 #define vtkParallelRenderManager_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkMultiProcessController;

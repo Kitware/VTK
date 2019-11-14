@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkImageActor.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
-#include "vtkMath.h"
-#include "vtkMatrix4x4.h"
-#include "vtkRenderer.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSliceMapper.h"
 #include "vtkInformation.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageActor);

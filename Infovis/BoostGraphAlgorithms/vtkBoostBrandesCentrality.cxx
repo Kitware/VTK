@@ -21,13 +21,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkFloatArray.h"
-#include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 

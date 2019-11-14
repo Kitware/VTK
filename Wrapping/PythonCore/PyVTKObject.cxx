@@ -30,10 +30,10 @@
 
 #include "PyVTKObject.h"
 #include "PyVTKMethodDescriptor.h"
-#include "vtkPythonUtil.h"
-#include "vtkObjectBase.h"
 #include "vtkDataArray.h"
+#include "vtkObjectBase.h"
 #include "vtkPythonCommand.h"
+#include "vtkPythonUtil.h"
 
 #include <cstddef>
 #include <sstream>

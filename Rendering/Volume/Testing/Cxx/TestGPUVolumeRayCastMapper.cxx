@@ -23,15 +23,15 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkTesting.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkTestErrorObserver.h"
 
 static const char * TestGPUVolumeRayCastMapperLog =
 "# StreamVersion 1\n"

@@ -18,13 +18,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformationKey.h"
-#include "vtkInformationDoubleVectorKey.h"
-#include "vtkMultiBlockDataSet.h"
 
 vtkStandardNewMacro(vtkMultiTimeStepAlgorithm);
 

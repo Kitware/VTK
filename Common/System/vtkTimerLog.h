@@ -35,13 +35,13 @@
 #include <vector> // STL Header
 
 #ifdef _WIN32
-#include <sys/types.h> // Needed for Win32 implementation of timer
 #include <sys/timeb.h> // Needed for Win32 implementation of timer
+#include <sys/types.h> // Needed for Win32 implementation of timer
 #else
-#include <time.h>      // Needed for unix implementation of timer
 #include <sys/time.h>  // Needed for unix implementation of timer
-#include <sys/types.h> // Needed for unix implementation of timer
 #include <sys/times.h> // Needed for unix implementation of timer
+#include <sys/types.h> // Needed for unix implementation of timer
+#include <time.h>      // Needed for unix implementation of timer
 #endif
 
 // var args

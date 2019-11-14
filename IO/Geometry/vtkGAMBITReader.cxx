@@ -18,16 +18,16 @@
 
 #include "vtkGAMBITReader.h"
 
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkErrorCode.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPointData.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkErrorCode.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkGAMBITReader);
 

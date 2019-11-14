@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkQuadraticQuad.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
-#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkQuadraticQuad);
 

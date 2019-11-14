@@ -17,9 +17,9 @@
 #include "vtkActor2D.h"
 #include "vtkNew.h"
 #include "vtkPropPicker.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextActor.h"
 
 #include <cstdlib>

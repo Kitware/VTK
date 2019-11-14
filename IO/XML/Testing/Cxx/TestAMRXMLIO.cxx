@@ -2,11 +2,11 @@
 #include "vtkNew.h"
 #include "vtkNonOverlappingAMR.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkStructuredData.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLGenericDataObjectReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUniformGridAMRWriter.h"
-#include "vtkStructuredData.h"
 
 #include <string>
 

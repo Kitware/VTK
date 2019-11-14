@@ -70,8 +70,8 @@
 #ifndef vtk3DLinearGridCrinkleExtractor_h
 #define vtk3DLinearGridCrinkleExtractor_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkUnstructuredGrid;
 class vtkImplicitFunction;

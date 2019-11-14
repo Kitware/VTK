@@ -24,8 +24,8 @@
 #ifndef vtkSocketCollection_h
 #define vtkSocketCollection_h
 
-#include "vtkCommonSystemModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonSystemModule.h" // For export macro
 
 class vtkSocket;
 class VTKCOMMONSYSTEM_EXPORT vtkSocketCollection : public vtkCollection

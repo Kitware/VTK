@@ -13,13 +13,13 @@
 =========================================================================*/
 
 
+#include "vtkIdList.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkMath.h"
 #include "vtkPoints.h"
-#include "vtkIdList.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
-#include "vtkIncrementalOctreePointLocator.h"
 
 
 #define  _BRUTE_FORCE_VERIFICATION_

@@ -17,22 +17,22 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkLookupTable.h"
-#include "vtkImageMapToColors.h"
-#include "vtkImageResliceMapper.h"
-#include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
-#include "vtkImageReader2.h"
 #include "vtkImageGridSource.h"
+#include "vtkImageMapToColors.h"
+#include "vtkImageProperty.h"
+#include "vtkImageReader2.h"
+#include "vtkImageResliceMapper.h"
+#include "vtkImageSlice.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkLookupTable.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestImageResliceMapperAlpha(int argc, char* argv[])
 {

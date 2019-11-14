@@ -13,24 +13,24 @@
 
 =========================================================================*/
 #include "vtkFocalPlaneContourRepresentation.h"
-#include "vtkHandleRepresentation.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
 #include "vtkBox.h"
-#include "vtkInteractorObserver.h"
-#include "vtkMath.h"
-#include "vtkFocalPlanePointPlacer.h"
-#include "vtkContourLineInterpolator.h"
-#include "vtkLine.h"
 #include "vtkCamera.h"
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
+#include "vtkContourLineInterpolator.h"
+#include "vtkCoordinate.h"
+#include "vtkFocalPlanePointPlacer.h"
+#include "vtkHandleRepresentation.h"
+#include "vtkInteractorObserver.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkRenderer.h"
 
-#include <vector>
-#include <set>
 #include <algorithm>
 #include <iterator>
+#include <set>
+#include <vector>
 
 
 //----------------------------------------------------------------------

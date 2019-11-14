@@ -21,8 +21,8 @@
 
 #include <vtkArrayData.h>
 #include <vtkArrayPrint.h>
-#include <vtkDotProductSimilarity.h>
 #include <vtkDenseArray.h>
+#include <vtkDotProductSimilarity.h>
 #include <vtkSmartPointer.h>
 #include <vtkTable.h>
 #include <vtkVariant.h>

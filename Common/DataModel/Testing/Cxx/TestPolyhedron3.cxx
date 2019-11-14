@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
+#include "vtkPlane.h"
 #include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkPolyhedron.h"
-#include "vtkPlane.h"
+#include "vtkUnstructuredGrid.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkNew.h"
 #include "vtkClipDataSet.h"
+#include "vtkNew.h"
 #include "vtkPlane.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"

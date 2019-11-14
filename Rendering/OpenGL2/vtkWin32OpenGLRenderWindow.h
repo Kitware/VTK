@@ -24,9 +24,9 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkWin32OpenGLRenderWindow_h
 #define vtkWin32OpenGLRenderWindow_h
 
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <stack> // for ivar
-#include "vtkOpenGLRenderWindow.h"
 
 #include "vtkWindows.h" // For windows API
 

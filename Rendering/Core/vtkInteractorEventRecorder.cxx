@@ -17,11 +17,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-#include <sstream>
 #include <cassert>
 #include <locale>
-#include <vtksys/SystemTools.hxx>
+#include <sstream>
 #include <string>
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 

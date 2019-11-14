@@ -47,8 +47,8 @@
 #ifndef vtkDataSetToDataObjectFilter_h
 #define vtkDataSetToDataObjectFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkDataSet;
 

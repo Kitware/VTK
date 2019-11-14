@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXYZ.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkPen.h"
 #include "vtkPlotLine3D.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 // Plot the solution to the Lorenz attractor.
 // http://en.wikipedia.org/wiki/Lorenz_system

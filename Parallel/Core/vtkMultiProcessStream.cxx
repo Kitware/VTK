@@ -16,8 +16,8 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSocketCommunicator.h" // for vtkSwap8 and vtkSwap4 macros.
-#include <deque>
 #include <cassert>
+#include <deque>
 
 class vtkMultiProcessStream::vtkInternals
 {

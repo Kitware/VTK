@@ -19,11 +19,11 @@
 #ifndef Q_VTK_WIDGET2_H
 #define Q_VTK_WIDGET2_H
 
+#include "QVTKWin32Header.h"
 #include "vtkGUISupportQtOpenGLModule.h" // For export macro
-#include <QtOpenGL/QGLWidget>
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
-#include "QVTKWin32Header.h"
+#include <QtOpenGL/QGLWidget>
 
 
 class vtkGenericOpenGLRenderWindow;

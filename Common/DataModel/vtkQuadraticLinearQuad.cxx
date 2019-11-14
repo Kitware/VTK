@@ -18,13 +18,13 @@
 
 #include "vtkQuadraticLinearQuad.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
-#include "vtkMath.h"
-#include "vtkQuad.h"
 #include "vtkLine.h"
-#include "vtkQuadraticEdge.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkQuad.h"
+#include "vtkQuadraticEdge.h"
 
 vtkStandardNewMacro (vtkQuadraticLinearQuad);
 

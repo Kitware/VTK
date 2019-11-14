@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
+#include "vtkPlotBag.h"
 #include "vtkBrush.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
-#include "vtkPlotBag.h"
 #include "vtkPoints.h"
 #include "vtkPoints2D.h"
 #include "vtkPointsProjectedHull.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimeStamp.h"
-#include "vtkMath.h"
 
 #include <algorithm>
 #include <sstream>

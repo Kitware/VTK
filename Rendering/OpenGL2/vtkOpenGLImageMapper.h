@@ -30,8 +30,8 @@
 #ifndef vtkOpenGLImageMapper_h
 #define vtkOpenGLImageMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkActor2D;
 class vtkTexturedActor2D;

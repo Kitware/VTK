@@ -22,8 +22,8 @@
 #ifndef vtkBitArrayIterator_h
 #define vtkBitArrayIterator_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 class vtkBitArray;
 class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator

@@ -21,11 +21,11 @@
 #include "vtkDSPFilterDefinition.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <map>
-#include <algorithm>
-#include <vector>
 #include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkDSPFilterDefinition);
 

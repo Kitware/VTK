@@ -25,9 +25,9 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSLACReader.h"
 #include "vtkTestUtilities.h"
 

@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkScatterPlotMatrix.h"
-#include "vtkRenderWindow.h"
 #include "vtkChart.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkScatterPlotMatrix.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
 int TestScatterPlotMatrixVisible(int, char * [])

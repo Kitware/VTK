@@ -18,13 +18,13 @@
 
 #include "vtkBiQuadraticQuad.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
-#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkBiQuadraticQuad);
 

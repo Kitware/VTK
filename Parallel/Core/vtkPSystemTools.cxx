@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkPSystemTools.h"
 
-#include <vtkMultiProcessController.h>
 #include "vtkObjectFactory.h"
+#include <vtkMultiProcessController.h>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPSystemTools);

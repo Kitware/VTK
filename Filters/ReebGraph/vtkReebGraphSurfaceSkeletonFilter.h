@@ -43,8 +43,8 @@
 #ifndef vtkReebGraphSurfaceSkeletonFilter_h
 #define vtkReebGraphSurfaceSkeletonFilter_h
 
+#include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersReebGraphModule.h" // For export macro
-#include  "vtkDataObjectAlgorithm.h"
 
 class vtkReebGraph;
 class vtkTable;

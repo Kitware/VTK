@@ -16,23 +16,23 @@
 // This test volume renders a synthetic dataset with unsigned char values,
 // with the composite method.
 
-#include "vtkSphere.h"
 #include "vtkSampleFunction.h"
+#include "vtkSphere.h"
 
-#include "vtkSmartVolumeMapper.h"
-#include "vtkTestUtilities.h"
+#include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
+#include "vtkPointData.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartVolumeMapper.h"
+#include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkDataArray.h"
 
 int TestSmartVolumeMapper(int argc,
                           char *argv[])

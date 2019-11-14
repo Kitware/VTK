@@ -28,9 +28,9 @@
 #ifndef vtkAssignCoordinatesLayoutStrategy_h
 #define vtkAssignCoordinatesLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
-#include "vtkSmartPointer.h" // For SP ivars
+#include "vtkInfovisLayoutModule.h" // For export macro
+#include "vtkSmartPointer.h"        // For SP ivars
 
 class vtkAssignCoordinates;
 

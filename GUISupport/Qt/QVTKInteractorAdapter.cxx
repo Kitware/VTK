@@ -36,9 +36,9 @@
 #include "QVTKInteractor.h"
 
 #include <QEvent>
+#include <QGestureEvent>
 #include <QSignalMapper>
 #include <QTimer>
-#include <QGestureEvent>
 #include <QWidget>
 
 #include "vtkCommand.h"

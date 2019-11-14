@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkInteractorStyleFlight.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
-#include "vtkPerspectiveTransform.h"
-#include "vtkRenderer.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPerspectiveTransform.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCallbackCommand.h"
+#include "vtkRenderer.h"
 #include "vtkWindows.h"
 
 vtkStandardNewMacro(vtkInteractorStyleFlight);

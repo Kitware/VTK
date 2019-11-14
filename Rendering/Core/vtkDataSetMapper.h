@@ -27,8 +27,8 @@
 #ifndef vtkDataSetMapper_h
 #define vtkDataSetMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkPolyDataMapper;
 class vtkDataSetSurfaceFilter;

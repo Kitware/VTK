@@ -23,8 +23,8 @@
 #ifndef vtkTreeOrbitLayoutStrategy_h
 #define vtkTreeOrbitLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkPoints;
 class vtkTree;

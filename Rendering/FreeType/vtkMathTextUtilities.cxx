@@ -18,8 +18,8 @@
 #include "vtkDebugLeaks.h" // Must be included before any singletons
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkTextProperty.h"
 #include "vtkTextActor.h"
+#include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 

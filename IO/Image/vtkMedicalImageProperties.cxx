@@ -15,14 +15,14 @@
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
 
-#include <string>
 #include <map>
-#include <vector>
 #include <set>
+#include <string>
+#include <vector>
 
-#include <ctime> // for strftime
-#include <cctype> // for isdigit
 #include <cassert>
+#include <cctype> // for isdigit
+#include <ctime> // for strftime
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMedicalImageProperties);

@@ -15,13 +15,13 @@
 
 #include "vtkFreeTypeTools.h"
 
-#include "vtkTextProperty.h"
-#include "vtkObjectFactory.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPath.h"
-#include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
@@ -31,14 +31,13 @@
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
+#include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <limits>
-#include <cassert>
-#include <algorithm>
 #include <map>
-#include <vector>
 #include <sstream>
-#include <limits>
+#include <vector>
 
 // Print debug info
 #define VTK_FTFC_DEBUG 0

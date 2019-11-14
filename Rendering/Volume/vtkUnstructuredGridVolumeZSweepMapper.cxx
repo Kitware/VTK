@@ -14,38 +14,38 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeZSweepMapper.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkTimerLog.h"
-#include "vtkVolume.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRayCastImageDisplayHelper.h"
-#include "vtkTransform.h"
 #include "vtkCamera.h"
 #include "vtkCellIterator.h"
-#include "vtkGenericCell.h"
-#include "vtkPriorityQueue.h"
-#include "vtkIdList.h"
-#include "vtkVolumeProperty.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkSmartPointer.h"
-#include "vtkUnstructuredGridPreIntegration.h"
-#include "vtkUnstructuredGridPartialPreIntegration.h"
-#include "vtkUnstructuredGridHomogeneousRayIntegrator.h"
-#include "vtkDoubleArray.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkPriorityQueue.h"
+#include "vtkRayCastImageDisplayHelper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTimerLog.h"
+#include "vtkTransform.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridHomogeneousRayIntegrator.h"
+#include "vtkUnstructuredGridPartialPreIntegration.h"
+#include "vtkUnstructuredGridPreIntegration.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
-#include "vtkPolyData.h"
 #include "vtkCellArray.h"
+#include "vtkPolyData.h"
 //#include "vtkXMLPolyDataWriter.h"
 #include "vtkPointData.h"
 
 #include <cassert>
 #include <cstring> // memset()
-#include <vector>
 #include <list>
+#include <vector>
 
 // do not remove the following line:
 //#define BACK_TO_FRONT

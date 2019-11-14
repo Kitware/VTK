@@ -17,16 +17,16 @@
 #include "vtkObjectFactory.h"
 #include <cassert>
 
-#include "vtkRenderState.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
-#include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenGLError.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkRenderState.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 
 #include "vtkOpenGLHelper.h"
 
@@ -35,10 +35,10 @@
 //#define VTK_SOBEL_PASS_DEBUG
 
 #ifdef VTK_SOBEL_BLUR_PASS_DEBUG
-#include "vtkPNGWriter.h"
-#include "vtkImageImport.h"
-#include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
+#include "vtkImageImport.h"
+#include "vtkPNGWriter.h"
+#include "vtkPixelBufferObject.h"
 #endif
 
 #include "vtkSobelGradientMagnitudePass1FS.h"

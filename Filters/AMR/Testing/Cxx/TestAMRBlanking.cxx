@@ -17,11 +17,11 @@
 // .SECTION Description
 //  Test blanking for Berger-Collela AMR datasets.
 
-#include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
-#include "vtkAMRUtilities.h"
-#include "vtkStructuredData.h"
 #include "vtkAMRBox.h"
+#include "vtkAMRUtilities.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkStructuredData.h"
+#include "vtkUniformGrid.h"
 
 #include <cassert>
 #include <sstream>

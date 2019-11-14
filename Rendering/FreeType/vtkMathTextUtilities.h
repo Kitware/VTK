@@ -24,9 +24,9 @@
 #ifndef vtkMathTextUtilities_h
 #define vtkMathTextUtilities_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkTextRenderer.h" // for metrics
+#include "vtkRenderingFreeTypeModule.h" // For export macro
+#include "vtkTextRenderer.h"            // for metrics
 
 class vtkImageData;
 class vtkPath;

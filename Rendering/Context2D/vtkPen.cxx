@@ -15,8 +15,8 @@
 
 #include "vtkPen.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkColor.h"
+#include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
 

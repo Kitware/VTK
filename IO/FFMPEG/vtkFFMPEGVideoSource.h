@@ -28,9 +28,9 @@
 #define vtkFFMPEGVideoSource_h
 
 #include "vtkIOFFMPEGModule.h" // For export macro
-#include "vtkVideoSource.h"
 #include "vtkMultiThreader.h" // for ivar
 #include "vtkNew.h" // for ivar
+#include "vtkVideoSource.h"
 #include <functional> // for audio callback
 
 class vtkFFMPEGVideoSourceInternal;

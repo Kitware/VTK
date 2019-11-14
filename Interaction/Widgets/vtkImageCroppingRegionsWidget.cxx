@@ -13,21 +13,21 @@
 
 =========================================================================*/
 #include "vtkImageCroppingRegionsWidget.h"
-#include "vtkObjectFactory.h"
 #include "vtkActor2D.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkCamera.h"
+#include "vtkCoordinate.h"
+#include "vtkImageCroppingRegionsWidget.h"
 #include "vtkImageData.h"
 #include "vtkLineSource.h"
-#include "vtkPolyDataMapper2D.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkCoordinate.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
-#include "vtkCamera.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkVolumeMapper.h"
-#include "vtkImageCroppingRegionsWidget.h"
 
 vtkStandardNewMacro(vtkImageCroppingRegionsWidget);
 

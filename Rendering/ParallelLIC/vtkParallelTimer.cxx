@@ -19,8 +19,8 @@
 #pragma warning(disable : 4996)
 #endif
 
-#include "vtkObjectFactory.h"
 #include "vtkMPI.h"
+#include "vtkObjectFactory.h"
 
 using std::cerr;
 using std::endl;
@@ -33,9 +33,9 @@ using std::ostringstream;
 #include <sys/time.h>
 #include <unistd.h>
 #else
-#include <process.h>
 #include <Winsock2.h>
 #include <ctime>
+#include <process.h>
 static
 int gettimeofday(struct timeval *tv, void *)
 {

@@ -21,11 +21,10 @@
 #include "vtkPlaneSource.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTexture.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 
 #include "vtkLight.h"
 

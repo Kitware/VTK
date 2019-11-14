@@ -20,18 +20,18 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageResize.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkVolume16Reader.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
+#include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
-#include "vtkImageResize.h"
 
 
 static const char* TestGPURayCastCameraInsideTransformationLog =

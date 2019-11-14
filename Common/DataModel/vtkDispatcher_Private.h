@@ -31,9 +31,9 @@
 #define vtkDispatcher_Private_h
 #ifndef __VTK_WRAP__
 
-#include <typeinfo>
 #include <cassert>
 #include <memory>
+#include <typeinfo>
 
 namespace vtkDispatcherPrivate
 {

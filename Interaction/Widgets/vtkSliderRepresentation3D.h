@@ -29,9 +29,9 @@
 #ifndef vtkSliderRepresentation3D_h
 #define vtkSliderRepresentation3D_h
 
+#include "vtkCoordinate.h"               // For vtkViewportCoordinateMacro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"
-#include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
 
 class vtkActor;
 class vtkPolyDataMapper;

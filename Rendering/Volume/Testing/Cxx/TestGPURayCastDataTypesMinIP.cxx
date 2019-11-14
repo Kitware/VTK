@@ -21,25 +21,25 @@
 // Tests cell-data with a large data type (int).
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkTestUtilities.h"
-#include "vtkXMLImageDataReader.h"
-#include "vtkImageShiftScale.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkTransform.h"
 #include "vtkPointDataToCellData.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkTestUtilities.h"
+#include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
-#include "vtkCamera.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkXMLImageDataReader.h"
 
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
-#include "vtkDataArray.h"
 
 
 namespace

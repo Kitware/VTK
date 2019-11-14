@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
+#include "vtkPiecewiseFunctionItem.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
 #include "vtkImageData.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkPiecewiseFunctionItem.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
 

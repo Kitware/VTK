@@ -34,8 +34,8 @@
 class vtkTextRepresentation;
 class vtkTextActor;
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkTextWidget : public vtkBorderWidget
 {

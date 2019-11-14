@@ -47,9 +47,9 @@
 #ifndef vtkRendererSource_h
 #define vtkRendererSource_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkImageData.h"           // makes things a bit easier
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 

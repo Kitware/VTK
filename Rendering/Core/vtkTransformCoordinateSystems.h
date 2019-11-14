@@ -28,9 +28,9 @@
 #ifndef vtkTransformCoordinateSystems_h
 #define vtkTransformCoordinateSystems_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkPointSetAlgorithm.h"
 #include "vtkCoordinate.h" //to get the defines in vtkCoordinate
+#include "vtkPointSetAlgorithm.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkTransformCoordinateSystems : public vtkPointSetAlgorithm
 {

@@ -26,9 +26,9 @@
 #ifndef vtkImageSliceCollection_h
 #define vtkImageSliceCollection_h
 
-#include "vtkRenderingImageModule.h" // For export macro
-#include "vtkPropCollection.h"
 #include "vtkImageSlice.h" // to allow inline static-cast
+#include "vtkPropCollection.h"
+#include "vtkRenderingImageModule.h" // For export macro
 
 class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollection
 {

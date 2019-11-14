@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
 #include <vtkBoxClipDataSet.h>
 #include <vtkLookupTable.h>
+#include <vtkSmartPointer.h>
 
-#include <vtkUnstructuredGridReader.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridReader.h>
 
-#include <vtkDataSetSurfaceFilter.h>
-#include <vtkDataSetMapper.h>
-#include <vtkCamera.h>
 #include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkDataSetMapper.h>
+#include <vtkDataSetSurfaceFilter.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
 #include "vtkTestUtilities.h"
 

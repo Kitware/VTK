@@ -31,9 +31,9 @@
 #ifndef vtkAOSDataArrayTemplate_h
 #define vtkAOSDataArrayTemplate_h
 
+#include "vtkBuffer.h"           // For storage buffer.
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
-#include "vtkBuffer.h" // For storage buffer.
 
 // The export macro below makes no sense, but is necessary for older compilers
 // when we export instantiations of this class from vtkCommonCore.

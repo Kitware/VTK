@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkTransformCoordinateSystems.h"
 
+#include "vtkCoordinate.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkCoordinate.h"
-#include "vtkViewport.h"
 #include "vtkPointSet.h"
+#include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkTransformCoordinateSystems);
 

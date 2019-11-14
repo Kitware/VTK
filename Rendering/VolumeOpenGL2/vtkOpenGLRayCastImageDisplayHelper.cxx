@@ -14,20 +14,20 @@
 =========================================================================*/
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVolume.h"
-#include "vtkRenderer.h"
-#include "vtkTransform.h"
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
-#include "vtkTextureObject.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
+#include "vtkTransform.h"
+#include "vtkVolume.h"
 
 #include "vtkOpenGLHelper.h"
 

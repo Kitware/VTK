@@ -40,8 +40,8 @@
 #ifndef vtkmWarpScalar_h
 #define vtkmWarpScalar_h
 
-#include "vtkWarpScalar.h"
 #include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkWarpScalar.h"
 
 class VTKACCELERATORSVTKM_EXPORT vtkmWarpScalar : public vtkWarpScalar
 {

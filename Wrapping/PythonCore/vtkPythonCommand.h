@@ -16,9 +16,9 @@
 #ifndef vtkPythonCommand_h
 #define vtkPythonCommand_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
-#include "vtkPython.h"
 #include "vtkCommand.h"
+#include "vtkPython.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 // To allow Python to use the vtkCommand features
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonCommand : public vtkCommand

@@ -12,9 +12,9 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
+#include "vtkFieldDataSerializer.h"
 #include "vtkDataArray.h"
 #include "vtkFieldData.h"
-#include "vtkFieldDataSerializer.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkMultiProcessStream.h"

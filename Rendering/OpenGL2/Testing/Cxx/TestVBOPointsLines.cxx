@@ -12,17 +12,16 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
+#include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkCellArray.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTrivialProducer.h"
 
 #include "vtkRegressionTestImage.h"

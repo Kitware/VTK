@@ -21,8 +21,8 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include <vector> // for implementation
 #include <algorithm> // for sorting
+#include <vector> // for implementation
 
 //class VTKCOMMONDATAMODEL_EXPORT vtkIntersectionCounter
 

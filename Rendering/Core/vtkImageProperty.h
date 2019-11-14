@@ -28,8 +28,8 @@
 #ifndef vtkImageProperty_h
 #define vtkImageProperty_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkScalarsToColors;
 

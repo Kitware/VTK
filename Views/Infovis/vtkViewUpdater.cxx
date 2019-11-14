@@ -23,11 +23,11 @@
 #include "vtkAnnotationLink.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkView.h"
 #include "vtkRenderView.h"
+#include "vtkView.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkViewUpdater);
 

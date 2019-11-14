@@ -25,9 +25,9 @@
 #ifndef vtk3DSImporter_h
 #define vtk3DSImporter_h
 
+#include "vtk3DS.h"  // Needed for all the 3DS structures
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
-#include "vtk3DS.h"  // Needed for all the 3DS structures
 
 class vtkPolyData;
 

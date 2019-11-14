@@ -79,8 +79,8 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <vector> // STL Header; Required for vector
 #include <string> // STL Header; Required for string
+#include <vector> // STL Header; Required for vector
 
 class vtkPoints;
 class vtkCellData;

@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkTransform2D.h"
-#include "vtkPoints2D.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints2D.h"
 
 #include <cstdlib>
 

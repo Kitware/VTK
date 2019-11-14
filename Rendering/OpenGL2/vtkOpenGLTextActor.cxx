@@ -18,8 +18,8 @@
 #include "vtkCoordinate.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGL2PSHelper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkOpenGLTextActor)

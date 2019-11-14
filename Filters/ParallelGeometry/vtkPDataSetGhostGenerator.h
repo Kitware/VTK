@@ -27,8 +27,8 @@
 #ifndef vtkPDataSetGhostGenerator_h
 #define vtkPDataSetGhostGenerator_h
 
-#include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkDataSetGhostGenerator.h"
+#include "vtkFiltersParallelGeometryModule.h" // For export macro
 
 class vtkMultiProcessController;
 class vtkMultiBlockDataSet;

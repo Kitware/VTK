@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkRenderState.h"
-#include <cassert>
-#include "vtkRenderer.h"
 #include "vtkFrameBufferObjectBase.h"
+#include "vtkRenderer.h"
+#include <cassert>
 
 // ----------------------------------------------------------------------------
 // Description:

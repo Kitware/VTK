@@ -12,20 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkSmartPointer.h>
-#include <vtkExecutive.h>
-#include <vtkDataSetMapper.h>
 #include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkMFIXReader.h>
-#include <vtkUnstructuredGrid.h>
 #include <vtkCellData.h>
+#include <vtkDataSetMapper.h>
+#include <vtkExecutive.h>
+#include <vtkMFIXReader.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
 
-#include <vtkTestUtilities.h>
-#include <vtkTestErrorObserver.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestErrorObserver.h>
+#include <vtkTestUtilities.h>
 
 int TestMFIXReader(int argc, char *argv[])
 {

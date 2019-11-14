@@ -14,12 +14,12 @@
 =========================================================================*/
 
 #include "vtkImageStack.h"
-#include "vtkImageSliceCollection.h"
-#include "vtkImageProperty.h"
-#include "vtkImageMapper3D.h"
-#include "vtkMatrix4x4.h"
 #include "vtkAssemblyPath.h"
 #include "vtkAssemblyPaths.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageProperty.h"
+#include "vtkImageSliceCollection.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageStack);

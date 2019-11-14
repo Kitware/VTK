@@ -17,10 +17,10 @@
  * Use, modification and distribution is subject to the Boost Software
  * License, Version 1.0. (See http://www.boost.org/LICENSE_1_0.txt)
  */
-#include "vtkVariantBoostSerialization.h"
 #include "vtkSmartPointer.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
+#include "vtkVariantBoostSerialization.h"
 
 #include <sstream>
 #include <string.h>

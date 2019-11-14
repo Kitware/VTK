@@ -18,6 +18,9 @@
 #include "vtkConfigure.h"
 #include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_COCOA
 
+// Must be included before `gl.h` due to glew.
+#include "vtkOpenGLError.h"
+
 // To prevent gl.h to include glext.h provided by the system
 #define GL_GLEXT_LEGACY
 #if defined(__APPLE__) && defined(VTK_USE_COCOA)

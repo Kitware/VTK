@@ -13,11 +13,11 @@
 
 =========================================================================*/
 #include "vtkImagePointDataIterator.h"
+#include "vtkAlgorithm.h"
+#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
-#include "vtkDataArray.h"
 #include "vtkPointData.h"
-#include "vtkAlgorithm.h"
 
 #include <algorithm>
 

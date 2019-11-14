@@ -33,8 +33,8 @@
 #ifndef vtkPointSetToLabelHierarchy_h
 #define vtkPointSetToLabelHierarchy_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelHierarchyAlgorithm.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkTextProperty;
 

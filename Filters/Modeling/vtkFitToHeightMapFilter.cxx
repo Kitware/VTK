@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkFitToHeightMapFilter.h"
 
-#include "vtkPixel.h"
-#include "vtkTriangle.h"
+#include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkPixel.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTriangle.h"
 
 vtkStandardNewMacro(vtkFitToHeightMapFilter);
 

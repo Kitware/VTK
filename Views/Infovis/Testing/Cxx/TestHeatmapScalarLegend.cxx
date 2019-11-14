@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkHeatmapItem.h"
-#include "vtkNew.h"
 #include "vtkIntArray.h"
+#include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
@@ -23,9 +23,9 @@
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 

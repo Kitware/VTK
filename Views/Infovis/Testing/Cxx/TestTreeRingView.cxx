@@ -20,11 +20,11 @@
 =========================================================================*/
 
 #include "vtkDataRepresentation.h"
-#include "vtkRenderWindow.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderedTreeAreaRepresentation.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkSplineGraphEdges.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"

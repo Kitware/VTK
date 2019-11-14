@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkLookupTableWithEnabling.h"
 #include "vtkBitArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkVariant.h"
 #include <cassert>
 

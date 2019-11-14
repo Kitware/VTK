@@ -30,8 +30,8 @@
 #ifndef vtkImageCroppingRegionsWidget_h
 #define vtkImageCroppingRegionsWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor2D;
 class vtkImageData;

@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPython.h" // Need to be first and used for Py_xxx macros
 #include "vtkWebUtilities.h"
+#include "vtkPython.h" // Need to be first and used for Py_xxx macros
 
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"

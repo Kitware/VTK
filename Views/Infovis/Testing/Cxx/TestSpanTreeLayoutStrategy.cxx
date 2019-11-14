@@ -18,12 +18,12 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkSpanTreeLayoutStrategy.h"
 #include "vtkGraphLayoutView.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSpanTreeLayoutStrategy.h"
 #include "vtkTestUtilities.h"
 #include "vtkXGMLReader.h"
 

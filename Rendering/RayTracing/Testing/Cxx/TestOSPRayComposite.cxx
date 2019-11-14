@@ -27,15 +27,15 @@
 #include "vtkCompositeRenderManager.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayPass.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProcess.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkSphereSource.h"
 
 class MyProcess : public vtkProcess

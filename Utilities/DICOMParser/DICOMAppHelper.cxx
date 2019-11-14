@@ -23,16 +23,16 @@
 #pragma warning ( push, 3 )
 #endif
 
-#include "DICOMConfig.h"
 #include "DICOMAppHelper.h"
 #include "DICOMCallback.h"
+#include "DICOMConfig.h"
 
-#include <stdlib.h>
+#include <algorithm>
+#include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <string>
-#include <math.h>
-#include <algorithm>
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 #include <mem.h> // for memcpy
 #endif

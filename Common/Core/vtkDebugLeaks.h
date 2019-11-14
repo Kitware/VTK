@@ -52,8 +52,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkToolkits.h" // Needed for VTK_DEBUG_LEAKS macro setting.
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
+#include "vtkToolkits.h" // Needed for VTK_DEBUG_LEAKS macro setting.
 
 class vtkDebugLeaksHashTable;
 class vtkDebugLeaksTraceManager;

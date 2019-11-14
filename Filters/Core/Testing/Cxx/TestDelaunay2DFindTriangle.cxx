@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkDelaunay2D.h"
 #include "vtkCellArray.h"
+#include "vtkDelaunay2D.h"
 
 int TestDelaunay2DFindTriangle( int vtkNotUsed(argc), char* vtkNotUsed(argv)[] )
 {

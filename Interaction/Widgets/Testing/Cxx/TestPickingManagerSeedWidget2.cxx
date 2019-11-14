@@ -53,10 +53,10 @@
 #include "vtkNew.h"
 #include "vtkPickingManager.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkSeedRepresentation.h"
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
@@ -65,8 +65,8 @@
 #include "vtkTimerLog.h"
 
 // STL includes
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <list>
 
 const char eventLogTestPickingManagerSeedWidget2[] = ""

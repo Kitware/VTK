@@ -19,15 +19,15 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
-#include <vtkUnicodeStringArray.h>
-#include <vtkIdList.h>
 #include <vtkDoubleArray.h>
-#include <vtkVariant.h>
+#include <vtkIdList.h>
+#include <vtkSmartPointer.h>
 #include <vtkTestErrorObserver.h>
+#include <vtkUnicodeStringArray.h>
+#include <vtkVariant.h>
 
-#include <iterator>
 #include <iostream>
+#include <iterator>
 #include <sstream>
 #include <stdexcept>
 

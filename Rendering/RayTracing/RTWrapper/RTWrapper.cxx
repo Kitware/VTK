@@ -9,14 +9,14 @@
 
 #include "RTWrapper.h"
 
-#include <iostream>
-#include <sstream>
 #include <algorithm>
-#include <map>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
+#include <map>
 #include <set>
+#include <sstream>
 
 #ifdef VTK_ENABLE_VISRTX
 RTW::VisRTXBackend* rtwVisRTXBackend = nullptr;

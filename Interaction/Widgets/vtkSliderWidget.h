@@ -66,8 +66,8 @@
 #ifndef vtkSliderWidget_h
 #define vtkSliderWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkSliderRepresentation;
 

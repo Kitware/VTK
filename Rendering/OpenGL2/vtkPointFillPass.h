@@ -28,8 +28,8 @@
 #ifndef vtkPointFillPass_h
 #define vtkPointFillPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDepthImageProcessingPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkOpenGLFramebufferObject;

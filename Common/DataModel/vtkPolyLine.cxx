@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkPolyLine.h"
 
-#include "vtkMath.h"
 #include "vtkCellArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
-#include "vtkLine.h"
-#include "vtkNew.h"
-#include "vtkPoints.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 

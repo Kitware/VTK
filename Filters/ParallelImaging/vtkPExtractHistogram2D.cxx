@@ -20,8 +20,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPExtractHistogram2D.h"
 
 #include "vtkDataArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"

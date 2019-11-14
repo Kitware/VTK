@@ -32,8 +32,8 @@
 #ifndef vtkActor_h
 #define vtkActor_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkPropCollection;

@@ -27,9 +27,9 @@
 #ifndef vtkOpenGLVertexBufferObjectCache_h
 #define vtkOpenGLVertexBufferObjectCache_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
-#include <map> // for methods
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <map>                         // for methods
 
 class vtkOpenGLVertexBufferObject;
 class vtkDataArray;

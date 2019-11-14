@@ -12,10 +12,10 @@
 
 #include "vtkQtView.h"
 
+#include "vtkObjectFactory.h"
 #include <QApplication>
 #include <QPixmap>
 #include <QWidget>
-#include "vtkObjectFactory.h"
 
 
 //----------------------------------------------------------------------------

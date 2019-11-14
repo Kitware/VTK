@@ -56,8 +56,8 @@
 #ifndef vtkSQLGraphReader_h
 #define vtkSQLGraphReader_h
 
-#include "vtkIOSQLModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkIOSQLModule.h" // For export macro
 
 class vtkSQLQuery;
 

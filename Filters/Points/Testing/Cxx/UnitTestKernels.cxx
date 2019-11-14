@@ -13,25 +13,25 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkLinearKernel.h"
-#include "vtkGaussianKernel.h"
-#include "vtkEllipsoidalGaussianKernel.h"
-#include "vtkShepardKernel.h"
-#include "vtkProbabilisticVoronoiKernel.h"
-#include "vtkVoronoiKernel.h"
-#include "vtkPointSource.h"
-#include "vtkSphereSource.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkDoubleArray.h"
+#include "vtkEllipsoidalGaussianKernel.h"
+#include "vtkGaussianKernel.h"
+#include "vtkLinearKernel.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkPointData.h"
+#include "vtkPointSource.h"
+#include "vtkPoints.h"
+#include "vtkProbabilisticVoronoiKernel.h"
+#include "vtkShepardKernel.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkVoronoiKernel.h"
 
-#include <string>
 #include <cmath>
 #include <sstream>
+#include <string>
 
 template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description = "", bool useProbs = true);
 template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description = "");

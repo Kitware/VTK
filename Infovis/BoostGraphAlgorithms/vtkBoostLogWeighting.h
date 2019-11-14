@@ -34,8 +34,8 @@
 #ifndef vtkBoostLogWeighting_h
 #define vtkBoostLogWeighting_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostLogWeighting : public vtkArrayDataAlgorithm
 {

@@ -29,9 +29,9 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPMultiCorrelativeStatistics.h"
 #include "vtkPOrderStatistics.h"
 #include "vtkTable.h"
-#include "vtkPMultiCorrelativeStatistics.h"
 
 vtkStandardNewMacro(vtkPPCAStatistics);
 vtkCxxSetObjectMacro(vtkPPCAStatistics, Controller, vtkMultiProcessController);

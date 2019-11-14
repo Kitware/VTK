@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkDepthImageToPointCloud.h"
 
-#include "vtkCommand.h"
-#include "vtkFloatArray.h"
+#include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkCamera.h"
 #include "vtkCellArray.h"
-#include "vtkPolyData.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkCamera.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkCoordinate.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkDepthImageToPointCloud);
 vtkCxxSetObjectMacro(vtkDepthImageToPointCloud,Camera,vtkCamera);

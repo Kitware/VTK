@@ -23,35 +23,35 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkLabeledDataMapper.h"
+#include "vtkImageData.h"
 #include "vtkLabelHierarchy.h"
 #include "vtkLabelPlacementMapper.h"
+#include "vtkLabeledDataMapper.h"
 #include "vtkMath.h"
-#include "vtkPointSetToLabelHierarchy.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkPointSet.h"
+#include "vtkPointSetToLabelHierarchy.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkStringArray.h"
-#include "vtkTextProperty.h"
-#include "vtkPolyData.h"
-#include "vtkImageData.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTextProperty.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
 
 #include "vtkSphereSource.h"
 
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 /*
 void prtbds( const char* msg, const double* bds )

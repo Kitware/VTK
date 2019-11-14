@@ -16,7 +16,6 @@
 
 #include "vtkActor.h"
 #include "vtkDataSetSurfaceFilter.h"
-#include "vtkmThreshold.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
@@ -25,11 +24,12 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkThreshold.h"
 #include "vtkTrivialProducer.h"
+#include "vtkmThreshold.h"
 
 namespace
 {

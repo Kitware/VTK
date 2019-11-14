@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkHausdorffDistancePointSetFilter.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyData.h"
 #include "vtkMathUtilities.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 
 int UnitTestHausdorffDistancePointSetFilter(int, char *[])
 {

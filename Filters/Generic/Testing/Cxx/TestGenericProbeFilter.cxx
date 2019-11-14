@@ -24,34 +24,34 @@
 //#define STD_PROBE
 
 #include "vtkActor.h"
+#include "vtkAttributesErrorMetric.h"
+#include "vtkBridgeDataSet.h"
+#include "vtkDataSetMapper.h"
 #include "vtkDebugLeaks.h"
+#include "vtkGenericCellTessellator.h"
+#include "vtkGenericGeometryFilter.h"
+#include "vtkGenericProbeFilter.h"
+#include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkGeometricErrorMetric.h"
+#include "vtkLookupTable.h"
+#include "vtkPlane.h"
+#include "vtkPlaneSource.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProbeFilter.h" // std probe filter, to compare
 #include "vtkProperty.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkXMLUnstructuredGridReader.h"
-#include "vtkBridgeDataSet.h"
-#include "vtkGenericGeometryFilter.h"
-#include "vtkGenericCellTessellator.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
-#include <cassert>
-#include "vtkLookupTable.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPolyData.h"
-#include "vtkGeometricErrorMetric.h"
-#include "vtkAttributesErrorMetric.h"
+#include "vtkRenderer.h"
 #include "vtkSimpleCellTessellator.h"
-#include "vtkPlaneSource.h"
+#include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkGenericProbeFilter.h"
-#include "vtkDataSetMapper.h"
-#include "vtkPlane.h"
-#include "vtkProbeFilter.h" // std probe filter, to compare
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLUnstructuredGridReader.h"
+#include <cassert>
 
 
 int TestGenericProbeFilter(int argc, char* argv[])

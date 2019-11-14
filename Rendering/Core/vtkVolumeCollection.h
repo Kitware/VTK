@@ -27,8 +27,8 @@
 #ifndef vtkVolumeCollection_h
 #define vtkVolumeCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkVolume.h"  // Needed for static cast
 

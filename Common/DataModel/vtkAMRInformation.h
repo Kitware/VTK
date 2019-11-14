@@ -31,9 +31,9 @@
 #ifndef vtkAMRInformation_h
 #define vtkAMRInformation_h
 
+#include "vtkAMRBox.h" //for storing AMR Boxes
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkAMRBox.h" //for storing AMR Boxes
 #include "vtkSmartPointer.h" //for ivars
 #include <vector> //for storing AMR Boxes
 

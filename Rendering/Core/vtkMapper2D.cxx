@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkMapper2D.h"
-#include "vtkViewport.h"
 #include "vtkActor2D.h"
 #include "vtkObjectFactory.h"
+#include "vtkViewport.h"
 
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {

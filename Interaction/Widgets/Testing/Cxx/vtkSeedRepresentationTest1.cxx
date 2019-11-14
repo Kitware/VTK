@@ -18,14 +18,14 @@
 #include <iostream>
 
 #include "vtkImageData.h"
-#include "vtkTextProperty.h"
 #include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
 
 #include "WidgetTestingMacros.h"
 #include "vtkTestErrorObserver.h"
 
-#include "vtkTextActor.h"
 #include "vtkPointHandleRepresentation3D.h"
+#include "vtkTextActor.h"
 
 int vtkSeedRepresentationTest1(int , char * [] )
 {

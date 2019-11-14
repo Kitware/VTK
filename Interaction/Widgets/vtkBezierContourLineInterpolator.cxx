@@ -15,10 +15,10 @@
 #include "vtkBezierContourLineInterpolator.h"
 
 #include "vtkContourRepresentation.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkIntArray.h"
 
 vtkStandardNewMacro(vtkBezierContourLineInterpolator);
 

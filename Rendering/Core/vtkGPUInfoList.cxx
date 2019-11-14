@@ -15,12 +15,12 @@
 
 #include "vtkGPUInfoList.h"
 
-#include <cassert>
 #include "vtkGPUInfo.h"
 #include "vtkGraphicsFactory.h"
+#include <cassert>
 
-#include <vector>
 #include "vtkGPUInfoListArray.h"
+#include <vector>
 
 
 // ----------------------------------------------------------------------------

@@ -23,8 +23,8 @@
 
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 
 int TestDICOMImageReader(int argc, char *argv[])

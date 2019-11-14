@@ -20,8 +20,8 @@
 #pragma warning ( push, 3 )
 #endif
 
-#include "DICOMConfig.h"
 #include "DICOMFile.h"
+#include "DICOMConfig.h"
 
 #include <stdio.h>
 #include <string.h>

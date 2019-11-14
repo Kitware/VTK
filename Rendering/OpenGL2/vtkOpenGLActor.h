@@ -23,8 +23,8 @@
 #ifndef vtkOpenGLActor_h
 #define vtkOpenGLActor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkActor.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;

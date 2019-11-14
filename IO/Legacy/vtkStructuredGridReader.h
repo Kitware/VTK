@@ -31,8 +31,8 @@
 #ifndef vtkStructuredGridReader_h
 #define vtkStructuredGridReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkStructuredGrid;
 

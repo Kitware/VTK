@@ -17,9 +17,9 @@
 #include "vtkCommand.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVectorOperators.h"
 

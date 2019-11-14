@@ -13,10 +13,10 @@
 
  =========================================================================*/
 #include "vtkOverlappingAMRAlgorithm.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkInformation.h"
-#include "vtkCompositeDataPipeline.h"
 
 vtkStandardNewMacro(vtkOverlappingAMRAlgorithm);
 

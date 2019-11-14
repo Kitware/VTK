@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
 
 #ifndef WINVER
 #define WINVER 0x0601  // for touch support, 0x0601 means target Windows 7 or later
@@ -46,10 +46,10 @@
 VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND,UINT,WPARAM,LPARAM);
 VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,class vtkWin32RenderWindowInteractor*);
 
-#include "vtkWin32RenderWindowInteractor.h"
 #include "vtkActor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkWin32RenderWindowInteractor.h"
 
 #ifdef VTK_USE_TDX
 #include "vtkTDxWinDevice.h"

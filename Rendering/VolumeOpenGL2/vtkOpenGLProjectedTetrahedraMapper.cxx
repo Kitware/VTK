@@ -57,13 +57,13 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <string>
 
 // bring in shader code
-#include "vtkglProjectedTetrahedraVS.h"
 #include "vtkglProjectedTetrahedraFS.h"
+#include "vtkglProjectedTetrahedraVS.h"
 
 namespace
 {

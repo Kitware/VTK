@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkFlyingEdges2D.h"
 
-#include "vtkImageData.h"
 #include "vtkCellArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkImageTransform.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>
 

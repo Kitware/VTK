@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkOBJReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkOBJReader.h"
 
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 
 //------------------------------------------------------------------------------

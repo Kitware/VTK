@@ -15,8 +15,8 @@
 #include "vtkArrayCalculator.h"
 
 #include "vtkCellData.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"

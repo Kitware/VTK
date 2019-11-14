@@ -20,8 +20,8 @@
 #ifndef vtkGraphicsFactory_h
 #define vtkGraphicsFactory_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkGraphicsFactory : public vtkObject
 {

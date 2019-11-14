@@ -42,10 +42,10 @@
 #include "vtkParseExtras.h"
 #include "vtkParseMain.h"
 #include "vtkParsePreprocess.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #ifdef _WIN32
 # include <windows.h>
 #else

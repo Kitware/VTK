@@ -24,8 +24,8 @@
 #ifndef vtkDataSetWriter_h
 #define vtkDataSetWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class VTKIOLEGACY_EXPORT vtkDataSetWriter : public vtkDataWriter
 {

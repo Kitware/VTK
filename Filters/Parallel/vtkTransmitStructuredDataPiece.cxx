@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkTransmitStructuredDataPiece.h"
 
+#include "vtkDataSet.h"
+#include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSet.h"
-#include "vtkExtentTranslator.h"
 
 vtkStandardNewMacro(vtkTransmitStructuredDataPiece);
 

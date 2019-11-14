@@ -41,8 +41,8 @@
 #ifndef vtkPicker_h
 #define vtkPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkAbstractMapper3D;
 class vtkCompositeDataSet;

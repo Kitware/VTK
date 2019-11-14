@@ -32,8 +32,8 @@
 #define vtkImageResliceToColors_h
 
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageReslice.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkScalarsToColors;
 

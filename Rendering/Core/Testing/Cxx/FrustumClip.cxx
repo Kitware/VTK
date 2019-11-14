@@ -23,7 +23,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
 // Generate a sphere. Create a view frustum looking at the sphere

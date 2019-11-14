@@ -30,9 +30,9 @@
 #ifndef vtkSplineGraphEdges_h
 #define vtkSplineGraphEdges_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
-#include "vtkSmartPointer.h" // For ivars
+#include "vtkInfovisLayoutModule.h" // For export macro
+#include "vtkSmartPointer.h"        // For ivars
 
 class vtkSpline;
 

@@ -13,29 +13,29 @@
 
  =========================================================================*/
 #include "vtkAMRFlashReader.h"
+#include "vtkAMRBox.h"
+#include "vtkByteSwap.h"
+#include "vtkDataArraySelection.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkByteSwap.h"
 #include "vtkUniformGrid.h"
-#include "vtkDataArraySelection.h"
-#include "vtkAMRBox.h"
 
-#include "vtkDataSet.h"
 #include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkLongLongArray.h"
-#include "vtkUnsignedIntArray.h"
+#include "vtkShortArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedShortArray.h"
 
 #include <cassert>
-#include <vector>
-#include <map>
 #include <cfloat>
+#include <map>
+#include <vector>
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
 

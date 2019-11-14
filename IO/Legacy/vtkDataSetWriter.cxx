@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkDataSetWriter.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
@@ -28,7 +29,6 @@
 #include "vtkStructuredPointsWriter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridWriter.h"
-#include "vtkAlgorithmOutput.h"
 
 vtkStandardNewMacro(vtkDataSetWriter);
 

@@ -21,20 +21,19 @@
 //#define WRITE_RESULT
 
 #include "vtkActor.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataPointSampler.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkPolyData.h"
-#include "vtkStripper.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataPointSampler.h"
 #include "vtkProperty.h"
-#include "vtkCamera.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkStripper.h"
+#include "vtkTestUtilities.h"
 
 int TestPolyDataPointSampler(int argc, char* argv[])
 {

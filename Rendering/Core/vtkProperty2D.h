@@ -26,8 +26,8 @@
 #ifndef vtkProperty2D_h
 #define vtkProperty2D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkViewport;
 

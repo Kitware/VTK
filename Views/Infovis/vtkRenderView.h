@@ -34,9 +34,9 @@
 #ifndef vtkRenderView_h
 #define vtkRenderView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderViewBase.h"
-#include "vtkSmartPointer.h" // For SP ivars
+#include "vtkSmartPointer.h"       // For SP ivars
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkAbstractTransform;
 class vtkActor2D;

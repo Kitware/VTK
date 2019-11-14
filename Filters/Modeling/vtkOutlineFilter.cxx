@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkOutlineFilter.h"
 
-#include "vtkDataSet.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPolyData.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
 
 #include <set>
 

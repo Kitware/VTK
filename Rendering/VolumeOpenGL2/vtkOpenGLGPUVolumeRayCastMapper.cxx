@@ -28,6 +28,8 @@
 #include "vtkInformation.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLResourceFreeCallback.h"
+#include "vtkOpenGLState.h"
+#include "vtkOpenGLUniforms.h"
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
 #include <vtkCellArray.h>
@@ -39,17 +41,14 @@
 #include <vtkDataArray.h>
 #include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
-#include <vtkOpenGLFramebufferObject.h>
 #include <vtkImageData.h>
-#include "vtkInformation.h"
-#include <vtkLightCollection.h>
 #include <vtkLight.h>
 #include <vtkLightCollection.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
+#include <vtkMultiVolume.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include "vtkOpenGLActor.h"
 #include <vtkOpenGLBufferObject.h>
 #include <vtkOpenGLCamera.h>
 #include <vtkOpenGLError.h>
@@ -57,13 +56,9 @@
 #include <vtkOpenGLRenderPass.h>
 #include <vtkOpenGLRenderUtilities.h>
 #include <vtkOpenGLRenderWindow.h>
-#include "vtkOpenGLResourceFreeCallback.h"
 #include <vtkOpenGLShaderCache.h>
 #include <vtkOpenGLShaderProperty.h>
-#include "vtkOpenGLState.h"
 #include <vtkOpenGLVertexArrayObject.h>
-#include "vtkOpenGLUniforms.h"
-#include <vtkMultiVolume.h>
 #include <vtkPixelBufferObject.h>
 #include <vtkPixelExtent.h>
 #include <vtkPixelTransfer.h>
@@ -72,8 +67,8 @@
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
 #include <vtkShader.h>
 #include <vtkShaderProgram.h>
 #include <vtkSmartPointer.h>
@@ -88,17 +83,17 @@
 #include <vtkVolumeInputHelper.h>
 
 #include "vtkOpenGLVolumeGradientOpacityTable.h"
+#include "vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.h"
 #include "vtkOpenGLVolumeMaskTransferFunction2D.h"
 #include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
 #include "vtkOpenGLVolumeTransferFunction2D.h"
-#include "vtkOpenGLVolumeMaskGradientOpacityTransferFunction2D.h"
 
+#include <vtkHardwareSelector.h>
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 #include <vtkVolumeTexture.h>
 #include <vtkWeakPointer.h>
-#include <vtkHardwareSelector.h>
 
 // C/C++ includes
 #include <cassert>

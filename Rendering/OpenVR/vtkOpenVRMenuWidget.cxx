@@ -16,17 +16,17 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenVRMenuWidget.h"
 #include "vtkOpenVRMenuRepresentation.h"
 
-#include "vtkEventData.h"
-#include "vtkNew.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkCamera.h"
+#include "vtkEventData.h"
+#include "vtkInteractorStyle3D.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPropPicker.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkInteractorStyle3D.h"
-#include "vtkPropPicker.h"
-#include "vtkAssemblyPath.h"
 
 #include <map>
 

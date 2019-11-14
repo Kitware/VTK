@@ -19,11 +19,11 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMath.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
 

@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkTransposeMatrix.h"
 #include "vtkCommand.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"
@@ -26,7 +27,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
-#include "vtkTransposeMatrix.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkTransposeMatrix

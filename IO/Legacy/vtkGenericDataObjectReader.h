@@ -35,8 +35,8 @@
 #ifndef vtkGenericDataObjectReader_h
 #define vtkGenericDataObjectReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkDataObject;
 class vtkGraph;

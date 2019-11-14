@@ -17,11 +17,11 @@
 #include "vtkAbstractPropPicker.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkObserverMediator.h"
 #include "vtkPickingManager.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);

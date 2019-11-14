@@ -23,12 +23,12 @@
 #pragma warning ( push, 3 )
 #endif
 
-#include <vector>
 #include <string>
+#include <vector>
 
+#include "DICOMCallback.h"
 #include "DICOMConfig.h"
 #include "DICOMTypes.h"
-#include "DICOMCallback.h"
 
 #ifdef _MSC_VER
 #pragma warning ( default: 4018 )

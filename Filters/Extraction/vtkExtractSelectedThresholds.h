@@ -34,8 +34,8 @@
 #ifndef vtkExtractSelectedThresholds_h
 #define vtkExtractSelectedThresholds_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkDataArray;
 class vtkSelection;

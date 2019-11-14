@@ -27,13 +27,13 @@
 #ifndef vtkPixelExtent_h
 #define vtkPixelExtent_h
 
-#include "vtkSystemIncludes.h" // for VTK's system header config
 #include "vtkCommonDataModelModule.h" // for export
+#include "vtkSystemIncludes.h" // for VTK's system header config
 
-#include <deque> // for inline impl
 #include <algorithm> // for inline impl
-#include <iostream> // for inline impl
 #include <climits> // for inline impl
+#include <deque> // for inline impl
+#include <iostream> // for inline impl
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPixelExtent
 {

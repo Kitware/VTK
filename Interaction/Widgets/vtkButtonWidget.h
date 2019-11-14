@@ -55,8 +55,8 @@
 #ifndef vtkButtonWidget_h
 #define vtkButtonWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkButtonRepresentation;
 

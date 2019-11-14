@@ -26,9 +26,9 @@
 #ifndef vtkPSystemTools_h
 #define vtkPSystemTools_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <string> // for string functions in SystemTools
+#include "vtkParallelCoreModule.h" // For export macro
+#include <string>                  // for string functions in SystemTools
 
 class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
 {

@@ -16,22 +16,22 @@
 #include <vtkFollower.h>
 #include <vtkGraphLayoutView.h>
 #include <vtkGraphMapper.h>
+#include <vtkImageData.h>
 #include <vtkMutableUndirectedGraph.h>
+#include <vtkPNGReader.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
 #include <vtkPointSet.h>
+#include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkPNGReader.h>
-#include <vtkRenderedGraphRepresentation.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderedGraphRepresentation.h>
+#include <vtkRenderer.h>
 #include <vtkTexture.h>
-#include <vtkImageData.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 
 int TestIconGlyphFilter( int argc, char *argv[])

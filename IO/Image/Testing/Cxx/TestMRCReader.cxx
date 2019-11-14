@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkNew.h"
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkCamera.h"
 #include "vtkImageData.h"

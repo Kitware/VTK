@@ -16,20 +16,20 @@
 // This test was written by Philippe Pebay, 2016
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridAxisReflection.h"
+#include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestHyperTreeGridTernary3DAxisReflectionXCenter( int argc, char* argv[] )
 {

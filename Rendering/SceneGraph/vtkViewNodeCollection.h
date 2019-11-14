@@ -22,8 +22,8 @@
 #ifndef vtkViewNodeCollection_h
 #define vtkViewNodeCollection_h
 
-#include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkRenderingSceneGraphModule.h" // For export macro
 
 class vtkViewNode;
 

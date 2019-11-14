@@ -15,8 +15,8 @@
 #include "vtkExtractTemporalFieldData.h"
 
 #include "vtkCompositeDataIterator.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

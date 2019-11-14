@@ -22,12 +22,12 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
-#include "vtkmCleanGrid.h"
-#include "vtkmGradient.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkmCleanGrid.h"
+#include "vtkmGradient.h"
 
 #include <vtkm/testing/Testing.h>
 

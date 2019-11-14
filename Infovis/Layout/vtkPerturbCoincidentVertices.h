@@ -31,9 +31,9 @@
 #ifndef vtkPerturbCoincidentVertices_h
 #define vtkPerturbCoincidentVertices_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
-#include "vtkSmartPointer.h" // for ivars
+#include "vtkInfovisLayoutModule.h" // For export macro
+#include "vtkSmartPointer.h"        // for ivars
 
 class vtkCoincidentPoints;
 class vtkDataSet;

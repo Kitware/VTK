@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkPlaybackWidget.h"
-#include "vtkPlaybackRepresentation.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlaybackRepresentation.h"
 
 vtkStandardNewMacro(vtkPlaybackWidget);
 

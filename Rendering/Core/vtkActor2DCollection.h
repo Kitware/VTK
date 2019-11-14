@@ -28,8 +28,8 @@
 #ifndef vtkActor2DCollection_h
 #define vtkActor2DCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkActor2D.h" // Needed for inline methods
 

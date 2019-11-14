@@ -43,8 +43,8 @@
 #ifndef vtkScalarBarRepresentation_h
 #define vtkScalarBarRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkScalarBarActor;
 

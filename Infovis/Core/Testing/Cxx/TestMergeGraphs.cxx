@@ -19,15 +19,15 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkDelimitedTextReader.h>
+#include <vtkIOStream.h>
 #include <vtkMergeGraphs.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTableToGraph.h>
+#include <vtkTestUtilities.h>
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
-#include <vtkTestUtilities.h>
-#include <vtkIOStream.h>
 
 #include <string>
 

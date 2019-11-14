@@ -17,17 +17,17 @@
 // Original code from
 // http://www.vtk.org/pipermail/vtkusers/2005-April/079316.html
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkAnimationCue.h"
-#include "vtkRenderer.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkCommand.h"
 #include "vtkAnimationScene.h"
+#include "vtkCommand.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 class CueAnimator
 {

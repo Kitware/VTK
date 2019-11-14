@@ -25,8 +25,8 @@
 #ifndef vtkColor_h
 #define vtkColor_h
 
-#include "vtkTuple.h"
 #include "vtkObject.h" // for legacy macros
+#include "vtkTuple.h"
 
 // .NAME vtkColor3 - templated base type for storage of 3 component colors.
 //

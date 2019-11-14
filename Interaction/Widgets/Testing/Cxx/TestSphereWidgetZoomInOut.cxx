@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
-#include "vtkSphereWidget.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereWidget.h"
 #include "vtkTestUtilities.h"
 
 // Callback for the interaction

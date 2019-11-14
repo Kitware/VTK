@@ -28,12 +28,12 @@
 #ifndef vtkGraphItem_h
 #define vtkGraphItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
-#include "vtkVector.h" // For vector types in API
 #include "vtkColor.h" // For color types in API
 #include "vtkNew.h" // For vtkNew ivars
+#include "vtkVector.h" // For vector types in API
 
 class vtkGraph;
 class vtkImageData;

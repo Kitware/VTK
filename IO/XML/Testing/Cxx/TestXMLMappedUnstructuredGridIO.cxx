@@ -16,9 +16,9 @@
   This test was written by Menno Deij - van Rijswijk (MARIN).
 ----------------------------------------------------------------------------*/
 
-#include "vtkDataArray.h"
 #include "vtkCell.h" // for cell types
 #include "vtkCellIterator.h"
+#include "vtkDataArray.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
@@ -30,9 +30,8 @@
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-#include <string>
-#include <fstream>
 #include <algorithm>
+#include <fstream>
 #include <string>
 
 namespace { // this namespace contains the supporting mapped grid definition used in the test

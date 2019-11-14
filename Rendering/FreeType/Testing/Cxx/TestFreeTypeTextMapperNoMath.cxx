@@ -20,9 +20,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverrideInformation.h"
 #include "vtkOverrideInformationCollection.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
 

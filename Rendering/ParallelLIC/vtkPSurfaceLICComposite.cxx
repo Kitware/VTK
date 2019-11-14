@@ -14,36 +14,36 @@
 =========================================================================*/
 #include "vtkPSurfaceLICComposite.h"
 
+#include "vtkMPI.h"
 #include "vtkObjectFactory.h"
-#include "vtkPixelExtent.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkPPainterCommunicator.h"
 #include "vtkPPixelTransfer.h"
 #include "vtkPainterCommunicator.h"
-#include "vtkPPainterCommunicator.h"
-#include "vtkRenderingOpenGLConfigure.h"
-#include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkTextureObject.h"
 #include "vtkPixelBufferObject.h"
+#include "vtkPixelExtent.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderbuffer.h"
-#include "vtkMPI.h"
+#include "vtkRenderingOpenGLConfigure.h"
+#include "vtkTextureObject.h"
 
 
 #include "vtkOpenGLFramebufferObject.h"
-#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLHelper.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
+#include "vtkPSurfaceLICComposite_CompFS.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObjectVS.h"
-#include "vtkPSurfaceLICComposite_CompFS.h"
 
 
-#include <list>
-#include <deque>
-#include <vector>
-#include <utility>
 #include <algorithm>
 #include <cstddef>
+#include <deque>
+#include <list>
+#include <utility>
+#include <vector>
 
 using std::list;
 using std::deque;

@@ -13,16 +13,16 @@
 
 =========================================================================*/
 #include "vtkUniformGridAMR.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkAMRDataInternals.h"
+#include "vtkAMRInformation.h"
 #include "vtkInformation.h"
 #include "vtkInformationKey.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkUniformGrid.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkType.h"
-#include "vtkAMRInformation.h"
-#include "vtkAMRDataInternals.h"
+#include "vtkUniformGrid.h"
+#include "vtkUniformGridAMRDataIterator.h"
 
 vtkStandardNewMacro(vtkUniformGridAMR);
 

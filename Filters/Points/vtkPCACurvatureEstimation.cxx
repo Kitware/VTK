@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkPCACurvatureEstimation.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkAbstractPointLocator.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkPointSet.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
-#include "vtkSMPTools.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
 
 vtkStandardNewMacro(vtkPCACurvatureEstimation);
 vtkCxxSetObjectMacro(vtkPCACurvatureEstimation,Locator,vtkAbstractPointLocator);

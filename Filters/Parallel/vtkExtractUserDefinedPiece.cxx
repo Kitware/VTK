@@ -19,18 +19,18 @@
 
 #include "vtkExtractUserDefinedPiece.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkIntArray.h"
-#include "vtkIdList.h"
 #include "vtkCell.h"
-#include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkCellData.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkExtractUserDefinedPiece);
 

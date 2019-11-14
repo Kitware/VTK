@@ -24,16 +24,16 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderedGraphRepresentation.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderedGraphRepresentation.h"
+#include "vtkRenderer.h"
+#include "vtkScalarBarActor.h"
+#include "vtkScalarBarWidget.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLTreeReader.h"
-#include "vtkScalarBarWidget.h"
-#include "vtkScalarBarActor.h"
 
 using std::string;
 

@@ -20,22 +20,22 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSetAttributes.h"
 
-#include <string>
-#include "vtkmetaio/metaTypes.h"
-#include "vtkmetaio/metaUtils.h"
 #include "vtkmetaio/metaEvent.h"
-#include "vtkmetaio/metaObject.h"
+#include "vtkmetaio/metaImage.h"
 #include "vtkmetaio/metaImageTypes.h"
 #include "vtkmetaio/metaImageUtils.h"
-#include "vtkmetaio/metaImage.h"
+#include "vtkmetaio/metaObject.h"
+#include "vtkmetaio/metaTypes.h"
+#include "vtkmetaio/metaUtils.h"
+#include <string>
 
 #include <sys/stat.h>
 

@@ -16,16 +16,16 @@
 #include "vtkResliceCursorActor.h"
 
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkResliceCursorPolyDataAlgorithm.h"
-#include "vtkPlane.h"
-#include "vtkViewport.h"
-#include "vtkResliceCursor.h"
-#include "vtkProperty.h"
-#include "vtkObjectFactory.h"
 #include "vtkBoundingBox.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkResliceCursor.h"
+#include "vtkResliceCursorPolyDataAlgorithm.h"
+#include "vtkViewport.h"
 
 vtkStandardNewMacro(vtkResliceCursorActor);
 

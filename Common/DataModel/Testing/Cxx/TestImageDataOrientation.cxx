@@ -17,11 +17,11 @@
 // .SECTION Description
 // This program tests the direction API of the image data.
 
-#include "vtkMath.h"
-#include "vtkMathUtilities.h"
 #include "vtkCell.h"
 #include "vtkDebugLeaks.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"

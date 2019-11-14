@@ -31,8 +31,8 @@
 #ifndef vtkGraphReader_h
 #define vtkGraphReader_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkGraph;
 

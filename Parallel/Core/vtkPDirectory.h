@@ -25,9 +25,9 @@
 #ifndef vtkPDirectory_h
 #define vtkPDirectory_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <string> // for string functions in Directory
+#include "vtkParallelCoreModule.h" // For export macro
+#include <string>                  // for string functions in Directory
 
 class vtkStringArray;
 

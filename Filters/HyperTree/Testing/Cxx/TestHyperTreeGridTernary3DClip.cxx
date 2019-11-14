@@ -30,9 +30,9 @@
 #include "vtkPointData.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 #include "vtkUnstructuredGrid.h"
 

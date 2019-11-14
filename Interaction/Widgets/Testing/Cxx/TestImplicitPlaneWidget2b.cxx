@@ -20,8 +20,8 @@
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
-#include "vtkImplicitPlaneWidget2.h"
 #include "vtkImplicitPlaneRepresentation.h"
+#include "vtkImplicitPlaneWidget2.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkLODActor.h"
 #include "vtkPlane.h"
@@ -30,8 +30,8 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkSphereSource.h"
 
 static double TestImplicitPlaneWidget2bPlaneOrigins[3][3] =

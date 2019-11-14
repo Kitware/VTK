@@ -33,8 +33,8 @@
 #ifndef vtkMPIEventLog_h
 #define vtkMPIEventLog_h
 
-#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelMPIModule.h" // For export macro
 
 class VTKPARALLELMPI_EXPORT vtkMPIEventLog : public vtkObject
 {

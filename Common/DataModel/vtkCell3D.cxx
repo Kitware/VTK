@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkCell3D.h"
 
-#include "vtkOrderedTriangulator.h"
-#include "vtkPointLocator.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkTetra.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkOrderedTriangulator.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPoints.h"
+#include "vtkTetra.h"
 
 vtkCell3D::vtkCell3D()
 {

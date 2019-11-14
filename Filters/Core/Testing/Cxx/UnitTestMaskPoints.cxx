@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkMaskPoints.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
 #include "vtkImageData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
 #include "vtkCommand.h"
-#include "vtkTestErrorObserver.h"
 #include "vtkMathUtilities.h"
+#include "vtkTestErrorObserver.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <random>
 #include <sstream>
-#include <algorithm>
 
 static vtkSmartPointer<vtkPolyData> MakePolyData(
   unsigned int numPoints);

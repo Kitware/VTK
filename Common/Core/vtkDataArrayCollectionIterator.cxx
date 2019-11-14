@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkDataArrayCollectionIterator.h"
-#include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayCollection.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkDataArrayCollectionIterator);
 

@@ -1,6 +1,6 @@
 
-#include "ui_QtVTKRenderWindows.h"
 #include "QtVTKRenderWindows.h"
+#include "ui_QtVTKRenderWindows.h"
 
 #include "vtkBoundedPlanePointPlacer.h"
 #include "vtkCellPicker.h"
@@ -9,7 +9,6 @@
 #include "vtkDistanceRepresentation.h"
 #include "vtkDistanceRepresentation2D.h"
 #include "vtkDistanceWidget.h"
-#include <vtkGenericOpenGLRenderWindow.h>
 #include "vtkHandleRepresentation.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToWindowLevelColors.h"
@@ -21,17 +20,18 @@
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkProperty.h"
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
 #include "vtkRenderWindowInteractor.h"
-#include "vtkResliceImageViewer.h"
+#include "vtkResliceCursor.h"
+#include "vtkResliceCursorActor.h"
 #include "vtkResliceCursorLineRepresentation.h"
+#include "vtkResliceCursorPolyDataAlgorithm.h"
 #include "vtkResliceCursorThickLineRepresentation.h"
 #include "vtkResliceCursorWidget.h"
-#include "vtkResliceCursorActor.h"
-#include "vtkResliceCursorPolyDataAlgorithm.h"
-#include "vtkResliceCursor.h"
+#include "vtkResliceImageViewer.h"
 #include "vtkResliceImageViewerMeasurements.h"
+#include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
 
 //----------------------------------------------------------------------------
 class vtkResliceCursorCallback : public vtkCommand

@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkTreeDifferenceFilter.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTree.h"
+#include "vtkTreeDifferenceFilter.h"
 
 //----------------------------------------------------------------------------
 int TestTreeDifferenceFilter(int, char*[])

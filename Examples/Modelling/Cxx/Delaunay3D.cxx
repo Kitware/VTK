@@ -5,9 +5,9 @@
 //        InputFile is an XML PolyData file with extension .vtp
 //        OutputFile is an XML Unstructured Grid file with extension .vtu
 //
-#include <vtkSmartPointer.h>
 #include <vtkCleanPolyData.h>
 #include <vtkDelaunay3D.h>
+#include <vtkSmartPointer.h>
 #include <vtkXMLDataSetWriter.h>
 #include <vtkXMLPolyDataReader.h>
 

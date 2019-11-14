@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkImageOpenClose3D.h"
 
+#include "vtkCommand.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
 #include "vtkImageDilateErode3D.h"
 #include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 
+#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkExecutive.h"
 
 #include <cmath>
 

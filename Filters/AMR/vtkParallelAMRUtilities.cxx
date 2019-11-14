@@ -12,17 +12,17 @@
  PURPOSE.  See the above copyright notice for more information.
 
  =========================================================================*/
+#include "vtkParallelAMRUtilities.h"
 #include "vtkAMRBox.h"
 #include "vtkAMRInformation.h"
-#include "vtkParallelAMRUtilities.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkMultiProcessController.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
 #include "vtkSmartPointer.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkUniformGrid.h"
+#include <cassert>
 #include <cmath>
 #include <limits>
-#include <cassert>
 
 //------------------------------------------------------------------------------
 void vtkParallelAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )

@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 
 // Importers
@@ -26,9 +26,9 @@
 #include <vtkOBJExporter.h>
 
 #include <algorithm> // For transform()
-#include <string> // For find_last_of()
 #include <cctype> // For to_lower
 #include <sstream> // For stringstream
+#include <string> // For find_last_of()
 
 int TestImportExportOBJ(int argc, char *argv[])
 {

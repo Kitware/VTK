@@ -21,27 +21,27 @@
 //  domain and ensure that the created ghost data have the correct fields.
 
 // C++ includes
-#include <iostream>
-#include <sstream>
 #include <cassert>
+#include <iostream>
+#include <set>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <set>
 
 // VTK includes
-#include "vtkDataSet.h"
-#include "vtkStructuredGrid.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkStructuredGridPartitioner.h"
-#include "vtkStructuredGridGhostDataGenerator.h"
-#include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkMathUtilities.h"
-#include "vtkUniformGrid.h"
 #include "vtkImageToStructuredGrid.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkPointData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredGridGhostDataGenerator.h"
+#include "vtkStructuredGridPartitioner.h"
+#include "vtkUniformGrid.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 
 
 //#define DEBUG_ON

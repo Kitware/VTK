@@ -1,6 +1,6 @@
-#include "vtkAngleWidget.h"
 #include "vtkAngleRepresentation2D.h"
 #include "vtkAngleRepresentation3D.h"
+#include "vtkAngleWidget.h"
 
 #include <cstdlib>
 #include <iostream>

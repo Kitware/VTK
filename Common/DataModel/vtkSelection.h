@@ -48,8 +48,8 @@
 #include "vtkDataObject.h"
 #include "vtkSmartPointer.h" // for  vtkSmartPointer.
 
-#include <string> // for string.
 #include <memory> // for unique_ptr.
+#include <string> // for string.
 
 class vtkSelectionNode;
 class vtkSignedCharArray;

@@ -51,9 +51,9 @@
 #ifndef vtkInteractorStyle3D_h
 #define vtkInteractorStyle3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorStyle.h"
-#include "vtkNew.h" // ivars
+#include "vtkNew.h"                 // ivars
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkCamera;
 class vtkPropPicker;

@@ -17,21 +17,21 @@
 #define H5_USE_16_API
 #include "vtk_hdf5.h"        // for the HDF5 library
 
-#include "vtksys/SystemTools.hxx"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtksys/SystemTools.hxx"
 
 // ----------------------------------------------------------------------------
 //                       Functions for Parsing File Names

@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkFrustumSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkPlanes.h"
-#include "vtkPlane.h"
-#include <cassert>
-#include "vtkMath.h"
+#include "vtkCellArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkCellArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPlanes.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkFrustumSource);
 vtkCxxSetObjectMacro(vtkFrustumSource,Planes,vtkPlanes);

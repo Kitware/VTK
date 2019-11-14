@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkTextProperty.h"
 #include "vtkActor.h"
 #include "vtkCornerAnnotation.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTextProperty.h"
 
 int TestEmptyCornerAnnotation( int argc, char * argv [] )
 {

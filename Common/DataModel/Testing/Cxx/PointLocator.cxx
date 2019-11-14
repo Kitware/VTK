@@ -20,11 +20,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkRegressionTestImage.h"
 
 int PointLocator( int argc, char *argv[] )
 {

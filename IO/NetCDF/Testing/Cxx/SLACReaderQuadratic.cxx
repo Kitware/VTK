@@ -22,16 +22,16 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataGeometryFilter.h"
+#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSLACReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
-#include "vtkInformation.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \

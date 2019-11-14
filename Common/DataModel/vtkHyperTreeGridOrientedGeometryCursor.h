@@ -39,13 +39,13 @@
 #ifndef vtkHyperTreeGridOrientedGeometryCursor_h
 #define vtkHyperTreeGridOrientedGeometryCursor_h
 
-#include "vtkObject.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkHyperTreeGridGeometryEntry.h" // Used internally
 #include "vtkHyperTreeGridTools.h" // for HasTree
+#include "vtkObject.h"
 
-#include <vector> // For std::vector
 #include <memory> // For std::shared_ptr
+#include <vector> // For std::vector
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;

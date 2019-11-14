@@ -36,13 +36,13 @@
 #ifndef vtkTreeHeatmapItem_h
 #define vtkTreeHeatmapItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 #include "vtkNew.h" // For vtkNew ivars
 #include "vtkSmartPointer.h" // For vtkSmartPointer ivars
-#include <vector>   // For lookup tables
 #include <map>      // For string lookup tables
+#include <vector>   // For lookup tables
 
 class vtkDendrogramItem;
 class vtkHeatmapItem;

@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkAndroidOutputWindow.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 #include <sstream>
 
 

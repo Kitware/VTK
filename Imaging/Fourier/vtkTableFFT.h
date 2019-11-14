@@ -39,9 +39,9 @@
 #ifndef vtkTableFFT_h
 #define vtkTableFFT_h
 
-#include "vtkTableAlgorithm.h"
 #include "vtkImagingFourierModule.h" // For export macro
 #include "vtkSmartPointer.h"    // For internal method.
+#include "vtkTableAlgorithm.h"
 
 class VTKIMAGINGFOURIER_EXPORT vtkTableFFT : public vtkTableAlgorithm
 {

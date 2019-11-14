@@ -16,9 +16,9 @@
 #define vtkLSDynaPart_h
 #ifndef __VTK_WRAP__
 
+#include "LSDynaMetaData.h" //needed for lsdyna types
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
-#include "LSDynaMetaData.h" //needed for lsdyna types
 #include "vtkStdString.h" //needed for string
 
 class vtkUnstructuredGrid;

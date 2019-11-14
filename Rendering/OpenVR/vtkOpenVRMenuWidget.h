@@ -23,9 +23,9 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkOpenVRMenuWidget_h
 #define vtkOpenVRMenuWidget_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
-#include <deque> // for ivar
+#include "vtkRenderingOpenVRModule.h" // For export macro
+#include <deque>                      // for ivar
 
 class vtkEventData;
 class vtkOpenVRMenuRepresentation;

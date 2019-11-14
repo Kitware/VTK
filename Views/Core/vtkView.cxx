@@ -28,10 +28,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkStringArray.h"
-#include "vtkViewTheme.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkTrivialProducer.h"
+#include "vtkViewTheme.h"
 
 #include <map>
 #include <string>

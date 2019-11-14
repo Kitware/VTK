@@ -20,20 +20,20 @@
 
 #include "vtkActor.h"
 #include "vtkCirclePackFrontChainLayoutStrategy.h"
+#include "vtkCirclePackLayout.h"
+#include "vtkCirclePackToPolyData.h"
 #include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
 #include "vtkTreeFieldAggregator.h"
-#include "vtkCirclePackLayout.h"
-#include "vtkCirclePackToPolyData.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

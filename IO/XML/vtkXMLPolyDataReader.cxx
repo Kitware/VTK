@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkXMLPolyDataReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkXMLDataElement.h"
-#include "vtkPolyData.h"
-#include "vtkIdTypeArray.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkXMLDataElement.h"
 
 #include <cassert>
 

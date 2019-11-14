@@ -22,19 +22,18 @@
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
+#include "vtkDSPFilterDefinition.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
-#include "vtkObjectFactory.h"
-#include "vtkDSPFilterDefinition.h"
 
 #include <cctype>
-#include <vector>
 #include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkDSPFilterGroup);
 

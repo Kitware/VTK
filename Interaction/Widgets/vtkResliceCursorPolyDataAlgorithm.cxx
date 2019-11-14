@@ -14,24 +14,24 @@
 =========================================================================*/
 #include "vtkResliceCursorPolyDataAlgorithm.h"
 
-#include "vtkResliceCursor.h"
-#include "vtkCutter.h"
 #include "vtkBox.h"
+#include "vtkCellArray.h"
+#include "vtkClipPolyData.h"
+#include "vtkCutter.h"
+#include "vtkExecutive.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
-#include "vtkClipPolyData.h"
-#include "vtkExecutive.h"
-#include "vtkCellArray.h"
-#include "vtkPoints.h"
-#include "vtkPlane.h"
-#include "vtkSmartPointer.h"
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkMath.h"
-#include <cmath>
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkResliceCursor.h"
+#include "vtkSmartPointer.h"
 #include <algorithm>
+#include <cmath>
 
 vtkStandardNewMacro(vtkResliceCursorPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkResliceCursorPolyDataAlgorithm, ResliceCursor,

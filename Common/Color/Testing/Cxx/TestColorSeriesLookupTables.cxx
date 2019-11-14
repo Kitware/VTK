@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkLookupTable.h"
 #include "vtkColorSeries.h"
-#include "vtkSmartPointer.h"
 #include "vtkDoubleArray.h"
+#include "vtkLookupTable.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 

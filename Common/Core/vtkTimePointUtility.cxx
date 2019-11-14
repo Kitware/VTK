@@ -23,9 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
-#include <sstream>
 #include <cctype> // for isdigit
 #include <locale> // C++ locale
+#include <sstream>
 
 
 const int vtkTimePointUtility::MILLIS_PER_SECOND  =     1000;

@@ -30,9 +30,9 @@
 #ifndef vtkAssemblyPath_h
 #define vtkAssemblyPath_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkCollection.h"
 #include "vtkAssemblyNode.h" // used for inlines
+#include "vtkCollection.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkMatrix4x4;
 class vtkTransform;

@@ -49,8 +49,8 @@
 #ifndef vtkCellLocatorInterpolatedVelocityField_h
 #define vtkCellLocatorInterpolatedVelocityField_h
 
-#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkCompositeInterpolatedVelocityField.h"
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 
 class vtkAbstractCellLocator;
 class vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType;

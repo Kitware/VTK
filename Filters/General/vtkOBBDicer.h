@@ -31,8 +31,8 @@
 #ifndef vtkOBBDicer_h
 #define vtkOBBDicer_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDicer.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkOBBNode;
 class vtkShortArray;

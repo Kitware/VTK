@@ -19,8 +19,9 @@
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
 #include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
+#include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
+#include "vtkImageMapper3D.h"
 #include "vtkImagePlaneWidget.h"
 #include "vtkImageReader.h"
 #include "vtkInteractorEventRecorder.h"
@@ -32,7 +33,6 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkVolume16Reader.h"
-#include "vtkImageData.h"
 
 #include "vtkTestUtilities.h"
 

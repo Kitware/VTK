@@ -27,13 +27,13 @@
 #ifndef vtkOpenGLPolyDataMapper2D_h
 #define vtkOpenGLPolyDataMapper2D_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkPolyDataMapper2D.h"
 #include "vtkNew.h" // used for ivars
 #include "vtkOpenGLHelper.h" // used for ivars
+#include "vtkPolyDataMapper2D.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <map> //for used data arrays & vbos
 #include <string> // For API.
 #include <vector> //for ivars
-#include <map> //for used data arrays & vbos
 
 class vtkActor2D;
 class vtkGenericOpenGLResourceFreeCallback;

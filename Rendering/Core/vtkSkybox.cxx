@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkSkybox.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkSkybox)

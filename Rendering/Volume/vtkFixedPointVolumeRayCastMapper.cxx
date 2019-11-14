@@ -16,18 +16,18 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
-#include "vtkImageData.h"
-#include "vtkCommand.h"
-#include "vtkGraphicsFactory.h"
-#include "vtkSphericalDirectionEncoder.h"
+#include "vtkFixedPointRayCastImage.h"
 #include "vtkFixedPointVolumeRayCastCompositeGOHelper.h"
 #include "vtkFixedPointVolumeRayCastCompositeGOShadeHelper.h"
 #include "vtkFixedPointVolumeRayCastCompositeHelper.h"
 #include "vtkFixedPointVolumeRayCastCompositeShadeHelper.h"
 #include "vtkFixedPointVolumeRayCastMIPHelper.h"
+#include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
@@ -35,18 +35,18 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
+#include "vtkRayCastImageDisplayHelper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkSphericalDirectionEncoder.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
-#include "vtkRayCastImageDisplayHelper.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkFixedPointRayCastImage.h"
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
-#include <exception>
 #include <cmath>
+#include <exception>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);

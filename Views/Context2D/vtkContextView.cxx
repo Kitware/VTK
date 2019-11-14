@@ -18,13 +18,13 @@
 #include "vtkContextDevice2D.h"
 #include "vtkContextScene.h"
 
-#include "vtkViewport.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyle.h"
 #include "vtkContextActor.h"
 #include "vtkContextInteractorStyle.h"
+#include "vtkInteractorStyle.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkViewport.h"
 
 #include "vtkObjectFactory.h"
 

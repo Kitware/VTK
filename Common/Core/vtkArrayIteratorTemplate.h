@@ -26,8 +26,8 @@
 #ifndef vtkArrayIteratorTemplate_h
 #define vtkArrayIteratorTemplate_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"
+#include "vtkCommonCoreModule.h" // For export macro
 
 #include "vtkStdString.h" // For template instantiation
 #include "vtkUnicodeString.h" // For template instantiation

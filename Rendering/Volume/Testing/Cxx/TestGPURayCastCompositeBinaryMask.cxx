@@ -12,21 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkVolume16Reader.h"
-#include "vtkImageData.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageData.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkVolume.h"
+#include "vtkVolume16Reader.h"
+#include "vtkVolumeProperty.h"
 
 int TestGPURayCastCompositeBinaryMask(int argc, char *argv[])
 {

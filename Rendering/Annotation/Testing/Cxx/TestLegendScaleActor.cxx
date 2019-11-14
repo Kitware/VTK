@@ -13,16 +13,16 @@
 
 =========================================================================*/
 // This tests the terrain annotation capabilities in VTK.
-#include "vtkLegendScaleActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkTestUtilities.h"
+#include "vtkLegendScaleActor.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------
 int TestLegendScaleActor( int argc, char * argv [] )

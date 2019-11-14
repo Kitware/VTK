@@ -38,14 +38,14 @@
 #ifndef vtkHyperTreeGridNonOrientedSuperCursorLight_h
 #define vtkHyperTreeGridNonOrientedSuperCursorLight_h
 
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // Used internally
-#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkHyperTreeGridLevelEntry.h" // Used internally
 
-#include <vector> // std::vector
 #include <cassert> // Used internally
+#include <vector> // std::vector
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;

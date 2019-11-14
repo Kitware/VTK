@@ -24,8 +24,8 @@
 #ifndef vtkPolyDataItem_h
 #define vtkPolyDataItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 
 class vtkPolyData;

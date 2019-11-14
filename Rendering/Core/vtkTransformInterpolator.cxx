@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkTransformInterpolator.h"
-#include "vtkObjectFactory.h"
-#include "vtkTransform.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
-#include "vtkTupleInterpolator.h"
 #include "vtkQuaternion.h"
 #include "vtkQuaternionInterpolator.h"
+#include "vtkTransform.h"
+#include "vtkTupleInterpolator.h"
 #include <list>
 
 vtkStandardNewMacro(vtkTransformInterpolator);

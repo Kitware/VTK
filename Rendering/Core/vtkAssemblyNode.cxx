@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkAssemblyNode.h"
-#include "vtkProp.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkProp.h"
 
 vtkStandardNewMacro(vtkAssemblyNode);
 

@@ -35,9 +35,9 @@
 #ifndef vtkImageDataLIC2D_h
 #define vtkImageDataLIC2D_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkRenderingLICOpenGL2Module.h" // For export macro
+#include "vtkWeakPointer.h"               // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;

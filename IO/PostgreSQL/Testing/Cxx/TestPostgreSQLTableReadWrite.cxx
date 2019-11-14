@@ -16,18 +16,18 @@
 // .SECTION Description
 //
 
-#include "vtksys/SystemTools.hxx"
-#include "vtkSmartPointer.h"
 #include "vtkPostgreSQLDatabase.h"
 #include "vtkSQLQuery.h"
+#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTableReader.h"
 #include "vtkTableWriter.h"
 #include "vtkToolkits.h"
+#include "vtksys/SystemTools.hxx"
 
-#include "vtkTableToPostgreSQLWriter.h"
-#include "vtkPostgreSQLToTableReader.h"
 #include "vtkIOPostgresSQLTestingCxxConfigure.h"
+#include "vtkPostgreSQLToTableReader.h"
+#include "vtkTableToPostgreSQLWriter.h"
 
 int TestPostgreSQLTableReadWrite(int argc, char *argv[])
 {

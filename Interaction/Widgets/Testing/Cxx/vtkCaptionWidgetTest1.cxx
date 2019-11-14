@@ -1,6 +1,6 @@
-#include "vtkCaptionWidget.h"
-#include "vtkCaptionRepresentation.h"
 #include "vtkCaptionActor2D.h"
+#include "vtkCaptionRepresentation.h"
+#include "vtkCaptionWidget.h"
 
 #include <cstdlib>
 #include <iostream>

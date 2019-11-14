@@ -20,8 +20,8 @@
 #ifndef __ExternalVTKWidget_h
 #define __ExternalVTKWidget_h
 
-#include "vtkExternalOpenGLRenderer.h"
 #include "vtkExternalOpenGLRenderWindow.h"
+#include "vtkExternalOpenGLRenderer.h"
 #include "vtkObject.h"
 #include "vtkRenderingExternalModule.h" // For export macro
 

@@ -40,8 +40,8 @@
 #ifndef vtkTreeAreaView_h
 #define vtkTreeAreaView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkAreaLayoutStrategy;
 class vtkGraph;

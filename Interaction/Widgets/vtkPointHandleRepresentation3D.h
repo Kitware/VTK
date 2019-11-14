@@ -27,9 +27,9 @@
 #ifndef vtkPointHandleRepresentation3D_h
 #define vtkPointHandleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkHandleRepresentation.h"
 #include "vtkCursor3D.h" // Needed for delegation to cursor3D
+#include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkCursor3D;
 class vtkProperty;

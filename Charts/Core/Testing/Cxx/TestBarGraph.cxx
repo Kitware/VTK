@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkIntArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkContextView.h"
+#include "vtkIntArray.h"
 #include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 // Monthly circulation data
 static int data_2008[] = {10822, 10941, 9979, 10370, 9460, 11228,

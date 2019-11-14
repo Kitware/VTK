@@ -2,9 +2,9 @@
 
 #import "CustomLayer.h"
 
-#import "vtkRenderer.h"
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
+#import "vtkRenderer.h"
 
 @implementation CustomView
 

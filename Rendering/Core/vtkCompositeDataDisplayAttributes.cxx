@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkBoundingBox.h"
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkBoundingBox.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"

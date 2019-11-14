@@ -16,10 +16,10 @@
 
 #include "vtkActor2DCollection.h"
 #include "vtkAssemblyPath.h"
+#include "vtkMath.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
-#include "vtkMath.h"
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light,

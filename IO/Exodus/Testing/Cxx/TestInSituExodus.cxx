@@ -27,9 +27,9 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPlane.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
@@ -37,8 +37,8 @@
 
 // Filters that we test against:
 #include "vtkContourFilter.h"
-#include "vtkDataSetSurfaceFilter.h"
 #include "vtkCutter.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkExtractGeometry.h"
 #include "vtkGlyph3D.h"
 #include "vtkWarpScalar.h"
@@ -47,8 +47,8 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <string>
 #include <sstream>
+#include <string>
 
 // Define this to work around "glommed" point/cell data in the reference data.
 #undef GLOM_WORKAROUND

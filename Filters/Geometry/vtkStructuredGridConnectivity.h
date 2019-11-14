@@ -35,17 +35,17 @@
 #define VTK_PARTIAL_OVERLAP 3
 
 // VTK include directives
-#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkAbstractGridConnectivity.h"
-#include "vtkStructuredNeighbor.h" // For Structured Neighbor object definition
+#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkStructuredData.h" // For data description definitions
+#include "vtkStructuredNeighbor.h" // For Structured Neighbor object definition
 
 // C++ include directives
+#include <cassert>  // For assert()
 #include <iostream> // For cout
-#include <vector>   // For STL vector
 #include <map>      // For STL map
 #include <utility>  // For STL pair and overloaded relational operators
-#include <cassert>  // For assert()
+#include <vector>   // For STL vector
 
 // Forward Declarations
 class vtkIdList;

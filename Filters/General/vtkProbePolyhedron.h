@@ -52,9 +52,9 @@
 #ifndef vtkProbePolyhedron_h
 #define vtkProbePolyhedron_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
+#include "vtkDataSetAttributes.h"    // needed for vtkDataSetAttributes::FieldList
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkCharArray;

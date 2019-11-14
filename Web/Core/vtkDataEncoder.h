@@ -34,8 +34,8 @@
 #define vtkDataEncoder_h
 
 #include "vtkObject.h"
-#include "vtkWebCoreModule.h" // needed for exports
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer
+#include "vtkWebCoreModule.h" // needed for exports
 
 class vtkUnsignedCharArray;
 class vtkImageData;

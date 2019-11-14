@@ -36,10 +36,10 @@
 //===========================================================
 // now we define the C++ class
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
-#include <X11/StringDefs.h> // Needed for X types in the public interface
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <X11/Intrinsic.h> // Needed for X types in the public interface
+#include <X11/StringDefs.h> // Needed for X types in the public interface
 
 class vtkCallbackCommand;
 class vtkXRenderWindowInteractorInternals;

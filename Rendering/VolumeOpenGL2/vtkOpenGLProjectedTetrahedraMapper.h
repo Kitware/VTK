@@ -36,8 +36,8 @@
 #ifndef vtkOpenGLProjectedTetrahedraMapper_h
 #define vtkOpenGLProjectedTetrahedraMapper_h
 
-#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkProjectedTetrahedraMapper.h"
+#include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
 #include "vtkOpenGLHelper.h" // used for ivars
 

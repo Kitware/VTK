@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkConvexHull2D.h"
+#include "vtkMath.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkMath.h"
 #include <limits>
 
 #ifndef ABS

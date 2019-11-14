@@ -24,8 +24,8 @@
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 

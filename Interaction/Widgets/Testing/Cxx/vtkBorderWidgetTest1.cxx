@@ -1,5 +1,5 @@
-#include "vtkBorderWidget.h"
 #include "vtkBorderRepresentation.h"
+#include "vtkBorderWidget.h"
 
 #include <cstdlib>
 #include <iostream>

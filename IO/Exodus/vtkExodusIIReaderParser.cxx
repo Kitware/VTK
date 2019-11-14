@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkExodusIIReaderParser.h"
 
+#include "vtkDataSetAttributes.h"
+#include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMutableDirectedGraph.h"
-#include "vtkDataSetAttributes.h"
 
 #include <cassert>
 

@@ -15,8 +15,8 @@
 #include "vtkPixelExtent.h"
 #include "vtkPixelExtentIO.h"
 
-#include <iostream>
 #include <deque>
+#include <iostream>
 
 using std::cerr;
 using std::endl;

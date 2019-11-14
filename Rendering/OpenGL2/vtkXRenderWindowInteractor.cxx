@@ -20,17 +20,17 @@
 // otherwise the string are define as char * instead of const char which can
 // cause warnings.
 #define XTSTRINGDEFINES
+#include "vtkActor.h"
+#include "vtkCallbackCommand.h"
+#include "vtkCommand.h"
+#include "vtkInteractorStyle.h"
+#include "vtkObjectFactory.h"
+#include "vtkXOpenGLRenderWindow.h"
+#include "vtkXRenderWindowInteractor.h"
+#include <X11/Shell.h>
 #include <X11/X.h>
 #include <X11/keysym.h>
-#include "vtkXRenderWindowInteractor.h"
-#include "vtkInteractorStyle.h"
-#include "vtkXOpenGLRenderWindow.h"
-#include "vtkCallbackCommand.h"
-#include "vtkActor.h"
-#include <X11/Shell.h>
 #include <cmath>
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
 
 #include <map>
 

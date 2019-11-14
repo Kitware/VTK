@@ -26,15 +26,15 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkScalarsToColors.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
-#include "vtkTestingInteractor.h"
 #include "vtkTestUtilities.h"
+#include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 
 

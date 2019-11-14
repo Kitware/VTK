@@ -47,8 +47,8 @@
 #define vtkXMLOffsetsManager_h
 
 #include "vtkSystemIncludes.h"
-#include <vector>
 #include <cassert>
+#include <vector>
 
 //----------------------------------------------------------------------------
 class OffsetsManager

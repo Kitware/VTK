@@ -1,5 +1,5 @@
-#include "vtkImplicitPlaneWidget2.h"
 #include "vtkImplicitPlaneRepresentation.h"
+#include "vtkImplicitPlaneWidget2.h"
 
 #include <cstdlib>
 #include <iostream>

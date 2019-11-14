@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPython.h" // this must be the first include.
 #include "vtkPythonInterpreter.h"
+#include "vtkPython.h" // this must be the first include.
 
 #include "vtkCommand.h"
 #include "vtkLogger.h"

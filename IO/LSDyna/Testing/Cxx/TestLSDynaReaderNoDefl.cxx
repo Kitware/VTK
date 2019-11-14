@@ -17,21 +17,21 @@
 // Tests the vtkLSDynaReader when nodal deflections are part of the
 // simulation state but have not been saved (i.e., the IU flag is 0).
 
-#include "vtkLSDynaReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkLSDynaReader.h"
 
 #include "vtkActor.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtkNew.h"
 

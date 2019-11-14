@@ -16,8 +16,8 @@
 // .SECTION Description
 //
 
-#include "vtkOBJReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkOBJReader.h"
 
 #include "vtkCellArray.h"
 #include "vtkPointData.h"

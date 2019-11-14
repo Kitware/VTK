@@ -18,19 +18,19 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace
 {

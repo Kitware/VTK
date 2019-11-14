@@ -26,8 +26,8 @@
 #define vtkSurfaceLICComposite_h
 
 #include "vtkObject.h"
-#include "vtkRenderingLICOpenGL2Module.h" // for export macro
 #include "vtkPixelExtent.h" // for pixel extent
+#include "vtkRenderingLICOpenGL2Module.h" // for export macro
 #include <deque> // for deque
 #include <vector> // for vector
 

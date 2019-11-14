@@ -32,8 +32,8 @@
 #ifndef vtkViewport_h
 #define vtkViewport_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkActor2DCollection;
 class vtkAssemblyPath;

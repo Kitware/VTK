@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkHeap.h"
+#include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObjectFactory.h"
 #include <cstddef>
 

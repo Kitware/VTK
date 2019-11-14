@@ -13,33 +13,32 @@
 
 =========================================================================*/
 
-#include "vtkStructuredGridLIC2D.h"
-#include "vtkPNGReader.h"
-#include "vtkXMLStructuredGridReader.h"
-#include "vtkExtractGrid.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkTexture.h"
-#include "vtkDataSetMapper.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkPNGWriter.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkProperty.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkDataSetSurfaceFilter.h"
-#include "vtkImageExtractComponents.h"
-#include "vtkTestUtilities.h"
 #include "vtkCamera.h"
+#include "vtkDataSetMapper.h"
+#include "vtkDataSetSurfaceFilter.h"
+#include "vtkExtractGrid.h"
+#include "vtkImageData.h"
+#include "vtkImageExtractComponents.h"
+#include "vtkImageShiftScale.h"
+#include "vtkPNGReader.h"
+#include "vtkPNGWriter.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGridLIC2D.h"
+#include "vtkTestUtilities.h"
+#include "vtkTexture.h"
 #include "vtkTimerLog.h"
-#include <vtksys/CommandLineArguments.hxx>
+#include "vtkXMLStructuredGridReader.h"
 #include <string>
+#include <vtksys/CommandLineArguments.hxx>
 
 // --------------------------------------------------------------------------
 static inline

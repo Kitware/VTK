@@ -34,8 +34,8 @@
 #ifndef vtkNetCDFReader_h
 #define vtkNetCDFReader_h
 
-#include "vtkIONetCDFModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkIONetCDFModule.h" // For export macro
 
 #include "vtkSmartPointer.h"    // For ivars
 #include <string> //For std::string

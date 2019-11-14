@@ -19,10 +19,10 @@
 #include "vtkConditionVariable.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
-#include "vtkPNGWriter.h"
 #include "vtkMultiThreader.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPNGWriter.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <cassert>

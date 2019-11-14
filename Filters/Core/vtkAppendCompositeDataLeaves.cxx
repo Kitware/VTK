@@ -16,8 +16,8 @@
 
 #include "vtkAppendFilter.h"
 #include "vtkAppendPolyData.h"
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSetAttributes.h"

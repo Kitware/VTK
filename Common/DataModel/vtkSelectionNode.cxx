@@ -17,8 +17,8 @@
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
-#include "vtkInformationDoubleKey.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationObjectBaseKey.h"
@@ -28,8 +28,8 @@
 #include "vtkSmartPointer.h"
 
 #include <algorithm>
-#include <set>
 #include <iterator>
+#include <set>
 
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);

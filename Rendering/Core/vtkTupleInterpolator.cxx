@@ -13,11 +13,11 @@
 
 =========================================================================*/
 #include "vtkTupleInterpolator.h"
-#include "vtkObjectFactory.h"
-#include "vtkSpline.h"
 #include "vtkKochanekSpline.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkSpline.h"
 
 vtkStandardNewMacro(vtkTupleInterpolator);
 

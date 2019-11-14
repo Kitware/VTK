@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkClientServerSynchronizedRenderers.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 #include <cassert>
 

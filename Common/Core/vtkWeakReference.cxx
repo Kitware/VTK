@@ -14,8 +14,8 @@
 =========================================================================*/
 
 #include "vtkWeakReference.h"
-#include "vtkWeakPointer.h"
 #include "vtkObjectFactory.h"
+#include "vtkWeakPointer.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkWeakReference)

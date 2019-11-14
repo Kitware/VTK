@@ -15,9 +15,9 @@
 
 #include "vtkOggTheoraWriter.h"
 
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkErrorCode.h"
 
 #include "vtk_theora.h"
 

@@ -29,8 +29,8 @@
 #ifndef vtkStringToNumeric_h
 #define vtkStringToNumeric_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkStringToNumeric : public vtkDataObjectAlgorithm
 {

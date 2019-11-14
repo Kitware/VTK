@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkImageReader2Collection.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkImageReader2.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImageReader2Collection);
 

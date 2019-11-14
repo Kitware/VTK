@@ -27,8 +27,8 @@
 #ifndef vtkGenericOpenGLRenderWindow_h
 #define vtkGenericOpenGLRenderWindow_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkGenericOpenGLRenderWindow :
   public vtkOpenGLRenderWindow

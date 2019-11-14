@@ -17,8 +17,8 @@
 // .SECTION Description
 // this program tests the Directory class
 
-#include "vtkDirectory.h"
 #include "vtkDebugLeaks.h"
+#include "vtkDirectory.h"
 
 int TestDirectory(int,char *[])
 {

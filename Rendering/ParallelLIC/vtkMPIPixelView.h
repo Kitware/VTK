@@ -20,9 +20,9 @@
 #ifndef vtkMPIPixelView_h
 #define vtkMPIPixelView_h
 
-#include "vtkPixelExtent.h" // for pixel extent
 #include "vtkMPI.h" // for mpi
 #include "vtkMPIPixelTT.h" // for type traits
+#include "vtkPixelExtent.h" // for pixel extent
 #include <iostream> // for cerr
 
 //-----------------------------------------------------------------------------

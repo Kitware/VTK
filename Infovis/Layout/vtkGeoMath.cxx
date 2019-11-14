@@ -19,9 +19,9 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkObjectFactory.h"
 #include "vtkGeoMath.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkGeoMath);
 

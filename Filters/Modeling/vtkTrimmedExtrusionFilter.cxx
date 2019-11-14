@@ -14,22 +14,22 @@
 =========================================================================*/
 #include "vtkTrimmedExtrusionFilter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
+#include "vtkAbstractCellLocator.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkExecutive.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkAbstractCellLocator.h"
-#include "vtkStaticCellLocator.h"
-#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkSMPTools.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStaticCellLocator.h"
 
 #include <cmath>
 

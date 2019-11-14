@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkEuclideanClusterExtraction.h"
 
-#include "vtkPointSet.h"
+#include "vtkAbstractPointLocator.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
-#include "vtkAbstractPointLocator.h"
 #include "vtkStaticPointLocator.h"
-#include "vtkIdTypeArray.h"
 
 vtkStandardNewMacro(vtkEuclideanClusterExtraction);
 vtkCxxSetObjectMacro(vtkEuclideanClusterExtraction,Locator,vtkAbstractPointLocator);

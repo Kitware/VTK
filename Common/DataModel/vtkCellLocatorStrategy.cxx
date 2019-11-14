@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkCellLocatorStrategy.h"
 
+#include "vtkAbstractCellLocator.h"
 #include "vtkCell.h"
 #include "vtkGenericCell.h"
-#include "vtkAbstractCellLocator.h"
-#include "vtkPointSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro( vtkCellLocatorStrategy );

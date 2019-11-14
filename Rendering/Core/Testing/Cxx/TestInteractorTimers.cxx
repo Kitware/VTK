@@ -15,10 +15,10 @@
 // This tests multiple interactor timers simultaneously.
 
 #include "vtkCommand.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkTesting.h"
 
 class vtkTimerCallback : public vtkCommand

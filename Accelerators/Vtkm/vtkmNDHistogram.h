@@ -34,10 +34,10 @@
 #ifndef vtkmNDHistogram_h
 #define vtkmNDHistogram_h
 
+#include "vtkAcceleratorsVTKmModule.h" // required for correct export
+#include "vtkArrayDataAlgorithm.h"
 #include <utility>
 #include <vector>
-#include "vtkArrayDataAlgorithm.h"
-#include "vtkAcceleratorsVTKmModule.h" // required for correct export
 
 class VTKACCELERATORSVTKM_EXPORT vtkmNDHistogram : public vtkArrayDataAlgorithm
 {

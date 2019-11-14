@@ -13,14 +13,14 @@
 
  =========================================================================*/
 #include "vtkAMRBaseParticlesReader.h"
-#include "vtkPolyData.h"
-#include "vtkMultiProcessController.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkCallbackCommand.h"
+#include "vtkDataArraySelection.h"
 #include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkCallbackCommand.h"
-#include "vtkDataArraySelection.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkPolyData.h"
 
 #include <cassert>
 

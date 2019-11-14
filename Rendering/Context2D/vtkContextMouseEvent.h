@@ -26,8 +26,8 @@
 #define vtkContextMouseEvent_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
-#include "vtkWin32Header.h" // For export macros.
 #include "vtkVector.h"      // Needed for vtkVector2f and vtkVector2i
+#include "vtkWin32Header.h" // For export macros.
 
 class vtkRenderWindowInteractor;
 

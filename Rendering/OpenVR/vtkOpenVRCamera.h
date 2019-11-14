@@ -22,9 +22,9 @@
 #ifndef vtkOpenVRCamera_h
 #define vtkOpenVRCamera_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
-#include "vtkOpenGLCamera.h"
 #include "vtkNew.h" // ivars
+#include "vtkOpenGLCamera.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkTransform.h" // ivars
 
 class vtkOpenVRRenderer;

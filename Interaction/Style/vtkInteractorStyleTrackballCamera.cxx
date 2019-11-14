@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkInteractorStyleTrackballCamera.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"

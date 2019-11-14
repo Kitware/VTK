@@ -16,11 +16,11 @@
 #include "vtkImageSlab.h"
 
 #include "vtkImageData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTypeTraits.h"
 
 #include "vtkTemplateAliasMacro.h"

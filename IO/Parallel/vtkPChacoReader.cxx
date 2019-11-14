@@ -18,25 +18,24 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkToolkits.h"
 #include "vtkPChacoReader.h"
-#include "vtkDataSetWriter.h"
-#include "vtkDataSetReader.h"
-#include "vtkExtractCells.h"
-#include "vtkPKdTree.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkDoubleArray.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
-#include "vtkIntArray.h"
+#include "vtkDataSetReader.h"
+#include "vtkDataSetWriter.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtractCells.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkMultiProcessController.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkObjectFactory.h"
+#include "vtkPKdTree.h"
+#include "vtkPointData.h"
 #include "vtkProcessGroup.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkToolkits.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkPChacoReader);
 

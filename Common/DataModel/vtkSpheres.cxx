@@ -16,8 +16,8 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkSphere.h"
 #include "vtkPoints.h"
+#include "vtkSphere.h"
 
 #include <cmath>
 

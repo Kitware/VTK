@@ -22,9 +22,9 @@
 
 #include "vtkDataObject.h"
 #include "vtkDistributedGraphHelper.h"
+#include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
-#include "vtkGraph.h"
 
 vtkStandardNewMacro(vtkVertexListIterator);
 //----------------------------------------------------------------------------

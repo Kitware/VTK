@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkImageToPoints.h"
 
-#include <vtkObjectFactory.h>
-#include <vtkMath.h>
-#include <vtkPoints.h>
 #include <vtkImageData.h>
-#include <vtkPolyData.h>
-#include <vtkPointData.h>
-#include <vtkImageStencilData.h>
 #include <vtkImagePointIterator.h>
+#include <vtkImageStencilData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkMath.h>
+#include <vtkObjectFactory.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
 
 vtkStandardNewMacro(vtkImageToPoints);
 

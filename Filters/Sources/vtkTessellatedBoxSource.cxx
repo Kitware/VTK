@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkTessellatedBoxSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
-#include "vtkInformation.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>

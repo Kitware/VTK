@@ -30,11 +30,11 @@
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 
-#include <QtSql/QtSql>
 #include <QtSql/QSqlError>
+#include <QtSql/QtSql>
 
-#include <vtksys/SystemTools.hxx>
 #include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkQtSQLDatabase);
 

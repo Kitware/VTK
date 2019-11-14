@@ -14,23 +14,23 @@
 =========================================================================*/
 #include "vtkExtractSurface.h"
 
-#include "vtkMath.h"
-#include "vtkImageData.h"
 #include "vtkCellArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMarchingCubesTriangleCases.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMarchingCubesTriangleCases.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <cmath>
 #include <cfloat>
+#include <cmath>
 
 vtkStandardNewMacro(vtkExtractSurface);
 

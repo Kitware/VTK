@@ -29,8 +29,8 @@
 #ifndef vtkPolyLineRepresentation_h
 #define vtkPolyLineRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkCurveRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPolyLineSource;
 class vtkPoints;

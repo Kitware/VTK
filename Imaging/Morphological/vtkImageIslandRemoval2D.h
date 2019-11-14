@@ -26,8 +26,8 @@
 #define vtkImageIslandRemoval2D_h
 
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 typedef struct{
   void *inPtr;

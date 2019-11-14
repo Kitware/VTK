@@ -42,8 +42,8 @@
 #ifndef vtkGraphLayoutView_h
 #define vtkGraphLayoutView_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkEdgeLayoutStrategy;
 class vtkGraphLayoutStrategy;

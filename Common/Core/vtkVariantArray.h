@@ -31,9 +31,9 @@
 #ifndef vtkVariantArray_h
 #define vtkVariantArray_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"
-#include "vtkVariant.h" // For variant type
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkVariant.h"          // For variant type
 
 class vtkVariantArrayLookup;
 

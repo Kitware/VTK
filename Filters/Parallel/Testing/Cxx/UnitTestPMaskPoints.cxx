@@ -13,24 +13,24 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkPMaskPoints.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkPolyData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 
 #include "vtkMPIController.h"
 
 #include "vtkCommand.h"
-#include "vtkTestErrorObserver.h"
 #include "vtkMathUtilities.h"
+#include "vtkTestErrorObserver.h"
 
 // MPI include
 #include <mpi.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <sstream>
-#include <algorithm>
 
 static vtkSmartPointer<vtkPolyData> MakePolyData(
   unsigned int numPoints);

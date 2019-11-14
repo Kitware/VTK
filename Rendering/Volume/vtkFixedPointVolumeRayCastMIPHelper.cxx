@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkFixedPointVolumeRayCastMIPHelper.h"
 
-#include "vtkImageData.h"
 #include "vtkCommand.h"
+#include "vtkDataArray.h"
+#include "vtkFixedPointRayCastImage.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkFixedPointRayCastImage.h"
-#include "vtkDataArray.h"
 
 #include <cmath>
 

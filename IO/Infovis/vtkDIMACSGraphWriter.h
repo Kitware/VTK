@@ -47,8 +47,8 @@
 #ifndef vtkDIMACSGraphWriter_h
 #define vtkDIMACSGraphWriter_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOInfovisModule.h" // For export macro
 
 class vtkGraph;
 

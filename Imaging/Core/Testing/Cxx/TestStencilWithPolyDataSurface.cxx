@@ -13,34 +13,34 @@
 
 =========================================================================*/
 
-#include "vtkImageData.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
 #include "vtkActor.h"
-#include "vtkPolyDataToImageStencil.h"
-#include "vtkSphereSource.h"
-#include "vtkTriangleFilter.h"
-#include "vtkStripper.h"
-#include "vtkTransformPolyDataFilter.h"
 #include "vtkAppendPolyData.h"
-#include "vtkCutter.h"
-#include "vtkPlane.h"
-#include "vtkTransform.h"
 #include "vtkBoxMuellerRandomSequence.h"
-#include "vtkImageStencil.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
+#include "vtkCutter.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
 #include "vtkImageSliceMapper.h"
-#include "vtkImageProperty.h"
+#include "vtkImageStencil.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkPlane.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataToImageStencil.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkStripper.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkTriangleFilter.h"
 
-#include <cstring>
 #include <cmath>
+#include <cstring>
 
 int TestStencilWithPolyDataSurface(int, char *[])
 {

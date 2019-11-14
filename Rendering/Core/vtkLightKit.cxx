@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkLightKit.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkLight.h"
+#include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 

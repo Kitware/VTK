@@ -18,8 +18,8 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericAdaptorCell.h"
-#include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAttribute.h"
+#include "vtkGenericAttributeCollection.h"
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericDataSet.h"
 #include "vtkGenericEdgeTable.h"
@@ -31,9 +31,9 @@
 #include "vtkPolygon.h"
 #include "vtkTetra.h"
 
+#include <cassert>
 #include <queue>
 #include <stack>
-#include <cassert>
 
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]

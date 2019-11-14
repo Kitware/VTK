@@ -13,9 +13,9 @@
 
 =========================================================================*/
 #include "vtkTextWidget.h"
-#include "vtkTextRepresentation.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
+#include "vtkObjectFactory.h"
+#include "vtkTextRepresentation.h"
 
 vtkStandardNewMacro(vtkTextWidget);
 

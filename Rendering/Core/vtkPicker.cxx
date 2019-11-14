@@ -14,14 +14,18 @@
 =========================================================================*/
 #include "vtkPicker.h"
 
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkActor.h"
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
+#include "vtkBox.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageSlice.h"
 #include "vtkLODProp3D.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
@@ -35,10 +39,6 @@
 #include "vtkTransform.h"
 #include "vtkVertex.h"
 #include "vtkVolume.h"
-#include "vtkAbstractVolumeMapper.h"
-#include "vtkImageMapper3D.h"
-#include "vtkBox.h"
-#include "vtkImageSlice.h"
 
 vtkStandardNewMacro(vtkPicker);
 

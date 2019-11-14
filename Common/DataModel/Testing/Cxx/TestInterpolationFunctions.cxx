@@ -19,9 +19,9 @@
 #include "vtkGenericCell.h"
 #include "vtkLine.h"
 #include "vtkPixel.h"
-#include "vtkPolygon.h"
 #include "vtkPolyLine.h"
 #include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
@@ -50,11 +50,11 @@
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
+#include "vtkBiQuadraticTriangle.h"
+#include "vtkCubicLine.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkTriQuadraticHexahedron.h"
-#include "vtkBiQuadraticTriangle.h"
-#include "vtkCubicLine.h"
 
 template <class TCell>
 int TestOneInterpolationFunction(double eps = VTK_EPSILON)

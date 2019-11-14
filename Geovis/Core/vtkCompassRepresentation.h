@@ -29,10 +29,10 @@
 #ifndef vtkCompassRepresentation_h
 #define vtkCompassRepresentation_h
 
-#include "vtkGeovisCoreModule.h" // For export macro
+#include "vtkCenteredSliderRepresentation.h" // to use in a SP
 #include "vtkContinuousValueWidgetRepresentation.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
-#include "vtkCenteredSliderRepresentation.h" // to use in a SP
+#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // used for SmartPointers
 
 class vtkActor2D;

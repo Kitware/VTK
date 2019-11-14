@@ -12,22 +12,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
-#include "vtkMultiThreshold.h"
+#include "vtkCellData.h"
+#include "vtkDataObject.h"
+#include "vtkExecutive.h"
+#include "vtkFloatArray.h"
 #include "vtkFloatingPointExceptions.h"
 #include "vtkImageData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkImageDataToPointSet.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkDataObject.h"
 #include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkMath.h"
-#include "vtkExecutive.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiThreshold.h"
+#include "vtkPointData.h"
+#include "vtkSmartPointer.h"
+#include "vtkStructuredGrid.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkUnstructuredGrid.h"
 
 static void TestPrint();
 static int TestErrorsAndWarnings();

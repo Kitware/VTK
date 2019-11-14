@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkPlatonicSolidSource.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 

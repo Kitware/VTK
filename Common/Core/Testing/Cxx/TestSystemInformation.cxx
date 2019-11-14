@@ -18,8 +18,8 @@
 // CMakeCache.txt file.  This test will display the file.
 
 #include "vtkDebugLeaks.h"
-#include <vtksys/SystemTools.hxx>
 #include <string>
+#include <vtksys/SystemTools.hxx>
 
 void vtkSystemInformationPrintFile(const char* name, ostream& os)
 {

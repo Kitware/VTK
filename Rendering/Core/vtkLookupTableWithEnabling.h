@@ -33,8 +33,8 @@
 #ifndef vtkLookupTableWithEnabling_h
 #define vtkLookupTableWithEnabling_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkLookupTable.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkDataArray;
 

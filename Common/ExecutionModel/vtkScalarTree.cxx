@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkScalarTree.h"
 
-#include "vtkDataSet.h"
 #include "vtkDataArray.h"
+#include "vtkDataSet.h"
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 

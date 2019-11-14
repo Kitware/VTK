@@ -31,8 +31,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
 
-#include <vector> // STL Header
 #include <map>    // STL Header
+#include <vector> // STL Header
 
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList

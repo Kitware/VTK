@@ -14,10 +14,10 @@
 =========================================================================*/
 // Test some generic features of vtkLookupTable
 
+#include "vtkCommand.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
-#include "vtkCommand.h"
 #include "vtkSmartPointer.h"
 
 // simple macro for performing tests

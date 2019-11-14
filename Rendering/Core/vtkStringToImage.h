@@ -25,8 +25,8 @@
 #ifndef vtkStringToImage_h
 #define vtkStringToImage_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkStdString;
 class vtkUnicodeString;

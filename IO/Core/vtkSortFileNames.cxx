@@ -19,10 +19,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 
+#include <algorithm>
+#include <list>
 #include <string>
 #include <vector>
-#include <list>
-#include <algorithm>
 #include <vtksys/SystemTools.hxx>
 
 #include <cctype>

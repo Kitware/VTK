@@ -21,14 +21,14 @@
 #include "vtkWrapPythonMethodDef.h"
 #include "vtkWrapPythonTemplate.h"
 
+#include "vtkParseExtras.h"
 #include "vtkWrap.h"
 #include "vtkWrapText.h"
-#include "vtkParseExtras.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* -------------------------------------------------------------------- */
 /* A struct for special types to store info about the type, it is fairly

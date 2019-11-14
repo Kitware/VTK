@@ -53,8 +53,8 @@
 #define vtkArrayWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
+#include "vtkStdString.h"    // For string API
 #include "vtkWriter.h"
-#include "vtkStdString.h" // For string API
 
 class vtkArray;
 

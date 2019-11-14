@@ -23,9 +23,9 @@
 #ifndef vtkOpenGLSkybox_h
 #define vtkOpenGLSkybox_h
 
+#include "vtkNew.h"                    // for ivars
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSkybox.h"
-#include "vtkNew.h" // for ivars
 
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;

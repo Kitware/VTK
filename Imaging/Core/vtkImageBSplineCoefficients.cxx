@@ -15,13 +15,13 @@
 #include "vtkImageBSplineCoefficients.h"
 #include "vtkImageBSplineInternals.h"
 
-#include "vtkMath.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTemplateAliasMacro.h"
 

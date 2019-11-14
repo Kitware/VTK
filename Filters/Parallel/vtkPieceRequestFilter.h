@@ -23,8 +23,8 @@
 #ifndef vtkPieceRequestFilter_h
 #define vtkPieceRequestFilter_h
 
-#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersParallelModule.h" // For export macro
 
 class vtkDataObject;
 

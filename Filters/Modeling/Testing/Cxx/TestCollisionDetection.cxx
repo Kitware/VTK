@@ -13,25 +13,25 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
 #include "vtkCollisionDetectionFilter.h"
+#include "vtkSmartPointer.h"
 
-#include "vtkProperty.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkMatrix4x4.h"
+#include "vtkNamedColors.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkCamera.h"
 #include "vtkSphereSource.h"
-#include "vtkMatrix4x4.h"
-#include "vtkTransform.h"
 #include "vtkTextActor.h"
-#include "vtkNamedColors.h"
-#include <thread>
-#include <string>
+#include "vtkTransform.h"
 #include <chrono>
 #include <sstream>
+#include <string>
+#include <thread>
 
 int TestCollisionDetection(int argc, char *argv[])
 {

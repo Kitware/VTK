@@ -24,8 +24,8 @@
 #ifndef vtkRTAnalyticSource_h
 #define vtkRTAnalyticSource_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class VTKIMAGINGCORE_EXPORT vtkRTAnalyticSource : public vtkImageAlgorithm
 {

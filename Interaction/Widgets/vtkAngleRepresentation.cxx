@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkAngleRepresentation.h"
-#include "vtkHandleRepresentation.h"
 #include "vtkActor2D.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
+#include "vtkHandleRepresentation.h"
 #include "vtkInteractorObserver.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 

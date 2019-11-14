@@ -28,8 +28,8 @@
 #ifndef vtkRemoveIsolatedVertices_h
 #define vtkRemoveIsolatedVertices_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkDataSet;
 

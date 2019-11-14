@@ -28,8 +28,8 @@
 #ifndef vtkMatrixMathFilter_h
 #define vtkMatrixMathFilter_h
 
-#include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersVerdictModule.h" // For export macro
 
 class vtkCell;
 class vtkDataArray;

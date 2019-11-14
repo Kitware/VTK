@@ -13,15 +13,15 @@
 
 =========================================================================*/
 #include "vtkXMLPStructuredDataWriter.h"
-#include "vtkXMLStructuredDataWriter.h"
-#include "vtkExecutive.h"
-#include "vtkErrorCode.h"
+#include "vtkCommunicator.h"
 #include "vtkDataSet.h"
+#include "vtkErrorCode.h"
+#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCommunicator.h"
 #include "vtkMultiProcessController.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkXMLStructuredDataWriter.h"
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataWriter::vtkXMLPStructuredDataWriter() = default;

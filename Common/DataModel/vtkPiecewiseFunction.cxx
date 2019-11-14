@@ -18,12 +18,12 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <vector>
-#include <set>
-#include <algorithm>
 #include <iterator>
+#include <set>
+#include <vector>
 
 vtkStandardNewMacro(vtkPiecewiseFunction);
 

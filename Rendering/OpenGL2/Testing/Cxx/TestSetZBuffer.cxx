@@ -12,16 +12,16 @@
 
 =========================================================================*/
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkNew.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkPLYReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPLYReader.h"
-#include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"

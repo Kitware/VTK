@@ -18,14 +18,14 @@
 // vtkImageDataToExplicitStructuredGrid
 
 #include "vtkActor.h"
+#include "vtkDataSetMapper.h"
 #include "vtkImageDataToExplicitStructuredGrid.h"
 #include "vtkNew.h"
-#include "vtkDataSetMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkTesting.h"
 
 int TestImageDataToExplicitStructuredGrid(int argc, char *argv[])

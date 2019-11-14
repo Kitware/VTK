@@ -25,8 +25,8 @@
 
 #include <algorithm>
 #include <numeric>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 namespace
 {

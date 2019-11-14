@@ -28,17 +28,17 @@ resulting in wrapper code that is faster and more compact.
 #ifndef vtkPythonArgs_h
 #define vtkPythonArgs_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
-#include "vtkPythonUtil.h"
 #include "PyVTKEnum.h"
 #include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
+#include "vtkPythonUtil.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 #include "vtkConfigure.h"
 #include "vtkUnicodeString.h"
 
-#include <string>
 #include <cstring>
+#include <string>
 
 class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs
 {

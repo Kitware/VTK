@@ -25,8 +25,8 @@
 =========================================================================*/
 
 #include "vtkEventQtSlotConnect.h"
-#include "vtkObjectFactory.h"
 #include "vtkCallbackCommand.h"
+#include "vtkObjectFactory.h"
 #include "vtkQtConnection.h"
 
 #include <vector>

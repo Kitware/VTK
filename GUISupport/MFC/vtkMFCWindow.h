@@ -16,8 +16,8 @@
 #ifndef vtkMFCWindow_h
 #define vtkMFCWindow_h
 
-#include "vtkGUISupportMFCModule.h" // For export macro
 #include "afxwin.h"
+#include "vtkGUISupportMFCModule.h" // For export macro
 
 class vtkWin32OpenGLRenderWindow;
 class vtkRenderWindowInteractor;

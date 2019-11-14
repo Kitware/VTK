@@ -50,8 +50,8 @@
 #ifndef vtkDijkstraImageGeodesicPath_h
 #define vtkDijkstraImageGeodesicPath_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDijkstraGraphGeodesicPath.h"
+#include "vtkFiltersModelingModule.h" // For export macro
 
 class vtkImageData;
 

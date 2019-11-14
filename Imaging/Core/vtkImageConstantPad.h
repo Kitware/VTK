@@ -28,8 +28,8 @@
 #define vtkImageConstantPad_h
 
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImagePadFilter.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class VTKIMAGINGCORE_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {

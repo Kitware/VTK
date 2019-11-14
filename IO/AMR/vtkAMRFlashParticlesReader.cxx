@@ -13,22 +13,22 @@
 
  =========================================================================*/
 #include "vtkAMRFlashParticlesReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
-#include "vtkDataArraySelection.h"
-#include "vtkIdList.h"
 #include "vtkCellArray.h"
+#include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 
 #include "vtkAMRFlashReaderInternal.h"
 
 #define H5_USE_16_API
 #include "vtk_hdf5.h"      // for the HDF data loading engine
 
-#include <vector>
 #include <cassert>
+#include <vector>
 
 #define  FLASH_READER_MAX_DIMS     3
 #define  FLASH_READER_LEAF_BLOCK   1

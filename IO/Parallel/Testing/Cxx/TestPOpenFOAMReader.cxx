@@ -13,20 +13,20 @@
 
 =========================================================================*/
 
-#include <vtkSmartPointer.h>
-#include <vtkProperty.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
-#include <vtkPOpenFOAMReader.h>
 #include <vtkMultiBlockDataSet.h>
+#include <vtkPOpenFOAMReader.h>
+#include <vtkPointData.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkUnstructuredGrid.h>
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 int TestPOpenFOAMReader(int argc, char* argv[])
 {

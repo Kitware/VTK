@@ -31,9 +31,9 @@
 #ifndef vtkStructuredGridAlgorithm_h
 #define vtkStructuredGridAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkStructuredGrid.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkStructuredGrid.h"             // makes things a bit easier
 
 class vtkDataSet;
 class vtkStructuredGrid;

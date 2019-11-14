@@ -28,8 +28,8 @@
 
 #include "vtkObject.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 //--------------------------------------------------------------------
 // Enums for vtkPythonOverload::CheckArg().

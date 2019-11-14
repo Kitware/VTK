@@ -18,13 +18,13 @@
 #include <cassert>
 
 // #include "vtkCamera.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
-#include "vtkOpenGLState.h"
 // #include "vtkShaderProgram.h"
 // #include "vtkOpenGLShaderCache.h"
 // #include "vtkOpenGLRenderWindow.h"

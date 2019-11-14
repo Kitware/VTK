@@ -33,8 +33,8 @@
 #ifndef vtkMoleculeAlgorithm_h
 #define vtkMoleculeAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkMolecule;

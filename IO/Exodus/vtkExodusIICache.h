@@ -26,8 +26,8 @@
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
 
-#include <map> // used for cache storage
 #include <list> // use for LRU ordering
+#include <map> // used for cache storage
 
 class VTKIOEXODUS_EXPORT vtkExodusIICacheKey
 {

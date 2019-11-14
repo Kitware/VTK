@@ -24,8 +24,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnicodeStringArray.h"
 
 vtkStandardNewMacro(vtkMergeColumns);
 

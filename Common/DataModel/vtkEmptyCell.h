@@ -23,8 +23,8 @@
 #ifndef vtkEmptyCell_h
 #define vtkEmptyCell_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class VTKCOMMONDATAMODEL_EXPORT vtkEmptyCell : public vtkCell
 {

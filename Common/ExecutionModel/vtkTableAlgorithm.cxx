@@ -24,8 +24,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkTable.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
 
 vtkStandardNewMacro(vtkTableAlgorithm);
 

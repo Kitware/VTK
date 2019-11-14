@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkClientServerCompositePass.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
-#include "vtkSynchronizedRenderers.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderState.h"
+#include "vtkSynchronizedRenderers.h"
 
 vtkStandardNewMacro(vtkClientServerCompositePass);
 vtkCxxSetObjectMacro(vtkClientServerCompositePass, Controller, vtkMultiProcessController);

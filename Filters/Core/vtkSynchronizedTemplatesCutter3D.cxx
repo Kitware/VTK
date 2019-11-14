@@ -19,6 +19,8 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -28,17 +30,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolygonBuilder.h"
 #include "vtkShortArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkPolygonBuilder.h"
-#include "vtkIdList.h"
-#include "vtkIdListCollection.h"
-#include "vtkSmartPointer.h"
 
 #include <cmath>
 

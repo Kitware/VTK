@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtkWidgetEventTranslator.h"
+#include "vtkAbstractWidget.h"
+#include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
+#include "vtkEvent.h"
 #include "vtkEventData.h"
 #include "vtkObjectFactory.h"
-#include "vtkWidgetEvent.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCallbackCommand.h"
-#include "vtkEvent.h"
 #include "vtkSmartPointer.h"
-#include "vtkAbstractWidget.h"
-#include <map>
+#include "vtkWidgetEvent.h"
 #include <list>
+#include <map>
 
 vtkStandardNewMacro(vtkWidgetEventTranslator);
 

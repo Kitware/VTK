@@ -22,8 +22,8 @@
 #include "vtkPlaneSource.h"
 #include "vtkQWidgetRepresentation.h"
 #include "vtkQWidgetWidget.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"

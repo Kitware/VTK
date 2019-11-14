@@ -28,8 +28,8 @@
 #ifndef vtkCategoryLegend_h
 #define vtkCategoryLegend_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartLegend.h"
+#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              // For vtkNew ivars
 #include "vtkStdString.h"        // For vtkStdString ivars
 #include "vtkVector.h"           // For vtkRectf

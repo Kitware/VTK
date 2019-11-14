@@ -50,8 +50,8 @@
 #ifndef vtkParallelCoordinatesRepresentation_h
 #define vtkParallelCoordinatesRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;

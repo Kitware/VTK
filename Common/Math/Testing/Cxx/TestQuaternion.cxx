@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkSetGet.h"
-#include "vtkQuaternion.h"
 #include "vtkMathUtilities.h"
+#include "vtkQuaternion.h"
+#include "vtkSetGet.h"
 
 // Pre-declarations of the test functions
 static int TestQuaternionSetGet();

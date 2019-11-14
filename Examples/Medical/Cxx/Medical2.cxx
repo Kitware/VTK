@@ -17,21 +17,20 @@
 // represent the skin and bone, and then displays them.
 //
 
-#include <vtkRenderer.h>
+#include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkContourFilter.h>
+#include <vtkOutlineFilter.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkProperty.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkVolume16Reader.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkProperty.h>
-#include <vtkOutlineFilter.h>
-#include <vtkCamera.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkStripper.h>
-#include <vtkPolyDataNormals.h>
-#include <vtkContourFilter.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkRegressionTestImage.h>
+#include <vtkStripper.h>
+#include <vtkVolume16Reader.h>
 
 int main (int argc, char *argv[])
 {

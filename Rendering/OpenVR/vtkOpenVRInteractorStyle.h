@@ -22,10 +22,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 
-#include "vtkInteractorStyle3D.h"
-#include "vtkOpenVRRenderWindow.h" // for enums
-#include "vtkNew.h" // for ivars
 #include "vtkEventData.h" // for enums
+#include "vtkInteractorStyle3D.h"
+#include "vtkNew.h" // for ivars
+#include "vtkOpenVRRenderWindow.h" // for enums
 
 class vtkCell;
 class vtkPlane;

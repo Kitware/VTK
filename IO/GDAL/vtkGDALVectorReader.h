@@ -30,11 +30,11 @@
 #ifndef vtkGDALVectorReader_h
 #define vtkGDALVectorReader_h
 
-#include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkIOGDALModule.h" // For export macro
+#include "vtkMultiBlockDataSetAlgorithm.h"
 
-#include <string> // for ivars
 #include <map> // STL required.
+#include <string> // for ivars
 
 class VTKIOGDAL_EXPORT vtkGDALVectorReader : public vtkMultiBlockDataSetAlgorithm
 {

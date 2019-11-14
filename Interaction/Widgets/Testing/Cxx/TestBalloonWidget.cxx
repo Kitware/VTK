@@ -16,23 +16,23 @@
 // This example tests the vtkHoverWidget and vtkBalloonWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-#include "vtkBalloonWidget.h"
-#include "vtkBalloonRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkCylinderSource.h"
-#include "vtkConeSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkBalloonRepresentation.h"
+#include "vtkBalloonWidget.h"
+#include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkCylinderSource.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkCommand.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkTestUtilities.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTIFFReader.h"
-#include "vtkPropPicker.h"
+#include "vtkTestUtilities.h"
 
 class vtkBalloonCallback : public vtkCommand
 {

@@ -24,17 +24,17 @@
 
 #include "vtkUnstructuredGridLinearRayIntegrator.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkVolumeProperty.h"
-#include "vtkVolume.h"
-#include "vtkDoubleArray.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
 
-#include <vector>
-#include <set>
 #include <algorithm>
+#include <set>
+#include <vector>
 
 #include <cmath>
 

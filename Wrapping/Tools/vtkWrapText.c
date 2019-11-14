@@ -19,10 +19,10 @@
 #include "vtkParseExtras.h"
 #include "vtkParseMangle.h"
 
-#include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* -------------------------------------------------------------------- */
 /* Convert special characters in a string into their escape codes

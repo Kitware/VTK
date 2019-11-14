@@ -21,18 +21,18 @@
 // Thanks to Andrew Wilson from Sandia National Laboratories for implementing
 // this test.
 
-#include "vtkPostgreSQLDatabase.h"
-#include "vtkSQLQuery.h"
-#include "vtkRowQueryToTable.h"
-#include "vtkSQLDatabaseSchema.h"
-#include "vtkStdString.h"
-#include "vtkTable.h"
-#include "vtkVariant.h"
-#include "vtkVariantArray.h"
-#include "vtkStringArray.h"
-#include "vtkToolkits.h"
 #include "DatabaseSchemaWith2Tables.h"
 #include "vtkIOPostgresSQLTestingCxxConfigure.h"
+#include "vtkPostgreSQLDatabase.h"
+#include "vtkRowQueryToTable.h"
+#include "vtkSQLDatabaseSchema.h"
+#include "vtkSQLQuery.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkToolkits.h"
+#include "vtkVariant.h"
+#include "vtkVariantArray.h"
 #include <vector>
 
 int TestPostgreSQLDatabase( int /*argc*/, char* /*argv*/[] )

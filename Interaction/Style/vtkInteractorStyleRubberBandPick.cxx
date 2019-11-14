@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkInteractorStyleRubberBandPick.h"
 
+#include "vtkAbstractPropPicker.h"
+#include "vtkAreaPicker.h"
+#include "vtkAssemblyPath.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkAbstractPropPicker.h"
-#include "vtkAssemblyPath.h"
-#include "vtkAreaPicker.h"
 
 vtkStandardNewMacro(vtkInteractorStyleRubberBandPick);
 

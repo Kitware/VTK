@@ -18,9 +18,9 @@
 //  A test for parallel structured grid connectivity.
 
 // C++ includes
+#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <cassert>
 #include <string>
 #include <vector>
 
@@ -30,12 +30,10 @@
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkImageToStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkMPIController.h"
 #include "vtkMPIUtilities.h"
-#include "vtkMathUtilities.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"

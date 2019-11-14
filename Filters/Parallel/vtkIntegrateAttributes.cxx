@@ -28,7 +28,6 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"

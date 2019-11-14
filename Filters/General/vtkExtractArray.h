@@ -32,8 +32,8 @@
 #ifndef vtkExtractArray_h
 #define vtkExtractArray_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkFiltersGeneralModule.h" // For export macro
 
 class VTKFILTERSGENERAL_EXPORT vtkExtractArray : public vtkArrayDataAlgorithm
 {

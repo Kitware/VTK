@@ -27,9 +27,9 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 

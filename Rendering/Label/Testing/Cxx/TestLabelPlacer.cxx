@@ -20,33 +20,33 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
-#include "vtkLabeledDataMapper.h"
+#include "vtkImageData.h"
 #include "vtkLabelHierarchy.h"
 #include "vtkLabelPlacer.h"
 #include "vtkLabelSizeCalculator.h"
+#include "vtkLabeledDataMapper.h"
 #include "vtkPointSetToLabelHierarchy.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTextProperty.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkXMLPolyDataWriter.h"
-#include "vtkPolyData.h"
-#include "vtkImageData.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTextProperty.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
+#include "vtkXMLPolyDataReader.h"
+#include "vtkXMLPolyDataWriter.h"
 
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 int TestLabelPlacer(int argc, char *argv[])
 {

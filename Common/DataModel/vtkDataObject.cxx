@@ -18,17 +18,16 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformationDataObjectKey.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
-#include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
-#include "vtkDataSetAttributes.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkDataObject);
 

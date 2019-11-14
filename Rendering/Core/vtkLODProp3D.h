@@ -30,8 +30,8 @@
 #ifndef vtkLODProp3D_h
 #define vtkLODProp3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkMapper;

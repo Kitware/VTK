@@ -13,11 +13,11 @@
 
 =========================================================================*/
 #include "vtkObserverMediator.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
 #include "vtkPriorityQueue.h"
-#include "vtkInteractorObserver.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include <map>
 
 vtkStandardNewMacro(vtkObserverMediator);

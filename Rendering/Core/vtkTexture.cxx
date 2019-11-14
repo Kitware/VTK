@@ -16,15 +16,15 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkExecutive.h"
-#include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkTransform.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTransform.h"
 
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------

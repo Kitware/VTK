@@ -22,8 +22,8 @@
 #ifndef vtkOSPRayLightNode_h
 #define vtkOSPRayLightNode_h
 
-#include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkLightNode.h"
+#include "vtkRenderingRayTracingModule.h" // For export macro
 
 #include "RTWrapper/RTWrapper.h" // for handle types
 

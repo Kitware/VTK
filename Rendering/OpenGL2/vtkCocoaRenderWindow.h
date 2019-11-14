@@ -42,9 +42,9 @@ PURPOSE.  See the above copyright notice for more information.
 #ifndef vtkCocoaRenderWindow_h
 #define vtkCocoaRenderWindow_h
 
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <stack> // for ivar
-#include "vtkOpenGLRenderWindow.h"
 
 class VTKRENDERINGOPENGL2_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
 {

@@ -13,17 +13,17 @@
 
 =========================================================================*/
 #include "vtkPolygonalHandleRepresentation3D.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkCellPicker.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkProperty.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderWindow.h"
 #include "vtkCamera.h"
+#include "vtkCellPicker.h"
+#include "vtkCoordinate.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointPlacer.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkPolygonalHandleRepresentation3D);
 

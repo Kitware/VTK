@@ -32,14 +32,14 @@
 #include "vtkSQLDatabaseSchema.h"
 
 #include "vtkODBCDatabase.h"
-#include "vtkODBCQuery.h"
 #include "vtkODBCInternals.h"
+#include "vtkODBCQuery.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
-#include <vtksys/SystemTools.hxx>
 #include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <cstring>

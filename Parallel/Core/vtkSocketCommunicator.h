@@ -34,8 +34,8 @@
 #ifndef vtkSocketCommunicator_h
 #define vtkSocketCommunicator_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 #include "vtkByteSwap.h" // Needed for vtkSwap macros
 

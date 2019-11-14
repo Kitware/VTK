@@ -15,9 +15,9 @@
 
 #include <cmath>
 
-#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkSmartPointer.h"
 
 namespace

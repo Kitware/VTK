@@ -27,12 +27,12 @@
 #include "vtkDataSetMapper.h"
 #include "vtkExtractEdges.h"
 #include "vtkNew.h"
-#include "vtkProperty.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTubeFilter.h"
 
 int TestHyperTreeGridTernary3DAxisClipBox( int argc, char* argv[] )

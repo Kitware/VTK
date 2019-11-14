@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkDataObjectTree.h"
 
-#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTreeInternals.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
-#include "vtkInformationStringKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkObjectFactory.h"
 
 
 //----------------------------------------------------------------------------

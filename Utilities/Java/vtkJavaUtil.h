@@ -16,10 +16,10 @@
 #ifndef vtkJavaUtil_h
 #define vtkJavaUtil_h
 
-#include "vtkSystemIncludes.h"
-#include <jni.h>
 #include "vtkCommand.h"
 #include "vtkJavaModule.h"
+#include "vtkSystemIncludes.h"
+#include <jni.h>
 
 #include <string>
 

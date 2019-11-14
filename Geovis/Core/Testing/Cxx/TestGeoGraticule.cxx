@@ -6,14 +6,14 @@
 #include "vtkPNGWriter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransformFilter.h"
-#include "vtkXMLPolyDataReader.h"
 #include "vtkWindowToImageFilter.h"
+#include "vtkXMLPolyDataReader.h"
 
 #define vtkCreateMacro(type, obj) \
   vtkSmartPointer<type> obj = vtkSmartPointer<type>::New()

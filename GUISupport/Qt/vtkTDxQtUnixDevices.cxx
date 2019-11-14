@@ -14,11 +14,11 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
 #include "vtkTDxQtUnixDevices.h"
-#include <map>
+#include "vtkSmartPointer.h"
 #include <QApplication> // topLevelWidgets()
 #include <QWidget>
 #include <X11/Xlib.h> // Needed for X types used in the public interface
-#include "vtkSmartPointer.h"
+#include <map>
 
 class vtkLessThanWindowId
 {

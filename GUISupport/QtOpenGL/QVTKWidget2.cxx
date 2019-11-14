@@ -22,14 +22,14 @@
 #include "QVTKWidget2.h"
 #include "vtkEventQtSlotConnect.h"
 
+#include <QApplication>
 #include <QMouseEvent>
 #include <QResizeEvent>
-#include <QApplication>
 
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkGenericOpenGLRenderWindow.h"
-#include "QVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
+#include "QVTKInteractorAdapter.h"
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"

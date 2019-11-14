@@ -16,13 +16,13 @@
 #include "vtkOpenGLContextBufferId.h"
 
 #include "vtkIntArray.h"
-#include <cassert>
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkTextureObject.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenGLError.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkTextureObject.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkOpenGLContextBufferId);
 

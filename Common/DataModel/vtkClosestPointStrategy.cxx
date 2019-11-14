@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkClosestPointStrategy.h"
 
-#include "vtkPointSet.h"
+#include "vtkAbstractPointLocator.h"
 #include "vtkCell.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkAbstractPointLocator.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
 
 #include <set>
 

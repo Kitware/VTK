@@ -1,16 +1,16 @@
-#include "vtkMath.h"
-#include "vtkStdString.h"
-#include "vtkIntArray.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPolyData.h"
+#include "vtkExodusIIReaderVariableCheck.h"
 #include "vtkExodusIIReader.h"
 #include "vtkExodusIIReaderPrivate.h"
-#include "vtkExodusIIReaderVariableCheck.h"
-#include <vtksys/RegularExpression.hxx>
-#include <vtksys/SystemTools.hxx>
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkPolyData.h"
+#include "vtkStdString.h"
+#include "vtkUnstructuredGrid.h"
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
+#include <vtksys/RegularExpression.hxx>
+#include <vtksys/SystemTools.hxx>
 
 #include <cctype>
 

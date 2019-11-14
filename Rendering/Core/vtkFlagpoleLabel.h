@@ -25,9 +25,9 @@
 #ifndef vtkFlagpoleLabel_h
 #define vtkFlagpoleLabel_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor.h"
 #include "vtkNew.h" // For.... vtkNew!
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // For.... vtkSmartPointer!
 
 class vtkActor;

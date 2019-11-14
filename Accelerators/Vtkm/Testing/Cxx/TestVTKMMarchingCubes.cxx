@@ -16,7 +16,6 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkCountVertices.h"
-#include "vtkmContour.h"
 #include "vtkElevationFilter.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
@@ -24,9 +23,10 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkmContour.h"
 
 namespace
 {

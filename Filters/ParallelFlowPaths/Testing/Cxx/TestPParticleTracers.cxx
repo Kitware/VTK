@@ -22,12 +22,12 @@
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkPParticlePathFilter.h"
 #include "vtkPParticleTracer.h"
 #include "vtkPStreaklineFilter.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <vector>
 

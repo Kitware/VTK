@@ -18,15 +18,15 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkIntArray.h"
-#include "vtkStringArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkVariantArray.h"
 #include "vtkArrayIterator.h"
 #include "vtkArrayIteratorTemplate.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
+#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkVariantArray.h"
 
 #include <time.h>
 #include <vector>

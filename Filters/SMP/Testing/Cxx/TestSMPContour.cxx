@@ -12,27 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkNew.h"
-#include "vtkRTAnalyticSource.h"
-#include "vtkPolyData.h"
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkSMPContourGrid.h"
 #if !defined(VTK_LEGACY_REMOVE)
 # include "vtkSMPContourGridManyPieces.h"
 #endif
-#include "vtkContourGrid.h"
-#include "vtkContourFilter.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkTimerLog.h"
-#include "vtkNonMergingPointLocator.h"
-#include "vtkSMPTools.h"
-#include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkElevationFilter.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkContourFilter.h"
+#include "vtkContourGrid.h"
+#include "vtkElevationFilter.h"
+#include "vtkNonMergingPointLocator.h"
+#include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
+#include "vtkSMPTools.h"
+#include "vtkTimerLog.h"
+#include "vtkUnstructuredGrid.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 
 #define WRITE_DEBUG 0

@@ -23,19 +23,19 @@
  */
 #include "vtkCellCenterDepthSort.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkIdTypeArray.h"
-#include "vtkDataSet.h"
 #include "vtkCamera.h"
-#include "vtkMatrix4x4.h"
-#include "vtkFloatArray.h"
 #include "vtkCell.h"
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkSortDataArray.h"
 
+#include <algorithm>
 #include <stack>
 #include <utility>
-#include <algorithm>
 
 //-----------------------------------------------------------------------------
 

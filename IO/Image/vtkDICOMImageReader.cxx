@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkDICOMImageReader.h"
 
-#include "vtkDirectory.h"
 #include "vtkDataArray.h"
+#include "vtkDirectory.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkErrorCode.h"
 
 #include <vtksys/SystemTools.hxx>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "DICOMAppHelper.h"
 #include "DICOMParser.h"

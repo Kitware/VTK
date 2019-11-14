@@ -32,9 +32,9 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
+#include "vtkUnicodeStringArray.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
-#include "vtkUnicodeStringArray.h"
 
 #include <map>
 #include <utility>

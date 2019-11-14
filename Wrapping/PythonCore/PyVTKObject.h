@@ -20,9 +20,9 @@
 #ifndef PyVTKObject_h
 #define PyVTKObject_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 class vtkObjectBase;
 typedef vtkObjectBase *(*vtknewfunc)();

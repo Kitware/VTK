@@ -82,8 +82,8 @@
 #ifndef vtkLineWidget2_h
 #define vtkLineWidget2_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkLineRepresentation;
 class vtkHandleWidget;

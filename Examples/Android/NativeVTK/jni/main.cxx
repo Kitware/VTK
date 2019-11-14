@@ -15,8 +15,8 @@
  *
  */
 
-#include <jni.h>
 #include <errno.h>
+#include <jni.h>
 
 #include "vtkNew.h"
 
@@ -26,9 +26,9 @@
 #include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
 #include "vtkImageExtractComponents.h"
+#include "vtkPNGWriter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPNGWriter.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"

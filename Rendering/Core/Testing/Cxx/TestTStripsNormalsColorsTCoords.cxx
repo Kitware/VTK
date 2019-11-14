@@ -17,23 +17,23 @@
 // .SECTION Description
 // this program tests the shader support in vtkRendering.
 
-#include "vtkPlaneSource.h"
-#include "vtkTriangleFilter.h"
-#include "vtkStripper.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkTexture.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkPlaneSource.h"
 #include "vtkPointData.h"
-#include "vtkTestUtilities.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStripper.h"
+#include "vtkTestUtilities.h"
+#include "vtkTexture.h"
+#include "vtkTriangleFilter.h"
+#include "vtkUnsignedCharArray.h"
 
 int TestTStripsNormalsColorsTCoords(int argc, char *argv[])
 {

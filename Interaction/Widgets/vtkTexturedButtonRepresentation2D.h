@@ -44,8 +44,8 @@
 #ifndef vtkTexturedButtonRepresentation2D_h
 #define vtkTexturedButtonRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty2D;
 class vtkImageData;

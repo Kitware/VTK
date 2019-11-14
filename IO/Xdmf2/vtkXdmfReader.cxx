@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkXdmfReader.h"
-#include "vtkXdmfReaderInternal.h"
 #include "vtkXdmfHeavyData.h"
+#include "vtkXdmfReaderInternal.h"
 
 #include "vtkCharArray.h"
 #include "vtkCompositeDataPipeline.h"

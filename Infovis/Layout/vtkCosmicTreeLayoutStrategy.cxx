@@ -1,17 +1,17 @@
 #include "vtkCosmicTreeLayoutStrategy.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
 #include <sstream>
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 #include <cmath>
 

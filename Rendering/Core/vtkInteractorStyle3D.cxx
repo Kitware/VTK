@@ -16,21 +16,21 @@
 
 #include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkEventData.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
-#include "vtkPropPicker.h"
-#include "vtkRenderWindowInteractor3D.h"
 #include "vtkProp3D.h"
+#include "vtkPropPicker.h"
 #include "vtkQuaternion.h"
+#include "vtkRenderWindowInteractor3D.h"
 #include "vtkRenderer.h"
-#include "vtkMatrix3x3.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
-#include "vtkCamera.h"
 
 vtkStandardNewMacro(vtkInteractorStyle3D);
 

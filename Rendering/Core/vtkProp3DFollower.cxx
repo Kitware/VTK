@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkProp3DFollower.h"
 
+#include "vtkAssemblyPaths.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -22,7 +23,6 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkAssemblyPaths.h"
 
 #include <cmath>
 

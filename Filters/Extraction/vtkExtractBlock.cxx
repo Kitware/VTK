@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkExtractBlock.h"
 
+#include "vtkDataObjectTreeIterator.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkDataSet.h"
-#include "vtkDataObjectTreeIterator.h"
-#include "vtkInformationIntegerKey.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkObjectFactory.h"
 
 #include <set>
 

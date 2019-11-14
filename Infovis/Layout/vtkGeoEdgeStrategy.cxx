@@ -26,16 +26,16 @@
 #include "vtkFloatArray.h"
 #include "vtkGeoMath.h"
 #include "vtkGraph.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
+#include <map>
 #include <utility>
 #include <vector>
-#include <map>
 
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 

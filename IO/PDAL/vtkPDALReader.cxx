@@ -16,22 +16,22 @@
 #include "vtkPDALReader.h"
 
 #include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkFloatArray.h>
-#include <vtkTypeInt8Array.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
+#include <vtkPointData.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkTypeInt16Array.h>
 #include <vtkTypeInt32Array.h>
 #include <vtkTypeInt64Array.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkPoints.h>
-#include <vtkPointData.h>
-#include <vtkPolyData.h>
-#include <vtkTypeUInt8Array.h>
+#include <vtkTypeInt8Array.h>
 #include <vtkTypeUInt16Array.h>
 #include <vtkTypeUInt32Array.h>
 #include <vtkTypeUInt64Array.h>
+#include <vtkTypeUInt8Array.h>
 #include <vtkVertexGlyphFilter.h>
 
 #if defined(__GNUC__)
@@ -47,10 +47,10 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <pdal/Options.hpp>
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
 #include <pdal/StageFactory.hpp>
-#include <pdal/Options.hpp>
 
 vtkStandardNewMacro(vtkPDALReader)
 

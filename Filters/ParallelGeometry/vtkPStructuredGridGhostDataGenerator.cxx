@@ -13,14 +13,14 @@
 
  =========================================================================*/
 #include "vtkPStructuredGridGhostDataGenerator.h"
-#include "vtkObjectFactory.h"
-#include "vtkPStructuredGridConnectivity.h"
-#include "vtkStructuredGrid.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMultiProcessController.h"
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkPStructuredGridConnectivity.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
 
 #include <cassert>
 

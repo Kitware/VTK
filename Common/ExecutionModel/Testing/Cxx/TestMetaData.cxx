@@ -18,8 +18,8 @@
 
 #include "vtkInformation.h"
 #include "vtkInformationDataObjectMetaDataKey.h"
-#include "vtkInformationIntegerRequestKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerRequestKey.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"

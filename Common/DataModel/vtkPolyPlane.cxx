@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkPolyPlane.h"
 
-#include "vtkPolyLine.h"
 #include "vtkDoubleArray.h"
 #include "vtkLine.h"
-#include "vtkPoints.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyLine.h"
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPolyPlane);

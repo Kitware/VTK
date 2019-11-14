@@ -15,9 +15,9 @@
 
 // Test vtkProp3DButtonRepresentation
 
-#include "vtkObjectFactory.h"
 #include "vtkButtonWidget.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkProp3DButtonRepresentation.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"

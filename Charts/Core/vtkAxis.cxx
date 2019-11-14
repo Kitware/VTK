@@ -15,29 +15,29 @@
 
 #include "vtkAxis.h"
 
-#include "vtkMath.h"
-#include "vtkNew.h"
+#include "vtkAxisExtended.h"
+#include "vtkChart.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkPen.h"
-#include "vtkChart.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
-#include "vtkStdString.h"
-#include "vtkAxisExtended.h"
 
-#include <sstream>
 #include "vtkObjectFactory.h"
+#include <sstream>
 
 #include "vtksys/RegularExpression.hxx"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <limits>
-#include <cmath>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);

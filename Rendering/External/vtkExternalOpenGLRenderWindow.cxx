@@ -17,8 +17,8 @@
 
 #include "vtkExternalOpenGLRenderWindow.h"
 #include "vtkObjectFactory.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 
 vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 

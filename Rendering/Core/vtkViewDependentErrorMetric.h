@@ -29,8 +29,8 @@
 #ifndef vtkViewDependentErrorMetric_h
 #define vtkViewDependentErrorMetric_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkViewport;
 class vtkCoordinate;

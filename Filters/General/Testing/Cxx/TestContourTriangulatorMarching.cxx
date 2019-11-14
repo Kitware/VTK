@@ -19,19 +19,19 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-#include "vtkTesting.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCellData.h"
+#include "vtkContourTriangulator.h"
+#include "vtkDataSetMapper.h"
 #include "vtkMarchingSquares.h"
-#include "vtkRenderer.h"
+#include "vtkPNGReader.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkContourTriangulator.h"
-#include "vtkPNGReader.h"
-#include "vtkDataSetMapper.h"
-#include "vtkCamera.h"
-#include "vtkProperty.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTesting.h"
 
 int TestContourTriangulatorMarching(int argc, char* argv[])
 {

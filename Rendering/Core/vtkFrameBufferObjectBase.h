@@ -22,8 +22,8 @@
 #ifndef vtkFrameBufferObjectBase_h
 #define vtkFrameBufferObjectBase_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkProp;

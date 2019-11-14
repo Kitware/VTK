@@ -19,9 +19,9 @@
 
 =========================================================================*/
 
+#include "vtkDotProductSimilarity.h"
 #include "vtkArrayData.h"
 #include "vtkCommand.h"
-#include "vtkDotProductSimilarity.h"
 #include "vtkDenseArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"

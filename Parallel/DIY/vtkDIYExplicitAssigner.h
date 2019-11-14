@@ -31,8 +31,8 @@
 #ifndef vtkDIYExplicitAssigner_h
 #define vtkDIYExplicitAssigner_h
 
-#include "vtkParallelDIYModule.h" // for export macros
 #include "vtkObject.h"
+#include "vtkParallelDIYModule.h" // for export macros
 // clang-format off
 #include "vtk_diy2.h"
 #include VTK_DIY2(diy/mpi.hpp)

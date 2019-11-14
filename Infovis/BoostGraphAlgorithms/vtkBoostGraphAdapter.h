@@ -31,10 +31,10 @@
 #define vtkBoostGraphAdapter_h
 
 #include "vtkAbstractArray.h"
+#include "vtkDataArray.h"
+#include "vtkDataObject.h"
 #include "vtkDirectedGraph.h"
 #include "vtkDistributedGraphHelper.h"
-#include "vtkDataObject.h"
-#include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -144,10 +144,10 @@ namespace boost {
 #include <utility> // STL Header
 
 #include <boost/config.hpp>
-#include <boost/iterator/iterator_facade.hpp>
+#include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
-#include <boost/graph/adjacency_iterator.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 
 // The functions and classes in this file allows the user to
 // treat a vtkDirectedGraph or vtkUndirectedGraph object

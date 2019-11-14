@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkLassoStencilSource.h"
 
-#include "vtkMath.h"
-#include "vtkPoints.h"
 #include "vtkCardinalSpline.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>
 #include <map>

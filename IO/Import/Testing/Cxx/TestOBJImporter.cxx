@@ -16,15 +16,15 @@
 #include "vtkNew.h"
 #include "vtkOBJImporter.h"
 
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
+#include "vtkRenderer.h"
 
 #include "vtksys/SystemTools.hxx"
 
-#include <sstream>
 #include "vtkMapper.h"
+#include <sstream>
 
 int TestOBJImporter( int argc, char * argv [] )
 {

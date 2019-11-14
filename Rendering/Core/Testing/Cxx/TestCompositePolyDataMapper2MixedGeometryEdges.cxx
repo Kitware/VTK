@@ -15,32 +15,32 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkPointDataToCellData.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
-#include "vtkPointDataToCellData.h"
 
-#include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
+#include "vtkAppendPolyData.h"
 #include "vtkCylinderSource.h"
 #include "vtkElevationFilter.h"
-#include "vtkPlaneSource.h"
-#include "vtkAppendPolyData.h"
 #include "vtkExtractEdges.h"
+#include "vtkPlaneSource.h"
 
 int TestCompositePolyDataMapper2MixedGeometryEdges(int argc, char* argv[])
 {

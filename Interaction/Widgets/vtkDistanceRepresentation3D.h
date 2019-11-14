@@ -29,8 +29,8 @@
 #ifndef vtkDistanceRepresentation3D_h
 #define vtkDistanceRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkDistanceRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPoints;
 class vtkPolyData;

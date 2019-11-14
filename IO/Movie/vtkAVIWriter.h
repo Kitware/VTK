@@ -26,8 +26,8 @@
 #ifndef vtkAVIWriter_h
 #define vtkAVIWriter_h
 
-#include "vtkIOMovieModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
+#include "vtkIOMovieModule.h" // For export macro
 
 class vtkAVIWriterInternal;
 

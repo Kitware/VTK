@@ -30,9 +30,9 @@
 #ifndef vtkSingleVTPExporter_h
 #define vtkSingleVTPExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
-#include <vector> // for method args
+#include "vtkIOExportModule.h" // For export macro
+#include <vector>              // for method args
 
 class vtkActor;
 class vtkPolyData;

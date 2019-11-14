@@ -16,13 +16,13 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellData.h"
-#include "vtkStructuredGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
 
 vtkStandardNewMacro(vtkStructuredGridClip);
 

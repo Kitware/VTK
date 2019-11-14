@@ -23,8 +23,8 @@
 #ifndef vtkGenericDataObjectWriter_h
 #define vtkGenericDataObjectWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class VTKIOLEGACY_EXPORT vtkGenericDataObjectWriter : public vtkDataWriter
 {

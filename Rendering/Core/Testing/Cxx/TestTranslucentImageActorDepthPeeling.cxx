@@ -18,17 +18,17 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkActor.h"
-#include "vtkPNGReader.h"
+#include "vtkCamera.h"
 #include "vtkImageActor.h"
 #include "vtkImageMapper3D.h"
-#include "vtkCamera.h"
+#include "vtkPNGReader.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
 {

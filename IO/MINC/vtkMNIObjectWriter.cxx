@@ -50,21 +50,21 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkPolyData.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkProperty.h"
-#include "vtkMapper.h"
 #include "vtkLookupTable.h"
-#include "vtkPolygon.h"
+#include "vtkMapper.h"
 #include "vtkMath.h"
-#include "vtkErrorCode.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkProperty.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cctype>
 #include <cmath>

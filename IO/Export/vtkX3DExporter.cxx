@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkX3DExporter.h"
 
-#include "vtkActor2DCollection.h"
 #include "vtkActor2D.h"
+#include "vtkActor2DCollection.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
@@ -25,30 +25,30 @@
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkLightCollection.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkPolyDataMapper2D.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkX3D.h"
 #include "vtkX3DExporterFIWriter.h"
 #include "vtkX3DExporterXMLWriter.h"
-#include "vtkX3D.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 using namespace vtkX3D;
 

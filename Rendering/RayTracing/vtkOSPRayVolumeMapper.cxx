@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkOSPRayVolumeMapper.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
 //============================================================================

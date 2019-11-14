@@ -34,9 +34,9 @@
 #ifndef vtkQtRecordView_h
 #define vtkQtRecordView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkQtView.h"
 #include "vtkSmartPointer.h" // Needed for data table member
+#include "vtkViewsQtModule.h" // For export macro
 #include <QPointer> // Needed for the text widget member
 
 class QTextEdit;

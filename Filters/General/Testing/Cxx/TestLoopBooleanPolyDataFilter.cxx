@@ -12,23 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkLoopBooleanPolyDataFilter.h"
-#include "vtkIntersectionPolyDataFilter.h"
 #include "vtkActor.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
+#include "vtkCellData.h"
 #include "vtkCubeSource.h"
 #include "vtkCylinderSource.h"
-#include "vtkTransformPolyDataFilter.h"
+#include "vtkIntersectionPolyDataFilter.h"
 #include "vtkLinearSubdivisionFilter.h"
-#include "vtkTransform.h"
-#include "vtkTriangleFilter.h"
-#include "vtkCellData.h"
+#include "vtkLoopBooleanPolyDataFilter.h"
 #include "vtkMath.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
+#include "vtkTriangleFilter.h"
 
 static vtkSmartPointer<vtkActor> GetCubeBooleanOperationActor( double x, int operation )
 {

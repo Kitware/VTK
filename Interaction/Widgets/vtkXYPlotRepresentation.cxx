@@ -19,9 +19,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
-#include "vtkXYPlotActor.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
+#include "vtkXYPlotActor.h"
 
 vtkStandardNewMacro(vtkXYPlotRepresentation);
 

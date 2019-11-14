@@ -13,13 +13,13 @@
 
 =========================================================================*/
 
-#include "vtkProbeFilter.h"
-#include "vtkLineSource.h"
 #include "vtkArrayCalculator.h"
-#include "vtkNew.h"
-#include "vtkDataSet.h"
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkLineSource.h"
+#include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkProbeFilter.h"
 
 // Gets the number of points the probe filter counted as valid.
 // The parameter should be the output of the probe filter

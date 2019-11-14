@@ -22,10 +22,10 @@
 
 #include "vtkDirectedGraph.h"
 #include "vtkDistributedGraphHelper.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformation.h"
 #include "vtkGraph.h"
 #include "vtkGraphEdge.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkEdgeListIterator);
 //----------------------------------------------------------------------------

@@ -24,8 +24,8 @@
 #include "vtkImageData.h"
 #include "vtkImageViewer2.h"
 #include "vtkLookupTable.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 
 int TestBMPReaderDoNotAllow8BitBMP(int argc, char *argv[])

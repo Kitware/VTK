@@ -45,8 +45,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 // Create a generic class supporting virtual dispatch to type-specific
 // subclasses.

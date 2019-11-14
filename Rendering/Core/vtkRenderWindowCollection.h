@@ -27,9 +27,9 @@
 #ifndef vtkRenderWindowCollection_h
 #define vtkRenderWindowCollection_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"
-#include "vtkRenderWindow.h" // Needed for static cast
+#include "vtkRenderWindow.h"        // Needed for static cast
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
 {

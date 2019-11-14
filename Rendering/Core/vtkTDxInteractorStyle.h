@@ -32,8 +32,8 @@
 #ifndef vtkTDxInteractorStyle_h
 #define vtkTDxInteractorStyle_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkTDxMotionEventInfo;
 class vtkRenderer;

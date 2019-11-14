@@ -23,11 +23,11 @@
 #ifndef vtkOpenVRRenderWindowInteractor_h
 #define vtkOpenVRRenderWindowInteractor_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkRenderWindowInteractor3D.h"
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
-#include "vtkOpenVRRenderWindow.h" // ivars
 #include "vtkNew.h" // ivars
+#include "vtkOpenVRRenderWindow.h" // ivars
 
 class vtkTransform;
 class vtkMatrix4x4;

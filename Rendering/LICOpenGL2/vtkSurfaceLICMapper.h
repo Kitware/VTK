@@ -56,8 +56,8 @@
 #ifndef vtkSurfaceLICMapper_h
 #define vtkSurfaceLICMapper_h
 
-#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkRenderingLICOpenGL2Module.h" // For export macro
 
 class vtkSurfaceLICInterface;
 class vtkPainterCommunicator;

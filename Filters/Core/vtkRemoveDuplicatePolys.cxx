@@ -17,17 +17,17 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCollection.h"
-#include "vtkIntArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <algorithm>
-#include <set>
 #include <map>
+#include <set>
 #include <vector>
 
 vtkStandardNewMacro(vtkRemoveDuplicatePolys);

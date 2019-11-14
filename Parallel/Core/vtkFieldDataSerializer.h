@@ -28,8 +28,8 @@
 #ifndef vtkFieldDataSerializer_h
 #define vtkFieldDataSerializer_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 // Forward declarations
 class vtkIdList;

@@ -29,16 +29,16 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
-#include "vtkParallelCoordinatesRepresentation.h"
 #include "vtkParallelCoordinatesHistogramRepresentation.h"
 #include "vtkParallelCoordinatesInteractorStyle.h"
+#include "vtkParallelCoordinatesRepresentation.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
-#include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 #include "vtkSCurveSpline.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
@@ -46,8 +46,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTextProperty.h"
 #include "vtkViewTheme.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 vtkStandardNewMacro(vtkParallelCoordinatesView);
 

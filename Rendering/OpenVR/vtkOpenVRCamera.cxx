@@ -13,14 +13,14 @@
 =========================================================================*/
 #include "vtkOpenVRCamera.h"
 
-#include "vtkMatrix4x4.h"
 #include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
-#include "vtkOpenVRRenderWindow.h"
-#include "vtkOpenGLState.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLState.h"
+#include "vtkOpenVRRenderWindow.h"
 #include "vtkPerspectiveTransform.h"
+#include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
 #include <cmath>

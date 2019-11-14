@@ -50,17 +50,17 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkInformationVector.h"
-#include "vtkInformation.h"
-#include "vtkPointSet.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkStringArray.h"
+#include "vtkCommand.h"
 #include "vtkDoubleArray.h"
+#include "vtkErrorCode.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
-#include "vtkErrorCode.h"
-#include "vtkCommand.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
+#include "vtkStringArray.h"
 
 #include <cctype>
 #include <cmath>

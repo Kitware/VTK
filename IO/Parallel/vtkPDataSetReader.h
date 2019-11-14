@@ -23,8 +23,8 @@
 #ifndef vtkPDataSetReader_h
 #define vtkPDataSetReader_h
 
-#include "vtkIOParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkIOParallelModule.h" // For export macro
 
 class vtkDataSet;
 

@@ -42,8 +42,8 @@
 #ifndef vtkCellLocator_h
 #define vtkCellLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkNeighborCells;
 

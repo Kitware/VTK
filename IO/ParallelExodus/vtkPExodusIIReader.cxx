@@ -29,16 +29,16 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkPointData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtk_netcdf.h"
 #include "vtk_exodusII.h"
+#include "vtk_netcdf.h"
 
 #include "vtksys/SystemTools.hxx"
 

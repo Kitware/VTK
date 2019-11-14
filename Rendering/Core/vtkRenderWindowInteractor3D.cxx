@@ -12,21 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
-#include <cassert>
 
+#include "vtkInteractorStyle3D.h"
 #include "vtkRenderWindowInteractor3D.h"
 #include "vtkRendererCollection.h"
-#include "vtkInteractorStyle3D.h"
 
 #include "vtkActor.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkRenderWindowInteractor3D);
 

@@ -41,8 +41,8 @@
 #ifndef vtkView_h
 #define vtkView_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkAlgorithmOutput;
 class vtkCommand;

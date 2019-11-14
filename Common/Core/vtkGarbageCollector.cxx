@@ -18,8 +18,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
 
-#include <sstream>
 #include <queue>
+#include <sstream>
 #include <stack>
 #include <vector>
 
@@ -27,8 +27,8 @@
 #define VTK_GARBAGE_COLLECTOR_HASH 0
 
 #if VTK_GARBAGE_COLLECTOR_HASH
-# include <unordered_set>
 # include <unordered_map>
+# include <unordered_set>
 #else
 # include <map>
 # include <set>

@@ -14,10 +14,10 @@
 =========================================================================*/
 
 #include "vtkContextClip.h"
-#include "vtkObjectFactory.h"
-#include "vtkContextScenePrivate.h"
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
+#include "vtkContextScenePrivate.h"
+#include "vtkObjectFactory.h"
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 

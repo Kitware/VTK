@@ -28,8 +28,8 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLPolyDataMapper.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
@@ -39,8 +39,8 @@
 #include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkProperty2D.h"
 #include "vtkProperty.h"
+#include "vtkProperty2D.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
@@ -48,8 +48,8 @@
 #include "vtkViewport.h"
 
 // Bring in our shader symbols.
-#include "vtkPolyData2DVS.h"
 #include "vtkPolyData2DFS.h"
+#include "vtkPolyData2DVS.h"
 #include "vtkPolyDataWideLineGS.h"
 
 //-----------------------------------------------------------------------------

@@ -38,10 +38,10 @@
 
 #include "vtkObjectFactory.h"
 
-#include "vtkTesting.h"            // Required for testing framework
-#include "vtkTestDriver.h"         // Required for testing framework
-#include "vtkTestingInteractor.h"  // Required for testing framework
 #include "vtkSmartPointer.h"       // Required for testing framework
+#include "vtkTestDriver.h"         // Required for testing framework
+#include "vtkTesting.h"            // Required for testing framework
+#include "vtkTestingInteractor.h"  // Required for testing framework
 
 class VTKTESTINGRENDERING_EXPORT vtkTestingObjectFactory : public vtkObjectFactory
 {

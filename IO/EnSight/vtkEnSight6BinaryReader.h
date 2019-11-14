@@ -38,8 +38,8 @@
 #ifndef vtkEnSight6BinaryReader_h
 #define vtkEnSight6BinaryReader_h
 
-#include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"
+#include "vtkIOEnSightModule.h" // For export macro
 
 class vtkMultiBlockDataSet;
 class vtkIdTypeArray;

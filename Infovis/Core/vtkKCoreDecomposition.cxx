@@ -18,19 +18,19 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 #include "vtkKCoreDecomposition.h"
+#include "vtkDirectedGraph.h"
+#include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
+#include "vtkInEdgeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkEdgeListIterator.h"
-#include "vtkInEdgeIterator.h"
 #include "vtkOutEdgeIterator.h"
-#include "vtkUndirectedGraph.h"
-#include "vtkDirectedGraph.h"
+#include "vtkPointData.h"
 #include "vtkType.h"
+#include "vtkUndirectedGraph.h"
 
 #include <unordered_map>
 

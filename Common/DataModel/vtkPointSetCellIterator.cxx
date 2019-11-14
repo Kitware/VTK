@@ -15,10 +15,10 @@
 
 #include "vtkPointSetCellIterator.h"
 
-#include "vtkPointSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkPoints.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkPointSetCellIterator)
 

@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkPointOccupancyFilter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkPointSet.h"
-#include "vtkPoints.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSMPTools.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnsignedCharArray.h"
 
 
 vtkStandardNewMacro(vtkPointOccupancyFilter);

@@ -27,8 +27,8 @@
 #ifndef vtkPointHandleRepresentation2D_h
 #define vtkPointHandleRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty2D;
 class vtkActor2D;

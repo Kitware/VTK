@@ -14,26 +14,26 @@
   =========================================================================*/
 #include "vtkGaussianCubeReader2.h"
 
-#include "vtkSimpleBondPerceiver.h"
 #include "vtkDataObject.h"
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkImageData.h"
 #include "vtkMolecule.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSimpleBondPerceiver.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
-#include <string>
-#include <vector>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkGaussianCubeReader2);
 

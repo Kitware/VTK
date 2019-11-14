@@ -19,28 +19,28 @@
 //   Here we demonstrate constraining the distance widget to the centers
 // of various cells.
 //
-#include <vtkSmartPointer.h>
-#include <vtkPoints.h>
-#include <vtkCellArray.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkDataSetMapper.h>
 #include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkCamera.h>
-#include <vtkTransformFilter.h>
-#include <vtkMatrixToLinearTransform.h>
-#include <vtkMatrix4x4.h>
-#include <vtkProperty.h>
-#include <vtkDistanceWidget.h>
-#include <vtkDistanceRepresentation2D.h>
-#include <vtkCellCentersPointPlacer.h>
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkCellPicker.h>
 #include <vtkAxisActor2D.h>
+#include <vtkCamera.h>
+#include <vtkCellArray.h>
+#include <vtkCellCentersPointPlacer.h>
+#include <vtkCellPicker.h>
+#include <vtkDataSetMapper.h>
+#include <vtkDistanceRepresentation2D.h>
+#include <vtkDistanceWidget.h>
+#include <vtkMatrix4x4.h>
+#include <vtkMatrixToLinearTransform.h>
+#include <vtkPointHandleRepresentation3D.h>
+#include <vtkPoints.h>
+#include <vtkProperty.h>
 #include <vtkProperty2D.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
 #include <vtkTesting.h>
+#include <vtkTransformFilter.h>
+#include <vtkUnstructuredGrid.h>
 
 #include <vtkHexagonalPrism.h>
 #include <vtkHexahedron.h>

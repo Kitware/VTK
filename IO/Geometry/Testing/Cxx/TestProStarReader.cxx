@@ -16,24 +16,24 @@
 // .SECTION Description
 //
 
-#include "vtkProStarReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkProStarReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkGeometryFilter.h"
 #include "vtkIdList.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
 int TestProStarReader( int argc, char *argv[] )
 {

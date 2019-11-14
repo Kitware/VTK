@@ -64,8 +64,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #ifndef vtkMNITransformWriter_h
 #define vtkMNITransformWriter_h
 
-#include "vtkIOMINCModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkIOMINCModule.h" // For export macro
 
 class vtkAbstractTransform;
 class vtkHomogeneousTransform;

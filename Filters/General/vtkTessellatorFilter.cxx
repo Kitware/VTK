@@ -20,9 +20,9 @@
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
-#include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDataSetEdgeSubdivisionCriterion.h"
+#include "vtkEdgeSubdivisionCriterion.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -31,7 +31,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingTessellator.h"
-#include "vtkEdgeSubdivisionCriterion.h"
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
 

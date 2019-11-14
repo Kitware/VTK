@@ -30,8 +30,8 @@
 #ifndef vtkIdFilter_h
 #define vtkIdFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class VTKFILTERSCORE_EXPORT vtkIdFilter : public vtkDataSetAlgorithm
 {

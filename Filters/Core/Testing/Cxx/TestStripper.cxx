@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkIntersectionPolyDataFilter.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkStripper.h"
 #include <cassert>
 

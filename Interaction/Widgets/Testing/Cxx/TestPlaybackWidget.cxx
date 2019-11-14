@@ -18,16 +18,16 @@
 // First include the required header files for the VTK classes we are using.
 #include "vtkSmartPointer.h"
 
-#include "vtkPlaybackWidget.h"
-#include "vtkPlaybackRepresentation.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
+#include "vtkPlaybackRepresentation.h"
+#include "vtkPlaybackWidget.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 
 class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {

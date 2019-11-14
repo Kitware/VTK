@@ -22,15 +22,15 @@
 #define vtkOpenGLPolyDataMapper_h
 
 #include "vtkNew.h" // For vtkNew
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkNew.h" // for ivars
-#include "vtkPolyDataMapper.h"
-#include "vtkShader.h" // for methods
 #include "vtkOpenGLHelper.h" // used for ivars
+#include "vtkPolyDataMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkShader.h" // for methods
 #include "vtkStateStorage.h" // used for ivars
 
-#include <vector> //for ivars
 #include <map> //for methods
+#include <vector> //for ivars
 
 class vtkCellArray;
 class vtkGenericOpenGLResourceFreeCallback;

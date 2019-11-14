@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkExtractHierarchicalBins.h"
 
+#include "vtkDataArray.h"
+#include "vtkGarbageCollector.h"
+#include "vtkHierarchicalBinningFilter.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkDataArray.h"
-#include "vtkHierarchicalBinningFilter.h"
-#include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkExtractHierarchicalBins);
 vtkCxxSetObjectMacro(vtkExtractHierarchicalBins,BinningFilter,vtkHierarchicalBinningFilter);

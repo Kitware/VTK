@@ -14,20 +14,20 @@
 =========================================================================*/
 // Test vtkImageToAMR filter.
 
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkPointData.h"
 
-#include "vtkImageToAMR.h"
-#include "vtkRTAnalyticSource.h"
-#include "vtkNew.h"
-#include "vtkDataObject.h"
-#include "vtkOverlappingAMR.h"
 #include "vtkAMRBox.h"
-#include "vtkImageData.h"
-#include "vtkUniformGrid.h"
+#include "vtkDataObject.h"
 #include "vtkIdFilter.h"
-#include "vtkVector.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
+#include "vtkImageToAMR.h"
+#include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkUniformGrid.h"
+#include "vtkVector.h"
 
 #include <vector>
 #define VTK_SUCCESS 0

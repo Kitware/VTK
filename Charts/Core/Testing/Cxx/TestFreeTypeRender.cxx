@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
+#include "vtkContext2D.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkImageData.h"
+#include "vtkImageItem.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
-#include "vtkContext2D.h"
-#include "vtkTransform2D.h"
-#include "vtkImageItem.h"
-#include "vtkImageData.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
 #include "vtkTextProperty.h"
+#include "vtkTransform2D.h"
 
 #include "vtkUnicodeString.h"
 

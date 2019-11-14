@@ -31,8 +31,8 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class vtkCommand;
 class vtkRenderer;

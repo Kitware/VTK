@@ -43,8 +43,8 @@
 #ifndef vtkMPIController_h
 #define vtkMPIController_h
 
-#include "vtkParallelMPIModule.h" // For export macro
 #include "vtkMultiProcessController.h"
+#include "vtkParallelMPIModule.h" // For export macro
 // Do not remove this header file. This class contains methods
 // which take arguments defined in  vtkMPICommunicator.h by
 // reference.

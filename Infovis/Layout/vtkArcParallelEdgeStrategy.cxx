@@ -28,9 +28,9 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
+#include <map>
 #include <utility>
 #include <vector>
-#include <map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
 

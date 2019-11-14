@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkTensorProbeRepresentation.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPolyData.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkProperty.h"
+#include "vtkCellArray.h"
+#include "vtkCoordinate.h"
+#include "vtkGenericCell.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLine.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderWindow.h"
-#include "vtkCellArray.h"
 #include "vtkMath.h"
-#include "vtkGenericCell.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()

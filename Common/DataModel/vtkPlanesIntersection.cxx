@@ -17,12 +17,12 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-#include "vtkMath.h"
 #include "vtkPlanesIntersection.h"
-#include "vtkPointsProjectedHull.h"
-#include "vtkFloatArray.h"
 #include "vtkCell.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointsProjectedHull.h"
 
 vtkStandardNewMacro(vtkPlanesIntersection);
 

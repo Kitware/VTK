@@ -14,12 +14,12 @@
 =========================================================================*/
 
 #include "vtkDoubleArray.h"
+#include "vtkHighestDensityRegionsStatistics.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
-#include "vtkHighestDensityRegionsStatistics.h"
 
 #include <sstream>
 

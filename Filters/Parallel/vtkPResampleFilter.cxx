@@ -15,20 +15,20 @@
 #include "vtkPResampleFilter.h"
 
 #include "vtkCellData.h"
+#include "vtkCommunicator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataObject.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPProbeFilter.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkCommunicator.h"
-#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkPResampleFilter);
 

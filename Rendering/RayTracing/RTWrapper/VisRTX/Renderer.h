@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../Types.h"
-#include "FrameBuffer.h"
-#include "Object.h"
-#include "Model.h"
 #include "Camera.h"
 #include "Data.h"
+#include "FrameBuffer.h"
 #include "Light.h"
+#include "Model.h"
+#include "Object.h"
 #include "Texture.h"
 
 #include <VisRTX.h>

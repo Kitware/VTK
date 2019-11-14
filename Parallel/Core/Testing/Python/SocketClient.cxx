@@ -13,10 +13,13 @@
 
 =========================================================================*/
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkContourFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRectilinearGrid.h"
@@ -26,10 +29,7 @@
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
-#include "vtkImageData.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkCamera.h"
-#include "vtkImageActor.h"
 
 #include "vtkRenderWindowInteractor.h"
 

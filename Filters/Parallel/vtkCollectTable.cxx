@@ -22,9 +22,9 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
-#include "vtkTable.h"
 #include "vtkSocketController.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTable.h"
 #include "vtkVariant.h"
 
 vtkStandardNewMacro(vtkCollectTable);

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkCylindricalTransform.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include <cmath>
 #include <cstdlib>
 

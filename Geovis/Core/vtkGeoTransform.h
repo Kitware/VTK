@@ -28,8 +28,8 @@
 #ifndef vtkGeoTransform_h
 #define vtkGeoTransform_h
 
-#include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractTransform.h"
+#include "vtkGeovisCoreModule.h" // For export macro
 
 class vtkGeoProjection;
 

@@ -30,8 +30,8 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkmFilterPolicy.h"
 #include "vtkm/cont/DataSetFieldAdd.h"
+#include "vtkmFilterPolicy.h"
 
 #include <vtkm/filter/WarpScalar.h>
 

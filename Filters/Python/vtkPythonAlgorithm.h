@@ -43,8 +43,8 @@
 
 #include "vtkPython.h" // Must be first
 
-#include "vtkFiltersPythonModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkFiltersPythonModule.h" // For export macro
 
 class vtkSmartPyObject;
 

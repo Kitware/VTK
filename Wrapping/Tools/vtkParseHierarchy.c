@@ -21,11 +21,11 @@
 
 #include "vtkParseHierarchy.h"
 #include "vtkParseExtras.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <assert.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static size_t skip_space(const char *text)
 {

@@ -15,18 +15,17 @@
 
 #include "vtkGaussianBlurPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
-#include "vtkRenderState.h"
-#include "vtkRenderer.h"
-#include "vtkOpenGLFramebufferObject.h"
-#include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
-#include "vtkShaderProgram.h"
+#include "vtkOpenGLFramebufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkRenderState.h"
+#include "vtkRenderer.h"
+#include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
+#include <cassert>
 
 #include "vtkOpenGLHelper.h"
 
@@ -35,10 +34,10 @@
 //#define VTK_GAUSSIAN_BLUR_PASS_DEBUG
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-#include "vtkPNGWriter.h"
-#include "vtkImageImport.h"
-#include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
+#include "vtkImageImport.h"
+#include "vtkPNGWriter.h"
+#include "vtkPixelBufferObject.h"
 #endif
 
 #include "vtkGaussianBlurPassFS.h"

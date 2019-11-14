@@ -26,8 +26,8 @@
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
-#include "vtkSmartPointer.h"  // Needed for SP ivars
 #include "vtkRect.h"          // Needed for vtkRectf
+#include "vtkSmartPointer.h"  // Needed for SP ivars
 
 class vtkImageData;
 class vtkScalarsToColors;

@@ -20,8 +20,8 @@
 // -W        => write data files at each step for closer inspection
 // -S        => draw sample data set in wireframe with each result
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include <vtkActor.h>
 #include <vtkCamera.h>
@@ -46,10 +46,10 @@
 #include <vtkUnstructuredGridWriter.h>
 #include <vtkXMLDataSetWriter.h>
 
+#include <vtkExtractSelection.h>
 #include <vtkInformation.h>
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
-#include <vtkExtractSelection.h>
 
 #define XCELLS 3
 #define YCELLS 3

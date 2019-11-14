@@ -27,11 +27,11 @@
 #include "vtkNew.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header

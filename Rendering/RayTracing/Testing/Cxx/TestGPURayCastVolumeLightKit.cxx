@@ -25,6 +25,7 @@
 #include <vtkImageShiftScale.h>
 #include <vtkLightKit.h>
 #include <vtkNew.h>
+#include <vtkOSPRayPass.h>
 #include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
@@ -39,7 +40,6 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkOSPRayPass.h>
 
 
 int TestGPURayCastVolumeLightKit(int argc, char *argv[])

@@ -16,7 +16,6 @@
 
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkLine.h"
 #include "vtkIdList.h"
 #include "vtkLagrangeInterpolation.h"
 #include "vtkLine.h"

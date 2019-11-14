@@ -32,11 +32,11 @@
 #define vtkVariant_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
-#include "vtkSystemIncludes.h" // To define ostream
-#include "vtkSetGet.h"         // For vtkNotUsed macro
 #include "vtkObject.h"         // For vtkObject's warning support
+#include "vtkSetGet.h"         // For vtkNotUsed macro
 #include "vtkStdString.h"
+#include "vtkSystemIncludes.h" // To define ostream
+#include "vtkType.h"           // To define type IDs and VTK_TYPE_USE_* flags
 #include "vtkUnicodeString.h"
 
 //

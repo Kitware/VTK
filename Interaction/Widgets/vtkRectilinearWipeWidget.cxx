@@ -13,18 +13,18 @@
 
 =========================================================================*/
 #include "vtkRectilinearWipeWidget.h"
-#include "vtkRectilinearWipeRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkCommand.h"
+#include "vtkEvent.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkWidgetEventTranslator.h"
+#include "vtkRectilinearWipeRepresentation.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkWidgetCallbackMapper.h"
-#include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 
 vtkStandardNewMacro(vtkRectilinearWipeWidget);

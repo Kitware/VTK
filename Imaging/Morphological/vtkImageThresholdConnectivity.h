@@ -33,8 +33,8 @@
 #ifndef vtkImageThresholdConnectivity_h
 #define vtkImageThresholdConnectivity_h
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkPoints;
 class vtkImageData;

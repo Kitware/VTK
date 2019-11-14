@@ -15,14 +15,14 @@
 #include "vtkRotationalExtrusionFilter.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkPolyData.h"
 
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);

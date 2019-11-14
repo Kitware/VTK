@@ -77,8 +77,8 @@
 #ifndef vtkGL2PSExporter_h
 #define vtkGL2PSExporter_h
 
-#include "vtkIOExportGL2PSModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportGL2PSModule.h" // For export macro
 
 #include "vtkNew.h" // For vtkNew
 

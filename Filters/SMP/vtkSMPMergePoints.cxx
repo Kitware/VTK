@@ -14,11 +14,11 @@
   =========================================================================*/
 
 #include "vtkSMPMergePoints.h"
-#include "vtkPoints.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSMPMergePoints)

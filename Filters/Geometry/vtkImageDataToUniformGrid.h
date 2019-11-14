@@ -26,8 +26,8 @@
 #ifndef vtkImageDataToUniformGrid_h
 #define vtkImageDataToUniformGrid_h
 
-#include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersGeometryModule.h" // For export macro
 
 class vtkDataArray;
 class vtkFieldData;

@@ -29,17 +29,17 @@
   #define VTK_WINDOWS_FULL
   #include "vtkWindows.h"
 #else
-  #include <sys/types.h>
-  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <cerrno>
+  #include <cstdio>
+  #include <cstring>
+  #include <netdb.h>
   #include <netinet/in.h>
   #include <netinet/tcp.h>
-  #include <arpa/inet.h>
-  #include <netdb.h>
-  #include <unistd.h>
+  #include <sys/socket.h>
   #include <sys/time.h>
-  #include <cerrno>
-  #include <cstring>
-  #include <cstdio>
+  #include <sys/types.h>
+  #include <unistd.h>
 #endif
 #endif
 

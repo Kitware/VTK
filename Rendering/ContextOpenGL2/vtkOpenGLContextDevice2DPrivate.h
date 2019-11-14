@@ -40,10 +40,10 @@
 #include "vtkColor.h"
 #include "vtkFreeTypeTools.h"
 #include "vtkGenericCell.h"
+#include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
-#include "vtkStdString.h"
 #include "vtkUnicodeString.h"
 #include "vtkUnsignedCharArray.h"
 

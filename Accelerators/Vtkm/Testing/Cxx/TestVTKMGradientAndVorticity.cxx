@@ -21,7 +21,6 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkmGradient.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
@@ -29,9 +28,10 @@
 #include "vtkStructuredGridReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
+#include "vtkmGradient.h"
 
-#include <vtkm/testing/Testing.h>
 #include <vector>
+#include <vtkm/testing/Testing.h>
 
 #define VTK_CREATE(type, var)                                   \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()

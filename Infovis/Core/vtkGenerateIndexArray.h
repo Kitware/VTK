@@ -45,8 +45,8 @@
 #ifndef vtkGenerateIndexArray_h
 #define vtkGenerateIndexArray_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkGenerateIndexArray : public vtkDataObjectAlgorithm
 {

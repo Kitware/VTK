@@ -14,9 +14,9 @@
 #ifndef vtkRenderWidget_h
 #define vtkRenderWidget_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkObject.h"
 #include "vtkNew.h" // For member variables.
+#include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVector.h" // For member variables.
 #include <string> // For member variables.
 

@@ -21,6 +21,7 @@
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkFloatArray.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
@@ -29,11 +30,10 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkFloatArray.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 

@@ -46,8 +46,8 @@
 #ifndef vtkTextureMapToCylinder_h
 #define vtkTextureMapToCylinder_h
 
-#include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersTextureModule.h" // For export macro
 
 class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToCylinder : public vtkDataSetAlgorithm
 {

@@ -20,8 +20,8 @@
 #include "vtkStatisticsAlgorithm.h"
 #include "vtkTable.h"
 
-#include "vtkTestErrorObserver.h"
 #include "vtkExecutive.h"
+#include "vtkTestErrorObserver.h"
 
 //----------------------------------------------------------------------------
 int TestComputeQuartiles(int , char * [])

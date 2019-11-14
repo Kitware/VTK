@@ -45,8 +45,8 @@
 
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
-#include "vtkBalloonWidget.h"
 #include "vtkBalloonRepresentation.h"
+#include "vtkBalloonWidget.h"
 #include "vtkBoxWidget.h"
 #include "vtkCamera.h"
 #include "vtkClipPolyData.h"
@@ -63,11 +63,11 @@
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
 #include "vtkPropPicker.h"
-#include "vtkRenderer.h"
+#include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 

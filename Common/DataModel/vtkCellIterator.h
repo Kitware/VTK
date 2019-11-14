@@ -65,11 +65,11 @@
 #ifndef vtkCellIterator_h
 #define vtkCellIterator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCellType.h" // For VTK_EMPTY_CELL
-#include "vtkObject.h"
-#include "vtkNew.h" // For vtkNew
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIdList.h" // For inline methods
+#include "vtkNew.h" // For vtkNew
+#include "vtkObject.h"
 
 class vtkGenericCell;
 class vtkPoints;

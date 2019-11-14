@@ -27,8 +27,8 @@
 #ifndef vtkAbstractVolumeMapper_h
 #define vtkAbstractVolumeMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 class vtkVolume;

@@ -30,8 +30,8 @@
 #ifndef vtkGeoEdgeStrategy_h
 #define vtkGeoEdgeStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class VTKINFOVISLAYOUT_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 {

@@ -20,9 +20,9 @@
 
 #include "vtkQtTreeView.h"
 
+#include "QFilterTreeProxyModel.h"
 #include <QAbstractItemView>
 #include <QColumnView>
-#include "QFilterTreeProxyModel.h"
 #include <QHeaderView>
 #include <QItemSelection>
 #include <QItemSelectionModel>

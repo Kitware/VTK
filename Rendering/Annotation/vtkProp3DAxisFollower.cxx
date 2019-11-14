@@ -22,9 +22,9 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
-#include "vtkViewport.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkViewport.h"
 
 #include <cmath>
 

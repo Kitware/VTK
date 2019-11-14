@@ -8,18 +8,18 @@
  */
 
 
-#include "ui_SimpleView.h"
 #include "SimpleView.h"
+#include "ui_SimpleView.h"
 
+#include "vtkGenericOpenGLRenderWindow.h"
+#include "vtkSmartPointer.h"
 #include <vtkDataObjectToTable.h>
 #include <vtkElevationFilter.h>
-#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkQtTableView.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
-#include "vtkSmartPointer.h"
+#include <vtkRenderer.h>
 #include <vtkVectorText.h>
 
 

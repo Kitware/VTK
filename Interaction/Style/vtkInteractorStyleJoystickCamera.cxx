@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkInteractorStyleJoystickCamera.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 

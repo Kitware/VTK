@@ -16,22 +16,22 @@
 // This example tests the vtkAngleWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkSmartPointer.h"
-#include "vtkAngleWidget.h"
-#include "vtkAngleRepresentation2D.h"
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkAngleRepresentation2D.h"
+#include "vtkAngleWidget.h"
+#include "vtkAxisActor2D.h"
 #include "vtkCommand.h"
 #include "vtkCoordinate.h"
-#include "vtkMath.h"
 #include "vtkHandleWidget.h"
+#include "vtkMath.h"
 #include "vtkPointHandleRepresentation2D.h"
-#include "vtkAxisActor2D.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTesting.h"
 
 const char TestAngleWidget2DEventLog[] =

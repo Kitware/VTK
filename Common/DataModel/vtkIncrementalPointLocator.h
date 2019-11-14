@@ -42,8 +42,8 @@
 #ifndef vtkIncrementalPointLocator_h
 #define vtkIncrementalPointLocator_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractPointLocator.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkPoints;
 class vtkIdList;

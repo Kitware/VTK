@@ -24,8 +24,8 @@
 #ifndef vtkUniformGridAMRAlgorithm_h
 #define vtkUniformGridAMRAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkUniformGridAMR;
 class vtkInformation;

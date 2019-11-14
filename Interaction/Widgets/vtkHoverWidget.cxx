@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkHoverWidget.h"
+#include "vtkCallbackCommand.h"
+#include "vtkEvent.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
 #include "vtkWidgetEventTranslator.h"
-#include "vtkObjectFactory.h"
-#include "vtkCallbackCommand.h"
-#include "vtkEvent.h"
 
 vtkStandardNewMacro(vtkHoverWidget);
 

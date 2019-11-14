@@ -29,8 +29,8 @@
 #ifndef vtkExtractSelectedLocations_h
 #define vtkExtractSelectedLocations_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 class vtkSelection;
 class vtkSelectionNode;

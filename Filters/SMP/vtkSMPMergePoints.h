@@ -32,8 +32,8 @@
 #define vtkSMPMergePoints_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
-#include "vtkMergePoints.h"
 #include "vtkIdList.h" // For inline functions
+#include "vtkMergePoints.h"
 #include "vtkType.h" // For vtkIdType
 
 #include <atomic> // for std::atomic

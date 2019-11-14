@@ -15,14 +15,14 @@
 #include "vtkBoundedPointSource.h"
 
 #include "vtkCellArray.h"
-#include "vtkMath.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkBoundedPointSource);
 

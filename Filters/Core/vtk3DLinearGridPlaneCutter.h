@@ -72,8 +72,8 @@
 #ifndef vtk3DLinearGridPlaneCutter_h
 #define vtk3DLinearGridPlaneCutter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkPlane;
 class vtkUnstructuredGrid;

@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkLODProp3D.h"
 
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkActor.h"
 #include "vtkCommand.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageSlice.h"
+#include "vtkLinearTransform.h"
 #include "vtkMapper.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
 #include "vtkVolume.h"
-#include "vtkAbstractVolumeMapper.h"
-#include "vtkImageSlice.h"
-#include "vtkImageMapper3D.h"
-#include "vtkLinearTransform.h"
 
 #include <cmath>
 

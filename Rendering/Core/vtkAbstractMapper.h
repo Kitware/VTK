@@ -28,8 +28,8 @@
 #ifndef vtkAbstractMapper_h
 #define vtkAbstractMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #define VTK_SCALAR_MODE_DEFAULT 0
 #define VTK_SCALAR_MODE_USE_POINT_DATA 1

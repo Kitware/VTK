@@ -41,8 +41,8 @@
 #ifndef vtkTerrainContourLineInterpolator_h
 #define vtkTerrainContourLineInterpolator_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkImageData;
 class vtkProjectedTerrainPath;

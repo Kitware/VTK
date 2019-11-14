@@ -20,6 +20,7 @@
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"
+#include "vtkCosmicTreeLayoutStrategy.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkGraphLayout.h"
@@ -28,14 +29,13 @@
 #include "vtkIdTypeArray.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtkCosmicTreeLayoutStrategy.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTree.h"
 #include "vtkTestUtilities.h"
+#include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 
 #define VTK_CREATE(type, name) \

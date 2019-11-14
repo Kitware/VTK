@@ -18,21 +18,21 @@
 // vtk unstructured grid
 
 #include "vtkColorTransferFunction.h"
+#include "vtkDataSetTriangleFilter.h"
 #include "vtkImageCast.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
+#include "vtkOSPRayPass.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStructuredPointsReader.h"
 #include "vtkTesting.h"
+#include "vtkThreshold.h"
+#include "vtkUnstructuredGridVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkOSPRayPass.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkThreshold.h"
-#include "vtkDataSetTriangleFilter.h"
-#include "vtkUnstructuredGridVolumeRayCastMapper.h"
 #include <vtkTestUtilities.h>
 
 namespace {

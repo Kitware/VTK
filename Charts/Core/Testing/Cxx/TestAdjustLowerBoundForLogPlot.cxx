@@ -19,9 +19,9 @@
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkPlot.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
 
 #include <cstdio>

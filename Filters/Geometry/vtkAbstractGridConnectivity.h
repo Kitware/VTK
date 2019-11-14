@@ -43,11 +43,11 @@
 #define vtkAbstractGridConnectivity_h
 
 // VTK includes
+#include "vtkCellData.h"              // for vtkCellData definition int STL vector
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkPoints.h"            // for vtkPoints definition in STL vector
 #include "vtkPointData.h"         // for vtkPointData definition in STL vector
-#include "vtkCellData.h"          // for vtkCellData definition int STL vector
+#include "vtkPoints.h"            // for vtkPoints definition in STL vector
 #include "vtkUnsignedCharArray.h" // for vtkUnsignedCharArray definition
 
 // Forward declarations
@@ -57,8 +57,8 @@ class vtkUnsignedCharArray;
 class vtkPoints;
 
 // C++ include directives
-#include <vector>  // For STL vector
 #include <cassert> // For assert
+#include <vector>  // For STL vector
 
 class VTKFILTERSGEOMETRY_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {

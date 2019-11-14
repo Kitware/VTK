@@ -18,16 +18,16 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLShaderProperty.h"
 #include "vtkOpenGLState.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
-#include "vtkOpenGLShaderProperty.h"
 #include "vtkTexture.h"
 
 #include <cmath>

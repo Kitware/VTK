@@ -33,9 +33,9 @@
 #ifndef vtkRectilinearGridAlgorithm_h
 #define vtkRectilinearGridAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkRectilinearGrid.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkRectilinearGrid.h"            // makes things a bit easier
 
 class vtkDataSet;
 class vtkRectilinearGrid;

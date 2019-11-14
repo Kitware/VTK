@@ -42,11 +42,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkSmartPointer.h" // Used internally
 #include "vtkHyperTreeGridGeometryEntry.h" // Used internally
 #include "vtkHyperTreeGridTools.h" // for HasTree
-#include <vector> // std::vector
+#include "vtkSmartPointer.h" // Used internally
 #include <memory> // std::shared_ptr
+#include <vector> // std::vector
 
 
 class vtkHyperTree;

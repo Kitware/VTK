@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLLabeledContourMapper_h
 #define vtkOpenGLLabeledContourMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkLabeledContourMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkMatrix4x4;
 class vtkOpenGLHelper;

@@ -26,8 +26,8 @@
 #ifndef vtkImageCacheFilter_h
 #define vtkImageCacheFilter_h
 
-#include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingCoreModule.h" // For export macro
 
 class vtkExecutive;
 

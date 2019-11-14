@@ -22,8 +22,8 @@
 
 #ifndef vtkBridgeExport_h
 #define vtkBridgeExport_h
-#include "vtkTestingGenericBridgeModule.h"
 #include "vtkSystemIncludes.h"
+#include "vtkTestingGenericBridgeModule.h"
 
 #if 1
 # define VTK_BRIDGE_EXPORT

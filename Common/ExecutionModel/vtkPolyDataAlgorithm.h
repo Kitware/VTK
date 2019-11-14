@@ -31,9 +31,9 @@
 #ifndef vtkPolyDataAlgorithm_h
 #define vtkPolyDataAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkPolyData.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkPolyData.h"                   // makes things a bit easier
 
 class vtkDataSet;
 class vtkPolyData;

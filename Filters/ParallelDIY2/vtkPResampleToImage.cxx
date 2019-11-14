@@ -18,20 +18,20 @@
 #include "vtkCharArray.h"
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDIYUtilities.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDIYUtilities.h"
 #include "vtkExtentTranslator.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMultiProcessController.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
 #include VTK_DIY2(diy/assigner.hpp)

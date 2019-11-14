@@ -31,8 +31,8 @@
 #ifndef vtkAngleRepresentation3D_h
 #define vtkAngleRepresentation3D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAngleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkActor;
 class vtkProperty;

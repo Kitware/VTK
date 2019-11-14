@@ -68,13 +68,13 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__)
 #include "vtkWindows.h"
-#include <io.h>
 #include <cctype>
-#include <direct.h>
-#include <fcntl.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <direct.h>
+#include <fcntl.h>
+#include <io.h>
 #include <sys/types.h>
 
 int vtkDirectory::Open(const char* name)
@@ -132,8 +132,8 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 
 // Now the POSIX style directory access
 
-#include <sys/types.h>
 #include <dirent.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 // PGI with glibc has trouble with dirent and large file support:

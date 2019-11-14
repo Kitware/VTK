@@ -17,18 +17,18 @@
 // Tests the vtkLSDynaReader.
 
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkDebugLeaks.h"
-#include "vtkLookupTable.h"
 #include "vtkLSDynaReader.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPNGWriter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
 int TestLSDynaReaderDeflection( int argc, char *argv[] )

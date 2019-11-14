@@ -25,8 +25,8 @@
 #ifndef vtkMPIMultiBlockPLOT3DReader_h
 #define vtkMPIMultiBlockPLOT3DReader_h
 
-#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkIOMPIParallelModule.h" // For export macro
+#include "vtkMultiBlockPLOT3DReader.h"
 
 class VTKIOMPIPARALLEL_EXPORT vtkMPIMultiBlockPLOT3DReader : public vtkMultiBlockPLOT3DReader
 {

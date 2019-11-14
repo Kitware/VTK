@@ -28,9 +28,9 @@
 #ifndef vtkUnstructuredGrid_h
 #define vtkUnstructuredGrid_h
 
+#include "vtkCellArray.h" //inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIdTypeArray.h" //inline GetCellPoints()
-#include "vtkCellArray.h" //inline GetCellPoints()
 #include "vtkUnstructuredGridBase.h"
 
 #include "vtkSmartPointer.h" // for smart pointer

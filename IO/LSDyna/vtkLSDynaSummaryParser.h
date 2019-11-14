@@ -24,8 +24,8 @@
 #define vtkLSDynaSummaryParser_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
+#include "vtkStdString.h"      //needed for vtkStdString
 #include "vtkXMLParser.h"
-#include "vtkStdString.h" //needed for vtkStdString
 
 class LSDynaMetaData;
 class VTKIOLSDYNA_EXPORT vtkLSDynaSummaryParser : public vtkXMLParser

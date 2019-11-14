@@ -66,8 +66,8 @@
 #ifndef vtkTableToGraph_h
 #define vtkTableToGraph_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkBitArray;
 class vtkMutableDirectedGraph;

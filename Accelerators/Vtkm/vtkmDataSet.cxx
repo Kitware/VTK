@@ -19,9 +19,9 @@
 //============================================================================
 #include "vtkmDataSet.h"
 
-#include "vtkmlib/ArrayConverters.h"
 #include "vtkmDataArray.h"
 #include "vtkmFilterPolicy.h"
+#include "vtkmlib/ArrayConverters.h"
 
 #include "vtkCell.h"
 #include "vtkDataSet.h"

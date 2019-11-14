@@ -15,27 +15,27 @@
 // This test volume renders a synthetic dataset with four different
 // positional lights in the scene.
 
+#include "vtkOSPRayPass.h"
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
 #include <vtkLight.h>
 #include <vtkNew.h>
-#include "vtkOSPRayPass.h"
 #include <vtkPiecewiseFunction.h>
 #include <vtkRegressionTestImage.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include <vtkLightActor.h>
-#include <vtkContourFilter.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
+#include <vtkContourFilter.h>
+#include <vtkLightActor.h>
+#include <vtkPolyDataMapper.h>
 
 int TestGPURayCastPositionalLights(int argc, char *argv[])
 {

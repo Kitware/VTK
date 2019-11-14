@@ -21,6 +21,8 @@
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
+#include "vtkImageProgressIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -33,8 +35,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkImageIterator.h"
-#include "vtkImageProgressIterator.h"
 
 #include <cmath>
 

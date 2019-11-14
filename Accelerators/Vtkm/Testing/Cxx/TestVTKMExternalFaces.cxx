@@ -22,20 +22,20 @@
 #include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkSphere.h"
 #include "vtkTableBasedClipDataSet.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtkPointData.h"
 #include "vtkDataArray.h"
+#include "vtkPointData.h"
 
 
 namespace {

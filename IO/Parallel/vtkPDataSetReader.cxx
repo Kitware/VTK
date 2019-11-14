@@ -18,9 +18,11 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkDataSetReader.h"
+#include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -31,8 +33,6 @@
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkExtentTranslator.h"
-#include "vtkNew.h"
 
 vtkStandardNewMacro(vtkPDataSetReader);
 

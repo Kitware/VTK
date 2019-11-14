@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
+#include <vtkSparseArray.h>
 
 #include <iostream>
 #include <stdexcept>

@@ -1,10 +1,10 @@
-#include "vtkBalloonWidget.h"
-#include "vtkBalloonRepresentation.h"
-#include "vtkProp.h"
-#include "vtkActor.h"
 #include "vtkAbstractPropPicker.h"
+#include "vtkActor.h"
+#include "vtkBalloonRepresentation.h"
+#include "vtkBalloonWidget.h"
 #include "vtkCellPicker.h"
 #include "vtkImageData.h"
+#include "vtkProp.h"
 #include "vtkStdString.h"
 
 #include <cstdlib>

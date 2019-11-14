@@ -13,24 +13,24 @@
 
 =========================================================================*/
 #include "vtkParallelopipedWidget.h"
-#include "vtkParallelopipedRepresentation.h"
 #include "vtkActor.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCommand.h"
+#include "vtkEvent.h"
+#include "vtkGarbageCollector.h"
+#include "vtkHandleWidget.h"
+#include "vtkInteractorObserver.h"
 #include "vtkObjectFactory.h"
+#include "vtkParallelopipedRepresentation.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkRenderWindow.h"
-#include "vtkCommand.h"
-#include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetCallbackMapper.h"
-#include "vtkEvent.h"
 #include "vtkWidgetEvent.h"
-#include "vtkInteractorObserver.h"
-#include "vtkHandleWidget.h"
+#include "vtkWidgetEventTranslator.h"
 #include "vtkWidgetSet.h"
-#include "vtkGarbageCollector.h"
 
 vtkStandardNewMacro(vtkParallelopipedWidget);
 

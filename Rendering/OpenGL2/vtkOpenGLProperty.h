@@ -23,8 +23,8 @@
 #ifndef vtkOpenGLProperty_h
 #define vtkOpenGLProperty_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkProperty.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLProperty : public vtkProperty
 {

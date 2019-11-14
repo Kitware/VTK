@@ -14,24 +14,24 @@
 =========================================================================*/
 
 #include "vtkProStarReader.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnstructuredGrid.h"
 
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
+#include "vtkPoints.h"
 
 #include <cctype>
 #include <cstring>
+#include <map>
 #include <sstream>
 #include <string>
-#include <map>
-#include <vector>
 #include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkProStarReader);
 

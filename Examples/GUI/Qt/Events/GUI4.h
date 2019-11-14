@@ -27,8 +27,8 @@
 #ifndef _GUI_h
 #define _GUI_h
 
-#include <QMainWindow>
 #include "ui_GUI4.h"
+#include <QMainWindow>
 
 class vtkRenderer;
 class vtkEventQtSlotConnect;

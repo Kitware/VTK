@@ -35,8 +35,8 @@
 #ifndef vtkSimple2DLayoutStrategy_h
 #define vtkSimple2DLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkFloatArray;
 

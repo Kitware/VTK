@@ -12,15 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkPolyDataItem.h"
 #include "vtkAbstractMapper.h"
 #include "vtkContext2D.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkPen.h"
 #include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkPolyData.h"
-#include "vtkPolyDataItem.h"
 #include "vtkUnsignedCharArray.h"
 
 

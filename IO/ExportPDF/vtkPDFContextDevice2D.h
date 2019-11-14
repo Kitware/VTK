@@ -25,9 +25,9 @@
 #ifndef vtkPDFContextDevice2D_h
 #define vtkPDFContextDevice2D_h
 
-#include "vtkIOExportPDFModule.h" // For export macro
 #include "vtkContextDevice2D.h"
-#include "vtkNew.h" // For vtkNew!
+#include "vtkIOExportPDFModule.h" // For export macro
+#include "vtkNew.h"               // For vtkNew!
 
 class vtkColor3ub;
 class vtkPath;

@@ -100,9 +100,9 @@
 #define VTK_XYPLOT_Y_AXIS_HCENTER 1
 #define VTK_XYPLOT_Y_AXIS_VCENTER 2 // rotate by 90 degrees (y-axis aligned)
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
-#include "vtkSmartPointer.h" // For SP
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkSmartPointer.h"              // For SP
 
 class vtkXYPlotActorConnections;
 class vtkAlgorithmOutput;

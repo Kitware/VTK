@@ -32,8 +32,8 @@
 #ifndef vtkDistanceToCamera_h
 #define vtkDistanceToCamera_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkRenderer;
 

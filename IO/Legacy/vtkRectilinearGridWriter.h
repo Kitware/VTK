@@ -26,8 +26,8 @@
 #ifndef vtkRectilinearGridWriter_h
 #define vtkRectilinearGridWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 
 class vtkRectilinearGrid;
 

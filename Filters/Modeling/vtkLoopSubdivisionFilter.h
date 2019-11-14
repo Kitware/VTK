@@ -46,8 +46,8 @@
 #ifndef vtkLoopSubdivisionFilter_h
 #define vtkLoopSubdivisionFilter_h
 
-#include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkApproximatingSubdivisionFilter.h"
+#include "vtkFiltersModelingModule.h" // For export macro
 
 class vtkPolyData;
 class vtkIntArray;

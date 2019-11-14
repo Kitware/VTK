@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkSmartPointer.h"
 
-#include "vtkImageReader.h"
-#include "vtkImageWeightedSum.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageMathematics.h"
 #include "vtkImageData.h"
+#include "vtkImageMathematics.h"
+#include "vtkImageReader.h"
 #include "vtkImageShiftScale.h"
+#include "vtkImageWeightedSum.h"
 #include "vtkStructuredPointsWriter.h"
 
 #include "vtkTestUtilities.h"

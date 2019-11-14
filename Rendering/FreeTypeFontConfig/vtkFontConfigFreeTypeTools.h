@@ -34,8 +34,8 @@
 #ifndef vtkFontConfigFreeTypeTools_h
 #define vtkFontConfigFreeTypeTools_h
 
-#include "vtkRenderingFreeTypeFontConfigModule.h" // For export macro
 #include "vtkFreeTypeTools.h"
+#include "vtkRenderingFreeTypeFontConfigModule.h" // For export macro
 
 class VTKRENDERINGFREETYPEFONTCONFIG_EXPORT vtkFontConfigFreeTypeTools:
     public vtkFreeTypeTools

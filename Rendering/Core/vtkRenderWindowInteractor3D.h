@@ -29,8 +29,8 @@
 #ifndef vtkRenderWindowInteractor3D_h
 #define vtkRenderWindowInteractor3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 #include "vtkNew.h" // ivars
 

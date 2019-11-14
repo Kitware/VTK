@@ -20,7 +20,6 @@
 #include "vtkCell.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkLongArray.h"

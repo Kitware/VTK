@@ -39,9 +39,9 @@
 #ifndef vtkBorderRepresentation_h
 #define vtkBorderRepresentation_h
 
+#include "vtkCoordinate.h"               //Because of the viewport coordinate macro
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
-#include "vtkCoordinate.h" //Because of the viewport coordinate macro
 
 class vtkPoints;
 class vtkPolyData;

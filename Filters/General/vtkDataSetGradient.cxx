@@ -19,17 +19,17 @@
 // Implementation by Thierry Carrard (CEA)
 
 #include "vtkDataSetGradient.h"
-#include "vtkDataSetGradientPrecompute.h"
-#include "vtkDataSet.h"
-#include "vtkDataArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkCell.h"
-#include "vtkMath.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkDataSetGradientPrecompute.h"
+#include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 
 // utility macros

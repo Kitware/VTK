@@ -95,8 +95,8 @@
 #ifndef vtkCheckerboardSplatter_h
 #define vtkCheckerboardSplatter_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 #define VTK_ACCUMULATION_MODE_MIN 0
 #define VTK_ACCUMULATION_MODE_MAX 1

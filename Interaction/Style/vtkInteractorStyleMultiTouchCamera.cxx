@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkInteractorStyleMultiTouchCamera.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"

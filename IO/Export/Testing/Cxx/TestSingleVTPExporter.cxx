@@ -15,10 +15,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkActor.h"
 #include "vtkNew.h"
-#include "vtkSingleVTPExporter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSingleVTPExporter.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 

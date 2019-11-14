@@ -29,8 +29,8 @@
 #define vtkInteractorStyleMultiTouchCamera_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
-#include "vtkRenderWindowInteractor.h" // for max pointers
 #include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkRenderWindowInteractor.h" // for max pointers
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleMultiTouchCamera : public vtkInteractorStyleTrackballCamera
 {

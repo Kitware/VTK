@@ -24,10 +24,10 @@
 #ifndef vtkColorLegend_h
 #define vtkColorLegend_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartLegend.h"
-#include "vtkSmartPointer.h" // For SP ivars
-#include "vtkVector.h"       // For vtkRectf
+#include "vtkChartsCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"     // For SP ivars
+#include "vtkVector.h"           // For vtkRectf
 
 class vtkAxis;
 class vtkContextMouseEvent;

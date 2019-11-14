@@ -31,9 +31,9 @@
 #include "vtkPoints.h"
 #include "vtkVectorOperators.h"
 
-#include <boost/property_map/property_map.hpp>
-#include <boost/graph/johnson_all_pairs_shortest.hpp>
 #include <algorithm>
+#include <boost/graph/johnson_all_pairs_shortest.hpp>
+#include <boost/property_map/property_map.hpp>
 
 vtkStandardNewMacro(vtkBoostDividedEdgeBundling);
 

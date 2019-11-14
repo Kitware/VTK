@@ -33,8 +33,8 @@
 #ifndef vtkAbstractHyperTreeGridMapper_h
 #define vtkAbstractHyperTreeGridMapper_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkBitArray;
 class vtkDataArray;

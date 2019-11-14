@@ -32,8 +32,8 @@
 #ifndef vtkRandomGraphSource_h
 #define vtkRandomGraphSource_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkGraph;
 class vtkPVXMLElement;

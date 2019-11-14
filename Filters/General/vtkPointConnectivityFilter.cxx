@@ -14,16 +14,16 @@
 =========================================================================*/
 #include "vtkPointConnectivityFilter.h"
 
-#include "vtkIdList.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
 #include "vtkDataSet.h"
-#include "vtkObjectFactory.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkSMPTools.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
+#include "vtkUnsignedIntArray.h"
 
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"

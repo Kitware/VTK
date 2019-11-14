@@ -18,6 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#include "vtkLabeledTreeMapDataMapper.h"
 #include "vtkActor2D.h"
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
@@ -26,7 +27,6 @@
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
-#include "vtkLabeledTreeMapDataMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"

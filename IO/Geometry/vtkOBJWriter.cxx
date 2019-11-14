@@ -18,12 +18,12 @@
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkNumberToString.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangleStrip.h"
-#include "vtkNumberToString.h"
 
 #include "vtksys/SystemTools.hxx"
 

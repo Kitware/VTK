@@ -1,7 +1,7 @@
+#include "vtkParse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vtkParse.h"
 
 /* print the parsed structures */
 void vtkParseOutput(FILE *fp, FileInfo *data)

@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkDebugLeaks.h"
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 
 #include <sstream>
 

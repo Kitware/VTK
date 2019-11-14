@@ -18,13 +18,13 @@
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonType.h"
 
-#include "vtkWrapText.h"
 #include "vtkParseExtras.h"
+#include "vtkWrapText.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 
 /* -------------------------------------------------------------------- */

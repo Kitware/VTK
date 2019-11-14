@@ -31,8 +31,8 @@
 #ifndef vtkPExtractRectilinearGrid_h
 #define vtkPExtractRectilinearGrid_h
 
-#include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkExtractRectilinearGrid.h"
+#include "vtkFiltersParallelMPIModule.h" // For export macro
 
 // Forward Declarations
 class vtkInformation;

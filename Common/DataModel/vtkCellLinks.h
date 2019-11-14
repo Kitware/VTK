@@ -36,8 +36,8 @@
 #ifndef vtkCellLinks_h
 #define vtkCellLinks_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAbstractCellLinks.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 class vtkDataSet;
 class vtkCellArray;

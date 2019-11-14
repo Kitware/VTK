@@ -14,15 +14,15 @@
 =========================================================================*/
 #include "vtkXMLPMultiBlockDataWriter.h"
 
-#include "vtkDataObjectTreeIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
+#include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
-#include "vtkInformation.h"
 
 #include <sstream>
 #include <vector>

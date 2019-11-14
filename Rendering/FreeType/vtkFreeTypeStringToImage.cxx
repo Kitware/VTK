@@ -15,11 +15,11 @@
 
 #include "vtkFreeTypeStringToImage.h"
 
-#include "vtkStdString.h"
-#include "vtkUnicodeString.h"
-#include "vtkTextProperty.h"
-#include "vtkVector.h"
 #include "vtkImageData.h"
+#include "vtkStdString.h"
+#include "vtkTextProperty.h"
+#include "vtkUnicodeString.h"
+#include "vtkVector.h"
 
 #include "vtkFreeTypeTools.h"
 

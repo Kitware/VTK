@@ -24,9 +24,9 @@
 #ifndef vtkQWidgetWidget_h
 #define vtkQWidgetWidget_h
 
-#include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkAbstractWidget.h"
-#include <QPointF> // for ivar
+#include "vtkGUISupportQtModule.h" // For export macro
+#include <QPointF>                 // for ivar
 
 class QWidget;
 class vtkQWidgetRepresentation;

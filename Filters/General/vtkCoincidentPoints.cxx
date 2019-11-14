@@ -26,9 +26,9 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
+#include <map>
 #include <set>
 #include <vector>
-#include <map>
 
 
 

@@ -1,12 +1,12 @@
-#include <vtkNew.h>
 #include <vtkActor.h>
+#include <vtkNew.h>
+#include <vtkPTSReader.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkPTSReader.h>
 
 int TestPTSReader(int argc, char *argv[])
 {

@@ -13,14 +13,14 @@
 
  =========================================================================*/
 #include "vtkAMRToMultiBlockFilter.h"
-#include "vtkObjectFactory.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIndent.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkUniformGrid.h"
-#include "vtkMultiBlockDataSet.h"
 
 #include <cassert>
 

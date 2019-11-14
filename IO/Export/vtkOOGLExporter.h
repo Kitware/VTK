@@ -27,8 +27,8 @@
 #ifndef vtkOOGLExporter_h
 #define vtkOOGLExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 class vtkLight;
 class vtkActor;

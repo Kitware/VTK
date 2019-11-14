@@ -38,8 +38,8 @@
 #ifndef vtkAbstractContextBufferId_h
 #define vtkAbstractContextBufferId_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkRenderWindow;
 

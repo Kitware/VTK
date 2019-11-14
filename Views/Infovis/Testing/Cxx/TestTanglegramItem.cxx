@@ -13,24 +13,24 @@
 
 =========================================================================*/
 
-#include "vtkTanglegramItem.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkTanglegramItem.h"
 #include "vtkTree.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkContextInteractorStyle.h"
 #include "vtkContextActor.h"
+#include "vtkContextInteractorStyle.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkNew.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkRegressionTestImage.h"
 

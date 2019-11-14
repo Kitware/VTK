@@ -41,10 +41,10 @@
 #ifndef vtkShadowMapBakerPass_h
 #define vtkShadowMapBakerPass_h
 
+#include "vtkOpenGLRenderPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // for ivars
 #include <vector> // STL Header
-#include "vtkOpenGLRenderPass.h"
 
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;

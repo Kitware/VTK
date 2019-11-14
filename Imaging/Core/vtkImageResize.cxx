@@ -15,15 +15,15 @@
 
 #include "vtkImageResize.h"
 
-#include "vtkImageInterpolator.h"
-#include "vtkImageSincInterpolator.h"
-#include "vtkImageInterpolatorInternals.h"
 #include "vtkImageData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformationVector.h"
+#include "vtkImageInterpolator.h"
+#include "vtkImageInterpolatorInternals.h"
+#include "vtkImageSincInterpolator.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include "vtkTemplateAliasMacro.h"
 // turn off 64-bit ints when templating over all types

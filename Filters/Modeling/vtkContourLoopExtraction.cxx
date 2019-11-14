@@ -15,18 +15,18 @@
 #include "vtkContourLoopExtraction.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cfloat>

@@ -23,8 +23,8 @@
 #ifndef vtkQtView_h
 #define vtkQtView_h
 
-#include "vtkViewsQtModule.h" // For export macro
 #include "vtkView.h"
+#include "vtkViewsQtModule.h" // For export macro
 
 #include <QObject> // Needed to hook into Qt
 

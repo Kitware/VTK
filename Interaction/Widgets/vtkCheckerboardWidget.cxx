@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkCheckerboardWidget.h"
-#include "vtkCheckerboardRepresentation.h"
-#include "vtkSliderRepresentation3D.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkCheckerboardRepresentation.h"
+#include "vtkCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSliderRepresentation3D.h"
 #include "vtkSliderWidget.h"
 
 vtkStandardNewMacro(vtkCheckerboardWidget);

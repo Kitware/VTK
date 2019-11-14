@@ -16,8 +16,8 @@
 
 #include "vtkXdmf3LightDataHandler.h"
 
-#include "vtkXdmf3SILBuilder.h"
 #include "vtkXdmf3ArraySelection.h"
+#include "vtkXdmf3SILBuilder.h"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtk_xdmf3.h"
@@ -37,8 +37,8 @@
 #include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
 #include VTKXDMF3_HEADER(core/XdmfVisitor.hpp)
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 //------------------------------------------------------------------------------
 shared_ptr<vtkXdmf3LightDataHandler> vtkXdmf3LightDataHandler::New(

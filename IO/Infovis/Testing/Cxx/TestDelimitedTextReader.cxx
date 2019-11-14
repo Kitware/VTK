@@ -19,10 +19,10 @@
 -------------------------------------------------------------------------*/
 
 #include <vtkDelimitedTextReader.h>
+#include <vtkIOStream.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
 #include <vtkTestUtilities.h>
-#include <vtkIOStream.h>
 
 #define NUM_TEST_FILES 5
 

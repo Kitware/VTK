@@ -24,9 +24,9 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkInteractorStyleRubberBand3D);

@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkImageData.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkPointData.h"
-#include "vtkImageMapper.h"
 #include "vtkActor2D.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
+#include "vtkImageData.h"
+#include "vtkImageMapper.h"
 #include "vtkLookupTable.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <cmath>
 

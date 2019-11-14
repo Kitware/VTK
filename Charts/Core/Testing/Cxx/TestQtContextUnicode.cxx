@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
+#include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextItem.h"
+#include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkObjectFactory.h"
+#include "vtkPen.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
-#include "vtkContext2D.h"
-#include "vtkContextItem.h"
-#include "vtkContextView.h"
-#include "vtkContextScene.h"
-#include "vtkPen.h"
-#include "vtkBrush.h"
 #include "vtkTextProperty.h"
 #include "vtkUnicodeString.h"
 

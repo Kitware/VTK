@@ -30,8 +30,8 @@
 #include "vtkLagrangeCurve.h"
 #include "vtkLagrangeHexahedron.h"
 #include "vtkLagrangeQuadrilateral.h"
-#include "vtkLagrangeTriangle.h"
 #include "vtkLagrangeTetra.h"
+#include "vtkLagrangeTriangle.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPentagonalPrism.h"
@@ -55,8 +55,8 @@
 #include "vtkWedge.h"
 
 
-#include <vector>
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkUnstructuredGridGeometryFilter);
 

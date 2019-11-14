@@ -30,8 +30,8 @@
 #ifndef vtkResliceImageViewer_h
 #define vtkResliceImageViewer_h
 
-#include "vtkInteractionImageModule.h" // For export macro
 #include "vtkImageViewer2.h"
+#include "vtkInteractionImageModule.h" // For export macro
 
 class vtkResliceCursorWidget;
 class vtkResliceCursor;

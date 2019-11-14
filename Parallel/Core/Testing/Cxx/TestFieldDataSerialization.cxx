@@ -17,19 +17,18 @@
 // .SECTION Description
 //  Simple tests for serialization/de-serialization of field data.
 
-#include "vtkFieldData.h"
-#include "vtkPointData.h"
-#include "vtkIntArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkMultiProcessStream.h"
+#include "vtkFieldData.h"
 #include "vtkFieldDataSerializer.h"
-#include "vtkMathUtilities.h"
-#include "vtkStringArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIntArray.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiProcessStream.h"
+#include "vtkPointData.h"
+#include "vtkStringArray.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 //------------------------------------------------------------------------------
 vtkPointData* GetEmptyField()

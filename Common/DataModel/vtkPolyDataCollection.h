@@ -26,8 +26,8 @@
 #ifndef vtkPolyDataCollection_h
 #define vtkPolyDataCollection_h
 
-#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 
 #include "vtkPolyData.h" // Needed for static cast
 

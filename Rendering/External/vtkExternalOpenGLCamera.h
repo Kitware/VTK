@@ -25,8 +25,8 @@
 #ifndef vtkExternalOpenGLCamera_h
 #define vtkExternalOpenGLCamera_h
 
-#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLCamera.h"
+#include "vtkRenderingExternalModule.h" // For export macro
 
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera :
   public vtkOpenGLCamera

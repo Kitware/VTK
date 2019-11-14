@@ -28,13 +28,13 @@
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkTable.h"
-#include "vtkWeakPointer.h"
 #include "vtkVectorOperators.h"
+#include "vtkWeakPointer.h"
 
-#include <vector>
-#include <set>
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <set>
+#include <vector>
 
 namespace
 {

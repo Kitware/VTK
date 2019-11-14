@@ -15,12 +15,12 @@
 #include "vtkCompositedSynchronizedRenderers.h"
 
 #include "vtkFloatArray.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTreeCompositer.h"
+#include "vtkUnsignedCharArray.h"
 
 vtkStandardNewMacro(vtkCompositedSynchronizedRenderers);
 vtkCxxSetObjectMacro(vtkCompositedSynchronizedRenderers,

@@ -19,13 +19,13 @@
 
 =========================================================================*/
 
-#include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
+#include <vtkSparseArray.h>
 
 #include "vtkTestErrorObserver.h"
 
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 

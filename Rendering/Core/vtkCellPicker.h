@@ -41,8 +41,8 @@
 #ifndef vtkCellPicker_h
 #define vtkCellPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkMapper;
 class vtkTexture;

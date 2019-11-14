@@ -14,9 +14,8 @@
 =========================================================================*/
 #include "vtkOSPRayVolumeNode.h"
 
-#include "vtkActor.h"
-#include "vtkVolume.h"
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkActor.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
@@ -29,6 +28,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyData.h"
 #include "vtkViewNodeCollection.h"
+#include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
 #include "RTWrapper/RTWrapper.h"

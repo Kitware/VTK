@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkAxisActor.h"
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCamera.h"
-#include "vtkStringArray.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------

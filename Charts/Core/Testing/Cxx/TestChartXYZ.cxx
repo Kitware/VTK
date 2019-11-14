@@ -15,17 +15,17 @@
 
 #include "vtkAxis.h"
 #include "vtkChartXYZ.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
 #include "vtkFloatArray.h"
 #include "vtkPlotPoints3D.h"
 
-#include "vtkRenderer.h"
+#include "vtkCallbackCommand.h"
+#include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
-#include "vtkCallbackCommand.h"
 
 // Need a timer so that we can animate, and then take a snapshot!
 namespace

@@ -41,8 +41,8 @@
 #ifndef vtkAffineRepresentation2D_h
 #define vtkAffineRepresentation2D_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAffineRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty2D;
 class vtkActor2D;

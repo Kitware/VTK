@@ -22,8 +22,8 @@
 #ifndef vtkDIYAggregateDataSetFilter_h
 #define vtkDIYAggregateDataSetFilter_h
 
-#include "vtkFiltersParallelDIY2Module.h" // For export macro
 #include "vtkAggregateDataSetFilter.h"
+#include "vtkFiltersParallelDIY2Module.h" // For export macro
 
 #include <map>     // For passing computed data between methods
 #include <string>  // For passing computed data between methods

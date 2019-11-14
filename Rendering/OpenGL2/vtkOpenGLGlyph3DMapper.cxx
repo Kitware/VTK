@@ -26,15 +26,15 @@
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLGlyph3DHelper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
+#include "vtkQuaternion.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkOpenGLError.h"
-#include "vtkSmartPointer.h"
-#include "vtkQuaternion.h"
 
 #include <map>
 

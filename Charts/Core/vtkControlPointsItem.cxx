@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkControlPointsItem.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
@@ -21,8 +22,8 @@
 #include "vtkContextKeyEvent.h"
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
-#include "vtkControlPointsItem.h"
 #include "vtkIdTypeArray.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -31,7 +32,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTransform2D.h"
 #include "vtkVectorOperators.h"
-#include "vtkMath.h"
 
 #include <algorithm>
 #include <cassert>

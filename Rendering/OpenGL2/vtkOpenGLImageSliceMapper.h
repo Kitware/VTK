@@ -26,8 +26,8 @@
 #ifndef vtkOpenGLImageSliceMapper_h
 #define vtkOpenGLImageSliceMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageSliceMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;

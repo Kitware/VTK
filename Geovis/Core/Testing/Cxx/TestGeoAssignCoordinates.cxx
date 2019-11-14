@@ -25,9 +25,9 @@
 #include "vtkGraphMapper.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
 #define VTK_CREATE(type, name) \

@@ -22,10 +22,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 
+#include <ctime>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
-#include <ctime>
 
 // old versions of gcc are missing some pices of c++11 such as std::get_time
 // so use

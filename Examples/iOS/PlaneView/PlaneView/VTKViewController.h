@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import <UIKit/UIKit.h>
 
 // Forward declarations
 class vtkIOSRenderWindow;

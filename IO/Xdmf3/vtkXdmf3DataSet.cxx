@@ -15,16 +15,14 @@
 =========================================================================*/
 
 #include "vtkXdmf3DataSet.h"
-#include "vtkXdmf3ArrayKeeper.h"
-#include "vtkXdmf3ArraySelection.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkImageData.h"
 #include "vtkExtractSelection.h"
+#include "vtkImageData.h"
 #include "vtkMergePoints.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkOutEdgeIterator.h"
@@ -39,6 +37,8 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertexListIterator.h"
+#include "vtkXdmf3ArrayKeeper.h"
+#include "vtkXdmf3ArraySelection.h"
 
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfArrayType.hpp)

@@ -22,13 +22,13 @@
 
 #include "QVTKGraphicsItem.h"
 #include <QGLFramebufferObject>
-#include <QGraphicsSceneMouseEvent>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 
 #include "QVTKInteractor.h"
 #include "QVTKInteractorAdapter.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)

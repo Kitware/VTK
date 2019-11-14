@@ -40,8 +40,8 @@
 #ifndef vtkEllipticalButtonSource_h
 #define vtkEllipticalButtonSource_h
 
-#include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"
+#include "vtkFiltersSourcesModule.h" // For export macro
 
 class vtkCellArray;
 class vtkFloatArray;

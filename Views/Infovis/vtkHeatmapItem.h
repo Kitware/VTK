@@ -26,8 +26,8 @@
 #ifndef vtkHeatmapItem_h
 #define vtkHeatmapItem_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 #include "vtkNew.h"                // For vtkNew ivars
 #include "vtkSmartPointer.h"       // For vtkSmartPointer ivars

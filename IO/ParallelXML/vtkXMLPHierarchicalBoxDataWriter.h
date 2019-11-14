@@ -24,8 +24,8 @@
 #ifndef vtkXMLPHierarchicalBoxDataWriter_h
 #define vtkXMLPHierarchicalBoxDataWriter_h
 
-#include "vtkXMLPUniformGridAMRWriter.h"
 #include "vtkIOParallelXMLModule.h" // For export macro
+#include "vtkXMLPUniformGridAMRWriter.h"
 
 class VTKIOPARALLELXML_EXPORT vtkXMLPHierarchicalBoxDataWriter :
   public vtkXMLPUniformGridAMRWriter

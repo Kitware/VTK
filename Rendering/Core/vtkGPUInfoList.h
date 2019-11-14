@@ -27,8 +27,8 @@
 #ifndef vtkGPUInfoList_h
 #define vtkGPUInfoList_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkGPUInfoListArray; // STL Pimpl
 class vtkGPUInfo;

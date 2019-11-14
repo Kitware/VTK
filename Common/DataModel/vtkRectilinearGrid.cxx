@@ -28,7 +28,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
-#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkRectilinearGrid);
 

@@ -18,26 +18,26 @@
 // represent the skin and bone, creates three orthogonal planes
 // (sagittal, axial, coronal), and displays them.
 //
-#include <vtkRenderer.h>
+#include <vtkActor.h>
+#include <vtkCamera.h>
+#include <vtkContourFilter.h>
+#include <vtkImageActor.h>
+#include <vtkImageData.h>
+#include <vtkImageDataGeometryFilter.h>
+#include <vtkImageMapToColors.h>
+#include <vtkImageMapper3D.h>
+#include <vtkLookupTable.h>
+#include <vtkOutlineFilter.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPolyDataNormals.h>
+#include <vtkProperty.h>
+#include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkVolume16Reader.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkOutlineFilter.h>
-#include <vtkCamera.h>
-#include <vtkStripper.h>
-#include <vtkLookupTable.h>
-#include <vtkImageDataGeometryFilter.h>
-#include <vtkProperty.h>
-#include <vtkPolyDataNormals.h>
-#include <vtkContourFilter.h>
-#include <vtkImageData.h>
-#include <vtkImageMapToColors.h>
-#include <vtkImageActor.h>
+#include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkImageMapper3D.h>
-#include <vtkRegressionTestImage.h>
+#include <vtkStripper.h>
+#include <vtkVolume16Reader.h>
 
 int main (int argc, char *argv[])
 {

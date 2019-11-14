@@ -14,10 +14,10 @@
  =========================================================================*/
 #include "vtkDataSetGhostGenerator.h"
 #include "vtkDataObject.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIndent.h"
+#include "vtkMultiBlockDataSet.h"
 
 #include <cassert>
 

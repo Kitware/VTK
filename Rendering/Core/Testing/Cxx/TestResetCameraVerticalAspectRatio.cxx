@@ -16,16 +16,16 @@
 // Make sure that on a window with vertical aspect ratio, the camera is
 // reset properly with perspective projection.
 //
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkRenderer.h"
+#include "vtkCamera.h"
+#include "vtkCylinderSource.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkProperty.h"
-#include "vtkCamera.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkCylinderSource.h"
 
 // int main( int argc, char* argv[] )
 int TestResetCameraVerticalAspectRatio(int argc, char* argv[])

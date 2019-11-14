@@ -27,9 +27,9 @@
 
 #include "vtksys/SystemTools.hxx"
 
-#include <vector> // for STL vector
-#include <string> // for STL string
 #include <cassert>       // for assert()
+#include <string> // for STL string
+#include <vector> // for STL vector
 
 class vtkDataArray;
 class vtkDataSet;

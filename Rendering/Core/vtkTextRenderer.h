@@ -43,10 +43,10 @@
 #ifndef vtkTextRenderer_h
 #define vtkTextRenderer_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkTuple.h"  // For metrics struct
-#include "vtkVector.h" // For metrics struct
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkTuple.h"               // For metrics struct
+#include "vtkVector.h"              // For metrics struct
 
 class vtkImageData;
 class vtkPath;

@@ -26,9 +26,9 @@
 #ifndef vtkAMRVolumeMapper_h
 #define vtkAMRVolumeMapper_h
 
+#include "vtkImageReslice.h"             // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 #include "vtkRenderingVolumeAMRModule.h" // For export macro
 #include "vtkVolumeMapper.h"
-#include "vtkImageReslice.h" // for VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC
 
 class vtkAMRResampleFilter;
 class vtkCamera;

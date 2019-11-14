@@ -28,9 +28,9 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
+#include "vtkOSPRayPass.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
-#include "vtkOSPRayPass.h"
 
 
 //----------------------------------------------------------------------------

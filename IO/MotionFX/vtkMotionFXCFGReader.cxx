@@ -25,7 +25,6 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 #include "vtkSTLReader.h"
 #include "vtkSmartPointer.h"

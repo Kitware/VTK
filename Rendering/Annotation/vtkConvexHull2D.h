@@ -48,9 +48,9 @@
 #ifndef vtkConvexHull2D_h
 #define vtkConvexHull2D_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // needed for ivars
+#include "vtkRenderingAnnotationModule.h" // For export macro
+#include "vtkSmartPointer.h"              // needed for ivars
 
 class vtkCoordinate;
 class vtkPoints;

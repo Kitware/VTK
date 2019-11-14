@@ -26,8 +26,8 @@
 #ifndef vtkPropItem_h
 #define vtkPropItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkProp;
 

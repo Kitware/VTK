@@ -21,11 +21,11 @@
 
 #include "vtkParseExtras.h"
 #include "vtkParseString.h"
+#include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
 
 /* skip over an expression in brackets */
 static size_t vtkparse_bracket_len(const char *text)

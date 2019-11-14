@@ -17,29 +17,28 @@
 #include <vtkCellValidator.h>
 
 #include "vtkEmptyCell.h"
-#include "vtkVertex.h"
-#include "vtkPolyVertex.h"
+#include "vtkHexagonalPrism.h"
+#include "vtkHexahedron.h"
 #include "vtkLine.h"
+#include "vtkPentagonalPrism.h"
+#include "vtkPixel.h"
 #include "vtkPolyLine.h"
+#include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
+#include "vtkPolyhedron.h"
+#include "vtkPyramid.h"
+#include "vtkQuad.h"
+#include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
-#include "vtkPolygon.h"
-#include "vtkQuad.h"
-#include "vtkPixel.h"
+#include "vtkVertex.h"
 #include "vtkVoxel.h"
-#include "vtkHexahedron.h"
-#include "vtkPyramid.h"
-#include "vtkTetra.h"
-#include "vtkPolyhedron.h"
-#include "vtkPentagonalPrism.h"
-#include "vtkHexagonalPrism.h"
 #include "vtkWedge.h"
-#include "vtkPolyhedron.h"
 
 #include "vtkQuadraticEdge.h"
+#include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticLinearQuad.h"
 #include "vtkQuadraticLinearWedge.h"
-#include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticPolygon.h"
 #include "vtkQuadraticPyramid.h"
 #include "vtkQuadraticQuad.h"
@@ -56,28 +55,28 @@
 #include "vtkCubicLine.h"
 
 #include "vtkLagrangeCurve.h"
-#include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeHexahedron.h"
 #include "vtkLagrangeQuadrilateral.h"
 #include "vtkLagrangeTetra.h"
-#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeTriangle.h"
 #include "vtkLagrangeWedge.h"
 
-#include "vtkMathUtilities.h"
-#include "vtkMath.h"
-#include "vtkPoints.h"
 #include "vtkCellArray.h"
+#include "vtkMath.h"
+#include "vtkMathUtilities.h"
+#include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <vtkDataSetMapper.h>
 #include <vtkActor.h>
+#include <vtkDataSetMapper.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 
-#include <sstream>
-#include <vector>
-#include <string>
 #include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 static vtkSmartPointer<vtkEmptyCell> MakeEmptyCell();
 static vtkSmartPointer<vtkVertex> MakeVertex();

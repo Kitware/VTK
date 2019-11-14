@@ -19,7 +19,6 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkInformationExecutivePortKey.h"
 #include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
@@ -29,20 +28,20 @@
 
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkTimerLog.h"
-#include "vtkNew.h"
-#include "vtkSmartPointer.h"
-#include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 #include "vtkImageData.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
+#include "vtkTimerLog.h"
 
+#include "vtkSMPProgressObserver.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkSMPProgressObserver.h"
 
-#include <vector>
 #include <cassert>
+#include <vector>
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkThreadedCompositeDataPipeline);

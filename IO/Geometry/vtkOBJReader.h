@@ -25,8 +25,8 @@
 #ifndef vtkOBJReader_h
 #define vtkOBJReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
 #include "vtkAbstractPolyDataReader.h"
+#include "vtkIOGeometryModule.h" // For export macro
 
 class VTKIOGEOMETRY_EXPORT vtkOBJReader : public vtkAbstractPolyDataReader
 {

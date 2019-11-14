@@ -26,8 +26,8 @@
 #ifndef vtkRenderedTreeAreaRepresentation_h
 #define vtkRenderedTreeAreaRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;

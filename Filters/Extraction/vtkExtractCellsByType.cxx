@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkExtractCellsByType.h"
 
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 #include "vtkCellArray.h"
-#include "vtkPointSet.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkImageData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkUniformGrid.h"
+#include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkExtractCellsByType);
 

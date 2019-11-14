@@ -41,8 +41,8 @@
 #ifndef vtkParallelopipedWidget_h
 #define vtkParallelopipedWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkParallelopipedRepresentation;
 class vtkHandleWidget;

@@ -40,9 +40,9 @@
 #ifndef vtkUndirectedGraphAlgorithm_h
 #define vtkUndirectedGraphAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkUndirectedGraph.h" // makes things a bit easier
+#include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkUndirectedGraph.h"            // makes things a bit easier
 
 class vtkDataSet;
 

@@ -27,8 +27,8 @@
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
 #include "vtkRect.h"         // For vtkRectf
-#include "vtkStdString.h"    // For vtkStdString ivars
 #include "vtkSmartPointer.h" // For SP ivars
+#include "vtkStdString.h"    // For vtkStdString ivars
 
 class vtkTransform2D;
 class vtkContextScene;

@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
 #include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkDoubleArray.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
-#include "vtkMath.h"
+#include "vtkContextView.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatingPointExceptions.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkTable.h"
 //----------------------------------------------------------------------------
 int TestLinePlotDouble(int, char *[])
 {

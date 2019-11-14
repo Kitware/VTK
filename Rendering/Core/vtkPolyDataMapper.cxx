@@ -15,10 +15,10 @@
 #include "vtkPolyDataMapper.h"
 
 #include "vtkExecutive.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

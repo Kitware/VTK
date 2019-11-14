@@ -14,11 +14,11 @@
 =========================================================================*/
 #include "vtkImageSlabReslice.h"
 
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
-#include "vtkImageData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageSlabReslice);
 

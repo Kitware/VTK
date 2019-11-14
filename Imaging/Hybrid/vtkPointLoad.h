@@ -30,8 +30,8 @@
 #ifndef vtkPointLoad_h
 #define vtkPointLoad_h
 
-#include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingHybridModule.h" // For export macro
 
 class VTKIMAGINGHYBRID_EXPORT vtkPointLoad :  public vtkImageAlgorithm
 {

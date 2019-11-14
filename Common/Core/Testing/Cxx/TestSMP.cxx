@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSMPThreadLocal.h"
 #include "vtkNew.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
-#include "vtkSMPTools.h"
+#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include <functional>
 #include <vector>
 

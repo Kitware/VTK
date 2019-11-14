@@ -21,12 +21,12 @@ the U.S. Government retains certain rights in this software.
 
 #include "vtkStrahlerMetric.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkOutEdgeIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkDataSetAttributes.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
 //--------------------------------------------------------------------------

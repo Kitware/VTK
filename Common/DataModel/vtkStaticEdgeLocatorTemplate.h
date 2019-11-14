@@ -61,8 +61,8 @@
 #ifndef vtkStaticEdgeLocatorTemplate_h
 #define vtkStaticEdgeLocatorTemplate_h
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 /**
  * Definition of an edge tuple. Note that the TId template type may be

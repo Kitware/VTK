@@ -47,8 +47,8 @@
 #define vtkSphereRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkSphereSource.h"             // Needed for fast access to the sphere source
 #include "vtkWidgetRepresentation.h"
-#include "vtkSphereSource.h" // Needed for fast access to the sphere source
 
 class vtkActor;
 class vtkPolyDataMapper;

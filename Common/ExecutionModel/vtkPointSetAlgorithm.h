@@ -32,8 +32,8 @@
 #ifndef vtkPointSetAlgorithm_h
 #define vtkPointSetAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkPointSet;
 class vtkPolyData;

@@ -22,9 +22,9 @@
 
 #include "vtkObjectFactory.h"
 
+#include <map>
 #include <sstream>
 #include <string>
-#include <map>
 #include <vector>
 
 #include "vtk_libproj.h"

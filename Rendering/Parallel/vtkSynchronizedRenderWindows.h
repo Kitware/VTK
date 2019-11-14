@@ -24,8 +24,8 @@
 #ifndef vtkSynchronizedRenderWindows_h
 #define vtkSynchronizedRenderWindows_h
 
-#include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingParallelModule.h" // For export macro
 
 class vtkRenderWindow;
 class vtkMultiProcessController;

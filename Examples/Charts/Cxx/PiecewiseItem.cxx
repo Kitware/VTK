@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
-#include "vtkContextView.h"
 #include "vtkContextScene.h"
-#include "vtkPiecewiseFunctionItem.h"
+#include "vtkContextView.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPiecewiseFunctionItem.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 
 //----------------------------------------------------------------------------
 int main(int, char *[])

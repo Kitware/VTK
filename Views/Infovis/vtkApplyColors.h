@@ -77,8 +77,8 @@
 #ifndef vtkApplyColors_h
 #define vtkApplyColors_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkScalarsToColors;
 class vtkUnsignedCharArray;

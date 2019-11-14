@@ -43,8 +43,8 @@
 #ifndef vtkImageQuantizeRGBToIndex_h
 #define vtkImageQuantizeRGBToIndex_h
 
-#include "vtkImagingColorModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkImagingColorModule.h" // For export macro
 
 class vtkLookupTable;
 

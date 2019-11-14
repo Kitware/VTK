@@ -50,8 +50,8 @@
 #ifndef vtkDepthPeelingPass_h
 #define vtkDepthPeelingPass_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderPass.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include <vector>  // STL Header
 
 class vtkOpenGLFramebufferObject;

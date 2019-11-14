@@ -33,8 +33,8 @@
 #ifndef vtkExternalOpenGLRenderer_h
 #define vtkExternalOpenGLRenderer_h
 
-#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLRenderer.h"
+#include "vtkRenderingExternalModule.h" // For export macro
 
 // Forward declarations
 class vtkLightCollection;

@@ -19,6 +19,7 @@
 
 =========================================================================*/
 
+#include "vtkTableToArray.h"
 #include "vtkAbstractArray.h"
 #include "vtkDenseArray.h"
 #include "vtkInformation.h"
@@ -26,7 +27,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
-#include "vtkTableToArray.h"
 #include "vtkVariant.h"
 
 #include <algorithm>

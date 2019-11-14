@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkLookupTable.h"
 #include "vtkColorSeries.h"
 #include "vtkDoubleArray.h"
+#include "vtkLookupTable.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
-#include <map>
 
 #include <cstdio> // For EXIT_SUCCESS
 

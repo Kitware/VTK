@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkAbstractElectronicData.h"
 #include "vtkActor.h"
@@ -21,14 +21,13 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
-#include "vtkSimpleBondPerceiver.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
 #include "vtkOpenQubeMoleculeSource.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSimpleBondPerceiver.h"
 #include "vtkSmartPointer.h"
@@ -36,8 +35,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include <openqube/basissetloader.h>
 #include <openqube/basisset.h>
+#include <openqube/basissetloader.h>
 
 int TestOpenQubeMOPACOrbital(int argc, char *argv[])
 {

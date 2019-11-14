@@ -22,9 +22,9 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
+#include "vtkPOutlineFilterInternals.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkPOutlineFilterInternals.h"
 
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);

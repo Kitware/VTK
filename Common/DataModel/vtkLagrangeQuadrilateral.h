@@ -19,11 +19,11 @@
 #ifndef vtkLagrangeQuadrilateral_h
 #define vtkLagrangeQuadrilateral_h
 
+#include "vtkCellType.h" // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkNew.h" // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
-#include "vtkCellType.h" // For GetCellType.
-#include "vtkNew.h" // For member variable.
 
 class vtkCellData;
 class vtkDoubleArray;

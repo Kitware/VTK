@@ -45,8 +45,8 @@
 #ifndef vtkCirclePackFrontChainLayoutStrategy_h
 #define vtkCirclePackFrontChainLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkCirclePackLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkCirclePackFrontChainLayoutStrategyImplementation;
 

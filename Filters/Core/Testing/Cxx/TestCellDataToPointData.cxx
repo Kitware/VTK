@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
+#include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkDataArray.h>
-#include <vtkCellData.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
@@ -24,9 +24,9 @@
 #include <vtkPointDataToCellData.h>
 #include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkThreshold.h>
 #include <vtkTestUtilities.h>
+#include <vtkThreshold.h>
+#include <vtkUnstructuredGrid.h>
 
 int TestCellDataToPointData (int, char*[])
 {

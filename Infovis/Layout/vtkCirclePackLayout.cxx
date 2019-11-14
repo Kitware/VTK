@@ -23,6 +23,7 @@
 #include "vtkAdjacentVertexIterator.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCirclePackLayoutStrategy.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
@@ -32,7 +33,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkTree.h"
-#include "vtkCirclePackLayoutStrategy.h"
 #include "vtkTreeDFSIterator.h"
 
 vtkStandardNewMacro(vtkCirclePackLayout);

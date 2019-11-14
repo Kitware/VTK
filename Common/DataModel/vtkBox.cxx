@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkBox.h"
+#include "vtkBoundingBox.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkBoundingBox.h"
 #include "vtkPlane.h"
 
+#include <algorithm> // for sorting
 #include <cassert>
 #include <vector> // for IntersectWithPlane
-#include <algorithm> // for sorting
 
 vtkStandardNewMacro(vtkBox);
 

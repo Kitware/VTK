@@ -17,9 +17,9 @@
 
 #include "vtkGL2PSExporter.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkStdString.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"

@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkCubicLine.h"
 
-#include "vtkNonLinearCell.h"
+#include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCell.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
-#include "vtkDoubleArray.h"
-#include "vtkPoints.h"
+#include "vtkMath.h"
+#include "vtkNonLinearCell.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 
 vtkStandardNewMacro(vtkCubicLine);
 

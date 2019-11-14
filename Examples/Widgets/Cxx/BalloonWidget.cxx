@@ -6,12 +6,12 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkRegularPolygonSource.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkRegularPolygonSource.h>
 
 int main (int, char *[])
 {

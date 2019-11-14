@@ -23,8 +23,8 @@
 #ifndef vtkLZ4DataCompressor_h
 #define vtkLZ4DataCompressor_h
 
-#include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataCompressor.h"
+#include "vtkIOCoreModule.h" // For export macro
 
 class VTKIOCORE_EXPORT vtkLZ4DataCompressor : public vtkDataCompressor
 {

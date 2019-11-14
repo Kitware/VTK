@@ -21,9 +21,9 @@
 #ifndef vtkBond_h
 #define vtkBond_h
 
+#include "vtkAtom.h" // For vtkAtom
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h" // For macros, etc
-#include "vtkAtom.h" // For vtkAtom
 
 class vtkMolecule;
 

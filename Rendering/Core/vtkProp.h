@@ -28,9 +28,9 @@
 #ifndef vtkProp_h
 #define vtkProp_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include <vector> // for method args
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <vector>                   // for method args
 
 class vtkAssemblyPath;
 class vtkAssemblyPaths;

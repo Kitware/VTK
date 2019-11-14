@@ -15,13 +15,13 @@
 
 #include <vtkActor.h>
 #include <vtkDistancePolyDataFilter.h>
+#include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkSphereSource.h>
-#include <vtkPointData.h>
+#include <vtkRenderer.h>
 #include <vtkScalarBarActor.h>
+#include <vtkSphereSource.h>
 
 int TestDistancePolyDataFilter(int, char*[])
 {

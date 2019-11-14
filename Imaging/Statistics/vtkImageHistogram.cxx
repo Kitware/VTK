@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkImageHistogram.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkMath.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkImageStencilIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkMath.h"
 #include "vtkMultiThreader.h"
-#include "vtkTemplateAliasMacro.h"
+#include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkTemplateAliasMacro.h"
 
 #include <cmath>
 

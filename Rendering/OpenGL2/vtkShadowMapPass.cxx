@@ -18,7 +18,6 @@
 
 #include "vtkAbstractTransform.h" // for helper classes stack and concatenation
 #include "vtkCamera.h"
-#include "vtkOpenGLFramebufferObject.h"
 #include "vtkImageData.h"
 #include "vtkImplicitSum.h"
 #include "vtkInformation.h"
@@ -32,6 +31,7 @@
 #include "vtkOpaquePass.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPerspectiveTransform.h"
@@ -48,9 +48,9 @@
 // debugging
 #include "vtkTimerLog.h"
 
+#include "vtkStdString.h"
 #include <cassert>
 #include <sstream>
-#include "vtkStdString.h"
 
 
 // to be able to dump intermediate passes into png files for debugging.

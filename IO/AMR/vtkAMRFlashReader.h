@@ -23,8 +23,8 @@
 #ifndef vtkAMRFlashReader_h
 #define vtkAMRFlashReader_h
 
-#include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
+#include "vtkIOAMRModule.h" // For export macro
 
 class vtkOverlappingAMR;
 class vtkFlashReaderInternal;

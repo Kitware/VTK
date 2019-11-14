@@ -38,8 +38,8 @@
 #define vtkLabelHierarchyCompositeIterator_h
 
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelHierarchyIterator.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkLabelHierarchy;

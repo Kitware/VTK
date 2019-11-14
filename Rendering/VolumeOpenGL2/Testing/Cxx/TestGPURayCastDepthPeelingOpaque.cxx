@@ -25,21 +25,21 @@
 #include <vtkImageShiftScale.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
-#include <vtkOutlineFilter.h>
 #include <vtkOpenGLRenderer.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
-#include <vtkTestingObjectFactory.h>
 #include <vtkTestUtilities.h>
+#include <vtkTestingObjectFactory.h>
 #include <vtkTimerLog.h>
-#include <vtkProperty.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 

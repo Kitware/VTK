@@ -64,8 +64,8 @@
 #ifndef vtkHandleWidget_h
 #define vtkHandleWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkHandleRepresentation;
 

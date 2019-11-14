@@ -30,8 +30,8 @@
 #ifndef vtkPropPicker_h
 #define vtkPropPicker_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkProp;
 class vtkWorldPointPicker;

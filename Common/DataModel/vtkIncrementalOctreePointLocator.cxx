@@ -13,22 +13,22 @@
 
 =========================================================================*/
 
-#include "vtkMath.h"
-#include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkPolyData.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIncrementalOctreeNode.h"
-#include "vtkIncrementalOctreePointLocator.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
-#include <map>
 #include <list>
-#include <stack>
+#include <map>
 #include <queue>
+#include <stack>
 #include <vector>
 
 vtkStandardNewMacro( vtkIncrementalOctreePointLocator );

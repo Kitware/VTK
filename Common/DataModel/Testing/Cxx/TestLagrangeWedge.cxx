@@ -14,11 +14,11 @@
 =========================================================================*/
 #define VTK_EPSILON 1e-10
 
-#include <vtkCellArray.h>
 #include "vtkLagrangeWedge.h"
-#include <vtkMinimalStandardRandomSequence.h>
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
+#include <vtkCellArray.h>
+#include <vtkMinimalStandardRandomSequence.h>
 
 #include "vtkClipDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
@@ -30,16 +30,16 @@
 #define VISUAL_DEBUG 1
 
 #ifdef VISUAL_DEBUG
-#include <vtkVersion.h>
+#include <vtkActor.h>
 #include <vtkCamera.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
 #include <vtkProperty.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkVersion.h>
 #endif
 
 // #define DEBUG_POINTS

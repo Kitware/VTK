@@ -29,9 +29,9 @@
 #ifndef vtkActor2D_h
 #define vtkActor2D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkProp.h"
 #include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
+#include "vtkProp.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkMapper2D;
 class vtkProperty2D;

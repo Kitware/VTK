@@ -31,9 +31,9 @@
 #ifndef vtkRectilinearSynchronizedTemplates_h
 #define vtkRectilinearSynchronizedTemplates_h
 
+#include "vtkContourValues.h"     // Passes calls through
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Passes calls through
 
 class vtkRectilinearGrid;
 class vtkDataArray;

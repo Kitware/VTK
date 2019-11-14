@@ -24,9 +24,9 @@
 #ifndef PyVTKMethodDescriptor_h
 #define PyVTKMethodDescriptor_h
 
-#include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
+#include "vtkWrappingPythonCoreModule.h" // For export macro
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMethodDescriptor_Type;
 

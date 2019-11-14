@@ -16,13 +16,13 @@
 // .SECTION Description
 //
 
-#include "vtkMetaImageReader.h"
-#include "vtkMetaImageWriter.h"
-#include "vtkOutputWindow.h"
-#include "vtkObjectFactory.h"
 #include "vtkDataObject.h"
 #include "vtkImageData.h"
 #include "vtkImageMathematics.h"
+#include "vtkMetaImageReader.h"
+#include "vtkMetaImageWriter.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
 
 
 int TestMetaIO(int argc, char *argv[])

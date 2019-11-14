@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkTIFFReader.h>
-#include <vtkSmartPointer.h>
 #include "vtkTestErrorObserver.h"
+#include <vtkSmartPointer.h>
+#include <vtkTIFFReader.h>
 
 #ifndef _WIN32
 #include <fcntl.h>

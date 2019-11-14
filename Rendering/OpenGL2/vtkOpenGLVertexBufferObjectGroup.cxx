@@ -16,14 +16,14 @@
 
 #include <cassert>
 
-#include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
-#include "vtkViewport.h"
 #include "vtkShaderProgram.h"
+#include "vtkViewport.h"
 
 // STL headers
 #include <algorithm>

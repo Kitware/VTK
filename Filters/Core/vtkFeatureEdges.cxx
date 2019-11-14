@@ -14,21 +14,21 @@
 =========================================================================*/
 #include "vtkFeatureEdges.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
-#include "vtkMath.h"
-#include "vtkMergePoints.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkFeatureEdges);
 

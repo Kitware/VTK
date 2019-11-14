@@ -16,16 +16,16 @@
 #include "vtkGraphItem.h"
 
 #include "vtkEdgeListIterator.h"
-#include "vtkOutEdgeIterator.h"
 #include "vtkGraph.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkOutEdgeIterator.h"
 #include "vtkVariant.h"
 
-#include "vtkContext2D.h"
-#include "vtkContextScene.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkPen.h"
 #include "vtkBrush.h"
+#include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
+#include "vtkPen.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
 

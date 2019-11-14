@@ -45,8 +45,8 @@
 
 #include "vtkWeakPointerBase.h"
 
-#include "vtkNew.h" // for vtkNew
 #include "vtkMeta.h" // for IsComplete
+#include "vtkNew.h" // for vtkNew
 
 #include <type_traits> // for is_base_of
 #include <utility> // for std::move

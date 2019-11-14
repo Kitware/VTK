@@ -23,6 +23,7 @@
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -30,13 +31,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
+#include "vtkPolyhedron.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkIncrementalPointLocator.h"
-#include "vtkPolyhedron.h"
 
 #include <cmath>
 

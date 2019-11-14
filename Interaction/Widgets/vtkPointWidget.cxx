@@ -20,14 +20,14 @@
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPickingManager.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkPointWidget);
 

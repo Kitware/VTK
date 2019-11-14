@@ -15,8 +15,8 @@
 
 #include "vtkActor.h"
 #include "vtkBandedPolyDataContourFilter.h"
-#include "vtkCommand.h"
 #include "vtkColorSeries.h"
+#include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkLookupTable.h"
@@ -25,16 +25,16 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkSmartPointer.h"
-#include "vtkStructuredGridGeometryFilter.h"
 #include "vtkStructuredGrid.h"
+#include "vtkStructuredGridGeometryFilter.h"
 #include "vtkTestUtilities.h"
-#include "vtkTextProperty.h"
 #include "vtkTesting.h"
+#include "vtkTextProperty.h"
 
 #include <stdlib.h> // for atof
 

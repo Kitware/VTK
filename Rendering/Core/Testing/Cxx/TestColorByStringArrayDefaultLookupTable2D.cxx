@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include <vtkActor2D.h>
 #include <vtkCellData.h>
@@ -22,9 +22,9 @@
 #include <vtkNew.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper2D.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkStdString.h>
 #include <vtkStringArray.h>
 

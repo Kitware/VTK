@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkParametricCrossCap.h"
-#include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkParametricCrossCap);
 

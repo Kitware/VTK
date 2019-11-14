@@ -28,8 +28,8 @@
 #ifndef vtkUnstructuredGridVolumeMapper_h
 #define vtkUnstructuredGridVolumeMapper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkRenderingVolumeModule.h" // For export macro
 
 class vtkRenderer;
 class vtkVolume;

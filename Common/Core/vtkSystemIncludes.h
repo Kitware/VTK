@@ -50,6 +50,7 @@
 
 #define VTK_SYSTEM_INCLUDES_INSIDE
 #include "vtkOStreamWrapper.h"    // Include the ostream wrapper.
+
 #include "vtkOStrStreamWrapper.h" // Include the ostrstream wrapper.
 #undef VTK_SYSTEM_INCLUDES_INSIDE
 

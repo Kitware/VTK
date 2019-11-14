@@ -30,8 +30,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 #include <math.h>
-#include <typeinfo>
 #include <type_traits> // for std::underlying type.
+#include <typeinfo>
 
 //----------------------------------------------------------------------------
 // Check for unsupported old compilers.

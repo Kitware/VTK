@@ -25,12 +25,12 @@
 //
 
 // first include the required header files for the vtk classes we are using
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
-#include "vtkCommand.h"
-#include "vtkCamera.h"
-#include "vtkActor.h"
 #include "vtkRenderer.h"
 
 // Callback for the interaction

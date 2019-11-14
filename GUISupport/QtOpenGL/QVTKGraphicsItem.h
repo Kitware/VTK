@@ -25,11 +25,11 @@
 #ifndef QVTKGraphicsItem_hpp
 #define QVTKGraphicsItem_hpp
 
+#include "QVTKWin32Header.h"
 #include "vtkGUISupportQtOpenGLModule.h" // For export macro
 #include <QGLContext>
 #include <QGraphicsWidget>
 #include <vtkSmartPointer.h>
-#include "QVTKWin32Header.h"
 class vtkEventQtSlotConnect;
 class QGLFramebufferObject;
 class QVTKInteractorAdapter;

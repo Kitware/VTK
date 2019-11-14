@@ -18,17 +18,17 @@
 // this program tests vtkLabelPlacementMapper which uses a sophisticated algorithm to
 // prune labels/icons preventing them from overlapping.
 
-#include <vtkCellArray.h>
-#include <vtkProperty2D.h>
-#include <vtkPolyData.h>
-#include <vtkNew.h>
-#include <vtkPolyDataMapper2D.h>
 #include <vtkActor2D.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkTestUtilities.h>
+#include <vtkCellArray.h>
+#include <vtkNew.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper2D.h>
+#include <vtkProperty2D.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
+#include <vtkTestUtilities.h>
 
 int TestTransformCoordinateUseDouble(int argc, char *argv[])
 {

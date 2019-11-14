@@ -25,8 +25,8 @@
 #ifndef vtkTableWriter_h
 #define vtkTableWriter_h
 
-#include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"
+#include "vtkIOLegacyModule.h" // For export macro
 class vtkTable;
 
 class VTKIOLEGACY_EXPORT vtkTableWriter : public vtkDataWriter

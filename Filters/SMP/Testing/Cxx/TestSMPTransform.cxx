@@ -18,15 +18,15 @@
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkSMPTools.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSMPThreadLocal.h"
+#include "vtkSMPTools.h"
 #include "vtkSMPTransform.h"
+#include "vtkStructuredGrid.h"
+#include "vtkTimerLog.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
-#include "vtkStructuredGrid.h"
-#include "vtkSMPThreadLocal.h"
-#include "vtkTimerLog.h"
 
 const double spacing = 0.1;
 const int resolution = 101;

@@ -15,8 +15,8 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
 #include "vtkInformation.h"
@@ -24,16 +24,16 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
 
-#include <vtkTestUtilities.h>
-#include <vtkRegressionTestImage.h>
 #include "vtkCylinderSource.h"
+#include <vtkRegressionTestImage.h>
+#include <vtkTestUtilities.h>
 
 int TestCompositePolyDataMapper2Vertices(int argc, char* argv[])
 {

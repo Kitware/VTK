@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkRTXMLPolyDataReader.h"
-#include "vtkObjectFactory.h"
 #include "vtkDirectory.h"
-#include <vector>
+#include "vtkObjectFactory.h"
 #include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkRTXMLPolyDataReader);
 

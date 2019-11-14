@@ -1,13 +1,13 @@
 #include <vtkVersion.h>
 
-#include <vtkSmartPointer.h>
-#include <vtkPolyData.h>
-#include <vtkPointData.h>
 #include <vtkFloatArray.h>
-#include <vtkParallelCoordinatesView.h>
 #include <vtkParallelCoordinatesRepresentation.h>
+#include <vtkParallelCoordinatesView.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
 
 int TestParallelCoordinatesView(int, char*[])
 {

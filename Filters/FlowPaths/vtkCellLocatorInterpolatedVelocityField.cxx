@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkCellLocatorInterpolatedVelocityField.h"
 
-#include "vtkMath.h"
-#include "vtkDataSet.h"
-#include "vtkDataArray.h"
-#include "vtkPointData.h"
-#include "vtkGenericCell.h"
 #include "vtkAbstractCellLocator.h"
-#include "vtkSmartPointer.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
+#include "vtkGenericCell.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStaticCellLocator.h"
 
 vtkStandardNewMacro ( vtkCellLocatorInterpolatedVelocityField );

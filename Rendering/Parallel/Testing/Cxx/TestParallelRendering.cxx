@@ -15,23 +15,23 @@
 
 #include <mpi.h>
 
+#include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkCompositedSynchronizedRenderers.h"
+#include "vtkLookupTable.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
-#include "vtkSynchronizedRenderWindows.h"
-#include "vtkCompositedSynchronizedRenderers.h"
-#include "vtkTestUtilities.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkPieceScalars.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProcess.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkActor.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkLookupTable.h"
-#include "vtkCamera.h"
-#include "vtkPieceScalars.h"
-#include "vtkProcess.h"
-#include "vtkObjectFactory.h"
+#include "vtkSynchronizedRenderWindows.h"
+#include "vtkTestUtilities.h"
 
 namespace
 {

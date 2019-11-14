@@ -19,9 +19,9 @@
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
 #include "vtkExecutive.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkVariantArray.h"
 

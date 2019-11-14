@@ -15,10 +15,10 @@
 #include "vtkStructuredGridConnectivity.h"
 
 // VTK includes
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredExtent.h"
-#include "vtkIdList.h"
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 

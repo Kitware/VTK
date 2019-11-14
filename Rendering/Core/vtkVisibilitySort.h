@@ -46,8 +46,8 @@
 #ifndef vtkVisibilitySort_h
 #define vtkVisibilitySort_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkIdTypeArray;
 class vtkDataSet;

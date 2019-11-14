@@ -16,21 +16,21 @@
 // .SECTION Description
 // Tests vtkDispatcher and vtkDoubleDispatcher
 
-#include "vtkObjectFactory.h"
+#include "vtkDataArrayDispatcher.h"
 #include "vtkDispatcher.h"
 #include "vtkDoubleDispatcher.h"
-#include "vtkDataArrayDispatcher.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 
 //classes we will be using in the test
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkStringArray.h"
 #include "vtkIntArray.h"
 #include "vtkPoints.h"
+#include "vtkStringArray.h"
 
-#include <stdexcept>
 #include <algorithm>
+#include <stdexcept>
 namespace
 {
 

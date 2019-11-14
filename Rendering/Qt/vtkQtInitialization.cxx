@@ -18,8 +18,8 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#include "vtkObjectFactory.h"
 #include "vtkQtInitialization.h"
+#include "vtkObjectFactory.h"
 
 #include <QApplication>
 

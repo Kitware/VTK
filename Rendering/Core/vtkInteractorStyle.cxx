@@ -21,6 +21,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineSource.h"
@@ -30,7 +31,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkEventForwarderCommand.h"
 #include "vtkTDxInteractorStyleCamera.h"
 
 vtkStandardNewMacro(vtkInteractorStyle);

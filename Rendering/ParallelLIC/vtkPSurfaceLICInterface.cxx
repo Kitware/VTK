@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkPSurfaceLICInterface.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkPainterCommunicator.h"
-#include "vtkPPainterCommunicator.h"
 #include "vtkMPI.h"
+#include "vtkObjectFactory.h"
+#include "vtkPPainterCommunicator.h"
+#include "vtkPainterCommunicator.h"
 #include "vtkParallelTimer.h"
 
 //----------------------------------------------------------------------------

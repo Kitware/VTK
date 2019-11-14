@@ -27,8 +27,8 @@
 #define vtkPeriodicTable_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
+#include "vtkNew.h"                    // Needed for the static data member
 #include "vtkObject.h"
-#include "vtkNew.h" // Needed for the static data member
 
 class vtkBlueObeliskData;
 class vtkColor3f;

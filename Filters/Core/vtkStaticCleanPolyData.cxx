@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkStaticCleanPolyData.h"
 
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMergePoints.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkSMPTools.h"
+#include "vtkStaticPointLocator.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
 

@@ -47,8 +47,8 @@
 #ifndef vtkExtractCellsByType_h
 #define vtkExtractCellsByType_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 struct vtkCellTypeSet;
 class vtkIdTypeArray;

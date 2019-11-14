@@ -21,8 +21,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
-#include <vector>
 #include <cmath>
+#include <vector>
 
 
 vtkStandardNewMacro(vtkExtractTimeSteps);

@@ -23,11 +23,11 @@
 #include <qglobal.h>
 #if (QT_EDITION & QT_MODULE_SQL)
 #include "vtkQtSQLDatabase.h"
-#include "vtkSQLQuery.h"
+#include "vtkQtTableModelAdapter.h"
 #include "vtkRowQueryToTable.h"
+#include "vtkSQLQuery.h"
 #include "vtkStdString.h"
 #include "vtkTable.h"
-#include "vtkQtTableModelAdapter.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 

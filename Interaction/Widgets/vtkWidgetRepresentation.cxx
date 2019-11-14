@@ -19,9 +19,9 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPickingManager.h"
 #include "vtkQuaternion.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTransform.h"
 
 //----------------------------------------------------------------------

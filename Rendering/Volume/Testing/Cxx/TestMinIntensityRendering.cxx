@@ -13,7 +13,9 @@
 
 =========================================================================*/
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkImageClip.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderWindow.h"
@@ -23,12 +25,10 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkFixedPointVolumeRayCastMapper.h"
-#include "vtkColorTransferFunction.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 int TestMinIntensityRendering( int argc, char *argv[] )
 {

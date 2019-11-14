@@ -26,8 +26,8 @@
 #ifndef vtkExtractTemporalFieldData_h
 #define vtkExtractTemporalFieldData_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
+#include "vtkFiltersExtractionModule.h" // For export macro
 
 #if !defined(VTK_LEGACY_REMOVE)
 class vtkDataSet;

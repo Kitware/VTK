@@ -37,9 +37,9 @@
 #ifndef vtkCellTreeLocator_h
 #define vtkCellTreeLocator_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
-#include <vector> // Needed for internal class
+#include "vtkFiltersGeneralModule.h" // For export macro
+#include <vector>                    // Needed for internal class
 
 class vtkCellPointTraversal;
 class vtkIdTypeArray;

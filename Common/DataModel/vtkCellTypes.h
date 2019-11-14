@@ -39,10 +39,10 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkIntArray.h" // Needed for inline methods
-#include "vtkIdTypeArray.h" // Needed for inline methods
-#include "vtkUnsignedCharArray.h" // Needed for inline methods
 #include "vtkCellType.h" // Needed for VTK_EMPTY_CELL
+#include "vtkIdTypeArray.h" // Needed for inline methods
+#include "vtkIntArray.h" // Needed for inline methods
+#include "vtkUnsignedCharArray.h" // Needed for inline methods
 
 class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
 {

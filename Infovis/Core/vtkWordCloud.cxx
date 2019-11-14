@@ -27,20 +27,20 @@
 
 #include "vtkFreeTypeTools.h"
 #include "vtkImageBlend.h"
-#include "vtkImageIterator.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 
-#include "vtkTextProperty.h"
+#include "vtkColorSeries.h"
 #include "vtkImageCanvasSource2D.h"
 #include "vtkMath.h"
 #include "vtkNamedColors.h"
-#include "vtkColorSeries.h"
+#include "vtkTextProperty.h"
 
+#include "vtkImageAppendComponents.h"
+#include "vtkImageExtractComponents.h"
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Factory.h"
 #include "vtkImageResize.h"
-#include "vtkImageExtractComponents.h"
-#include "vtkImageAppendComponents.h"
 
 #include "vtksys/SystemTools.hxx"
 #ifdef HAS_STD_REGEX

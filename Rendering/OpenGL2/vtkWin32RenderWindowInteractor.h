@@ -30,9 +30,9 @@
 #ifndef vtkWin32RenderWindowInteractor_h
 #define vtkWin32RenderWindowInteractor_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"
-#include "vtkWindows.h" // For windows API.
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWindows.h"                // For windows API.
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX

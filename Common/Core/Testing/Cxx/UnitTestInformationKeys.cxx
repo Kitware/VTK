@@ -5,10 +5,10 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationVariantKey.h"
 #include "vtkInformationVariantVectorKey.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkStdString.h"
 #include "vtkVariant.h"
-#include "vtkMath.h"
 
 template<typename T, typename V>
 int UnitTestScalarValueKey(vtkInformation* info, T* key, const V& val)

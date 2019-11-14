@@ -20,18 +20,18 @@
 
 #include "vtkDataSetGradientPrecompute.h"
 
-#include "vtkMath.h"
-#include "vtkTriangle.h"
-#include "vtkInformationVector.h"
-#include "vtkInformation.h"
-#include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkCell.h"
 #include "vtkCell3D.h"
-#include "vtkTetra.h"
-#include "vtkFieldData.h"
 #include "vtkCellData.h"
+#include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkFieldData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
 
 #define VTK_DATASET_GRADIENT_TETRA_OPTIMIZATION
 #define VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION

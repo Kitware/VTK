@@ -17,23 +17,23 @@
 // The command line arguments are:
 // -I        => run in interactive mode
 
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
-#include "vtkCamera.h"
-#include "vtkImageData.h"
-#include "vtkImageResliceMapper.h"
-#include "vtkImageProperty.h"
-#include "vtkImageSlice.h"
-#include "vtkPlane.h"
-#include "vtkImageReader2.h"
-#include "vtkOutlineFilter.h"
-#include "vtkDataSetMapper.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
+#include "vtkDataSetMapper.h"
+#include "vtkImageData.h"
+#include "vtkImageProperty.h"
+#include "vtkImageReader2.h"
+#include "vtkImageResliceMapper.h"
+#include "vtkImageSlice.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkOutlineFilter.h"
+#include "vtkPlane.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 int TestImageResliceMapperOffAxis(int argc, char* argv[])
 {

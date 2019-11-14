@@ -23,8 +23,8 @@
 #ifndef vtkMySQLToTableReader_h
 #define vtkMySQLToTableReader_h
 
-#include "vtkIOMySQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"
+#include "vtkIOMySQLModule.h" // For export macro
 
 class vtkMySQLDatabase;
 

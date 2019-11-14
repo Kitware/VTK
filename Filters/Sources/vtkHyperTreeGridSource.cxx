@@ -18,11 +18,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
-#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkIdTypeArray.h"
-#include "vtkInformationVector.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -30,8 +30,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkQuadric.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 vtkStandardNewMacro(vtkHyperTreeGridSource);
 vtkCxxSetObjectMacro(vtkHyperTreeGridSource, DescriptorBits, vtkBitArray);

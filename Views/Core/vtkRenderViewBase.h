@@ -29,9 +29,9 @@
 #ifndef vtkRenderViewBase_h
 #define vtkRenderViewBase_h
 
-#include "vtkViewsCoreModule.h" // For export macro
-#include "vtkView.h"
 #include "vtkSmartPointer.h" // For SP ivars
+#include "vtkView.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkInteractorObserver;
 class vtkRenderer;

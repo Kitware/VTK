@@ -21,6 +21,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkEdgeTable.h"
 #include "vtkExecutive.h"
 #include "vtkFloatArray.h"
@@ -30,7 +31,6 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTriangleStrip.h"
-#include "vtkDoubleArray.h"
 
 #include <cfloat>
 

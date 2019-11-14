@@ -14,14 +14,14 @@
 //
 //=============================================================================
 
-#include "vtkmProbe.h"
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkDataSet.h"
 #include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDataArray.h"
+#include "vtkmProbe.h"
 
 namespace
 {

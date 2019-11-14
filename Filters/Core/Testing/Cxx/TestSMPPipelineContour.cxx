@@ -12,20 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkNew.h"
-#include "vtkRTAnalyticSource.h"
-#include "vtkPolyData.h"
-#include "vtkTimerLog.h"
-#include "vtkSMPTools.h"
-#include "vtkXMLMultiBlockDataWriter.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkExtentTranslator.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkImageData.h"
-#include "vtkThreadedCompositeDataPipeline.h"
-#include "vtkSynchronizedTemplates3D.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkPolyData.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkSMPThreadLocalObject.h"
+#include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkSynchronizedTemplates3D.h"
+#include "vtkThreadedCompositeDataPipeline.h"
+#include "vtkTimerLog.h"
+#include "vtkXMLMultiBlockDataWriter.h"
 
 const int EXTENT = 100;
 static int WholeExtent[] = {-EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT};

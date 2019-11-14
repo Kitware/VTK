@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkCompositeDataWriter.h"
 
+#include "vtkAMRBox.h"
+#include "vtkAMRInformation.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkHierarchicalBoxDataSet.h"
@@ -28,8 +30,6 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkUniformGrid.h"
-#include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */

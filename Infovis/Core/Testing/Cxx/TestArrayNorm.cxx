@@ -20,8 +20,8 @@
 =========================================================================*/
 
 #include <vtkArrayData.h>
-#include <vtkArrayPrint.h>
 #include <vtkArrayNorm.h>
+#include <vtkArrayPrint.h>
 #include <vtkDenseArray.h>
 #include <vtkDiagonalMatrixSource.h>
 #include <vtkSmartPointer.h>

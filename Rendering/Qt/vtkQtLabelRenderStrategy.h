@@ -25,8 +25,8 @@
 #ifndef vtkQtLabelRenderStrategy_h
 #define vtkQtLabelRenderStrategy_h
 
-#include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
+#include "vtkRenderingQtModule.h" // For export macro
 
 class vtkLabelSizeCalculator;
 class vtkLabeledDataMapper;

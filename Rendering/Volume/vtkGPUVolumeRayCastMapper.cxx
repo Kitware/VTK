@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "vtkMatrix3x3.h"
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCommand.h>
@@ -26,13 +27,12 @@
 #include <vtkImageData.h>
 #include <vtkImageResample.h>
 #include <vtkInformation.h>
-#include "vtkMatrix3x3.h"
 #include <vtkMultiVolume.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
+#include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRendererCollection.h>
-#include <vtkRenderWindow.h>
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 

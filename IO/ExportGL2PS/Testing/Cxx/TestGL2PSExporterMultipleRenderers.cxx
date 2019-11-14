@@ -13,15 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkNew.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"

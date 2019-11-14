@@ -14,9 +14,9 @@
 =========================================================================*/
 #include "vtkOpenGLRenderWindow.h"
 
-#import "vtkIOSRenderWindowInteractor.h"
-#import "vtkIOSRenderWindow.h"
 #import "vtkCommand.h"
+#import "vtkIOSRenderWindow.h"
+#import "vtkIOSRenderWindowInteractor.h"
 #import "vtkObjectFactory.h"
 
 

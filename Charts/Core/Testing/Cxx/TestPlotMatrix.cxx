@@ -13,16 +13,16 @@
 
 =========================================================================*/
 
-#include "vtkRenderWindow.h"
-#include "vtkSmartPointer.h"
-#include "vtkChartXY.h"
 #include "vtkAxis.h"
-#include "vtkPlot.h"
-#include "vtkTable.h"
-#include "vtkFloatArray.h"
-#include "vtkContextView.h"
+#include "vtkChartXY.h"
 #include "vtkContextScene.h"
+#include "vtkContextView.h"
+#include "vtkFloatArray.h"
+#include "vtkPlot.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkSmartPointer.h"
+#include "vtkTable.h"
 
 //----------------------------------------------------------------------------
 int TestPlotMatrix( int, char * [] )

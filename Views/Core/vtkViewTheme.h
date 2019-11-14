@@ -33,8 +33,8 @@
 #ifndef vtkViewTheme_h
 #define vtkViewTheme_h
 
-#include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkViewsCoreModule.h" // For export macro
 
 class vtkScalarsToColors;
 class vtkTextProperty;

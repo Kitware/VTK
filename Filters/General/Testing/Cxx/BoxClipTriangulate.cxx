@@ -31,12 +31,12 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
+#include "vtkActor.h"
 #include "vtkExtractEdges.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) \

@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkPolyDataContourLineInterpolator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkContourRepresentation.h"
-#include "vtkPolyData.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
 
 

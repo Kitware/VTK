@@ -16,9 +16,9 @@
 #ifndef vtkDataObjectTreeRange_h
 #define vtkDataObjectTreeRange_h
 
-#include "vtkDataObjectTreeIterator.h"
-#include "vtkDataObjectTree.h"
 #include "vtkCompositeDataSetNodeReference.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkMeta.h"
 #include "vtkRange.h"
 #include "vtkSmartPointer.h"

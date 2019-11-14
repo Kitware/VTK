@@ -13,13 +13,13 @@
 
 =========================================================================*/
 #include "vtkAngleRepresentation2D.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkLeaderActor2D.h"
 #include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
+#include "vtkLeaderActor2D.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation2D.h"
+#include "vtkRenderer.h"
 #include "vtkWindow.h"
 
 vtkStandardNewMacro(vtkAngleRepresentation2D);

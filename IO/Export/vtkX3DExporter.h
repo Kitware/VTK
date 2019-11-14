@@ -27,8 +27,8 @@
 #ifndef vtkX3DExporter_h
 #define vtkX3DExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 class vtkActor;
 class vtkActor2D;

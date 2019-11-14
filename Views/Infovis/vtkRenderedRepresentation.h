@@ -26,10 +26,10 @@
 #ifndef vtkRenderedRepresentation_h
 #define vtkRenderedRepresentation_h
 
-#include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkDataRepresentation.h"
 #include "vtkSmartPointer.h" // for SP ivars
 #include "vtkUnicodeString.h" // for string
+#include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkApplyColors;
 class vtkProp;

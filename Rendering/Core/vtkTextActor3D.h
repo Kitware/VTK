@@ -33,9 +33,9 @@
 #ifndef vtkTextActor3D_h
 #define vtkTextActor3D_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
-#include <string> // for ivar
+#include "vtkRenderingCoreModule.h" // For export macro
+#include <string>                   // for ivar
 
 class vtkImageActor;
 class vtkImageData;

@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkMassProperties.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkCell.h"
 #include "vtkDataObject.h"
 #include "vtkIdList.h"
-#include "vtkMath.h"
-#include "vtkSmartPointer.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
 vtkStandardNewMacro(vtkMassProperties);
 

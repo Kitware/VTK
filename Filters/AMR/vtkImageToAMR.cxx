@@ -14,24 +14,24 @@
 =========================================================================*/
 #include "vtkImageToAMR.h"
 
-#include "vtkPointData.h"
+#include "vtkAMRBox.h"
+#include "vtkAMRUtilities.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTuple.h"
-#include "vtkAMRBox.h"
 #include "vtkUniformGrid.h"
-#include "vtkNew.h"
-#include "vtkAMRUtilities.h"
 
+#include "vtkAMRInformation.h"
 #include <algorithm>
 #include <vector>
-#include "vtkAMRInformation.h"
 namespace
 {
   //Split one box to eight

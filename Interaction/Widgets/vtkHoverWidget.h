@@ -70,8 +70,8 @@
 #ifndef vtkHoverWidget_h
 #define vtkHoverWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkHoverWidget : public vtkAbstractWidget

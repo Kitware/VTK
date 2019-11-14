@@ -143,8 +143,8 @@
 #ifndef vtkModifiedBSPTree_h
 #define vtkModifiedBSPTree_h
 
-#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"
+#include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h"     // required because it is nice
 
 class Sorted_cell_extents_Lists;

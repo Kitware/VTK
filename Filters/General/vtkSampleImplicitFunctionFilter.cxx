@@ -14,18 +14,18 @@
 =========================================================================*/
 #include "vtkSampleImplicitFunctionFilter.h"
 
+#include "vtkCellData.h"
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImplicitFunction.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataSet.h"
-#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkSampleImplicitFunctionFilter);
 vtkCxxSetObjectMacro(vtkSampleImplicitFunctionFilter,ImplicitFunction,vtkImplicitFunction);

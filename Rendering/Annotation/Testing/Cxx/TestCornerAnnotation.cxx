@@ -13,21 +13,21 @@
 
 =========================================================================*/
 
-#include "vtkSmartPointer.h"
-#include "vtkRenderer.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
+#include "vtkImageMandelbrotSource.h"
+#include "vtkImageMapToWindowLevelColors.h"
+#include "vtkImageMapper3D.h"
+#include "vtkImageShiftScale.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
-#include "vtkImageData.h"
-#include "vtkImageShiftScale.h"
-#include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
-#include "vtkImageMapToWindowLevelColors.h"
-#include "vtkImageMandelbrotSource.h"
 
-#include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCornerAnnotation.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 
 int TestCornerAnnotation( int argc, char * argv [] )

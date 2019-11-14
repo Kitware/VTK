@@ -25,9 +25,9 @@
 #endif
 
 
-#include "vtkODBCQuery.h"
 #include "vtkODBCDatabase.h"
 #include "vtkODBCInternals.h"
+#include "vtkODBCQuery.h"
 
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"

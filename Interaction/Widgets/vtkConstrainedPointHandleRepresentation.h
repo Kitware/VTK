@@ -37,8 +37,8 @@
 #ifndef vtkConstrainedPointHandleRepresentation_h
 #define vtkConstrainedPointHandleRepresentation_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkProperty;
 class vtkActor;

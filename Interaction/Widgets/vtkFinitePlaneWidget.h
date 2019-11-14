@@ -69,8 +69,8 @@
 #ifndef vtkFinitePlaneWidget_h
 #define vtkFinitePlaneWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkFinitePlaneRepresentation;
 class vtkHandleWidget;

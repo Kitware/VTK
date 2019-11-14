@@ -14,14 +14,14 @@
 =========================================================================*/
 
 // Charts includes
-#include "vtkControlPointsItem.h"
 #include "vtkColorTransferControlPointsItem.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkControlPointsItem.h"
 
 // Common includes
+#include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
-#include "vtkIdTypeArray.h"
 
 // STD includes
 #include <iostream>

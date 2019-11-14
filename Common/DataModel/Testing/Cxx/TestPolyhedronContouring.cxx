@@ -18,8 +18,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkXMLUnstructuredGridReader.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 
 using namespace std;

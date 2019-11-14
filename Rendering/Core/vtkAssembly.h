@@ -57,8 +57,8 @@
 #ifndef vtkAssembly_h
 #define vtkAssembly_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class vtkAssemblyPaths;
 class vtkProp3DCollection;

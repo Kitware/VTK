@@ -18,7 +18,9 @@
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellLocatorStrategy.h"
 #include "vtkCharArray.h"
+#include "vtkFindCellStrategy.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -28,12 +30,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
-#include "vtkSmartPointer.h"
-#include "vtkSMPTools.h"
 #include "vtkSMPThreadLocal.h"
+#include "vtkSMPTools.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkFindCellStrategy.h"
-#include "vtkCellLocatorStrategy.h"
 
 #include <algorithm>
 #include <vector>

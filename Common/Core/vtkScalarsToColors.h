@@ -47,8 +47,8 @@
 #define vtkScalarsToColors_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkVariant.h" // Set/get annotation methods require variants.
 #include "vtkObject.h"
+#include "vtkVariant.h" // Set/get annotation methods require variants.
 
 class vtkAbstractArray;
 class vtkDataArray;

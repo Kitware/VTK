@@ -14,9 +14,9 @@
 #ifndef vtkOpenGLVertexArrayObject_h
 #define vtkOpenGLVertexArrayObject_h
 
-#include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
-#include <string> // For API.
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include <string>                      // For API.
 
 class vtkShaderProgram;
 class vtkOpenGLBufferObject;

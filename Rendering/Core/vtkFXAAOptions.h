@@ -24,8 +24,8 @@
 #ifndef vtkFXAAOptions_h
 #define vtkFXAAOptions_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkFXAAOptions: public vtkObject
 {

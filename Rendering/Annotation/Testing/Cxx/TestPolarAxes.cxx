@@ -17,8 +17,8 @@
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
-#include "vtkLight.h"
 #include "vtkLODActor.h"
+#include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPolarAxesActor.h"
@@ -26,9 +26,9 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 

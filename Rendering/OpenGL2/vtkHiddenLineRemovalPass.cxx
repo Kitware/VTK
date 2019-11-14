@@ -26,8 +26,8 @@
 #include "vtkOpenGLState.h"
 #include "vtkProp.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderState.h"
+#include "vtkRenderer.h"
 
 #include <string>
 

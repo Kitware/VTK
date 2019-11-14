@@ -20,13 +20,13 @@
 
 #include "vtkFloatArray.h"
 #include "vtkPLYReader.h"
-#include "vtkPolyData.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
 
 #include <cmath>
-#include <limits>
 #include <fstream>
+#include <limits>
 #include <streambuf>
 
 int TestPLYWriterString(int argc, char *argv[])

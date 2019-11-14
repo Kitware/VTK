@@ -53,8 +53,8 @@
 #ifndef vtkDynamic2DLabelMapper_h
 #define vtkDynamic2DLabelMapper_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class VTKRENDERINGLABEL_EXPORT vtkDynamic2DLabelMapper : public vtkLabeledDataMapper
 {

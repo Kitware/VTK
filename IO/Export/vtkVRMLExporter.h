@@ -27,8 +27,8 @@
 #ifndef vtkVRMLExporter_h
 #define vtkVRMLExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
+#include "vtkIOExportModule.h" // For export macro
 
 class vtkLight;
 class vtkActor;

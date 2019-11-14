@@ -29,8 +29,8 @@
 #ifndef vtkMultiNewickTreeReader_h
 #define vtkMultiNewickTreeReader_h
 
-#include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataReader.h"
+#include "vtkIOInfovisModule.h" // For export macro
 
 class vtkMultiPieceDataSet;
 class vtkNewickTreeReader;

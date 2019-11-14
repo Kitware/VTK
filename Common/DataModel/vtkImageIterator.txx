@@ -15,8 +15,8 @@
 #ifndef vtkImageIterator_txx
 #define vtkImageIterator_txx
 
-#include "vtkImageIterator.h"
 #include "vtkImageData.h"
+#include "vtkImageIterator.h"
 
 //----------------------------------------------------------------------------
 template <class DType>

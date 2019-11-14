@@ -13,19 +13,19 @@
 
 =========================================================================*/
 #include "vtkImplicitCylinderWidget.h"
-#include "vtkImplicitCylinderRepresentation.h"
-#include "vtkCommand.h"
 #include "vtkCallbackCommand.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkStdString.h"
 #include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkObjectFactory.h"
-#include "vtkWidgetEventTranslator.h"
-#include "vtkWidgetCallbackMapper.h"
+#include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkWidgetEvent.h"
+#include "vtkImplicitCylinderRepresentation.h"
+#include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStdString.h"
+#include "vtkWidgetCallbackMapper.h"
+#include "vtkWidgetEvent.h"
+#include "vtkWidgetEventTranslator.h"
 
 
 vtkStandardNewMacro(vtkImplicitCylinderWidget);

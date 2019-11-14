@@ -14,8 +14,8 @@
   =========================================================================*/
 #include "vtkCellDataToPointData.h"
 
-#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"

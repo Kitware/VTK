@@ -13,10 +13,10 @@
 
 =========================================================================*/
 #include "vtkExtentTranslator.h"
-#include "vtkObjectFactory.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerRequestKey.h"
 #include "vtkLargeInteger.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkExtentTranslator);
 

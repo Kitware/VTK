@@ -1,10 +1,10 @@
 
-#include "vtkDenseArray.h"
-#include "vtkSparseArray.h"
 #include "vtkArrayData.h"
 #include "vtkArrayDataReader.h"
 #include "vtkArrayDataWriter.h"
+#include "vtkDenseArray.h"
 #include "vtkNew.h"
+#include "vtkSparseArray.h"
 #include "vtkStdString.h"
 
 #include <iostream>

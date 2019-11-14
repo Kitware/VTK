@@ -27,21 +27,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTable.h"
-#include "vtkUnicodeStringArray.h"
 #include "vtkStringArray.h"
 #include "vtkStringToNumeric.h"
+#include "vtkTable.h"
+#include "vtkUnicodeStringArray.h"
 
 #include "vtkTextCodec.h"
 #include "vtkTextCodecFactory.h"
 
-#include <sstream>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <iterator>
+#include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <set>
 #include <vector>
 
 #include <cctype>

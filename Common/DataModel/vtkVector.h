@@ -28,8 +28,8 @@
 #ifndef vtkVector_h
 #define vtkVector_h
 
-#include "vtkTuple.h"
 #include "vtkObject.h" // for legacy macros
+#include "vtkTuple.h"
 
 #include <cmath>   // For math functions
 

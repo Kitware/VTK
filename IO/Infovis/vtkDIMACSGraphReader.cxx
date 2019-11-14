@@ -19,22 +19,21 @@
 
 #include "vtkDIMACSGraphReader.h"
 
-#include "vtkExecutive.h"
 #include "vtkCellData.h"
-#include "vtkIntArray.h"
+#include "vtkExecutive.h"
 #include "vtkGraph.h"
-#include "vtkMutableUndirectedGraph.h"
+#include "vtkIntArray.h"
 #include "vtkMutableDirectedGraph.h"
-#include "vtksys/SystemTools.hxx"
+#include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
-#include "vtkIntArray.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 using std::ifstream;
 using std::istringstream;
 

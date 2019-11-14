@@ -49,8 +49,8 @@
 #ifndef vtkTableToSparseArray_h
 #define vtkTableToSparseArray_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class VTKINFOVISCORE_EXPORT vtkTableToSparseArray : public vtkArrayDataAlgorithm
 {

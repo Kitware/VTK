@@ -16,8 +16,8 @@
 #define vtkLSDynaPartCollection_h
 #ifndef __VTK_WRAP__
 
-#include "vtkIOLSDynaModule.h" // For export macro
 #include "LSDynaMetaData.h" //needed for LSDynaMetaData::LSDYNA_TYPES enum
+#include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkDataArray;

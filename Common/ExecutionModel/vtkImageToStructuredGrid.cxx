@@ -13,15 +13,15 @@
 
  =========================================================================*/
 #include "vtkImageToStructuredGrid.h"
-#include "vtkObjectFactory.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
+#include "vtkCellData.h"
 #include "vtkDataObject.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStructuredGrid.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 
 #include <cassert>
 

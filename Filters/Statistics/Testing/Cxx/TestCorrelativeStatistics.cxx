@@ -10,14 +10,14 @@
 // Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkCorrelativeStatistics.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
-#include "vtkStringArray.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
-#include "vtkCorrelativeStatistics.h"
 
 #include <sstream>
 

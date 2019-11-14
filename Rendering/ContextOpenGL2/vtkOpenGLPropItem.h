@@ -27,9 +27,9 @@
 #ifndef vtkOpenGLPropItem_h
 #define vtkOpenGLPropItem_h
 
-#include "vtkRenderingContextOpenGL2Module.h" // For export macro
-#include "vtkPropItem.h"
 #include "vtkNew.h" // for vtkNew
+#include "vtkPropItem.h"
+#include "vtkRenderingContextOpenGL2Module.h" // For export macro
 
 class vtkCamera;
 

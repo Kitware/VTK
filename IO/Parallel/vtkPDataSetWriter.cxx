@@ -15,14 +15,14 @@
 
 #include "vtkPDataSetWriter.h"
 #include "vtkDataSet.h"
-#include "vtkObjectFactory.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMultiProcessController.h"
-#include "vtkStructuredGrid.h"
+#include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkErrorCode.h"
+#include "vtkStructuredGrid.h"
 
 vtkStandardNewMacro(vtkPDataSetWriter);
 

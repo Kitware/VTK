@@ -20,8 +20,8 @@
 
 #include "vtkAdjacentVertexIterator.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkGraph.h"
+#include "vtkObjectFactory.h"
 
 vtkCxxSetObjectMacro(vtkAdjacentVertexIterator, Graph, vtkGraph);
 vtkStandardNewMacro(vtkAdjacentVertexIterator);

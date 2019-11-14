@@ -30,8 +30,8 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 vtkStandardNewMacro(vtkAnnotationLayers);
 vtkCxxSetObjectMacro(vtkAnnotationLayers, CurrentAnnotation, vtkAnnotation);

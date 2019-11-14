@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkTableToPolyData.h"
 
+#include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkTable.h"
-#include "vtkCellArray.h"
-#include "vtkInformation.h"
 
 vtkStandardNewMacro(vtkTableToPolyData);
 //----------------------------------------------------------------------------

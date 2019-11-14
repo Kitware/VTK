@@ -27,8 +27,8 @@
 #define vtkImageDilateErode3D_h
 
 
-#include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageSpatialAlgorithm.h"
+#include "vtkImagingMorphologicalModule.h" // For export macro
 
 class vtkImageEllipsoidSource;
 

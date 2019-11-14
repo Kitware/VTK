@@ -13,17 +13,17 @@
 
 =========================================================================*/
 
-#include "vtkUnstructuredGrid.h"
+#include "vtkPlane.h"
 #include "vtkPolyhedron.h"
-#include "vtkPlane.h"
+#include "vtkUnstructuredGrid.h"
 
-#include "vtkTestUtilities.h"
-#include "vtkNew.h"
 #include "vtkCutter.h"
+#include "vtkNew.h"
 #include "vtkPlane.h"
+#include "vtkTestUtilities.h"
+#include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
-#include "vtkXMLPolyDataWriter.h"
 
 // Test of contour/clip of vtkPolyhedron. uses input from https://gitlab.kitware.com/vtk/vtk/issues/14485
 int TestPolyhedron2( int argc, char* argv[] )

@@ -23,9 +23,9 @@
 #ifndef vtkOpenGLAvatar_h
 #define vtkOpenGLAvatar_h
 
-#include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAvatar.h"
-#include "vtkNew.h" // for ivars
+#include "vtkNew.h"                   // for ivars
+#include "vtkRenderingOpenVRModule.h" // For export macro
 
 class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;

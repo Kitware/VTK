@@ -32,8 +32,8 @@
 #ifndef vtkFFMPEGWriter_h
 #define vtkFFMPEGWriter_h
 
-#include "vtkIOFFMPEGModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"
+#include "vtkIOFFMPEGModule.h" // For export macro
 
 class vtkFFMPEGWriterInternal;
 

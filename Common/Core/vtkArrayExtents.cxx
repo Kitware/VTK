@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
+#include "vtkArrayCoordinates.h"
 
 #include <functional>
 #include <numeric>

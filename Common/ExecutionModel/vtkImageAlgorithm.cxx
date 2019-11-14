@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkImageAlgorithm.h"
 
-#include "vtkDataArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkCellData.h"
-#include "vtkPointData.h"
+#include "vtkDataArray.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkErrorCode.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 

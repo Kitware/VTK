@@ -58,9 +58,9 @@
 #ifndef vtkWindowToImageFilter_h
 #define vtkWindowToImageFilter_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
+#include "vtkImageData.h"           // makes things a bit easier
+#include "vtkRenderingCoreModule.h" // For export macro
 
 // VTK_RGB and VTK_RGBA are defined in system includes
 #define VTK_ZBUFFER 5

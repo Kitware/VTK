@@ -25,12 +25,12 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtk_jsoncpp.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
 #include "vtkTriangleFilter.h"
+#include "vtk_jsoncpp.h"
 
 // C++ includes
 #include <fstream>

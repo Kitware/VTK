@@ -28,10 +28,10 @@
 #ifndef vtkContextDevice3D_h
 #define vtkContextDevice3D_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkVector.h"       // For the vector coordinates.
 #include "vtkRect.h"         // For the rectangles..
+#include "vtkRenderingContext2DModule.h" // For export macro
+#include "vtkVector.h"       // For the vector coordinates.
 
 class vtkMatrix4x4;
 class vtkViewport;

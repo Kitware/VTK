@@ -15,18 +15,18 @@
 #include "vtkGenericCellTessellator.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkPoints.h"
-#include "vtkIdList.h"
-#include "vtkGenericAdaptorCell.h"
-#include "vtkPointData.h"
-#include "vtkDoubleArray.h"
-#include "vtkMergePoints.h"
 #include "vtkCellArray.h"
 #include "vtkCollection.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericAdaptorCell.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericCellIterator.h"
+#include "vtkGenericSubdivisionErrorMetric.h"
+#include "vtkIdList.h"
+#include "vtkMergePoints.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 
 
 #include <cassert>

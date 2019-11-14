@@ -46,9 +46,9 @@
 #ifndef vtkDiscretizableColorTransferFunction_h
 #define vtkDiscretizableColorTransferFunction_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkColorTransferFunction.h"
-#include "vtkSmartPointer.h" // for vtkSmartPointer
+#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkSmartPointer.h"        // for vtkSmartPointer
 
 class vtkColorTransferFunction;
 class vtkLookupTable;

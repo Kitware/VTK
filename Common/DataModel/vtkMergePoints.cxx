@@ -15,10 +15,10 @@
 #include "vtkMergePoints.h"
 
 #include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-#include "vtkFloatArray.h"
 
 vtkStandardNewMacro(vtkMergePoints);
 

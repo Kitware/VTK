@@ -50,26 +50,26 @@ POSSIBILITY OF SUCH DAMAGES.
 
 #include "vtkObjectFactory.h"
 
-#include "vtkStringArray.h"
 #include "vtkCharArray.h"
-#include "vtkSignedCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkShortArray.h"
+#include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #include "vtkMINC.h"
 #include "vtk_netcdf.h"
 
-#include <cstdlib>
 #include <cctype>
 #include <cfloat>
-#include <string>
+#include <cstdlib>
 #include <map>
 #include <sstream>
+#include <string>
 
 //-------------------------------------------------------------------------
 // A container for mapping attribute names to arrays

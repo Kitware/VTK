@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkGenericMovieWriter.h"
 
-#include "vtkImageData.h"
 #include "vtkErrorCode.h"
+#include "vtkImageData.h"
 
 
 //---------------------------------------------------------------------------

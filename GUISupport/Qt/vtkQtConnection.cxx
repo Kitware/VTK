@@ -25,11 +25,11 @@
 =========================================================================*/
 
 #include "vtkQtConnection.h"
-#include "vtkEventQtSlotConnect.h"
 #include "vtkCallbackCommand.h"
+#include "vtkEventQtSlotConnect.h"
 
-#include <qobject.h>
 #include <qmetaobject.h>
+#include <qobject.h>
 
 // constructor
 vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner)

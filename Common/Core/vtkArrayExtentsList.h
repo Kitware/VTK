@@ -44,9 +44,9 @@
 #ifndef vtkArrayExtentsList_h
 #define vtkArrayExtentsList_h
 
-#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayExtents.h"
-#include <vector> // STL Header
+#include "vtkCommonCoreModule.h" // For export macro
+#include <vector>                // STL Header
 
 class VTKCOMMONCORE_EXPORT vtkArrayExtentsList
 {

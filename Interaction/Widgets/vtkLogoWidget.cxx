@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkLogoWidget.h"
-#include "vtkLogoRepresentation.h"
 #include "vtkCallbackCommand.h"
+#include "vtkLogoRepresentation.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkLogoWidget);

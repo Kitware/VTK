@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkExtractPiece.h"
 
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkExtentTranslator.h"
-#include "vtkImageClip.h"
+#include "vtkExtractGrid.h"
 #include "vtkExtractPolyDataPiece.h"
 #include "vtkExtractRectilinearGrid.h"
-#include "vtkExtractGrid.h"
 #include "vtkExtractUnstructuredGridPiece.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
+#include "vtkImageClip.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"

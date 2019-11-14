@@ -15,9 +15,9 @@
 #include "vtkFieldData.h"
 
 #include "vtkDataArray.h"
-#include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkFieldData);
 

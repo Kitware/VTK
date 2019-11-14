@@ -16,22 +16,22 @@
 // .SECTION Description
 // Tests the vtkVPICReader.
 
-#include "vtkVPICReader.h"
 #include "vtkDebugLeaks.h"
+#include "vtkVPICReader.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkWindowToImageFilter.h"
 #include "vtkPNGWriter.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtkNew.h"
 

@@ -15,21 +15,21 @@
 #include "vtkFlyingEdgesPlaneCutter.h"
 
 #include "vtkArrayListTemplate.h" // For processing attribute data
-#include "vtkDataArrayRange.h"
-#include "vtkMath.h"
-#include "vtkImageData.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayRange.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
+#include "vtkMarchingCubesTriangleCases.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkFloatArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkMarchingCubesTriangleCases.h"
-#include "vtkPlane.h"
 #include "vtkSMPTools.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cmath>
 

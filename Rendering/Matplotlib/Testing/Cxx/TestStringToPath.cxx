@@ -25,9 +25,9 @@
 #include "vtkPath.h"
 #include "vtkPen.h"
 #include "vtkPoints.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------

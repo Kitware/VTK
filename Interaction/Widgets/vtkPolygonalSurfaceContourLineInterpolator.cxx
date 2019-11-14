@@ -14,17 +14,17 @@
 =========================================================================*/
 #include "vtkPolygonalSurfaceContourLineInterpolator.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkContourRepresentation.h"
-#include "vtkPolyData.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkCellArray.h"
 #include "vtkCell.h"
-#include "vtkMath.h"
-#include "vtkPolygonalSurfacePointPlacer.h"
-#include "vtkIdList.h"
+#include "vtkCellArray.h"
+#include "vtkContourRepresentation.h"
 #include "vtkDijkstraGraphGeodesicPath.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygonalSurfacePointPlacer.h"
 
 vtkStandardNewMacro(vtkPolygonalSurfaceContourLineInterpolator);
 

@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "vtkParse.h"
+#include <stdio.h>
 
 /* print the parsed structures */
 void vtkParseOutput(FILE *fp, FileInfo *data)

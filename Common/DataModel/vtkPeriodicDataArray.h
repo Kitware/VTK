@@ -29,8 +29,8 @@
 #ifndef vtkPeriodicDataArray_h
 #define vtkPeriodicDataArray_h
 
-#include "vtkGenericDataArray.h"   // Parent
 #include "vtkAOSDataArrayTemplate.h" // Template
+#include "vtkGenericDataArray.h"   // Parent
 
 template <class Scalar>
 class vtkPeriodicDataArray:

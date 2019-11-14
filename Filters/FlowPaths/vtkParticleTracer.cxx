@@ -13,10 +13,10 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkParticleTracer.h"
-#include "vtkObjectFactory.h"
-#include "vtkSetGet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkSetGet.h"
 
 vtkObjectFactoryNewMacro(vtkParticleTracer)
 

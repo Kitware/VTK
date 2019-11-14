@@ -1,13 +1,13 @@
 
 #include "TreeRingViewItem.h"
-#include "vtkTreeRingView.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "QVTKInteractor.h"
-#include "vtkXMLTreeReader.h"
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkRenderedTreeAreaRepresentation.h"
-#include "vtkViewTheme.h"
-#include "vtkTextProperty.h"
 #include "vtkRenderer.h"
+#include "vtkTextProperty.h"
+#include "vtkTreeRingView.h"
+#include "vtkViewTheme.h"
+#include "vtkXMLTreeReader.h"
 #include <QFile>
 
 TreeRingViewItem::TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p)

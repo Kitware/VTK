@@ -16,14 +16,14 @@
 #include "vtkCamera.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLegendBoxActor.h"
-#include "vtkSphereSource.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------

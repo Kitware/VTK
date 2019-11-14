@@ -21,8 +21,8 @@
 #ifndef vtkWebGLWidget_h
 #define vtkWebGLWidget_h
 
-#include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro
+#include "vtkWebGLObject.h"
 
 #include <vector> // Needed to store colors
 

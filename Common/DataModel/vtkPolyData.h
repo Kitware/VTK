@@ -65,8 +65,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
 
-#include "vtkCellLinks.h" // Needed for inline methods
 #include "vtkCellArray.h" // Needed for inline methods
+#include "vtkCellLinks.h" // Needed for inline methods
 #include "vtkPolyDataInternals.h" // Needed for inline methods
 
 class vtkVertex;

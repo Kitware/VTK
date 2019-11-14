@@ -20,8 +20,8 @@
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
 
-#include <vtkm/cont/DynamicCellSet.h>
 #include <vtkType.h>
+#include <vtkm/cont/DynamicCellSet.h>
 
 class vtkCellArray;
 class vtkUnsignedCharArray;

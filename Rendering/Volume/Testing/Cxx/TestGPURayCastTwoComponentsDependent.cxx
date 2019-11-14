@@ -26,11 +26,11 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTesting.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 

@@ -30,8 +30,8 @@
 #ifndef vtkCosmicTreeLayoutStrategy_h
 #define vtkCosmicTreeLayoutStrategy_h
 
-#include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
+#include "vtkInfovisLayoutModule.h" // For export macro
 
 class vtkDoubleArray;
 class vtkDataArray;

@@ -19,8 +19,8 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
-#include "vtkUnicodeString.h"
 #include "vtkTextProperty.h"
+#include "vtkUnicodeString.h"
 
 //------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkMathTextFreeTypeTextRenderer)

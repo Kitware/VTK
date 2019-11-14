@@ -26,13 +26,13 @@
 #ifndef vtkScatterPlotMatrix_h
 #define vtkScatterPlotMatrix_h
 
-#include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartMatrix.h"
-#include "vtkSmartPointer.h" // For ivars
-#include "vtkNew.h"          // For ivars
-#include "vtkColor.h"        // For member function return
-#include "vtkStdString.h"    // For ivars
-#include "vtkWeakPointer.h"  // For currentPainter
+#include "vtkChartsCoreModule.h" // For export macro
+#include "vtkColor.h"            // For member function return
+#include "vtkNew.h"              // For ivars
+#include "vtkSmartPointer.h"     // For ivars
+#include "vtkStdString.h"        // For ivars
+#include "vtkWeakPointer.h"      // For currentPainter
 
 class vtkStringArray;
 class vtkTable;

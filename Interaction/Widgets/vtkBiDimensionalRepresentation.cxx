@@ -12,13 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkActor2D.h"
 #include "vtkBiDimensionalRepresentation.h"
+#include "vtkActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkCommand.h"
 #include "vtkCoordinate.h"
-#include "vtkInteractorObserver.h"
 #include "vtkHandleRepresentation.h"
+#include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"

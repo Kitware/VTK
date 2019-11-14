@@ -41,8 +41,8 @@
 #ifndef vtkKCoreDecomposition_h
 #define vtkKCoreDecomposition_h
 
-#include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
+#include "vtkInfovisCoreModule.h" // For export macro
 
 class vtkIntArray;
 

@@ -22,8 +22,8 @@
 #ifndef vtkOpenGLLight_h
 #define vtkOpenGLLight_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkLight.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLRenderer;
 

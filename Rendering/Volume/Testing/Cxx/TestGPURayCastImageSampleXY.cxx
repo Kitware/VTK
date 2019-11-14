@@ -29,13 +29,13 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
 #include "vtkVolume16Reader.h"
+#include "vtkVolumeProperty.h"
 
 
 int TestGPURayCastImageSampleXY(int argc, char* argv[])

@@ -27,8 +27,8 @@
 #ifndef vtkAbstractContextItem_h
 #define vtkAbstractContextItem_h
 
-#include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingContext2DModule.h" // For export macro
 
 class vtkContext2D;
 class vtkContextMouseEvent;

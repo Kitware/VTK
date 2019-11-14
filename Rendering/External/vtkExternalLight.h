@@ -55,8 +55,8 @@
 #ifndef vtkExternalLight_h
 #define vtkExternalLight_h
 
-#include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkLight.h"
+#include "vtkRenderingExternalModule.h" // For export macro
 
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalLight : public vtkLight
 {

@@ -6,18 +6,23 @@
 // Do not include this file directly. It is only for use
 // from inside the ExodusII reader and its descendants.
 
-#include "vtkToolkits.h" // make sure VTK_USE_PARALLEL is properly set
+#include "vtkExodusIIReader.h"
+#include "vtkStdString.h"
 #include "vtkExodusIICache.h"
+#include "vtkToolkits.h" // make sure VTK_USE_PARALLEL is properly set
 #include "vtksys/RegularExpression.hxx"
 
 #include <map>
 #include <vector>
 
-#include "vtk_exodusII.h"
 #include "vtkIOExodusModule.h" // For export macro
+#include "vtk_exodusII.h"
 class vtkExodusIIReaderParser;
+class vtkIdTypeArray;
+class vtkMultiBlockDataSet;
 class vtkMutableDirectedGraph;
 class vtkTypeInt64Array;
+class vtkUnstructuredGrid;
 
 /** This class holds metadata for an Exodus file.
   *

@@ -23,26 +23,26 @@
 #include <vtkTestUtilities.h>
 
 #include <vtkCellData.h>
-#include <vtkVertex.h>
-#include <vtkPointData.h>
-#include <vtkPolyVertex.h>
 #include <vtkLine.h>
+#include <vtkPointData.h>
 #include <vtkPolyLine.h>
-#include <vtkTriangle.h>
-#include <vtkQuad.h>
+#include <vtkPolyVertex.h>
 #include <vtkPolygon.h>
+#include <vtkQuad.h>
+#include <vtkTriangle.h>
 #include <vtkTriangleStrip.h>
+#include <vtkVertex.h>
 
 #include <vtkCharArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkIntArray.h>
 #include <vtkDataArray.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
+#include <vtkIdTypeArray.h>
+#include <vtkIntArray.h>
 #include <vtkLongArray.h>
 #include <vtkLongLongArray.h>
-#include <vtkSignedCharArray.h>
 #include <vtkShortArray.h>
+#include <vtkSignedCharArray.h>
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>

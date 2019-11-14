@@ -15,13 +15,13 @@
 
 #include "vtkChartMatrix.h"
 
+#include "vtkAxis.h"
 #include "vtkChartXY.h"
-#include "vtkNew.h"
-#include "vtkSmartPointer.h"
 #include "vtkContext2D.h"
 #include "vtkContextScene.h"
-#include "vtkAxis.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 
 #include <vector>
 

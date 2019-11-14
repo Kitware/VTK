@@ -44,8 +44,8 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkHyperTreeGridOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
+#include "vtkHyperTreeGridOrientedGeometryCursor.h"
 
 class vtkHyperTree;
 class vtkHyperTreeGrid;

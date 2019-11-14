@@ -16,8 +16,8 @@
 #define vtkTestSurfaceLICDriver_h
 
 #include "vtkSystemIncludes.h" // include it first
-#include <vector> // for vector
 #include <string> // for string
+#include <vector> // for vector
 class vtkDataObject;
 
 // Description:

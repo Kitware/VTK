@@ -17,11 +17,11 @@
 // .SECTION Description
 // this program tests the Triangle
 
-#include "vtkTriangle.h"
-#include "vtkPoints.h"
-#include <limits>
-#include "vtkSmartPointer.h"
 #include "vtkNew.h"
+#include "vtkPoints.h"
+#include "vtkSmartPointer.h"
+#include "vtkTriangle.h"
+#include <limits>
 
 template<class A>
 bool fuzzyCompare(A a, A b) {

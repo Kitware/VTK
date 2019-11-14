@@ -32,8 +32,8 @@
 #ifndef vtkImageHistogramStatistics_h
 #define vtkImageHistogramStatistics_h
 
-#include "vtkImagingStatisticsModule.h" // For export macro
 #include "vtkImageHistogram.h"
+#include "vtkImagingStatisticsModule.h" // For export macro
 
 class vtkImageStencilData;
 class vtkIdTypeArray;

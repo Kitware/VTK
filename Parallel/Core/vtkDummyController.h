@@ -26,8 +26,8 @@
 #ifndef vtkDummyController_h
 #define vtkDummyController_h
 
-#include "vtkParallelCoreModule.h" // For export macro
 #include "vtkMultiProcessController.h"
+#include "vtkParallelCoreModule.h" // For export macro
 
 class VTKPARALLELCORE_EXPORT vtkDummyController : public vtkMultiProcessController
 {

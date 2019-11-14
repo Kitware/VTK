@@ -37,8 +37,8 @@
 #ifndef vtkPolyDataSourceWidget_h
 #define vtkPolyDataSourceWidget_h
 
-#include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"
+#include "vtkInteractionWidgetsModule.h" // For export macro
 
 class vtkPolyDataAlgorithm;
 

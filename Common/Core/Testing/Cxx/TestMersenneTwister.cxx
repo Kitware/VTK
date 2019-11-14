@@ -19,11 +19,11 @@
 
 #include <cmath>
 
-#include <vtkMath.h>
-#include "vtkMersenneTwister.h"
-#include "vtkRandomPool.h"
-#include "vtkNew.h"
 #include "vtkDebugLeaks.h"
+#include "vtkMersenneTwister.h"
+#include "vtkNew.h"
+#include "vtkRandomPool.h"
+#include <vtkMath.h>
 
 //----------------------------------------------------------------------------
 // Test the first four moments to ensure our random number generator conforms

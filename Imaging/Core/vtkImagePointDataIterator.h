@@ -31,8 +31,8 @@
 #ifndef vtkImagePointDataIterator_h
 #define vtkImagePointDataIterator_h
 
-#include "vtkSystemIncludes.h"
 #include "vtkImagingCoreModule.h" // for export macro
+#include "vtkSystemIncludes.h"
 
 class vtkDataArray;
 class vtkImageData;

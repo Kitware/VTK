@@ -13,14 +13,14 @@
 
 =========================================================================*/
 #include "vtkAMRInformation.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnsignedIntArray.h"
+#include "vtkAMRBox.h"
+#include "vtkBoundingBox.h"
+#include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
-#include "vtkBoundingBox.h"
-#include "vtkAMRBox.h"
-#include "vtkDoubleArray.h"
+#include "vtkUnsignedIntArray.h"
 #include <cassert>
 #include <set>
 

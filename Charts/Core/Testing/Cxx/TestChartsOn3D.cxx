@@ -14,20 +14,20 @@
 =========================================================================*/
 
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkChartXY.h"
-#include "vtkContextScene.h"
 #include "vtkContextActor.h"
+#include "vtkContextScene.h"
 #include "vtkCubeSource.h"
 #include "vtkFloatArray.h"
+#include "vtkNew.h"
 #include "vtkPlotPoints.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkNew.h"
+#include "vtkRenderer.h"
 #include "vtkTable.h"
-#include "vtkCamera.h"
 
 //----------------------------------------------------------------------------
 int TestChartsOn3D(int , char * [])

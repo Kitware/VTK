@@ -19,6 +19,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageTransform.h"
+#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -30,13 +31,12 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkMarchingCubes);
 

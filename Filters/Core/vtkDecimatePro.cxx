@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkDecimatePro.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
-#include "vtkLine.h"
-#include "vtkMath.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
 
 vtkStandardNewMacro(vtkDecimatePro);
 

@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkTerrainContourLineInterpolator.h"
 
-#include "vtkObjectFactory.h"
+#include "vtkCellArray.h"
 #include "vtkContourRepresentation.h"
 #include "vtkImageData.h"
-#include "vtkProjectedTerrainPath.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkProjectedTerrainPath.h"
 
 vtkStandardNewMacro(vtkTerrainContourLineInterpolator);
 

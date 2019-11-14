@@ -20,8 +20,8 @@
 #ifndef vtkOpenGLImageGradient_h
 #define vtkOpenGLImageGradient_h
 
-#include "vtkImagingOpenGL2Module.h" // For export macro
 #include "vtkImageGradient.h"
+#include "vtkImagingOpenGL2Module.h" // For export macro
 
 class vtkOpenGLImageAlgorithmHelper;
 class vtkRenderWindow;

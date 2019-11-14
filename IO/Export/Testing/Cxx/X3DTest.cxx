@@ -25,7 +25,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkX3DExporter.h"
 

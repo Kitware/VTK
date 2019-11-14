@@ -15,8 +15,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStreamTracer.h"
 
 #include "vtkAMRInterpolatedVelocityField.h"
+#include "vtkAbstractInterpolatedVelocityField.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellLocatorInterpolatedVelocityField.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -28,10 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkStaticCellLocator.h"
 #include "vtkInterpolatedVelocityField.h"
-#include "vtkAbstractInterpolatedVelocityField.h"
-#include "vtkCellLocatorInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -45,6 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 #include "vtkSmartPointer.h"
+#include "vtkStaticCellLocator.h"
 
 #include <vector>
 

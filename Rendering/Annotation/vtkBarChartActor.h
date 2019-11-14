@@ -34,8 +34,8 @@
 #ifndef vtkBarChartActor_h
 #define vtkBarChartActor_h
 
-#include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
+#include "vtkRenderingAnnotationModule.h" // For export macro
 
 class vtkAxisActor2D;
 class vtkDataObject;

@@ -13,18 +13,18 @@
 
 =========================================================================*/
 
-#include "vtkImageData.h"
+#include "vtkAbstractArray.h"
 #include "vtkAlgorithm.h"
+#include "vtkCompositeDataPipeline.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDataArray.h"
-#include "vtkAbstractArray.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
-#include "vtkNew.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <cassert>
 
 #define CHECK(b, errors) if(!(b)){ errors++; cerr<<"Error on Line "<<__LINE__<<":"<<endl;}

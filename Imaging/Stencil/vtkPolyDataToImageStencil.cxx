@@ -49,24 +49,24 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkImageStencilData.h"
 #include "vtkObjectFactory.h"
 
-#include "vtkMath.h"
 #include "vtkCellArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkSignedCharArray.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
-#include "vtkPolyData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <map>
-#include <vector>
-#include <utility>
 #include <algorithm>
+#include <map>
+#include <utility>
+#include <vector>
 
 #include <cmath>
 

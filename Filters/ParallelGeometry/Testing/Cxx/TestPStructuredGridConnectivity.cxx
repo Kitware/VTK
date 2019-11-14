@@ -18,9 +18,9 @@
 //  A test for parallel structured grid connectivity.
 
 // C++ includes
+#include <cassert>
 #include <iostream>
 #include <sstream>
-#include <cassert>
 #include <string>
 #include <vector>
 
@@ -28,22 +28,22 @@
 #include <mpi.h>
 
 // VTK includes
-#include "vtkDataSet.h"
-#include "vtkUniformGrid.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkMPIController.h"
+#include "vtkCellData.h"
 #include "vtkDataObject.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkMPIController.h"
+#include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkPStructuredGridConnectivity.h"
+#include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGridConnectivity.h"
 #include "vtkStructuredNeighbor.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
+#include "vtkUniformGrid.h"
 #include "vtkUniformGridPartitioner.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkMathUtilities.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 namespace
 {

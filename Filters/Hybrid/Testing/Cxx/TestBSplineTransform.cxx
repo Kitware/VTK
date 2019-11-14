@@ -30,21 +30,21 @@
     Same as top row, but with inverted transform
 */
 
-#include <vtkSmartPointer.h>
-#include <vtkProperty.h>
+#include <vtkActor.h>
+#include <vtkBSplineTransform.h>
+#include <vtkImageBSplineCoefficients.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderer.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkBSplineTransform.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkTestUtilities.h>
 #include <vtkThinPlateSplineTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkTransformToGrid.h>
-#include <vtkImageBSplineCoefficients.h>
-#include <vtkSphereSource.h>
-#include <vtkTestUtilities.h>
 
 int TestBSplineTransform(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {

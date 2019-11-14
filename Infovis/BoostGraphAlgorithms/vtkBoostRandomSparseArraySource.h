@@ -30,9 +30,9 @@
 #ifndef vtkBoostRandomSparseArraySource_h
 #define vtkBoostRandomSparseArraySource_h
 
-#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkArrayExtents.h"
+#include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 
 class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource : public vtkArrayDataAlgorithm
 {

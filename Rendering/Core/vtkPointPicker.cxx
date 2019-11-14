@@ -14,19 +14,19 @@
 =========================================================================*/
 #include "vtkPointPicker.h"
 
-#include "vtkBox.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkImageData.h"
-#include "vtkMath.h"
-#include "vtkProp3D.h"
-#include "vtkMapper.h"
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkImageMapper3D.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
+#include "vtkBox.h"
 #include "vtkCellArray.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkIdList.h"
+#include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
+#include "vtkMapper.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkProp3D.h"
 
 inline vtkCellArray* GET_CELLS( int cell_type, vtkPolyData* poly_input )
 {

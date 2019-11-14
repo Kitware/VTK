@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
+#include "vtkPlotSurface.h"
 #include "vtkChartXYZ.h"
 #include "vtkContext2D.h"
 #include "vtkContext3D.h"
 #include "vtkLookupTable.h"
-#include "vtkObjectFactory.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
-#include "vtkPlotSurface.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 

@@ -37,8 +37,8 @@
 #include "vtkPoints.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStdString.h"
-#include "vtkStringArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 

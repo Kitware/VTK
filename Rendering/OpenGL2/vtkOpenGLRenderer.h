@@ -23,11 +23,11 @@
 #ifndef vtkOpenGLRenderer_h
 #define vtkOpenGLRenderer_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderer.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
-#include <vector>  // STL Header
 #include <string> // Ivars
+#include <vector>  // STL Header
 
 class vtkOpenGLFXAAFilter;
 class vtkRenderPass;

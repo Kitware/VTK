@@ -24,8 +24,8 @@
 #ifndef vtkXMLReader_h
 #define vtkXMLReader_h
 
-#include "vtkIOXMLModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkIOXMLModule.h" // For export macro
 
 #include <string> // for std::string
 

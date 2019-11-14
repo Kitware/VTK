@@ -13,8 +13,8 @@
 
 =========================================================================*/
 #include "vtkOpenGLTexture.h"
-#include "vtkTextureObject.h"
 #include "vtkOpenGLState.h"
+#include "vtkTextureObject.h"
 
 #include "vtkOpenGLHelper.h"
 
@@ -24,11 +24,11 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPointData.h"
 #include "vtkRenderWindow.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
 
 #include <cmath>
 

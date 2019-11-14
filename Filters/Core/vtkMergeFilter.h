@@ -25,8 +25,8 @@
 #ifndef vtkMergeFilter_h
 #define vtkMergeFilter_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkFiltersCoreModule.h" // For export macro
 
 class vtkFieldList;
 

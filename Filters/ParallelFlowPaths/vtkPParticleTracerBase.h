@@ -27,8 +27,8 @@
 #ifndef vtkPParticleTracerBase_h
 #define vtkPParticleTracerBase_h
 
-#include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"
+#include "vtkSmartPointer.h" // For protected ivars.
 
 #include <vector> // STL Header
 

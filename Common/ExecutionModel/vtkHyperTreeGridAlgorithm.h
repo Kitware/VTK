@@ -35,8 +35,8 @@
 #ifndef vtkHyperTreeGridAlgorithm_h
 #define vtkHyperTreeGridAlgorithm_h
 
-#include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"
+#include "vtkCommonExecutionModelModule.h" // For export macro
 
 class vtkBitArray;
 class vtkDataSetAttributes;

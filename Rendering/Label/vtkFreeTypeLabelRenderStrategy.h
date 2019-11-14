@@ -24,8 +24,8 @@
 #ifndef vtkFreeTypeLabelRenderStrategy_h
 #define vtkFreeTypeLabelRenderStrategy_h
 
-#include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabelRenderStrategy.h"
+#include "vtkRenderingLabelModule.h" // For export macro
 
 class vtkActor2D;
 class vtkTextRenderer;

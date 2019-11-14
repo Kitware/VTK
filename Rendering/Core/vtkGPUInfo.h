@@ -26,8 +26,8 @@
 #ifndef vtkGPUInfo_h
 #define vtkGPUInfo_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkGPUInfo : public vtkObject
 {
