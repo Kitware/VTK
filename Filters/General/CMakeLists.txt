@@ -1,5 +1,6 @@
 set(classes
   vtkAnnotationLink
+  vtkAppendLocationAttributes
   vtkAppendPoints
   vtkApproximatingSubdivisionFilter
   vtkAreaContourSpectrumFilter
