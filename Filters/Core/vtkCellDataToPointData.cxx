@@ -14,8 +14,10 @@
   =========================================================================*/
 #include "vtkCellDataToPointData.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -38,89 +40,107 @@ vtkStandardNewMacro(vtkCellDataToPointData);
 
 namespace
 {
+
 //----------------------------------------------------------------------------
 // Helper template function that implement the major part of the algorighm
 // which will be expanded by the vtkTemplateMacro. The template function is
 // provided so that coverage test can cover this function.
-template <typename T>
-void __spread(vtkDataSet* const src, vtkUnsignedIntArray* const num, vtkDataArray* const srcarray,
-  vtkDataArray* const dstarray, vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
-  int highestCellDimension, int contributingCellOption)
+struct Spread
 {
-  T const* const srcptr = static_cast<T const*>(srcarray->GetVoidPointer(0));
-  T* const dstptr = static_cast<T*>(dstarray->GetVoidPointer(0));
-
-  // zero initialization
-  std::fill_n(dstptr, npoints * ncomps, T(0));
-
-  // accumulate
-  if (contributingCellOption != vtkCellDataToPointData::Patch)
+  template <typename SrcArrayT, typename DstArrayT>
+  void operator()(SrcArrayT* const srcarray, DstArrayT* const dstarray,
+                  vtkDataSet* const src, vtkUnsignedIntArray* const num,
+                  vtkIdType ncells, vtkIdType npoints, vtkIdType ncomps,
+                  int highestCellDimension, int contributingCellOption) const
   {
-    T const* srcbeg = srcptr;
-    for (vtkIdType cid = 0; cid < ncells; ++cid, srcbeg += ncomps)
+    // Both arrays will have the same value type:
+    using T = vtk::GetAPIType<SrcArrayT>;
+
+    // zero initialization
+    std::fill_n(vtk::DataArrayValueRange(dstarray).begin(),
+                npoints*ncomps, T(0));
+
+    const auto srcTuples = vtk::DataArrayTupleRange(srcarray);
+    auto dstTuples = vtk::DataArrayTupleRange(dstarray);
+
+    // accumulate
+    if (contributingCellOption != vtkCellDataToPointData::Patch)
     {
-      vtkCell* cell = src->GetCell(cid);
-      if (cell->GetCellDimension() >= highestCellDimension)
+      for (vtkIdType cid = 0; cid < ncells; ++cid)
       {
-        vtkIdList* pids = cell->GetPointIds();
-        for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
+        vtkCell* cell = src->GetCell(cid);
+        if (cell->GetCellDimension() >= highestCellDimension)
         {
-          T* const dstbeg = dstptr + pids->GetId(i) * ncomps;
-          // accumulate cell data to point data <==> point_data += cell_data
-          std::transform(srcbeg, srcbeg + ncomps, dstbeg, dstbeg, std::plus<T>());
-        }
-      }
-    }
-    // average
-    T* dstbeg = dstptr;
-    for (vtkIdType pid = 0; pid < npoints; ++pid, dstbeg += ncomps)
-    {
-      // guard against divide by zero
-      if (unsigned int const denom = num->GetValue(pid))
-      {
-        // divide point data by the number of cells using it <==>
-        // point_data /= denum
-        std::transform(dstbeg, dstbeg + ncomps, dstbeg,
-          std::bind(std::divides<T>(), std::placeholders::_1, denom));
-      }
-    }
-  }
-  else
-  { // compute over cell patches
-    vtkNew<vtkIdList> cellsOnPoint;
-    std::vector<T> data(4 * ncomps);
-    for (vtkIdType pid = 0; pid < npoints; ++pid)
-    {
-      std::fill(data.begin(), data.end(), 0);
-      T numPointCells[4] = { 0, 0, 0, 0 };
-      // Get all cells touching this point.
-      src->GetPointCells(pid, cellsOnPoint);
-      vtkIdType numPatchCells = cellsOnPoint->GetNumberOfIds();
-      for (vtkIdType pc = 0; pc < numPatchCells; pc++)
-      {
-        vtkIdType cellId = cellsOnPoint->GetId(pc);
-        int cellDimension = src->GetCell(cellId)->GetCellDimension();
-        numPointCells[cellDimension] += 1;
-        for (int comp = 0; comp < ncomps; comp++)
-        {
-          data[comp + ncomps * cellDimension] += srcptr[comp + cellId * ncomps];
-        }
-      }
-      for (int dimension = 3; dimension >= 0; dimension--)
-      {
-        if (numPointCells[dimension])
-        {
-          for (int comp = 0; comp < ncomps; comp++)
+          const auto srcTuple = srcTuples[cid];
+          vtkIdList* pids = cell->GetPointIds();
+          for (vtkIdType i = 0, I = pids->GetNumberOfIds(); i < I; ++i)
           {
-            dstptr[comp + pid * ncomps] =
-              data[comp + dimension * ncomps] / numPointCells[dimension];
+            const vtkIdType ptId = pids->GetId(i);
+            auto dstTuple = dstTuples[ptId];
+            // accumulate cell data to point data <==> point_data += cell_data
+            std::transform(srcTuple.cbegin(),
+                           srcTuple.cend(),
+                           dstTuple.cbegin(),
+                           dstTuple.begin(),
+                           std::plus<T>());
           }
-          break;
+        }
+      }
+      // average
+      for (vtkIdType pid = 0; pid < npoints; ++pid)
+      {
+        // guard against divide by zero
+        if (unsigned int const denom = num->GetValue(pid))
+        {
+          // divide point data by the number of cells using it <==>
+          // point_data /= denum
+          auto dstTuple = dstTuples[pid];
+          std::transform(dstTuple.cbegin(),
+                         dstTuple.cend(),
+                         dstTuple.begin(),
+                         std::bind(std::divides<T>(), std::placeholders::_1, denom));
+        }
+      }
+    }
+    else
+    { // compute over cell patches
+      vtkNew<vtkIdList> cellsOnPoint;
+      std::vector<T> data(4*ncomps);
+      for (vtkIdType pid = 0; pid < npoints; ++pid)
+      {
+        std::fill(data.begin(), data.end(), 0);
+        T numPointCells[4] = {0, 0, 0, 0};
+        // Get all cells touching this point.
+        src->GetPointCells(pid, cellsOnPoint);
+        vtkIdType numPatchCells = cellsOnPoint->GetNumberOfIds();
+        for (vtkIdType pc = 0; pc  < numPatchCells; pc++)
+        {
+          vtkIdType cellId = cellsOnPoint->GetId(pc);
+          int cellDimension = src->GetCell(cellId)->GetCellDimension();
+          numPointCells[cellDimension] += 1;
+          const auto srcTuple = srcTuples[cellId];
+          for (int comp=0;comp<ncomps;comp++)
+          {
+            data[comp+ncomps*cellDimension] += srcTuple[comp];
+          }
+        }
+        auto dstTuple = dstTuples[pid];
+        for (int dimension=3;dimension>=0;dimension--)
+        {
+          if (numPointCells[dimension])
+          {
+            for (int comp=0;comp<ncomps;comp++)
+            {
+              dstTuple[comp] = data[comp+dimension*ncomps] / numPointCells[dimension];
+            }
+            break;
+          }
         }
       }
     }
   }
-}
+};
+
 } // end anonymous namespace
 
 class vtkCellDataToPointData::Internals
@@ -471,10 +491,15 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
     {
       dstarray->SetNumberOfTuples(npoints);
       vtkIdType const ncomps = srcarray->GetNumberOfComponents();
-      switch (srcarray->GetDataType())
-      {
-        vtkTemplateMacro(__spread<VTK_TT>(src, num, srcarray, dstarray, ncells, npoints, ncomps,
-          highestCellDimension, this->ContributingCellOption));
+
+      Spread worker;
+      using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+      if (!Dispatcher::Execute(srcarray, dstarray, worker, src, num,
+                               ncells, npoints, ncomps, highestCellDimension,
+                               this->ContributingCellOption))
+      { // fallback for unknown arrays:
+        worker(srcarray, dstarray, src, num, ncells, npoints, ncomps,
+               highestCellDimension, this->ContributingCellOption);
       }
     }
   };
