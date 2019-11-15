@@ -73,9 +73,45 @@ public:
    */
   virtual void RemoveAllExternalLights();
 
+  /**
+   * If PreserveGLCameraMatrices is set to true, VTK camera matrices
+   * are copied from the current context GL_MODELVIEW_MATRIX and
+   * GL_PROJECTION_MATRIX parameters before each render call.
+   * This flag is on by default.
+   */
+  vtkGetMacro(PreserveGLCameraMatrices, vtkTypeBool);
+  vtkSetMacro(PreserveGLCameraMatrices, vtkTypeBool);
+  vtkBooleanMacro(PreserveGLCameraMatrices, vtkTypeBool);
+
+  /**
+   * If PreserveGLLights is set to true, existing GL lights are modified before
+   * each render call to match the collection of lights added with
+   * AddExternalLight(). This flag is on by default.
+   */
+  vtkGetMacro(PreserveGLLights, vtkTypeBool);
+  vtkSetMacro(PreserveGLLights, vtkTypeBool);
+  vtkBooleanMacro(PreserveGLLights, vtkTypeBool);
+
 protected:
   vtkExternalOpenGLRenderer();
   ~vtkExternalOpenGLRenderer() override;
+
+  /**
+   * Copy the current OpenGL GL_MODELVIEW_MATRIX and GL_PROJECTION_MATRIX to
+   * the active VTK camera before each render call if PreserveGLCameraMatrices
+   * is set to true (default behavior).
+   */
+  void SynchronizeGLCameraMatrices();
+
+  /**
+   * Query existing GL lights before each render call and tweak them to match
+   * the external lights collection if PreserveGLLights is set to true (default
+   * behavior).
+   */
+  void SynchronizeGLLights();
+
+  vtkTypeBool PreserveGLCameraMatrices;
+  vtkTypeBool PreserveGLLights;
 
   vtkLightCollection* ExternalLights;
 
