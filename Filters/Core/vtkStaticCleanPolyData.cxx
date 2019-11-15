@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkStaticCleanPolyData.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
@@ -31,75 +33,72 @@
 
 vtkStandardNewMacro(vtkStaticCleanPolyData);
 
-// These are created to support a (float,double) fast path. They work in
-// tandem with vtkTemplate2Macro found in vtkSetGet.h.
-#define vtkTemplate2MacroCP(call)                                                                  \
-  vtkTemplate2MacroCase1CP(VTK_DOUBLE, double, call);                                              \
-  vtkTemplate2MacroCase1CP(VTK_FLOAT, float, call);                                                \
-  vtkTemplate2MacroCase1CP(VTK_LONG_LONG, long long, call);                                        \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_LONG_LONG, unsigned long long, call);                      \
-  vtkTemplate2MacroCase1CP(VTK_ID_TYPE, vtkIdType, call);                                          \
-  vtkTemplate2MacroCase1CP(VTK_LONG, long, call);                                                  \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_LONG, unsigned long, call);                                \
-  vtkTemplate2MacroCase1CP(VTK_INT, int, call);                                                    \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_INT, unsigned int, call);                                  \
-  vtkTemplate2MacroCase1CP(VTK_SHORT, short, call);                                                \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_SHORT, unsigned short, call);                              \
-  vtkTemplate2MacroCase1CP(VTK_CHAR, char, call);                                                  \
-  vtkTemplate2MacroCase1CP(VTK_SIGNED_CHAR, signed char, call);                                    \
-  vtkTemplate2MacroCase1CP(VTK_UNSIGNED_CHAR, unsigned char, call)
-#define vtkTemplate2MacroCase1CP(type1N, type1, call)                                              \
-  vtkTemplate2MacroCase2(type1N, type1, VTK_DOUBLE, double, call);                                 \
-  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call)
-
-namespace
-{ // anonymous
+namespace { //anonymous
 
 //----------------------------------------------------------------------------
 // Fast, threaded way to copy new points and attribute data to output.
-template <typename TPIn, typename TPOut>
-struct CopyPoints
+template <typename InArrayT, typename OutArrayT>
+struct CopyPointsAlgorithm
 {
-  vtkIdType* PtMap;
-  TPIn* InPts;
-  TPOut* OutPts;
+  vtkIdType *PtMap;
+  InArrayT *InPts;
+  OutArrayT *OutPts;
   ArrayList Arrays;
 
-  CopyPoints(vtkIdType* ptMap, TPIn* inPts, vtkPointData* inPD, vtkIdType numNewPts, TPOut* outPts,
-    vtkPointData* outPD)
-    : PtMap(ptMap)
-    , InPts(inPts)
-    , OutPts(outPts)
+  CopyPointsAlgorithm(vtkIdType *ptMap,
+                      InArrayT *inPts,
+                      vtkPointData *inPD,
+                      vtkIdType numNewPts,
+                      OutArrayT *outPts,
+                      vtkPointData *outPD)
+    : PtMap(ptMap),
+      InPts(inPts),
+      OutPts(outPts)
   {
     this->Arrays.AddArrays(numNewPts, inPD, outPD);
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const TPIn* inP = this->InPts + 3 * ptId;
-    TPOut* outP;
-    const vtkIdType* ptMap = this->PtMap;
-    vtkIdType outPtId;
+    using OutValueT = vtk::GetAPIType<OutArrayT>;
 
-    for (; ptId < endPtId; ++ptId, inP += 3)
+    const vtkIdType *ptMap = this->PtMap;
+
+    const auto inPoints = vtk::DataArrayTupleRange<3>(this->InPts);
+    auto outPoints = vtk::DataArrayTupleRange<3>(this->OutPts);
+
+    for (; ptId < endPtId; ++ptId)
     {
-      outPtId = ptMap[ptId];
-      if (outPtId != -1)
+      const vtkIdType outPtId = ptMap[ptId];
+      if ( outPtId != -1 )
       {
-        outP = this->OutPts + 3 * outPtId;
-        *outP++ = static_cast<TPOut>(inP[0]);
-        *outP++ = static_cast<TPOut>(inP[1]);
-        *outP = static_cast<TPOut>(inP[2]);
+        const auto inP = inPoints[ptId];
+        auto outP = outPoints[outPtId];
+        outP[0] = static_cast<OutValueT>(inP[0]);
+        outP[1] = static_cast<OutValueT>(inP[1]);
+        outP[2] = static_cast<OutValueT>(inP[2]);
         this->Arrays.Copy(ptId, outPtId);
       }
     }
   }
+};
 
-  static void Execute(vtkIdType numPts, vtkIdType* ptMap, TPIn* inPts, vtkPointData* inPD,
-    vtkIdType numNewPts, TPOut* outPts, vtkPointData* outPD)
+struct CopyPointsLauncher
+{
+  template <typename InArrayT, typename OutArrayT>
+  void operator()(InArrayT *inPts,
+                  OutArrayT *outPts,
+                  vtkIdType *ptMap,
+                  vtkPointData *inPD,
+                  vtkIdType numNewPts,
+                  vtkPointData *outPD)
   {
-    CopyPoints copyPts(ptMap, inPts, inPD, numNewPts, outPts, outPD);
-    vtkSMPTools::For(0, numPts, copyPts);
+    const vtkIdType numPts = inPts->GetNumberOfTuples();
+
+    CopyPointsAlgorithm<InArrayT, OutArrayT> algo {
+      ptMap, inPts, inPD, numNewPts, outPts, outPD};
+
+    vtkSMPTools::For(0, numPts, algo);
   }
 };
 
@@ -250,19 +249,19 @@ int vtkStaticCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   }
   newPts->SetNumberOfPoints(numNewPts);
 
-  // Now copy points and point data (in parallel)
-  void* inPtr = inPts->GetVoidPointer(0);
-  int inPtsType = inPts->GetDataType();
-  void* outPtr = newPts->GetVoidPointer(0);
-  int outPtsType = newPts->GetDataType();
+  vtkDataArray *inArray = inPts->GetData();
+  vtkDataArray *outArray = newPts->GetData();
 
-  switch (vtkTemplate2PackMacro(inPtsType, outPtsType))
-  {
-    vtkTemplate2MacroCP((CopyPoints<VTK_T1, VTK_T2>::Execute(
-      numPts, pointMap, (VTK_T1*)inPtr, inPD, numNewPts, (VTK_T2*)outPtr, outPD)));
-    default:
-      vtkErrorMacro(<< "Type not supported");
-      return 0;
+  // Use a fast path for when both arrays are some mix of float/double:
+  using FastValueTypes = vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<FastValueTypes,
+                                                            FastValueTypes>;
+
+  CopyPointsLauncher launcher;
+  if (!Dispatcher::Execute(inArray, outArray, launcher, pointMap, inPD,
+                           numNewPts, outPD))
+  { // Fallback to slow path for unusual types:
+    launcher(inArray, outArray, pointMap, inPD, numNewPts, outPD);
   }
 
   // Finally, remap the topology to use new point ids. Celldata needs to be
