@@ -155,7 +155,7 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
   if (ps)
   {
-    float* scalars = static_cast<float*>(newScalars->GetVoidPointer(0));
+    float* scalars = newScalars->GetPointer(0);
     vtkPoints* points = ps->GetPoints();
     void* pts = points->GetData()->GetVoidPointer(0);
     switch (points->GetDataType())
