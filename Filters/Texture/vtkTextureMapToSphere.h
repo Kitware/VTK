@@ -47,6 +47,8 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersTextureModule.h" // For export macro
 
+class vtkDataSet;
+
 class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToSphere : public vtkDataSetAlgorithm
 {
 public:
@@ -88,6 +90,12 @@ public:
   vtkGetMacro(PreventSeam,vtkTypeBool);
   vtkBooleanMacro(PreventSeam,vtkTypeBool);
   //@}
+
+
+  /*
+   * Computes the center point of the data set if AutomaticSphereGeneration is set to true.
+   */
+  virtual void ComputeCenter(vtkDataSet* input);
 
 protected:
   vtkTextureMapToSphere();

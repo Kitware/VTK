@@ -35,6 +35,7 @@ set(classes
   vtkPieceScalars
   vtkPipelineSize
   vtkProcessIdScalars
+  vtkPTextureMapToSphere
   vtkRectilinearGridOutlineFilter
   vtkRemoveGhosts
   vtkTransmitPolyDataPiece
