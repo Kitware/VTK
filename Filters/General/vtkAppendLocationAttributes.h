@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkAppendLocationAttributes() = default;
-  ~vtkAppendLocationAttributes() = default;
+  ~vtkAppendLocationAttributes() override = default;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
