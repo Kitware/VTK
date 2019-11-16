@@ -40,8 +40,6 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
 
   output->ShallowCopy(input);
 
-  vtkTypeBool abort = 0;
-
   // Create cell centers array
   vtkNew<vtkDoubleArray> cellCenterArray;
   if (this->AppendCellCenters)
@@ -52,12 +50,8 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
     cellCenterArray->SetNumberOfTuples(numCells);
 
     vtkCellCenters::ComputeCellCenters(input, cellCenterArray);
-  }
 
-  if (abort)
-  {
-    vtkWarningMacro(<< "Aborting execution");
-    return 0;
+    this->UpdateProgress(0.66);
   }
 
   if (this->AppendPointLocations)
