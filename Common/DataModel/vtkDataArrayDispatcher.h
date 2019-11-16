@@ -97,7 +97,7 @@ public:
    * struct storeLengthFunctor
    * {
    * int length;
-   * storeLengthFunctor():length(0){}
+   * storeLengthFunctor() : length(0) {}
 
    * template<typename T>
    * void operator()(vtkDataArrayDispatcherPointer<T> array)

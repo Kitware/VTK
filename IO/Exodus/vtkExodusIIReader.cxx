@@ -4275,7 +4275,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           //  found=0;
           //  for (unsigned int n=0;n<this->AssemblyInfo.size();n++)
           //    {
-          //    if (this->AssemblyInfo[n].Name==assemblyName){
+          //    if (this->AssemblyInfo[n].Name==assemblyName) {
           //      //binfo.AssemblyIds.push_back(j);
           //      this->AssemblyInfo[n].BlockIndices.push_back(blockIdx);
           //      found=1;
