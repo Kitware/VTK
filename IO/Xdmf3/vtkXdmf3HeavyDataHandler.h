@@ -31,10 +31,12 @@
 
 #include "vtk_xdmf3.h"
 
+// clang-format off
 #include VTKXDMF3_HEADER(core/XdmfInformation.hpp)
 
 #include VTKXDMF3_HEADER(core/XdmfItem.hpp)
 #include VTKXDMF3_HEADER(core/XdmfSharedPtr.hpp)
+// clang-format on
 
 #include "vtkXdmf3ArrayKeeper.h"
 #include "vtkXdmf3ArraySelection.h"

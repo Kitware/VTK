@@ -14,8 +14,10 @@
 =========================================================================*/
 #include "vtkNumberToString.h"
 
+// clang-format off
 #include "vtk_doubleconversion.h"
 #include VTK_DOUBLECONVERSION_HEADER(double-conversion.h)
+// clang-format on
 
 #include <sstream>
 

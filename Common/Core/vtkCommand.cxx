@@ -46,12 +46,15 @@ const char *vtkCommand::GetStringFromEventId(unsigned long event)
 {
   switch (event)
   {
-#define _vtk_add_event(Enum)\
-  case Enum: return #Enum;
+// clang-format off
+#define _vtk_add_event(Enum)                                                                       \
+  case Enum:                                                                                       \
+    return #Enum;
 
   vtkAllEventsMacro()
 
 #undef _vtk_add_event
+// clang-format on
 
   case UserEvent:
     return "UserEvent";
@@ -70,15 +73,23 @@ unsigned long vtkCommand::GetEventIdFromString(const char *event)
 {
   if (event)
   {
-#define _vtk_add_event(Enum)\
-    if (strcmp(event, #Enum) == 0) {return Enum;}
+
+// clang-format off
+#define _vtk_add_event(Enum)                                                                       \
+  if (strcmp(event, #Enum) == 0)                                                                   \
+  {                                                                                                \
+    return Enum;                                                                                   \
+  }
+
     vtkAllEventsMacro()
+
 #undef _vtk_add_event
 
     if (strcmp("UserEvent",event) == 0)
     {
       return vtkCommand::UserEvent;
     }
+// clang-format on
   }
 
   return vtkCommand::NoEvent;

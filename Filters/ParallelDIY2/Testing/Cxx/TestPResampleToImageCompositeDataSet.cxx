@@ -34,8 +34,10 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include "vtk_diy2.h"   // must include this before any diy header
+// clang-format off
+#include "vtk_diy2.h" // must include this before any diy header
 #include VTK_DIY2(diy/mpi.hpp)
+// clang-format on
 
 
 int TestPResampleToImageCompositeDataSet(int argc, char *argv[])

@@ -31,8 +31,10 @@
 #include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkType.h"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfItem.hpp)
+// clang-format on
 
 #include <set>
 

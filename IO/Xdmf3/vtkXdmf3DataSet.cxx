@@ -40,6 +40,7 @@
 #include "vtkXdmf3ArrayKeeper.h"
 #include "vtkXdmf3ArraySelection.h"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfArrayType.hpp)
 #include VTKXDMF3_HEADER(XdmfAttribute.hpp)
@@ -58,6 +59,7 @@
 #include VTKXDMF3_HEADER(XdmfTime.hpp)
 #include VTKXDMF3_HEADER(XdmfTopology.hpp)
 #include VTKXDMF3_HEADER(XdmfTopologyType.hpp)
+// clang-format on
 
 //==============================================================================
 bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray *array, bool dbg=false)

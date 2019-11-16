@@ -29,12 +29,15 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXdmf3DataSet.h"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(XdmfDomain.hpp)
 #include VTKXDMF3_HEADER(XdmfGridCollection.hpp)
 #include VTKXDMF3_HEADER(XdmfGridCollectionType.hpp)
 #include VTKXDMF3_HEADER(core/XdmfHeavyDataWriter.hpp)
 #include VTKXDMF3_HEADER(core/XdmfWriter.hpp)
+// clang-format on
+
 #include <stack>
 #include <string>
 

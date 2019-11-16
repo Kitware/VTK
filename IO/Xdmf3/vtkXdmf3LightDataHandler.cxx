@@ -20,6 +20,7 @@
 #include "vtkXdmf3SILBuilder.h"
 #include "vtksys/SystemTools.hxx"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(XdmfAttribute.hpp)
 #include VTKXDMF3_HEADER(XdmfAttributeCenter.hpp)
@@ -36,6 +37,7 @@
 #include VTKXDMF3_HEADER(XdmfTime.hpp)
 #include VTKXDMF3_HEADER(XdmfUnstructuredGrid.hpp)
 #include VTKXDMF3_HEADER(core/XdmfVisitor.hpp)
+// clang-format on
 
 #include <cassert>
 #include <iostream>

@@ -16,8 +16,10 @@
 
 #include "vtkXdmf3ArrayKeeper.h"
 
+// clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfArray.hpp)
+// clang-format on
 
 //------------------------------------------------------------------------------
 vtkXdmf3ArrayKeeper::vtkXdmf3ArrayKeeper()

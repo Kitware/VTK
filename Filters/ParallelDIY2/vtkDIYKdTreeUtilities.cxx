@@ -44,6 +44,7 @@
 #include VTK_DIY2(diy/assigner.hpp)
 #include VTK_DIY2(diy/algorithms.hpp)
 // clang-format on
+
 namespace
 {
 struct PointTT

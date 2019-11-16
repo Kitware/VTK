@@ -38,8 +38,10 @@
 #include "vtkDummyController.h"
 #endif
 
+// clang-format off
 #include "vtk_diy2.h"
 #include VTK_DIY2(diy/mpi.hpp)
+// clang-format on
 
 namespace {
 bool ValidateDataset(vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, vtkMultiProcessController* controller)

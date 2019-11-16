@@ -50,31 +50,33 @@
 #define vtkInternalQuoteMacro(x) #x
 #define vtkQuoteMacro(x) vtkInternalQuoteMacro(x)
 
+// clang-format off
 // A macro to get the name of a type
-#define vtkImageScalarTypeNameMacro(type) \
-(((type) == VTK_VOID) ? "void" : \
-(((type) == VTK_BIT) ? "bit" : \
-(((type) == VTK_CHAR) ? "char" : \
-(((type) == VTK_SIGNED_CHAR) ? "signed char" : \
-(((type) == VTK_UNSIGNED_CHAR) ? "unsigned char" : \
-(((type) == VTK_SHORT) ? "short" : \
-(((type) == VTK_UNSIGNED_SHORT) ? "unsigned short" : \
-(((type) == VTK_INT) ? "int" : \
-(((type) == VTK_UNSIGNED_INT) ? "unsigned int" : \
-(((type) == VTK_LONG) ? "long" : \
-(((type) == VTK_UNSIGNED_LONG) ? "unsigned long" : \
-(((type) == VTK_LONG_LONG) ? "long long" : \
-(((type) == VTK_UNSIGNED_LONG_LONG) ? "unsigned long long" : \
-(((type) == 18 /*VTK___INT64*/) ? "__int64" : \
-(((type) == 19 /*VTK_UNSIGNED___INT64*/) ? "unsigned __int64" : \
-(((type) == VTK_FLOAT) ? "float" : \
-(((type) == VTK_DOUBLE) ? "double" : \
-(((type) == VTK_ID_TYPE) ? "idtype" : \
-(((type) == VTK_STRING) ? "string" : \
-(((type) == VTK_UNICODE_STRING) ? "unicode string" : \
-(((type) == VTK_VARIANT) ? "variant" : \
-(((type) == VTK_OBJECT) ? "object" : \
-"Undefined"))))))))))))))))))))))
+#define vtkImageScalarTypeNameMacro(type)                                                          \
+  (((type) == VTK_VOID) ? "void" :                                                                 \
+  (((type) == VTK_BIT) ? "bit" :                                                                   \
+  (((type) == VTK_CHAR) ? "char" :                                                                 \
+  (((type) == VTK_SIGNED_CHAR) ? "signed char" :                                                   \
+  (((type) == VTK_UNSIGNED_CHAR) ? "unsigned char" :                                               \
+  (((type) == VTK_SHORT) ? "short" :                                                               \
+  (((type) == VTK_UNSIGNED_SHORT) ? "unsigned short" :                                             \
+  (((type) == VTK_INT) ? "int" :                                                                   \
+  (((type) == VTK_UNSIGNED_INT) ? "unsigned int" :                                                 \
+  (((type) == VTK_LONG) ? "long" :                                                                 \
+  (((type) == VTK_UNSIGNED_LONG) ? "unsigned long" :                                               \
+  (((type) == VTK_LONG_LONG) ? "long long" :                                                       \
+  (((type) == VTK_UNSIGNED_LONG_LONG) ? "unsigned long long" :                                     \
+  (((type) == 18 /*VTK___INT64*/) ? "__int64" :                                                    \
+  (((type) == 19 /*VTK_UNSIGNED___INT64*/) ? "unsigned __int64" :                                  \
+  (((type) == VTK_FLOAT) ? "float" :                                                               \
+  (((type) == VTK_DOUBLE) ? "double" :                                                             \
+  (((type) == VTK_ID_TYPE) ? "idtype" :                                                            \
+  (((type) == VTK_STRING) ? "string" :                                                             \
+  (((type) == VTK_UNICODE_STRING) ? "unicode string" :                                             \
+  (((type) == VTK_VARIANT) ? "variant" :                                                           \
+  (((type) == VTK_OBJECT) ? "object" :                                                             \
+  "Undefined"))))))))))))))))))))))
+// clang-format on
 
 
 /* Various compiler-specific performance hints. */

@@ -45,6 +45,7 @@
 #include <map>
 #include <set>
 
+// clang-format off
 #include "vtk_diy2.h" // must include this before any diy header
 #include VTK_DIY2(diy/assigner.hpp)
 #include VTK_DIY2(diy/link.hpp)
@@ -53,6 +54,7 @@
 #include VTK_DIY2(diy/reduce.hpp)
 #include VTK_DIY2(diy/partners/swap.hpp)
 #include VTK_DIY2(diy/decomposition.hpp)
+// clang-format on
 
 vtkStandardNewMacro(vtkDIYAggregateDataSetFilter);
 
