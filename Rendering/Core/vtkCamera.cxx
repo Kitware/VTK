@@ -1860,11 +1860,11 @@ vtkTransform *vtkCamera::GetViewTransformObject()
 
 //-----------------------------------------------------------------------------
 double *vtkCamera::GetOrientation()
-{ return this->ViewTransform->GetOrientation(); };
+{ return this->ViewTransform->GetOrientation(); }
 
 //-----------------------------------------------------------------------------
 double *vtkCamera::GetOrientationWXYZ()
-{ return this->ViewTransform->GetOrientationWXYZ(); };
+{ return this->ViewTransform->GetOrientationWXYZ(); }
 
 // ----------------------------------------------------------------------------
 void vtkCamera::SetEyeTransformMatrix(const double elements[16])

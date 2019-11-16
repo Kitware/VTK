@@ -327,7 +327,7 @@ private:
   MessageStream* SendStream;
   MessageStream* ReceiveStream;
   vtkPointData* SeedData;
-  ParticleStreamManager(const ParticleStreamManager&){};
+  ParticleStreamManager(const ParticleStreamManager&){}
   std::vector<vtkBoundingBox> Boxes;
   std::vector<vtkMPICommunicator::Request*> SendRequests;
 };

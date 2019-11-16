@@ -97,15 +97,15 @@ public:
   void SetDataSetType(int);
   vtkGetMacro(DataSetType,int);
   void SetDataSetTypeToPolyData() {
-    this->SetDataSetType(VTK_POLY_DATA);};
+    this->SetDataSetType(VTK_POLY_DATA);}
   void SetDataSetTypeToStructuredPoints() {
-    this->SetDataSetType(VTK_STRUCTURED_POINTS);};
+    this->SetDataSetType(VTK_STRUCTURED_POINTS);}
   void SetDataSetTypeToStructuredGrid() {
-    this->SetDataSetType(VTK_STRUCTURED_GRID);};
+    this->SetDataSetType(VTK_STRUCTURED_GRID);}
   void SetDataSetTypeToRectilinearGrid() {
-    this->SetDataSetType(VTK_RECTILINEAR_GRID);};
+    this->SetDataSetType(VTK_RECTILINEAR_GRID);}
   void SetDataSetTypeToUnstructuredGrid() {
-    this->SetDataSetType(VTK_UNSTRUCTURED_GRID);};
+    this->SetDataSetType(VTK_UNSTRUCTURED_GRID);}
   //@}
 
   //@{
@@ -141,7 +141,7 @@ public:
   void SetPointComponent(int comp, const char *arrayName, int arrayComp,
                          int min, int max, int normalize);
   void SetPointComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetPointComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
+    {this->SetPointComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);}
   const char *GetPointComponentArrayName(int comp);
   int GetPointComponentArrayComponent(int comp);
   int GetPointComponentMinRange(int comp);
@@ -161,28 +161,28 @@ public:
    */
   void SetVertsComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetVertsComponent(const char *arrayName, int arrayComp)
-    {this->SetVertsComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetVertsComponent(arrayName, arrayComp, -1, -1);}
   const char *GetVertsComponentArrayName();
   int GetVertsComponentArrayComponent();
   int GetVertsComponentMinRange();
   int GetVertsComponentMaxRange();
   void SetLinesComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetLinesComponent(const char *arrayName, int arrayComp)
-    {this->SetLinesComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetLinesComponent(arrayName, arrayComp, -1, -1);}
   const char *GetLinesComponentArrayName();
   int GetLinesComponentArrayComponent();
   int GetLinesComponentMinRange();
   int GetLinesComponentMaxRange();
   void SetPolysComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetPolysComponent(const char *arrayName, int arrayComp)
-    {this->SetPolysComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetPolysComponent(arrayName, arrayComp, -1, -1);}
   const char *GetPolysComponentArrayName();
   int GetPolysComponentArrayComponent();
   int GetPolysComponentMinRange();
   int GetPolysComponentMaxRange();
   void SetStripsComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetStripsComponent(const char *arrayName, int arrayComp)
-    {this->SetStripsComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetStripsComponent(arrayName, arrayComp, -1, -1);}
   const char *GetStripsComponentArrayName();
   int GetStripsComponentArrayComponent();
   int GetStripsComponentMinRange();
@@ -202,7 +202,7 @@ public:
   void SetCellTypeComponent(const char *arrayName, int arrayComp,
                             int min, int max);
   void SetCellTypeComponent(const char *arrayName, int arrayComp)
-    {this->SetCellTypeComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetCellTypeComponent(arrayName, arrayComp, -1, -1);}
   const char *GetCellTypeComponentArrayName();
   int GetCellTypeComponentArrayComponent();
   int GetCellTypeComponentMinRange();
@@ -210,7 +210,7 @@ public:
   void SetCellConnectivityComponent(const char *arrayName, int arrayComp,
                                     int min, int max);
   void SetCellConnectivityComponent(const char *arrayName, int arrayComp)
-    {this->SetCellConnectivityComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetCellConnectivityComponent(arrayName, arrayComp, -1, -1);}
   const char *GetCellConnectivityComponentArrayName();
   int GetCellConnectivityComponentArrayComponent();
   int GetCellConnectivityComponentMinRange();
@@ -264,13 +264,13 @@ public:
    */
   void SetDimensionsComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetDimensionsComponent(const char *arrayName, int arrayComp)
-    {this->SetDimensionsComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetDimensionsComponent(arrayName, arrayComp, -1, -1);}
   void SetSpacingComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetSpacingComponent(const char *arrayName, int arrayComp)
-    {this->SetSpacingComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetSpacingComponent(arrayName, arrayComp, -1, -1);}
   void SetOriginComponent(const char *arrayName, int arrayComp, int min, int max);
   void SetOriginComponent(const char *arrayName, int arrayComp)
-    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};
+    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);}
   //@}
 
 protected:

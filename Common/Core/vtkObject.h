@@ -120,9 +120,9 @@ public:
    * or error messages are displayed.
    */
   static void SetGlobalWarningDisplay(int val);
-  static void GlobalWarningDisplayOn(){vtkObject::SetGlobalWarningDisplay(1);};
+  static void GlobalWarningDisplayOn(){vtkObject::SetGlobalWarningDisplay(1);}
   static void GlobalWarningDisplayOff()
-    {vtkObject::SetGlobalWarningDisplay(0);};
+    {vtkObject::SetGlobalWarningDisplay(0);}
   static int  GetGlobalWarningDisplay();
   //@}
 
@@ -235,8 +235,8 @@ public:
   int InvokeEvent(const char *event, void *callData);
   //@}
 
-  int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, nullptr); };
-  int InvokeEvent(const char *event) { return this->InvokeEvent(event, nullptr); };
+  int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, nullptr); }
+  int InvokeEvent(const char *event) { return this->InvokeEvent(event, nullptr); }
 
 protected:
   vtkObject();

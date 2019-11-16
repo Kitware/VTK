@@ -50,7 +50,7 @@ class MoveRotateCommand : public vtkCommand
 {
 public:
 
-  static MoveRotateCommand* New() { return new MoveRotateCommand; };
+  static MoveRotateCommand* New() { return new MoveRotateCommand; }
 
   void Execute(vtkObject* caller, unsigned long eventId,
     void* /*data*/) override

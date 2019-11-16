@@ -143,7 +143,7 @@ public:
   /**
    * Get the focus for this filter.
    */
-  vtkPolyData *GetFocus() {return this->Focus;};
+  vtkPolyData *GetFocus() {return this->Focus;}
 
   //@{
   /**

@@ -377,7 +377,7 @@ protected:
 
   protected:
     HandleSource();
-    ~HandleSource() override{};
+    ~HandleSource() override{}
     int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   private:

@@ -126,10 +126,10 @@ int vtkVolumeOutlineSource::ComputeCubePlanes(
     }
 
     // Clamp cropping planes to bounds
-    if (b < a) { b = a; };
-    if (b > d) { b = d; };
-    if (c < a) { c = a; };
-    if (c > d) { c = d; };
+    if (b < a) { b = a; }
+    if (b > d) { b = d; }
+    if (c < a) { c = a; }
+    if (c > d) { c = d; }
 
     planes[i][0] = a;
     planes[i][1] = b;
@@ -303,7 +303,7 @@ int vtkVolumeOutlineSource::RequestData(
 
   // The active plane, which gets a special color for its scalars
   int activePlane = this->ActivePlaneId;
-  if (activePlane > 5) { activePlane = -1; };
+  if (activePlane > 5) { activePlane = -1; }
 
   // Convert the colors to unsigned char for scalars
   unsigned char colors[2][3];

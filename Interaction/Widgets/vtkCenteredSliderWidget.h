@@ -115,7 +115,7 @@ public:
   /**
    * Get the value fo this widget.
    */
-  double GetValue() { return this->Value; };
+  double GetValue() { return this->Value; }
 
 protected:
   vtkCenteredSliderWidget();

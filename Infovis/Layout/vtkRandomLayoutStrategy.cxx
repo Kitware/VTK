@@ -47,7 +47,7 @@ vtkRandomLayoutStrategy::~vtkRandomLayoutStrategy() = default;
 
 // Random graph layout method
 // Fixme: Temporary Hack
-void vtkRandomLayoutStrategy::Layout() {};
+void vtkRandomLayoutStrategy::Layout() {}
 
 void vtkRandomLayoutStrategy::SetGraph(vtkGraph *graph)
 {

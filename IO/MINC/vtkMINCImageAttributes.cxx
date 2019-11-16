@@ -79,43 +79,43 @@ public:
   typedef std::map<std::string, vtkSmartPointer<vtkObject> > MapType;
 
   static vtkMINCImageAttributeMap *New() {
-    return new vtkMINCImageAttributeMap; };
+    return new vtkMINCImageAttributeMap; }
 
   void Delete() {
-    delete this; };
+    delete this; }
 
   void Clear() {
-    this->Map.clear(); };
+    this->Map.clear(); }
 
   void AddArray(vtkDataArray *array) {
-    this->AddObject(array->GetName(), array); };
+    this->AddObject(array->GetName(), array); }
 
   void AddArray(vtkStringArray *array) {
-    this->AddObject(array->GetName(), array); };
+    this->AddObject(array->GetName(), array); }
 
   vtkDataArray *GetDataArray(const char *name) const {
-    return vtkDataArray::SafeDownCast(this->GetObject(name)); };
+    return vtkDataArray::SafeDownCast(this->GetObject(name)); }
 
   vtkCharArray *GetCharArray(const char *name) const {
-    return vtkCharArray::SafeDownCast(this->GetObject(name)); };
+    return vtkCharArray::SafeDownCast(this->GetObject(name)); }
 
   vtkDoubleArray *GetDoubleArray(const char *name) const {
-    return vtkDoubleArray::SafeDownCast(this->GetObject(name)); };
+    return vtkDoubleArray::SafeDownCast(this->GetObject(name)); }
 
   vtkStringArray *GetStringArray(const char *name) const {
-    return vtkStringArray::SafeDownCast(this->GetObject(name)); };
+    return vtkStringArray::SafeDownCast(this->GetObject(name)); }
 
 protected:
   void AddObject(const char *name, vtkObject *object) {
-    this->Map[name] = object; };
+    this->Map[name] = object; }
 
   vtkObject *GetObject(const char *name) const {
     MapType::const_iterator iter = this->Map.find(name);
-    if (iter != this->Map.end()) { return iter->second; };
-    return nullptr; };
+    if (iter != this->Map.end()) { return iter->second; }
+    return nullptr; }
 
 private:
-  vtkMINCImageAttributeMap() : Map() {};
+  vtkMINCImageAttributeMap() : Map() {}
   ~vtkMINCImageAttributeMap() = default;
 
   MapType Map;

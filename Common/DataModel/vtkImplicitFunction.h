@@ -77,7 +77,7 @@ public:
   virtual void FunctionValue(vtkDataArray* input, vtkDataArray* output);
   double FunctionValue(const double x[3]);
   double FunctionValue(double x, double y, double z) {
-    double xyz[3] = {x, y, z}; return this->FunctionValue(xyz); };
+    double xyz[3] = {x, y, z}; return this->FunctionValue(xyz); }
   //@}
 
   //@{
@@ -88,9 +88,9 @@ public:
   void FunctionGradient(const double x[3], double g[3]);
   double *FunctionGradient(const double x[3]) VTK_SIZEHINT(3) {
     this->FunctionGradient(x,this->ReturnValue);
-    return this->ReturnValue; };
+    return this->ReturnValue; }
   double *FunctionGradient(double x, double y, double z) VTK_SIZEHINT(3) {
-    double xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); };
+    double xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); }
   //@}
 
   //@{
@@ -113,7 +113,7 @@ public:
   virtual double EvaluateFunction(double x[3]) = 0;
   virtual void EvaluateFunction(vtkDataArray* input, vtkDataArray* output);
   virtual double EvaluateFunction(double x, double y, double z) {
-    double xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
+    double xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); }
   //@}
 
   /**

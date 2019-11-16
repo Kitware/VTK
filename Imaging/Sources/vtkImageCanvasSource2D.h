@@ -149,21 +149,21 @@ public:
    * REQUEST_DATA pass the actual scalars may be of some other type. This is
    * for backwards compatibility
    */
-  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
-  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
-  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
+  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
+  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);}
+  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
   void SetScalarTypeToUnsignedInt()
-    {this->SetScalarType(VTK_UNSIGNED_INT);};
-  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);};
+    {this->SetScalarType(VTK_UNSIGNED_INT);}
+  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);}
   void SetScalarTypeToUnsignedLong()
-    {this->SetScalarType(VTK_UNSIGNED_LONG);};
-  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);};
+    {this->SetScalarType(VTK_UNSIGNED_LONG);}
+  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
   void SetScalarTypeToUnsignedShort()
-    {this->SetScalarType(VTK_UNSIGNED_SHORT);};
+    {this->SetScalarType(VTK_UNSIGNED_SHORT);}
   void SetScalarTypeToUnsignedChar()
-    {this->SetScalarType(VTK_UNSIGNED_CHAR);};
+    {this->SetScalarType(VTK_UNSIGNED_CHAR);}
   void SetScalarTypeToChar()
-    {this->SetScalarType(VTK_CHAR);};
+    {this->SetScalarType(VTK_CHAR);}
   void SetScalarType(int);
   int GetScalarType() const;
   //@}

@@ -122,7 +122,7 @@ public:
    */
   void SetPosition(double x, double y) override;
   void SetPosition(double pos[2]) override
-    { this->SetPosition(pos[0], pos[1]);};
+    { this->SetPosition(pos[0], pos[1]);}
   //@}
 
   //@{

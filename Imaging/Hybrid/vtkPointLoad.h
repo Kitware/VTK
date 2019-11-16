@@ -90,7 +90,7 @@ public:
    * nothing. The effective stress is always computed.
    */
   void SetComputeEffectiveStress(int) {}
-  int GetComputeEffectiveStress() {return 1;};
+  int GetComputeEffectiveStress() {return 1;}
   void ComputeEffectiveStressOn() {}
   void ComputeEffectiveStressOff() {}
 

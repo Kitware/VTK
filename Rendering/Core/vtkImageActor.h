@@ -102,7 +102,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
   double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); };
+  void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); }
   //@}
 
   //@{
@@ -139,8 +139,8 @@ public:
   void SetZSlice(int z) {this->SetDisplayExtent(
     this->DisplayExtent[0], this->DisplayExtent[1],
     this->DisplayExtent[2], this->DisplayExtent[3], z, z);
-  };
-  int GetZSlice() { return this->DisplayExtent[4];};
+  }
+  int GetZSlice() { return this->DisplayExtent[4];}
   int GetWholeZMin();
   int GetWholeZMax();
   //@}

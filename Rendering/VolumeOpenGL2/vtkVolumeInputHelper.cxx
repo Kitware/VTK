@@ -22,7 +22,7 @@ vtkVolumeInputHelper::vtkVolumeInputHelper(
   vtkSmartPointer<vtkVolumeTexture> tex,
   vtkVolume* vol)
   : Texture(tex)
-  , Volume(vol){};
+  , Volume(vol){}
 
 void vtkVolumeInputHelper::RefreshTransferFunction(vtkRenderer* ren,
                                                    const int uniformIndex,

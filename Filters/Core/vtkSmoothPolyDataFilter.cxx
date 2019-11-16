@@ -46,9 +46,9 @@ public:
   ~vtkSmoothPoints()
   {
     delete [] this->Array;
-  };
-  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
-  vtkSmoothPoint *GetSmoothPoint(vtkIdType i) {return this->Array + i;};
+  }
+  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;}
+  vtkSmoothPoint *GetSmoothPoint(vtkIdType i) {return this->Array + i;}
   vtkSmoothPoint *InsertSmoothPoint(vtkIdType ptId)
   {
     if ( ptId >= this->Size )
@@ -62,7 +62,7 @@ public:
     return this->Array + ptId;
   }
   vtkSmoothPoint *Resize(vtkIdType sz); //reallocates data
-  void Reset() {this->MaxId = -1;};
+  void Reset() {this->MaxId = -1;}
 
   vtkSmoothPoint *Array;  // pointer to data
   vtkIdType MaxId;              // maximum index inserted thus far

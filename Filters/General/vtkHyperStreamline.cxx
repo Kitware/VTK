@@ -53,9 +53,9 @@ public:
   ~vtkHyperArray()
   {
       delete [] this->Array;
-  };
-  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
-  vtkHyperPoint *GetHyperPoint(vtkIdType i) {return this->Array + i;};
+  }
+  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;}
+  vtkHyperPoint *GetHyperPoint(vtkIdType i) {return this->Array + i;}
   vtkHyperPoint *InsertNextHyperPoint()
   {
     if ( ++this->MaxId >= this->Size )
@@ -65,7 +65,7 @@ public:
     return this->Array + this->MaxId;
   }
   vtkHyperPoint *Resize(vtkIdType sz); //reallocates data
-  void Reset() {this->MaxId = -1;};
+  void Reset() {this->MaxId = -1;}
 
   vtkHyperPoint *Array;  // pointer to data
   vtkIdType MaxId;             // maximum index inserted thus far

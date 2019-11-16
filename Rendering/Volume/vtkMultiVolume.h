@@ -121,16 +121,16 @@ public:
    * -boxThis, this transformation only contains a scaling diagonal.
    */
   vtkMatrix4x4* GetTextureMatrix()
-    { return this->TexToBBox.GetPointer(); };
+    { return this->TexToBBox.GetPointer(); }
 
   /**
    * Total bounds in data coordinates.
    */
   double* GetDataBounds()
-    { return this->DataBounds.data(); };
+    { return this->DataBounds.data(); }
 
   vtkMTimeType GetBoundsTime()
-    { return this->BoundsComputeTime.GetMTime(); };
+    { return this->BoundsComputeTime.GetMTime(); }
 
   /**
    * Since vtkMultiVolume acts like a proxy volume to compute the bounding box
@@ -144,7 +144,7 @@ public:
    * Return the eight corners of the volume
    */
   double *GetDataGeometry()
-  { return this->DataGeometry.data(); };
+  { return this->DataGeometry.data(); }
 
 protected:
   vtkMultiVolume();
@@ -156,7 +156,7 @@ protected:
    * For that reason this method does nothing.
    * \sa vtkProp3D
    */
-  void ComputeMatrix() override {};
+  void ComputeMatrix() override {}
 
   /**
    * Returns the vtkVolume registered in port.

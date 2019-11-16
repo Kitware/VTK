@@ -110,7 +110,7 @@ public:
    * implement your own event loop but yet use the vtk event handling as
    * well.
    */
-  virtual void ProcessEvents() {};
+  virtual void ProcessEvents() {}
 
   /**
    * Is the interactor loop done

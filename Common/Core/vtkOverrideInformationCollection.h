@@ -53,7 +53,7 @@ public:
   vtkOverrideInformation *GetNextOverrideInformation(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkOverrideInformation *>(
-      this->GetNextItemAsObject(cookie));};
+      this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkOverrideInformationCollection() {}
@@ -62,7 +62,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) = delete;

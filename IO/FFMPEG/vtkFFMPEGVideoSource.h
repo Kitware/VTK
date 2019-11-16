@@ -97,7 +97,7 @@ public:
    */
   void SetFrameSize(int x, int y, int z) override;
   void SetFrameSize(int dim[3]) override {
-    this->SetFrameSize(dim[0], dim[1], dim[2]); };
+    this->SetFrameSize(dim[0], dim[1], dim[2]); }
   //@}
 
   /**

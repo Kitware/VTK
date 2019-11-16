@@ -1632,4 +1632,4 @@ void vtkHyperTreeGrid::GetCenter(double* octr)
 vtkPointData* vtkHyperTreeGrid::GetPointData()
 {
   return this->PointData.GetPointer();
-};
+}

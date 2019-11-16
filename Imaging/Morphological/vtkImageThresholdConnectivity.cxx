@@ -192,15 +192,15 @@ class vtkFloodFillSeed
 {
 public:
   vtkFloodFillSeed() {
-    store[0]=0; store[1]=0; store[2]=0; };
+    store[0]=0; store[1]=0; store[2]=0; }
   vtkFloodFillSeed(int i, int j, int k) {
-    store[0]=i; store[1]=j; store[2]=k; };
+    store[0]=i; store[1]=j; store[2]=k; }
   vtkFloodFillSeed(const vtkFloodFillSeed &seed) {
-    store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2]; };
-  const int &operator[](int i) const { return store[i]; };
+    store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2]; }
+  const int &operator[](int i) const { return store[i]; }
   vtkFloodFillSeed &operator=(const vtkFloodFillSeed &seed) {
     store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2];
-    return *this; };
+    return *this; }
 
 private:
   int store[3];

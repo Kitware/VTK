@@ -241,7 +241,7 @@ public:
   /**
    * Does this platform support render window data sharing.
    */
-  bool GetPlatformSupportsRenderWindowSharing() override { return true; };
+  bool GetPlatformSupportsRenderWindowSharing() override { return true; }
 
   //@{
   /**

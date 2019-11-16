@@ -85,13 +85,13 @@ public:
    */
   vtkSetMacro(PlotMode, int);
   vtkGetMacro(PlotMode, int);
-  void SetPlotModeToPlotScalars() {this->SetPlotMode(VTK_PLOT_SCALARS);};
-  void SetPlotModeToPlotVectors() {this->SetPlotMode(VTK_PLOT_VECTORS);};
-  void SetPlotModeToPlotNormals() {this->SetPlotMode(VTK_PLOT_NORMALS);};
-  void SetPlotModeToPlotTCoords() {this->SetPlotMode(VTK_PLOT_TCOORDS);};
-  void SetPlotModeToPlotTensors() {this->SetPlotMode(VTK_PLOT_TENSORS);};
+  void SetPlotModeToPlotScalars() {this->SetPlotMode(VTK_PLOT_SCALARS);}
+  void SetPlotModeToPlotVectors() {this->SetPlotMode(VTK_PLOT_VECTORS);}
+  void SetPlotModeToPlotNormals() {this->SetPlotMode(VTK_PLOT_NORMALS);}
+  void SetPlotModeToPlotTCoords() {this->SetPlotMode(VTK_PLOT_TCOORDS);}
+  void SetPlotModeToPlotTensors() {this->SetPlotMode(VTK_PLOT_TENSORS);}
   void SetPlotModeToPlotFieldData()
-            {this->SetPlotMode(VTK_PLOT_FIELD_DATA);};
+            {this->SetPlotMode(VTK_PLOT_FIELD_DATA);}
   //@}
 
   //@{

@@ -57,7 +57,7 @@ public:
   /**
    * Return any props in this viewport.
    */
-  vtkPropCollection *GetViewProps() {return this->Props;};
+  vtkPropCollection *GetViewProps() {return this->Props;}
 
   /**
    * Query if a prop is in the list of props.
@@ -222,12 +222,12 @@ public:
   /**
    * Convert display (or screen) coordinates to world coordinates.
    */
-  void DisplayToWorld() {this->DisplayToView(); this->ViewToWorld();};
+  void DisplayToWorld() {this->DisplayToView(); this->ViewToWorld();}
 
   /**
    * Convert world point coordinates to display (or screen) coordinates.
    */
-  void WorldToDisplay() {this->WorldToView(); this->ViewToDisplay();};
+  void WorldToDisplay() {this->WorldToView(); this->ViewToDisplay();}
 
   //@{
   /**
@@ -313,8 +313,8 @@ public:
    */
   double GetPickX() const {return (this->PickX1 + this->PickX2)*0.5;}
   double GetPickY() const {return (this->PickY1 + this->PickY2)*0.5;}
-  double GetPickWidth() const {return this->PickX2 - this->PickX1 + 1;};
-  double GetPickHeight() const {return this->PickY2 - this->PickY1 + 1;};
+  double GetPickWidth() const {return this->PickX2 - this->PickX1 + 1;}
+  double GetPickHeight() const {return this->PickY2 - this->PickY1 + 1;}
   double GetPickX1() const {return this->PickX1;}
   double GetPickY1() const {return this->PickY1;}
   double GetPickX2() const {return this->PickX2;}
@@ -325,7 +325,7 @@ public:
   /**
    * Return the Z value for the last picked Prop.
    */
-  virtual double GetPickedZ() { return this->PickedZ; };
+  virtual double GetPickedZ() { return this->PickedZ; }
 
 protected:
   // Create a vtkViewport with a black background, a white ambient light,

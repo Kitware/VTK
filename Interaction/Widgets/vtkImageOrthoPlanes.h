@@ -58,7 +58,7 @@ public:
   /**
    * Get the transform for the planes.
    */
-  vtkTransform *GetTransform() { return this->Transform; };
+  vtkTransform *GetTransform() { return this->Transform; }
 
   /**
    * A public method to be used only by the event callback.

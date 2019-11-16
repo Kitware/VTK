@@ -45,11 +45,11 @@ public:
    */
   vtkSetClampMacro(Orientation, int, 0, 2);
   void SetOrientationToX() {
-    this->SetOrientation(0); };
+    this->SetOrientation(0); }
   void SetOrientationToY() {
-    this->SetOrientation(1); };
+    this->SetOrientation(1); }
   void SetOrientationToZ() {
-    this->SetOrientation(2); };
+    this->SetOrientation(2); }
   vtkGetMacro(Orientation, int);
   //@}
 
@@ -69,13 +69,13 @@ public:
    */
   vtkSetClampMacro(Operation, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   void SetOperationToMin() {
-    this->SetOperation(VTK_IMAGE_SLAB_MIN); };
+    this->SetOperation(VTK_IMAGE_SLAB_MIN); }
   void SetOperationToMax() {
-    this->SetOperation(VTK_IMAGE_SLAB_MAX); };
+    this->SetOperation(VTK_IMAGE_SLAB_MAX); }
   void SetOperationToMean() {
-    this->SetOperation(VTK_IMAGE_SLAB_MEAN); };
+    this->SetOperation(VTK_IMAGE_SLAB_MEAN); }
   void SetOperationToSum() {
-    this->SetOperation(VTK_IMAGE_SLAB_SUM); };
+    this->SetOperation(VTK_IMAGE_SLAB_SUM); }
   vtkGetMacro(Operation, int);
   const char *GetOperationAsString();
   //@}
@@ -113,11 +113,11 @@ public:
    * and clamp the output to the range of the input scalar type.
    */
   void SetOutputScalarTypeToFloat() {
-    this->SetOutputScalarType(VTK_FLOAT); };
+    this->SetOutputScalarType(VTK_FLOAT); }
   void SetOutputScalarTypeToDouble() {
-    this->SetOutputScalarType(VTK_DOUBLE); };
+    this->SetOutputScalarType(VTK_DOUBLE); }
   void SetOutputScalarTypeToInputScalarType() {
-    this->SetOutputScalarType(0); };
+    this->SetOutputScalarType(0); }
   vtkGetMacro(OutputScalarType, int);
   //@}
 

@@ -56,10 +56,10 @@ public:
    */
   vtkSetMacro(OutputFormat,int);
   vtkGetMacro(OutputFormat,int);
-  void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; };
-  void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; };
-  void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; };
-  void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; };
+  void SetOutputFormatToRGBA() { this->OutputFormat = VTK_RGBA; }
+  void SetOutputFormatToRGB() { this->OutputFormat = VTK_RGB; }
+  void SetOutputFormatToLuminanceAlpha() { this->OutputFormat = VTK_LUMINANCE_ALPHA; }
+  void SetOutputFormatToLuminance() { this->OutputFormat = VTK_LUMINANCE; }
   //@}
 
   //@{

@@ -354,16 +354,16 @@ protected:
   class VertexArray { //;prevent man page generation
   public:
     VertexArray(const vtkIdType sz)
-      {this->MaxId = -1; this->Array = new LocalVertex[sz];};
+      {this->MaxId = -1; this->Array = new LocalVertex[sz];}
     ~VertexArray()
     {
         delete [] this->Array;
-    };
-    vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
+    }
+    vtkIdType GetNumberOfVertices() {return this->MaxId + 1;}
     void InsertNextVertex(LocalVertex& v)
-      {this->MaxId++; this->Array[this->MaxId] = v;};
-    LocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
-    void Reset() {this->MaxId = -1;};
+      {this->MaxId++; this->Array[this->MaxId] = v;}
+    LocalVertex& GetVertex(vtkIdType i) {return this->Array[i];}
+    void Reset() {this->MaxId = -1;}
 
     LocalVertex *Array; // pointer to data
     vtkIdType MaxId;             // maximum index inserted thus far
@@ -374,16 +374,16 @@ protected:
   class TriArray { //;prevent man page generation
   public:
     TriArray(const vtkIdType sz)
-      {this->MaxId = -1; this->Array = new LocalTri[sz];};
+      {this->MaxId = -1; this->Array = new LocalTri[sz];}
     ~TriArray()
     {
         delete [] this->Array;
-    };
-    vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
+    }
+    vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;}
     void InsertNextTriangle(LocalTri& t)
-      {this->MaxId++; this->Array[this->MaxId] = t;};
-    LocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
-    void Reset() {this->MaxId = -1;};
+      {this->MaxId++; this->Array[this->MaxId] = t;}
+    LocalTri& GetTriangle(vtkIdType i) {return this->Array[i];}
+    void Reset() {this->MaxId = -1;}
 
     LocalTri *Array;  // pointer to data
     vtkIdType MaxId;           // maximum index inserted thus far

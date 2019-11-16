@@ -72,7 +72,7 @@ public:
    * You should not store the matrix pointer anywhere because it
    * might become stale.
    */
-  vtkMatrix4x4 *GetMatrix() { this->Update(); return this->Matrix; };
+  vtkMatrix4x4 *GetMatrix() { this->Update(); return this->Matrix; }
 
   /**
    * Just like GetInverse(), but includes typecast to vtkHomogeneousTransform.

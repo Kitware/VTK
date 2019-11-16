@@ -720,7 +720,7 @@ if (strcmp("vtkObject",data->Name))
 
 if (!data->NumberOfSuperClasses)
 {
-    fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->Name);
+    fprintf(fp,"\n  public %s() { this.VTKInit();}\n",data->Name);
     fprintf(fp,"  protected int vtkId = 0;\n");
 
     /* beans */
@@ -734,7 +734,7 @@ if (!data->NumberOfSuperClasses)
     if (data->HasDelete)
     {
       fprintf(fp,"\n  public native void VTKDelete();\n");
-      fprintf(fp,"  protected void finalize() { this.VTKDelete();};\n");
+      fprintf(fp,"  protected void finalize() { this.VTKDelete();}\n");
     }
 }
   if ((!data->IsAbstract)&&

@@ -163,7 +163,7 @@ public:
   //@}
 
   vtkGetMacro( UseCylinderClip, int );
-  int *GetCircleLimits() { return this->CircleLimits; };
+  int *GetCircleLimits() { return this->CircleLimits; }
 
   //@{
   /**

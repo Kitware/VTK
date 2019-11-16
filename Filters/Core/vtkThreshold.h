@@ -94,11 +94,11 @@ public:
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
   void SetAttributeModeToDefault()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);}
   void SetAttributeModeToUsePointData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);}
   void SetAttributeModeToUseCellData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);}
   const char *GetAttributeModeAsString();
   //@}
 
@@ -116,11 +116,11 @@ public:
                    VTK_COMPONENT_MODE_USE_ANY);
   vtkGetMacro(ComponentMode,int);
   void SetComponentModeToUseSelected()
-    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_SELECTED);};
+    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_SELECTED);}
   void SetComponentModeToUseAll()
-    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL);};
+    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL);}
   void SetComponentModeToUseAny()
-    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY);};
+    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY);}
   const char *GetComponentModeAsString();
   //@}
 

@@ -55,11 +55,11 @@ public:
    */
   vtkGetMacro(Shape, int);
   vtkSetClampMacro(Shape, int, BOX, CYLINDERZ);
-  void SetShapeToBox() { this->SetShape(BOX); };
-  void SetShapeToEllipsoid() { this->SetShape(ELLIPSOID); };
-  void SetShapeToCylinderX() { this->SetShape(CYLINDERX); };
-  void SetShapeToCylinderY() { this->SetShape(CYLINDERY); };
-  void SetShapeToCylinderZ() { this->SetShape(CYLINDERZ); };
+  void SetShapeToBox() { this->SetShape(BOX); }
+  void SetShapeToEllipsoid() { this->SetShape(ELLIPSOID); }
+  void SetShapeToCylinderX() { this->SetShape(CYLINDERX); }
+  void SetShapeToCylinderY() { this->SetShape(CYLINDERY); }
+  void SetShapeToCylinderZ() { this->SetShape(CYLINDERZ); }
   virtual const char *GetShapeAsString();
   //@}
 

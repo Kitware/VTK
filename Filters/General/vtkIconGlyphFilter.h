@@ -139,15 +139,15 @@ public:
    */
   vtkSetMacro(Gravity, int);
   vtkGetMacro(Gravity, int);
-  void SetGravityToTopRight() {this->SetGravity(VTK_ICON_GRAVITY_TOP_RIGHT);};
-  void SetGravityToTopCenter() {this->SetGravity(VTK_ICON_GRAVITY_TOP_CENTER);};
-  void SetGravityToTopLeft() {this->SetGravity(VTK_ICON_GRAVITY_TOP_LEFT);};
-  void SetGravityToCenterRight() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_RIGHT);};
-  void SetGravityToCenterCenter() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_CENTER);};
-  void SetGravityToCenterLeft() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_LEFT);};
-  void SetGravityToBottomRight() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_RIGHT);};
-  void SetGravityToBottomCenter() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER);};
-  void SetGravityToBottomLeft() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT);};
+  void SetGravityToTopRight() {this->SetGravity(VTK_ICON_GRAVITY_TOP_RIGHT);}
+  void SetGravityToTopCenter() {this->SetGravity(VTK_ICON_GRAVITY_TOP_CENTER);}
+  void SetGravityToTopLeft() {this->SetGravity(VTK_ICON_GRAVITY_TOP_LEFT);}
+  void SetGravityToCenterRight() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_RIGHT);}
+  void SetGravityToCenterCenter() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_CENTER);}
+  void SetGravityToCenterLeft() {this->SetGravity(VTK_ICON_GRAVITY_CENTER_LEFT);}
+  void SetGravityToBottomRight() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_RIGHT);}
+  void SetGravityToBottomCenter() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_CENTER);}
+  void SetGravityToBottomLeft() {this->SetGravity(VTK_ICON_GRAVITY_BOTTOM_LEFT);}
   //@}
 
   //@{

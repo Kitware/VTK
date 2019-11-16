@@ -214,9 +214,9 @@ public:
   //@{
   // Get if we are in the translucent polygonal geometry pass
   bool IsRenderingTranslucentPolygonalGeometry() override {
-    return this->InTranslucentPass; };
+    return this->InTranslucentPass; }
   void SetIsRenderingTranslucentPolygonalGeometry(bool val) {
-    this->InTranslucentPass = val; };
+    this->InTranslucentPass = val; }
   //@}
 
 protected:

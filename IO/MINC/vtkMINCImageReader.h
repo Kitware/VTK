@@ -150,7 +150,7 @@ public:
   virtual double *GetDataRange() VTK_SIZEHINT(2);
   virtual void GetDataRange(double range[2]) {
     double *r = this->GetDataRange();
-    range[0] = r[0]; range[1] = r[1]; };
+    range[0] = r[0]; range[1] = r[1]; }
   //@}
 
   /**

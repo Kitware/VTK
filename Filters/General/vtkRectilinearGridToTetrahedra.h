@@ -76,10 +76,10 @@ public:
    * Set the method to divide each cell (voxel) in the RectilinearGrid
    * into tetrahedra.
    */
-  void SetTetraPerCellTo5()      {SetTetraPerCell(VTK_VOXEL_TO_5_TET);};
-  void SetTetraPerCellTo6()      {SetTetraPerCell(VTK_VOXEL_TO_6_TET);};
-  void SetTetraPerCellTo12()     {SetTetraPerCell(VTK_VOXEL_TO_12_TET);};
-  void SetTetraPerCellTo5And12() {SetTetraPerCell(VTK_VOXEL_TO_5_AND_12_TET);};
+  void SetTetraPerCellTo5()      {SetTetraPerCell(VTK_VOXEL_TO_5_TET);}
+  void SetTetraPerCellTo6()      {SetTetraPerCell(VTK_VOXEL_TO_6_TET);}
+  void SetTetraPerCellTo12()     {SetTetraPerCell(VTK_VOXEL_TO_12_TET);}
+  void SetTetraPerCellTo5And12() {SetTetraPerCell(VTK_VOXEL_TO_5_AND_12_TET);}
   vtkSetMacro(TetraPerCell,int);
   vtkGetMacro(TetraPerCell,int);
   //@}

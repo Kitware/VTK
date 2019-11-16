@@ -113,17 +113,17 @@ public:
             VTK_EXTRACT_POINT_SEEDED_REGIONS,VTK_EXTRACT_CLOSEST_POINT_REGION);
   vtkGetMacro(ExtractionMode,int);
   void SetExtractionModeToPointSeededRegions()
-    {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_REGIONS);};
+    {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_REGIONS);}
   void SetExtractionModeToCellSeededRegions()
-    {this->SetExtractionMode(VTK_EXTRACT_CELL_SEEDED_REGIONS);};
+    {this->SetExtractionMode(VTK_EXTRACT_CELL_SEEDED_REGIONS);}
   void SetExtractionModeToLargestRegion()
-    {this->SetExtractionMode(VTK_EXTRACT_LARGEST_REGION);};
+    {this->SetExtractionMode(VTK_EXTRACT_LARGEST_REGION);}
   void SetExtractionModeToSpecifiedRegions()
-    {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_REGIONS);};
+    {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_REGIONS);}
   void SetExtractionModeToClosestPointRegion()
-    {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_REGION);};
+    {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_REGION);}
   void SetExtractionModeToAllRegions()
-    {this->SetExtractionMode(VTK_EXTRACT_ALL_REGIONS);};
+    {this->SetExtractionMode(VTK_EXTRACT_ALL_REGIONS);}
   const char *GetExtractionModeAsString();
   //@}
 

@@ -174,7 +174,7 @@ public:
   double* GetVectorResult() VTK_SIZEHINT(3);
   void GetVectorResult(double result[3]) {
     double *r = this->GetVectorResult();
-    result[0] = r[0]; result[1] = r[1]; result[2] = r[2]; };
+    result[0] = r[0]; result[1] = r[1]; result[2] = r[2]; }
   //@}
 
   //@{
@@ -207,11 +207,11 @@ public:
                               double yValue, double zValue);
   void SetVectorVariableValue(const char* variableName,
                               const double values[3]) {
-    this->SetVectorVariableValue(variableName,values[0],values[1],values[2]);};
+    this->SetVectorVariableValue(variableName,values[0],values[1],values[2]);}
   void SetVectorVariableValue(int i, double xValue, double yValue,
                               double zValue);
   void SetVectorVariableValue(int i, const double values[3]) {
-    this->SetVectorVariableValue(i,values[0],values[1],values[2]);};
+    this->SetVectorVariableValue(i,values[0],values[1],values[2]);}
   //@}
 
   //@{
@@ -221,11 +221,11 @@ public:
   double* GetVectorVariableValue(const char* variableName) VTK_SIZEHINT(3);
   void GetVectorVariableValue(const char* variableName, double value[3]) {
     double *r = this->GetVectorVariableValue(variableName);
-    value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
+    value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; }
   double* GetVectorVariableValue(int i) VTK_SIZEHINT(3);
   void GetVectorVariableValue(int i, double value[3]) {
     double *r = this->GetVectorVariableValue(i);
-    value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
+    value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; }
   //@}
 
   /**

@@ -314,7 +314,7 @@ public:
    * Return the largest line width supported by the hardware
    */
   virtual float GetMaximumHardwareLineWidth() {
-    return this->MaximumHardwareLineWidth; };
+    return this->MaximumHardwareLineWidth; }
 
   /**
    * Returns true if driver has an
@@ -362,7 +362,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  virtual void Initialize(void) {};
+  virtual void Initialize(void) {}
 
   std::set<vtkGenericOpenGLResourceFreeCallback *> Resources;
 

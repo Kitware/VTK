@@ -55,7 +55,7 @@ protected:
   void RecursiveWrite(int dim, vtkImageData *region, vtkInformation* inInfo, ostream *file) override;
   void RecursiveWrite(int dim, vtkImageData *cache,
                               vtkImageData *data, vtkInformation* inInfo, ostream *file) override
-  {this->vtkImageWriter::RecursiveWrite(dim,cache,data,inInfo,file);};
+  {this->vtkImageWriter::RecursiveWrite(dim,cache,data,inInfo,file);}
 
   vtkPipelineSize *SizeEstimator;
 private:

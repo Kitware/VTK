@@ -453,7 +453,7 @@
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
     }                                                                                                                         \
     }}                                                                                                                          \
-  if ( !_tmp[3] ) {continue;};                                                                                                  \
+  if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \

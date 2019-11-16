@@ -107,7 +107,7 @@ protected:
       return (!this->ControlPointsItem->ClampPos(pos, bounds));
     }
     return false;
-  };
+  }
 
 private:
   vtkControlPointsAddPointItem(const vtkControlPointsAddPointItem&) = delete;

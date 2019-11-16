@@ -42,12 +42,12 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_VERTEX;};
-  int GetCellDimension() override {return 0;};
-  int GetNumberOfEdges() override {return 0;};
-  int GetNumberOfFaces() override {return 0;};
-  vtkCell *GetEdge(int)  override  {return nullptr;};
-  vtkCell *GetFace(int)  override  {return nullptr;};
+  int GetCellType() override {return VTK_VERTEX;}
+  int GetCellDimension() override {return 0;}
+  int GetNumberOfEdges() override {return 0;}
+  int GetNumberOfFaces() override {return 0;}
+  vtkCell *GetEdge(int)  override  {return nullptr;}
+  vtkCell *GetFace(int)  override  {return nullptr;}
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd,

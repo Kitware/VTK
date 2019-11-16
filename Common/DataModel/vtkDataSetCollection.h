@@ -47,9 +47,9 @@ public:
    * Get the next dataset in the list.
    */
   vtkDataSet *GetNextItem() {
-    return static_cast<vtkDataSet *>(this->GetNextItemAsObject());};
+    return static_cast<vtkDataSet *>(this->GetNextItemAsObject());}
   vtkDataSet *GetNextDataSet() {
-    return static_cast<vtkDataSet *>(this->GetNextItemAsObject());};
+    return static_cast<vtkDataSet *>(this->GetNextItemAsObject());}
   //@}
 
   //@{
@@ -57,9 +57,9 @@ public:
    * Get the ith dataset in the list.
    */
   vtkDataSet *GetItem(int i) {
-    return static_cast<vtkDataSet *>(this->GetItemAsObject(i));};
+    return static_cast<vtkDataSet *>(this->GetItemAsObject(i));}
   vtkDataSet *GetDataSet(int i) {
-    return static_cast<vtkDataSet *>(this->GetItemAsObject(i));};
+    return static_cast<vtkDataSet *>(this->GetItemAsObject(i));}
   //@}
 
   /**
@@ -67,7 +67,7 @@ public:
    * same cookie back and forth.
    */
   vtkDataSet *GetNextDataSet(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkDataSet *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkDataSet *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkDataSetCollection() {}
@@ -75,7 +75,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkDataSetCollection(const vtkDataSetCollection&) = delete;

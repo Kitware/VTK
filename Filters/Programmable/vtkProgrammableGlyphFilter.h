@@ -151,9 +151,9 @@ public:
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToColorByInput()
-    {this->SetColorMode(VTK_COLOR_BY_INPUT);};
+    {this->SetColorMode(VTK_COLOR_BY_INPUT);}
   void SetColorModeToColorBySource()
-    {this->SetColorMode(VTK_COLOR_BY_SOURCE);};
+    {this->SetColorMode(VTK_COLOR_BY_SOURCE);}
   const char *GetColorModeAsString();
   //@}
 

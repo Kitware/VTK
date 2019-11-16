@@ -49,11 +49,11 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_TRIANGLE;};
-  int GetCellDimension() override {return 2;};
-  int GetNumberOfEdges() override {return 3;};
-  int GetNumberOfFaces() override {return 0;};
-  vtkCell *GetFace(int) override {return nullptr;};
+  int GetCellType() override {return VTK_TRIANGLE;}
+  int GetCellDimension() override {return 2;}
+  int GetNumberOfEdges() override {return 3;}
+  int GetNumberOfFaces() override {return 0;}
+  vtkCell *GetFace(int) override {return nullptr;}
   int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,

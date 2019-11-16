@@ -189,9 +189,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
    * This method calls this->GetMatrix()->MultiplyPoint().
    */
   void MultiplyPoint(const float in[3], float out[3]) {
-    this->GetMatrix()->MultiplyPoint(in,out);};
+    this->GetMatrix()->MultiplyPoint(in,out);}
   void MultiplyPoint(const double in[3], double out[3]) {
-    this->GetMatrix()->MultiplyPoint(in,out);};
+    this->GetMatrix()->MultiplyPoint(in,out);}
   //@}
 
 protected:

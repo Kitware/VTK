@@ -55,7 +55,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_IMAGE_DATA;};
+  int GetDataObjectType() override {return VTK_IMAGE_DATA;}
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
   void ComputeBounds() override;
-  int GetMaxCellSize() override {return 8;}; //voxel is the largest
+  int GetMaxCellSize() override {return 8;} //voxel is the largest
   //@}
 
   /**
@@ -171,13 +171,13 @@ public:
    * Given a location in structured coordinates (i-j-k), return the point id.
    */
   virtual vtkIdType ComputePointId(int ijk[3]) {
-    return vtkStructuredData::ComputePointIdForExtent(this->Extent,ijk);};
+    return vtkStructuredData::ComputePointIdForExtent(this->Extent,ijk);}
 
   /**
    * Given a location in structured coordinates (i-j-k), return the cell id.
    */
   virtual vtkIdType ComputeCellId(int ijk[3]) {
-    return vtkStructuredData::ComputeCellIdForExtent(this->Extent,ijk);};
+    return vtkStructuredData::ComputeCellIdForExtent(this->Extent,ijk);}
 
   //@{
   /**
@@ -441,7 +441,7 @@ public:
   static bool HasScalarType(vtkInformation* meta_data);
   int GetScalarType();
   const char* GetScalarTypeAsString()
-    { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
+    { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); }
 
   //@{
   /**
@@ -514,7 +514,7 @@ public:
   /**
    * The extent type is a 3D extent
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; };
+  int GetExtentType() override { return VTK_3D_EXTENT; }
 
   //@{
   /**

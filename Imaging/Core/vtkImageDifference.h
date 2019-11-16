@@ -58,7 +58,7 @@ public:
    * Return the total error in comparing the two images.
    */
   double GetError() { return this->Error; }
-  void GetError(double *e) { *e = this->GetError(); };
+  void GetError(double *e) { *e = this->GetError(); }
 
   /**
    * Return the total thresholded error in comparing the two images.
@@ -66,7 +66,7 @@ public:
    * threshold and clamped at a minimum of zero.
    */
   double GetThresholdedError() { return this->ThresholdedError; }
-  void GetThresholdedError(double *e) { *e = this->GetThresholdedError(); };
+  void GetThresholdedError(double *e) { *e = this->GetThresholdedError(); }
 
   //@{
   /**

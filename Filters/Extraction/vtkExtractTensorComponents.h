@@ -98,17 +98,17 @@ public:
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
   void SetScalarModeToComponent()
-    {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
+    {this->SetScalarMode(VTK_EXTRACT_COMPONENT);}
   void SetScalarModeToEffectiveStress()
-    {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
+    {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);}
   void SetScalarModeToDeterminant()
-    {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
+    {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);}
   void ScalarIsComponent()
-    {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
+    {this->SetScalarMode(VTK_EXTRACT_COMPONENT);}
   void ScalarIsEffectiveStress()
-    {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
+    {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);}
   void ScalarIsDeterminant()
-    {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
+    {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);}
   //@}
 
   //@{

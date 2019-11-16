@@ -35,12 +35,12 @@ class vtkNeighborCells
 {
   public:
     vtkNeighborCells(const int sz, const int ext=1000)
-      {this->P = vtkIntArray::New(); this->P->Allocate(3*sz,3*ext);};
-    ~vtkNeighborCells(){this->P->Delete();};
-    int GetNumberOfNeighbors() {return (this->P->GetMaxId()+1)/3;};
-    void Reset() {this->P->Reset();};
+      {this->P = vtkIntArray::New(); this->P->Allocate(3*sz,3*ext);}
+    ~vtkNeighborCells(){this->P->Delete();}
+    int GetNumberOfNeighbors() {return (this->P->GetMaxId()+1)/3;}
+    void Reset() {this->P->Reset();}
 
-    int *GetPoint(int i) {return this->P->GetPointer(3*i);};
+    int *GetPoint(int i) {return this->P->GetPointer(3*i);}
     int InsertNextPoint(int *x);
 
   protected:

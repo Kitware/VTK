@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkOldStyleCallbackCommand,vtkCommand);
 
   static vtkOldStyleCallbackCommand *New()
-    {return new vtkOldStyleCallbackCommand;};
+    {return new vtkOldStyleCallbackCommand;}
 
   /**
    * Satisfy the superclass API for callbacks.
@@ -58,11 +58,11 @@ public:
    * Methods to set and get client and callback information.
    */
   void SetClientData(void *cd)
-    {this->ClientData = cd;};
+    {this->ClientData = cd;}
   void SetCallback(void (*f)(void *clientdata))
-    {this->Callback = f;};
+    {this->Callback = f;}
   void SetClientDataDeleteCallback(void (*f)(void *))
-    {this->ClientDataDeleteCallback = f;};
+    {this->ClientDataDeleteCallback = f;}
   //@}
 
   void *ClientData;

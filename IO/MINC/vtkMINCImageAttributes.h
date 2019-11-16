@@ -123,7 +123,7 @@ public:
    * order of the file to be the same as the dimension order in memory.
    */
   virtual void AddDimension(const char *dimension) {
-    this->AddDimension(dimension, 0); };
+    this->AddDimension(dimension, 0); }
   virtual void AddDimension(const char *dimension, vtkIdType length);
   //@}
 
@@ -135,7 +135,7 @@ public:
    * Fourier transform.
    */
   virtual vtkStringArray *GetDimensionNames() {
-    return this->DimensionNames; };
+    return this->DimensionNames; }
 
   /**
    * Get the lengths of all the dimensions.  The dimension lengths
@@ -143,13 +143,13 @@ public:
    * but instead uses the dimension sizes of its input.
    */
   virtual vtkIdTypeArray *GetDimensionLengths() {
-    return this->DimensionLengths; };
+    return this->DimensionLengths; }
 
   /**
    * Get the names of all the variables.
    */
   virtual vtkStringArray *GetVariableNames() {
-    return this->VariableNames; };
+    return this->VariableNames; }
 
   /**
    * List the attribute names for a variable.  Set the variable
@@ -165,8 +165,8 @@ public:
    */
   virtual void SetImageMin(vtkDoubleArray *imageMin);
   virtual void SetImageMax(vtkDoubleArray *imageMax);
-  virtual vtkDoubleArray *GetImageMin() { return this->ImageMin; };
-  virtual vtkDoubleArray *GetImageMax() { return this->ImageMax; };
+  virtual vtkDoubleArray *GetImageMin() { return this->ImageMin; }
+  virtual vtkDoubleArray *GetImageMax() { return this->ImageMax; }
   //@}
 
   //@{

@@ -62,7 +62,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // methods to make it look like a filter
-  void Write() {this->Update();};
+  void Write() {this->Update();}
   void Update();
 
   //@{

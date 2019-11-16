@@ -94,7 +94,7 @@ public:
       vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());
   }
   void Initialize() override;
-  int GetMaxCellSize() override {return 8;}; //hexahedron is the largest
+  int GetMaxCellSize() override {return 8;} //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,

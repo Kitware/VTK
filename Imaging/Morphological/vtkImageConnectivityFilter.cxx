@@ -378,7 +378,7 @@ public:
     pos[0] = seed.pos[0];
     pos[1] = seed.pos[1];
     pos[2] = seed.pos[2];
-    value = seed.value; };
+    value = seed.value; }
 
   int &operator[](int i) { return pos[i]; }
 
@@ -757,12 +757,12 @@ vtkIdType vtkICF::Fill(
 
     if (fillExtent != nullptr)
     {
-      if (seed[0] < fillExtent[0]) { fillExtent[0] = seed[0]; };
-      if (seed[0] > fillExtent[1]) { fillExtent[1] = seed[0]; };
-      if (seed[1] < fillExtent[2]) { fillExtent[2] = seed[1]; };
-      if (seed[1] > fillExtent[3]) { fillExtent[3] = seed[1]; };
-      if (seed[2] < fillExtent[4]) { fillExtent[4] = seed[2]; };
-      if (seed[2] > fillExtent[5]) { fillExtent[5] = seed[2]; };
+      if (seed[0] < fillExtent[0]) { fillExtent[0] = seed[0]; }
+      if (seed[0] > fillExtent[1]) { fillExtent[1] = seed[0]; }
+      if (seed[1] < fillExtent[2]) { fillExtent[2] = seed[1]; }
+      if (seed[1] > fillExtent[3]) { fillExtent[3] = seed[1]; }
+      if (seed[2] < fillExtent[4]) { fillExtent[4] = seed[2]; }
+      if (seed[2] > fillExtent[5]) { fillExtent[5] = seed[2]; }
     }
 
     if (outLimits == nullptr)

@@ -54,7 +54,7 @@ public:
    * same cookie back and forth.
    */
   vtkTransform *GetNextTransform(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkTransformCollection() {}

@@ -313,7 +313,7 @@ public:
    * Internal method temporarily removes lights before reloading them
    * into graphics pipeline.
    */
-  virtual void ClearLights(void) {};
+  virtual void ClearLights(void) {}
 
   /**
    * Clear the image to the background color.
@@ -412,7 +412,7 @@ public:
    * shouldn't ever need to call this method.
    */
   void SetRenderWindow(vtkRenderWindow *);
-  vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};
+  vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;}
   vtkWindow *GetVTKWindow() override;
   //@}
 
@@ -564,7 +564,7 @@ public:
    * in a stereo render. Doesn't do anything except in the derived
    * vtkIceTRenderer in ParaView.
    */
-  virtual void StereoMidpoint() { return; };
+  virtual void StereoMidpoint() { return; }
 
   /**
    * Compute the aspect ratio of this renderer for the current tile. When

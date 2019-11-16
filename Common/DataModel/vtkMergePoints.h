@@ -45,7 +45,7 @@ public:
    */
   vtkIdType IsInsertedPoint(const double x[3]) override;
   vtkIdType IsInsertedPoint(double x, double y, double z) override
-    {return this->vtkPointLocator::IsInsertedPoint(x, y, z); };
+    {return this->vtkPointLocator::IsInsertedPoint(x, y, z); }
   //@}
 
   /**

@@ -89,7 +89,7 @@ public:
   vtkIdType GetNumberOfCells() override;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
-  int GetMaxCellSize() override { return 8; }; // hexahedron is the largest
+  int GetMaxCellSize() override { return 8; } // hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   //@}
 

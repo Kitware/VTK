@@ -48,9 +48,9 @@ public:
   ~vtkTetraArray()
   {
       delete [] this->Array;
-  };
+  }
   vtkDelaunayTetra *GetTetra(vtkIdType tetraId)
-    { return this->Array + tetraId;};
+    { return this->Array + tetraId;}
   void InsertTetra(vtkIdType tetraId, double r2, double center[3]);
   vtkDelaunayTetra *Resize(vtkIdType sz); //reallocates data
 

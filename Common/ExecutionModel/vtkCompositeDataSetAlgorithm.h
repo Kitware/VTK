@@ -71,7 +71,7 @@ protected:
    */
   virtual int RequestDataObject(vtkInformation*,
                                 vtkInformationVector**,
-                                vtkInformationVector*) {return 1;};
+                                vtkInformationVector*) {return 1;}
 
   /**
    * This is called by the superclass.
@@ -79,7 +79,7 @@ protected:
    */
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) {return 1;};
+                                 vtkInformationVector*) {return 1;}
 
   /**
    * This is called by the superclass.
@@ -87,7 +87,7 @@ protected:
    */
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) {return 1;};
+                          vtkInformationVector*) {return 1;}
 
   //@{
   /**
@@ -99,7 +99,7 @@ protected:
                                   vtkInformationVector*)
   {
       return 1;
-  };
+  }
   //@}
 
   // Create a default executive.

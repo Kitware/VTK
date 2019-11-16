@@ -63,7 +63,7 @@ public:
    */
   double *GetBounds() override;
   void GetBounds(double bounds[6]) override
-    {this->vtkVolumeMapper::GetBounds(bounds); };
+    {this->vtkVolumeMapper::GetBounds(bounds); }
   //@}
 
   /**

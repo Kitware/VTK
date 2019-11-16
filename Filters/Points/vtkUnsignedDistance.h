@@ -173,8 +173,8 @@ public:
    */
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
-  void SetOutputScalarTypeToDouble(){this->SetOutputScalarType(VTK_DOUBLE);};
+  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToDouble(){this->SetOutputScalarType(VTK_DOUBLE);}
   //@}
 
   /**

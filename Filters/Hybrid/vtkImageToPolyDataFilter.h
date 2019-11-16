@@ -106,11 +106,11 @@ public:
   vtkSetClampMacro(OutputStyle,int,VTK_STYLE_PIXELIZE,VTK_STYLE_RUN_LENGTH);
   vtkGetMacro(OutputStyle,int);
   void SetOutputStyleToPixelize()
-    {this->SetOutputStyle(VTK_STYLE_PIXELIZE);};
+    {this->SetOutputStyle(VTK_STYLE_PIXELIZE);}
   void SetOutputStyleToPolygonalize()
-    {this->SetOutputStyle(VTK_STYLE_POLYGONALIZE);};
+    {this->SetOutputStyle(VTK_STYLE_POLYGONALIZE);}
   void SetOutputStyleToRunLength()
-    {this->SetOutputStyle(VTK_STYLE_RUN_LENGTH);};
+    {this->SetOutputStyle(VTK_STYLE_RUN_LENGTH);}
   //@}
 
   //@{
@@ -120,9 +120,9 @@ public:
   vtkSetClampMacro(ColorMode,int,VTK_COLOR_MODE_LUT,VTK_COLOR_MODE_LINEAR_256);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToLUT()
-    {this->SetColorMode(VTK_COLOR_MODE_LUT);};
+    {this->SetColorMode(VTK_COLOR_MODE_LUT);}
   void SetColorModeToLinear256()
-    {this->SetColorMode(VTK_COLOR_MODE_LINEAR_256);};
+    {this->SetColorMode(VTK_COLOR_MODE_LINEAR_256);}
   //@}
 
   //@{

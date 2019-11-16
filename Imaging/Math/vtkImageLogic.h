@@ -52,12 +52,12 @@ public:
    */
   vtkSetMacro(Operation,int);
   vtkGetMacro(Operation,int);
-  void SetOperationToAnd() {this->SetOperation(VTK_AND);};
-  void SetOperationToOr() {this->SetOperation(VTK_OR);};
-  void SetOperationToXor() {this->SetOperation(VTK_XOR);};
-  void SetOperationToNand() {this->SetOperation(VTK_NAND);};
-  void SetOperationToNor() {this->SetOperation(VTK_NOR);};
-  void SetOperationToNot() {this->SetOperation(VTK_NOT);};
+  void SetOperationToAnd() {this->SetOperation(VTK_AND);}
+  void SetOperationToOr() {this->SetOperation(VTK_OR);}
+  void SetOperationToXor() {this->SetOperation(VTK_XOR);}
+  void SetOperationToNand() {this->SetOperation(VTK_NAND);}
+  void SetOperationToNor() {this->SetOperation(VTK_NOR);}
+  void SetOperationToNot() {this->SetOperation(VTK_NOT);}
   //@}
 
   //@{
@@ -71,12 +71,12 @@ public:
     /**
      * Set the Input1 of this filter.
      */
-  virtual void SetInput1Data(vtkDataObject *input) { this->SetInputData(0,input);};
+  virtual void SetInput1Data(vtkDataObject *input) { this->SetInputData(0,input);}
 
   /**
    * Set the Input2 of this filter.
    */
-  virtual void SetInput2Data(vtkDataObject *input) { this->SetInputData(1,input);};
+  virtual void SetInput2Data(vtkDataObject *input) { this->SetInputData(1,input);}
 
 protected:
   vtkImageLogic();

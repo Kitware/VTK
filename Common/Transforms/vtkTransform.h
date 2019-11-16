@@ -78,9 +78,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * transformation according to PreMultiply or PostMultiply semantics.
    */
   void Translate(double x, double y, double z) {
-    this->Concatenation->Translate(x,y,z); };
-  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); };
-  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); };
+    this->Concatenation->Translate(x,y,z); }
+  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); }
+  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); }
   //@}
 
   //@{
@@ -91,11 +91,11 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * rotation will be performed around.
    */
   void RotateWXYZ(double angle, double x, double y, double z) {
-    this->Concatenation->Rotate(angle,x,y,z); };
+    this->Concatenation->Rotate(angle,x,y,z); }
   void RotateWXYZ(double angle, const double axis[3]) {
-    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); }
   void RotateWXYZ(double angle, const float axis[3]) {
-    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); }
   //@}
 
   //@{
@@ -104,9 +104,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * it with the current transformation according to PreMultiply or
    * PostMultiply semantics.  The angle is expressed in degrees.
    */
-  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); };
-  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); };
-  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); };
+  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); }
+  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); }
+  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); }
   //@}
 
   //@{
@@ -116,9 +116,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * PreMultiply or PostMultiply semantics.
    */
   void Scale(double x, double y, double z) {
-    this->Concatenation->Scale(x,y,z); };
-  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); };
-  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); };
+    this->Concatenation->Scale(x,y,z); }
+  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); }
+  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); }
   //@}
 
   //@{
@@ -127,9 +127,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * matrix is set to the identity, then the input matrix is concatenated.
    */
   void SetMatrix(vtkMatrix4x4 *matrix) {
-    this->SetMatrix(*matrix->Element); };
+    this->SetMatrix(*matrix->Element); }
   void SetMatrix(const double elements[16]) {
-    this->Concatenation->Identity(); this->Concatenate(elements); };
+    this->Concatenation->Identity(); this->Concatenate(elements); }
   //@}
 
   //@{
@@ -138,9 +138,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * to PreMultiply or PostMultiply semantics.
    */
   void Concatenate(vtkMatrix4x4 *matrix) {
-    this->Concatenate(*matrix->Element); };
+    this->Concatenate(*matrix->Element); }
   void Concatenate(const double elements[16]) {
-    this->Concatenation->Concatenate(elements); };
+    this->Concatenation->Concatenate(elements); }
   //@}
 
   /**
@@ -161,7 +161,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    */
   void PreMultiply() {
     if (this->Concatenation->GetPreMultiplyFlag()) { return; }
-    this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); };
+    this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); }
 
   /**
    * Sets the internal state of the transform to PostMultiply. All subsequent
@@ -172,7 +172,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    */
   void PostMultiply()  {
     if (!this->Concatenation->GetPreMultiplyFlag()) { return; }
-    this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
+    this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); }
 
   /**
    * Get the total number of transformations that are linked into this
@@ -180,7 +180,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    */
   int GetNumberOfConcatenatedTransforms() {
     return this->Concatenation->GetNumberOfTransforms() +
-      (this->Input == nullptr ? 0 : 1); };
+      (this->Input == nullptr ? 0 : 1); }
 
   //@{
   /**
@@ -227,9 +227,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     double temp[3]; this->GetOrientation(temp);
     orient[0] = static_cast<float>(temp[0]);
     orient[1] = static_cast<float>(temp[1]);
-    orient[2] = static_cast<float>(temp[2]); };
+    orient[2] = static_cast<float>(temp[2]); }
   double *GetOrientation() VTK_SIZEHINT(3) {
-    this->GetOrientation(this->ReturnValue); return this->ReturnValue; };
+    this->GetOrientation(this->ReturnValue); return this->ReturnValue; }
   //@}
 
   /**
@@ -249,9 +249,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     wxyz[0]=static_cast<float>(temp[0]);
     wxyz[1]=static_cast<float>(temp[1]);
     wxyz[2]=static_cast<float>(temp[2]);
-    wxyz[3]=static_cast<float>(temp[3]);};
+    wxyz[3]=static_cast<float>(temp[3]);}
   double *GetOrientationWXYZ() VTK_SIZEHINT(4) {
-    this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; };
+    this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; }
   //@}
 
   //@{
@@ -265,9 +265,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     double temp[3]; this->GetPosition(temp);
     pos[0] = static_cast<float>(temp[0]);
     pos[1] = static_cast<float>(temp[1]);
-    pos[2] = static_cast<float>(temp[2]); };
+    pos[2] = static_cast<float>(temp[2]); }
   double *GetPosition() VTK_SIZEHINT(3) {
-    this->GetPosition(this->ReturnValue); return this->ReturnValue; };
+    this->GetPosition(this->ReturnValue); return this->ReturnValue; }
   //@}
 
   //@{
@@ -282,9 +282,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     double temp[3]; this->GetScale(temp);
     scale[0] = static_cast<float>(temp[0]);
     scale[1] = static_cast<float>(temp[1]);
-    scale[2] = static_cast<float>(temp[2]); };
+    scale[2] = static_cast<float>(temp[2]); }
   double *GetScale() VTK_SIZEHINT(3) {
-    this->GetScale(this->ReturnValue); return this->ReturnValue; };
+    this->GetScale(this->ReturnValue); return this->ReturnValue; }
   //@}
 
   /**
@@ -310,7 +310,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * will use the Input or the inverse of the Input.
    */
   void SetInput(vtkLinearTransform *input);
-  vtkLinearTransform *GetInput() { return this->Input; };
+  vtkLinearTransform *GetInput() { return this->Input; }
   //@}
 
   /**
@@ -321,7 +321,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * is off when a transform is first created.
    */
   int GetInverseFlag() {
-    return this->Concatenation->GetInverseFlag(); };
+    return this->Concatenation->GetInverseFlag(); }
 
   //@{
   /**
@@ -330,7 +330,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   void Push() { if (this->Stack == nullptr) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
                 this->Stack->Push(&this->Concatenation);
-                this->Modified(); };
+                this->Modified(); }
   //@}
 
   //@{
@@ -340,7 +340,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    */
   void Pop() { if (this->Stack == nullptr) { return; }
                this->Stack->Pop(&this->Concatenation);
-               this->Modified(); };
+               this->Modified(); }
   //@}
 
   /**
@@ -375,9 +375,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * This method calls this->GetMatrix()->MultiplyPoint().
    */
   void MultiplyPoint(const float in[4], float out[4]) {
-    this->GetMatrix()->MultiplyPoint(in,out);};
+    this->GetMatrix()->MultiplyPoint(in,out);}
   void MultiplyPoint(const double in[4], double out[4]) {
-    this->GetMatrix()->MultiplyPoint(in,out);};
+    this->GetMatrix()->MultiplyPoint(in,out);}
   //@}
 
 protected:

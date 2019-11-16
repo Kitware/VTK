@@ -102,13 +102,13 @@ public:
                    VTK_VARY_RADIUS_OFF,VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);
   vtkGetMacro(VaryRadius,int);
   void SetVaryRadiusToVaryRadiusOff()
-    {this->SetVaryRadius(VTK_VARY_RADIUS_OFF);};
+    {this->SetVaryRadius(VTK_VARY_RADIUS_OFF);}
   void SetVaryRadiusToVaryRadiusByScalar()
-    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_SCALAR);};
+    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_SCALAR);}
   void SetVaryRadiusToVaryRadiusByVector()
-    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_VECTOR);};
+    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_VECTOR);}
   void SetVaryRadiusToVaryRadiusByAbsoluteScalar()
-    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);};
+    {this->SetVaryRadius(VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR);}
   const char *GetVaryRadiusAsString();
   //@}
 

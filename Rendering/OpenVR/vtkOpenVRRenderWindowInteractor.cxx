@@ -364,7 +364,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
     }
 
     // eat up any pending events
-    while(pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t))) { };
+    while(pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t))) { }
   }
   else
   {

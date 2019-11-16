@@ -150,11 +150,11 @@ public:
              VTK_INSIDE_SMALLEST_REGION,VTK_INSIDE_CLOSEST_POINT_REGION);
   vtkGetMacro(SelectionMode,int);
   void SetSelectionModeToSmallestRegion()
-    {this->SetSelectionMode(VTK_INSIDE_SMALLEST_REGION);};
+    {this->SetSelectionMode(VTK_INSIDE_SMALLEST_REGION);}
   void SetSelectionModeToLargestRegion()
-    {this->SetSelectionMode(VTK_INSIDE_LARGEST_REGION);};
+    {this->SetSelectionMode(VTK_INSIDE_LARGEST_REGION);}
   void SetSelectionModeToClosestPointRegion()
-    {this->SetSelectionMode(VTK_INSIDE_CLOSEST_POINT_REGION);};
+    {this->SetSelectionMode(VTK_INSIDE_CLOSEST_POINT_REGION);}
   const char *GetSelectionModeAsString();
   //@}
 

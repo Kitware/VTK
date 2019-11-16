@@ -61,7 +61,7 @@ public:
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override {return VTK_QUADRATIC_PYRAMID;};
+  int GetCellType() override {return VTK_QUADRATIC_PYRAMID;}
   int GetCellDimension() override {return 3;}
   int GetNumberOfEdges() override {return 8;}
   int GetNumberOfFaces() override {return 5;}

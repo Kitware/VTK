@@ -64,13 +64,13 @@ public:
   vtkSetClampMacro(OutputFormat,int,VTK_LUMINANCE,VTK_RGBA);
   vtkGetMacro(OutputFormat,int);
   void SetOutputFormatToRGBA() {
-    this->OutputFormat = VTK_RGBA; };
+    this->OutputFormat = VTK_RGBA; }
   void SetOutputFormatToRGB() {
-    this->OutputFormat = VTK_RGB; };
+    this->OutputFormat = VTK_RGB; }
   void SetOutputFormatToLuminanceAlpha() {
-    this->OutputFormat = VTK_LUMINANCE_ALPHA; };
+    this->OutputFormat = VTK_LUMINANCE_ALPHA; }
   void SetOutputFormatToLuminance() {
-    this->OutputFormat = VTK_LUMINANCE; };
+    this->OutputFormat = VTK_LUMINANCE; }
   //@}
 
   /**

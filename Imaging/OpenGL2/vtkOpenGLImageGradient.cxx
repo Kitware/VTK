@@ -81,11 +81,11 @@ public:
 
   // no uniforms change on a per slice basis so empty
   virtual void UpdateShaderUniforms(
-    vtkShaderProgram * /* program */, int /* zExtent */) {};
+    vtkShaderProgram * /* program */, int /* zExtent */) {}
 
   double *Spacing;
-  vtkOpenGLGradientCB() {};
-  virtual ~vtkOpenGLGradientCB() {};
+  vtkOpenGLGradientCB() {}
+  virtual ~vtkOpenGLGradientCB() {}
 private:
   vtkOpenGLGradientCB(const vtkOpenGLGradientCB&) = delete;
   void operator=(const vtkOpenGLGradientCB&) = delete;

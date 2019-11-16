@@ -85,7 +85,7 @@ public:
   /**
    * Copy constructor
    */
-  vtkStructuredNeighbor(const vtkStructuredNeighbor &N ){ *this = N; };
+  vtkStructuredNeighbor(const vtkStructuredNeighbor &N ){ *this = N; }
 
   /**
    * Default destructor

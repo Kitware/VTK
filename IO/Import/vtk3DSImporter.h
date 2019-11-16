@@ -60,7 +60,7 @@ public:
   /**
    * Return the file pointer to the open file.
    */
-  FILE *GetFileFD() {return this->FileFD;};
+  FILE *GetFileFD() {return this->FileFD;}
 
   vtk3DSOmniLight *OmniList;
   vtk3DSSpotLight *SpotLightList;

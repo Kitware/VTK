@@ -151,7 +151,7 @@ public:
   int GetBlockAttribute(
        const char* attribute, int blockIdx, vtkDataSet* pDataSet );
   std::string GetBaseDirectory(const char* path)
-    {return GetEnzoDirectory(path); };
+    {return GetEnzoDirectory(path); }
 
 
 };

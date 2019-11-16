@@ -109,9 +109,9 @@ public:
   vtkSetClampMacro(IndependentVariables,int,VTK_IV_COLUMN, VTK_IV_ROW);
   vtkGetMacro(IndependentVariables,int);
   void SetIndependentVariablesToColumns()
-    {this->SetIndependentVariables(VTK_IV_COLUMN);};
+    {this->SetIndependentVariables(VTK_IV_COLUMN);}
   void SetIndependentVariablesToRows()
-    {this->SetIndependentVariables(VTK_IV_ROW);};
+    {this->SetIndependentVariables(VTK_IV_ROW);}
   //@}
 
   //@{

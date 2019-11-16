@@ -63,10 +63,10 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
 class vtkTclCommand : public vtkCommand
 {
 public:
-  static vtkTclCommand *New() { return new vtkTclCommand; };
+  static vtkTclCommand *New() { return new vtkTclCommand; }
 
   void SetStringCommand(const char *arg);
-  void SetInterp(Tcl_Interp *interp) { this->Interp = interp; };
+  void SetInterp(Tcl_Interp *interp) { this->Interp = interp; }
 
   void Execute(vtkObject *, unsigned long, void *);
 

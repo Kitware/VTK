@@ -131,9 +131,9 @@ class VTKFILTERSMODELING_EXPORT vtkCollisionDetectionFilter
   vtkSetClampMacro(CollisionMode,int,VTK_ALL_CONTACTS,VTK_HALF_CONTACTS);
   vtkGetMacro(CollisionMode,int);
 
-  void SetCollisionModeToAllContacts() {this->SetCollisionMode(VTK_ALL_CONTACTS);};
-  void SetCollisionModeToFirstContact() {this->SetCollisionMode(VTK_FIRST_CONTACT);};
-  void SetCollisionModeToHalfContacts() {this->SetCollisionMode(VTK_HALF_CONTACTS);};
+  void SetCollisionModeToAllContacts() {this->SetCollisionMode(VTK_ALL_CONTACTS);}
+  void SetCollisionModeToFirstContact() {this->SetCollisionMode(VTK_FIRST_CONTACT);}
+  void SetCollisionModeToHalfContacts() {this->SetCollisionMode(VTK_HALF_CONTACTS);}
   const char *GetCollisionModeAsString(void)
   {
     if ( this->CollisionMode == VTK_ALL_CONTACTS )

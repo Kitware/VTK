@@ -36,7 +36,7 @@ class vtkOrientationMarkerWidgetObserver : public vtkCommand
 {
 public:
   static vtkOrientationMarkerWidgetObserver *New()
-    {return new vtkOrientationMarkerWidgetObserver;};
+    {return new vtkOrientationMarkerWidgetObserver;}
 
   vtkOrientationMarkerWidgetObserver()
   {

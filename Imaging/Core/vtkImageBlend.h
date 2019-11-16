@@ -107,7 +107,7 @@ public:
    * setup a pipeline connection.
    */
   void SetInputData(int num, vtkDataObject *input);
-  void SetInputData(vtkDataObject *input) { this->SetInputData(0, input); };
+  void SetInputData(vtkDataObject *input) { this->SetInputData(0, input); }
   //@}
 
   //@{
@@ -117,7 +117,7 @@ public:
    * use vtkAlgorithm::GetInputConnection(0, num).
    */
   vtkDataObject *GetInput(int num);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject *GetInput() { return this->GetInput(0); }
   //@}
 
   /**
@@ -125,7 +125,7 @@ public:
    * support of old-style pipeline connections.  When writing new code
    * you should use vtkAlgorithm::GetNumberOfInputConnections(0).
    */
-  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); };
+  int GetNumberOfInputs() { return this->GetNumberOfInputConnections(0); }
 
   //@{
   /**
@@ -159,9 +159,9 @@ public:
                    VTK_IMAGE_BLEND_MODE_COMPOUND );
   vtkGetMacro(BlendMode,int);
   void SetBlendModeToNormal()
-        {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL);};
+        {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL);}
   void SetBlendModeToCompound()
-        {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND);};
+        {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND);}
   const char *GetBlendModeAsString(void);
   //@}
 

@@ -78,15 +78,15 @@ public:
    */
   vtkSetMacro(GridScalarType,int);
   vtkGetMacro(GridScalarType,int);
-  void SetGridScalarTypeToDouble(){this->SetGridScalarType(VTK_DOUBLE);};
-  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_FLOAT);};
-  void SetGridScalarTypeToShort(){this->SetGridScalarType(VTK_SHORT);};
+  void SetGridScalarTypeToDouble(){this->SetGridScalarType(VTK_DOUBLE);}
+  void SetGridScalarTypeToFloat(){this->SetGridScalarType(VTK_FLOAT);}
+  void SetGridScalarTypeToShort(){this->SetGridScalarType(VTK_SHORT);}
   void SetGridScalarTypeToUnsignedShort()
-    {this->SetGridScalarType(VTK_UNSIGNED_SHORT);};
+    {this->SetGridScalarType(VTK_UNSIGNED_SHORT);}
   void SetGridScalarTypeToUnsignedChar()
-    {this->SetGridScalarType(VTK_UNSIGNED_CHAR);};
+    {this->SetGridScalarType(VTK_UNSIGNED_CHAR);}
   void SetGridScalarTypeToChar()
-    {this->SetGridScalarType(VTK_CHAR);};
+    {this->SetGridScalarType(VTK_CHAR);}
   //@}
 
   //@{
@@ -96,9 +96,9 @@ public:
    * then scale = 1 and shift = 0.
    */
   double GetDisplacementScale() {
-    this->UpdateShiftScale(); return this->DisplacementScale; };
+    this->UpdateShiftScale(); return this->DisplacementScale; }
   double GetDisplacementShift() {
-    this->UpdateShiftScale(); return this->DisplacementShift; };
+    this->UpdateShiftScale(); return this->DisplacementShift; }
   //@}
 
   /**

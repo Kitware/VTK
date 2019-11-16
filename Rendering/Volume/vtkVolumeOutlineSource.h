@@ -50,7 +50,7 @@ public:
    * outline.
    */
   virtual void SetVolumeMapper(vtkVolumeMapper *mapper);
-  vtkVolumeMapper *GetVolumeMapper() { return this->VolumeMapper; };
+  vtkVolumeMapper *GetVolumeMapper() { return this->VolumeMapper; }
   //@}
 
   //@{

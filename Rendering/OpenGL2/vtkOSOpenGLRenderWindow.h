@@ -77,7 +77,7 @@ public:
    * Specify the size of the rendering window in pixels.
    */
   virtual void SetSize(int x,int y);
-  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
+  virtual void SetSize(int a[2]) {this->SetSize(a[0], a[1]);}
   //@}
 
   /**
@@ -95,7 +95,7 @@ public:
    * Move the window to a new position on the display.
    */
   void     SetPosition(int x, int y);
-  void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};
+  void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);}
   //@}
 
   /**

@@ -116,13 +116,13 @@ public:
    * Set/Get the video format
    */
   virtual void SetVideoFormat(int format);
-  void SetVideoFormatToNTSC() { this->SetVideoFormat(VTK_MIL_NTSC); };
-  void SetVideoFormatToPAL() { this->SetVideoFormat(VTK_MIL_PAL); };
-  void SetVideoFormatToSECAM() { this->SetVideoFormat(VTK_MIL_SECAM); };
-  void SetVideoFormatToRS170() { this->SetVideoFormat(VTK_MIL_RS170); };
-  void SetVideoFormatToCCIR() { this->SetVideoFormat(VTK_MIL_CCIR); };
+  void SetVideoFormatToNTSC() { this->SetVideoFormat(VTK_MIL_NTSC); }
+  void SetVideoFormatToPAL() { this->SetVideoFormat(VTK_MIL_PAL); }
+  void SetVideoFormatToSECAM() { this->SetVideoFormat(VTK_MIL_SECAM); }
+  void SetVideoFormatToRS170() { this->SetVideoFormat(VTK_MIL_RS170); }
+  void SetVideoFormatToCCIR() { this->SetVideoFormat(VTK_MIL_CCIR); }
   void SetVideoFormatToNonStandard() {
-    this->SetVideoFormat(VTK_MIL_NONSTANDARD); };
+    this->SetVideoFormat(VTK_MIL_NONSTANDARD); }
   vtkGetMacro(VideoFormat,int);
   //@}
 
@@ -131,11 +131,11 @@ public:
    * Set/Get the video input
    */
   virtual void SetVideoInput(int input);
-  void SetVideoInputToMono() { this->SetVideoInput(VTK_MIL_MONO); };
-  void SetVideoInputToComposite() {this->SetVideoInput(VTK_MIL_COMPOSITE);};
-  void SetVideoInputToYC() { this->SetVideoInput(VTK_MIL_YC); };
-  void SetVideoInputToRGB() { this->SetVideoInput(VTK_MIL_RGB); };
-  void SetVideoInputToDigital() { this->SetVideoInput(VTK_MIL_DIGITAL); };
+  void SetVideoInputToMono() { this->SetVideoInput(VTK_MIL_MONO); }
+  void SetVideoInputToComposite() {this->SetVideoInput(VTK_MIL_COMPOSITE);}
+  void SetVideoInputToYC() { this->SetVideoInput(VTK_MIL_YC); }
+  void SetVideoInputToRGB() { this->SetVideoInput(VTK_MIL_RGB); }
+  void SetVideoInputToDigital() { this->SetVideoInput(VTK_MIL_DIGITAL); }
   vtkGetMacro(VideoInput,int);
   //@}
 
@@ -164,10 +164,10 @@ public:
    */
   virtual void SetBlackLevel(float value);
   virtual float GetBlackLevel() {
-    return this->BlackLevel; };
+    return this->BlackLevel; }
   virtual void SetWhiteLevel(float value);
   virtual float GetWhiteLevel() {
-    return this->WhiteLevel; };
+    return this->WhiteLevel; }
   //@}
 
   //@{
@@ -177,19 +177,19 @@ public:
    */
   vtkSetStringMacro(MILSystemType);
   vtkGetStringMacro(MILSystemType);
-  void SetMILSystemTypeToMeteor() { this->SetMILSystemType(VTK_MIL_METEOR); };
-  void SetMILSystemTypeToMeteorII() { this->SetMILSystemType(VTK_MIL_METEOR_II); };
-  void SetMILSystemTypeToMeteorIIDig() { this->SetMILSystemType(VTK_MIL_METEOR_II_DIG); };
-  void SetMILSystemTypeToMeteorIICL() { this->SetMILSystemType(VTK_MIL_METEOR_II_CL); };
-  void SetMILSystemTypeToMeteorII1394() { this->SetMILSystemType(VTK_MIL_METEOR_II_1394); };
-  void SetMILSystemTypeToCorona() { this->SetMILSystemType(VTK_MIL_CORONA); };
-  void SetMILSystemTypeToCoronaII() { this->SetMILSystemType(VTK_MIL_CORONA_II); };
-  void SetMILSystemTypeToPulsar() { this->SetMILSystemType(VTK_MIL_PULSAR); };
-  void SetMILSystemTypeToGenesis() { this->SetMILSystemType(VTK_MIL_GENESIS); };
-  void SetMILSystemTypeToGenesisPlus() { this->SetMILSystemType(VTK_MIL_GENESIS_PLUS); };
-  void SetMILSystemTypeToOrion() { this->SetMILSystemType(VTK_MIL_ORION); };
-  void SetMILSystemTypeToCronos() { this->SetMILSystemType(VTK_MIL_CRONOS); };
-  void SetMILSystemTypeToOdyssey() { this->SetMILSystemType(VTK_MIL_ODYSSEY); };
+  void SetMILSystemTypeToMeteor() { this->SetMILSystemType(VTK_MIL_METEOR); }
+  void SetMILSystemTypeToMeteorII() { this->SetMILSystemType(VTK_MIL_METEOR_II); }
+  void SetMILSystemTypeToMeteorIIDig() { this->SetMILSystemType(VTK_MIL_METEOR_II_DIG); }
+  void SetMILSystemTypeToMeteorIICL() { this->SetMILSystemType(VTK_MIL_METEOR_II_CL); }
+  void SetMILSystemTypeToMeteorII1394() { this->SetMILSystemType(VTK_MIL_METEOR_II_1394); }
+  void SetMILSystemTypeToCorona() { this->SetMILSystemType(VTK_MIL_CORONA); }
+  void SetMILSystemTypeToCoronaII() { this->SetMILSystemType(VTK_MIL_CORONA_II); }
+  void SetMILSystemTypeToPulsar() { this->SetMILSystemType(VTK_MIL_PULSAR); }
+  void SetMILSystemTypeToGenesis() { this->SetMILSystemType(VTK_MIL_GENESIS); }
+  void SetMILSystemTypeToGenesisPlus() { this->SetMILSystemType(VTK_MIL_GENESIS_PLUS); }
+  void SetMILSystemTypeToOrion() { this->SetMILSystemType(VTK_MIL_ORION); }
+  void SetMILSystemTypeToCronos() { this->SetMILSystemType(VTK_MIL_CRONOS); }
+  void SetMILSystemTypeToOdyssey() { this->SetMILSystemType(VTK_MIL_ODYSSEY); }
   //@}
   //@{
   /**

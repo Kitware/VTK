@@ -90,7 +90,7 @@ public:
   /**
    * Return the collection of implicit functions.
    */
-  vtkImplicitFunctionCollection *GetFunction() {return this->FunctionList;};
+  vtkImplicitFunctionCollection *GetFunction() {return this->FunctionList;}
 
   //@{
   /**
@@ -99,13 +99,13 @@ public:
   vtkSetClampMacro(OperationType,int,VTK_UNION,VTK_UNION_OF_MAGNITUDES);
   vtkGetMacro(OperationType,int);
   void SetOperationTypeToUnion()
-    {this->SetOperationType(VTK_UNION);};
+    {this->SetOperationType(VTK_UNION);}
   void SetOperationTypeToIntersection()
-    {this->SetOperationType(VTK_INTERSECTION);};
+    {this->SetOperationType(VTK_INTERSECTION);}
   void SetOperationTypeToDifference()
-    {this->SetOperationType(VTK_DIFFERENCE);};
+    {this->SetOperationType(VTK_DIFFERENCE);}
   void SetOperationTypeToUnionOfMagnitudes()
-    {this->SetOperationType(VTK_UNION_OF_MAGNITUDES);};
+    {this->SetOperationType(VTK_UNION_OF_MAGNITUDES);}
   const char *GetOperationTypeAsString();
   //@}
 

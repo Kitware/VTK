@@ -147,7 +147,7 @@ public:
    */
   virtual void SetImageAttributes(vtkMINCImageAttributes *attributes);
   virtual vtkMINCImageAttributes *GetImageAttributes() {
-    return this->ImageAttributes; };
+    return this->ImageAttributes; }
   //@}
 
   //@{

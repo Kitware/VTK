@@ -559,7 +559,7 @@ namespace {
   bool IntPointCompare(const IntPoint &a, const IntPoint &b)
   { return (a.T < b.T); }
 
-}; // anonymous namespace
+} // anonymous namespace
 
 //----------------------------------------------------------------------------
 // Return non-zero and generate polygon of intersection. Return 0 and there

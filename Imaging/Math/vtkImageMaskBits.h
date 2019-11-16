@@ -55,11 +55,11 @@ public:
    */
   vtkSetMacro(Operation,int);
   vtkGetMacro(Operation,int);
-  void SetOperationToAnd() {this->SetOperation(VTK_AND);};
-  void SetOperationToOr() {this->SetOperation(VTK_OR);};
-  void SetOperationToXor() {this->SetOperation(VTK_XOR);};
-  void SetOperationToNand() {this->SetOperation(VTK_NAND);};
-  void SetOperationToNor() {this->SetOperation(VTK_NOR);};
+  void SetOperationToAnd() {this->SetOperation(VTK_AND);}
+  void SetOperationToOr() {this->SetOperation(VTK_OR);}
+  void SetOperationToXor() {this->SetOperation(VTK_XOR);}
+  void SetOperationToNand() {this->SetOperation(VTK_NAND);}
+  void SetOperationToNor() {this->SetOperation(VTK_NOR);}
   //@}
 
 protected:

@@ -102,25 +102,25 @@ public:
    * for this sort of thing?)
    */
   void TemplateTransformPoint(const float in[3], float out[3]) {
-    this->ForwardTransformPoint(in,out); };
+    this->ForwardTransformPoint(in,out); }
   void TemplateTransformPoint(const double in[3], double out[3]) {
-    this->ForwardTransformPoint(in,out); };
+    this->ForwardTransformPoint(in,out); }
   void TemplateTransformPoint(const float in[3], float out[3],
                               float derivative[3][3]) {
-    this->ForwardTransformDerivative(in,out,derivative); };
+    this->ForwardTransformDerivative(in,out,derivative); }
   void TemplateTransformPoint(const double in[3], double out[3],
                               double derivative[3][3]) {
-    this->ForwardTransformDerivative(in,out,derivative); };
+    this->ForwardTransformDerivative(in,out,derivative); }
   void TemplateTransformInverse(const float in[3], float out[3]) {
-    this->InverseTransformPoint(in,out); };
+    this->InverseTransformPoint(in,out); }
   void TemplateTransformInverse(const double in[3], double out[3]) {
-    this->InverseTransformPoint(in,out); };
+    this->InverseTransformPoint(in,out); }
   void TemplateTransformInverse(const float in[3], float out[3],
                                 float derivative[3][3]) {
-    this->InverseTransformDerivative(in,out,derivative); };
+    this->InverseTransformDerivative(in,out,derivative); }
   void TemplateTransformInverse(const double in[3], double out[3],
                                 double derivative[3][3]) {
-    this->InverseTransformDerivative(in,out,derivative); };
+    this->InverseTransformDerivative(in,out,derivative); }
   //@}
 
 protected:

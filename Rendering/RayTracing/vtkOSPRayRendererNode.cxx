@@ -229,7 +229,7 @@ public:
     this->Backend = nullptr;
   };
 
-  ~vtkOSPRayRendererNodeInternals() {};
+  ~vtkOSPRayRendererNodeInternals() {}
 
   bool CanReuseBG()
   {

@@ -167,7 +167,7 @@ protected:
   /**
    * Increment the count of the number of cells using the point.
    */
-  void IncrementLinkCount(vtkIdType ptId) { this->Array[ptId].ncells++;};
+  void IncrementLinkCount(vtkIdType ptId) { this->Array[ptId].ncells++;}
 
   void AllocateLinks(vtkIdType n);
 

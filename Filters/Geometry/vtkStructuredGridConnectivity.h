@@ -119,7 +119,7 @@ public:
    * grid ID.
    */
   int GetNumberOfNeighbors( const int gridID )
-    { return( static_cast<int>(this->Neighbors[ gridID ].size() )); };
+    { return( static_cast<int>(this->Neighbors[ gridID ].size() )); }
 
   /**
    * Returns the neighbor corresponding to the index nei for the grid with the
@@ -159,25 +159,25 @@ protected:
    * Returns true iff Lo <= idx <= Hi, otherwise false.
    */
   bool InBounds( const int idx, const int Lo, const int Hi )
-  { return( (idx>=Lo) && (idx<=Hi) ); };
+  { return( (idx>=Lo) && (idx<=Hi) ); }
 
   /**
    * Returns true iff Lo < idx < Hi, otherwise false.
    */
   bool StrictlyInsideBounds( const int idx, const int Lo, const int Hi )
-  { return( (idx > Lo) && (idx < Hi) ); };
+  { return( (idx > Lo) && (idx < Hi) ); }
 
   /**
    * Returns true iff A is a subset of B, otherwise false.
    */
   bool IsSubset( int A[2], int B[2] )
   { return( this->InBounds(A[0], B[0], B[1]) &&
-            this->InBounds(A[1], B[0], B[1]) ); };
+            this->InBounds(A[1], B[0], B[1]) ); }
 
   /**
    * Returns the cardinality of a range S.
    */
-  int Cardinality( int S[2] ) { return( S[1]-S[0]+1 ); };
+  int Cardinality( int S[2] ) { return( S[1]-S[0]+1 ); }
 
   //@{
   /**

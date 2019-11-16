@@ -182,7 +182,7 @@ public:
   const double *GetData() const { return *this->Element; }
 
 protected:
-  vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
+  vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); }
   ~vtkMatrix4x4() override {}
 
   float FloatPoint[4];

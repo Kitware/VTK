@@ -597,7 +597,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
       i += skip_space(&line[i]);
       n = 0;
       while(line[i+n] != '\0' && line[i+n] != ';' &&
-            !isspace(line[i+n])) { n++; };
+            !isspace(line[i+n])) { n++; }
       entry->HeaderFile = vtkParse_CacheString(info->Strings, &line[i], n);
 
       i += n;
@@ -610,7 +610,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
         i += skip_space(&line[i]);
         n = 0;
         while(line[i+n] != '\0' && line[i+n] != ';' &&
-              !isspace(line[i+n])) { n++; };
+              !isspace(line[i+n])) { n++; }
         entry->Module = vtkParse_CacheString(info->Strings, &line[i], n);
 
         i += n;

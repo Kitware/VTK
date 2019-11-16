@@ -96,9 +96,9 @@ public:
   vtkGetMacro(ResliceMode, int);
   virtual void SetResliceMode(int resliceMode);
   virtual void SetResliceModeToAxisAligned()
-    { this->SetResliceMode(vtkResliceImageViewer::RESLICE_AXIS_ALIGNED); };
+    { this->SetResliceMode(vtkResliceImageViewer::RESLICE_AXIS_ALIGNED); }
   virtual void SetResliceModeToOblique()
-    { this->SetResliceMode(vtkResliceImageViewer::RESLICE_OBLIQUE); };
+    { this->SetResliceMode(vtkResliceImageViewer::RESLICE_OBLIQUE); }
 
   //@{
   /**

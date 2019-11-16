@@ -46,20 +46,20 @@ public:
    * Get the next IdList in the list.
    */
   vtkIdList *GetNextItem() {
-    return static_cast<vtkIdList *>(this->GetNextItemAsObject());};
+    return static_cast<vtkIdList *>(this->GetNextItemAsObject());}
 
   /**
    * Get the ith IdList in the list.
    */
   vtkIdList *GetItem(int i) {
-    return static_cast<vtkIdList *>(this->GetItemAsObject(i));};
+    return static_cast<vtkIdList *>(this->GetItemAsObject(i));}
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
   vtkIdList *GetNextIdList(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkIdList *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkIdList *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkIdListCollection() {}
@@ -68,7 +68,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkIdListCollection(const vtkIdListCollection&) = delete;

@@ -45,8 +45,8 @@ public:
   /**
    * Set the magnitude and vector inputs.
    */
-  void SetMagnitudeInputData(vtkImageData *input) {this->SetInputData(0,input);};
-  void SetVectorInputData(vtkImageData *input) {this->SetInputData(1,input);};
+  void SetMagnitudeInputData(vtkImageData *input) {this->SetInputData(0,input);}
+  void SetVectorInputData(vtkImageData *input) {this->SetInputData(1,input);}
   //@}
 
   //@{

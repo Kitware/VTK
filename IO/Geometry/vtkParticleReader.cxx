@@ -47,7 +47,7 @@ namespace {
     class ParseLine
   {
   public:
-    ParseLine (): LookForEndString(false) {};
+    ParseLine (): LookForEndString(false) {}
     int operator () (std::string &s, T val[4])
     {
       // Skip over comment lines.

@@ -76,9 +76,9 @@ public:
    */
   vtkSetMacro(Distribution,int);
   void SetDistributionToUniform() {
-    this->SetDistribution(VTK_POINT_UNIFORM);};
+    this->SetDistribution(VTK_POINT_UNIFORM);}
   void SetDistributionToShell() {
-    this->SetDistribution(VTK_POINT_SHELL);};
+    this->SetDistribution(VTK_POINT_SHELL);}
   vtkGetMacro(Distribution,int);
   //@}
 

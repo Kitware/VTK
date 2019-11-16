@@ -74,7 +74,7 @@ protected:
 
 private:
 
-  const char* GetNewline() { return "\n"; };
+  const char* GetNewline() { return "\n"; }
   void AddDepth();
   void SubDepth();
 

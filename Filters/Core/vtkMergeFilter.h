@@ -44,7 +44,7 @@ public:
    * work on the input data as it is without updating the producer of the data.
    * See SetGeometryConnection for connecting the pipeline.
    */
-  void SetGeometryInputData(vtkDataSet *input) {this->SetInputData(input);};
+  void SetGeometryInputData(vtkDataSet *input) {this->SetInputData(input);}
   vtkDataSet *GetGeometry();
   //@}
 

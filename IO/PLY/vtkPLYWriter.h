@@ -209,8 +209,8 @@ public:
    */
   vtkSetClampMacro(FileType, int, VTK_ASCII, VTK_BINARY);
   vtkGetMacro(FileType, int);
-  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); };
-  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); };
+  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); }
+  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); }
   //@}
 
   //@{

@@ -75,7 +75,7 @@ public:
    * same cookie back and forth.
    */
   vtkActor *GetNextActor(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkActor *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkActor *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkActorCollection() {}
@@ -84,8 +84,8 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
-  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); }
 
 private:
   vtkActorCollection(const vtkActorCollection&) = delete;

@@ -755,7 +755,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
   // Clean up
   delete [] mergeEdges;
   return 1;
-};
+}
 
 // Functor for assigning normals at each point
 struct ComputePointNormals

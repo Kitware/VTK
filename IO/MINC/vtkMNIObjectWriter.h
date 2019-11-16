@@ -102,7 +102,7 @@ public:
    * This is useful for exporting an actor.
    */
   virtual void SetProperty(vtkProperty *property);
-  virtual vtkProperty *GetProperty() { return this->Property; };
+  virtual vtkProperty *GetProperty() { return this->Property; }
   //@}
 
   //@{
@@ -112,7 +112,7 @@ public:
    * that are used to display the actor within VTK.
    */
   virtual void SetMapper(vtkMapper *mapper);
-  virtual vtkMapper *GetMapper() { return this->Mapper; };
+  virtual vtkMapper *GetMapper() { return this->Mapper; }
   //@}
 
   //@{
@@ -121,7 +121,7 @@ public:
    * used to convert scalar values to colors, if a mapper is not set.
    */
   virtual void SetLookupTable(vtkLookupTable *table);
-  virtual vtkLookupTable *GetLookupTable() { return this->LookupTable; };
+  virtual vtkLookupTable *GetLookupTable() { return this->LookupTable; }
   //@}
 
   //@{
@@ -146,8 +146,8 @@ public:
    */
   vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
   vtkGetMacro(FileType,int);
-  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
-  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);}
+  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);}
   //@}
 
 protected:

@@ -46,7 +46,7 @@ public:
   /**
    * Get the current output as a string
    */
-  std::string GetOutput() { return this->OStream.str(); };
+  std::string GetOutput() { return this->OStream.str(); }
 
 protected:
   vtkStringOutputWindow();

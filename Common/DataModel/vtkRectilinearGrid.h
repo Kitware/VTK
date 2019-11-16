@@ -58,7 +58,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_RECTILINEAR_GRID;};
+  int GetDataObjectType() override {return VTK_RECTILINEAR_GRID;}
 
   /**
    * Copy the geometric and topological structure of an input rectilinear grid
@@ -83,7 +83,7 @@ public:
   vtkCell *GetCell(int i, int j, int k) override;
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
-  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);}
   vtkIdType FindPoint(double x[3]) override;
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
                      int& subId, double pcoords[3], double *weights) override;
@@ -100,7 +100,7 @@ public:
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void ComputeBounds() override;
-  int GetMaxCellSize() override {return 8;}; //voxel is the largest
+  int GetMaxCellSize() override {return 8;} //voxel is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds) override;
   //@}
@@ -213,7 +213,7 @@ public:
   /**
    * Structured extent. The extent type is a 3D extent
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; };
+  int GetExtentType() override { return VTK_3D_EXTENT; }
 
   /**
    * Reallocates and copies to set the Extent to the UpdateExtent.

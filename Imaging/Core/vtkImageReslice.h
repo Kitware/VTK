@@ -111,17 +111,17 @@ public:
                                       const double z[3]) {
     this->SetResliceAxesDirectionCosines(x[0], x[1], x[2],
                                          y[0], y[1], y[2],
-                                         z[0], z[1], z[2]); };
+                                         z[0], z[1], z[2]); }
   void SetResliceAxesDirectionCosines(const double xyz[9]) {
     this->SetResliceAxesDirectionCosines(xyz[0], xyz[1], xyz[2],
                                          xyz[3], xyz[4], xyz[5],
-                                         xyz[6], xyz[7], xyz[8]); };
+                                         xyz[6], xyz[7], xyz[8]); }
   void GetResliceAxesDirectionCosines(double x[3], double y[3], double z[3]);
   void GetResliceAxesDirectionCosines(double xyz[9]) {
-    this->GetResliceAxesDirectionCosines(&xyz[0], &xyz[3], &xyz[6]); };
+    this->GetResliceAxesDirectionCosines(&xyz[0], &xyz[3], &xyz[6]); }
   double *GetResliceAxesDirectionCosines() VTK_SIZEHINT(9) {
     this->GetResliceAxesDirectionCosines(this->ResliceAxesDirectionCosines);
-    return this->ResliceAxesDirectionCosines; };
+    return this->ResliceAxesDirectionCosines; }
   //@}
 
   //@{
@@ -133,11 +133,11 @@ public:
    */
   void SetResliceAxesOrigin(double x, double y, double z);
   void SetResliceAxesOrigin(const double xyz[3]) {
-    this->SetResliceAxesOrigin(xyz[0], xyz[1], xyz[2]); };
+    this->SetResliceAxesOrigin(xyz[0], xyz[1], xyz[2]); }
   void GetResliceAxesOrigin(double xyz[3]);
   double *GetResliceAxesOrigin() VTK_SIZEHINT(3) {
     this->GetResliceAxesOrigin(this->ResliceAxesOrigin);
-    return this->ResliceAxesOrigin; };
+    return this->ResliceAxesOrigin; }
   //@}
 
   //@{
@@ -244,11 +244,11 @@ public:
                    VTK_RESLICE_NEAREST, VTK_RESLICE_CUBIC);
   vtkGetMacro(InterpolationMode, int);
   void SetInterpolationModeToNearestNeighbor() {
-    this->SetInterpolationMode(VTK_RESLICE_NEAREST); };
+    this->SetInterpolationMode(VTK_RESLICE_NEAREST); }
   void SetInterpolationModeToLinear() {
-    this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
+    this->SetInterpolationMode(VTK_RESLICE_LINEAR); }
   void SetInterpolationModeToCubic() {
-    this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
+    this->SetInterpolationMode(VTK_RESLICE_CUBIC); }
   virtual const char *GetInterpolationModeAsString();
   //@}
 
@@ -271,13 +271,13 @@ public:
   vtkSetClampMacro(SlabMode, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   vtkGetMacro(SlabMode, int);
   void SetSlabModeToMin() {
-    this->SetSlabMode(VTK_IMAGE_SLAB_MIN); };
+    this->SetSlabMode(VTK_IMAGE_SLAB_MIN); }
   void SetSlabModeToMax() {
-    this->SetSlabMode(VTK_IMAGE_SLAB_MAX); };
+    this->SetSlabMode(VTK_IMAGE_SLAB_MAX); }
   void SetSlabModeToMean() {
-    this->SetSlabMode(VTK_IMAGE_SLAB_MEAN); };
+    this->SetSlabMode(VTK_IMAGE_SLAB_MEAN); }
   void SetSlabModeToSum() {
-    this->SetSlabMode(VTK_IMAGE_SLAB_SUM); };
+    this->SetSlabMode(VTK_IMAGE_SLAB_SUM); }
   virtual const char *GetSlabModeAsString();
   //@}
 
@@ -375,8 +375,8 @@ public:
   /**
    * Set background grey level (for single-component images).
    */
-  void SetBackgroundLevel(double v) { this->SetBackgroundColor(v,v,v,v); };
-  double GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
+  void SetBackgroundLevel(double v) { this->SetBackgroundColor(v,v,v,v); }
+  double GetBackgroundLevel() { return this->GetBackgroundColor()[0]; }
   //@}
 
   //@{
@@ -386,7 +386,7 @@ public:
    */
   virtual void SetOutputSpacing(double x, double y, double z);
   virtual void SetOutputSpacing(const double a[3]) {
-    this->SetOutputSpacing(a[0], a[1], a[2]); };
+    this->SetOutputSpacing(a[0], a[1], a[2]); }
   vtkGetVector3Macro(OutputSpacing, double);
   void SetOutputSpacingToDefault();
   //@}
@@ -398,7 +398,7 @@ public:
    */
   virtual void SetOutputOrigin(double x, double y, double z);
   virtual void SetOutputOrigin(const double a[3]) {
-    this->SetOutputOrigin(a[0], a[1], a[2]); };
+    this->SetOutputOrigin(a[0], a[1], a[2]); }
   vtkGetVector3Macro(OutputOrigin, double);
   void SetOutputOriginToDefault();
   //@}
@@ -410,7 +410,7 @@ public:
    */
   virtual void SetOutputExtent(int a, int b, int c, int d, int e, int f);
   virtual void SetOutputExtent(const int a[6]) {
-    this->SetOutputExtent(a[0], a[1], a[2], a[3], a[4], a[5]); };
+    this->SetOutputExtent(a[0], a[1], a[2], a[3], a[4], a[5]); }
   vtkGetVector6Macro(OutputExtent, int);
   void SetOutputExtentToDefault();
   //@}
@@ -454,13 +454,13 @@ public:
     if (t && !this->GetInterpolate()) {
       this->SetInterpolationModeToLinear(); }
     else if (!t && this->GetInterpolate()) {
-      this->SetInterpolationModeToNearestNeighbor(); } };
+      this->SetInterpolationModeToNearestNeighbor(); } }
   void InterpolateOn() {
-    this->SetInterpolate(1); };
+    this->SetInterpolate(1); }
   void InterpolateOff() {
-    this->SetInterpolate(0); };
+    this->SetInterpolate(0); }
   int GetInterpolate() {
-    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
+    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); }
   //@}
 
   //@{
@@ -584,7 +584,7 @@ protected:
   vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo,
                                vtkInformation *outInfo);
   vtkAbstractTransform *GetOptimizedTransform() {
-    return this->OptimizedTransform; };
+    return this->OptimizedTransform; }
 
 private:
   vtkImageReslice(const vtkImageReslice&) = delete;

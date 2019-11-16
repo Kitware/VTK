@@ -56,8 +56,8 @@ public:
    */
   vtkGetMacro(Shape, int);
   vtkSetClampMacro(Shape, int, POLYGON, SPLINE);
-  void SetShapeToPolygon() { this->SetShape(POLYGON); };
-  void SetShapeToSpline() { this->SetShape(SPLINE); };
+  void SetShapeToPolygon() { this->SetShape(POLYGON); }
+  void SetShapeToSpline() { this->SetShape(SPLINE); }
   virtual const char *GetShapeAsString();
   //@}
 

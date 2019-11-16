@@ -192,11 +192,11 @@ public:
   void SetIntegratorType(int type);
   int GetIntegratorType();
   void SetIntegratorTypeToRungeKutta2()
-    {this->SetIntegratorType(RUNGE_KUTTA2);};
+    {this->SetIntegratorType(RUNGE_KUTTA2);}
   void SetIntegratorTypeToRungeKutta4()
-    {this->SetIntegratorType(RUNGE_KUTTA4);};
+    {this->SetIntegratorType(RUNGE_KUTTA4);}
   void SetIntegratorTypeToRungeKutta45()
-    {this->SetIntegratorType(RUNGE_KUTTA45);};
+    {this->SetIntegratorType(RUNGE_KUTTA45);}
   //@}
 
   /**
@@ -316,11 +316,11 @@ public:
   vtkSetClampMacro(IntegrationDirection, int, FORWARD, BOTH);
   vtkGetMacro(IntegrationDirection, int);
   void SetIntegrationDirectionToForward()
-    {this->SetIntegrationDirection(FORWARD);};
+    {this->SetIntegrationDirection(FORWARD);}
   void SetIntegrationDirectionToBackward()
-    {this->SetIntegrationDirection(BACKWARD);};
+    {this->SetIntegrationDirection(BACKWARD);}
   void SetIntegrationDirectionToBoth()
-    {this->SetIntegrationDirection(BOTH);};
+    {this->SetIntegrationDirection(BOTH);}
   //@}
 
   //@{
@@ -393,7 +393,7 @@ protected:
 
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); }
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int, vtkInformation *) override;

@@ -60,7 +60,7 @@ public:
    * degree of polynomial with vtkImageBSplineCoefficients.
    */
   void SetSplineDegree(int degree);
-  int GetSplineDegree() { return this->SplineDegree; };
+  int GetSplineDegree() { return this->SplineDegree; }
   int GetSplineDegreeMinValue() { return 0; }
   int GetSplineDegreeMaxValue() { return VTK_IMAGE_BSPLINE_DEGREE_MAX; }
   //@}

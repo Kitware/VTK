@@ -114,7 +114,7 @@ public:
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() override { return 1;};
+  int IsDirect() override { return 1;}
 
   /**
    * Get the current size of the screen in pixels.
@@ -130,7 +130,7 @@ public:
   /**
    * Dummy stubs for vtkWindow API.
    */
-  virtual void SetDisplayId(void *) override {};
+  virtual void SetDisplayId(void *) override {}
   virtual void SetWindowId(void *window) override;
   virtual void SetNextWindowId(void *) override {}
   virtual void SetParentId(void *) override  {}
@@ -151,7 +151,7 @@ public:
    * Move the window to a new position on the display.
    */
   void     SetPosition(int,int) override;
-  void     SetPosition(int a[2]) override {this->SetPosition(a[0], a[1]);};
+  void     SetPosition(int a[2]) override {this->SetPosition(a[0], a[1]);}
   //@}
 
   //@{
@@ -175,9 +175,9 @@ public:
    * on any event which causes the DesiredUpdateRate to switch from
    * a high-quality rate to a more interactive rate.
    */
-  virtual int GetEventPending() override { return 0;};
+  virtual int GetEventPending() override { return 0;}
 
-  int GetOwnWindow() { return this->OwnWindow; };
+  int GetOwnWindow() { return this->OwnWindow; }
 
   /**
    * Returns the width and height of the allocated EGL surface.

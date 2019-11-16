@@ -108,7 +108,7 @@ public:
    * non-zero if something was successfully picked.
    */
   int Pick(double selectionPt[3], vtkRenderer *ren)
-    {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);};
+    {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);}
 
   /**
    * Perform pick operation with selection point provided. The
@@ -116,7 +116,7 @@ public:
    * Return non-zero if something was successfully picked.
    */
   virtual int Pick3DPoint(double /* selectionPt */[3], vtkRenderer * /*ren*/)
-    { vtkErrorMacro("Pick3DPoint called without implementation"); return 0;};
+    { vtkErrorMacro("Pick3DPoint called without implementation"); return 0;}
 
   /**
    * Perform pick operation with selection point and orientation provided.
@@ -124,7 +124,7 @@ public:
    * Return non-zero if something was successfully picked.
    */
   virtual int Pick3DRay(double /* selectionPt */[3], double /* orient */ [4], vtkRenderer * /*ren*/)
-    { vtkErrorMacro("Pick3DRay called without implementation"); return 0;};
+    { vtkErrorMacro("Pick3DRay called without implementation"); return 0;}
 
   //@{
   /**

@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkResliceCursorPolyDataAlgorithm);
 vtkCxxSetObjectMacro(vtkResliceCursorPolyDataAlgorithm, ResliceCursor,
-                     vtkResliceCursor )
+                     vtkResliceCursor );
 
 //---------------------------------------------------------------------------
 vtkResliceCursorPolyDataAlgorithm::vtkResliceCursorPolyDataAlgorithm()

@@ -336,7 +336,7 @@ void vtkHoudiniPolyDataWriter::WriteData()
        << "NAttrib " << 0 << endl;
 
 #define vtkHoudiniTemplateMacroCase(typeN, atts, arr)           \
-  case typeN: { AddAttribute<typeN>(atts, arr); }; break
+  case typeN: { AddAttribute<typeN>(atts, arr); } break
 #define vtkHoudiniTemplateMacro(atts, arr)                              \
   vtkHoudiniTemplateMacroCase(VTK_DOUBLE, atts, arr);                   \
   vtkHoudiniTemplateMacroCase(VTK_FLOAT, atts, arr);                    \
@@ -362,7 +362,7 @@ void vtkHoudiniPolyDataWriter::WriteData()
     {
       vtkHoudiniTemplateMacro(pointAttributes, array);
 #if 0
-    case VTK_STRING: { AddAttribute<VTK_STRING>(pointAttributes, array); }; break;
+    case VTK_STRING: { AddAttribute<VTK_STRING>(pointAttributes, array); } break;
 #endif
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
@@ -400,7 +400,7 @@ void vtkHoudiniPolyDataWriter::WriteData()
     {
       vtkHoudiniTemplateMacro(cellAttributes, array);
 #if 0
-    case VTK_STRING: { AddAttribute<VTK_STRING>(cellAttributes, array); }; break;
+    case VTK_STRING: { AddAttribute<VTK_STRING>(cellAttributes, array); } break;
 #endif
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");

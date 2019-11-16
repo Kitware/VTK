@@ -56,7 +56,7 @@ public:
   virtual void SetInputData( vtkUniformHyperTreeGrid* );
   void SetInputConnection ( int, vtkAlgorithmOutput* ) override;
   void SetInputConnection ( vtkAlgorithmOutput* input ) override
-    { this->SetInputConnection( 0, input ); };
+    { this->SetInputConnection( 0, input ); }
   vtkUniformHyperTreeGrid* GetInput();
   //@}
 
@@ -110,7 +110,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources( vtkWindow * ) override {};
+  void ReleaseGraphicsResources( vtkWindow * ) override {}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

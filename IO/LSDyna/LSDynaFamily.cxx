@@ -137,7 +137,7 @@ struct LSDynaFamily::BufferingInfo
       loopTimes(0),
       leftOver(0),
       size(1048576)
-      {};
+      {}
     vtkIdType numWordsToRead;
     vtkIdType loopTimes;
     vtkIdType leftOver;

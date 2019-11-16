@@ -50,9 +50,9 @@ public:
   ~vtkTubeArray()
   {
       delete [] this->Array;
-  };
-  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
-  vtkTubePoint *GetTubePoint(vtkIdType i) {return this->Array + i;};
+  }
+  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;}
+  vtkTubePoint *GetTubePoint(vtkIdType i) {return this->Array + i;}
   vtkTubePoint *InsertNextTubePoint()
   {
     if ( ++this->MaxId >= this->Size )

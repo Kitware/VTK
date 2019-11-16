@@ -192,7 +192,7 @@ class vtkCCSEdgeLocatorNode
 {
 public:
   vtkCCSEdgeLocatorNode() :
-    ptId0(-1), ptId1(-1), edgeId(-1), next(nullptr) {};
+    ptId0(-1), ptId1(-1), edgeId(-1), next(nullptr) {}
 
   void FreeList() {
     vtkCCSEdgeLocatorNode *ptr = this->next;
@@ -203,7 +203,7 @@ public:
       tmp->next = nullptr;
       delete tmp;
     }
-  };
+  }
 
   vtkIdType ptId0;
   vtkIdType ptId1;
@@ -220,11 +220,11 @@ private:
 
 public:
   static vtkCCSEdgeLocator *New() {
-    return new vtkCCSEdgeLocator; };
+    return new vtkCCSEdgeLocator; }
 
   void Delete() {
     this->Initialize();
-    delete this; };
+    delete this; }
 
   // Description:
   // Initialize the locator.

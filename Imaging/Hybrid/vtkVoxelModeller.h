@@ -91,23 +91,23 @@ public:
    * scalar type. You may want to use VTK_CHAR as an alternative.
    */
   vtkSetMacro(ScalarType,int);
-  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
-  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
-  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
+  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
+  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);}
+  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
   void SetScalarTypeToUnsignedInt()
-    {this->SetScalarType(VTK_UNSIGNED_INT);};
-  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);};
+    {this->SetScalarType(VTK_UNSIGNED_INT);}
+  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);}
   void SetScalarTypeToUnsignedLong()
-    {this->SetScalarType(VTK_UNSIGNED_LONG);};
-  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);};
+    {this->SetScalarType(VTK_UNSIGNED_LONG);}
+  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
   void SetScalarTypeToUnsignedShort()
-    {this->SetScalarType(VTK_UNSIGNED_SHORT);};
+    {this->SetScalarType(VTK_UNSIGNED_SHORT);}
   void SetScalarTypeToUnsignedChar()
-    {this->SetScalarType(VTK_UNSIGNED_CHAR);};
+    {this->SetScalarType(VTK_UNSIGNED_CHAR);}
   void SetScalarTypeToChar()
-    {this->SetScalarType(VTK_CHAR);};
+    {this->SetScalarType(VTK_CHAR);}
   void SetScalarTypeToBit()
-    {this->SetScalarType(VTK_BIT);};
+    {this->SetScalarType(VTK_BIT);}
   vtkGetMacro(ScalarType,int);
   //@}
 

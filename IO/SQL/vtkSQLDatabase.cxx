@@ -61,7 +61,7 @@ class vtkSQLDatabaseCleanup
 public:
   inline void Use()
   {
-  };
+  }
   ~vtkSQLDatabaseCleanup()
   {
     vtkSQLDatabase::UnRegisterAllCreateFromURLCallbacks();

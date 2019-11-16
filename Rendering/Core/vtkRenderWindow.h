@@ -127,7 +127,7 @@ public:
   /**
    * Return the collection of renderers in the render window.
    */
-  vtkRendererCollection *GetRenderers() {return this->Renderers;};
+  vtkRendererCollection *GetRenderers() {return this->Renderers;}
 
   /**
    * The GL2PS exporter must handle certain props in a special way (e.g. text).
@@ -583,7 +583,7 @@ public:
    * Initialize the render window from the information associated
    * with the currently activated OpenGL context.
    */
-  virtual bool InitializeFromCurrentContext() { return false; };
+  virtual bool InitializeFromCurrentContext() { return false; }
 
   //@{
   /**
@@ -595,7 +595,7 @@ public:
    */
   virtual void SetSharedRenderWindow(vtkRenderWindow *);
   vtkGetObjectMacro(SharedRenderWindow, vtkRenderWindow);
-  virtual bool GetPlatformSupportsRenderWindowSharing() { return false; };
+  virtual bool GetPlatformSupportsRenderWindowSharing() { return false; }
   //@}
 
   /**
@@ -628,17 +628,17 @@ public:
   /**
    * Get report of capabilities for the render window
    */
-  virtual const char *ReportCapabilities() { return "Not Implemented";};
+  virtual const char *ReportCapabilities() { return "Not Implemented";}
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
    */
-  virtual int SupportsOpenGL() { return 0;};
+  virtual int SupportsOpenGL() { return 0;}
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  virtual int IsDirect() { return 0;};
+  virtual int IsDirect() { return 0;}
 
   /**
    * This method should be defined by the subclass. How many bits of

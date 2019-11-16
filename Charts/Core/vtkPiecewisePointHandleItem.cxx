@@ -52,11 +52,11 @@ public:
     this->fDistance = distance;
     this->ScenePos[0]=sceneOrigin[0]+x;
     this->ScenePos[1]=sceneOrigin[1]+y;
-  };
+  }
   void DrawCircle(vtkContext2D* painter, float radius)
   {
     painter->DrawArc(this->Position[0], this->Position[1], radius, 0.f, 360.f);
-  };
+  }
   float Position[2];
   float ScenePos[2];
   vtkIdType PointIndex;

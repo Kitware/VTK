@@ -58,7 +58,7 @@ public:
    */
   vtkObjectFactory *GetNextObjectFactory(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkObjectFactory *>(
-      this->GetNextItemAsObject(cookie));};
+      this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkObjectFactoryCollection() {}
@@ -67,7 +67,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkObjectFactoryCollection(const vtkObjectFactoryCollection&) = delete;

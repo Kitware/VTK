@@ -52,7 +52,7 @@ public:
   /**
    * The extent type is 3D, just like vtkImageData.
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; };
+  int GetExtentType() override { return VTK_3D_EXTENT; }
 
   /**
    * Given the total output x extent [xMin,xMax] and the current y, z indices,

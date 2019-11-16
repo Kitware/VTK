@@ -116,7 +116,7 @@ public:
   /**
    * Set the source to use for the glyph.
    */
-  void SetSourceData(vtkPolyData *pd) {this->SetSourceData(0,pd);};
+  void SetSourceData(vtkPolyData *pd) {this->SetSourceData(0,pd);}
 
   /**
    * Specify a source object at a specified table location.
@@ -144,13 +144,13 @@ public:
   vtkSetMacro(ScaleMode,int);
   vtkGetMacro(ScaleMode,int);
   void SetScaleModeToScaleByScalar()
-    {this->SetScaleMode(VTK_SCALE_BY_SCALAR);};
+    {this->SetScaleMode(VTK_SCALE_BY_SCALAR);}
   void SetScaleModeToScaleByVector()
-    {this->SetScaleMode(VTK_SCALE_BY_VECTOR);};
+    {this->SetScaleMode(VTK_SCALE_BY_VECTOR);}
   void SetScaleModeToScaleByVectorComponents()
-    {this->SetScaleMode(VTK_SCALE_BY_VECTORCOMPONENTS);};
+    {this->SetScaleMode(VTK_SCALE_BY_VECTORCOMPONENTS);}
   void SetScaleModeToDataScalingOff()
-    {this->SetScaleMode(VTK_DATA_SCALING_OFF);};
+    {this->SetScaleMode(VTK_DATA_SCALING_OFF);}
   const char *GetScaleModeAsString();
   //@}
 
@@ -161,11 +161,11 @@ public:
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToColorByScale()
-    {this->SetColorMode(VTK_COLOR_BY_SCALE);};
+    {this->SetColorMode(VTK_COLOR_BY_SCALE);}
   void SetColorModeToColorByScalar()
-    {this->SetColorMode(VTK_COLOR_BY_SCALAR);};
+    {this->SetColorMode(VTK_COLOR_BY_SCALAR);}
   void SetColorModeToColorByVector()
-    {this->SetColorMode(VTK_COLOR_BY_VECTOR);};
+    {this->SetColorMode(VTK_COLOR_BY_VECTOR);}
   const char *GetColorModeAsString();
   //@}
 
@@ -210,10 +210,10 @@ public:
    */
   vtkSetMacro(VectorMode,int);
   vtkGetMacro(VectorMode,int);
-  void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
-  void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
+  void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);}
+  void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);}
   void SetVectorModeToVectorRotationOff()
-    {this->SetVectorMode(VTK_VECTOR_ROTATION_OFF);};
+    {this->SetVectorMode(VTK_VECTOR_ROTATION_OFF);}
   const char *GetVectorModeAsString();
   //@}
 
@@ -225,9 +225,9 @@ public:
    */
   vtkSetMacro(IndexMode,int);
   vtkGetMacro(IndexMode,int);
-  void SetIndexModeToScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);};
-  void SetIndexModeToVector() {this->SetIndexMode(VTK_INDEXING_BY_VECTOR);};
-  void SetIndexModeToOff() {this->SetIndexMode(VTK_INDEXING_OFF);};
+  void SetIndexModeToScalar() {this->SetIndexMode(VTK_INDEXING_BY_SCALAR);}
+  void SetIndexModeToVector() {this->SetIndexMode(VTK_INDEXING_BY_VECTOR);}
+  void SetIndexModeToOff() {this->SetIndexMode(VTK_INDEXING_OFF);}
   const char *GetIndexModeAsString();
   //@}
 

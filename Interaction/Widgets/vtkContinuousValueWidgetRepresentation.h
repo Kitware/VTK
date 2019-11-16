@@ -69,7 +69,7 @@ public:
 
   // Set/Get the value
   virtual void SetValue(double value);
-  virtual double GetValue() {return this->Value;};
+  virtual double GetValue() {return this->Value;}
 
 protected:
   vtkContinuousValueWidgetRepresentation();

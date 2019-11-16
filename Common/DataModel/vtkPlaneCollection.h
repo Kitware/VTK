@@ -50,7 +50,7 @@ public:
    * Get the ith plane in the list.
    */
   vtkPlane *GetItem(int i) {
-    return static_cast<vtkPlane *>(this->GetItemAsObject(i));};
+    return static_cast<vtkPlane *>(this->GetItemAsObject(i));}
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
@@ -65,7 +65,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkPlaneCollection(const vtkPlaneCollection&) = delete;

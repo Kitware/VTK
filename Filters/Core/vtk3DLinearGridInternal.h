@@ -279,7 +279,7 @@ namespace { //anonymous namespace
       this->BuildCases();
       this->Cases = this->VoxCases;
     }
-    ~VoxelCell() override {};
+    ~VoxelCell() override {}
     void BuildCases() override;
   };
   // Dummy initialization filled in later at instantiation

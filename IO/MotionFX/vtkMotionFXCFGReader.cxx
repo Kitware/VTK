@@ -59,9 +59,9 @@ class MissingParameterError : public std::runtime_error
 {
 public:
   MissingParameterError(const std::string& what_arg)
-    : std::runtime_error(what_arg){};
+    : std::runtime_error(what_arg){}
   MissingParameterError(const char* what_arg)
-    : std::runtime_error(what_arg){};
+    : std::runtime_error(what_arg){}
 };
 
 

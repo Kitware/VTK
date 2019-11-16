@@ -90,10 +90,10 @@ public:
    */
   vtkSetClampMacro(SlabType, int, VTK_IMAGE_SLAB_MIN, VTK_IMAGE_SLAB_SUM);
   vtkGetMacro(SlabType, int);
-  void SetSlabTypeToMin() { this->SetSlabType(VTK_IMAGE_SLAB_MIN); };
-  void SetSlabTypeToMax() { this->SetSlabType(VTK_IMAGE_SLAB_MAX); };
-  void SetSlabTypeToMean() { this->SetSlabType(VTK_IMAGE_SLAB_MEAN); };
-  void SetSlabTypeToSum() { this->SetSlabType(VTK_IMAGE_SLAB_SUM); };
+  void SetSlabTypeToMin() { this->SetSlabType(VTK_IMAGE_SLAB_MIN); }
+  void SetSlabTypeToMax() { this->SetSlabType(VTK_IMAGE_SLAB_MAX); }
+  void SetSlabTypeToMean() { this->SetSlabType(VTK_IMAGE_SLAB_MEAN); }
+  void SetSlabTypeToSum() { this->SetSlabType(VTK_IMAGE_SLAB_SUM); }
   virtual const char *GetSlabTypeAsString();
   //@}
 
@@ -186,7 +186,7 @@ public:
   double *GetBounds() override;
   void GetBounds(double bounds[6]) override {
     this->vtkAbstractMapper3D::GetBounds(bounds);
-  };
+  }
   //@}
 
   /**

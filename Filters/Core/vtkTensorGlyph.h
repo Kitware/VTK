@@ -208,9 +208,9 @@ public:
   vtkSetClampMacro(ColorMode, int, COLOR_BY_SCALARS, COLOR_BY_EIGENVALUES);
   vtkGetMacro(ColorMode, int);
   void SetColorModeToScalars()
-    {this->SetColorMode(COLOR_BY_SCALARS);};
+    {this->SetColorMode(COLOR_BY_SCALARS);}
   void SetColorModeToEigenvalues()
-    {this->SetColorMode(COLOR_BY_EIGENVALUES);};
+    {this->SetColorMode(COLOR_BY_EIGENVALUES);}
   //@}
 
   //@{

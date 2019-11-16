@@ -80,17 +80,17 @@ public:
   /**
    * Return the location of the cell in the associated vtkCellArray.
    */
-  vtkIdType GetCellLocation(vtkIdType cellId) { return this->LocationArray->GetValue(cellId);};
+  vtkIdType GetCellLocation(vtkIdType cellId) { return this->LocationArray->GetValue(cellId);}
 
   /**
    * Delete cell by setting to nullptr cell type.
    */
-  void DeleteCell(vtkIdType cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
+  void DeleteCell(vtkIdType cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);}
 
   /**
    * Return the number of types in the list.
    */
-  vtkIdType GetNumberOfTypes() { return (this->MaxId + 1);};
+  vtkIdType GetNumberOfTypes() { return (this->MaxId + 1);}
 
   /**
    * Return 1 if type specified is contained in list; 0 otherwise.
@@ -100,12 +100,12 @@ public:
   /**
    * Add the type specified to the end of the list. Range checking is performed.
    */
-  vtkIdType InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
+  vtkIdType InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);}
 
   /**
    * Return the type of cell.
    */
-  unsigned char GetCellType(vtkIdType cellId) { return this->TypeArray->GetValue(cellId);};
+  unsigned char GetCellType(vtkIdType cellId) { return this->TypeArray->GetValue(cellId);}
 
   /**
    * Reclaim any extra memory.

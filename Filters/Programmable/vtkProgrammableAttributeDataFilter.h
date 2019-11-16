@@ -102,7 +102,7 @@ public:
   /**
    * Return the list of inputs.
    */
-  vtkDataSetCollection *GetInputList() {return this->InputList;};
+  vtkDataSetCollection *GetInputList() {return this->InputList;}
 
   /**
    * Signature definition for programmable method callbacks. Methods passed to
@@ -141,7 +141,7 @@ protected:
 private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); }
 
 private:
   vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) = delete;

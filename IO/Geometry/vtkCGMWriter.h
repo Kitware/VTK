@@ -103,11 +103,11 @@ public:
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
   void SetColorModeToDefault() {
-    this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
+    this->SetColorMode(VTK_COLOR_MODE_DEFAULT);}
   void SetColorModeToSpecifiedColor() {
-    this->SetColorMode(VTK_COLOR_MODE_SPECIFIED_COLOR);};
+    this->SetColorMode(VTK_COLOR_MODE_SPECIFIED_COLOR);}
   void SetColorModeToRandomColors() {
-    this->SetColorMode(VTK_COLOR_MODE_RANDOM_COLORS);};
+    this->SetColorMode(VTK_COLOR_MODE_RANDOM_COLORS);}
   //@}
 
   //@{

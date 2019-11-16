@@ -323,7 +323,7 @@ public:
    * Should be implemented by the graphics API specific mapper (GL or other).
    * \sa SetRenderToImage()
    */
-  virtual void GetDepthImage(vtkImageData*) {};
+  virtual void GetDepthImage(vtkImageData*) {}
 
   /**
    * Low level API to export the color texture as vtkImageData in
@@ -331,7 +331,7 @@ public:
    * Should be implemented by the graphics API specific mapper (GL or other).
    * \sa SetRenderToImage()
    */
-  virtual void GetColorImage(vtkImageData*) {};
+  virtual void GetColorImage(vtkImageData*) {}
 
   /**
    * Initialize rendering for this volume.

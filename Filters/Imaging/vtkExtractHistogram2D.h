@@ -111,17 +111,17 @@ public:
    */
   vtkSetMacro(ScalarType,int);
   void SetScalarTypeToUnsignedInt()
-    {this->SetScalarType(VTK_UNSIGNED_INT);};
+    {this->SetScalarType(VTK_UNSIGNED_INT);}
   void SetScalarTypeToUnsignedLong()
-    {this->SetScalarType(VTK_UNSIGNED_LONG);};
+    {this->SetScalarType(VTK_UNSIGNED_LONG);}
   void SetScalarTypeToUnsignedShort()
-    {this->SetScalarType(VTK_UNSIGNED_SHORT);};
+    {this->SetScalarType(VTK_UNSIGNED_SHORT);}
   void SetScalarTypeToUnsignedChar()
-    {this->SetScalarType(VTK_UNSIGNED_CHAR);};
+    {this->SetScalarType(VTK_UNSIGNED_CHAR);}
   void SetScalarTypeToFloat()
-    {this->SetScalarType(VTK_FLOAT);};
+    {this->SetScalarType(VTK_FLOAT);}
   void SetScalarTypeToDouble()
-    {this->SetScalarType(VTK_DOUBLE);};
+    {this->SetScalarType(VTK_DOUBLE);}
   vtkGetMacro(ScalarType,int);
   //@}
 
@@ -214,14 +214,14 @@ protected:
    */
   void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) override { return; };
+                     vtkTable* ) override { return; }
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
-                       vtkTable* ) override { return; };
+                       vtkTable* ) override { return; }
 
   /**
    * Provide the appropriate assessment functor. Not used.

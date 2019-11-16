@@ -86,7 +86,7 @@ public:
   /**
    * Returns the total number of grids.
    */
-  unsigned int GetNumberOfGrids() { return this->NumberOfGrids; };
+  unsigned int GetNumberOfGrids() { return this->NumberOfGrids; }
 
   /**
    * Computes the grid neighboring topology for the domain

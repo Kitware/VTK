@@ -197,15 +197,15 @@ public:
   vtkSetClampMacro(FlyMode, int, VTK_FLY_OUTER_EDGES, VTK_FLY_STATIC_EDGES);
   vtkGetMacro(FlyMode, int);
   void SetFlyModeToOuterEdges()
-    {this->SetFlyMode(VTK_FLY_OUTER_EDGES);};
+    {this->SetFlyMode(VTK_FLY_OUTER_EDGES);}
   void SetFlyModeToClosestTriad()
-    {this->SetFlyMode(VTK_FLY_CLOSEST_TRIAD);};
+    {this->SetFlyMode(VTK_FLY_CLOSEST_TRIAD);}
   void SetFlyModeToFurthestTriad()
-    {this->SetFlyMode(VTK_FLY_FURTHEST_TRIAD);};
+    {this->SetFlyMode(VTK_FLY_FURTHEST_TRIAD);}
   void SetFlyModeToStaticTriad()
-    {this->SetFlyMode(VTK_FLY_STATIC_TRIAD);};
+    {this->SetFlyMode(VTK_FLY_STATIC_TRIAD);}
   void SetFlyModeToStaticEdges()
-    {this->SetFlyMode(VTK_FLY_STATIC_EDGES);};
+    {this->SetFlyMode(VTK_FLY_STATIC_EDGES);}
   //@}
 
   //@{
@@ -475,11 +475,11 @@ public:
   //@}
 
   void SetTickLocationToInside(void)
-    { this->SetTickLocation(VTK_TICKS_INSIDE); };
+    { this->SetTickLocation(VTK_TICKS_INSIDE); }
   void SetTickLocationToOutside(void)
-    { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
+    { this->SetTickLocation(VTK_TICKS_OUTSIDE); }
   void SetTickLocationToBoth(void)
-    { this->SetTickLocation(VTK_TICKS_BOTH); };
+    { this->SetTickLocation(VTK_TICKS_BOTH); }
 
   void SetLabelScaling(bool, int, int, int);
 

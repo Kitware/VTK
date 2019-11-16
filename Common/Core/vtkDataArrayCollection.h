@@ -46,20 +46,20 @@ public:
    * Get the next dataarray in the list.
    */
   vtkDataArray *GetNextItem() {
-    return static_cast<vtkDataArray *>(this->GetNextItemAsObject());};
+    return static_cast<vtkDataArray *>(this->GetNextItemAsObject());}
 
   /**
    * Get the ith dataarray in the list.
    */
   vtkDataArray *GetItem(int i) {
-    return static_cast<vtkDataArray *>(this->GetItemAsObject(i));};
+    return static_cast<vtkDataArray *>(this->GetItemAsObject(i));}
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
   vtkDataArray *GetNextDataArray(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkDataArray *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkDataArray *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkDataArrayCollection() {}
@@ -68,7 +68,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkDataArrayCollection(const vtkDataArrayCollection&) = delete;

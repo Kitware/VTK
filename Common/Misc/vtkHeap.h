@@ -69,7 +69,7 @@ public:
    * will be allocated.
    */
   virtual void SetBlockSize(size_t);
-  virtual size_t GetBlockSize() { return this->BlockSize;};
+  virtual size_t GetBlockSize() { return this->BlockSize;}
   //@}
 
   //@{

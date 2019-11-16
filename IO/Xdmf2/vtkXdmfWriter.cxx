@@ -78,7 +78,7 @@ struct vtkXW2NodeHelp {
   xdmf2::XdmfDOM     *DOM;
   XdmfXmlNode  node;
   bool         staticFlag;
-  vtkXW2NodeHelp(xdmf2::XdmfDOM *d, XdmfXmlNode n, bool f) : DOM(d), node(n), staticFlag(f) {};
+  vtkXW2NodeHelp(xdmf2::XdmfDOM *d, XdmfXmlNode n, bool f) : DOM(d), node(n), staticFlag(f) {}
 };
 
 class vtkXdmfWriterDomainMemoryHandler

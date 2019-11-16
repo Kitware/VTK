@@ -359,7 +359,7 @@ public:
                             int vtkNotUsed(save)) =0;
   virtual void SetVoidArray(void *array, vtkIdType size, int save,
                             int vtkNotUsed(deleteMethod))
-    {this->SetVoidArray(array,size,save);};
+    {this->SetVoidArray(array,size,save);}
   //@}
 
   /**
@@ -757,7 +757,7 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray *array)
     { \
       return ArrayT::FastDownCast(array); \
     } \
-  };
+  }
 //@}
 
 //@{
@@ -774,7 +774,7 @@ ArrayT* vtkArrayDownCast(vtkAbstractArray *array)
     { \
       return ArrayT<ValueT>::FastDownCast(array); \
     } \
-  };
+  }
 //@}
 
 #endif

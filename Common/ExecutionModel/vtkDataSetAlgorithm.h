@@ -140,7 +140,7 @@ protected:
    */
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) {return 1;};
+                                 vtkInformationVector*) {return 1;}
 
   //@{
   /**
@@ -154,7 +154,7 @@ protected:
                                   vtkInformationVector*)
   {
       return 1;
-  };
+  }
   //@}
 
 
@@ -179,7 +179,7 @@ protected:
    */
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) {return 1;};
+                          vtkInformationVector*) {return 1;}
 
 
   // see algorithm for more info

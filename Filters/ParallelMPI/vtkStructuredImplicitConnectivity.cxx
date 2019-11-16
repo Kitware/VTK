@@ -141,18 +141,18 @@ struct IntervalsConnect
 class Interval
 {
 public:
-  Interval() : lo(0), hi(-1) {};
-  Interval(const int l, const int h) : lo(l), hi(h) {};
-  ~Interval() {};
+  Interval() : lo(0), hi(-1) {}
+  Interval(const int l, const int h) : lo(l), hi(h) {}
+  ~Interval() {}
 
-  int Low() const { return this->lo; };
-  int High() const { return this->hi; };
-  int Cardinality() const { return(this->hi-this->lo+1); };
-  bool Valid() const { return(this->lo <= this->hi); };
-  void Set(const int l, const int h) { this->lo=l; this->hi=h; };
+  int Low() const { return this->lo; }
+  int High() const { return this->hi; }
+  int Cardinality() const { return(this->hi-this->lo+1); }
+  bool Valid() const { return(this->lo <= this->hi); }
+  void Set(const int l, const int h) { this->lo=l; this->hi=h; }
   void Invalidate() {this->Set(0,-1);}
   bool Within(const Interval& B) const
-    { return( (this->lo >= B.Low()) && (this->hi <= B.High()) ); };
+    { return( (this->lo >= B.Low()) && (this->hi <= B.High()) ); }
 
   bool ImplicitNeighbor(const Interval& B, int& type);
   static bool ImplicitNeighbors(
@@ -341,7 +341,7 @@ struct DomainMetaData
   /// \param ext the extent of the grid in query
   /// \return status true if the grid is insided, else false.
   bool HasGrid(int ext[6])
-    { return( vtkStructuredExtent::Smaller(ext,this->WholeExtent) );  };
+    { return( vtkStructuredExtent::Smaller(ext,this->WholeExtent) );  }
 
   /// \brief Initializes the domain metadata.
   void Initialize(int wholeExt[6])
@@ -674,8 +674,8 @@ struct StructuredGrid
 class CommunicationManager
 {
 public:
-  CommunicationManager() {};
-  ~CommunicationManager() { this->Clear(); };
+  CommunicationManager() {}
+  ~CommunicationManager() { this->Clear(); }
 
   unsigned char* GetRcvBuffer(const int fromRank);
   unsigned int GetRcvBufferSize(const int fromRank);

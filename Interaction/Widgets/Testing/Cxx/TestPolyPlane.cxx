@@ -89,7 +89,7 @@ public:
   }
 
 
-  vtkTestPolyPlaneCallback() : PolyPlane(nullptr),Cutter(nullptr) {};
+  vtkTestPolyPlaneCallback() : PolyPlane(nullptr),Cutter(nullptr) {}
   vtkPolyPlane * PolyPlane;
   vtkCutter    * Cutter;
 };

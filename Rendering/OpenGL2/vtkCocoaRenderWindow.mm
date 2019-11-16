@@ -820,8 +820,8 @@ void vtkCocoaRenderWindow::CreateAWindow()
       CGFloat y = parentHeight - height - NSMinY(viewRect);
 
       // A whole bunch of sanity checks: frame must be inside parent
-      if (x > parentWidth - 1) { x = parentWidth - 1; };
-      if (y > parentHeight - 1) { y = parentHeight - 1; };
+      if (x > parentWidth - 1) { x = parentWidth - 1; }
+      if (y > parentHeight - 1) { y = parentHeight - 1; }
       if (x < 0.0) { x = 0.0; }
       if (y < 0.0) { y = 0.0; }
       if (x + width > parentWidth) { width = parentWidth - x; }

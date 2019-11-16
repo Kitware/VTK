@@ -36,11 +36,11 @@ class vtkDataArray;
 class vtkOpenGLImageAlgorithmCallback
 {
 public:
-  virtual void InitializeShaderUniforms(vtkShaderProgram * /* program */) {};
+  virtual void InitializeShaderUniforms(vtkShaderProgram * /* program */) {}
   virtual void UpdateShaderUniforms(
-    vtkShaderProgram * /* program */, int /* zExtent */) {};
-  virtual ~vtkOpenGLImageAlgorithmCallback() {};
-  vtkOpenGLImageAlgorithmCallback() {};
+    vtkShaderProgram * /* program */, int /* zExtent */) {}
+  virtual ~vtkOpenGLImageAlgorithmCallback() {}
+  vtkOpenGLImageAlgorithmCallback() {}
 private:
   vtkOpenGLImageAlgorithmCallback(const vtkOpenGLImageAlgorithmCallback&) = delete;
   void operator=(const vtkOpenGLImageAlgorithmCallback&) = delete;

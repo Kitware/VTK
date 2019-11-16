@@ -181,7 +181,7 @@ protected:
                          double vtkNotUsed(datasetBounds)[6],
                          double vtkNotUsed(scalarRange)[2],
                          int vtkNotUsed(noOfComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) override {};
+                         unsigned int vtkNotUsed(numberOfLevels)) override {}
 
   // \pre input is up-to-date
   void RenderBlock(vtkRenderer *vtkNotUsed(ren),

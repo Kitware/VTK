@@ -167,10 +167,10 @@ public:
    */
   void InsertPoint(vtkIdType id, const float x[3])
     VTK_EXPECTS(0 <= id)
-    { this->Data->InsertTuple(id,x);};
+    { this->Data->InsertTuple(id,x);}
   void InsertPoint(vtkIdType id, const double x[3])
     VTK_EXPECTS(0 <= id)
-    {this->Data->InsertTuple(id,x);};
+    {this->Data->InsertTuple(id,x);}
   void InsertPoint(vtkIdType id, double x, double y, double z)
     VTK_EXPECTS(0 <= id);
   //@}

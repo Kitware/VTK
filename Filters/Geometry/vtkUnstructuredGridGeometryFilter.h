@@ -136,7 +136,7 @@ public:
    * Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
    */
   void SetExtent(double extent[6]);
-  double *GetExtent() { return this->Extent;};
+  double *GetExtent() { return this->Extent;}
   //@}
 
   //@{

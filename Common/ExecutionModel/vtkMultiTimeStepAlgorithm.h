@@ -49,7 +49,7 @@ protected:
 
   ~vtkMultiTimeStepAlgorithm() override
   {
-  };
+  }
 
   /**
    * This is filled by the child class to request multiple time steps
@@ -65,7 +65,7 @@ protected:
   virtual int RequestDataObject(vtkInformation*, vtkInformationVector**,  vtkInformationVector*)
   {
     return 1;
-  };
+  }
   //@}
 
   //@{
@@ -76,7 +76,7 @@ protected:
   virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*)
   {
     return 1;
-  };
+  }
   //@}
 
   /**

@@ -78,7 +78,7 @@ vtkSmartPointer<vtkImageData> ConvertImageToFloat(vtkDataObject* image)
 
   //return std::move(imageOut);
   return imageOut;
-};
+}
 
 }
 

@@ -70,7 +70,7 @@ public:
    */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderOverlay(vtkViewport*) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; };
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
   //@}
 
   //@{

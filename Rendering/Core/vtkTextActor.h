@@ -271,7 +271,7 @@ public:
    * Draw the text actor to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;};
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;}
   int RenderOverlay(vtkViewport* viewport) override;
   //@}
 

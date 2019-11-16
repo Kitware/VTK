@@ -107,8 +107,8 @@ public:
 
 
 protected:
-  vtkImageTransform() {};
-  ~vtkImageTransform() override {};
+  vtkImageTransform() {}
+  ~vtkImageTransform() override {}
 
 private:
   vtkImageTransform(const vtkImageTransform&) = delete;

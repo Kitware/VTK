@@ -60,21 +60,21 @@ public:
    */
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
-  void SetOutputScalarTypeToDouble(){this->SetOutputScalarType(VTK_DOUBLE);};
-  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);};
+  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToDouble(){this->SetOutputScalarType(VTK_DOUBLE);}
+  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
   void SetOutputScalarTypeToUnsignedInt()
-    {this->SetOutputScalarType(VTK_UNSIGNED_INT);};
-  void SetOutputScalarTypeToLong(){this->SetOutputScalarType(VTK_LONG);};
+    {this->SetOutputScalarType(VTK_UNSIGNED_INT);}
+  void SetOutputScalarTypeToLong(){this->SetOutputScalarType(VTK_LONG);}
   void SetOutputScalarTypeToUnsignedLong()
-    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
-  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);};
+    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);}
+  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
   void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
   void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
   void SetOutputScalarTypeToChar()
-    {this->SetOutputScalarType(VTK_CHAR);};
+    {this->SetOutputScalarType(VTK_CHAR);}
   //@}
 
 protected:

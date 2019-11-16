@@ -29,7 +29,7 @@ public:
       vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
       spline->GetPolyData(Poly);
   }
-  vtkSplineWidgetCallback():Poly(0){};
+  vtkSplineWidgetCallback():Poly(0){}
   vtkPolyData* Poly;
 };
 

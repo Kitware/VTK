@@ -79,7 +79,7 @@ public:
   virtual vtkEventDataDevice3D *GetAsEventDataDevice3D() { return nullptr; }
 
 protected:
-  vtkEventData() {};
+  vtkEventData() {}
   ~vtkEventData() override {}
 
   // subclasses override this to define their
@@ -102,7 +102,7 @@ public:
     vtkEventDataForDevice *ret = new vtkEventDataForDevice;
     ret->InitializeObjectBase();
     return ret;
-  };
+  }
 
   vtkEventDataDevice GetDevice() const { return this->Device; }
   vtkEventDataDeviceInput GetInput() const { return this->Input; }
@@ -122,7 +122,7 @@ protected:
   bool Equivalent(const vtkEventData *e) const override {
     const vtkEventDataForDevice *edd = static_cast<const vtkEventDataForDevice *>(e);
     return this->Device == edd->Device && this->Input == edd->Input && this->Action == edd->Action;
-  };
+  }
 
   vtkEventDataForDevice() {
     this->Device = vtkEventDataDevice::Unknown;
@@ -232,7 +232,7 @@ public:
     vtkEventDataButton3D *ret = new vtkEventDataButton3D;
     ret->InitializeObjectBase();
     return ret;
-  };
+  }
 
 protected:
   vtkEventDataButton3D() { this->Type = vtkCommand::Button3DEvent; }
@@ -252,7 +252,7 @@ public:
     vtkEventDataMove3D *ret = new vtkEventDataMove3D;
     ret->InitializeObjectBase();
     return ret;
-  };
+  }
 
 protected:
   vtkEventDataMove3D() { this->Type = vtkCommand::Move3DEvent; }

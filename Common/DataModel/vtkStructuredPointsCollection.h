@@ -48,7 +48,7 @@ public:
    * is exhausted.
    */
   vtkStructuredPoints *GetNextItem() {
-    return static_cast<vtkStructuredPoints *>(this->GetNextItemAsObject());};
+    return static_cast<vtkStructuredPoints *>(this->GetNextItemAsObject());}
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
@@ -57,7 +57,7 @@ public:
   vtkStructuredPoints *GetNextStructuredPoints(
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkStructuredPoints *>(
-      this->GetNextItemAsObject(cookie));};
+      this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkStructuredPointsCollection() {}
@@ -67,7 +67,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkStructuredPointsCollection(const vtkStructuredPointsCollection&) = delete;

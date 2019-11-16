@@ -58,8 +58,8 @@ public:
   bool IsRenderablePresent(vtkObject *obj);
 
 protected:
-  vtkViewNodeCollection() {};
-  ~vtkViewNodeCollection() {};
+  vtkViewNodeCollection() {}
+  ~vtkViewNodeCollection() {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

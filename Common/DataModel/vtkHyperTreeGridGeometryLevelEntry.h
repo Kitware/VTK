@@ -151,7 +151,7 @@ public:
    * Return the index of the current vertex in the tree.
    * \pre not_tree: tree
    */
-  vtkIdType GetVertexId() const { return this->Index; };
+  vtkIdType GetVertexId() const { return this->Index; }
 
   /**
    * Return the global index (relative to the grid) of the

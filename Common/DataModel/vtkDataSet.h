@@ -247,13 +247,13 @@ public:
    * Return a pointer to this dataset's cell data.
    * THIS METHOD IS THREAD SAFE
    */
-  vtkCellData *GetCellData() {return this->CellData;};
+  vtkCellData *GetCellData() {return this->CellData;}
 
   /**
    * Return a pointer to this dataset's point data.
    * THIS METHOD IS THREAD SAFE
    */
-  vtkPointData *GetPointData() {return this->PointData;};
+  vtkPointData *GetPointData() {return this->PointData;}
 
   /**
    * Reclaim any extra memory used to store data.

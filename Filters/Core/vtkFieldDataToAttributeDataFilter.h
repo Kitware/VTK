@@ -91,11 +91,11 @@ public:
   vtkSetMacro(InputField,int);
   vtkGetMacro(InputField,int);
   void SetInputFieldToDataObjectField()
-    {this->SetInputField(VTK_DATA_OBJECT_FIELD);};
+    {this->SetInputField(VTK_DATA_OBJECT_FIELD);}
   void SetInputFieldToPointDataField()
-    {this->SetInputField(VTK_POINT_DATA_FIELD);};
+    {this->SetInputField(VTK_POINT_DATA_FIELD);}
   void SetInputFieldToCellDataField()
-    {this->SetInputField(VTK_CELL_DATA_FIELD);};
+    {this->SetInputField(VTK_CELL_DATA_FIELD);}
   //@}
 
   //@{
@@ -105,9 +105,9 @@ public:
   vtkSetMacro(OutputAttributeData,int);
   vtkGetMacro(OutputAttributeData,int);
   void SetOutputAttributeDataToCellData()
-    {this->SetOutputAttributeData(VTK_CELL_DATA);};
+    {this->SetOutputAttributeData(VTK_CELL_DATA);}
   void SetOutputAttributeDataToPointData()
-    {this->SetOutputAttributeData(VTK_POINT_DATA);};
+    {this->SetOutputAttributeData(VTK_POINT_DATA);}
   //@}
 
   //@{
@@ -121,7 +121,7 @@ public:
   void SetScalarComponent(int comp, const char *arrayName, int arrayComp,
                           int min, int max, int normalize);
   void SetScalarComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetScalarComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
+    {this->SetScalarComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);}
   const char *GetScalarComponentArrayName(int comp);
   int GetScalarComponentArrayComponent(int comp);
   int GetScalarComponentMinRange(int comp);
@@ -140,7 +140,7 @@ public:
   void SetVectorComponent(int comp, const char *arrayName, int arrayComp,
                           int min, int max, int normalize);
   void SetVectorComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetVectorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
+    {this->SetVectorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);}
   const char *GetVectorComponentArrayName(int comp);
   int GetVectorComponentArrayComponent(int comp);
   int GetVectorComponentMinRange(int comp);
@@ -159,7 +159,7 @@ public:
   void SetNormalComponent(int comp, const char *arrayName, int arrayComp,
                           int min, int max, int normalize);
   void SetNormalComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetNormalComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
+    {this->SetNormalComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);}
   const char *GetNormalComponentArrayName(int comp);
   int GetNormalComponentArrayComponent(int comp);
   int GetNormalComponentMinRange(int comp);
@@ -178,7 +178,7 @@ public:
   void SetTensorComponent(int comp, const char *arrayName, int arrayComp,
                           int min, int max, int normalize);
   void SetTensorComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetTensorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
+    {this->SetTensorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);}
   const char *GetTensorComponentArrayName(int comp);
   int GetTensorComponentArrayComponent(int comp);
   int GetTensorComponentMinRange(int comp);
@@ -197,7 +197,7 @@ public:
   void SetTCoordComponent(int comp, const char *arrayName, int arrayComp,
                           int min, int max, int normalize);
   void SetTCoordComponent(int comp, const char *arrayName, int arrayComp)
-    {this->SetTCoordComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
+    {this->SetTCoordComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);}
   const char *GetTCoordComponentArrayName(int comp);
   int GetTCoordComponentArrayComponent(int comp);
   int GetTCoordComponentMinRange(int comp);

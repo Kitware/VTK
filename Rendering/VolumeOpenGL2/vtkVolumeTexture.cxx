@@ -736,7 +736,7 @@ bool vtkVolumeTexture::AreDimensionsValid(vtkTextureObject* texture, int const w
   }
 
   return true;
-};
+}
 
 //-----------------------------------------------------------------------------
 bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const width,

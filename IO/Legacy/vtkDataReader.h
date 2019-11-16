@@ -86,15 +86,15 @@ public:
    */
   int IsFileValid(const char *dstype);
   int IsFileStructuredPoints() {
-    return this->IsFileValid("structured_points");};
+    return this->IsFileValid("structured_points");}
   int IsFilePolyData() {
-    return this->IsFileValid("polydata");};
+    return this->IsFileValid("polydata");}
   int IsFileStructuredGrid() {
-    return this->IsFileValid("structured_grid");};
+    return this->IsFileValid("structured_grid");}
   int IsFileUnstructuredGrid() {
-    return this->IsFileValid("unstructured_grid");};
+    return this->IsFileValid("unstructured_grid");}
   int IsFileRectilinearGrid() {
-    return this->IsFileValid("rectilinear_grid");};
+    return this->IsFileValid("rectilinear_grid");}
   //@}
 
   //@{
@@ -456,7 +456,7 @@ public:
   /**
    * Return the istream being used to read in the data.
    */
-  istream *GetIStream() {return this->IS;};
+  istream *GetIStream() {return this->IS;}
 
   //@{
   /**

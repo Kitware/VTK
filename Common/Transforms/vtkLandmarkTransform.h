@@ -70,9 +70,9 @@ public:
    * The default is similarity.
    */
   vtkSetMacro(Mode,int);
-  void SetModeToRigidBody() { this->SetMode(VTK_LANDMARK_RIGIDBODY); };
-  void SetModeToSimilarity() { this->SetMode(VTK_LANDMARK_SIMILARITY); };
-  void SetModeToAffine() { this->SetMode(VTK_LANDMARK_AFFINE); };
+  void SetModeToRigidBody() { this->SetMode(VTK_LANDMARK_RIGIDBODY); }
+  void SetModeToSimilarity() { this->SetMode(VTK_LANDMARK_SIMILARITY); }
+  void SetModeToAffine() { this->SetMode(VTK_LANDMARK_AFFINE); }
   //@}
 
   //@{

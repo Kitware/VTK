@@ -49,7 +49,7 @@ public:
   int Pick(double selectionX, double selectionY, double selectionZ,
            vtkRenderer *renderer) override;
   int Pick(double selectionPt[3], vtkRenderer *renderer)
-    { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };
+    { return this->vtkAbstractPicker::Pick( selectionPt, renderer); }
   //@}
 
 protected:

@@ -109,14 +109,14 @@ public:
    * Initialize the traversal of the collection. This means the data pointer
    * is set at the beginning of the list.
    */
-  void InitTraversal() { this->Current = this->Top;};
+  void InitTraversal() { this->Current = this->Top;}
 
   /**
    * A reentrant safe way to iterate through a collection.
    * Just pass the same cookie value around each time
    */
   void InitTraversal(vtkCollectionSimpleIterator &cookie) {
-    cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);};
+    cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);}
 
   /**
    * Get the next item in the collection. nullptr is returned if the collection

@@ -173,9 +173,9 @@ public:
     vtkSetMacro(TerminationTimeUnit,int);
     vtkGetMacro(TerminationTimeUnit,int);
     void SetTerminationTimeUnitToTimeUnit()
-    {this->SetTerminationTimeUnit(TERMINATION_TIME_UNIT);};
+    {this->SetTerminationTimeUnit(TERMINATION_TIME_UNIT);}
     void SetTerminationTimeUnitToStepUnit()
-    {this->SetTerminationTimeUnit(TERMINATION_STEP_UNIT);};
+    {this->SetTerminationTimeUnit(TERMINATION_STEP_UNIT);}
     //@}
 
     //@{

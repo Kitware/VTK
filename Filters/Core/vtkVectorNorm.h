@@ -76,11 +76,11 @@ public:
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
   void SetAttributeModeToDefault()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);}
   void SetAttributeModeToUsePointData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);}
   void SetAttributeModeToUseCellData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);}
   const char *GetAttributeModeAsString();
   //@}
 

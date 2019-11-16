@@ -694,7 +694,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
 
   line = (char *)malloc(maxlen);
 
-  for (i = 0; lines[i] != NULL; i++) { ; };
+  for (i = 0; lines[i] != NULL; i++) {}
   matched = (unsigned char *)malloc(i);
   memset(matched, 0, i);
 
@@ -958,12 +958,12 @@ int main(int argc, char *argv[])
   {
     /* look for semicolon that marks the module name */
     module_name = files[i];
-    while(*module_name != ';' && *module_name != '\0') { module_name++; };
+    while(*module_name != ';' && *module_name != '\0') { module_name++; }
     if (*module_name == ';') { *module_name++ = '\0'; }
 
     /* look for semicolon that marks start of flags */
     flags = module_name;
-    while(*flags != ';' && *flags != '\0') { flags++; };
+    while(*flags != ';' && *flags != '\0') { flags++; }
     if (*flags == ';') { *flags++ = '\0'; }
 
     lines = vtkWrapHierarchy_TryParseHeaderFile(
@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
   }
 
   /* sort the lines to ease lookups in the file */
-  for (n = 0; lines[n]; n++) { ; };
+  for (n = 0; lines[n]; n++) {}
   qsort(lines, n, sizeof(char *), &string_compare);
 
   /* write the file, if it has changed */

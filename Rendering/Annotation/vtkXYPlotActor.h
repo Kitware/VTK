@@ -200,11 +200,11 @@ public:
    */
   vtkSetClampMacro(XValues,int,VTK_XYPLOT_INDEX,VTK_XYPLOT_VALUE);
   vtkGetMacro(XValues,int);
-  void SetXValuesToIndex(){this->SetXValues(VTK_XYPLOT_INDEX);};
-  void SetXValuesToArcLength() {this->SetXValues(VTK_XYPLOT_ARC_LENGTH);};
+  void SetXValuesToIndex(){this->SetXValues(VTK_XYPLOT_INDEX);}
+  void SetXValuesToArcLength() {this->SetXValues(VTK_XYPLOT_ARC_LENGTH);}
   void SetXValuesToNormalizedArcLength()
-    {this->SetXValues(VTK_XYPLOT_NORMALIZED_ARC_LENGTH);};
-  void SetXValuesToValue() {this->SetXValues(VTK_XYPLOT_VALUE);};
+    {this->SetXValues(VTK_XYPLOT_NORMALIZED_ARC_LENGTH);}
+  void SetXValuesToValue() {this->SetXValues(VTK_XYPLOT_VALUE);}
   const char *GetXValuesAsString();
   //@}
 
@@ -278,7 +278,7 @@ public:
   // or data object.
   void SetPlotColor(int i, double r, double g, double b);
   void SetPlotColor(int i, const double color[3]) {
-    this->SetPlotColor(i, color[0], color[1], color[2]); };
+    this->SetPlotColor(i, color[0], color[1], color[2]); }
   double *GetPlotColor(int i) VTK_SIZEHINT(3);
   void SetPlotSymbol(int i,vtkPolyData *input);
   vtkPolyData *GetPlotSymbol(int i);
@@ -679,7 +679,7 @@ enum Alignment {
   /**
    * Get the box vtkProperty2D.
    */
-  vtkProperty2D* GetChartBoxProperty() { return this->ChartBoxActor->GetProperty(); };
+  vtkProperty2D* GetChartBoxProperty() { return this->ChartBoxActor->GetProperty(); }
 
   //@{
   /**

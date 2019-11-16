@@ -59,7 +59,7 @@ protected:
   unsigned int NumLevels;
   const std::vector<int>* NumBlocks;
   virtual void AdvanceIndex() { this->Index++;}
-  virtual unsigned int GetNumberOfLevels() { return static_cast<unsigned int>(this->NumBlocks->size()-1);};
+  virtual unsigned int GetNumberOfLevels() { return static_cast<unsigned int>(this->NumBlocks->size()-1);}
   virtual unsigned int GetNumberOfBlocks(int i)
   {
     assert(i< static_cast<int>(this->NumBlocks->size()));

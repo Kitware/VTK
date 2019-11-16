@@ -62,7 +62,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * the transform has an Input, then the transformation will be
    * reset so that it is the same as the Input.
    */
-  void Identity() { this->Concatenation->Identity(); this->Modified(); };
+  void Identity() { this->Concatenation->Identity(); this->Modified(); }
 
   /**
    * Invert the transformation.  This will also set a flag so that
@@ -70,7 +70,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * has been set.
    */
   void Inverse() override
-    { this->Concatenation->Inverse(); this->Modified(); };
+    { this->Concatenation->Inverse(); this->Modified(); }
 
   /**
    * Perform an adjustment to the viewport coordinates.  By default Ortho,
@@ -165,9 +165,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * transformation according to PreMultiply or PostMultiply semantics.
    */
   void Translate(double x, double y, double z) {
-    this->Concatenation->Translate(x,y,z); };
-  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); };
-  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); };
+    this->Concatenation->Translate(x,y,z); }
+  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); }
+  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); }
   //@}
 
   //@{
@@ -178,11 +178,11 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * rotation will be performed around.
    */
   void RotateWXYZ(double angle, double x, double y, double z) {
-    this->Concatenation->Rotate(angle,x,y,z); };
+    this->Concatenation->Rotate(angle,x,y,z); }
   void RotateWXYZ(double angle, const double axis[3]) {
-    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); }
   void RotateWXYZ(double angle, const float axis[3]) {
-    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); }
   //@}
 
   //@{
@@ -191,9 +191,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * it with the current transformation according to PreMultiply or
    * PostMultiply semantics.  The angle is expressed in degrees.
    */
-  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); };
-  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); };
-  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); };
+  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); }
+  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); }
+  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); }
   //@}
 
   //@{
@@ -203,9 +203,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * PreMultiply or PostMultiply semantics.
    */
   void Scale(double x, double y, double z) {
-    this->Concatenation->Scale(x,y,z); };
-  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); };
-  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); };
+    this->Concatenation->Scale(x,y,z); }
+  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); }
+  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); }
   //@}
 
   //@{
@@ -214,9 +214,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * followed by Concatenate(matrix).
    */
   void SetMatrix(vtkMatrix4x4 *matrix) {
-    this->SetMatrix(*matrix->Element); };
+    this->SetMatrix(*matrix->Element); }
   void SetMatrix(const double elements[16]) {
-    this->Identity(); this->Concatenate(elements); };
+    this->Identity(); this->Concatenate(elements); }
   //@}
 
   //@{
@@ -225,9 +225,9 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * to PreMultiply or PostMultiply semantics.
    */
   void Concatenate(vtkMatrix4x4 *matrix) {
-    this->Concatenate(*matrix->Element); };
+    this->Concatenate(*matrix->Element); }
   void Concatenate(const double elements[16]) {
-    this->Concatenation->Concatenate(elements); };
+    this->Concatenation->Concatenate(elements); }
   //@}
 
   /**
@@ -248,7 +248,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    */
   void PreMultiply() {
     if (this->Concatenation->GetPreMultiplyFlag()) { return; }
-    this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); };
+    this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); }
 
   /**
    * Sets the internal state of the transform to PostMultiply. All subsequent
@@ -259,7 +259,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    */
   void PostMultiply()  {
     if (!this->Concatenation->GetPreMultiplyFlag()) { return; }
-    this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
+    this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); }
 
   /**
    * Get the total number of transformations that are linked into this
@@ -267,7 +267,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    */
   int GetNumberOfConcatenatedTransforms() {
     return this->Concatenation->GetNumberOfTransforms() +
-      (this->Input == nullptr ? 0 : 1); };
+      (this->Input == nullptr ? 0 : 1); }
 
   //@{
   /**
@@ -314,7 +314,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * will use the Input or the inverse of the Input.
    */
   void SetInput(vtkHomogeneousTransform *input);
-  vtkHomogeneousTransform *GetInput() { return this->Input; };
+  vtkHomogeneousTransform *GetInput() { return this->Input; }
   //@}
 
   /**
@@ -325,7 +325,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * is off when a transform is first created.
    */
   int GetInverseFlag() {
-    return this->Concatenation->GetInverseFlag(); };
+    return this->Concatenation->GetInverseFlag(); }
 
   //@{
   /**
@@ -334,7 +334,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   void Push() { if (this->Stack == nullptr) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
                 this->Stack->Push(&this->Concatenation);
-                this->Modified(); };
+                this->Modified(); }
   //@}
 
   //@{
@@ -344,7 +344,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    */
   void Pop() { if (this->Stack == nullptr) { return; }
                this->Stack->Pop(&this->Concatenation);
-               this->Modified(); };
+               this->Modified(); }
   //@}
 
   /**

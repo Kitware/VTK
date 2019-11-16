@@ -123,7 +123,7 @@ protected:
    */
   virtual int ExecuteInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) {return 1;};
+                                 vtkInformationVector*) {return 1;}
 
   /**
    * This is called by the superclass.
@@ -131,7 +131,7 @@ protected:
    */
   virtual int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) {return 1;};
+                          vtkInformationVector*) {return 1;}
 
   //@{
   /**
@@ -143,7 +143,7 @@ protected:
                                        vtkInformationVector*)
   {
       return 1;
-  };
+  }
   //@}
 
   // see algorithm for more info

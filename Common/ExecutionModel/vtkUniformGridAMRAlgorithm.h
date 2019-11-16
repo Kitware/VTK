@@ -72,7 +72,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
      */
     virtual int RequestDataObject(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) {return 1;};
+                                  vtkInformationVector*) {return 1;}
 
     /**
      * This is called by the superclass.
@@ -80,7 +80,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
      */
     virtual int RequestInformation(vtkInformation*,
                                    vtkInformationVector**,
-                                   vtkInformationVector*) {return 1;};
+                                   vtkInformationVector*) {return 1;}
 
     /**
      * This is called by the superclass.
@@ -88,7 +88,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
      */
     virtual int RequestData(vtkInformation*,
                             vtkInformationVector**,
-                            vtkInformationVector*) {return 1;};
+                            vtkInformationVector*) {return 1;}
 
     /**
      * This is called by the superclass.
@@ -96,7 +96,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
      */
     virtual int RequestUpdateExtent(vtkInformation*,
                                     vtkInformationVector**,
-                                    vtkInformationVector*) { return 1; };
+                                    vtkInformationVector*) { return 1; }
 
     /**
      * Create a default executive

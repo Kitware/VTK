@@ -124,7 +124,7 @@ protected:
   virtual void MemoryWrite(int,
                            vtkImageData *,
                            int [6],
-                           vtkInformation*) {};
+                           vtkInformation*) {}
 
   // This is called by the superclass.
   // This is the method you should override.

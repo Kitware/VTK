@@ -77,9 +77,9 @@ public:
    * Set the default output value to use when the second input is not set.
    */
   void SetBackgroundValue(double val) {
-    this->SetBackgroundColor(val,val,val,val); };
+    this->SetBackgroundColor(val,val,val,val); }
   double GetBackgroundValue() {
-    return this->BackgroundColor[0]; };
+    return this->BackgroundColor[0]; }
   //@}
 
   //@{

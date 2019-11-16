@@ -178,11 +178,11 @@ public:
   vtkSetClampMacro(FlyMode, int, VTK_FLY_OUTER_EDGES, VTK_FLY_NONE);
   vtkGetMacro(FlyMode, int);
   void SetFlyModeToOuterEdges()
-    {this->SetFlyMode(VTK_FLY_OUTER_EDGES);};
+    {this->SetFlyMode(VTK_FLY_OUTER_EDGES);}
   void SetFlyModeToClosestTriad()
-    {this->SetFlyMode(VTK_FLY_CLOSEST_TRIAD);};
+    {this->SetFlyMode(VTK_FLY_CLOSEST_TRIAD);}
   void SetFlyModeToNone()
-    {this->SetFlyMode(VTK_FLY_NONE);};
+    {this->SetFlyMode(VTK_FLY_NONE);}
   //@}
 
   //@{
@@ -391,7 +391,7 @@ protected:
 
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) override { this->vtkProp::ShallowCopy( prop ); };
+  void ShallowCopy(vtkProp *prop) override { this->vtkProp::ShallowCopy( prop ); }
 private:
   vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) = delete;
   void operator=(const vtkCubeAxesActor2D&) = delete;

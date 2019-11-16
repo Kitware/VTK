@@ -83,10 +83,10 @@ public:
    * Note: backward compatibility only, use vtkActor2D's Position instead.
    */
   virtual vtkCoordinate *GetPoint1Coordinate()
-    { return this->GetPositionCoordinate(); };
-  virtual void SetPoint1(double x[2]) { this->SetPosition(x); };
-  virtual void SetPoint1(double x, double y) { this->SetPosition(x,y); };
-  virtual double *GetPoint1() { return this->GetPosition(); };
+    { return this->GetPositionCoordinate(); }
+  virtual void SetPoint1(double x[2]) { this->SetPosition(x); }
+  virtual void SetPoint1(double x, double y) { this->SetPosition(x,y); }
+  virtual double *GetPoint1() { return this->GetPosition(); }
   //@}
 
   //@{
@@ -97,10 +97,10 @@ public:
    * Note: backward compatibility only, use vtkActor2D's Position2 instead.
    */
   virtual vtkCoordinate *GetPoint2Coordinate()
-    { return this->GetPosition2Coordinate(); };
-  virtual void SetPoint2(double x[2]) { this->SetPosition2(x); };
-  virtual void SetPoint2(double x, double y) { this->SetPosition2(x,y); };
-  virtual double *GetPoint2() { return this->GetPosition2(); };
+    { return this->GetPosition2Coordinate(); }
+  virtual void SetPoint2(double x[2]) { this->SetPosition2(x); }
+  virtual void SetPoint2(double x, double y) { this->SetPosition2(x,y); }
+  virtual double *GetPoint2() { return this->GetPosition2(); }
   //@}
 
   //@{

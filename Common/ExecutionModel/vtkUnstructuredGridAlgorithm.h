@@ -63,7 +63,7 @@ public:
   // this method is not recommended for use, but lots of old style filters
   // use it
   vtkDataObject *GetInput(int port);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject *GetInput() { return this->GetInput(0); }
   vtkUnstructuredGrid *GetUnstructuredGridInput(int port);
 
   //@{

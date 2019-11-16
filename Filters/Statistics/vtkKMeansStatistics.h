@@ -159,7 +159,7 @@ public:
    * NB: not implemented
    */
   void Aggregate( vtkDataObjectCollection*,
-                  vtkMultiBlockDataSet* ) override { return; };
+                  vtkMultiBlockDataSet* ) override { return; }
 
   /**
    * A convenience method for setting properties by name.
@@ -195,7 +195,7 @@ protected:
    */
   void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) override { return; };
+                     vtkTable* ) override { return; }
 
   /**
    * Provide the appropriate assessment functor.

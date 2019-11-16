@@ -90,7 +90,7 @@ public:
   virtual void ExitCallback();
 
   virtual void SetAndroidApplication(struct android_app *app)
-    { this->AndroidApplication = app; };
+    { this->AndroidApplication = app; }
 
   /**
    * Handle key up/down events

@@ -113,7 +113,7 @@ template <typename T>
 struct KeyComp
 {
   const T *Array;
-  KeyComp(T *array) : Array(array) {};
+  KeyComp(T *array) : Array(array) {}
   bool operator() (vtkIdType idx0, vtkIdType idx1) const
   {
     return ( Array[idx0] < Array[idx1] );
@@ -129,7 +129,7 @@ struct TupleComp
   const T *Array;
   int NumComp;
   int K;
-  TupleComp(T *array, int n, int k) : Array(array), NumComp(n), K(k) {};
+  TupleComp(T *array, int n, int k) : Array(array), NumComp(n), K(k) {}
   bool operator() (vtkIdType idx0, vtkIdType idx1) const
     {return Array[idx0*NumComp+K] < Array[idx1*NumComp+K];}
 };

@@ -80,4 +80,4 @@ int TestGeoGraticule( int argc, char* argv[] )
   delete [] input_file;
 
   return !retVal;
-};
+}

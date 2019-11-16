@@ -160,7 +160,7 @@ protected:
   /**
    * Method to compute the global sum information. For serial operation this is a no-op.
    */
-  virtual void ComputeGlobalSum(double sum[4]) {(void)sum;};
+  virtual void ComputeGlobalSum(double sum[4]) {(void)sum;}
   //@}
 
 private:

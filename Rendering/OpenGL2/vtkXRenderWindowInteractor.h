@@ -134,7 +134,7 @@ public:
    * about that widget. It's X and it's not terribly easy, but it looks cool.
    */
   virtual void SetWidget(Widget);
-  Widget GetWidget() {return this->Top;};
+  Widget GetWidget() {return this->Top;}
   //@}
 
   //@{
@@ -168,7 +168,7 @@ public:
    * not set TopLevelShell (each has its own top level shell already)
    */
   virtual void SetTopLevelShell(Widget);
-  Widget GetTopLevelShell() {return this->TopLevelShell;};
+  Widget GetTopLevelShell() {return this->TopLevelShell;}
   //@}
 
   /**

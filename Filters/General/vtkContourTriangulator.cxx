@@ -149,7 +149,7 @@ public:
     if (val) { chunk = chunk | bitval; }
     else { chunk = chunk & ~bitval; }
     bitstorage[n] = chunk;
-  };
+  }
 
   int get(size_t bit) {
     size_t n = (bit >> 5);
@@ -157,11 +157,11 @@ public:
     if (n >= bitstorage.size()) { return 0; }
     unsigned int chunk = bitstorage[n];
     return ((chunk >> i) & 1);
-  };
+  }
 
   void clear() {
     bitstorage.clear();
-  };
+  }
 
 private:
   std::vector<unsigned int> bitstorage;
@@ -1095,12 +1095,12 @@ double vtkCCSPolygonBounds(
   for (size_t j = 1; j < n; j++)
   {
     points->GetPoint(poly[j], p);
-    if (p[0] < bounds[0]) { bounds[0] = p[0]; };
-    if (p[0] > bounds[1]) { bounds[1] = p[0]; };
-    if (p[1] < bounds[2]) { bounds[2] = p[1]; };
-    if (p[1] > bounds[3]) { bounds[3] = p[1]; };
-    if (p[2] < bounds[4]) { bounds[4] = p[2]; };
-    if (p[2] > bounds[5]) { bounds[5] = p[2]; };
+    if (p[0] < bounds[0]) { bounds[0] = p[0]; }
+    if (p[0] > bounds[1]) { bounds[1] = p[0]; }
+    if (p[1] < bounds[2]) { bounds[2] = p[1]; }
+    if (p[1] > bounds[3]) { bounds[3] = p[1]; }
+    if (p[2] < bounds[4]) { bounds[4] = p[2]; }
+    if (p[2] > bounds[5]) { bounds[5] = p[2]; }
   }
 
   double bx = (bounds[1] - bounds[0]);

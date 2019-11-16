@@ -224,7 +224,7 @@ void setupAudioPlayback(vtkFFMPEGVideoSource *video)
   video->SetAudioCallback(cbfunc, nullptr);
 }
 #else
-void setupAudioPlayback(vtkFFMPEGVideoSource *) {};
+void setupAudioPlayback(vtkFFMPEGVideoSource *) {}
 #endif
 
 int TestFFMPEGVideoSourceWithAudio(int argc, char* argv[])

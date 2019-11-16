@@ -119,9 +119,9 @@ public:
                     VTK_BACKGROUND_LOCATION, VTK_FOREGROUND_LOCATION );
   vtkGetMacro( DisplayLocation, int );
   void SetDisplayLocationToBackground()
-    {this->DisplayLocation = VTK_BACKGROUND_LOCATION;};
+    {this->DisplayLocation = VTK_BACKGROUND_LOCATION;}
   void SetDisplayLocationToForeground()
-    {this->DisplayLocation = VTK_FOREGROUND_LOCATION;};
+    {this->DisplayLocation = VTK_FOREGROUND_LOCATION;}
   //@}
 
   /**

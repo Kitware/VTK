@@ -127,7 +127,7 @@ public:
    * includes 1 byte to store the endian type.
    */
   int RawSize()
-    {return(this->Size()+1);};
+    {return(this->Size()+1);}
 
   /**
    * Returns true iff the stream is empty.

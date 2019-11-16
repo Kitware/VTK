@@ -173,15 +173,15 @@ public:
   vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
   vtkGetMacro( CroppingRegionFlags, int );
   void SetCroppingRegionFlagsToSubVolume()
-    {this->SetCroppingRegionFlags( VTK_CROP_SUBVOLUME );};
+    {this->SetCroppingRegionFlags( VTK_CROP_SUBVOLUME );}
   void SetCroppingRegionFlagsToFence()
-    {this->SetCroppingRegionFlags( VTK_CROP_FENCE );};
+    {this->SetCroppingRegionFlags( VTK_CROP_FENCE );}
   void SetCroppingRegionFlagsToInvertedFence()
-    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_FENCE );};
+    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_FENCE );}
   void SetCroppingRegionFlagsToCross()
-    {this->SetCroppingRegionFlags( VTK_CROP_CROSS );};
+    {this->SetCroppingRegionFlags( VTK_CROP_CROSS );}
   void SetCroppingRegionFlagsToInvertedCross()
-    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
+    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );}
   //@}
 
   /**

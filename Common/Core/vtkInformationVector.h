@@ -46,7 +46,7 @@ public:
    * vtkInformation instances.  Setting the number to smaller than the
    * current number will remove entries from higher indices.
    */
-  int GetNumberOfInformationObjects() { return this->NumberOfInformationObjects; };
+  int GetNumberOfInformationObjects() { return this->NumberOfInformationObjects; }
   void SetNumberOfInformationObjects(int n);
   //@}
 

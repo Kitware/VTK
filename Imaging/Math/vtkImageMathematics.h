@@ -71,116 +71,116 @@ public:
    * Set each pixel in the output image to the sum of the corresponding pixels
    * in Input1 and Input2.
    */
-  void SetOperationToAdd() {this->SetOperation(VTK_ADD);};
+  void SetOperationToAdd() {this->SetOperation(VTK_ADD);}
 
   /**
    * Set each pixel in the output image to the difference of the corresponding pixels
    * in Input1 and Input2 (output = Input1 - Input2).
    */
-  void SetOperationToSubtract() {this->SetOperation(VTK_SUBTRACT);};
+  void SetOperationToSubtract() {this->SetOperation(VTK_SUBTRACT);}
 
   /**
    * Set each pixel in the output image to the product of the corresponding pixels
    * in Input1 and Input2.
    */
-  void SetOperationToMultiply() {this->SetOperation(VTK_MULTIPLY);};
+  void SetOperationToMultiply() {this->SetOperation(VTK_MULTIPLY);}
 
   /**
    * Set each pixel in the output image to the quotient of the corresponding pixels
    * in Input1 and Input2 (Output = Input1 / Input2).
    */
-  void SetOperationToDivide() {this->SetOperation(VTK_DIVIDE);};
+  void SetOperationToDivide() {this->SetOperation(VTK_DIVIDE);}
 
-  void SetOperationToConjugate() {this->SetOperation(VTK_CONJUGATE);};
+  void SetOperationToConjugate() {this->SetOperation(VTK_CONJUGATE);}
 
   void SetOperationToComplexMultiply()
-    {this->SetOperation(VTK_COMPLEX_MULTIPLY);};
+    {this->SetOperation(VTK_COMPLEX_MULTIPLY);}
 
   /**
    * Set each pixel in the output image to 1 over the corresponding pixel
    * in Input1 and Input2 (output = 1 / Input1). Input2 is not used.
    */
-  void SetOperationToInvert() {this->SetOperation(VTK_INVERT);};
+  void SetOperationToInvert() {this->SetOperation(VTK_INVERT);}
 
   /**
    * Set each pixel in the output image to the sine of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToSin() {this->SetOperation(VTK_SIN);};
+  void SetOperationToSin() {this->SetOperation(VTK_SIN);}
 
   /**
    * Set each pixel in the output image to the cosine of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToCos() {this->SetOperation(VTK_COS);};
+  void SetOperationToCos() {this->SetOperation(VTK_COS);}
 
   /**
    * Set each pixel in the output image to the exponential of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToExp() {this->SetOperation(VTK_EXP);};
+  void SetOperationToExp() {this->SetOperation(VTK_EXP);}
 
   /**
    * Set each pixel in the output image to the log of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToLog() {this->SetOperation(VTK_LOG);};
+  void SetOperationToLog() {this->SetOperation(VTK_LOG);}
 
   /**
    * Set each pixel in the output image to the absolute value of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToAbsoluteValue() {this->SetOperation(VTK_ABS);};
+  void SetOperationToAbsoluteValue() {this->SetOperation(VTK_ABS);}
 
   /**
    * Set each pixel in the output image to the square of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToSquare() {this->SetOperation(VTK_SQR);};
+  void SetOperationToSquare() {this->SetOperation(VTK_SQR);}
 
   /**
    * Set each pixel in the output image to the square root of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToSquareRoot() {this->SetOperation(VTK_SQRT);};
+  void SetOperationToSquareRoot() {this->SetOperation(VTK_SQRT);}
 
   /**
    * Set each pixel in the output image to the minimum of the corresponding pixels
    * in Input1 and Input2. (Output = min(Input1, Input2))
    */
-  void SetOperationToMin() {this->SetOperation(VTK_MIN);};
+  void SetOperationToMin() {this->SetOperation(VTK_MIN);}
 
   /**
    * Set each pixel in the output image to the maximum of the corresponding pixels
    * in Input1 and Input2. (Output = max(Input1, Input2))
    */
-  void SetOperationToMax() {this->SetOperation(VTK_MAX);};
+  void SetOperationToMax() {this->SetOperation(VTK_MAX);}
 
   /**
    * Set each pixel in the output image to the arctangent of the corresponding pixel
    * in Input1. Input2 is not used.
    */
-  void SetOperationToATAN() {this->SetOperation(VTK_ATAN);};
+  void SetOperationToATAN() {this->SetOperation(VTK_ATAN);}
 
-  void SetOperationToATAN2() {this->SetOperation(VTK_ATAN2);};
+  void SetOperationToATAN2() {this->SetOperation(VTK_ATAN2);}
 
   /**
    * Set each pixel in the output image to the product of ConstantK with the
    * corresponding pixel in Input1. Input2 is not used.
    */
-  void SetOperationToMultiplyByK() {this->SetOperation(VTK_MULTIPLYBYK);};
+  void SetOperationToMultiplyByK() {this->SetOperation(VTK_MULTIPLYBYK);}
 
   /**
    * Set each pixel in the output image to the product of ConstantC with the
    * corresponding pixel in Input1. Input2 is not used.
    */
-  void SetOperationToAddConstant() {this->SetOperation(VTK_ADDC);};
+  void SetOperationToAddConstant() {this->SetOperation(VTK_ADDC);}
 
   /**
    * Find every pixel in Input1 that equals ConstantC and set the corresponding pixels
    * in the Output to ConstantK. Input2 is not used.
    */
-  void SetOperationToReplaceCByK() {this->SetOperation(VTK_REPLACECBYK);};
+  void SetOperationToReplaceCByK() {this->SetOperation(VTK_REPLACECBYK);}
 
   //@{
   /**

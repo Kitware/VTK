@@ -458,8 +458,8 @@ public:
   void SetAssemblyStatus(const vtkStdString& name, int flag);
 
   void SetFastPathObjectType(vtkExodusIIReader::ObjectType type)
-    {this->FastPathObjectType = type;};
-  void SetFastPathObjectId(vtkIdType id){this->FastPathObjectId = id;};
+    {this->FastPathObjectType = type;}
+  void SetFastPathObjectId(vtkIdType id){this->FastPathObjectId = id;}
   vtkSetStringMacro(FastPathIdType);
 
   bool IsXMLMetadataValid();

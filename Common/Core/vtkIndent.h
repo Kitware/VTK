@@ -33,8 +33,8 @@ VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
 class VTKCOMMONCORE_EXPORT vtkIndent
 {
 public:
-  void Delete() {delete this;};
-  explicit vtkIndent(int ind=0) {this->Indent=ind;};
+  void Delete() {delete this;}
+  explicit vtkIndent(int ind=0) {this->Indent=ind;}
   static vtkIndent *New();
 
   /**

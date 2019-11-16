@@ -59,7 +59,7 @@ public:
    * vtkImageGaussianSmooth or vtkImageMean with strides.
    */
   void SetAveraging(vtkTypeBool);
-  vtkTypeBool GetAveraging() {return this->GetMean();};
+  vtkTypeBool GetAveraging() {return this->GetMean();}
   vtkBooleanMacro(Averaging,vtkTypeBool);
   //@}
 

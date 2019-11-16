@@ -69,10 +69,10 @@ public:
   /**
    * See the vtkCell3D API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_PENTAGONAL_PRISM;};
-  int GetCellDimension() override {return 3;};
-  int GetNumberOfEdges() override {return 15;};
-  int GetNumberOfFaces() override {return 7;};
+  int GetCellType() override {return VTK_PENTAGONAL_PRISM;}
+  int GetCellDimension() override {return 3;}
+  int GetNumberOfEdges() override {return 15;}
+  int GetNumberOfFaces() override {return 7;}
   vtkCell *GetEdge(int edgeId) override;
   vtkCell *GetFace(int faceId) override;
   int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;

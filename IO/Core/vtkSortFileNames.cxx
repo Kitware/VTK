@@ -37,27 +37,27 @@ public:
   typedef std::vector<vtkSmartPointer<vtkStringArray> > VectorType;
 
   static vtkStringArrayVector *New() {
-    return new vtkStringArrayVector; };
+    return new vtkStringArrayVector; }
 
   void Delete() {
-    delete this; };
+    delete this; }
 
   void Reset() {
-    this->Container.clear(); };
+    this->Container.clear(); }
 
   void InsertNextStringArray(vtkStringArray *stringArray) {
-    this->Container.push_back(stringArray); };
+    this->Container.push_back(stringArray); }
 
   vtkStringArray *GetStringArray(int i) {
-    return this->Container[static_cast<VectorType::size_type>(i)]; };
+    return this->Container[static_cast<VectorType::size_type>(i)]; }
 
   int GetNumberOfStringArrays() {
-    return static_cast<int>(this->Container.size()); };
+    return static_cast<int>(this->Container.size()); }
 
 
 private:
-  vtkStringArrayVector() : Container() {};
-  ~vtkStringArrayVector() { this->Container.clear(); };
+  vtkStringArrayVector() : Container() {}
+  ~vtkStringArrayVector() { this->Container.clear(); }
 
   VectorType Container;
 };

@@ -114,15 +114,15 @@ public:
             VTK_EXTRACT_POINT_SEEDED_CLUSTERS,VTK_EXTRACT_CLOSEST_POINT_CLUSTER);
   vtkGetMacro(ExtractionMode,int);
   void SetExtractionModeToPointSeededClusters()
-    {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_CLUSTERS);};
+    {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_CLUSTERS);}
   void SetExtractionModeToLargestCluster()
-    {this->SetExtractionMode(VTK_EXTRACT_LARGEST_CLUSTER);};
+    {this->SetExtractionMode(VTK_EXTRACT_LARGEST_CLUSTER);}
   void SetExtractionModeToSpecifiedClusters()
-    {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_CLUSTERS);};
+    {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_CLUSTERS);}
   void SetExtractionModeToClosestPointCluster()
-    {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_CLUSTER);};
+    {this->SetExtractionMode(VTK_EXTRACT_CLOSEST_POINT_CLUSTER);}
   void SetExtractionModeToAllClusters()
-    {this->SetExtractionMode(VTK_EXTRACT_ALL_CLUSTERS);};
+    {this->SetExtractionMode(VTK_EXTRACT_ALL_CLUSTERS);}
   const char *GetExtractionModeAsString();
   //@}
 

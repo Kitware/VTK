@@ -88,11 +88,11 @@ public:
   void SetInterpolationMode(int mode);
   vtkGetMacro(InterpolationMode,int);
   void SetInterpolationModeToNearestNeighbor()
-    { this->SetInterpolationMode(VTK_NEAREST_INTERPOLATION); };
+    { this->SetInterpolationMode(VTK_NEAREST_INTERPOLATION); }
   void SetInterpolationModeToLinear()
-    { this->SetInterpolationMode(VTK_LINEAR_INTERPOLATION); };
+    { this->SetInterpolationMode(VTK_LINEAR_INTERPOLATION); }
   void SetInterpolationModeToCubic()
-    { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); };
+    { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); }
   const char *GetInterpolationModeAsString();
   //@}
 

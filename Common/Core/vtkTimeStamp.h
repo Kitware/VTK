@@ -32,9 +32,9 @@
 class VTKCOMMONCORE_EXPORT vtkTimeStamp
 {
 public:
-  vtkTimeStamp() {this->ModifiedTime = 0;};
+  vtkTimeStamp() {this->ModifiedTime = 0;}
   static vtkTimeStamp *New();
-  void Delete() {delete this;};
+  void Delete() {delete this;}
 
   /**
    * Set this objects time to the current time. The current time is
@@ -51,22 +51,22 @@ public:
   /**
    * Return this object's Modified time.
    */
-  vtkMTimeType GetMTime() const {return this->ModifiedTime;};
+  vtkMTimeType GetMTime() const {return this->ModifiedTime;}
 
   //@{
   /**
    * Support comparisons of time stamp objects directly.
    */
   bool operator>(vtkTimeStamp& ts) {
-    return (this->ModifiedTime > ts.ModifiedTime);};
+    return (this->ModifiedTime > ts.ModifiedTime);}
   bool operator<(vtkTimeStamp& ts) {
-    return (this->ModifiedTime < ts.ModifiedTime);};
+    return (this->ModifiedTime < ts.ModifiedTime);}
   //@}
 
   /**
    * Allow for typecasting to unsigned long.
    */
-  operator vtkMTimeType() const {return this->ModifiedTime;};
+  operator vtkMTimeType() const {return this->ModifiedTime;}
 
 private:
   vtkMTimeType ModifiedTime;

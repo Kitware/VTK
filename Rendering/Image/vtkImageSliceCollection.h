@@ -77,8 +77,8 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
-  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); }
 
 private:
   vtkImageSliceCollection(const vtkImageSliceCollection&) = delete;

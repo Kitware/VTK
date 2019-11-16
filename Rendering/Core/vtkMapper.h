@@ -490,7 +490,7 @@ public:
    */
   virtual void ProcessSelectorPixelBuffers(vtkHardwareSelector * /* sel */,
     std::vector<unsigned int> & /* pixeloffsets */,
-    vtkProp * /* prop */) { };
+    vtkProp * /* prop */) { }
 
   /**
    * Returns if we can use texture maps for scalar coloring. Note this doesn't

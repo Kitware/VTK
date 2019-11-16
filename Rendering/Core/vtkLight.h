@@ -112,7 +112,7 @@ public:
    */
   vtkSetVector3Macro(Position,double);
   vtkGetVectorMacro(Position,double,3);
-  void SetPosition(const float *a) {this->SetPosition(a[0],a[1],a[2]);};
+  void SetPosition(const float *a) {this->SetPosition(a[0],a[1],a[2]);}
   //@}
 
   //@{
@@ -125,7 +125,7 @@ public:
    */
   vtkSetVector3Macro(FocalPoint,double);
   vtkGetVectorMacro(FocalPoint,double,3);
-  void SetFocalPoint(const float *a) {this->SetFocalPoint(a[0],a[1],a[2]);};
+  void SetFocalPoint(const float *a) {this->SetFocalPoint(a[0],a[1],a[2]);}
   //@}
 
   //@{
@@ -222,7 +222,7 @@ public:
    */
   void SetDirectionAngle(double elevation, double azimuth);
   void SetDirectionAngle(const double ang[2]) {
-    this->SetDirectionAngle(ang[0], ang[1]); };
+    this->SetDirectionAngle(ang[0], ang[1]); }
   //@}
 
   /**

@@ -65,7 +65,7 @@ public:
    * NB: not implemented
    */
   void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) override { return; };
+                          vtkMultiBlockDataSet* ) override { return; }
 
 protected:
   vtkContingencyStatistics();

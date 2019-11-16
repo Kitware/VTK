@@ -79,7 +79,7 @@ public:
   void SetParameterScale(const char *name, double scale);
   double GetParameterScale(const char *name);
   void SetParameterScale(int i, double scale);
-  double GetParameterScale(int i) { return this->ParameterScales[i]; };
+  double GetParameterScale(int i) { return this->ParameterScales[i]; }
   //@}
 
   //@{
@@ -90,19 +90,19 @@ public:
    * parameters by name rather than by index.
    */
   double GetParameterValue(const char *name);
-  double GetParameterValue(int i) { return this->ParameterValues[i]; };
+  double GetParameterValue(int i) { return this->ParameterValues[i]; }
   //@}
 
   /**
    * For completeness, an unchecked method to get the name for particular
    * parameter (the result will be nullptr if no name was set).
    */
-  const char *GetParameterName(int i) { return this->ParameterNames[i]; };
+  const char *GetParameterName(int i) { return this->ParameterNames[i]; }
 
   /**
    * Get the number of parameters that have been set.
    */
-  int GetNumberOfParameters() { return this->NumberOfParameters; };
+  int GetNumberOfParameters() { return this->NumberOfParameters; }
 
   /**
    * Initialize the minimizer.  This will reset the number of parameters to
@@ -127,7 +127,7 @@ public:
    * Get the function value resulting from the minimization.
    */
   vtkSetMacro(FunctionValue,double);
-  double GetFunctionValue() { return this->FunctionValue; };
+  double GetFunctionValue() { return this->FunctionValue; }
   //@}
 
   //@{

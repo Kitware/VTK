@@ -85,7 +85,7 @@ public:
    */
   void SetResolution(const int xR, const int yR);
   void GetResolution(int& xR,int& yR) {
-    xR=this->XResolution; yR=this->YResolution;};
+    xR=this->XResolution; yR=this->YResolution;}
   //@}
 
   //@{

@@ -842,7 +842,7 @@ virtual double *Get##name() VTK_SIZEHINT(2)\
 //   vtkTemplateMacro(myFunc(static_cast<VTK_TT*>(data), arg2));
 //   }
 #define vtkTemplateMacroCase(typeN, type, call)     \
-  case typeN: { typedef type VTK_TT; call; }; break
+  case typeN: { typedef type VTK_TT; call; } break
 #define vtkTemplateMacro(call)                                              \
   vtkTemplateMacroCase(VTK_DOUBLE, double, call);                           \
   vtkTemplateMacroCase(VTK_FLOAT, float, call);                             \

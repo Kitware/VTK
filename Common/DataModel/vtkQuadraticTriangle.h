@@ -52,7 +52,7 @@ public:
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() override {return VTK_QUADRATIC_TRIANGLE;};
+  int GetCellType() override {return VTK_QUADRATIC_TRIANGLE;}
   int GetCellDimension() override {return 2;}
   int GetNumberOfEdges() override {return 3;}
   int GetNumberOfFaces() override {return 0;}

@@ -153,9 +153,9 @@ public:
    */
   vtkSetMacro(InputBufferType, int);
   vtkGetMacro(InputBufferType, int);
-  void SetInputBufferTypeToRGB() {this->SetInputBufferType(VTK_RGB);};
-  void SetInputBufferTypeToRGBA() {this->SetInputBufferType(VTK_RGBA);};
-  void SetInputBufferTypeToZBuffer() {this->SetInputBufferType(VTK_ZBUFFER);};
+  void SetInputBufferTypeToRGB() {this->SetInputBufferType(VTK_RGB);}
+  void SetInputBufferTypeToRGBA() {this->SetInputBufferType(VTK_RGBA);}
+  void SetInputBufferTypeToZBuffer() {this->SetInputBufferType(VTK_ZBUFFER);}
   //@}
 
 

@@ -37,7 +37,7 @@ public:
   vtkTypeMacro(vtkEventForwarderCommand,vtkCommand);
 
   static vtkEventForwarderCommand *New()
-    {return new vtkEventForwarderCommand;};
+    {return new vtkEventForwarderCommand;}
 
   /**
    * Satisfy the superclass API for callbacks. Recall that the caller is

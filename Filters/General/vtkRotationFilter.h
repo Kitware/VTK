@@ -52,9 +52,9 @@ public:
    */
   vtkSetClampMacro(Axis, int, 0, 2);
   vtkGetMacro(Axis, int);
-  void SetAxisToX() { this->SetAxis(USE_X); };
-  void SetAxisToY() { this->SetAxis(USE_Y); };
-  void SetAxisToZ() { this->SetAxis(USE_Z); };
+  void SetAxisToX() { this->SetAxis(USE_X); }
+  void SetAxisToY() { this->SetAxis(USE_Y); }
+  void SetAxisToZ() { this->SetAxis(USE_Z); }
   //@}
 
   //@{

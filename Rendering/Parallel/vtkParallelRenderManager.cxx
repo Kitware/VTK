@@ -317,7 +317,7 @@ void vtkParallelRenderManager::SetRenderWindow(vtkRenderWindow *renWin)
 void vtkParallelRenderManager::SetController(vtkMultiProcessController *controller)
 {
   //Regular vtkSetObjectMacro:
-  vtkSetObjectBodyMacro(Controller,vtkMultiProcessController,controller)
+  vtkSetObjectBodyMacro(Controller,vtkMultiProcessController,controller);
 }
 
 //----------------------------------------------------------------------------

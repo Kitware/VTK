@@ -121,11 +121,11 @@ public:
                    VTK_NEAREST_INTERPOLATION, VTK_CUBIC_INTERPOLATION);
   vtkGetMacro(InterpolationType, int);
   void SetInterpolationTypeToNearest() {
-    this->SetInterpolationType(VTK_NEAREST_INTERPOLATION); };
+    this->SetInterpolationType(VTK_NEAREST_INTERPOLATION); }
   void SetInterpolationTypeToLinear() {
-    this->SetInterpolationType(VTK_LINEAR_INTERPOLATION); };
+    this->SetInterpolationType(VTK_LINEAR_INTERPOLATION); }
   void SetInterpolationTypeToCubic() {
-    this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); };
+    this->SetInterpolationType(VTK_CUBIC_INTERPOLATION); }
   virtual const char *GetInterpolationTypeAsString();
   //@}
 

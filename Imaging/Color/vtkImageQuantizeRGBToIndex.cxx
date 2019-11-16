@@ -41,46 +41,46 @@ public:
       this->Image = nullptr;
       this->Bounds[0] = 0; this->Bounds[1] = 256;
       this->Bounds[2] = 0; this->Bounds[3] = 256;
-      this->Bounds[4] = 0; this->Bounds[5] = 256; };
+      this->Bounds[4] = 0; this->Bounds[5] = 256; }
 
   ~vtkColorQuantizeNode()
     { delete []this->Histogram[0];
       delete []this->Histogram[1];
       delete []this->Histogram[2];
       delete this->Child1;
-      delete this->Child2; };
+      delete this->Child2; }
 
   void SetImageExtent( int v[6] )
-    { memcpy( this->ImageExtent, v, 6*sizeof(int) ); };
+    { memcpy( this->ImageExtent, v, 6*sizeof(int) ); }
 
   void SetImageIncrement( vtkIdType v[3] )
-    { memcpy( this->ImageIncrement, v, 3*sizeof(vtkIdType) ); };
+    { memcpy( this->ImageIncrement, v, 3*sizeof(vtkIdType) ); }
 
   void SetImageType(double type)
   {
       this->ImageType = static_cast<int>(type);
   }
 
-  void SetImage( void *image ) { this->Image = image; };
+  void SetImage( void *image ) { this->Image = image; }
 
-  void SetAxis( int v ) { this->Axis = v; };
+  void SetAxis( int v ) { this->Axis = v; }
   int  GetAxis() { return this->Axis; }
 
-  void SetSplitPoint( int v ) { this->SplitPoint = v; };
+  void SetSplitPoint( int v ) { this->SplitPoint = v; }
   int  GetSplitPoint() { return this->SplitPoint; }
 
-  int *GetBounds(          ) { return this->Bounds; };
-  void SetBounds( int v[6] ) { memcpy( this->Bounds, v, 6*sizeof(int) ); };
+  int *GetBounds(          ) { return this->Bounds; }
+  void SetBounds( int v[6] ) { memcpy( this->Bounds, v, 6*sizeof(int) ); }
 
-  void SetIndex( int v ) { this->Index = v; };
+  void SetIndex( int v ) { this->Index = v; }
   int  GetIndex() { return this->Index; }
 
-  double GetStdDev( int axis ) { return this->StdDev[axis]; };
+  double GetStdDev( int axis ) { return this->StdDev[axis]; }
   void  ComputeStdDev();
 
-  int GetCount() { return this->Count; };
+  int GetCount() { return this->Count; }
 
-  double GetMean( int axis ) { return this->Mean[axis]; };
+  double GetMean( int axis ) { return this->Mean[axis]; }
   void GetMean(double c[3])
   {
     c[0] = this->Mean[0];
@@ -90,10 +90,10 @@ public:
 
   void Divide( int axis, int nextIndex );
 
-  void SetChild1( vtkColorQuantizeNode *n ) { this->Child1 = n; };
+  void SetChild1( vtkColorQuantizeNode *n ) { this->Child1 = n; }
   vtkColorQuantizeNode *GetChild1() { return this->Child1; }
 
-  void SetChild2( vtkColorQuantizeNode *n ) { this->Child2 = n; };
+  void SetChild2( vtkColorQuantizeNode *n ) { this->Child2 = n; }
   vtkColorQuantizeNode *GetChild2() { return this->Child2; }
 
   int GetIndex( int c[3] )
@@ -137,7 +137,7 @@ public:
 
   void AddColor( int c[3] )
     { this->AverageCount++; this->AverageColor[0] += c[0];
-      this->AverageColor[1] += c[1]; this->AverageColor[2] += c[2]; };
+      this->AverageColor[1] += c[1]; this->AverageColor[2] += c[2]; }
 
 protected:
   int                  Axis;

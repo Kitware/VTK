@@ -82,11 +82,11 @@ public:
   vtkSetMacro(VectorMode,int);
   vtkGetMacro(VectorMode,int);
   void SetVectorModeToPassVectors()
-    {this->SetVectorMode(VTK_VECTOR_MODE_PASS_VECTORS);};
+    {this->SetVectorMode(VTK_VECTOR_MODE_PASS_VECTORS);}
   void SetVectorModeToComputeGradient()
-    {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_GRADIENT);};
+    {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_GRADIENT);}
   void SetVectorModeToComputeVorticity()
-    {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY);};
+    {this->SetVectorMode(VTK_VECTOR_MODE_COMPUTE_VORTICITY);}
   const char *GetVectorModeAsString();
   //@}
 
@@ -102,13 +102,13 @@ public:
   vtkSetMacro(TensorMode,int);
   vtkGetMacro(TensorMode,int);
   void SetTensorModeToPassTensors()
-    {this->SetTensorMode(VTK_TENSOR_MODE_PASS_TENSORS);};
+    {this->SetTensorMode(VTK_TENSOR_MODE_PASS_TENSORS);}
   void SetTensorModeToComputeGradient()
-    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GRADIENT);};
+    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GRADIENT);}
   void SetTensorModeToComputeStrain()
-    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_STRAIN);};
+    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_STRAIN);}
   void SetTensorModeToComputeGreenLagrangeStrain()
-    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);};
+    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);}
   const char *GetTensorModeAsString();
   //@}
 

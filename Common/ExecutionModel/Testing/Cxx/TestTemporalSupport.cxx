@@ -81,10 +81,10 @@ protected:
     this->NumRequestTimeDependentInformation=0;
   }
   virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*){ return 1;}
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) {return 1;};
-  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) { return 1; };
-  virtual int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*) { return 1; };
-  virtual int RequestTimeDependentInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) { return 1; };
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) {return 1;}
+  virtual int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) { return 1; }
+  virtual int RequestUpdateTime(vtkInformation*, vtkInformationVector**, vtkInformationVector*) { return 1; }
+  virtual int RequestTimeDependentInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) { return 1; }
 
   int NumRequestInformation;
   int NumRequestData;

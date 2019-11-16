@@ -477,7 +477,7 @@ protected:
    */
   static
   bool LoadRequiredExtensions(vtkOpenGLRenderWindow *) {
-    return true; };
+    return true; }
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 

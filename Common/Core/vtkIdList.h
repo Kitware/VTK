@@ -54,7 +54,7 @@ public:
   /**
    * Return the number of id's in the list.
    */
-  vtkIdType GetNumberOfIds() {return this->NumberOfIds;};
+  vtkIdType GetNumberOfIds() {return this->NumberOfIds;}
 
   /**
    * Return the id at location i.
@@ -105,7 +105,7 @@ public:
   /**
    * Get a pointer to a particular data index.
    */
-  vtkIdType *GetPointer(const vtkIdType i) {return this->Ids + i;};
+  vtkIdType *GetPointer(const vtkIdType i) {return this->Ids + i;}
 
   /**
    * Get a pointer to a particular data index. Make sure data is allocated
@@ -124,12 +124,12 @@ public:
   /**
    * Reset to an empty state but retain previously allocated memory.
    */
-  void Reset() {this->NumberOfIds = 0;};
+  void Reset() {this->NumberOfIds = 0;}
 
   /**
    * Free any unused memory.
    */
-  void Squeeze() {this->Resize(this->NumberOfIds);};
+  void Squeeze() {this->Resize(this->NumberOfIds);}
 
   /**
    * Copy an id list by explicitly copying the internal array.
@@ -163,7 +163,7 @@ public:
    * Intersect one id list with another. This method should become legacy.
    */
   void IntersectWith(vtkIdList& otherIds)
-  { this->IntersectWith(&otherIds); };
+  { this->IntersectWith(&otherIds); }
 
   //@{
   /**

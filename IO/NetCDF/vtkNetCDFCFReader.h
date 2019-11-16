@@ -138,7 +138,7 @@ protected:
 
   class vtkDimensionInfo {
   public:
-    vtkDimensionInfo() { };
+    vtkDimensionInfo() { }
     vtkDimensionInfo(int ncFD, int id);
     const char *GetName() const { return this->Name.c_str(); }
     enum UnitsEnum {
@@ -175,7 +175,7 @@ protected:
 
   class vtkDependentDimensionInfo {
   public:
-    vtkDependentDimensionInfo() : Valid(false) { };
+    vtkDependentDimensionInfo() : Valid(false) { }
     vtkDependentDimensionInfo(int ncFD, int varId, vtkNetCDFCFReader *parent);
     bool GetValid() const { return this->Valid; }
     bool GetHasBounds() const { return this->HasBounds; }

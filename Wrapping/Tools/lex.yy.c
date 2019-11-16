@@ -4207,7 +4207,7 @@ int skip_trailing_comment(const char *text, size_t l)
 
   while (cp < ep)
   {
-    while (cp < ep && *cp != '/' && *cp != '\"') { cp++; };
+    while (cp < ep && *cp != '/' && *cp != '\"') { cp++; }
     if (cp >= ep)
     {
       break;
@@ -4216,7 +4216,7 @@ int skip_trailing_comment(const char *text, size_t l)
     {
       incomment = 1;
       cp += 2;
-      while (cp < ep && *cp != '*') { cp++; };
+      while (cp < ep && *cp != '*') { cp++; }
       if (cp[0] == '*' && cp[1] == '/')
       {
         incomment = 0;
@@ -4232,7 +4232,7 @@ int skip_trailing_comment(const char *text, size_t l)
       cp++;
       while (cp < ep)
       {
-        while (cp < ep && *cp != '\\' && *cp != '\"') { cp++; };
+        while (cp < ep && *cp != '\\' && *cp != '\"') { cp++; }
         if (cp >= ep)
         {
           break;

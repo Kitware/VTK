@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
    * same cookie back and forth.
    */
   vtkProp *GetNextProp(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkProp *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkProp *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkPropCollection() {}
@@ -75,7 +75,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkPropCollection(const vtkPropCollection&) = delete;

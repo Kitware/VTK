@@ -100,10 +100,10 @@ public:
    */
   vtkIdType GetNumberOfPoints() override;
   void GetPoint(vtkIdType ptId, double x[3]) override
-    {this->Points->GetPoint(ptId,x);};
+    {this->Points->GetPoint(ptId,x);}
   vtkIdType FindPoint(double x[3]) override;
   vtkIdType FindPoint(double x, double y, double z) {
-    return this->vtkDataSet::FindPoint(x, y, z);};
+    return this->vtkDataSet::FindPoint(x, y, z);}
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
                      double tol2, int& subId, double pcoords[3],
                      double *weights) override;
@@ -120,7 +120,7 @@ public:
    * performed. Prefer GetPoint() with the return value in argument.
    */
   double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override
-    {return this->Points->GetPoint(ptId);};
+    {return this->Points->GetPoint(ptId);}
 
   /**
    * Return an iterator that traverses the cells in this data set.

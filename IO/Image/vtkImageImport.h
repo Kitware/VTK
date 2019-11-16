@@ -57,7 +57,7 @@ public:
    * nor modify the data.
    */
   void SetImportVoidPointer(void *ptr);
-  void *GetImportVoidPointer() {return this->ImportVoidPointer;};
+  void *GetImportVoidPointer() {return this->ImportVoidPointer;}
   //@}
 
   /**

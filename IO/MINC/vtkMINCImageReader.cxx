@@ -1109,14 +1109,14 @@ void vtkMINCImageReaderExecuteChunk(
 // Our own template that only includes MINC data types.
 
 #define vtkMINCImageReaderTemplateMacro(call) \
-  case VTK_DOUBLE:         { typedef double VTK_TT; call; };         break; \
-  case VTK_FLOAT:          { typedef float VTK_TT; call; };          break; \
-  case VTK_INT:            { typedef int VTK_TT; call; };            break; \
-  case VTK_UNSIGNED_INT:   { typedef unsigned int VTK_TT; call; };   break; \
-  case VTK_SHORT:          { typedef short VTK_TT; call; };          break; \
-  case VTK_UNSIGNED_SHORT: { typedef unsigned short VTK_TT; call; }; break; \
-  case VTK_SIGNED_CHAR:    { typedef signed char VTK_TT; call; };    break; \
-  case VTK_UNSIGNED_CHAR:  { typedef unsigned char VTK_TT; call; };  break
+  case VTK_DOUBLE:         { typedef double VTK_TT; call; }         break; \
+  case VTK_FLOAT:          { typedef float VTK_TT; call; }          break; \
+  case VTK_INT:            { typedef int VTK_TT; call; }            break; \
+  case VTK_UNSIGNED_INT:   { typedef unsigned int VTK_TT; call; }   break; \
+  case VTK_SHORT:          { typedef short VTK_TT; call; }          break; \
+  case VTK_UNSIGNED_SHORT: { typedef unsigned short VTK_TT; call; } break; \
+  case VTK_SIGNED_CHAR:    { typedef signed char VTK_TT; call; }    break; \
+  case VTK_UNSIGNED_CHAR:  { typedef unsigned char VTK_TT; call; }  break
 
 //-------------------------------------------------------------------------
 void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,

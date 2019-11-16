@@ -79,11 +79,11 @@ public:
         VTK_CULLER_SORT_NONE, VTK_CULLER_SORT_BACK_TO_FRONT );
   vtkGetMacro(SortingStyle,int);
   void SetSortingStyleToNone()
-        {this->SetSortingStyle(VTK_CULLER_SORT_NONE);};
+        {this->SetSortingStyle(VTK_CULLER_SORT_NONE);}
   void SetSortingStyleToBackToFront()
-    {this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT);};
+    {this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT);}
   void SetSortingStyleToFrontToBack()
-    {this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK);};
+    {this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK);}
   const char *GetSortingStyleAsString(void);
   //@}
 

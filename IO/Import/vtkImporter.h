@@ -85,7 +85,7 @@ public:
    * Import the actors, cameras, lights and properties into a vtkRenderWindow.
    */
   void Read();
-  void Update() {this->Read();};
+  void Update() {this->Read();}
   //@}
 
 
@@ -93,7 +93,7 @@ protected:
   vtkImporter();
   ~vtkImporter() override;
 
-  virtual int ImportBegin () {return 1;};
+  virtual int ImportBegin () {return 1;}
   virtual void ImportEnd () {}
   virtual void ImportActors (vtkRenderer*) {}
   virtual void ImportCameras (vtkRenderer*) {}

@@ -113,7 +113,7 @@ public:
    * large enough to hold the data.
    */
   void SetExportVoidPointer(void *);
-  void *GetExportVoidPointer() { return this->ExportVoidPointer; };
+  void *GetExportVoidPointer() { return this->ExportVoidPointer; }
   //@}
 
   //@{
@@ -122,7 +122,7 @@ public:
    * to the memory pointed to by SetExportVoidPointer().  You can
    * also specify a void pointer when you call Export().
    */
-  void Export() { this->Export(this->ExportVoidPointer); };
+  void Export() { this->Export(this->ExportVoidPointer); }
   virtual void Export(void *);
   //@}
 

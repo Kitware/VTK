@@ -163,11 +163,11 @@ public:
   void SetIntegratorType(int type);
   int GetIntegratorType();
   void SetIntegratorTypeToRungeKutta2()
-    {this->SetIntegratorType(RUNGE_KUTTA2);};
+    {this->SetIntegratorType(RUNGE_KUTTA2);}
   void SetIntegratorTypeToRungeKutta4()
-    {this->SetIntegratorType(RUNGE_KUTTA4);};
+    {this->SetIntegratorType(RUNGE_KUTTA4);}
   void SetIntegratorTypeToRungeKutta45()
-    {this->SetIntegratorType(RUNGE_KUTTA45);};
+    {this->SetIntegratorType(RUNGE_KUTTA45);}
   //@}
 
   //@{
@@ -184,11 +184,11 @@ public:
   int GetMaximumPropagationUnit();
   double GetMaximumPropagation();
   void SetMaximumPropagationUnitToTimeUnit()
-    {this->SetMaximumPropagationUnit(TIME_UNIT);};
+    {this->SetMaximumPropagationUnit(TIME_UNIT);}
   void SetMaximumPropagationUnitToLengthUnit()
-    {this->SetMaximumPropagationUnit(LENGTH_UNIT);};
+    {this->SetMaximumPropagationUnit(LENGTH_UNIT);}
   void SetMaximumPropagationUnitToCellLengthUnit()
-    {this->SetMaximumPropagationUnit(CELL_LENGTH_UNIT);};
+    {this->SetMaximumPropagationUnit(CELL_LENGTH_UNIT);}
   //@}
 
   //@{
@@ -206,11 +206,11 @@ public:
   int GetMinimumIntegrationStepUnit();
   double GetMinimumIntegrationStep();
   void SetMinimumIntegrationStepUnitToTimeUnit()
-    {this->SetMinimumIntegrationStepUnit(TIME_UNIT);};
+    {this->SetMinimumIntegrationStepUnit(TIME_UNIT);}
   void SetMinimumIntegrationStepUnitToLengthUnit()
-    {this->SetMinimumIntegrationStepUnit(LENGTH_UNIT);};
+    {this->SetMinimumIntegrationStepUnit(LENGTH_UNIT);}
   void SetMinimumIntegrationStepUnitToCellLengthUnit()
-    {this->SetMinimumIntegrationStepUnit(CELL_LENGTH_UNIT);};
+    {this->SetMinimumIntegrationStepUnit(CELL_LENGTH_UNIT);}
   //@}
 
   //@{
@@ -228,11 +228,11 @@ public:
   int GetMaximumIntegrationStepUnit();
   double GetMaximumIntegrationStep();
   void SetMaximumIntegrationStepUnitToTimeUnit()
-    {this->SetMaximumIntegrationStepUnit(TIME_UNIT);};
+    {this->SetMaximumIntegrationStepUnit(TIME_UNIT);}
   void SetMaximumIntegrationStepUnitToLengthUnit()
-    {this->SetMaximumIntegrationStepUnit(LENGTH_UNIT);};
+    {this->SetMaximumIntegrationStepUnit(LENGTH_UNIT);}
   void SetMaximumIntegrationStepUnitToCellLengthUnit()
-    {this->SetMaximumIntegrationStepUnit(CELL_LENGTH_UNIT);};
+    {this->SetMaximumIntegrationStepUnit(CELL_LENGTH_UNIT);}
   //@}
 
   //@{
@@ -251,11 +251,11 @@ public:
   int GetInitialIntegrationStepUnit();
   double GetInitialIntegrationStep();
   void SetInitialIntegrationStepUnitToTimeUnit()
-    {this->SetInitialIntegrationStepUnit(TIME_UNIT);};
+    {this->SetInitialIntegrationStepUnit(TIME_UNIT);}
   void SetInitialIntegrationStepUnitToLengthUnit()
-    {this->SetInitialIntegrationStepUnit(LENGTH_UNIT);};
+    {this->SetInitialIntegrationStepUnit(LENGTH_UNIT);}
   void SetInitialIntegrationStepUnitToCellLengthUnit()
-    {this->SetInitialIntegrationStepUnit(CELL_LENGTH_UNIT);};
+    {this->SetInitialIntegrationStepUnit(CELL_LENGTH_UNIT);}
   //@}
 
   //@{
@@ -312,11 +312,11 @@ public:
   vtkSetClampMacro(IntegrationDirection, int, FORWARD, BOTH);
   vtkGetMacro(IntegrationDirection, int);
   void SetIntegrationDirectionToForward()
-    {this->SetIntegrationDirection(FORWARD);};
+    {this->SetIntegrationDirection(FORWARD);}
   void SetIntegrationDirectionToBackward()
-    {this->SetIntegrationDirection(BACKWARD);};
+    {this->SetIntegrationDirection(BACKWARD);}
   void SetIntegrationDirectionToBoth()
-    {this->SetIntegrationDirection(BOTH);};
+    {this->SetIntegrationDirection(BOTH);}
   //@}
 
   //@{
@@ -367,7 +367,7 @@ protected:
 
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkGenericDataSet not a vtkDataObject."); };
+    { vtkErrorMacro( << "AddInput() must be called with a vtkGenericDataSet not a vtkDataObject."); }
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 

@@ -89,8 +89,8 @@ public:
    * These methods are provided for backward compatibility. Will disappear
    * soon.
    */
-  void SetInput(vtkRenderWindow *renWin) {this->SetRenderWindow(renWin);};
-  vtkRenderWindow *GetInput() {return this->GetRenderWindow();};
+  void SetInput(vtkRenderWindow *renWin) {this->SetRenderWindow(renWin);}
+  vtkRenderWindow *GetInput() {return this->GetRenderWindow();}
   //@}
 
   /**

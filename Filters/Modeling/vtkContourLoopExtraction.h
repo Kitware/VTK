@@ -103,11 +103,11 @@ public:
   vtkSetClampMacro(LoopClosure,int,VTK_LOOP_CLOSURE_OFF,VTK_LOOP_CLOSURE_ALL);
   vtkGetMacro(LoopClosure,int);
   void SetLoopClosureToOff()
-    {this->SetLoopClosure(VTK_LOOP_CLOSURE_OFF);};
+    {this->SetLoopClosure(VTK_LOOP_CLOSURE_OFF);}
   void SetLoopClosureToBoundary()
-    {this->SetLoopClosure(VTK_LOOP_CLOSURE_BOUNDARY);};
+    {this->SetLoopClosure(VTK_LOOP_CLOSURE_BOUNDARY);}
   void SetLoopClosureToAll()
-    {this->SetLoopClosure(VTK_LOOP_CLOSURE_ALL);};
+    {this->SetLoopClosure(VTK_LOOP_CLOSURE_ALL);}
   const char *GetLoopClosureAsString();
   //@}
 
@@ -150,11 +150,11 @@ public:
   vtkSetClampMacro(OutputMode,int,VTK_OUTPUT_POLYGONS,VTK_OUTPUT_BOTH);
   vtkGetMacro(OutputMode,int);
   void SetOutputModeToPolygons()
-    {this->SetOutputMode(VTK_OUTPUT_POLYGONS);};
+    {this->SetOutputMode(VTK_OUTPUT_POLYGONS);}
   void SetOutputModeToPolylines()
-    {this->SetOutputMode(VTK_OUTPUT_POLYLINES);};
+    {this->SetOutputMode(VTK_OUTPUT_POLYLINES);}
   void SetOutputModeToBoth()
-    {this->SetOutputMode(VTK_OUTPUT_BOTH);};
+    {this->SetOutputMode(VTK_OUTPUT_BOTH);}
   const char *GetOutputModeAsString();
   //@}
 

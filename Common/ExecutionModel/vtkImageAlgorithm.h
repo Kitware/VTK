@@ -75,7 +75,7 @@ public:
    * written a long time ago still use this method.
    */
   vtkDataObject *GetInput(int port);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject *GetInput() { return this->GetInput(0); }
   vtkImageData  *GetImageDataInput(int port);
   //@}
 

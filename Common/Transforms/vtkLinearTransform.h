@@ -40,14 +40,14 @@ public:
    * You can use the same array to store both the input and output.
    */
   void TransformNormal(const float in[3], float out[3]) {
-    this->Update(); this->InternalTransformNormal(in,out); };
+    this->Update(); this->InternalTransformNormal(in,out); }
 
   /**
    * Apply the transformation to a double-precision normal.
    * You can use the same array to store both the input and output.
    */
   void TransformNormal(const double in[3], double out[3]) {
-    this->Update(); this->InternalTransformNormal(in,out); };
+    this->Update(); this->InternalTransformNormal(in,out); }
 
   /**
    * Synonymous with TransformDoubleNormal(x,y,z).
@@ -56,7 +56,7 @@ public:
   double *TransformNormal(double x, double y, double z) VTK_SIZEHINT(3) {
     return this->TransformDoubleNormal(x,y,z); }
   double *TransformNormal(const double normal[3]) VTK_SIZEHINT(3) {
-    return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); };
+    return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); }
 
   //@{
   /**
@@ -68,9 +68,9 @@ public:
     this->InternalFloatPoint[1] = y;
     this->InternalFloatPoint[2] = z;
     this->TransformNormal(this->InternalFloatPoint,this->InternalFloatPoint);
-    return this->InternalFloatPoint; };
+    return this->InternalFloatPoint; }
   float *TransformFloatNormal(const float normal[3]) VTK_SIZEHINT(3) {
-    return this->TransformFloatNormal(normal[0],normal[1],normal[2]); };
+    return this->TransformFloatNormal(normal[0],normal[1],normal[2]); }
   //@}
 
   //@{
@@ -83,9 +83,9 @@ public:
     this->InternalDoublePoint[1] = y;
     this->InternalDoublePoint[2] = z;
     this->TransformNormal(this->InternalDoublePoint,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
   double *TransformDoubleNormal(const double normal[3]) VTK_SIZEHINT(3) {
-    return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); };
+    return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); }
   //@}
 
   /**
@@ -95,21 +95,21 @@ public:
   double *TransformVector(double x, double y, double z) VTK_SIZEHINT(3) {
     return this->TransformDoubleVector(x,y,z); }
   double *TransformVector(const double normal[3]) VTK_SIZEHINT(3) {
-    return this->TransformDoubleVector(normal[0],normal[1],normal[2]); };
+    return this->TransformDoubleVector(normal[0],normal[1],normal[2]); }
 
   /**
    * Apply the transformation to a vector.
    * You can use the same array to store both the input and output.
    */
   void TransformVector(const float in[3], float out[3]) {
-    this->Update(); this->InternalTransformVector(in,out); };
+    this->Update(); this->InternalTransformVector(in,out); }
 
   /**
    * Apply the transformation to a double-precision vector.
    * You can use the same array to store both the input and output.
    */
   void TransformVector(const double in[3], double out[3]) {
-    this->Update(); this->InternalTransformVector(in,out); };
+    this->Update(); this->InternalTransformVector(in,out); }
 
   //@{
   /**
@@ -121,9 +121,9 @@ public:
       this->InternalFloatPoint[1] = y;
       this->InternalFloatPoint[2] = z;
       this->TransformVector(this->InternalFloatPoint,this->InternalFloatPoint);
-      return this->InternalFloatPoint; };
+      return this->InternalFloatPoint; }
   float *TransformFloatVector(const float vec[3]) VTK_SIZEHINT(3) {
-    return this->TransformFloatVector(vec[0],vec[1],vec[2]); };
+    return this->TransformFloatVector(vec[0],vec[1],vec[2]); }
   //@}
 
   //@{
@@ -136,9 +136,9 @@ public:
     this->InternalDoublePoint[1] = y;
     this->InternalDoublePoint[2] = z;
     this->TransformVector(this->InternalDoublePoint,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
   double *TransformDoubleVector(const double vec[3]) VTK_SIZEHINT(3) {
-    return this->TransformDoubleVector(vec[0],vec[1],vec[2]); };
+    return this->TransformDoubleVector(vec[0],vec[1],vec[2]); }
   //@}
 
   /**

@@ -131,7 +131,7 @@ protected:
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridPointData(
-      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) override {;};
+      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) override {}
 
   /**
    * See vtkAMRBaseReader::SetUpDataArraySelections

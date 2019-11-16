@@ -81,7 +81,7 @@ public:
    * the current vtkPStructuredGridConnectivity instance
    */
   int GetNumberOfLocalGrids()
-    { return static_cast<int>(this->GridIds.size()); };
+    { return static_cast<int>(this->GridIds.size()); }
 
   /**
    * Returns the rank of the given gridID. A nominal value of -1 for the

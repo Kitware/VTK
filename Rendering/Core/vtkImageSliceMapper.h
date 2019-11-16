@@ -121,7 +121,7 @@ public:
    */
   double *GetBounds() override;
   void GetBounds(double bounds[6]) override {
-    this->vtkAbstractMapper3D::GetBounds(bounds); };
+    this->vtkAbstractMapper3D::GetBounds(bounds); }
   //@}
 
   // return the bounds in index space

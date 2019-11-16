@@ -234,7 +234,7 @@ public:
    * Get the texture that was picked.  This will always be set if the
    * picked prop has a texture, and will always be null otherwise.
    */
-  vtkTexture *GetTexture() { return this->Texture; };
+  vtkTexture *GetTexture() { return this->Texture; }
 
   //@{
   /**

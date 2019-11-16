@@ -284,7 +284,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
    * this number of bytes corresponds to the buffer size required to serialize
    * any vtkAMRBox instance.
    */
-  static vtkIdType GetBytesize(){return 6*sizeof(int); };
+  static vtkIdType GetBytesize(){return 6*sizeof(int); }
 
   /**
    * Returns the linear index of the given cell structured coordinates

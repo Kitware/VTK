@@ -428,7 +428,7 @@ public:
    */
   virtual void ProcessSelectorPixelBuffers(
     vtkHardwareSelector * /* sel */,
-    std::vector<unsigned int> & /* pixeloffsets */) { };
+    std::vector<unsigned int> & /* pixeloffsets */) { }
 
   //@{
   /**
@@ -457,7 +457,7 @@ public:
 
   //@{
   // Get if we are in the translucent polygonal geometry pass
-  virtual bool IsRenderingTranslucentPolygonalGeometry() { return false; };
+  virtual bool IsRenderingTranslucentPolygonalGeometry() { return false; }
   //@}
 
 protected:

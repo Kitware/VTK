@@ -234,7 +234,7 @@ public:
    * Take an RMI away.
    */
   virtual void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
-    {(void)f; (void)arg; (void)tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
+    {(void)f; (void)arg; (void)tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");}
 
   /**
    * These methods are a part of the newer API to add multiple rmi callbacks.

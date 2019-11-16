@@ -78,11 +78,11 @@ public:
   vtkSetClampMacro(DiceMode,int,VTK_DICE_MODE_NUMBER_OF_POINTS,VTK_DICE_MODE_MEMORY_LIMIT);
   vtkGetMacro(DiceMode,int);
   void SetDiceModeToNumberOfPointsPerPiece()
-    {this->SetDiceMode(VTK_DICE_MODE_NUMBER_OF_POINTS);};
+    {this->SetDiceMode(VTK_DICE_MODE_NUMBER_OF_POINTS);}
   void SetDiceModeToSpecifiedNumberOfPieces()
-    {this->SetDiceMode(VTK_DICE_MODE_SPECIFIED_NUMBER);};
+    {this->SetDiceMode(VTK_DICE_MODE_SPECIFIED_NUMBER);}
   void SetDiceModeToMemoryLimitPerPiece()
-    {this->SetDiceMode(VTK_DICE_MODE_MEMORY_LIMIT);};
+    {this->SetDiceMode(VTK_DICE_MODE_MEMORY_LIMIT);}
   //@}
 
   //@{

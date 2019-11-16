@@ -111,7 +111,7 @@ public:
   /**
    * Get the property associated with the object.
    */
-  virtual vtkProperty *GetProperty() { return this->Property; };
+  virtual vtkProperty *GetProperty() { return this->Property; }
 
 protected:
   vtkMNIObjectReader();

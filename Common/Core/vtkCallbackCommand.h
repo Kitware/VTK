@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkCallbackCommand,vtkCommand);
 
   static vtkCallbackCommand *New()
-    {return new vtkCallbackCommand;};
+    {return new vtkCallbackCommand;}
 
   /**
    * Satisfy the superclass API for callbacks. Recall that the caller is

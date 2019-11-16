@@ -243,7 +243,7 @@ public:
   virtual void GetTouchPadPosition(
     vtkEventDataDevice,
     vtkEventDataDeviceInput,
-    float [3]) { };
+    float [3]) { }
   //@}
 
   //@{
@@ -251,10 +251,10 @@ public:
    * Set/Get the optional scale translation to map world coordinates into the
    * 3D physical space (meters, 0,0,0).
    */
-  virtual void SetPhysicalTranslation(vtkCamera *, double, double, double) {};
-  virtual double *GetPhysicalTranslation(vtkCamera *) { return nullptr; };
-  virtual void SetPhysicalScale(double) {};
-  virtual double GetPhysicalScale() { return 1.0; };
+  virtual void SetPhysicalTranslation(vtkCamera *, double, double, double) {}
+  virtual double *GetPhysicalTranslation(vtkCamera *) { return nullptr; }
+  virtual void SetPhysicalScale(double) {}
+  virtual double GetPhysicalScale() { return 1.0; }
   //@}
 
   //@{

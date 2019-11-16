@@ -569,7 +569,7 @@ void vtkXMLUtilities::FactorElements(vtkXMLDataElement *tree)
   // (multiple pass might be needed because larger trees are factored
   // first)
 
-  while (vtkXMLUtilities::FactorElementsInternal(tree, tree, pool)) {};
+  while (vtkXMLUtilities::FactorElementsInternal(tree, tree, pool)) {}
 
   // Nothing factored, remove the useless pool
 

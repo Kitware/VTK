@@ -147,7 +147,7 @@ public:
   /**
    * Get the box vtkProperty2D.
    */
-  vtkProperty2D* GetBoxProperty() { return this->BoxActor->GetProperty(); };
+  vtkProperty2D* GetBoxProperty() { return this->BoxActor->GetProperty(); }
 
   //@{
   /**
@@ -218,7 +218,7 @@ public:
    * Draw the legend box to the screen.
    */
   int RenderOpaqueGeometry(vtkViewport* viewport) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;};
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;}
   int RenderOverlay(vtkViewport* viewport) override;
   //@}
 

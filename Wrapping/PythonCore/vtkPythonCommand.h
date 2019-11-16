@@ -26,7 +26,7 @@ class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonCommand : public vtkCommand
 public:
   vtkTypeMacro(vtkPythonCommand,vtkCommand);
 
-  static vtkPythonCommand *New() { return new vtkPythonCommand; };
+  static vtkPythonCommand *New() { return new vtkPythonCommand; }
 
   void SetObject(PyObject *o);
   void SetThreadState(PyThreadState *ts);

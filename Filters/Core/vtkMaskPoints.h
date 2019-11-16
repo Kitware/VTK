@@ -172,8 +172,8 @@ protected:
 
   virtual void InternalScatter(unsigned long*, unsigned long *, int, int) {}
   virtual void InternalGather(unsigned long*, unsigned long*, int, int) {}
-  virtual int InternalGetNumberOfProcesses() { return 1; };
-  virtual int InternalGetLocalProcessId() { return 0; };
+  virtual int InternalGetNumberOfProcesses() { return 1; }
+  virtual int InternalGetLocalProcessId() { return 0; }
   virtual void InternalSplitController(int, int) {}
   virtual void InternalResetController() {}
   virtual void InternalBarrier() {}

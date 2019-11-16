@@ -107,7 +107,7 @@ public:
    */
   virtual void SetTransform(vtkAbstractTransform *transform);
   virtual vtkAbstractTransform *GetTransform() {
-    return this->Transform; };
+    return this->Transform; }
   //@}
 
   /**

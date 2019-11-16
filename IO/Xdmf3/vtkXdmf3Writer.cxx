@@ -46,7 +46,7 @@ public:
   Internals()
   {
   }
-  ~Internals() {};
+  ~Internals() {}
   void Init()
   {
     this->NumberOfTimeSteps = 1;

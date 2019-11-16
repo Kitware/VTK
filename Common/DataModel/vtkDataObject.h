@@ -103,8 +103,8 @@ public:
    * after being used by a filter.
    */
   static void SetGlobalReleaseDataFlag(int val);
-  void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
-  void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
+  void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);}
+  void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);}
   static int GetGlobalReleaseDataFlag();
   //@}
 
@@ -218,7 +218,7 @@ public:
    * objects we just call Initialize. But for vtkImageData we leave the old
    * data in case the memory can be reused.
    */
-  virtual void PrepareForNewData() {this->Initialize();};
+  virtual void PrepareForNewData() {this->Initialize();}
 
   //@{
   /**
@@ -237,7 +237,7 @@ public:
    * and vtkStructuredGrid. The default is the have an extent in pieces,
    * with only one piece (no streaming possible).
    */
-  virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
+  virtual int GetExtentType() { return VTK_PIECES_EXTENT; }
 
   /**
    * This method crops the data object (if necessary) so that the extent

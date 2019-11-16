@@ -65,11 +65,11 @@ extern VTKJAVA_EXPORT void vtkJavaVoidFuncArgDelete(void *);
 class VTKJAVA_EXPORT vtkJavaCommand : public vtkCommand
 {
 public:
-  static vtkJavaCommand *New() { return new vtkJavaCommand; };
+  static vtkJavaCommand *New() { return new vtkJavaCommand; }
 
-  void SetGlobalRef(jobject obj) { this->uobj = obj; };
-  void SetMethodID(jmethodID id) { this->mid = id; };
-  void AssignJavaVM(JNIEnv *env) { env->GetJavaVM(&(this->vm)); };
+  void SetGlobalRef(jobject obj) { this->uobj = obj; }
+  void SetMethodID(jmethodID id) { this->mid = id; }
+  void AssignJavaVM(JNIEnv *env) { env->GetJavaVM(&(this->vm)); }
 
   void Execute(vtkObject *, unsigned long, void *);
 

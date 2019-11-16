@@ -66,15 +66,15 @@ public:
    */
   vtkSetClampMacro(Plane, int, 0, 8);
   vtkGetMacro(Plane, int);
-  void SetPlaneToX() { this->SetPlane( USE_X ); };
-  void SetPlaneToY() { this->SetPlane( USE_Y ); };
-  void SetPlaneToZ() { this->SetPlane( USE_Z ); };
-  void SetPlaneToXMin() { this->SetPlane( USE_X_MIN ); };
-  void SetPlaneToYMin() { this->SetPlane( USE_Y_MIN ); };
-  void SetPlaneToZMin() { this->SetPlane( USE_Z_MIN ); };
-  void SetPlaneToXMax() { this->SetPlane( USE_X_MAX ); };
-  void SetPlaneToYMax() { this->SetPlane( USE_Y_MAX ); };
-  void SetPlaneToZMax() { this->SetPlane( USE_Z_MAX ); };
+  void SetPlaneToX() { this->SetPlane( USE_X ); }
+  void SetPlaneToY() { this->SetPlane( USE_Y ); }
+  void SetPlaneToZ() { this->SetPlane( USE_Z ); }
+  void SetPlaneToXMin() { this->SetPlane( USE_X_MIN ); }
+  void SetPlaneToYMin() { this->SetPlane( USE_Y_MIN ); }
+  void SetPlaneToZMin() { this->SetPlane( USE_Z_MIN ); }
+  void SetPlaneToXMax() { this->SetPlane( USE_X_MAX ); }
+  void SetPlaneToYMax() { this->SetPlane( USE_Y_MAX ); }
+  void SetPlaneToZMax() { this->SetPlane( USE_Z_MAX ); }
   //@}
 
   //@{

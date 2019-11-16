@@ -127,7 +127,7 @@ protected:
   vtkOpenVROverlay();
   ~vtkOpenVROverlay();
 
-  virtual void SetupSpots() {};
+  virtual void SetupSpots() {}
 
   vr::IVRSystem *VRSystem;
 

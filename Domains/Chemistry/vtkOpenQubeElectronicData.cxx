@@ -58,8 +58,8 @@ public:
   }
 
 protected:
-  OQEDImageData() {};
-  ~OQEDImageData() {};
+  OQEDImageData() {}
+  ~OQEDImageData() {}
 
   vtkIdType OrbitalNumber;
   OpenQube::Cube::Type ImageType;

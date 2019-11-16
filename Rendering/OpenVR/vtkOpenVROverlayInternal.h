@@ -53,7 +53,7 @@ public:
       result.Normalize();
     }
     return result;
-  };
+  }
 
   void Set(vtkOpenVRCamera *cam, vtkOpenVRRenderWindow *win) {
     win->GetPhysicalTranslation(this->Translation);
@@ -69,7 +69,7 @@ public:
     cam->GetDirectionOfProjection(this->ViewDirection);
 
     this->Loaded = true;
-  };
+  }
 
   void Apply(vtkOpenVRCamera *cam, vtkOpenVRRenderWindow *win) {
 

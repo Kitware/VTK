@@ -114,7 +114,7 @@ public:
   /**
    * Return the number of items in this queue.
    */
-  vtkIdType GetNumberOfItems() {return this->MaxId+1;};
+  vtkIdType GetNumberOfItems() {return this->MaxId+1;}
 
   /**
    * Empty the queue but without releasing memory. This avoids the

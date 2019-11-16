@@ -3927,7 +3927,7 @@ unsigned int guess_constant_type(const char *valstring)
 
     n = strlen(cp);
     for (k = 0; k < n && cp[k] != ',' &&
-         cp[k] != '>' && cp[k] != ')'; k++) { ; };
+         cp[k] != '>' && cp[k] != ')'; k++) {}
 
     if (strncmp(cp, "long long", k) == 0)
       { valtype = VTK_PARSE_LONG_LONG; }

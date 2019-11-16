@@ -113,10 +113,10 @@ protected:
 
   int (vtkThresholdTextureCoords::*ThresholdFunction)(double s);
 
-  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
+  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );}
+  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );}
   int Between(double s) {return ( s >= this->LowerThreshold ?
-                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );}
 private:
   vtkThresholdTextureCoords(const vtkThresholdTextureCoords&) = delete;
   void operator=(const vtkThresholdTextureCoords&) = delete;

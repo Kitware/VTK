@@ -34,7 +34,7 @@
 template <class T> bool IsZero( T value )
 {
   return ( ( value < VTK_DBL_EPSILON ) && ( value > ( -1.0 * VTK_DBL_EPSILON ) ) );
-};
+}
 
 class vtkSimple3DCirclesStrategyInternal
 {

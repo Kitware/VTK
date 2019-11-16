@@ -97,7 +97,7 @@ protected:
    */
   void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) override { return; };
+                     vtkTable* ) override { return; }
 
   /**
    * Execute the calculations required by the Assess option.

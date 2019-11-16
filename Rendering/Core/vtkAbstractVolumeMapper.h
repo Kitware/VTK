@@ -56,7 +56,7 @@ public:
    */
   double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override
-    { this->vtkAbstractMapper3D::GetBounds(bounds); };
+    { this->vtkAbstractMapper3D::GetBounds(bounds); }
   //@}
 
   //@{
@@ -75,15 +75,15 @@ public:
   vtkGetMacro(ScalarMode, int);
   vtkSetMacro(ArrayAccessMode, int);
   void SetScalarModeToDefault() {
-    this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
+    this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);}
   void SetScalarModeToUsePointData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);}
   void SetScalarModeToUseCellData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);}
   void SetScalarModeToUsePointFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);}
   void SetScalarModeToUseCellFieldData() {
-    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);}
   //@}
 
   //@{
@@ -113,10 +113,10 @@ public:
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    */
-  virtual float GetGradientMagnitudeScale() {return 1.0f;};
-  virtual float GetGradientMagnitudeBias()  {return 0.0f;};
-  virtual float GetGradientMagnitudeScale(int) {return 1.0f;};
-  virtual float GetGradientMagnitudeBias(int)  {return 0.0f;};
+  virtual float GetGradientMagnitudeScale() {return 1.0f;}
+  virtual float GetGradientMagnitudeBias()  {return 0.0f;}
+  virtual float GetGradientMagnitudeScale(int) {return 1.0f;}
+  virtual float GetGradientMagnitudeBias(int)  {return 0.0f;}
   //@}
 
 

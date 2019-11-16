@@ -57,7 +57,7 @@ class VolumePickingCommand : public vtkCommand
 {
 public:
 
-  static VolumePickingCommand* New() { return new VolumePickingCommand; };
+  static VolumePickingCommand* New() { return new VolumePickingCommand; }
 
   void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
     void* vtkNotUsed(callData)) override

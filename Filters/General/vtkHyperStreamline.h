@@ -139,11 +139,11 @@ public:
                    VTK_INTEGRATE_MINOR_EIGENVECTOR);
   vtkGetMacro(IntegrationEigenvector,int);
   void SetIntegrationEigenvectorToMajor()
-    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MAJOR_EIGENVECTOR);};
+    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MAJOR_EIGENVECTOR);}
   void SetIntegrationEigenvectorToMedium()
-    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MEDIUM_EIGENVECTOR);};
+    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MEDIUM_EIGENVECTOR);}
   void SetIntegrationEigenvectorToMinor()
-    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MINOR_EIGENVECTOR);};
+    {this->SetIntegrationEigenvector(VTK_INTEGRATE_MINOR_EIGENVECTOR);}
   //@}
 
   /**
@@ -152,7 +152,7 @@ public:
    * corresponding eigenvalue is closest to positive infinity.
    */
   void IntegrateMajorEigenvector()
-    {this->SetIntegrationEigenvectorToMajor();};
+    {this->SetIntegrationEigenvectorToMajor();}
 
   /**
    * Use the medium eigenvector field as the vector field through which
@@ -161,7 +161,7 @@ public:
    * eigenvalues.
    */
   void IntegrateMediumEigenvector()
-    {this->SetIntegrationEigenvectorToMedium();};
+    {this->SetIntegrationEigenvectorToMedium();}
 
   /**
    * Use the minor eigenvector field as the vector field through which
@@ -169,7 +169,7 @@ public:
    * corresponding eigenvalue is closest to negative infinity.
    */
   void IntegrateMinorEigenvector()
-    {this->SetIntegrationEigenvectorToMinor();};
+    {this->SetIntegrationEigenvectorToMinor();}
 
   //@{
   /**
@@ -198,11 +198,11 @@ public:
                   VTK_INTEGRATE_FORWARD,VTK_INTEGRATE_BOTH_DIRECTIONS);
   vtkGetMacro(IntegrationDirection,int);
   void SetIntegrationDirectionToForward()
-    {this->SetIntegrationDirection(VTK_INTEGRATE_FORWARD);};
+    {this->SetIntegrationDirection(VTK_INTEGRATE_FORWARD);}
   void SetIntegrationDirectionToBackward()
-    {this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);};
+    {this->SetIntegrationDirection(VTK_INTEGRATE_BACKWARD);}
   void SetIntegrationDirectionToIntegrateBothDirections()
-    {this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);};
+    {this->SetIntegrationDirection(VTK_INTEGRATE_BOTH_DIRECTIONS);}
   //@}
 
   //@{

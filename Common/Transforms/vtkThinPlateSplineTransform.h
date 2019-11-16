@@ -72,8 +72,8 @@ public:
    */
   void SetBasis(int basis);
   vtkGetMacro(Basis,int);
-  void SetBasisToR() { this->SetBasis(VTK_RBF_R); };
-  void SetBasisToR2LogR() { this->SetBasis(VTK_RBF_R2LOGR); };
+  void SetBasisToR() { this->SetBasis(VTK_RBF_R); }
+  void SetBasisToR2LogR() { this->SetBasis(VTK_RBF_R2LOGR); }
   const char *GetBasisAsString();
   //@}
 
@@ -86,10 +86,10 @@ public:
     if (this->BasisFunction == U) { return; }
     this->SetBasis(VTK_RBF_CUSTOM);
     this->BasisFunction = U;
-    this->Modified(); };
+    this->Modified(); }
   void SetBasisDerivative(double (*dUdr)(double r, double &dU)) {
     this->BasisDerivative = dUdr;
-    this->Modified(); };
+    this->Modified(); }
   //@}
 
   //@{

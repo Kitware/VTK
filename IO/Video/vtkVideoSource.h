@@ -115,7 +115,7 @@ public:
    */
   virtual void SetFrameSize(int x, int y, int z);
   virtual void SetFrameSize(int dim[3]) {
-    this->SetFrameSize(dim[0], dim[1], dim[2]); };
+    this->SetFrameSize(dim[0], dim[1], dim[2]); }
   vtkGetVector3Macro(FrameSize,int);
   //@}
 
@@ -133,9 +133,9 @@ public:
    * usually only VTK_LUMINANCE, VTK_RGB, and VTK_RGBA are supported.
    */
   virtual void SetOutputFormat(int format);
-  void SetOutputFormatToLuminance() { this->SetOutputFormat(VTK_LUMINANCE); };
-  void SetOutputFormatToRGB() { this->SetOutputFormat(VTK_RGB); };
-  void SetOutputFormatToRGBA() { this->SetOutputFormat(VTK_RGBA); };
+  void SetOutputFormatToLuminance() { this->SetOutputFormat(VTK_LUMINANCE); }
+  void SetOutputFormatToRGB() { this->SetOutputFormat(VTK_RGB); }
+  void SetOutputFormatToRGBA() { this->SetOutputFormat(VTK_RGBA); }
   vtkGetMacro(OutputFormat,int);
   //@}
 
@@ -177,7 +177,7 @@ public:
    * The default ClipRegion is (0,VTK_INT_MAX,0,VTK_INT_MAX,0,VTK_INT_MAX).
    */
   virtual void SetClipRegion(int r[6]) {
-    this->SetClipRegion(r[0],r[1],r[2],r[3],r[4],r[5]); };
+    this->SetClipRegion(r[0],r[1],r[2],r[3],r[4],r[5]); }
   virtual void SetClipRegion(int x0, int x1, int y0, int y1, int z0, int z1);
   vtkGetVector6Macro(ClipRegion,int);
   //@}
@@ -254,7 +254,7 @@ public:
    * the Output.  Time began on Jan 1, 1970.  This timestamp is only
    * valid after the Output has been Updated.
    */
-  double GetFrameTimeStamp() { return this->FrameTimeStamp; };
+  double GetFrameTimeStamp() { return this->FrameTimeStamp; }
 
   //@{
   /**
@@ -262,7 +262,7 @@ public:
    * on the first Update or Grab.
    */
   virtual void Initialize();
-  virtual int GetInitialized() { return this->Initialized; };
+  virtual int GetInitialized() { return this->Initialized; }
   //@}
 
   /**
@@ -284,8 +284,8 @@ public:
    * And internal variable which marks the beginning of a Record session.
    * These methods are for internal use only.
    */
-  void SetStartTimeStamp(double t) { this->StartTimeStamp = t; };
-  double GetStartTimeStamp() { return this->StartTimeStamp; };
+  void SetStartTimeStamp(double t) { this->StartTimeStamp = t; }
+  double GetStartTimeStamp() { return this->StartTimeStamp; }
   //@}
 
 protected:

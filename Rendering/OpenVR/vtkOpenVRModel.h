@@ -52,15 +52,15 @@ public:
   }
   void SetName(const std::string & modelName) {
     this->ModelName = modelName;
-  };
+  }
 
   // show the model
   void SetVisibility(bool v) {
     this->Visibility = v;
-  };
+  }
   bool GetVisibility() {
     return this->Visibility;
-  };
+  }
 
   //Set Ray parameters
   void SetShowRay(bool v);

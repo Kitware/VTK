@@ -137,7 +137,7 @@ public:
    * This should set the model type to DATA, METADATA or FULL
    * depending on what you want.
    */
-  virtual void SetModelType() { };
+  virtual void SetModelType() { }
 
 private:
   vtkQtTableRepresentation(const vtkQtTableRepresentation &) = delete;

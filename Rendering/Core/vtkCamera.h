@@ -62,7 +62,7 @@ public:
    */
   void SetPosition(double x, double y, double z);
   void SetPosition(const double a[3]) {
-    this->SetPosition(a[0], a[1], a[2]); };
+    this->SetPosition(a[0], a[1], a[2]); }
   vtkGetVector3Macro(Position, double);
   //@}
 
@@ -73,7 +73,7 @@ public:
    */
   void SetFocalPoint(double x, double y, double z);
   void SetFocalPoint(const double a[3]) {
-    this->SetFocalPoint(a[0], a[1], a[2]);};
+    this->SetFocalPoint(a[0], a[1], a[2]);}
   vtkGetVector3Macro(FocalPoint, double);
   //@}
 

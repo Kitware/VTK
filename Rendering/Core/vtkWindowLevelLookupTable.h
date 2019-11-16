@@ -61,7 +61,7 @@ public:
     if (window < 1e-5) { window = 1e-5; }
     this->Window = window;
     this->SetTableRange(this->Level - this->Window/2.0,
-                        this->Level + this->Window/2.0); };
+                        this->Level + this->Window/2.0); }
   vtkGetMacro(Window,double);
   //@}
 
@@ -73,7 +73,7 @@ public:
   void SetLevel(double level) {
     this->Level = level;
     this->SetTableRange(this->Level - this->Window/2.0,
-                        this->Level + this->Window/2.0); };
+                        this->Level + this->Window/2.0); }
   vtkGetMacro(Level,double);
   //@}
 

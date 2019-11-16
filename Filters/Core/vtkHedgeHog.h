@@ -52,8 +52,8 @@ public:
    */
   vtkSetMacro(VectorMode,int);
   vtkGetMacro(VectorMode,int);
-  void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
-  void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
+  void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);}
+  void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);}
   const char *GetVectorModeAsString();
   //@}
 

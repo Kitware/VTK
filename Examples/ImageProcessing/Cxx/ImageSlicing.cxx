@@ -45,24 +45,24 @@ class vtkImageInteractionCallback : public vtkCommand
 public:
 
   static vtkImageInteractionCallback *New() {
-    return new vtkImageInteractionCallback; };
+    return new vtkImageInteractionCallback; }
 
   vtkImageInteractionCallback() {
     this->Slicing = 0;
     this->ImageReslice = nullptr;
-    this->Interactor = nullptr; };
+    this->Interactor = nullptr; }
 
   void SetImageReslice(vtkImageReslice *reslice) {
-    this->ImageReslice = reslice; };
+    this->ImageReslice = reslice; }
 
   vtkImageReslice *GetImageReslice() {
-    return this->ImageReslice; };
+    return this->ImageReslice; }
 
   void SetInteractor(vtkRenderWindowInteractor *interactor) {
-    this->Interactor = interactor; };
+    this->Interactor = interactor; }
 
   vtkRenderWindowInteractor *GetInteractor() {
-    return this->Interactor; };
+    return this->Interactor; }
 
   void Execute(vtkObject *, unsigned long event, void *) override
   {
@@ -116,7 +116,7 @@ public:
         }
       }
     }
-  };
+  }
 
 private:
 

@@ -82,7 +82,7 @@ public:
   /**
    * Get the system pointer
    */
-  vr::IVRSystem *GetHMD() { return this->HMD; };
+  vr::IVRSystem *GetHMD() { return this->HMD; }
 
   /**
    * Create an interactor to control renderers in this window.
@@ -115,40 +115,40 @@ public:
    * Get the frame buffers used for rendering
    */
   GLuint GetLeftRenderBufferId()
-    { return this->LeftEyeDesc.m_nRenderFramebufferId; };
+    { return this->LeftEyeDesc.m_nRenderFramebufferId; }
   GLuint GetLeftResolveBufferId()
-    { return this->LeftEyeDesc.m_nResolveFramebufferId; };
+    { return this->LeftEyeDesc.m_nResolveFramebufferId; }
   GLuint GetRightRenderBufferId()
-    { return this->RightEyeDesc.m_nRenderFramebufferId; };
+    { return this->RightEyeDesc.m_nRenderFramebufferId; }
   GLuint GetRightResolveBufferId()
-    { return this->RightEyeDesc.m_nResolveFramebufferId; };
+    { return this->RightEyeDesc.m_nResolveFramebufferId; }
   void GetRenderBufferSize(int &width, int &height)
     {
     width = this->Size[0];
     height = this->Size[1];
-    };
+    }
   //@}
 
   /**
   * Get the VRModel corresponding to the tracked device
   */
   vtkOpenVRModel *GetTrackedDeviceModel(vtkEventDataDevice idx) {
-    return this->GetTrackedDeviceModel(idx, 0); };
+    return this->GetTrackedDeviceModel(idx, 0); }
   vtkOpenVRModel *GetTrackedDeviceModel(vr::TrackedDeviceIndex_t idx) {
-    return this->TrackedDeviceToRenderModel[idx]; };
+    return this->TrackedDeviceToRenderModel[idx]; }
   vtkOpenVRModel* GetTrackedDeviceModel(vtkEventDataDevice idx, uint32_t index);
 
   /**
   * Get the openVR Render Models
   */
   vr::IVRRenderModels * GetOpenVRRenderModels() {
-    return this->OpenVRRenderModels; };
+    return this->OpenVRRenderModels; }
 
   /**
   * Get the index corresponding to the tracked device
   */
   vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev) {
-    return this->GetTrackedDeviceIndexForDevice(dev, 0); };
+    return this->GetTrackedDeviceIndexForDevice(dev, 0); }
   vr::TrackedDeviceIndex_t GetTrackedDeviceIndexForDevice(vtkEventDataDevice dev, uint32_t index);
   uint32_t GetNumberOfTrackedDevicesForDevice(vtkEventDataDevice dev);
 
@@ -156,10 +156,10 @@ public:
   * Get the most recent pose corresponding to the tracked device
   */
   void GetTrackedDevicePose(vtkEventDataDevice idx, vr::TrackedDevicePose_t **pose) {
-    return this->GetTrackedDevicePose(idx, 0, pose); };
+    return this->GetTrackedDevicePose(idx, 0, pose); }
   void GetTrackedDevicePose(vtkEventDataDevice idx, uint32_t index, vr::TrackedDevicePose_t **pose);
   vr::TrackedDevicePose_t &GetTrackedDevicePose(vr::TrackedDeviceIndex_t idx) {
-    return this->TrackedDevicePose[idx]; };
+    return this->TrackedDevicePose[idx]; }
 
   /**
    * Initialize the HMD to World setting and camera settings so
@@ -304,19 +304,19 @@ public:
   /**
    * Get report of capabilities for the render window
    */
-  const char *ReportCapabilities() { return "OpenVR System";};
+  const char *ReportCapabilities() { return "OpenVR System";}
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() { return 1; };
+  int IsDirect() { return 1; }
 
   /**
    * Check to see if a mouse button has been pressed or mouse wheel activated.
    * All other events are ignored by this method.
    * Maybe should return 1 always?
    */
-  virtual  int GetEventPending() { return 0;};
+  virtual  int GetEventPending() { return 0;}
 
   /**
    * Get the current size of the screen in pixels.
@@ -328,7 +328,7 @@ public:
    * Set the size of the window in pixels.
    */
   virtual void SetSize(int,int);
-  virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);};
+  virtual void SetSize(int a[2]) {vtkOpenGLRenderWindow::SetSize(a);}
   //@}
 
     //@{
@@ -336,31 +336,31 @@ public:
      * Set the position of the window.
      */
   virtual void SetPosition(int,int);
-  virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);};
+  virtual void SetPosition(int a[2]) {vtkOpenGLRenderWindow::SetPosition(a);}
     //@}
 
   // implement required virtual functions
-  void SetWindowInfo(const char *) {};
-  void SetNextWindowInfo(const char *) {};
-  void SetParentInfo(const char *) {};
-  virtual void *GetGenericDisplayId() {return (void *)this->HelperWindow->GetGenericDisplayId();};
-  virtual void *GetGenericWindowId()  {return (void *)this->HelperWindow->GetGenericWindowId();};
-  virtual void *GetGenericParentId()  {return (void *)nullptr;};
-  virtual void *GetGenericContext() { return (void *)this->HelperWindow->GetGenericContext(); };
-  virtual void *GetGenericDrawable()  {return (void *)this->HelperWindow->GetGenericDrawable();};
-  virtual void SetDisplayId(void *) {};
-  void  SetWindowId(void *) {};
-  void  SetParentId(void *) {};
-  void HideCursor() {};
-  void ShowCursor() {};
-  virtual void SetFullScreen(vtkTypeBool) {};
-  virtual void WindowRemap(void) {};
-  virtual void SetNextWindowId(void *) {};
+  void SetWindowInfo(const char *) {}
+  void SetNextWindowInfo(const char *) {}
+  void SetParentInfo(const char *) {}
+  virtual void *GetGenericDisplayId() {return (void *)this->HelperWindow->GetGenericDisplayId();}
+  virtual void *GetGenericWindowId()  {return (void *)this->HelperWindow->GetGenericWindowId();}
+  virtual void *GetGenericParentId()  {return (void *)nullptr;}
+  virtual void *GetGenericContext() { return (void *)this->HelperWindow->GetGenericContext(); }
+  virtual void *GetGenericDrawable()  {return (void *)this->HelperWindow->GetGenericDrawable();}
+  virtual void SetDisplayId(void *) {}
+  void  SetWindowId(void *) {}
+  void  SetParentId(void *) {}
+  void HideCursor() {}
+  void ShowCursor() {}
+  virtual void SetFullScreen(vtkTypeBool) {}
+  virtual void WindowRemap(void) {}
+  virtual void SetNextWindowId(void *) {}
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
    */
-  virtual int SupportsOpenGL() { return 1; };
+  virtual int SupportsOpenGL() { return 1; }
 
   /**
    * Overridden to not release resources that would interfere with an external
@@ -388,8 +388,8 @@ protected:
    */
   virtual void ReleaseGraphicsResources(vtkRenderWindow *);
 
-  virtual void CreateAWindow() {};
-  virtual void DestroyWindow() {};
+  virtual void CreateAWindow() {}
+  virtual void DestroyWindow() {}
 
   std::string m_strDriver;
   std::string m_strDisplay;

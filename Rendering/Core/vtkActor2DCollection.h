@@ -88,7 +88,7 @@ class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
    * same cookie back and forth.
    */
   vtkActor2D *GetNextActor2D(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkActor2D *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkActor2D *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkActor2DCollection() {}
@@ -98,9 +98,9 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
-  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
-  int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); }
+  int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); }
 
 private:
   vtkActor2DCollection(const vtkActor2DCollection&) = delete;

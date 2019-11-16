@@ -50,14 +50,14 @@ public:
    * Get the next poly data in the list.
    */
   vtkPolyData *GetNextItem() {
-    return static_cast<vtkPolyData *>(this->GetNextItemAsObject());};
+    return static_cast<vtkPolyData *>(this->GetNextItemAsObject());}
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
   vtkPolyData *GetNextPolyData(vtkCollectionSimpleIterator &cookie) {
-    return static_cast<vtkPolyData *>(this->GetNextItemAsObject(cookie));};
+    return static_cast<vtkPolyData *>(this->GetNextItemAsObject(cookie));}
 
 protected:
   vtkPolyDataCollection() {}
@@ -65,7 +65,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); }
 
 private:
   vtkPolyDataCollection(const vtkPolyDataCollection&) = delete;

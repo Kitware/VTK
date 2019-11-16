@@ -113,7 +113,7 @@ public:
   vtkSetStringMacro(FontFamilyAsString);
   void SetFontFamily(int t);
   int GetFontFamily();
-  int GetFontFamilyMinValue() { return VTK_ARIAL; };
+  int GetFontFamilyMinValue() { return VTK_ARIAL; }
   void SetFontFamilyToArial();
   void SetFontFamilyToCourier();
   void SetFontFamilyToTimes();
@@ -188,11 +188,11 @@ public:
   vtkSetClampMacro(Justification,int,VTK_TEXT_LEFT,VTK_TEXT_RIGHT);
   vtkGetMacro(Justification,int);
   void SetJustificationToLeft()
-    { this->SetJustification(VTK_TEXT_LEFT);};
+    { this->SetJustification(VTK_TEXT_LEFT);}
   void SetJustificationToCentered()
-    { this->SetJustification(VTK_TEXT_CENTERED);};
+    { this->SetJustification(VTK_TEXT_CENTERED);}
   void SetJustificationToRight()
-    { this->SetJustification(VTK_TEXT_RIGHT);};
+    { this->SetJustification(VTK_TEXT_RIGHT);}
   const char *GetJustificationAsString();
   //@}
 
@@ -204,11 +204,11 @@ public:
   vtkSetClampMacro(VerticalJustification,int,VTK_TEXT_BOTTOM,VTK_TEXT_TOP);
   vtkGetMacro(VerticalJustification,int);
   void SetVerticalJustificationToBottom()
-    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
+    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);}
   void SetVerticalJustificationToCentered()
-    {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
+    {this->SetVerticalJustification(VTK_TEXT_CENTERED);}
   void SetVerticalJustificationToTop()
-    {this->SetVerticalJustification(VTK_TEXT_TOP);};
+    {this->SetVerticalJustification(VTK_TEXT_TOP);}
   const char *GetVerticalJustificationAsString();
   //@}
 

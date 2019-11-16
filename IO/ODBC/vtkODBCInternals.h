@@ -41,7 +41,7 @@ public:
   vtkODBCInternals()
     : Environment(0), Connection(0)
   {
-  };
+  }
 
 private:
   SQLHANDLE Environment;

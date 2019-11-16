@@ -39,10 +39,10 @@ public:
   {
     this->Pan() = vtkContextMouseEvent::LEFT_BUTTON;
     //this->Zoom() = vtkContextMouseEvent::MIDDLE_BUTTON;
-  };
+  }
 
-  short& Pan() { return Data[0]; };
-  //short& Zoom() { return Data[1]; };
+  short& Pan() { return Data[0]; }
+  //short& Zoom() { return Data[1]; }
 
   /**
    *  The box created as the mouse is dragged around the screen.

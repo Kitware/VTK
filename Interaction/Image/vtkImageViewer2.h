@@ -112,11 +112,11 @@ public:
   vtkGetMacro(SliceOrientation, int);
   virtual void SetSliceOrientation(int orientation);
   virtual void SetSliceOrientationToXY()
-    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XY); };
+    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XY); }
   virtual void SetSliceOrientationToYZ()
-    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_YZ); };
+    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_YZ); }
   virtual void SetSliceOrientationToXZ()
-    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XZ); };
+    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XZ); }
 
   //@{
   /**

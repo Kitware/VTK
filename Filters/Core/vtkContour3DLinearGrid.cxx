@@ -1053,7 +1053,7 @@ int ProcessMerged(vtkIdType numCells, vtkPoints *inPts, CellIter *cellIter,
   // Clean up
   delete [] mergeEdges;
   return 1;
-};
+}
 #undef EXTRACT_MERGED
 
 // Functor for computing cell normals. Could easily be templated on output

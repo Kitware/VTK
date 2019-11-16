@@ -100,7 +100,7 @@ public:
    * Get the combined bounds of all of the images.
    */
   double *GetBounds() override;
-  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); }
   //@}
 
   /**

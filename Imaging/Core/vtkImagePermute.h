@@ -44,7 +44,7 @@ public:
    */
   void SetFilteredAxes(int x, int y, int z);
   void SetFilteredAxes(const int xyz[3]) {
-    this->SetFilteredAxes(xyz[0], xyz[1], xyz[2]); };
+    this->SetFilteredAxes(xyz[0], xyz[1], xyz[2]); }
   vtkGetVector3Macro(FilteredAxes, int);
   //@}
 

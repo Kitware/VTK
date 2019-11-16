@@ -137,11 +137,11 @@ public:
   vtkSetClampMacro(ScalarMode, int,
     VTK_CCS_SCALAR_MODE_NONE, VTK_CCS_SCALAR_MODE_LABELS);
   void SetScalarModeToNone() {
-    this->SetScalarMode(VTK_CCS_SCALAR_MODE_NONE); };
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_NONE); }
   void SetScalarModeToColors() {
-    this->SetScalarMode(VTK_CCS_SCALAR_MODE_COLORS); };
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_COLORS); }
   void SetScalarModeToLabels() {
-    this->SetScalarMode(VTK_CCS_SCALAR_MODE_LABELS); };
+    this->SetScalarMode(VTK_CCS_SCALAR_MODE_LABELS); }
   vtkGetMacro(ScalarMode, int);
   const char *GetScalarModeAsString();
   //@}

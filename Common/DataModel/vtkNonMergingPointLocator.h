@@ -66,8 +66,8 @@ public:
   int InsertUniquePoint( const double x[3], vtkIdType & ptId ) override;
 
 protected:
-  vtkNonMergingPointLocator() { };
-  ~vtkNonMergingPointLocator() override { };
+  vtkNonMergingPointLocator() { }
+  ~vtkNonMergingPointLocator() override { }
 
 private:
   vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) = delete;

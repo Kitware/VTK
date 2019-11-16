@@ -182,7 +182,7 @@ public:
   /**
    * Does this platform support render window data sharing.
    */
-  bool GetPlatformSupportsRenderWindowSharing() override { return true; };
+  bool GetPlatformSupportsRenderWindowSharing() override { return true; }
 
   /**
    * Prescribe that the window be created in a stereo-capable mode. This

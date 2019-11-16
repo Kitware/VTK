@@ -52,7 +52,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_UNIFORM_GRID;};
+  int GetDataObjectType() override {return VTK_UNIFORM_GRID;}
 
   //@{
   /**
@@ -79,7 +79,7 @@ public:
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
   void Initialize() override;
-  int GetMaxCellSize() override {return 8;}; //voxel is the largest
+  int GetMaxCellSize() override {return 8;} //voxel is the largest
   //@}
 
   /**

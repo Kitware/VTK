@@ -78,7 +78,7 @@ public:
   void ReleaseGraphicsResources(vtkWindow *) override;
 
   vtkGetMacro(PopulateSelectionSettings,int);
-  void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; };
+  void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; }
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

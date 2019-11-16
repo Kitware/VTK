@@ -40,12 +40,12 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_POLY_VERTEX;};
-  int GetCellDimension() override {return 0;};
-  int GetNumberOfEdges() override {return 0;};
-  int GetNumberOfFaces() override {return 0;};
-  vtkCell *GetEdge(int vtkNotUsed(edgeId)) override {return nullptr;};
-  vtkCell *GetFace(int vtkNotUsed(faceId)) override {return nullptr;};
+  int GetCellType() override {return VTK_POLY_VERTEX;}
+  int GetCellDimension() override {return 0;}
+  int GetNumberOfEdges() override {return 0;}
+  int GetNumberOfFaces() override {return 0;}
+  vtkCell *GetEdge(int vtkNotUsed(edgeId)) override {return nullptr;}
+  vtkCell *GetFace(int vtkNotUsed(faceId)) override {return nullptr;}
   int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,

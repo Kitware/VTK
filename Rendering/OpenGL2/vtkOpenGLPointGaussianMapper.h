@@ -76,7 +76,7 @@ protected:
   vtkTimeStamp OpacityTableUpdateTime;
 
   // unused
-  void RenderPiece(vtkRenderer *, vtkActor *) override {};
+  void RenderPiece(vtkRenderer *, vtkActor *) override {}
 
   void RenderInternal(vtkRenderer *, vtkActor *);
 

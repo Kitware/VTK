@@ -93,8 +93,8 @@ public:
    * If true, the orientation will be updated based on the widget's position.
    * Default is true.
    */
-  vtkSetMacro(AutoOrient, bool)
-  vtkGetMacro(AutoOrient, bool)
+  vtkSetMacro(AutoOrient, bool);
+  vtkGetMacro(AutoOrient, bool);
   //@}
 
   //@{

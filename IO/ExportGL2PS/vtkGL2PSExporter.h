@@ -157,15 +157,15 @@ public:
   vtkSetClampMacro(FileFormat, int, PS_FILE, SVG_FILE);
   vtkGetMacro(FileFormat, int);
   void SetFileFormatToPS()
-    {this->SetFileFormat(PS_FILE);};
+    {this->SetFileFormat(PS_FILE);}
   void SetFileFormatToEPS()
-    {this->SetFileFormat(EPS_FILE);};
+    {this->SetFileFormat(EPS_FILE);}
   void SetFileFormatToPDF()
-    {this->SetFileFormat(PDF_FILE);};
+    {this->SetFileFormat(PDF_FILE);}
   void SetFileFormatToTeX()
-    {this->SetFileFormat(TEX_FILE);};
+    {this->SetFileFormat(TEX_FILE);}
   void SetFileFormatToSVG()
-    {this->SetFileFormat(SVG_FILE);};
+    {this->SetFileFormat(SVG_FILE);}
   const char *GetFileFormatAsString();
   //@}
 
@@ -185,11 +185,11 @@ public:
   vtkSetClampMacro(Sort, int, NO_SORT, BSP_SORT);
   vtkGetMacro(Sort,int);
   void SetSortToOff()
-    {this->SetSort(NO_SORT);};
+    {this->SetSort(NO_SORT);}
   void SetSortToSimple()
-    {this->SetSort(SIMPLE_SORT);};
+    {this->SetSort(SIMPLE_SORT);}
   void SetSortToBSP()
-    {this->SetSort(BSP_SORT);};
+    {this->SetSort(BSP_SORT);}
   const char *GetSortAsString();
   //@}
 

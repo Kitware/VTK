@@ -51,22 +51,22 @@ public:
   /**
    * Builds myself.
    */
-  virtual void Build(bool /* prepass */) {};
+  virtual void Build(bool /* prepass */) {}
 
   /**
    * Ensures that my state agrees with my Renderable's.
    */
-  virtual void Synchronize(bool /* prepass */) {};
+  virtual void Synchronize(bool /* prepass */) {}
 
   /**
    * Makes calls to make self visible.
    */
-  virtual void Render(bool /*prepass*/) {};
+  virtual void Render(bool /*prepass*/) {}
 
   /**
    * Clear any cached data.
    */
-  virtual void Invalidate(bool /*prepass*/) {};
+  virtual void Invalidate(bool /*prepass*/) {}
 
   //@{
   /**

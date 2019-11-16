@@ -71,7 +71,7 @@ public:
    * Get any input of this filter.
    */
   vtkSelection *GetInput(int idx);
-  vtkSelection *GetInput() { return this->GetInput( 0 ); };
+  vtkSelection *GetInput() { return this->GetInput( 0 ); }
   //@}
 
   /**
@@ -109,7 +109,7 @@ protected:
  private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInputData(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); };
+    { vtkErrorMacro( << "AddInput() must be called with a vtkSelection not a vtkDataObject."); }
 
   vtkTypeBool UserManagedInputs;
   vtkTypeBool AppendByUnion;

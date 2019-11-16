@@ -90,7 +90,7 @@ public:
   void SetOutputScalarTypeToLong()
     {this->SetOutputScalarType(VTK_LONG);}
   void SetOutputScalarTypeToUnsignedLong()
-    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
+    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);}
   void SetOutputScalarTypeToInt()
     {this->SetOutputScalarType(VTK_INT);}
   void SetOutputScalarTypeToUnsignedInt()
