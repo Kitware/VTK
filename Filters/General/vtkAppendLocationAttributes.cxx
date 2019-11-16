@@ -51,6 +51,9 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
 
     vtkCellCenters::ComputeCellCenters(input, cellCenterArray);
 
+    vtkCellData* outCD = output->GetCellData();
+    outCD->AddArray(cellCenterArray);
+
     this->UpdateProgress(0.66);
   }
 
@@ -63,12 +66,6 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
     arrayCopy->ShallowCopy(pointArray);
     arrayCopy->SetName("PointLocations");
     outPD->AddArray(arrayCopy);
-  }
-
-  if (this->AppendCellCenters)
-  {
-    vtkCellData* outCD = output->GetCellData();
-    outCD->AddArray(cellCenterArray);
   }
 
   this->UpdateProgress(1.0);
