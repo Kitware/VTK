@@ -30,7 +30,7 @@ class vtkMPIPixelTT<_ctype> \
 public: \
   static MPI_Datatype MPIType; \
   static int VTKType; \
-};
+}
 
 vtkMPIPixelTTMacro1(void);
 vtkMPIPixelTTMacro1(char);

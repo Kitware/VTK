@@ -224,7 +224,7 @@ protected: \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
-};
+}
 
 #define vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl) \
 class _exportDecl _className : \
@@ -245,7 +245,7 @@ protected: \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
-};
+}
 
 #else // __VTK_WRAP__
 
@@ -262,7 +262,7 @@ protected: \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
-  };
+  }
 
 #define vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl) \
   class _exportDecl _className : \
@@ -277,7 +277,7 @@ protected: \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
-  };
+  }
 
 #endif // __VTK_WRAP__
 

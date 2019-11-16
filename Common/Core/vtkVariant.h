@@ -51,7 +51,7 @@
 // This is same as Iterator Template macro with an additional case for VTK_VARIANT
 #define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
   vtkArrayIteratorTemplateMacro(call);                                                   \
-  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
+  vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call)
 
 class vtkStdString;
 class vtkUnicodeString;

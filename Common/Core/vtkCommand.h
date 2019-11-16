@@ -369,7 +369,7 @@
     NoEvent = 0,\
     vtkAllEventsMacro() \
     UserEvent = 1000\
-  };
+  }
 
 
 // The superclass that all commands should be subclasses of

@@ -964,7 +964,7 @@ PyObject *vtkPythonArgs::BuildBytes(const char *a, size_t n)
   decl<long>; \
   decl<unsigned long>; \
   decl<long long>; \
-  decl<unsigned long long>;
+  decl<unsigned long long>
 
 // Forward declare the Array class template over all types:
 #if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(vtkPythonArgs_cxx)

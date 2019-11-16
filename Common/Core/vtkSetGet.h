@@ -560,13 +560,13 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
 // vtkGenericWarningMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkGenericWarningMacro(x) \
-{ if (vtkObject::GetGlobalWarningDisplay()) { \
+do { if (vtkObject::GetGlobalWarningDisplay()) { \
       vtkOStreamWrapper::EndlType endl; \
       vtkOStreamWrapper::UseEndl(endl); \
       vtkOStrStreamWrapper vtkmsg; \
       vtkmsg << "" x; \
       vtkOutputWindowDisplayGenericWarningText(__FILE__, __LINE__, vtkmsg.str()); \
-      vtkmsg.rdbuf()->freeze(0);}}
+      vtkmsg.rdbuf()->freeze(0);}} while (false)
 
 //
 // This macro is used for debug statements in instance methods
@@ -597,7 +597,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
 // pointer properly
 //
 #define vtkErrorWithObjectMacro(self, x)                             \
-{                                                                    \
+do {                                                                 \
   if (vtkObject::GetGlobalWarningDisplay())                          \
   {                                                                  \
     vtkOStreamWrapper::EndlType endl;                                \
@@ -618,7 +618,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
         __FILE__, __LINE__, vtkmsg.str(), _object);                  \
     vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();            \
   }                                                                  \
-}
+} while (false)
 
 //
 // This macro is used to print out warnings
@@ -628,7 +628,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
 // pointer properly
 //
 #define vtkWarningWithObjectMacro(self, x)                           \
-{                                                                    \
+do {                                                                 \
   if (vtkObject::GetGlobalWarningDisplay())                          \
   {                                                                  \
     vtkOStreamWrapper::EndlType endl;                                \
@@ -649,7 +649,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
         __FILE__, __LINE__, vtkmsg.str(), _object);                  \
     vtkmsg.rdbuf()->freeze(0);                                       \
   }                                                                  \
-}
+} while (false)
 
 /**
  * This macro is used to print out debug message
@@ -659,10 +659,10 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
  * pointer properly
  */
 #ifdef NDEBUG
-# define vtkDebugWithObjectMacro(self, x)
+# define vtkDebugWithObjectMacro(self, x) do {} while (false)
 #else
 # define vtkDebugWithObjectMacro(self, x)                                        \
-{                                                                                \
+do {                                                                             \
   vtkObject* _object = const_cast<vtkObject*>(static_cast                        \
 <const vtkObject*>(self));                                                       \
   if ((!_object || _object->GetDebug()) && vtkObject::GetGlobalWarningDisplay()) \
@@ -682,7 +682,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*, in
     vtkOutputWindowDisplayDebugText(__FILE__, __LINE__, vtkmsg.str(), _object);  \
     vtkmsg.rdbuf()->freeze(0);                                                   \
   }                                                                              \
-}
+} while (false)
 #endif
 
 //
@@ -955,7 +955,7 @@ virtual double *Get##name() VTK_SIZEHINT(2)\
   vtkArrayIteratorTemplateMacroCase(VTK_SIGNED_CHAR, signed char, call);                 \
   vtkArrayIteratorTemplateMacroCase(VTK_UNSIGNED_CHAR, unsigned char, call);             \
   vtkArrayIteratorTemplateMacroCase(VTK_STRING, vtkStdString, call);                     \
-  vtkTemplateMacroCase(VTK_BIT, vtkBitArrayIterator, call);
+  vtkTemplateMacroCase(VTK_BIT, vtkBitArrayIterator, call)
 
 //----------------------------------------------------------------------------
 // Setup legacy code policy.

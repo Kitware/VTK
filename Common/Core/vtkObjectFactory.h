@@ -340,7 +340,7 @@ vtkObjectFactory* vtkLoad()                     \
   } \
   thisClass *result = new thisClass; \
   result->InitializeObjectBase(); \
-  return result;
+  return result
 
 // Macro to implement the body of the abstract object factory form of the New()
 // method, i.e. an abstract base class that can only be instantiated if the
@@ -352,7 +352,7 @@ vtkObjectFactory* vtkLoad()                     \
     return static_cast<thisClass*>(ret); \
   } \
   vtkGenericWarningMacro("Error: no override found for '" #thisClass "'."); \
-  return nullptr;
+  return nullptr
 
 // Macro to implement the body of the standard form of the New() method.
 #if defined(VTK_ALL_NEW_OBJECT_FACTORY)
@@ -362,7 +362,7 @@ vtkObjectFactory* vtkLoad()                     \
 # define VTK_STANDARD_NEW_BODY(thisClass) \
   thisClass *result = new thisClass; \
   result->InitializeObjectBase(); \
-  return result;
+  return result
 #endif
 
 // Macro to implement the standard form of the New() method.

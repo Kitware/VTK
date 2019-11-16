@@ -407,7 +407,7 @@ inline vtkTypeBool vtkDataTypesCompare(int a, int b)
   decl<long>; \
   decl<unsigned long>; \
   decl<long long>; \
-  decl<unsigned long long>;
+  decl<unsigned long long>
 
 /** A macro to declare extern templates for all numerical types */
 #ifdef VTK_USE_EXTERN_TEMPLATE
