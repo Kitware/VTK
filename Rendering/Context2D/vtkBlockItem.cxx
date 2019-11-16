@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkBlockItem)
+vtkStandardNewMacro(vtkBlockItem);
 
 //-----------------------------------------------------------------------------
 vtkBlockItem::vtkBlockItem()

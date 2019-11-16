@@ -39,7 +39,7 @@
 #include <cassert>
 #include <sstream>
 
-vtkStandardNewMacro(vtkOpenGLGL2PSHelperImpl)
+vtkStandardNewMacro(vtkOpenGLGL2PSHelperImpl);
 
 namespace
 {

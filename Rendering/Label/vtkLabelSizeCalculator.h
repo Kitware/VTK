@@ -77,8 +77,8 @@ public:
    * Get/Set the DPI at which the labels are to be rendered. Defaults to 72.
    * @sa vtkWindow::GetDPI()
    */
-  vtkSetMacro(DPI, int)
-  vtkGetMacro(DPI, int)
+  vtkSetMacro(DPI, int);
+  vtkGetMacro(DPI, int);
   //@}
 
 protected:

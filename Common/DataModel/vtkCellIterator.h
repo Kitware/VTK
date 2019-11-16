@@ -78,7 +78,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellIterator : public vtkObject
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkAbstractTypeMacro(vtkCellIterator, vtkObject)
+  vtkAbstractTypeMacro(vtkCellIterator, vtkObject);
 
   /**
    * Reset to the first cell.

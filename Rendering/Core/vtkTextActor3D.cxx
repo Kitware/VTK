@@ -28,7 +28,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
-vtkObjectFactoryNewMacro(vtkTextActor3D)
+vtkObjectFactoryNewMacro(vtkTextActor3D);
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 

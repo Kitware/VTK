@@ -43,7 +43,7 @@ int vtkMultiBlockMergeFilter::RequestData(
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   if (numInputs<0)
   {
-    vtkErrorMacro("Too many inputs to algorithm.")
+    vtkErrorMacro("Too many inputs to algorithm.");
     return 0;
   }
   unsigned int usNInputs = static_cast<unsigned int>(numInputs);

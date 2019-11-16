@@ -37,8 +37,8 @@
 #include <set>
 #include <sstream>
 
-vtkStandardNewMacro(vtkOBJImporter)
-vtkStandardNewMacro(vtkOBJPolyDataProcessor)
+vtkStandardNewMacro(vtkOBJImporter);
+vtkStandardNewMacro(vtkOBJPolyDataProcessor);
 
 //----------------------------------------------------------------------------
   vtkOBJImporter::vtkOBJImporter()

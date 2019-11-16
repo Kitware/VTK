@@ -28,7 +28,7 @@
 #include <sstream>
 #include <string>
 
-vtkStandardNewMacro(vtkOpenGLTextActor3D)
+vtkStandardNewMacro(vtkOpenGLTextActor3D);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)

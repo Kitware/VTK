@@ -35,7 +35,7 @@
 #include <vtkm/filter/Contour.h>
 #include <vtkm/filter/Contour.hxx>
 
-vtkStandardNewMacro(vtkmContour)
+vtkStandardNewMacro(vtkmContour);
 
 //------------------------------------------------------------------------------
 vtkmContour::vtkmContour()

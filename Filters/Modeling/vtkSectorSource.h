@@ -41,7 +41,7 @@ public:
   /**
    * Specify inner radius of the sector.
    */
-  vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX);
     vtkGetMacro(InnerRadius,double);
   //@}
 
@@ -49,7 +49,7 @@ public:
   /**
    * Specify outer radius of the sector.
    */
-  vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX);
     vtkGetMacro(OuterRadius,double);
   //@}
 
@@ -57,7 +57,7 @@ public:
   /**
    * Specify the z coordinate of the sector.
    */
-  vtkSetClampMacro(ZCoord,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(ZCoord,double,0.0,VTK_DOUBLE_MAX);
     vtkGetMacro(ZCoord,double);
   //@}
 
@@ -65,7 +65,7 @@ public:
   /**
    * Set the number of points in radius direction.
    */
-  vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX)
+  vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX);
     vtkGetMacro(RadialResolution,int);
   //@}
 
@@ -73,7 +73,7 @@ public:
   /**
    * Set the number of points in circumferential direction.
    */
-  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX)
+  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX);
     vtkGetMacro(CircumferentialResolution,int);
   //@}
 
@@ -81,7 +81,7 @@ public:
   /**
    * Set the start angle of the sector.
    */
-  vtkSetClampMacro(StartAngle,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(StartAngle,double,0.0,VTK_DOUBLE_MAX);
     vtkGetMacro(StartAngle,double);
   //@}
 
@@ -89,7 +89,7 @@ public:
   /**
    * Set the end angle of the sector.
    */
-  vtkSetClampMacro(EndAngle,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(EndAngle,double,0.0,VTK_DOUBLE_MAX);
     vtkGetMacro(EndAngle,double);
   //@}
 

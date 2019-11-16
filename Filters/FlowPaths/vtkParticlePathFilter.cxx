@@ -29,7 +29,7 @@
 
 #include <vector>
 
-vtkObjectFactoryNewMacro(vtkParticlePathFilter)
+vtkObjectFactoryNewMacro(vtkParticlePathFilter);
 
 void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
 {

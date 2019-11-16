@@ -85,10 +85,10 @@ namespace boost {
     arr->InsertValue(key, value);                       \
   }
 
-  vtkPropertyMapMacro(vtkIntArray, int)
-  vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType)
-  vtkPropertyMapMacro(vtkDoubleArray, double)
-  vtkPropertyMapMacro(vtkFloatArray, float)
+  vtkPropertyMapMacro(vtkIntArray, int);
+  vtkPropertyMapMacro(vtkIdTypeArray, vtkIdType);
+  vtkPropertyMapMacro(vtkDoubleArray, double);
+  vtkPropertyMapMacro(vtkFloatArray, float);
 
   // vtkDataArray
   template<>

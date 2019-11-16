@@ -961,7 +961,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
 {
   if (this->TargetDimensions[0] <= 0 || this->TargetDimensions[1] <= 0)
   {
-    vtkWarningMacro( << "Invalid target dimensions")
+    vtkWarningMacro( << "Invalid target dimensions");
   }
 
   this->Impl->ReadData(this->FileName);

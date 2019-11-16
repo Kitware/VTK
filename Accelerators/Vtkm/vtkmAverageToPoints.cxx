@@ -30,7 +30,7 @@
 #include <vtkm/filter/PointAverage.h>
 #include <vtkm/filter/PointAverage.hxx>
 
-vtkStandardNewMacro(vtkmAverageToPoints)
+vtkStandardNewMacro(vtkmAverageToPoints);
 
 //------------------------------------------------------------------------------
 vtkmAverageToPoints::vtkmAverageToPoints()

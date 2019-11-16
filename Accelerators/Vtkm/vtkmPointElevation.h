@@ -34,7 +34,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmPointElevation : public vtkElevationFilter
 {
 public:
-  vtkTypeMacro(vtkmPointElevation, vtkElevationFilter)
+  vtkTypeMacro(vtkmPointElevation, vtkElevationFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmPointElevation* New();

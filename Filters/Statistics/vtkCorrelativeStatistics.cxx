@@ -39,7 +39,7 @@
 #include <set>
 #include <sstream>
 
-vtkObjectFactoryNewMacro(vtkCorrelativeStatistics)
+vtkObjectFactoryNewMacro(vtkCorrelativeStatistics);
 
 // ----------------------------------------------------------------------
 vtkCorrelativeStatistics::vtkCorrelativeStatistics()

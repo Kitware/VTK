@@ -544,7 +544,7 @@ public:
    * Get the vtkContext3D device, in order to do some 3D rendering. This API
    * is very experimental, and may be moved around.
    */
-  vtkGetObjectMacro(Context3D, vtkContext3D)
+  vtkGetObjectMacro(Context3D, vtkContext3D);
   virtual void SetContext3D(vtkContext3D *context);
   //@}
 

@@ -29,7 +29,7 @@
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkTexture)
+vtkAbstractObjectFactoryNewMacro(vtkTexture);
 //----------------------------------------------------------------------------
 
 // Construct object and initialize.

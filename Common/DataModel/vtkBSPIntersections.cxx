@@ -50,7 +50,7 @@ if (((id) < 0) || ((id) >= this->NumberOfRegions))  \
 
 //----------------------------------------------------------------------------
 
-vtkCxxSetObjectMacro(vtkBSPIntersections, Cuts, vtkBSPCuts)
+vtkCxxSetObjectMacro(vtkBSPIntersections, Cuts, vtkBSPCuts);
 
 //----------------------------------------------------------------------------
 

@@ -35,7 +35,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkPropItem: public vtkAbstractContextItem
 {
 public:
   static vtkPropItem *New();
-  vtkTypeMacro(vtkPropItem, vtkAbstractContextItem)
+  vtkTypeMacro(vtkPropItem, vtkAbstractContextItem);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   bool Paint(vtkContext2D *painter) override;
@@ -45,7 +45,7 @@ public:
    * The actor to render.
    */
   virtual void SetPropObject(vtkProp *PropObject);
-  vtkGetObjectMacro(PropObject, vtkProp)
+  vtkGetObjectMacro(PropObject, vtkProp);
 
 protected:
   vtkPropItem();

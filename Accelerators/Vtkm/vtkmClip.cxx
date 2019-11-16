@@ -46,7 +46,7 @@
 #include <algorithm>
 
 
-vtkStandardNewMacro(vtkmClip)
+vtkStandardNewMacro(vtkmClip);
 
 //------------------------------------------------------------------------------
 void vtkmClip::PrintSelf(std::ostream &os, vtkIndent indent)

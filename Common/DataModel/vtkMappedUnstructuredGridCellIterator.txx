@@ -24,7 +24,7 @@ template <class Implementation>
 vtkMappedUnstructuredGridCellIterator<Implementation>*
 vtkMappedUnstructuredGridCellIterator<Implementation>::New()
 {
-  VTK_STANDARD_NEW_BODY(ThisType)
+  VTK_STANDARD_NEW_BODY(ThisType);
 }
 
 //------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBillboardTextActor3D :
 {
 public:
   static vtkOpenGLBillboardTextActor3D* New();
-  vtkTypeMacro(vtkOpenGLBillboardTextActor3D, vtkBillboardTextActor3D)
+  vtkTypeMacro(vtkOpenGLBillboardTextActor3D, vtkBillboardTextActor3D);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;

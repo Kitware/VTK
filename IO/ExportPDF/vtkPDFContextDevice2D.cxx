@@ -683,8 +683,8 @@ struct vtkPDFContextDevice2D::Details
 // vtkPDFContextDevice2D
 //------------------------------------------------------------------------------
 
-vtkStandardNewMacro(vtkPDFContextDevice2D)
-vtkCxxSetObjectMacro(vtkPDFContextDevice2D, Renderer, vtkRenderer)
+vtkStandardNewMacro(vtkPDFContextDevice2D);
+vtkCxxSetObjectMacro(vtkPDFContextDevice2D, Renderer, vtkRenderer);
 
 //------------------------------------------------------------------------------
 void vtkPDFContextDevice2D::PrintSelf(std::ostream &os, vtkIndent indent)

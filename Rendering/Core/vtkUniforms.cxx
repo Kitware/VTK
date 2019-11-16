@@ -3,7 +3,7 @@
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkUniforms)
+vtkAbstractObjectFactoryNewMacro(vtkUniforms);
 
 //-----------------------------------------------------------------------------
 void vtkUniforms::PrintSelf(ostream& os, vtkIndent indent)

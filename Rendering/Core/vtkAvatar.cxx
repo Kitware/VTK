@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkAvatar)
+vtkObjectFactoryNewMacro(vtkAvatar);
 
 //------------------------------------------------------------------------------
 void vtkAvatar::PrintSelf(std::ostream &os, vtkIndent indent)

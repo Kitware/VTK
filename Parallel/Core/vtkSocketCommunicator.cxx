@@ -81,7 +81,7 @@ public:
 #define vtkSocketCommunicatorErrorMacro(msg)\
   if (this->ReportErrors)\
   {\
-    vtkErrorMacro(msg)\
+    vtkErrorMacro(msg);\
   }
 
 // The handshake checks that the client and server are using the same

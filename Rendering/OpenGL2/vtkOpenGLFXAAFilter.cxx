@@ -43,7 +43,7 @@
 // Define to perform/dump benchmarking info:
 //#define FXAA_BENCHMARK
 
-vtkStandardNewMacro(vtkOpenGLFXAAFilter)
+vtkStandardNewMacro(vtkOpenGLFXAAFilter);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::PrintSelf(std::ostream &os, vtkIndent indent)

@@ -18,7 +18,7 @@
 #include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkInformationKeyLookup)
+vtkStandardNewMacro(vtkInformationKeyLookup);
 
 //------------------------------------------------------------------------------
 void vtkInformationKeyLookup::PrintSelf(std::ostream &os, vtkIndent indent)

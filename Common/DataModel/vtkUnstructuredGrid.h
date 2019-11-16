@@ -96,7 +96,7 @@ public:
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkUnstructuredGrid, vtkUnstructuredGridBase)
+  vtkTypeMacro(vtkUnstructuredGrid, vtkUnstructuredGridBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 

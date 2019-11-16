@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-vtkInformationKeyMacro(vtkOpenGLRenderPass, RenderPasses, ObjectBaseVector)
+vtkInformationKeyMacro(vtkOpenGLRenderPass, RenderPasses, ObjectBaseVector);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderPass::PrintSelf(std::ostream &os, vtkIndent indent)

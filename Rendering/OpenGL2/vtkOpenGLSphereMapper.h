@@ -29,7 +29,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLSphereMapper : public vtkOpenGLPolyDat
 {
 public:
   static vtkOpenGLSphereMapper* New();
-  vtkTypeMacro(vtkOpenGLSphereMapper, vtkOpenGLPolyDataMapper)
+  vtkTypeMacro(vtkOpenGLSphereMapper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

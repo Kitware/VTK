@@ -38,7 +38,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkHiddenLineRemovalPass :
 {
 public:
   static vtkHiddenLineRemovalPass* New();
-  vtkTypeMacro(vtkHiddenLineRemovalPass, vtkOpenGLRenderPass)
+  vtkTypeMacro(vtkHiddenLineRemovalPass, vtkOpenGLRenderPass);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void Render(const vtkRenderState *s) override;

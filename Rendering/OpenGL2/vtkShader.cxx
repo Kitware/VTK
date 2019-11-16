@@ -17,7 +17,7 @@
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkShader)
+vtkStandardNewMacro(vtkShader);
 
 vtkShader::vtkShader()
 {

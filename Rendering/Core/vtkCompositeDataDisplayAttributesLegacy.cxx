@@ -22,7 +22,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkCompositeDataDisplayAttributesLegacy)
+vtkStandardNewMacro(vtkCompositeDataDisplayAttributesLegacy);
 
 vtkCompositeDataDisplayAttributesLegacy::vtkCompositeDataDisplayAttributesLegacy() = default;
 

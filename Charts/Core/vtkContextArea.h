@@ -55,7 +55,7 @@ class VTKCHARTSCORE_EXPORT vtkContextArea: public vtkAbstractContextItem
 {
 public:
   typedef vtkTuple<int, 4> Margins;
-  vtkTypeMacro(vtkContextArea, vtkAbstractContextItem)
+  vtkTypeMacro(vtkContextArea, vtkAbstractContextItem);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkContextArea *New();
@@ -82,8 +82,8 @@ public:
    * including axis labels, title, etc. Note that this will be updated to the
    * window geometry if FillWindow is true.
    */
-  vtkGetMacro(Geometry, vtkRecti)
-  vtkSetMacro(Geometry, vtkRecti)
+  vtkGetMacro(Geometry, vtkRecti);
+  vtkSetMacro(Geometry, vtkRecti);
   //@}
 
   //@{
@@ -91,8 +91,8 @@ public:
    * The data bounds of the clipped and transformed area inside of the axes.
    * This is used to configure the axes labels and setup the transform.
    */
-  vtkGetMacro(DrawAreaBounds, vtkRectd)
-  vtkSetMacro(DrawAreaBounds, vtkRectd)
+  vtkGetMacro(DrawAreaBounds, vtkRectd);
+  vtkSetMacro(DrawAreaBounds, vtkRectd);
   //@}
 
   enum DrawAreaResizeBehaviorType {
@@ -116,8 +116,8 @@ public:
    * (axis labels, etc) are fixed, rather than dynamically sized.
    * See SetFixedMargins.
    */
-  vtkGetMacro(DrawAreaResizeBehavior, DrawAreaResizeBehaviorType)
-  vtkSetMacro(DrawAreaResizeBehavior, DrawAreaResizeBehaviorType)
+  vtkGetMacro(DrawAreaResizeBehavior, DrawAreaResizeBehaviorType);
+  vtkSetMacro(DrawAreaResizeBehavior, DrawAreaResizeBehaviorType);
   //@}
 
   //@{
@@ -138,7 +138,7 @@ public:
    * Setting the fixed rect will also set DrawAreaResizeBehavior to
    * FixedRect.
    */
-  vtkGetMacro(FixedRect, vtkRecti)
+  vtkGetMacro(FixedRect, vtkRecti);
   virtual void SetFixedRect(vtkRecti rect);
   virtual void SetFixedRect(int x, int y, int width, int height);
   //@}
@@ -165,9 +165,9 @@ public:
    * of each Paint call. vpSize is vtkContextDevice2D::GetViewportSize. Default
    * is true.
    */
-  vtkGetMacro(FillViewport, bool)
-  vtkSetMacro(FillViewport, bool)
-  vtkBooleanMacro(FillViewport, bool)
+  vtkGetMacro(FillViewport, bool);
+  vtkSetMacro(FillViewport, bool);
+  vtkBooleanMacro(FillViewport, bool);
   //@}
 
   //@{

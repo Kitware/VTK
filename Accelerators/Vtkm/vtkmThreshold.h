@@ -37,7 +37,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmThreshold : public vtkThreshold
 {
 public:
-  vtkTypeMacro(vtkmThreshold,vtkThreshold)
+  vtkTypeMacro(vtkmThreshold,vtkThreshold);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmThreshold* New();

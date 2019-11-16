@@ -49,7 +49,7 @@ public:
   };
 
   static vtkOpenGLRenderTimerLog* New();
-  vtkTypeMacro(vtkOpenGLRenderTimerLog, vtkRenderTimerLog)
+  vtkTypeMacro(vtkOpenGLRenderTimerLog, vtkRenderTimerLog);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   bool IsSupported() override;
@@ -83,8 +83,8 @@ public:
    *
    * Default value is 32, but can be adjusted for specific use cases.
    */
-  vtkSetMacro(MinTimerPoolSize, size_t)
-  vtkGetMacro(MinTimerPoolSize, size_t)
+  vtkSetMacro(MinTimerPoolSize, size_t);
+  vtkGetMacro(MinTimerPoolSize, size_t);
 
 protected:
   OGLFrame CurrentFrame;

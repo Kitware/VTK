@@ -34,7 +34,7 @@ class vtkDoubleArray;
 class VTKACCELERATORSVTKM_EXPORT vtkmHistogram : public vtkTableAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmHistogram, vtkTableAlgorithm)
+  vtkTypeMacro(vtkmHistogram, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmHistogram* New();
 

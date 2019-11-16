@@ -52,7 +52,7 @@ bool parse(const std::string &str, T &result)
 
 } // end anon namespace
 
-vtkStandardNewMacro(vtkVASPAnimationReader)
+vtkStandardNewMacro(vtkVASPAnimationReader);
 
 //------------------------------------------------------------------------------
 void vtkVASPAnimationReader::PrintSelf(std::ostream &os, vtkIndent indent)

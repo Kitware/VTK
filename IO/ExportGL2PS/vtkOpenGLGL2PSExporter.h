@@ -33,7 +33,7 @@ class VTKIOEXPORTGL2PS_EXPORT vtkOpenGLGL2PSExporter: public vtkGL2PSExporter
 {
 public:
   static vtkOpenGLGL2PSExporter *New();
-  vtkTypeMacro(vtkOpenGLGL2PSExporter, vtkGL2PSExporter)
+  vtkTypeMacro(vtkOpenGLGL2PSExporter, vtkGL2PSExporter);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
 protected:

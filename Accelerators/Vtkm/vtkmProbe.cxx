@@ -32,7 +32,7 @@
 
 #include "vtkm/filter/Probe.h"
 
-vtkStandardNewMacro(vtkmProbe)
+vtkStandardNewMacro(vtkmProbe);
 
 //------------------------------------------------------------------------------
 vtkmProbe::vtkmProbe()

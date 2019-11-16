@@ -267,7 +267,7 @@ int vtkXGMLReader::RequestData(
     }
     else
     {
-      vtkErrorMacro(<<"Parse error (header): unexpected token ")
+      vtkErrorMacro(<<"Parse error (header): unexpected token ");
         return 0;
     }
     vtkXGMLReaderNextToken(fin, tok);

@@ -20,7 +20,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-vtkStandardNewMacro(vtkDirectory)
+vtkStandardNewMacro(vtkDirectory);
 
 vtkDirectory::vtkDirectory()
   : Path(nullptr)

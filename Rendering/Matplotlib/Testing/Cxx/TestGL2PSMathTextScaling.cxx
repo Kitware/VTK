@@ -35,7 +35,7 @@ class GL2PSMathTextScalingTest : public vtkContextItem
 {
 public:
   static GL2PSMathTextScalingTest *New();
-  vtkTypeMacro(GL2PSMathTextScalingTest, vtkContextItem)
+  vtkTypeMacro(GL2PSMathTextScalingTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter) override;
 };
@@ -74,7 +74,7 @@ int TestGL2PSMathTextScaling(int, char *[])
   return EXIT_SUCCESS;
 }
 
-vtkStandardNewMacro(GL2PSMathTextScalingTest)
+vtkStandardNewMacro(GL2PSMathTextScalingTest);
 
 bool GL2PSMathTextScalingTest::Paint(vtkContext2D *painter)
 {

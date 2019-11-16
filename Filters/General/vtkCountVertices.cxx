@@ -24,7 +24,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkCountVertices)
+vtkStandardNewMacro(vtkCountVertices);
 
 //------------------------------------------------------------------------------
 void vtkCountVertices::PrintSelf(std::ostream &os, vtkIndent indent)

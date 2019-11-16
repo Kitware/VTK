@@ -200,7 +200,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
   if(!inVtxDsAttrs)
   {
-    vtkErrorMacro("Error: No vertex data found on the graph.")
+    vtkErrorMacro("Error: No vertex data found on the graph.");
     return nullptr;
   }
 
@@ -211,7 +211,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   // Cannot proceed if vertex array of interest is not found.
   if(!inVertexAOI)
   {
-    vtkErrorMacro("Error: Could not find the key vertex array.")
+    vtkErrorMacro("Error: Could not find the key vertex array.");
     return nullptr;
   }
 
@@ -265,7 +265,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   {
     if(!inVertexDataArraysAO[i]->GetName())
     {
-      vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+      vtkErrorMacro("Error: Name on the array is nullptr or not set.");
       return nullptr;
     }
 
@@ -324,7 +324,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     {
       if(!inEdgeDataArraysOI[i]->GetName())
       {
-        vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+        vtkErrorMacro("Error: Name on the array is nullptr or not set.");
         return nullptr;
       }
 
@@ -345,7 +345,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     {
       if(!inEdgeDataArraysAO[i]->GetName())
       {
-        vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+        vtkErrorMacro("Error: Name on the array is nullptr or not set.");
         return nullptr;
       }
 

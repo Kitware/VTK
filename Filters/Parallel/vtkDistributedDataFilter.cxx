@@ -31,7 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 
 // Needed to let vtkPDistributedDataFilter be instantiated when available
-vtkObjectFactoryNewMacro(vtkDistributedDataFilter)
+vtkObjectFactoryNewMacro(vtkDistributedDataFilter);
 
 //----------------------------------------------------------------------------
 vtkDistributedDataFilter::vtkDistributedDataFilter()

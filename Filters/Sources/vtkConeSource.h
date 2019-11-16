@@ -53,7 +53,7 @@ public:
    * Set the height of the cone. This is the height along the cone in
    * its specified direction.
    */
-  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Height,double);
   //@}
 
@@ -61,7 +61,7 @@ public:
   /**
    * Set the base radius of the cone.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Radius,double);
   //@}
 
@@ -69,7 +69,7 @@ public:
   /**
    * Set the number of facets used to represent the cone.
    */
-  vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE)
+  vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE);
   vtkGetMacro(Resolution,int);
   //@}
 

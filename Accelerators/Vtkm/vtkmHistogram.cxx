@@ -35,7 +35,7 @@
 #include <vtkm/cont/ArrayRangeCompute.hxx>
 #include <vtkm/filter/Histogram.h>
 
-vtkStandardNewMacro(vtkmHistogram)
+vtkStandardNewMacro(vtkmHistogram);
 
 //------------------------------------------------------------------------------
 vtkmHistogram::vtkmHistogram()

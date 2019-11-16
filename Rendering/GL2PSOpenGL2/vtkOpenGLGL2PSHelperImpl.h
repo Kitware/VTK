@@ -33,7 +33,7 @@ class VTKRENDERINGGL2PSOPENGL2_EXPORT vtkOpenGLGL2PSHelperImpl
 {
 public:
   static vtkOpenGLGL2PSHelperImpl *New();
-  vtkTypeMacro(vtkOpenGLGL2PSHelperImpl, vtkOpenGLGL2PSHelper)
+  vtkTypeMacro(vtkOpenGLGL2PSHelperImpl, vtkOpenGLGL2PSHelper);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,

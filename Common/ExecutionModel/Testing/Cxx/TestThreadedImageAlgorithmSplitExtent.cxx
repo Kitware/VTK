@@ -33,7 +33,7 @@ public:
   bool TestSplitExtent(int extent[6], vtkIdType pieces);
 };
 
-vtkStandardNewMacro(ThreadedImageAlgorithmTester)
+vtkStandardNewMacro(ThreadedImageAlgorithmTester);
 
 // The SplitPath is protected, so add a method to set it.
 void ThreadedImageAlgorithmTester::SetSplitPath(const int path[3], int len)

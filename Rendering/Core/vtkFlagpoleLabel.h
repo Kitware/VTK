@@ -43,7 +43,7 @@ class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel: public vtkActor
 {
 public:
   static vtkFlagpoleLabel* New();
-  vtkTypeMacro(vtkFlagpoleLabel, vtkActor)
+  vtkTypeMacro(vtkFlagpoleLabel, vtkActor);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -51,7 +51,7 @@ public:
    * @{
    */
   void SetInput(const char *in);
-  vtkGetStringMacro(Input)
+  vtkGetStringMacro(Input);
   /** @} */
 
   /**
@@ -59,7 +59,7 @@ public:
    * @{
    */
   void SetTextProperty(vtkTextProperty *tprop);
-  vtkGetObjectMacro(TextProperty, vtkTextProperty)
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   /** @} */
 
   /**
@@ -99,13 +99,13 @@ public:
   /**
    * Set/Get the world coordinate position of the base
    */
-  vtkGetVector3Macro(BasePosition, double)
+  vtkGetVector3Macro(BasePosition, double);
   void SetBasePosition(double x, double y, double z);
 
   /**
    * Set/Get the world coordinate position of the top
    */
-  vtkGetVector3Macro(TopPosition, double)
+  vtkGetVector3Macro(TopPosition, double);
   void SetTopPosition(double x, double y, double z);
 
   /**
@@ -113,8 +113,8 @@ public:
    * which corresponds to a preset texels/window value. Adjust this
    * to increase or decrease the default size.
    */
-  vtkGetMacro(FlagSize, double)
-  vtkSetMacro(FlagSize, double)
+  vtkGetMacro(FlagSize, double);
+  vtkSetMacro(FlagSize, double);
 
 protected:
   vtkFlagpoleLabel();

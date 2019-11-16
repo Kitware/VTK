@@ -52,7 +52,7 @@ vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
 
 //-----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkProjectedTetrahedraMapper)
+vtkAbstractObjectFactoryNewMacro(vtkProjectedTetrahedraMapper);
 
 //-----------------------------------------------------------------------------
 

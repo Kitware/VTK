@@ -1606,7 +1606,7 @@ void vtkOpenGLState::PopDrawFramebufferBinding()
   }
   else
   {
-    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.")
+    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
   }
 }
 
@@ -1621,7 +1621,7 @@ void vtkOpenGLState::PopReadFramebufferBinding()
   }
   else
   {
-    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.")
+    vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
   }
 }
 

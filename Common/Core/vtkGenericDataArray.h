@@ -81,7 +81,7 @@ class vtkGenericDataArray : public vtkDataArray
   typedef vtkGenericDataArray<DerivedT, ValueTypeT> SelfType;
 public:
   typedef ValueTypeT ValueType;
-  vtkTemplateTypeMacro(SelfType, vtkDataArray)
+  vtkTemplateTypeMacro(SelfType, vtkDataArray);
 
   /**
    * Compile time access to the VTK type identifier.

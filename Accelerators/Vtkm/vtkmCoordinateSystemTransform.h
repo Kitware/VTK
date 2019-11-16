@@ -32,7 +32,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmCoordinateSystemTransform : public vtkPoint
 {
   enum struct TransformTypes {None, CarToCyl, CylToCar, CarToSph, SphToCar};
 public:
-  vtkTypeMacro(vtkmCoordinateSystemTransform, vtkPointSetAlgorithm)
+  vtkTypeMacro(vtkmCoordinateSystemTransform, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmCoordinateSystemTransform* New();

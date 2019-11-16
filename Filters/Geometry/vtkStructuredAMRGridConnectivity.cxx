@@ -819,7 +819,7 @@ vtkStructuredAMRGridConnectivity::GetLocalCellCentersFromFinerLevel(
             }
             else
             {
-              vtkWarningMacro("Empty list of sources!")
+              vtkWarningMacro("Empty list of sources!");
             }
 
           } // END if nei has finer resolution

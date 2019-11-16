@@ -22,7 +22,7 @@
 #include <cassert>
 #include <utility>
 
-vtkStandardNewMacro(vtkOpenGLRenderTimerLog)
+vtkStandardNewMacro(vtkOpenGLRenderTimerLog);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLRenderTimerLog::PrintSelf(std::ostream &os, vtkIndent indent)

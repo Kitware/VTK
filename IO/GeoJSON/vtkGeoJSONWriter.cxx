@@ -540,4 +540,4 @@ vtkStdString vtkGeoJSONWriter::GetOutputStdString()
 }
 
 //------------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkGeoJSONWriter, LookupTable, vtkLookupTable)
+vtkCxxSetObjectMacro(vtkGeoJSONWriter, LookupTable, vtkLookupTable);

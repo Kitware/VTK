@@ -28,7 +28,7 @@
 //
 // Standard methods
 //
-vtkStandardNewMacro(vtkImageToStructuredGrid)
+vtkStandardNewMacro(vtkImageToStructuredGrid);
 
 vtkImageToStructuredGrid::vtkImageToStructuredGrid() = default;
 

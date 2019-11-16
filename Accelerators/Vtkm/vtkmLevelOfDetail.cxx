@@ -36,7 +36,7 @@
 #include <vtkm/cont/ArrayRangeCompute.hxx>
 
 
-vtkStandardNewMacro(vtkmLevelOfDetail)
+vtkStandardNewMacro(vtkmLevelOfDetail);
 
 //------------------------------------------------------------------------------
 vtkmLevelOfDetail::vtkmLevelOfDetail()

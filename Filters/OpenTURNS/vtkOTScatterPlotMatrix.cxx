@@ -68,7 +68,7 @@ public:
   std::map<double, vtkColor4ub> DensityMapColorMap;
 };
 
-vtkStandardNewMacro(vtkOTScatterPlotMatrix)
+vtkStandardNewMacro(vtkOTScatterPlotMatrix);
 
   vtkOTScatterPlotMatrix::vtkOTScatterPlotMatrix()
 {

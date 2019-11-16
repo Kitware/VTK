@@ -56,9 +56,9 @@ public:
    * By default, this setting is false.
    * @{
    */
-  vtkSetMacro(AllowNullInput, bool)
-  vtkGetMacro(AllowNullInput, bool)
-  vtkBooleanMacro(AllowNullInput, bool)
+  vtkSetMacro(AllowNullInput, bool);
+  vtkGetMacro(AllowNullInput, bool);
+  vtkBooleanMacro(AllowNullInput, bool);
   /**@}*/
 
 protected:

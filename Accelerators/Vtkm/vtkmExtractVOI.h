@@ -42,7 +42,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmExtractVOI : public vtkExtractVOI
 {
 public:
-  vtkTypeMacro(vtkmExtractVOI, vtkExtractVOI)
+  vtkTypeMacro(vtkmExtractVOI, vtkExtractVOI);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmExtractVOI* New();
 

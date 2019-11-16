@@ -55,7 +55,7 @@ class vtkDenseArray : public vtkTypedArray<T>
 {
 public:
   static vtkDenseArray<T>* New();
-  vtkTemplateTypeMacro(vtkDenseArray<T>, vtkTypedArray<T>)
+  vtkTemplateTypeMacro(vtkDenseArray<T>, vtkTypedArray<T>);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   typedef typename vtkArray::CoordinateT CoordinateT;

@@ -34,7 +34,7 @@ class vtkRectd;
 class VTKCHARTSCORE_EXPORT vtkInteractiveArea : public vtkContextArea
 {
 public:
-  vtkTypeMacro(vtkInteractiveArea, vtkContextArea)
+  vtkTypeMacro(vtkInteractiveArea, vtkContextArea);
 
   static vtkInteractiveArea* New();
   void PrintSelf(ostream &os, vtkIndent indent) override;

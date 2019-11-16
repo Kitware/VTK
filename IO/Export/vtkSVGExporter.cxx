@@ -56,7 +56,7 @@ std::string ColorToString(const unsigned char *rgb)
 } // end anon namespace
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSVGExporter)
+vtkStandardNewMacro(vtkSVGExporter);
 
 //------------------------------------------------------------------------------
 void vtkSVGExporter::PrintSelf(std::ostream &os, vtkIndent indent)

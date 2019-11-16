@@ -32,15 +32,15 @@ class VTKFILTERSGENERAL_EXPORT vtkCountFaces: public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkCountFaces* New();
-  vtkTypeMacro(vtkCountFaces, vtkPassInputTypeAlgorithm)
+  vtkTypeMacro(vtkCountFaces, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
    * The name of the new output array containing the face counts.
    */
-  vtkSetStringMacro(OutputArrayName)
-  vtkGetStringMacro(OutputArrayName)
+  vtkSetStringMacro(OutputArrayName);
+  vtkGetStringMacro(OutputArrayName);
   //@}
 
 protected:

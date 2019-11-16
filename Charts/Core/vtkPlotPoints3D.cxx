@@ -24,7 +24,7 @@
 #include "vtkUnsignedCharArray.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotPoints3D)
+vtkStandardNewMacro(vtkPlotPoints3D);
 
 //-----------------------------------------------------------------------------
 vtkPlotPoints3D::vtkPlotPoints3D()

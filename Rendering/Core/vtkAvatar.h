@@ -30,7 +30,7 @@ class VTKRENDERINGCORE_EXPORT vtkAvatar: public vtkActor
 {
 public:
   static vtkAvatar* New();
-  vtkTypeMacro(vtkAvatar, vtkActor)
+  vtkTypeMacro(vtkAvatar, vtkActor);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**

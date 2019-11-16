@@ -23,7 +23,7 @@ class vtkRecti;
 class VTKRENDERINGCORE_EXPORT vtkAbstractRenderDevice : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractRenderDevice, vtkObject)
+  vtkTypeMacro(vtkAbstractRenderDevice, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

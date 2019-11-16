@@ -520,8 +520,8 @@ struct vtkSVGContextDevice2D::Details
 };
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSVGContextDevice2D)
-vtkCxxSetObjectMacro(vtkSVGContextDevice2D, Viewport, vtkViewport)
+vtkStandardNewMacro(vtkSVGContextDevice2D);
+vtkCxxSetObjectMacro(vtkSVGContextDevice2D, Viewport, vtkViewport);
 
 //------------------------------------------------------------------------------
 void vtkSVGContextDevice2D::PrintSelf(std::ostream &os, vtkIndent indent)

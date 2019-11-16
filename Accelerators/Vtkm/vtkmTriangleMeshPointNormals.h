@@ -54,7 +54,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmTriangleMeshPointNormals
   : public vtkTriangleMeshPointNormals
 {
 public:
-  vtkTypeMacro(vtkmTriangleMeshPointNormals, vtkTriangleMeshPointNormals)
+  vtkTypeMacro(vtkmTriangleMeshPointNormals, vtkTriangleMeshPointNormals);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmTriangleMeshPointNormals* New();
 

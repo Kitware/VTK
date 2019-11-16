@@ -70,7 +70,7 @@ public:
    * @{
    */
   void SetForceDevice(vtkContextDevice2D *dev);
-  vtkGetObjectMacro(ForceDevice, vtkContextDevice2D)
+  vtkGetObjectMacro(ForceDevice, vtkContextDevice2D);
   /**@}*/
 
   /**

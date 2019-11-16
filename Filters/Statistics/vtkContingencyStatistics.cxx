@@ -940,7 +940,7 @@ private:
 };
 
 
-vtkObjectFactoryNewMacro(vtkContingencyStatistics)
+vtkObjectFactoryNewMacro(vtkContingencyStatistics);
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()

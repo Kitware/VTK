@@ -35,7 +35,7 @@
 
 #include <vtkm/filter/WarpScalar.h>
 
-vtkStandardNewMacro(vtkmWarpScalar)
+vtkStandardNewMacro(vtkmWarpScalar);
 
 //------------------------------------------------------------------------------
 vtkmWarpScalar::vtkmWarpScalar() : vtkWarpScalar()

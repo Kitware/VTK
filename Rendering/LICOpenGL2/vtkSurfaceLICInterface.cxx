@@ -740,25 +740,25 @@ vtkSetMonitoredParameterMacro(
       GenerateNoiseTexture,
       int,
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       NoiseType,
       int,
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       NoiseTextureSize,
       int,
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       NoiseGrainSize,
       int,
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       MinNoiseValue,
@@ -766,7 +766,7 @@ vtkSetMonitoredParameterMacro(
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       MaxNoiseValue,
@@ -774,13 +774,13 @@ vtkSetMonitoredParameterMacro(
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       NumberOfNoiseLevels,
       int,
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       ImpulseNoiseProbability,
@@ -788,7 +788,7 @@ vtkSetMonitoredParameterMacro(
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       ImpulseNoiseBackgroundValue,
@@ -796,101 +796,101 @@ vtkSetMonitoredParameterMacro(
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 vtkSetMonitoredParameterMacro(
       NoiseGeneratorSeed,
       int,
       this->Internals->Noise = nullptr;
-      this->Internals->NoiseImage = nullptr;)
+      this->Internals->NoiseImage = nullptr;);
 
 // compositor
 vtkSetMonitoredParameterMacro(
       CompositeStrategy,
-      int,)
+      int,);
 
 // lic/compositor
 vtkSetMonitoredParameterMacro(
       NumberOfSteps,
-      int,)
+      int,);
 
 vtkSetMonitoredParameterMacro(
       StepSize,
-      double,)
+      double,);
 
 vtkSetMonitoredParameterMacro(
       NormalizeVectors,
       int,
       val = val < 0 ? 0 : val;
-      val = val > 1 ? 1 : val;)
+      val = val > 1 ? 1 : val;);
 
 vtkSetMonitoredParameterMacro(
       MaskThreshold,
-      double,)
+      double,);
 
 vtkSetMonitoredParameterMacro(
       EnhancedLIC,
-      int,)
+      int,);
 
 // lic
 vtkSetMonitoredParameterMacro(
       LowLICContrastEnhancementFactor,
       double,
       val = val < 0.0 ? 0.0 : val;
-      val = val > 1.0 ? 1.0 : val;)
+      val = val > 1.0 ? 1.0 : val;);
 
 vtkSetMonitoredParameterMacro(
       HighLICContrastEnhancementFactor,
       double,
       val = val < 0.0 ? 0.0 : val;
-      val = val > 1.0 ? 1.0 : val;)
+      val = val > 1.0 ? 1.0 : val;);
 
 vtkSetMonitoredParameterMacro(
       AntiAlias,
       int,
-      val = val < 0 ? 0 : val;)
+      val = val < 0 ? 0 : val;);
 
 // geometry
 vtkSetMonitoredParameterMacro(
       MaskOnSurface,
       int,
       val = val < 0 ? 0 : val;
-      val = val > 1 ? 1 : val;)
+      val = val > 1 ? 1 : val;);
 
 // colors
 vtkSetMonitoredParameterMacro(
       ColorMode,
-      int,)
+      int,);
 
 vtkSetMonitoredParameterMacro(
       LICIntensity,
       double,
       val = val < 0.0 ? 0.0 : val;
-      val = val > 1.0 ? 1.0 : val;)
+      val = val > 1.0 ? 1.0 : val;);
 
 vtkSetMonitoredParameterMacro(
       MaskIntensity,
       double,
       val = val < 0.0 ? 0.0 : val;
-      val = val > 1.0 ? 1.0 : val;)
+      val = val > 1.0 ? 1.0 : val;);
 
 vtkSetMonitoredParameterMacro(
       MapModeBias,
       double,
       val = val <-1.0 ? -1.0 : val;
-      val = val > 1.0 ?  1.0 : val;)
+      val = val > 1.0 ?  1.0 : val;);
 
 vtkSetMonitoredParameterMacro(
       LowColorContrastEnhancementFactor,
       double,
       val = val < 0.0 ? 0.0 : val;
-      val = val > 1.0 ? 1.0 : val;)
+      val = val > 1.0 ? 1.0 : val;);
 
 vtkSetMonitoredParameterMacro(
       HighColorContrastEnhancementFactor,
       double,
       val = val < 0.0 ? 0.0 : val;
-      val = val > 1.0 ? 1.0 : val;)
+      val = val > 1.0 ? 1.0 : val;);
 
 //----------------------------------------------------------------------------
 void vtkSurfaceLICInterface::SetMaskColor(double *val)

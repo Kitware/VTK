@@ -22,7 +22,7 @@
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkTransformFeedback)
+vtkStandardNewMacro(vtkTransformFeedback);
 
 //------------------------------------------------------------------------------
 void vtkTransformFeedback::PrintSelf(std::ostream &os,

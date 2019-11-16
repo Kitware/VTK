@@ -64,12 +64,12 @@ inline GLenum convertTypeToGL(int type)
 
 typedef std::map<const char *, int, vtkShaderProgram::cmp_str>::iterator IterT;
 
-vtkStandardNewMacro(vtkShaderProgram)
+vtkStandardNewMacro(vtkShaderProgram);
 
-vtkCxxSetObjectMacro(vtkShaderProgram,VertexShader,vtkShader)
-vtkCxxSetObjectMacro(vtkShaderProgram,FragmentShader,vtkShader)
-vtkCxxSetObjectMacro(vtkShaderProgram,GeometryShader,vtkShader)
-vtkCxxSetObjectMacro(vtkShaderProgram, TransformFeedback, vtkTransformFeedback)
+vtkCxxSetObjectMacro(vtkShaderProgram,VertexShader,vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram,FragmentShader,vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram,GeometryShader,vtkShader);
+vtkCxxSetObjectMacro(vtkShaderProgram, TransformFeedback, vtkTransformFeedback);
 
 vtkShaderProgram::vtkShaderProgram()
 {

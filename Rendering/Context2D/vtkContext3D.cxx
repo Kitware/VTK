@@ -21,7 +21,7 @@
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkContext3D)
+vtkStandardNewMacro(vtkContext3D);
 
 void vtkContext3D::PrintSelf(ostream &os, vtkIndent indent)
 {

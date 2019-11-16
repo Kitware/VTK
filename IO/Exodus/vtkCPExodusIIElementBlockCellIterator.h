@@ -36,7 +36,7 @@ public:
   typedef vtkCPExodusIIElementBlockPrivate StorageType;
 
   static vtkCPExodusIIElementBlockCellIterator *New();
-  vtkTypeMacro(vtkCPExodusIIElementBlockCellIterator, vtkCellIterator)
+  vtkTypeMacro(vtkCPExodusIIElementBlockCellIterator, vtkCellIterator);
   void PrintSelf(ostream &os, vtkIndent indent);
 
   bool IsValid();

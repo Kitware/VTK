@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextActor3D: public vtkTextActor3D
 {
 public:
   static vtkOpenGLTextActor3D* New();
-  vtkTypeMacro(vtkOpenGLTextActor3D, vtkTextActor3D)
+  vtkTypeMacro(vtkOpenGLTextActor3D, vtkTextActor3D);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;

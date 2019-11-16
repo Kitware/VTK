@@ -23,7 +23,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkCompositeDataDisplayAttributes)
+vtkStandardNewMacro(vtkCompositeDataDisplayAttributes);
 
 vtkCompositeDataDisplayAttributes::vtkCompositeDataDisplayAttributes() = default;
 

@@ -19,4 +19,4 @@
 
 vtkInstantiateTemplateMacro(
   template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator
-)
+);

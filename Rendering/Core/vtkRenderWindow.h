@@ -122,7 +122,7 @@ public:
   /**
    * Get the render timer log for this window.
    */
-  vtkGetNewMacro(RenderTimer, vtkRenderTimerLog)
+  vtkGetNewMacro(RenderTimer, vtkRenderTimerLog);
 
   /**
    * Return the collection of renderers in the render window.

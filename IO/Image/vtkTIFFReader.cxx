@@ -136,7 +136,7 @@ bool ReadTemplatedImage(T* out, Flip flip,
 }
 
 //-------------------------------------------------------------------------
-vtkStandardNewMacro(vtkTIFFReader)
+vtkStandardNewMacro(vtkTIFFReader);
 extern "C" {
 static void vtkTIFFReaderInternalErrorHandler(const char* vtkNotUsed(module),
                                               const char* vtkNotUsed(fmt),

@@ -197,7 +197,7 @@ struct vtkLabeledContourMapper::Private
 };
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkLabeledContourMapper)
+vtkObjectFactoryNewMacro(vtkLabeledContourMapper);
 
 //------------------------------------------------------------------------------
 vtkLabeledContourMapper::vtkLabeledContourMapper()
@@ -477,7 +477,7 @@ bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
   vtkPolyData *input = this->GetInput();
   if (!input)
   {
-    vtkErrorMacro(<<"No input data!")
+    vtkErrorMacro(<<"No input data!");
     return false;
   }
 
@@ -528,7 +528,7 @@ bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
     {
       vtkWarningMacro(<< "Stenciling is not enabled in the render window. "
                          "Isoline labels will have artifacts. To fix this, "
-                         "call vtkRenderWindow::StencilCapableOn().")
+                         "call vtkRenderWindow::StencilCapableOn().");
       this->Internal->AlreadyWarnedAboutStencils = true;
     }
   }

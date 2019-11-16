@@ -26,7 +26,7 @@
 #include <cstdlib>
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkContextArea)
+vtkStandardNewMacro(vtkContextArea);
 
 //------------------------------------------------------------------------------
 vtkContextArea::vtkContextArea()

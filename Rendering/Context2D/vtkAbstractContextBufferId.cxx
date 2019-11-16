@@ -16,7 +16,7 @@
 #include "vtkAbstractContextBufferId.h"
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkAbstractContextBufferId)
+vtkAbstractObjectFactoryNewMacro(vtkAbstractContextBufferId);
 
 // ----------------------------------------------------------------------------
 vtkAbstractContextBufferId::vtkAbstractContextBufferId()

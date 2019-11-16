@@ -62,7 +62,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotPoints)
+vtkStandardNewMacro(vtkPlotPoints);
 
 //-----------------------------------------------------------------------------
 vtkPlotPoints::vtkPlotPoints()

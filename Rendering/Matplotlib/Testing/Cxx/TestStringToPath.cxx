@@ -72,7 +72,7 @@ int TestStringToPath(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(StringToPathContextTest)
+vtkStandardNewMacro(StringToPathContextTest);
 
 // This function aims to test the primitives provided by the 2D API.
 bool StringToPathContextTest::Paint(vtkContext2D *painter)

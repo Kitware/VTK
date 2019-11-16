@@ -42,7 +42,7 @@
 
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLStickMapper)
+vtkStandardNewMacro(vtkOpenGLStickMapper);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLStickMapper::vtkOpenGLStickMapper()

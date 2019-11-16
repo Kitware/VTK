@@ -32,7 +32,7 @@ class vtkHomogeneousTransform;
 class VTKACCELERATORSVTKM_EXPORT vtkmPointTransform :  public vtkPointSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmPointTransform, vtkPointSetAlgorithm)
+  vtkTypeMacro(vtkmPointTransform, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmPointTransform *New();

@@ -39,7 +39,7 @@ void annotate(const std::string &str)
 }
 }
 
-vtkStandardNewMacro(vtkHiddenLineRemovalPass)
+vtkStandardNewMacro(vtkHiddenLineRemovalPass);
 
 //------------------------------------------------------------------------------
 void vtkHiddenLineRemovalPass::PrintSelf(std::ostream &os, vtkIndent indent)

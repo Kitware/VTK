@@ -35,7 +35,7 @@
 
 #include <vtkm/filter/CoordinateSystemTransform.h>
 
-vtkStandardNewMacro(vtkmCoordinateSystemTransform)
+vtkStandardNewMacro(vtkmCoordinateSystemTransform);
 
 //------------------------------------------------------------------------------
 vtkmCoordinateSystemTransform::vtkmCoordinateSystemTransform()

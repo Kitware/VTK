@@ -38,7 +38,7 @@ class VTKIOEXPORTPDF_EXPORT vtkPDFContextDevice2D: public vtkContextDevice2D
 {
 public:
   static vtkPDFContextDevice2D* New();
-  vtkTypeMacro(vtkPDFContextDevice2D, vtkContextDevice2D)
+  vtkTypeMacro(vtkPDFContextDevice2D, vtkContextDevice2D);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**

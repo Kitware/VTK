@@ -384,20 +384,20 @@ inline quaternionType operator/(const type& scalar) const \
 }
 
 #define vtkQuaternionOperatorMacro(quaternionType, type) \
-vtkQuaternionIdentity(quaternionType, type) \
-vtkQuaternionNormalized(quaternionType, type) \
-vtkQuaternionConjugated(quaternionType, type) \
-vtkQuaternionInverse(quaternionType, type) \
-vtkQuaternionUnitLog(quaternionType, type) \
-vtkQuaternionUnitExp(quaternionType, type) \
-vtkQuaternionNormalizedWithAngleInDegrees(quaternionType, type) \
-vtkQuaternionSlerp(quaternionType, type) \
-vtkQuaternionInnerPoint(quaternionType, type) \
-vtkQuaternionOperatorPlus(quaternionType, type) \
-vtkQuaternionOperatorMinus(quaternionType, type) \
-vtkQuaternionOperatorMultiply(quaternionType, type) \
-vtkQuaternionOperatorMultiplyScalar(quaternionType, type) \
-vtkQuaternionOperatorDivide(quaternionType, type) \
+vtkQuaternionIdentity(quaternionType, type); \
+vtkQuaternionNormalized(quaternionType, type); \
+vtkQuaternionConjugated(quaternionType, type); \
+vtkQuaternionInverse(quaternionType, type); \
+vtkQuaternionUnitLog(quaternionType, type); \
+vtkQuaternionUnitExp(quaternionType, type); \
+vtkQuaternionNormalizedWithAngleInDegrees(quaternionType, type); \
+vtkQuaternionSlerp(quaternionType, type); \
+vtkQuaternionInnerPoint(quaternionType, type); \
+vtkQuaternionOperatorPlus(quaternionType, type); \
+vtkQuaternionOperatorMinus(quaternionType, type); \
+vtkQuaternionOperatorMultiply(quaternionType, type); \
+vtkQuaternionOperatorMultiplyScalar(quaternionType, type); \
+vtkQuaternionOperatorDivide(quaternionType, type); \
 vtkQuaternionOperatorDivideScalar(quaternionType, type)
 
 // .NAME vtkQuaternionf - Float quaternion type.
@@ -414,7 +414,7 @@ public:
     : vtkQuaternion<float>(w, x, y, z) {}
   explicit vtkQuaternionf(float scalar) : vtkQuaternion<float>(scalar) {}
   explicit vtkQuaternionf(const float *init) : vtkQuaternion<float>(init) {}
-  vtkQuaternionOperatorMacro(vtkQuaternionf, float)
+  vtkQuaternionOperatorMacro(vtkQuaternionf, float);
 };
 
 // .NAME vtkQuaterniond - Double quaternion type.

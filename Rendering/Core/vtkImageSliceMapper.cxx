@@ -33,7 +33,7 @@ vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkImageSliceMapper)
+vtkAbstractObjectFactoryNewMacro(vtkImageSliceMapper);
 
 //----------------------------------------------------------------------------
 vtkImageSliceMapper::vtkImageSliceMapper()

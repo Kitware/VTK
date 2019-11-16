@@ -25,7 +25,7 @@
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkOpenGLVertexArrayObject)
+vtkStandardNewMacro(vtkOpenGLVertexArrayObject);
 
 namespace
 {

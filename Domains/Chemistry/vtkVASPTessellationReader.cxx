@@ -44,7 +44,7 @@
 #include <sstream>
 #include <vector>
 
-vtkStandardNewMacro(vtkVASPTessellationReader)
+vtkStandardNewMacro(vtkVASPTessellationReader);
 
 typedef vtksys::RegularExpression RegEx;
 typedef vtkStreamingDemandDrivenPipeline vtkSDDP;

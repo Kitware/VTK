@@ -190,9 +190,9 @@ public:
   /**
    * Enable/disable mapping of the opacity values. Default is set to true.
    */
-  vtkSetMacro(EnableOpacityMapping, bool)
-  vtkGetMacro(EnableOpacityMapping, bool)
-  vtkBooleanMacro(EnableOpacityMapping, bool)
+  vtkSetMacro(EnableOpacityMapping, bool);
+  vtkGetMacro(EnableOpacityMapping, bool);
+  vtkBooleanMacro(EnableOpacityMapping, bool);
   //@}
 
   //@{

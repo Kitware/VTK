@@ -134,7 +134,7 @@ int vtkStreamingStatistics::RequestData( vtkInformation*,
   // Make sure the statistics algorithm is set
   if ( !this->StatisticsAlgorithm )
   {
-    vtkErrorMacro("StatisticsAlgorithm not set! Punting!")
+    vtkErrorMacro("StatisticsAlgorithm not set! Punting!");
     cerr << "StatisticsAlgorithm not set! Punting!" << endl;
     return 0;
   }

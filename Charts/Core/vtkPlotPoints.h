@@ -189,8 +189,8 @@ public:
   /**
    * Get/set the valid point mask array name.
    */
-  vtkGetMacro(ValidPointMaskName, vtkStdString)
-  vtkSetMacro(ValidPointMaskName, vtkStdString)
+  vtkGetMacro(ValidPointMaskName, vtkStdString);
+  vtkSetMacro(ValidPointMaskName, vtkStdString);
   //@}
 
 protected:

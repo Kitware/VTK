@@ -18,7 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkSetGet.h"
 
-vtkObjectFactoryNewMacro(vtkParticleTracer)
+vtkObjectFactoryNewMacro(vtkParticleTracer);
 
 vtkParticleTracer::vtkParticleTracer()
 {

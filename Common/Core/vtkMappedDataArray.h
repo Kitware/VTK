@@ -41,7 +41,7 @@ template <class Scalar>
 class vtkMappedDataArray : public vtkTypedDataArray<Scalar>
 {
 public:
-  vtkTemplateTypeMacro(vtkMappedDataArray<Scalar>, vtkTypedDataArray<Scalar>)
+  vtkTemplateTypeMacro(vtkMappedDataArray<Scalar>, vtkTypedDataArray<Scalar>);
   typedef typename Superclass::ValueType ValueType;
 
   /**
@@ -145,7 +145,7 @@ private:
   //@}
 
 // Declare vtkArrayDownCast implementations for mapped containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray)
+vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray);
 
 #include "vtkMappedDataArray.txx"
 
@@ -169,7 +169,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray)
 // Same as vtkTypeMacro, but adds an implementation of NewInstanceInternal()
 // that returns a standard (unmapped) VTK array, if possible.
 #define vtkMappedDataArrayTypeMacro(thisClass, superClass) \
-  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superClass, vtkDataArray) \
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superClass, vtkDataArray); \
   vtkMappedDataArrayNewInstanceMacro(thisClass)
 
 #endif //vtkMappedDataArray_h

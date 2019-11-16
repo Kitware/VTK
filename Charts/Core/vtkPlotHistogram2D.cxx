@@ -28,7 +28,7 @@
 #include <algorithm>
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotHistogram2D)
+vtkStandardNewMacro(vtkPlotHistogram2D);
 
 //-----------------------------------------------------------------------------
 vtkPlotHistogram2D::vtkPlotHistogram2D()

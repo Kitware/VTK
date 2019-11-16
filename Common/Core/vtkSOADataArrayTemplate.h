@@ -42,7 +42,7 @@ class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate :
           GenericDataArrayType;
 public:
   typedef vtkSOADataArrayTemplate<ValueTypeT> SelfType;
-  vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
+  vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
   typedef typename Superclass::ValueType ValueType;
 
   enum DeleteMethod
@@ -254,7 +254,7 @@ private:
 };
 
 // Declare vtkArrayDownCast implementations for SoA containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
+vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate);
 
 #endif // header guard
 
@@ -275,7 +275,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
 #pragma warning (disable: 4910) // extern and dllexport incompatible
 #endif
 vtkExternTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate)
+  extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate);
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif
@@ -307,7 +307,7 @@ vtkExternTemplateMacro(
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 vtkInstantiateTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate)
+  extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate);
 
 #pragma warning (pop)
 

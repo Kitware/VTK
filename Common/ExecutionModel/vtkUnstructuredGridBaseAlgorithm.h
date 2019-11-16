@@ -41,7 +41,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUnstructuredGridBaseAlgorithm
 {
 public:
   static vtkUnstructuredGridBaseAlgorithm *New();
-  vtkTypeMacro(vtkUnstructuredGridBaseAlgorithm, vtkAlgorithm)
+  vtkTypeMacro(vtkUnstructuredGridBaseAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

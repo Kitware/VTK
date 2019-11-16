@@ -17,7 +17,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkFXAAOptions)
+vtkStandardNewMacro(vtkFXAAOptions);
 
 //------------------------------------------------------------------------------
 void vtkFXAAOptions::PrintSelf(std::ostream &os, vtkIndent indent)

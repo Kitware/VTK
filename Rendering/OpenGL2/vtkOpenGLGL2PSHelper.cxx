@@ -21,7 +21,7 @@
 vtkOpenGLGL2PSHelper *vtkOpenGLGL2PSHelper::Instance = nullptr;
 
 //------------------------------------------------------------------------------
-vtkAbstractObjectFactoryNewMacro(vtkOpenGLGL2PSHelper)
+vtkAbstractObjectFactoryNewMacro(vtkOpenGLGL2PSHelper);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLGL2PSHelper::PrintSelf(std::ostream &os, vtkIndent indent)

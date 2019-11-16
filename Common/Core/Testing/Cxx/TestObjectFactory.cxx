@@ -31,7 +31,7 @@ public:
   ~vtkTestPoints() override = default;
 
   vtkTypeMacro(vtkTestPoints,vtkPoints);
-  static vtkTestPoints* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints) }
+  static vtkTestPoints* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints); }
   vtkTestPoints() = default;
 private:
   vtkTestPoints(const vtkTestPoints&) = delete;
@@ -46,7 +46,7 @@ public:
 
   // Methods from vtkObject
   vtkTypeMacro(vtkTestPoints2,vtkPoints);
-  static vtkTestPoints2* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints2) }
+  static vtkTestPoints2* New() { VTK_STANDARD_NEW_BODY(vtkTestPoints2); }
   vtkTestPoints2() = default;
 private:
   vtkTestPoints2(const vtkTestPoints2&) = delete;

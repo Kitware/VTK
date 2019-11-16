@@ -122,8 +122,8 @@ public:
    * of nonzero bins per cell.
    * Set to "NumberOfNonzeroBins" by default.
    */
-  vtkSetStringMacro(NumberOfNonzeroBinsArrayName)
-  vtkGetStringMacro(NumberOfNonzeroBinsArrayName)
+  vtkSetStringMacro(NumberOfNonzeroBinsArrayName);
+  vtkGetStringMacro(NumberOfNonzeroBinsArrayName);
   //@}
 
   //@{

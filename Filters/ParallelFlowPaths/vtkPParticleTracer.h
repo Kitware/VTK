@@ -34,7 +34,7 @@
 class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer: public vtkPParticleTracerBase
 {
  public:
-  vtkTypeMacro(vtkPParticleTracer,vtkPParticleTracerBase)
+  vtkTypeMacro(vtkPParticleTracer,vtkPParticleTracerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPParticleTracer *New();

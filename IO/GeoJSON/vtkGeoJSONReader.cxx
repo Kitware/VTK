@@ -169,7 +169,7 @@ GeoJSONReaderInternal::ParseRoot(
     rootFeatures = root["features"];
     if (rootFeatures.isNull())
     {
-      vtkGenericWarningMacro(<<"ParseRoot: Missing \"features\" node")
+      vtkGenericWarningMacro(<<"ParseRoot: Missing \"features\" node");
       return;
     }
 

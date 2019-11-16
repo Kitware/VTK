@@ -33,7 +33,7 @@
 #include <array>
 #include <sstream>
 
-vtkStandardNewMacro(vtkOpenGLInstanceCulling)
+vtkStandardNewMacro(vtkOpenGLInstanceCulling);
 
 //------------------------------------------------------------------------------
 vtkOpenGLInstanceCulling::~vtkOpenGLInstanceCulling()

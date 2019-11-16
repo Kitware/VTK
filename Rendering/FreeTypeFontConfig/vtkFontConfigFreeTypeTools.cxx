@@ -24,7 +24,7 @@
 
 #include <fontconfig/fontconfig.h>
 
-vtkStandardNewMacro(vtkFontConfigFreeTypeTools)
+vtkStandardNewMacro(vtkFontConfigFreeTypeTools);
 
 namespace
 {

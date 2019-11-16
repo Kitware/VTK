@@ -39,7 +39,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmContour : public vtkContourFilter
 {
 public:
-  vtkTypeMacro(vtkmContour,vtkContourFilter)
+  vtkTypeMacro(vtkmContour,vtkContourFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmContour* New();
 

@@ -106,9 +106,9 @@ public:
    * Default is false.
    * @{
    */
-  vtkSetMacro(ColorMissingArraysWithNanColor, bool)
-  vtkGetMacro(ColorMissingArraysWithNanColor, bool)
-  vtkBooleanMacro(ColorMissingArraysWithNanColor, bool)
+  vtkSetMacro(ColorMissingArraysWithNanColor, bool);
+  vtkGetMacro(ColorMissingArraysWithNanColor, bool);
+  vtkBooleanMacro(ColorMissingArraysWithNanColor, bool);
   /**@}*/
 
   /**

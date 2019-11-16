@@ -33,8 +33,8 @@
 #include "vtkTexture.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkFlagpoleLabel)
-vtkCxxSetObjectMacro(vtkFlagpoleLabel, TextProperty, vtkTextProperty)
+vtkObjectFactoryNewMacro(vtkFlagpoleLabel);
+vtkCxxSetObjectMacro(vtkFlagpoleLabel, TextProperty, vtkTextProperty);
 
 //------------------------------------------------------------------------------
 void vtkFlagpoleLabel::PrintSelf(std::ostream &os, vtkIndent indent)

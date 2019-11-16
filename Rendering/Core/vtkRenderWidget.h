@@ -26,7 +26,7 @@ class vtkAbstractRenderDevice;
 class VTKRENDERINGCORE_EXPORT vtkRenderWidget : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkRenderWidget ,vtkObject)
+  vtkTypeMacro(vtkRenderWidget ,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkRenderWidget* New();
 

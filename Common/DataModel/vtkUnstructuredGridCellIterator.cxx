@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-vtkStandardNewMacro(vtkUnstructuredGridCellIterator)
+vtkStandardNewMacro(vtkUnstructuredGridCellIterator);
 
 //------------------------------------------------------------------------------
 void vtkUnstructuredGridCellIterator::PrintSelf(ostream &os, vtkIndent indent)

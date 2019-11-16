@@ -39,7 +39,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkBoxClipDataSet);
-vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkIncrementalPointLocator)
+vtkCxxSetObjectMacro(vtkBoxClipDataSet, Locator, vtkIncrementalPointLocator);
 //----------------------------------------------------------------------------
 vtkBoxClipDataSet::vtkBoxClipDataSet()
 {

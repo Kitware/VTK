@@ -370,7 +370,7 @@ bool vtkLabeledContourPolyDataItem::CheckInputs()
   vtkPolyData *input = this->PolyData;
   if (!input)
   {
-    vtkErrorMacro(<<"No input data!")
+    vtkErrorMacro(<<"No input data!");
     return false;
   }
 

@@ -195,8 +195,8 @@ DisplayToWorld(const double dc[4], double wc[4]) const
 } // end anon namespace
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkBillboardTextActor3D)
-vtkCxxSetObjectMacro(vtkBillboardTextActor3D, TextProperty, vtkTextProperty)
+vtkObjectFactoryNewMacro(vtkBillboardTextActor3D);
+vtkCxxSetObjectMacro(vtkBillboardTextActor3D, TextProperty, vtkTextProperty);
 
 //------------------------------------------------------------------------------
 void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)

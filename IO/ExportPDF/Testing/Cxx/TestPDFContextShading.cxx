@@ -47,11 +47,11 @@ class ContextPDFTest : public vtkContextItem
 {
 public:
   static ContextPDFTest *New();
-  vtkTypeMacro(ContextPDFTest, vtkContextItem)
+  vtkTypeMacro(ContextPDFTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   bool Paint(vtkContext2D *painter) override;
 };
-vtkStandardNewMacro(ContextPDFTest)
+vtkStandardNewMacro(ContextPDFTest);
 } // end anon namespace
 
 int TestPDFContextShading(int, char*[])

@@ -67,7 +67,7 @@ protected:
 #ifndef vtkImageProgressIterator_cxx
 vtkExternTemplateMacro(
   extern template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator
-)
+);
 #endif
 
 #endif

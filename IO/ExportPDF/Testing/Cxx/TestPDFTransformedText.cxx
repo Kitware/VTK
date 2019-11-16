@@ -72,14 +72,14 @@ class TransformedTextPDFTest : public vtkContextItem
 {
 public:
   static TransformedTextPDFTest *New();
-  vtkTypeMacro(TransformedTextPDFTest, vtkContextItem)
+  vtkTypeMacro(TransformedTextPDFTest, vtkContextItem);
   bool Paint(vtkContext2D *painter) override;
 
 private:
   void PaintCell(vtkContext2D *painter, size_t rotIdx, size_t scaleIdx, size_t justIdx);
 };
 
-vtkStandardNewMacro(TransformedTextPDFTest)
+vtkStandardNewMacro(TransformedTextPDFTest);
 
 bool TransformedTextPDFTest::Paint(vtkContext2D *painter)
 {

@@ -38,7 +38,7 @@ class vtkOpenGLVertexArrayObject;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderPass: public vtkRenderPass
 {
 public:
-  vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass)
+  vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**

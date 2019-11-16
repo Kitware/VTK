@@ -33,7 +33,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
 {
 public:
   static vtkOpenGLLabeledContourMapper *New();
-  vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
+  vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**

@@ -354,7 +354,7 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
 }
 } // End of anonymous namespace
 
-vtkObjectFactoryNewMacro(vtkScatterPlotMatrix)
+vtkObjectFactoryNewMacro(vtkScatterPlotMatrix);
 
 vtkScatterPlotMatrix::vtkScatterPlotMatrix()
   : NumberOfBins(10), NumberOfFrames(25),

@@ -165,7 +165,7 @@ public:
    * Default: on
    */
   vtkBooleanMacro(AutoAdvance,vtkTypeBool);
-  vtkSetMacro(AutoAdvance,vtkTypeBool)
+  vtkSetMacro(AutoAdvance,vtkTypeBool);
   vtkGetMacro(AutoAdvance,vtkTypeBool);
   //@}
 

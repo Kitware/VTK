@@ -582,7 +582,7 @@ void vtkVRMLImporter::exitNode()
         this->CurrentMapper->GetInput()->GetPolys()->GetNumberOfCells())
       {
         vtkErrorMacro(
-          <<"Number of faces does not match texture faces, output may not be correct")
+          <<"Number of faces does not match texture faces, output may not be correct");
           tcoordsCorrespond = true; // don't rejig
       }
       else if (this->CurrentNormalCells &&
@@ -590,7 +590,7 @@ void vtkVRMLImporter::exitNode()
         this->CurrentMapper->GetInput()->GetPolys()->GetNumberOfCells())
       {
         vtkErrorMacro(
-          <<"Number of faces does not match normal faces, output may not be correct")
+          <<"Number of faces does not match normal faces, output may not be correct");
           tcoordsCorrespond = true; // don't rejig
       }
       else
@@ -613,7 +613,7 @@ void vtkVRMLImporter::exitNode()
             if (npts != nTCoordPts)
             {
               vtkErrorMacro(
-                <<"Face size differs to texture face size, output may not be correct")
+                <<"Face size differs to texture face size, output may not be correct");
                 break;
             }
             for (vtkIdType j = 0; j < npts; j++)
@@ -642,7 +642,7 @@ void vtkVRMLImporter::exitNode()
             if (npts != nNormalPts)
             {
               vtkErrorMacro(
-                <<"Face size differs to normal face size, output may not be correct")
+                <<"Face size differs to normal face size, output may not be correct");
               break;
             }
             for (vtkIdType j = 0; j < npts; j++)

@@ -30,7 +30,7 @@
 
 #include <vtkm/filter/PointElevation.h>
 
-vtkStandardNewMacro(vtkmPointElevation)
+vtkStandardNewMacro(vtkmPointElevation);
 
 //------------------------------------------------------------------------------
 vtkmPointElevation::vtkmPointElevation()

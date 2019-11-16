@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 vtkDynamicLoader* vtkDynamicLoader::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkDynamicLoader)
+  VTK_STANDARD_NEW_BODY(vtkDynamicLoader);
 }
 
 

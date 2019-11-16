@@ -25,7 +25,7 @@ public:
   vtkTestAlgorithm(const vtkTestAlgorithm&) = delete;
   void operator=(const vtkTestAlgorithm&) = delete;
 
-  vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm)
+  vtkTypeMacro(vtkTestAlgorithm, vtkPassInputTypeAlgorithm);
 
 protected:
   vtkTestAlgorithm()

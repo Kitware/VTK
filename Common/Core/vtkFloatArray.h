@@ -35,7 +35,7 @@
 class VTKCOMMONCORE_EXPORT vtkFloatArray : public vtkDataArray
 {
 public:
-  vtkTypeMacro(vtkFloatArray, vtkDataArray)
+  vtkTypeMacro(vtkFloatArray, vtkDataArray);
 #ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
@@ -82,6 +82,6 @@ private:
 };
 
 // Define vtkArrayDownCast implementation:
-vtkArrayDownCast_FastCastMacro(vtkFloatArray)
+vtkArrayDownCast_FastCastMacro(vtkFloatArray);
 
 #endif

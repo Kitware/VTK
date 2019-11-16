@@ -86,9 +86,9 @@ public:
   /**
    * Whether to hide the display of vertex labels during mouse interaction.  Default is off.
    */
-  vtkSetMacro(HideVertexLabelsOnInteraction, bool)
-  vtkGetMacro(HideVertexLabelsOnInteraction, bool)
-  vtkBooleanMacro(HideVertexLabelsOnInteraction, bool)
+  vtkSetMacro(HideVertexLabelsOnInteraction, bool);
+  vtkGetMacro(HideVertexLabelsOnInteraction, bool);
+  vtkBooleanMacro(HideVertexLabelsOnInteraction, bool);
   //@}
 
   // ------------------------------------------------------------------------
@@ -109,9 +109,9 @@ public:
   /**
    * Whether to hide the display of edge labels during mouse interaction.  Default is off.
    */
-  vtkSetMacro(HideEdgeLabelsOnInteraction, bool)
-  vtkGetMacro(HideEdgeLabelsOnInteraction, bool)
-  vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool)
+  vtkSetMacro(HideEdgeLabelsOnInteraction, bool);
+  vtkGetMacro(HideEdgeLabelsOnInteraction, bool);
+  vtkBooleanMacro(HideEdgeLabelsOnInteraction, bool);
   //@}
 
   // ------------------------------------------------------------------------

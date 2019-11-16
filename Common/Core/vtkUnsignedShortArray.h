@@ -39,7 +39,7 @@
 class VTKCOMMONCORE_EXPORT vtkUnsignedShortArray : public vtkDataArray
 {
 public:
-  vtkTypeMacro(vtkUnsignedShortArray, vtkDataArray)
+  vtkTypeMacro(vtkUnsignedShortArray, vtkDataArray);
 #ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
@@ -85,6 +85,6 @@ private:
 };
 
 // Define vtkArrayDownCast implementation:
-vtkArrayDownCast_FastCastMacro(vtkUnsignedShortArray)
+vtkArrayDownCast_FastCastMacro(vtkUnsignedShortArray);
 
 #endif

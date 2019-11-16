@@ -38,7 +38,7 @@ class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 {
 public:
   static vtkArrayIteratorTemplate<T>* New();
-  vtkTemplateTypeMacro(vtkArrayIteratorTemplate<T>, vtkArrayIterator)
+  vtkTemplateTypeMacro(vtkArrayIteratorTemplate<T>, vtkArrayIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -129,7 +129,7 @@ private:
 #pragma warning (disable: 4910) // extern and dllexport incompatible
 #endif
 vtkInstantiateTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate)
+  extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate);
 extern template class VTKCOMMONCORE_EXPORT
   vtkArrayIteratorTemplate<vtkStdString>;
 extern template class VTKCOMMONCORE_EXPORT

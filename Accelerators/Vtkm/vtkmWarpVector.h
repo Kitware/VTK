@@ -33,7 +33,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmWarpVector : public vtkWarpVector
 {
 public:
-  vtkTypeMacro(vtkmWarpVector, vtkWarpVector)
+  vtkTypeMacro(vtkmWarpVector, vtkWarpVector);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmWarpVector* New();

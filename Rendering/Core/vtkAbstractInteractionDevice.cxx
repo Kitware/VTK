@@ -15,7 +15,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkAbstractInteractionDevice)
+vtkAbstractObjectFactoryNewMacro(vtkAbstractInteractionDevice);
 
 vtkAbstractInteractionDevice::vtkAbstractInteractionDevice()
   : Initialized(false), RenderWidget(nullptr), RenderDevice(nullptr)

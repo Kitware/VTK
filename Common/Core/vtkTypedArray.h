@@ -55,7 +55,7 @@ template<typename T>
 class vtkTypedArray : public vtkArray
 {
 public:
-  vtkTemplateTypeMacro(vtkTypedArray<T>, vtkArray)
+  vtkTemplateTypeMacro(vtkTypedArray<T>, vtkArray);
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::SizeT SizeT;
 

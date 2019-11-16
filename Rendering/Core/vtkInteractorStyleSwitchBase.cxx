@@ -20,7 +20,7 @@
 // This is largely here to confirm the approach works, and will be replaced
 // with standard factory override logic in the modularized source tree.
 //----------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase)
+vtkObjectFactoryNewMacro(vtkInteractorStyleSwitchBase);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleSwitchBase::vtkInteractorStyleSwitchBase() = default;

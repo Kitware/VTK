@@ -373,7 +373,7 @@ class vtkSimpleTransform : public vtkHomogeneousTransform
 {
 public:
   vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);
-  static vtkSimpleTransform *New() { VTK_STANDARD_NEW_BODY(vtkSimpleTransform) }
+  static vtkSimpleTransform *New() { VTK_STANDARD_NEW_BODY(vtkSimpleTransform); }
   vtkAbstractTransform *MakeTransform() override { return vtkSimpleTransform::New(); };
   void Inverse() override { this->Matrix->Invert(); this->Modified(); };
 protected:

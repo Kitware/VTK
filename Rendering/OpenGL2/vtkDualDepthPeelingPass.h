@@ -68,7 +68,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDualDepthPeelingPass:
 {
 public:
   static vtkDualDepthPeelingPass* New();
-  vtkTypeMacro(vtkDualDepthPeelingPass, vtkDepthPeelingPass)
+  vtkTypeMacro(vtkDualDepthPeelingPass, vtkDepthPeelingPass);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void Render(const vtkRenderState *s) override;
@@ -157,7 +157,7 @@ protected:
   ~vtkDualDepthPeelingPass() override;
 
   void SetCurrentStage(ShaderStage stage);
-  vtkSetMacro(CurrentPeelType, PeelType)
+  vtkSetMacro(CurrentPeelType, PeelType);
 
   /**
    * Release all FBOs and textures.

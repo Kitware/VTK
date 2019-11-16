@@ -34,7 +34,7 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridBase : public vtkPointSet
 {
 public:
-  vtkAbstractTypeMacro(vtkUnstructuredGridBase,vtkPointSet)
+  vtkAbstractTypeMacro(vtkUnstructuredGridBase,vtkPointSet);
   void PrintSelf(ostream &os, vtkIndent indent) override
   {
     this->Superclass::PrintSelf(os, indent);

@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextActor: public vtkTextActor
 {
 public:
   static vtkOpenGLTextActor* New();
-  vtkTypeMacro(vtkOpenGLTextActor, vtkTextActor)
+  vtkTypeMacro(vtkOpenGLTextActor, vtkTextActor);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   int RenderOverlay(vtkViewport* viewport) override;

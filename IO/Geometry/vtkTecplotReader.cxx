@@ -1307,7 +1307,7 @@ void vtkTecplotReader::GetPolyhedralGridCells
 
   if (unstruct->GetNumberOfCells() != numCells)
   {
-    vtkWarningMacro(<< "Number of polyhedral cells does not match.")
+    vtkWarningMacro(<< "Number of polyhedral cells does not match.");
   }
 
 }
@@ -1417,7 +1417,7 @@ void vtkTecplotReader::GetPolygonalGridCells
 
   if (faceEdges.size() != static_cast<size_t>(numFaces))
   {
-    vtkWarningMacro(<<" number of faces does not match.")
+    vtkWarningMacro(<<" number of faces does not match.");
   }
 
   vtkNew<vtkIdList> face;
@@ -2063,7 +2063,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
           numConnectedBoundaryFaces = atoi( this->Internal->GetNextToken().c_str() );
           if (0 != numConnectedBoundaryFaces)
           {
-            vtkWarningMacro(<< "Non-zero number of connected boundary faces is not supported.")
+            vtkWarningMacro(<< "Non-zero number of connected boundary faces is not supported.");
           }
         }
         else if (tok == "TOTALNUMBOUNDARYCONNECTIONS")
@@ -2071,7 +2071,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
           totalNumBoundaryConnections = atoi( this->Internal->GetNextToken().c_str() );
           if (0 != totalNumBoundaryConnections)
           {
-            vtkWarningMacro(<< "Non-zero number of total #boundary faces is not supported.")
+            vtkWarningMacro(<< "Non-zero number of total #boundary faces is not supported.");
           }
         }
         else
@@ -2164,7 +2164,7 @@ void vtkTecplotReader::ReadFile( vtkMultiBlockDataSet * multZone )
         }
         else
         {
-          vtkWarningMacro(<<" ZONETYPE '" << zoneType << "' is currently supported.")
+          vtkWarningMacro(<<" ZONETYPE '" << zoneType << "' is currently supported.");
         }
       }
 

@@ -7,7 +7,7 @@
 #include <cstring>
 #include <vector>
 
-vtkStandardNewMacro(vtkOpenGLUniforms)
+vtkStandardNewMacro(vtkOpenGLUniforms);
 
 // temporary patch: Some Android builds don't have std::to_string
 #include <sstream>
@@ -597,7 +597,7 @@ void vtkOpenGLUniforms::SetUniform( const char * name, vtkUniforms::TupleType tt
       }
       else
       {
-        vtkErrorMacro(<<"Uniform type doesn't match input value.")
+        vtkErrorMacro(<<"Uniform type doesn't match input value.");
       }
     }
   }

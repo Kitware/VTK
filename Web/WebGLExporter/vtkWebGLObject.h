@@ -39,7 +39,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLObject : public vtkObject
 {
 public:
   static vtkWebGLObject* New();
-  vtkTypeMacro(vtkWebGLObject, vtkObject)
+  vtkTypeMacro(vtkWebGLObject, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   virtual void GenerateBinaryData();

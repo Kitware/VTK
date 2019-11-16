@@ -33,15 +33,15 @@ class VTKFILTERSGENERAL_EXPORT vtkCountVertices: public vtkPassInputTypeAlgorith
 {
 public:
   static vtkCountVertices* New();
-  vtkTypeMacro(vtkCountVertices, vtkPassInputTypeAlgorithm)
+  vtkTypeMacro(vtkCountVertices, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
    * The name of the new output array containing the vertex counts.
    */
-  vtkSetStringMacro(OutputArrayName)
-  vtkGetStringMacro(OutputArrayName)
+  vtkSetStringMacro(OutputArrayName);
+  vtkGetStringMacro(OutputArrayName);
   //@}
 
 protected:

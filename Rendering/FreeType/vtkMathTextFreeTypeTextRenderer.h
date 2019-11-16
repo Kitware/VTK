@@ -41,7 +41,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkMathTextFreeTypeTextRenderer :
     public vtkTextRenderer
 {
 public:
-  vtkTypeMacro(vtkMathTextFreeTypeTextRenderer, vtkTextRenderer)
+  vtkTypeMacro(vtkMathTextFreeTypeTextRenderer, vtkTextRenderer);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkMathTextFreeTypeTextRenderer *New();

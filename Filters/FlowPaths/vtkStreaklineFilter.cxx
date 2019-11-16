@@ -55,7 +55,7 @@ public:
 
 typedef std::vector<StreakParticle> Streak;
 
-vtkObjectFactoryNewMacro(vtkStreaklineFilter)
+vtkObjectFactoryNewMacro(vtkStreaklineFilter);
 
 
 void StreaklineFilterInternal::Initialize(vtkParticleTracerBase* filter)

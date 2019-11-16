@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRect.h"
 
-vtkStandardNewMacro(vtkRenderWidget)
+vtkStandardNewMacro(vtkRenderWidget);
 
 vtkRenderWidget::vtkRenderWidget()
   : Position(0, 0), Size(300, 300), Name("New VTK RenderWidget!!!")

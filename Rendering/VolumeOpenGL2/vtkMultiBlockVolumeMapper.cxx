@@ -29,7 +29,7 @@
 
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkMultiBlockVolumeMapper)
+vtkStandardNewMacro(vtkMultiBlockVolumeMapper);
 
 //------------------------------------------------------------------------------
 vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()

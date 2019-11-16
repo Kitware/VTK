@@ -155,20 +155,20 @@ int vtkBoostBetweennessClustering::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   if(!inInfo)
   {
-    vtkErrorMacro("Failed to get input information.")
+    vtkErrorMacro("Failed to get input information.");
     return 1;
   }
 
   vtkInformation* outInfo1 = outputVector->GetInformationObject(0);
   if(!outInfo1)
   {
-    vtkErrorMacro("Failed get output1 on information first port.")
+    vtkErrorMacro("Failed get output1 on information first port.");
   }
 
   vtkInformation* outInfo2 = outputVector->GetInformationObject(1);
   if(!outInfo2)
   {
-    vtkErrorMacro("Failed to get output2 information on second port.")
+    vtkErrorMacro("Failed to get output2 information on second port.");
     return 1;
   }
 
@@ -177,7 +177,7 @@ int vtkBoostBetweennessClustering::RequestData(
     vtkDataObject::DATA_OBJECT()));
   if(!input)
   {
-    vtkErrorMacro("Failed to get input graph.")
+    vtkErrorMacro("Failed to get input graph.");
     return 1;
   }
 
@@ -190,7 +190,7 @@ int vtkBoostBetweennessClustering::RequestData(
     outInfo1->Get(vtkDataObject::DATA_OBJECT()));
   if(!output1)
   {
-    vtkErrorMacro("Failed to get output1 graph.")
+    vtkErrorMacro("Failed to get output1 graph.");
     return 1;
   }
 
@@ -198,7 +198,7 @@ int vtkBoostBetweennessClustering::RequestData(
     outInfo2->Get(vtkDataObject::DATA_OBJECT()));
   if(!output2)
   {
-    vtkErrorMacro("Failed to get output2 graph.")
+    vtkErrorMacro("Failed to get output2 graph.");
     return 1;
   }
 
@@ -350,7 +350,7 @@ int vtkBoostBetweennessClustering::RequestData(
 
     if(!compArray)
     {
-      vtkErrorMacro("Unable to get component array.")
+      vtkErrorMacro("Unable to get component array.");
       return 1;
     }
 
@@ -369,7 +369,7 @@ int vtkBoostBetweennessClustering::RequestData(
 
     if(!compArray)
     {
-      vtkErrorMacro("Unable to get component array.")
+      vtkErrorMacro("Unable to get component array.");
       return 1;
     }
 

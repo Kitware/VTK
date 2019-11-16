@@ -228,21 +228,21 @@ public:
   static PStreamTracerPoint *New();
 
 
-  vtkGetMacro(Id,int)
-  vtkGetVector3Macro(Seed,double)
-  vtkGetVector3Macro(Normal,double)
-  vtkGetMacro(Direction,int)
-  vtkGetMacro(NumSteps,int)
-  vtkGetMacro(Propagation,double)
-  vtkGetMacro(Rank,int)
+  vtkGetMacro(Id,int);
+  vtkGetVector3Macro(Seed,double);
+  vtkGetVector3Macro(Normal,double);
+  vtkGetMacro(Direction,int);
+  vtkGetMacro(NumSteps,int);
+  vtkGetMacro(Propagation,double);
+  vtkGetMacro(Rank,int);
   vtkGetMacro(IntegrationTime,double);
 
-  vtkSetMacro(Id,int)
-  vtkSetMacro(Direction,int)
-  vtkSetVector3Macro(Seed,double)
-  vtkSetMacro(NumSteps,int)
-  vtkSetMacro(Propagation,double)
-  vtkSetMacro(Rank,int)
+  vtkSetMacro(Id,int);
+  vtkSetMacro(Direction,int);
+  vtkSetVector3Macro(Seed,double);
+  vtkSetMacro(NumSteps,int);
+  vtkSetMacro(Propagation,double);
+  vtkSetMacro(Rank,int);
   vtkSetMacro(IntegrationTime,double);
 
   void Reseed(double* seed, double* normal, vtkPolyData* poly, int id,
@@ -420,11 +420,11 @@ public:
   vtkTypeMacro(AMRPStreamTracerPoint, PStreamTracerPoint);
 
   static AMRPStreamTracerPoint *New();
-  vtkSetMacro(Level,int)
-  vtkGetMacro(Level,int)
+  vtkSetMacro(Level,int);
+  vtkGetMacro(Level,int);
 
-  vtkSetMacro(GridId,int)
-  vtkGetMacro(GridId,int)
+  vtkSetMacro(GridId,int);
+  vtkGetMacro(GridId,int);
 
   virtual int GetSize() override
   {
@@ -993,10 +993,10 @@ namespace
     {
       return this->Point->GetId();
     }
-    vtkGetMacro(TraceExtended,bool)
-    vtkGetMacro(TraceTerminated,bool)
-    vtkSetMacro(TraceExtended,bool)
-    vtkSetMacro(TraceTerminated,bool)
+    vtkGetMacro(TraceExtended,bool);
+    vtkGetMacro(TraceTerminated,bool);
+    vtkSetMacro(TraceExtended,bool);
+    vtkSetMacro(TraceTerminated,bool);
 
     PStreamTracerPoint* GetPoint()
     {

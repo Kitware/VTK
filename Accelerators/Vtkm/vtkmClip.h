@@ -42,22 +42,22 @@ class VTKACCELERATORSVTKM_EXPORT vtkmClip : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkmClip* New();
-  vtkTypeMacro(vtkmClip, vtkUnstructuredGridAlgorithm)
+  vtkTypeMacro(vtkmClip, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * The scalar value to use when clipping the dataset. Values greater than
    * ClipValue are preserved in the output dataset. Default is 0.
    */
-  vtkGetMacro(ClipValue, double)
-  vtkSetMacro(ClipValue, double)
+  vtkGetMacro(ClipValue, double);
+  vtkSetMacro(ClipValue, double);
 
   /**
    * If true, all input point data arrays will be mapped onto the output
    * dataset. Default is true.
    */
-  vtkGetMacro(ComputeScalars, bool)
-  vtkSetMacro(ComputeScalars, bool)
+  vtkGetMacro(ComputeScalars, bool);
+  vtkSetMacro(ComputeScalars, bool);
 
   /**
    * Set the implicit function with which to perform the clipping. If set,

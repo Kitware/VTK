@@ -27,7 +27,7 @@
 #include <vector>
 
 vtkStandardNewMacro(vtkCookieCutter);
-vtkCxxSetObjectMacro(vtkCookieCutter,Locator,vtkIncrementalPointLocator)
+vtkCxxSetObjectMacro(vtkCookieCutter,Locator,vtkIncrementalPointLocator);
 
 //Helper functions------------------------------------------------------------
 

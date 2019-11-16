@@ -16,7 +16,7 @@
 #include "vtkTextPropertyCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkTextPropertyCollection)
+vtkStandardNewMacro(vtkTextPropertyCollection);
 
 //----------------------------------------------------------------------------
 void vtkTextPropertyCollection::PrintSelf(ostream& os, vtkIndent indent)

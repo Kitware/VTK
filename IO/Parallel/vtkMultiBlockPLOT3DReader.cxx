@@ -2448,12 +2448,12 @@ int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
 
   if (!this->Internal->CheckByteOrder(fp))
   {
-    vtkErrorMacro("Could not determine big/little endianness of file.")
+    vtkErrorMacro("Could not determine big/little endianness of file.");
     return 0;
   }
   if (!this->Internal->CheckByteCount(fp))
   {
-    vtkErrorMacro("Could not determine if file has Fortran byte counts.")
+    vtkErrorMacro("Could not determine if file has Fortran byte counts.");
     return 0;
   }
 
@@ -2461,7 +2461,7 @@ int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
   {
     if (!this->Internal->CheckCFile(fp, this->FileSize))
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.")
+      vtkErrorMacro("Could not determine settings for file. Cannot read.");
       return 0;
     }
   }
@@ -2469,17 +2469,17 @@ int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
   {
     if (!this->Internal->CheckMultiGrid(fp))
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.")
+      vtkErrorMacro("Could not determine settings for file. Cannot read.");
       return 0;
     }
     if (!this->Internal->Check2DGeom(fp))
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.")
+      vtkErrorMacro("Could not determine settings for file. Cannot read.");
       return 0;
     }
     if (!this->Internal->CheckBlankingAndPrecision(fp))
     {
-      vtkErrorMacro("Could not determine settings for file. Cannot read.")
+      vtkErrorMacro("Could not determine settings for file. Cannot read.");
       return 0;
     }
   }

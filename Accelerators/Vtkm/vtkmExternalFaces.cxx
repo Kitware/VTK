@@ -35,7 +35,7 @@
 #include <vtkm/filter/ExternalFaces.h>
 #include <vtkm/filter/ExternalFaces.hxx>
 
-vtkStandardNewMacro(vtkmExternalFaces)
+vtkStandardNewMacro(vtkmExternalFaces);
 
 //------------------------------------------------------------------------------
 vtkmExternalFaces::vtkmExternalFaces()

@@ -26,7 +26,7 @@
 #include <cassert>
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPath)
+vtkStandardNewMacro(vtkPath);
 
 //----------------------------------------------------------------------------
 vtkPath::vtkPath()

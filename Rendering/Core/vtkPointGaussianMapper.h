@@ -35,7 +35,7 @@ class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 {
 public:
   static vtkPointGaussianMapper* New();
-  vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper)
+  vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

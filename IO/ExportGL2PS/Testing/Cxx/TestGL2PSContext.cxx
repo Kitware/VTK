@@ -44,7 +44,7 @@ class ContextGL2PSTest : public vtkContextItem
 {
 public:
   static ContextGL2PSTest *New();
-  vtkTypeMacro(ContextGL2PSTest, vtkContextItem)
+  vtkTypeMacro(ContextGL2PSTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   bool Paint(vtkContext2D *painter) override;
 };
@@ -92,7 +92,7 @@ int TestGL2PSContext( int, char *[] )
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextGL2PSTest)
+vtkStandardNewMacro(ContextGL2PSTest);
 // This function aims to test the primitives provided by the 2D API.
 bool ContextGL2PSTest::Paint(vtkContext2D *painter)
 {

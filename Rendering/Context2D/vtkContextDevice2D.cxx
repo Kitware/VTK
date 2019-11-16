@@ -29,7 +29,7 @@
 #include <cassert>
 #include <vector>
 
-vtkAbstractObjectFactoryNewMacro(vtkContextDevice2D)
+vtkAbstractObjectFactoryNewMacro(vtkContextDevice2D);
 
 vtkContextDevice2D::vtkContextDevice2D()
 {

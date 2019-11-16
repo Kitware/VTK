@@ -29,7 +29,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLStickMapper : public vtkOpenGLPolyData
 {
 public:
   static vtkOpenGLStickMapper* New();
-  vtkTypeMacro(vtkOpenGLStickMapper, vtkOpenGLPolyDataMapper)
+  vtkTypeMacro(vtkOpenGLStickMapper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

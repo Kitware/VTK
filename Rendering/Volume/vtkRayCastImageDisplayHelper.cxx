@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkRayCastImageDisplayHelper)
+vtkAbstractObjectFactoryNewMacro(vtkRayCastImageDisplayHelper);
 //----------------------------------------------------------------------------
 
 // Construct a new vtkRayCastImageDisplayHelper with default values

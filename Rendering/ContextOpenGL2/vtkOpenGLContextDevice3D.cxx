@@ -76,7 +76,7 @@ public:
   vtkVector2i Offset;
 };
 
-vtkStandardNewMacro(vtkOpenGLContextDevice3D)
+vtkStandardNewMacro(vtkOpenGLContextDevice3D);
 
 vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
 {

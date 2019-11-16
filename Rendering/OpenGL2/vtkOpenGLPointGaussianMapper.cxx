@@ -56,7 +56,7 @@ class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkOpenGLPointGaussianMapperHelper* New();
-  vtkTypeMacro(vtkOpenGLPointGaussianMapperHelper, vtkOpenGLPolyDataMapper)
+  vtkTypeMacro(vtkOpenGLPointGaussianMapperHelper, vtkOpenGLPolyDataMapper);
 
   vtkPointGaussianMapper *Owner;
 
@@ -124,7 +124,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLPointGaussianMapperHelper)
+vtkStandardNewMacro(vtkOpenGLPointGaussianMapperHelper);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPointGaussianMapperHelper::vtkOpenGLPointGaussianMapperHelper()
@@ -747,7 +747,7 @@ void vtkOpenGLPointGaussianMapperHelper::GaussianRender(
 }
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLPointGaussianMapper)
+vtkStandardNewMacro(vtkOpenGLPointGaussianMapper);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPointGaussianMapper::vtkOpenGLPointGaussianMapper()

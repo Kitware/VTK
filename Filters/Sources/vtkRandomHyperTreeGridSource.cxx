@@ -28,7 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkStandardNewMacro(vtkRandomHyperTreeGridSource)
+vtkStandardNewMacro(vtkRandomHyperTreeGridSource);
 
 //------------------------------------------------------------------------------
 void vtkRandomHyperTreeGridSource::PrintSelf(std::ostream &os, vtkIndent indent)

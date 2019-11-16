@@ -25,7 +25,7 @@
 template <class Scalar> vtkCPExodusIINodalCoordinatesTemplate<Scalar> *
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkCPExodusIINodalCoordinatesTemplate<Scalar>)
+  VTK_STANDARD_NEW_BODY(vtkCPExodusIINodalCoordinatesTemplate<Scalar>);
 }
 
 //------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::Allocate(vtkIdType, vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
@@ -256,7 +256,7 @@ template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar
 template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::Resize(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
@@ -264,7 +264,7 @@ template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetNumberOfTuples(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -272,7 +272,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -280,7 +280,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetTuple(vtkIdType, const float *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -288,7 +288,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetTuple(vtkIdType, const double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -296,7 +296,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -304,7 +304,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertTuple(vtkIdType, const float *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -312,7 +312,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertTuple(vtkIdType, const double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -320,7 +320,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertTuples(vtkIdList *, vtkIdList *, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -328,7 +328,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -336,7 +336,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertNextTuple(vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -345,7 +345,7 @@ template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertNextTuple(const float *)
 {
 
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -353,7 +353,7 @@ template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertNextTuple(const double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -361,7 +361,7 @@ template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::DeepCopy(vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -369,7 +369,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::DeepCopy(vtkDataArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -377,7 +377,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InterpolateTuple(vtkIdType, vtkIdList *, vtkAbstractArray *, double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -386,7 +386,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InterpolateTuple(vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType,
                    vtkAbstractArray*, double)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -394,7 +394,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -402,7 +402,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -410,7 +410,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::RemoveTuple(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -418,7 +418,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::RemoveFirstTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -426,7 +426,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::RemoveLastTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -434,7 +434,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -442,7 +442,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -450,7 +450,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertNextTypedTuple(const Scalar *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -458,7 +458,7 @@ template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::SetValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -466,7 +466,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertNextValue(Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -474,7 +474,7 @@ template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::InsertValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 

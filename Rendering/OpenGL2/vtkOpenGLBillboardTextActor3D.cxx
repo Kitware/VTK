@@ -21,7 +21,7 @@
 
 #include <string>
 
-vtkStandardNewMacro(vtkOpenGLBillboardTextActor3D)
+vtkStandardNewMacro(vtkOpenGLBillboardTextActor3D);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)

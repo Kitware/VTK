@@ -177,7 +177,7 @@ public:
   /**
    * Access plot properties
    */
-  vtkGetMacro(LineOpacity,double)
+  vtkGetMacro(LineOpacity,double);
   vtkGetMacro(FontSize,double);
   vtkGetVector3Macro(LineColor,double);
   vtkGetVector3Macro(AxisColor,double);

@@ -36,7 +36,7 @@ class vtkUnstructuredGrid;
 class VTKACCELERATORSVTKM_EXPORT vtkmExternalFaces : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmExternalFaces, vtkAlgorithm)
+  vtkTypeMacro(vtkmExternalFaces, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmExternalFaces* New();
 

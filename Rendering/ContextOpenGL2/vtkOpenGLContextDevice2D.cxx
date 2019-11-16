@@ -224,7 +224,7 @@ inline bool IsFullCircle(float startAngle, float stopAngle)
 } // end anon namespace
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLContextDevice2D)
+vtkStandardNewMacro(vtkOpenGLContextDevice2D);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
@@ -2283,7 +2283,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
   if (!result.Value)
   {
     vtkErrorMacro(<<"Error generating marker: shape,size: "
-                  << shape << "," << size)
+                  << shape << "," << size);
     return nullptr;
   }
 

@@ -32,7 +32,7 @@ template <class ScalarTypeT>
 class vtkBuffer : public vtkObject
 {
 public:
-  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject)
+  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject);
   typedef ScalarTypeT ScalarType;
 
   static vtkBuffer<ScalarTypeT>* New();
@@ -99,7 +99,7 @@ private:
 template <class ScalarT>
 inline vtkBuffer<ScalarT> *vtkBuffer<ScalarT>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkBuffer<ScalarT>)
+  VTK_STANDARD_NEW_BODY(vtkBuffer<ScalarT>);
 }
 
 //------------------------------------------------------------------------------

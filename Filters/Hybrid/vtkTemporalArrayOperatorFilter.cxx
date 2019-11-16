@@ -272,27 +272,27 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
 
   if (inputArray0->GetDataType() != inputArray1->GetDataType())
   {
-    vtkErrorMacro(<< "Array type in each time step are different.")
+    vtkErrorMacro(<< "Array type in each time step are different.");
     return nullptr;
   }
 
   if (strcmp(inputArray0->GetName(), inputArray1->GetName()))
   {
-    vtkErrorMacro(<< "Array name in each time step are different.")
+    vtkErrorMacro(<< "Array name in each time step are different.");
     return nullptr;
   }
 
   if (inputArray0->GetNumberOfComponents() != inputArray1->GetNumberOfComponents())
   {
     vtkErrorMacro(<< "The number of components of the array in each time "
-                     "step are different.")
+                     "step are different.");
     return nullptr;
   }
 
   if (inputArray0->GetNumberOfTuples() != inputArray1->GetNumberOfTuples())
   {
     vtkErrorMacro(<< "The number of tuples of the array in each time step"
-                     "are different.")
+                     "are different.");
     return nullptr;
   }
 

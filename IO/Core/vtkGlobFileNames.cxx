@@ -28,7 +28,7 @@
 //----------------------------------------------------------------------------
 vtkGlobFileNames* vtkGlobFileNames::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkGlobFileNames)
+  VTK_STANDARD_NEW_BODY(vtkGlobFileNames);
 }
 
 //----------------------------------------------------------------------------

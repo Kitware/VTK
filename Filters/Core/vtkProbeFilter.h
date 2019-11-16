@@ -144,8 +144,8 @@ public:
    * valid points and 0 for invalid points.
    * Set to "vtkValidPointMask" by default.
    */
-  vtkSetStringMacro(ValidPointMaskArrayName)
-  vtkGetStringMacro(ValidPointMaskArrayName)
+  vtkSetStringMacro(ValidPointMaskArrayName);
+  vtkGetStringMacro(ValidPointMaskArrayName);
   //@}
 
   //@{

@@ -25,7 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotSurface)
+vtkStandardNewMacro(vtkPlotSurface);
 
 //-----------------------------------------------------------------------------
 vtkPlotSurface::vtkPlotSurface()

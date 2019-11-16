@@ -29,7 +29,7 @@ class VTKRENDERINGCORE_EXPORT vtkSkybox: public vtkActor
 {
 public:
   static vtkSkybox* New();
-  vtkTypeMacro(vtkSkybox, vtkActor)
+  vtkTypeMacro(vtkSkybox, vtkActor);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**

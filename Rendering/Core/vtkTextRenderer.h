@@ -113,7 +113,7 @@ public:
     /**@}*/
   };
 
-  vtkTypeMacro(vtkTextRenderer, vtkObject)
+  vtkTypeMacro(vtkTextRenderer, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -152,8 +152,8 @@ public:
   /**
    * The backend to use when none is specified. Default: Detect
    */
-  vtkSetMacro(DefaultBackend, int)
-  vtkGetMacro(DefaultBackend, int)
+  vtkSetMacro(DefaultBackend, int);
+  vtkGetMacro(DefaultBackend, int);
   //@}
 
   //@{

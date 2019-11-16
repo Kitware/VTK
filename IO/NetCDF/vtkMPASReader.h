@@ -140,9 +140,9 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    * This is useful for user-visible array selection, but is disabled by default
    * for backwards compatibility.
    */
-  vtkSetMacro(UseDimensionedArrayNames, bool)
-  vtkGetMacro(UseDimensionedArrayNames, bool)
-  vtkBooleanMacro(UseDimensionedArrayNames, bool)
+  vtkSetMacro(UseDimensionedArrayNames, bool);
+  vtkGetMacro(UseDimensionedArrayNames, bool);
+  vtkBooleanMacro(UseDimensionedArrayNames, bool);
   //@}
 
   //@{
@@ -188,8 +188,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    * Get/Set the name to the dimension that identifies the vertical dimension.
    * Defaults to "nVertLevels".
    */
-  vtkSetMacro(VerticalDimension, std::string)
-  vtkGetMacro(VerticalDimension, std::string)
+  vtkSetMacro(VerticalDimension, std::string);
+  vtkGetMacro(VerticalDimension, std::string);
   //@}
 
   //@{
@@ -201,26 +201,26 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int GetVerticalLevel();
   //@}
 
-  vtkGetVector2Macro(VerticalLevelRange, int)
+  vtkGetVector2Macro(VerticalLevelRange, int);
 
-  vtkSetMacro(LayerThickness, int)
-  vtkGetMacro(LayerThickness, int)
-  vtkGetVector2Macro(LayerThicknessRange, int)
+  vtkSetMacro(LayerThickness, int);
+  vtkGetMacro(LayerThickness, int);
+  vtkGetVector2Macro(LayerThicknessRange, int);
 
   void SetCenterLon(int val);
-  vtkGetVector2Macro(CenterLonRange, int)
+  vtkGetVector2Macro(CenterLonRange, int);
 
-  vtkSetMacro(ProjectLatLon, bool)
-  vtkGetMacro(ProjectLatLon, bool)
+  vtkSetMacro(ProjectLatLon, bool);
+  vtkGetMacro(ProjectLatLon, bool);
 
-  vtkSetMacro(IsAtmosphere, bool)
-  vtkGetMacro(IsAtmosphere, bool)
+  vtkSetMacro(IsAtmosphere, bool);
+  vtkGetMacro(IsAtmosphere, bool);
 
-  vtkSetMacro(IsZeroCentered, bool)
-  vtkGetMacro(IsZeroCentered, bool)
+  vtkSetMacro(IsZeroCentered, bool);
+  vtkGetMacro(IsZeroCentered, bool);
 
-  vtkSetMacro(ShowMultilayerView, bool)
-  vtkGetMacro(ShowMultilayerView, bool)
+  vtkSetMacro(ShowMultilayerView, bool);
+  vtkGetMacro(ShowMultilayerView, bool);
 
   /**
    * Returns true if the given file can be read.

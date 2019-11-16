@@ -69,9 +69,9 @@ vtkCxxSetObjectMacro(vtkParticleTracerBase,Integrator,vtkInitialValueProblemSolv
     this->ResetCache();                                 \
     this->Modified();                                   \
   }
-ParticleTracerSetMacro(StartTime, double)
+ParticleTracerSetMacro(StartTime, double);
 ParticleTracerSetMacro(ComputeVorticity, bool);
-ParticleTracerSetMacro(RotationScale, double)
+ParticleTracerSetMacro(RotationScale, double);
 ParticleTracerSetMacro(ForceReinjectionEveryNSteps,int);
 ParticleTracerSetMacro(TerminalSpeed, double);
 

@@ -16,7 +16,7 @@
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkOpenGLBufferObject)
+vtkStandardNewMacro(vtkOpenGLBufferObject);
 
 namespace {
 inline GLenum convertType(vtkOpenGLBufferObject::ObjectType type)

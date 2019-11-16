@@ -54,7 +54,7 @@ int TestContextMathTextImage(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextMathTextImageTest)
+vtkStandardNewMacro(ContextMathTextImageTest);
 
 // This function aims to test the primitives provided by the 2D API.
 bool ContextMathTextImageTest::Paint(vtkContext2D *painter)

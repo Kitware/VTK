@@ -25,7 +25,7 @@
 template <class Scalar> vtkCPExodusIIResultsArrayTemplate<Scalar> *
 vtkCPExodusIIResultsArrayTemplate<Scalar>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkCPExodusIIResultsArrayTemplate<Scalar>)
+  VTK_STANDARD_NEW_BODY(vtkCPExodusIIResultsArrayTemplate<Scalar>);
 }
 
 //------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Allocate(vtkIdType, vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
@@ -278,7 +278,7 @@ template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::Resize(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
@@ -286,7 +286,7 @@ template <class Scalar> vtkTypeBool vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetNumberOfTuples(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -294,7 +294,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -302,7 +302,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetTuple(vtkIdType, const float *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -310,7 +310,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetTuple(vtkIdType, const double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -318,7 +318,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -326,7 +326,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertTuple(vtkIdType, const float *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -334,7 +334,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertTuple(vtkIdType, const double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -342,7 +342,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertTuples(vtkIdList *, vtkIdList *, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -350,7 +350,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -358,7 +358,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextTuple(vtkIdType, vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -367,7 +367,7 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextTuple(const float *)
 {
 
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -375,7 +375,7 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextTuple(const double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -383,7 +383,7 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::DeepCopy(vtkAbstractArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -391,7 +391,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::DeepCopy(vtkDataArray *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -399,7 +399,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InterpolateTuple(vtkIdType, vtkIdList *, vtkAbstractArray *, double *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -408,7 +408,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InterpolateTuple(vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType,
                    vtkAbstractArray*, double)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -416,7 +416,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -424,7 +424,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -432,7 +432,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::RemoveTuple(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -440,7 +440,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::RemoveFirstTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -448,7 +448,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::RemoveLastTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -456,7 +456,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -464,7 +464,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -472,7 +472,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextTypedTuple(const Scalar *)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -480,7 +480,7 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::SetValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
@@ -488,7 +488,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertNextValue(Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
@@ -496,7 +496,7 @@ template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::InsertValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 

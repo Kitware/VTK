@@ -42,7 +42,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmNDHistogram : public vtkArrayDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmNDHistogram, vtkArrayDataAlgorithm)
+  vtkTypeMacro(vtkmNDHistogram, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void AddFieldAndBin(const std::string& fieldName, const vtkIdType& numberOfBins);

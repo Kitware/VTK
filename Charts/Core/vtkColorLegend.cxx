@@ -336,7 +336,7 @@ void vtkColorLegend::SetOrientation(int orientation)
 {
   if (orientation < 0 || orientation > 1)
   {
-    vtkErrorMacro("Error, invalid orientation value supplied: " << orientation)
+    vtkErrorMacro("Error, invalid orientation value supplied: " << orientation);
     return;
   }
   this->Orientation = orientation;

@@ -25,7 +25,7 @@
 #include "vtkTrivialProducer.h"
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLMoleculeMapper)
+vtkStandardNewMacro(vtkOpenGLMoleculeMapper);
 
 //----------------------------------------------------------------------------
 vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()

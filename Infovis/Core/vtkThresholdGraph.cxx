@@ -69,7 +69,7 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if(!outInfo)
   {
-    vtkErrorMacro("Error: nullptr of invalid output vtkInformation.")
+    vtkErrorMacro("Error: nullptr of invalid output vtkInformation.");
   }
 
   vtkDataObject* outDataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());

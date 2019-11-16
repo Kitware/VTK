@@ -75,7 +75,7 @@ template<typename T>
 class vtkSparseArray : public vtkTypedArray<T>
 {
 public:
-  vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>)
+  vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>);
   static vtkSparseArray<T>* New();
   void PrintSelf(ostream &os, vtkIndent indent) override;
 

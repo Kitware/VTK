@@ -19,4 +19,4 @@
 
 vtkInstantiateTemplateMacro(
   template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator
-)
+);

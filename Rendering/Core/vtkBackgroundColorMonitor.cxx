@@ -19,7 +19,7 @@
 #include <cstring>
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkBackgroundColorMonitor)
+vtkStandardNewMacro(vtkBackgroundColorMonitor);
 
 //-----------------------------------------------------------------------------
 vtkBackgroundColorMonitor::vtkBackgroundColorMonitor()

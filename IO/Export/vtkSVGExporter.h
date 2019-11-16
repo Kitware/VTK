@@ -57,7 +57,7 @@ class VTKIOEXPORT_EXPORT vtkSVGExporter: public vtkExporter
 {
 public:
   static vtkSVGExporter* New();
-  vtkTypeMacro(vtkSVGExporter, vtkExporter)
+  vtkTypeMacro(vtkSVGExporter, vtkExporter);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /** The title of the exported document. @{ */
@@ -90,9 +90,9 @@ public:
    *
    * @{
    */
-  vtkSetMacro(TextAsPath, bool)
-  vtkGetMacro(TextAsPath, bool)
-  vtkBooleanMacro(TextAsPath, bool)
+  vtkSetMacro(TextAsPath, bool);
+  vtkGetMacro(TextAsPath, bool);
+  vtkBooleanMacro(TextAsPath, bool);
   /**@}*/
 
   /**
@@ -100,9 +100,9 @@ public:
    * is true.
    * @{
    */
-  vtkSetMacro(DrawBackground, bool)
-  vtkGetMacro(DrawBackground, bool)
-  vtkBooleanMacro(DrawBackground, bool)
+  vtkSetMacro(DrawBackground, bool);
+  vtkGetMacro(DrawBackground, bool);
+  vtkBooleanMacro(DrawBackground, bool);
   /**@}*/
 
   /**
@@ -120,8 +120,8 @@ public:
    *
    * @{
    */
-  vtkSetMacro(SubdivisionThreshold, float)
-  vtkGetMacro(SubdivisionThreshold, float)
+  vtkSetMacro(SubdivisionThreshold, float);
+  vtkGetMacro(SubdivisionThreshold, float);
   /**@}*/
 
 protected:

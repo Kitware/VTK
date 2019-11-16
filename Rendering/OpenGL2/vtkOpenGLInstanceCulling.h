@@ -82,7 +82,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLInstanceCulling : public vtkObject
 {
 public:
   static vtkOpenGLInstanceCulling *New();
-  vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject)
+  vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject);
 
   struct InstanceLOD
   {

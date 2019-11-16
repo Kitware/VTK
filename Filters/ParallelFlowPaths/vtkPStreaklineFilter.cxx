@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <vector>
 
-vtkStandardNewMacro(vtkPStreaklineFilter)
+vtkStandardNewMacro(vtkPStreaklineFilter);
 
 vtkPStreaklineFilter::vtkPStreaklineFilter()
 {

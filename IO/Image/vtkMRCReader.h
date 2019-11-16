@@ -34,7 +34,7 @@ class VTKIOIMAGE_EXPORT vtkMRCReader : public vtkImageAlgorithm
 {
 public:
   static vtkMRCReader* New();
-  vtkTypeMacro(vtkMRCReader, vtkImageAlgorithm)
+  vtkTypeMacro(vtkMRCReader, vtkImageAlgorithm);
 
   void PrintSelf(ostream& stream, vtkIndent indent) override;
 

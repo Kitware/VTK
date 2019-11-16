@@ -1996,7 +1996,7 @@ void vtkTextureObject::CopyToFrameBuffer(
 
   this->CopyToFrameBuffer(tcoords, verts, program, vao);
 
-  vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer")
+  vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer");
 }
 
 void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
@@ -2056,7 +2056,7 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
     vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, program, vao);
   }
 
-  vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer")
+  vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer");
 }
 
 //----------------------------------------------------------------------------

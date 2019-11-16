@@ -37,7 +37,7 @@ class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLPropItem: public vtkPropItem
 {
 public:
   static vtkOpenGLPropItem *New();
-  vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem)
+  vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem);
 
   bool Paint(vtkContext2D *painter) override;
 

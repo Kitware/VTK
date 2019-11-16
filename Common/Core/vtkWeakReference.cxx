@@ -18,7 +18,7 @@
 #include "vtkWeakPointer.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkWeakReference)
+vtkStandardNewMacro(vtkWeakReference);
 
 
 //----------------------------------------------------------------------------

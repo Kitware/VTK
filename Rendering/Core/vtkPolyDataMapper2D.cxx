@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper2D)
+vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper2D);
 //----------------------------------------------------------------------------
 
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D, TransformCoordinate, vtkCoordinate);

@@ -31,7 +31,7 @@ class vtkTestNewVar : public vtkObject
 public:
   static vtkTestNewVar * New();
 
-  vtkTypeMacro(vtkTestNewVar, vtkObject)
+  vtkTypeMacro(vtkTestNewVar, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

@@ -1168,7 +1168,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
             vtkErrorMacro(<< "Cell type "
                           << vtkCellTypes::GetClassNameFromTypeId(cellType)
                           << "(" << cellType << ")"
-                          << " is not a 3D cell.")
+                          << " is not a 3D cell.");
         }
       }
     } //if cell is visible

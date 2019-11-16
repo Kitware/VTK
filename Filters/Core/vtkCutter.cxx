@@ -55,7 +55,7 @@
 
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator)
+vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and

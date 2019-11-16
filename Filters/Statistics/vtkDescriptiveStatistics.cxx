@@ -39,7 +39,7 @@
 #include <set>
 #include <sstream>
 
-vtkObjectFactoryNewMacro(vtkDescriptiveStatistics)
+vtkObjectFactoryNewMacro(vtkDescriptiveStatistics);
 
 // ----------------------------------------------------------------------
 vtkDescriptiveStatistics::vtkDescriptiveStatistics()

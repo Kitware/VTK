@@ -99,7 +99,7 @@ protected:
 #endif
 vtkExternTemplateMacro(
   extern template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator
-)
+);
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif

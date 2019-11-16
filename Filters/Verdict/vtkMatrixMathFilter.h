@@ -60,8 +60,8 @@ public:
   /**
    * Set/Get the particular estimator used to function the quality of query.
    */
-  vtkSetMacro(Operation, int)
-  vtkGetMacro(Operation, int)
+  vtkSetMacro(Operation, int);
+  vtkGetMacro(Operation, int);
   void SetOperationToDeterminant ()
   {
      this->SetOperation(DETERMINANT);

@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationKeyLookup: public vtkObject
 {
 public:
     static vtkInformationKeyLookup* New();
-    vtkTypeMacro(vtkInformationKeyLookup, vtkObject)
+    vtkTypeMacro(vtkInformationKeyLookup, vtkObject);
 
     /**
      * Lists all known keys.

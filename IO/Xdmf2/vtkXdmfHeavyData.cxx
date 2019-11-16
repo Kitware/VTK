@@ -1619,7 +1619,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractFaces(XdmfSet* xmfSet, vtkDataSet* dataSet)
     if (!cell)
     {
       vtkWarningWithObjectMacro(
-        this->Reader, "Invalid cellId: " << cellId)
+        this->Reader, "Invalid cellId: " << cellId);
       continue;
     }
     vtkCell* face = cell->GetFace(faceId);

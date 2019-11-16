@@ -67,8 +67,8 @@ using RenderEvent = vtkRenderTimerLog::ScopedEventLogger;
 #define TIME_FUNCTION(functionName) \
   VTK_SCOPED_RENDER_EVENT(#functionName, this->Timer);
 
-vtkStandardNewMacro(vtkDualDepthPeelingPass)
-vtkCxxSetObjectMacro(vtkDualDepthPeelingPass, VolumetricPass, vtkRenderPass)
+vtkStandardNewMacro(vtkDualDepthPeelingPass);
+vtkCxxSetObjectMacro(vtkDualDepthPeelingPass, VolumetricPass, vtkRenderPass);
 
 namespace
 {

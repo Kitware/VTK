@@ -32,7 +32,7 @@ class VTKIOIMAGE_EXPORT vtkTIFFReader : public vtkImageReader2
 {
 public:
   static vtkTIFFReader *New();
-  vtkTypeMacro(vtkTIFFReader, vtkImageReader2)
+  vtkTypeMacro(vtkTIFFReader, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -72,31 +72,31 @@ public:
    * User need to explicitly include vtk_tiff.h header to have access to those #define
    */
   void SetOrientationType(unsigned int orientationType);
-  vtkGetMacro(OrientationType, unsigned int)
+  vtkGetMacro(OrientationType, unsigned int);
 
   //@{
   /**
    * Get method to check if orientation type is specified.
    */
-  vtkGetMacro(OrientationTypeSpecifiedFlag, bool)
+  vtkGetMacro(OrientationTypeSpecifiedFlag, bool);
   //@}
 
   //@{
   /**
    * Set/get methods to see if manual origin has been set.
    */
-  vtkSetMacro(OriginSpecifiedFlag, bool)
-  vtkGetMacro(OriginSpecifiedFlag, bool)
-  vtkBooleanMacro(OriginSpecifiedFlag, bool)
+  vtkSetMacro(OriginSpecifiedFlag, bool);
+  vtkGetMacro(OriginSpecifiedFlag, bool);
+  vtkBooleanMacro(OriginSpecifiedFlag, bool);
   //@}
 
   //@{
   /**
    * Set/get if the spacing flag has been specified.
    */
-  vtkSetMacro(SpacingSpecifiedFlag, bool)
-  vtkGetMacro(SpacingSpecifiedFlag, bool)
-  vtkBooleanMacro(SpacingSpecifiedFlag, bool)
+  vtkSetMacro(SpacingSpecifiedFlag, bool);
+  vtkGetMacro(SpacingSpecifiedFlag, bool);
+  vtkBooleanMacro(SpacingSpecifiedFlag, bool);
   //@}
 
   //@{

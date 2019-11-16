@@ -144,7 +144,7 @@ public:
   }
 };
 
-vtkStandardNewMacro(vtkMRCReader)
+vtkStandardNewMacro(vtkMRCReader);
 
 vtkMRCReader::vtkMRCReader()
 {

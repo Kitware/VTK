@@ -30,7 +30,7 @@ class vtkDataArrayTemplate : public vtkAOSDataArrayTemplate<ValueType>
 {
 public:
   vtkTemplateTypeMacro(vtkDataArrayTemplate<ValueType>,
-                       vtkAOSDataArrayTemplate<ValueType>)
+                       vtkAOSDataArrayTemplate<ValueType>);
 
   static vtkDataArrayTemplate<ValueType>* New()
   {

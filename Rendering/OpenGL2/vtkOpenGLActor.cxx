@@ -35,7 +35,7 @@
 
 vtkStandardNewMacro(vtkOpenGLActor);
 
-vtkInformationKeyMacro(vtkOpenGLActor, GLDepthMaskOverride, Integer)
+vtkInformationKeyMacro(vtkOpenGLActor, GLDepthMaskOverride, Integer);
 
 vtkOpenGLActor::vtkOpenGLActor()
 {

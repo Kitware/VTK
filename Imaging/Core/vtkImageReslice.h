@@ -345,7 +345,7 @@ public:
    * the limits of the output data type.
    */
   vtkSetMacro(ScalarScale, double);
-  vtkGetMacro(ScalarScale, double)
+  vtkGetMacro(ScalarScale, double);
   //@}
 
   //@{

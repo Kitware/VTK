@@ -157,7 +157,7 @@ public:
   };
 
   static vtkRenderTimerLog* New();
-  vtkTypeMacro(vtkRenderTimerLog, vtkObject)
+  vtkTypeMacro(vtkRenderTimerLog, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -196,9 +196,9 @@ public:
   virtual Frame PopFirstReadyFrame();
 
   /** If false, no events are recorded. Default is false. @{ */
-  vtkSetMacro(LoggingEnabled, bool)
-  vtkGetMacro(LoggingEnabled, bool)
-  vtkBooleanMacro(LoggingEnabled, bool)
+  vtkSetMacro(LoggingEnabled, bool);
+  vtkGetMacro(LoggingEnabled, bool);
+  vtkBooleanMacro(LoggingEnabled, bool);
   /**@}*/
 
   /**
@@ -206,8 +206,8 @@ public:
    * until we are under this limit. Prevents things from backing up.
    * Default is 32. Set to 0 to disable. @{
    */
-  vtkSetMacro(FrameLimit, unsigned int)
-  vtkGetMacro(FrameLimit, unsigned int)
+  vtkSetMacro(FrameLimit, unsigned int);
+  vtkGetMacro(FrameLimit, unsigned int);
   /**@}*/
 
   /**

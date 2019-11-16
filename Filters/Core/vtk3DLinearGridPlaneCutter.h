@@ -161,7 +161,7 @@ public:
    * filter always runs in serial mode.) This flag is typically used for
    * benchmarking purposes.
    */
-  vtkSetMacro(SequentialProcessing,vtkTypeBool)
+  vtkSetMacro(SequentialProcessing,vtkTypeBool);
   vtkGetMacro(SequentialProcessing,vtkTypeBool);
   vtkBooleanMacro(SequentialProcessing,vtkTypeBool);
   //@}

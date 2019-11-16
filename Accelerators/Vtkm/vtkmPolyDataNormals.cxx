@@ -29,7 +29,7 @@
 #include "vtkm/filter/SurfaceNormals.h"
 
 
-vtkStandardNewMacro(vtkmPolyDataNormals)
+vtkStandardNewMacro(vtkmPolyDataNormals);
 
 //------------------------------------------------------------------------------
 void vtkmPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)

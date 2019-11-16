@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkStandardNewMacro(vtkMultiBlockFromTimeSeriesFilter)
+vtkStandardNewMacro(vtkMultiBlockFromTimeSeriesFilter);
 
 vtkMultiBlockFromTimeSeriesFilter::vtkMultiBlockFromTimeSeriesFilter()
 {

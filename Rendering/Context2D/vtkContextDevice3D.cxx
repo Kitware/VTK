@@ -16,7 +16,7 @@
 #include "vtkContextDevice3D.h"
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkContextDevice3D)
+vtkAbstractObjectFactoryNewMacro(vtkContextDevice3D);
 
 vtkContextDevice3D::vtkContextDevice3D() = default;
 

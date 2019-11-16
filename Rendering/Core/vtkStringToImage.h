@@ -83,7 +83,7 @@ public:
    * hardware easier. Default is false.
    */
   virtual void SetScaleToPowerOfTwo(bool scale);
-  vtkGetMacro(ScaleToPowerOfTwo, bool)
+  vtkGetMacro(ScaleToPowerOfTwo, bool);
 
 protected:
   vtkStringToImage();

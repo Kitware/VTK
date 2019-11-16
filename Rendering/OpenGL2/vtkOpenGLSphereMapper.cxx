@@ -41,7 +41,7 @@
 
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLSphereMapper)
+vtkStandardNewMacro(vtkOpenGLSphereMapper);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()

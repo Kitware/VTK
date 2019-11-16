@@ -44,7 +44,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmImageConnectivity :
   public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmImageConnectivity,vtkImageAlgorithm)
+  vtkTypeMacro(vtkmImageConnectivity,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmImageConnectivity* New();
 

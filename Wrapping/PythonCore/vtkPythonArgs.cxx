@@ -1632,4 +1632,4 @@ vtkPythonArgs::Array<T>::Array(size_t n) : Pointer(nullptr)
 // Instantiate the Array class template over all types:
 vtkPythonArgsTemplateMacro(
   template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array
-)
+);

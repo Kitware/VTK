@@ -152,7 +152,7 @@ class vtkMappedUnstructuredGrid:
 {
   typedef vtkMappedUnstructuredGrid<Implementation, CellIterator> SelfType;
 public:
-  vtkTemplateTypeMacro(SelfType, vtkUnstructuredGridBase)
+  vtkTemplateTypeMacro(SelfType, vtkUnstructuredGridBase);
   typedef Implementation ImplementationType;
   typedef CellIterator CellIteratorType;
 
@@ -211,7 +211,7 @@ class _exportDecl _className : \
 { \
 public: \
   vtkTypeMacro(_className, \
-               vtkMappedUnstructuredGrid<_impl>) \
+               vtkMappedUnstructuredGrid<_impl>); \
   static _className* New(); \
 protected: \
   _className() \
@@ -232,7 +232,7 @@ class _exportDecl _className : \
 { \
 public: \
   vtkTypeMacro(_className, \
-               vtkMappedUnstructuredGrid<_impl, _cIter>) \
+               vtkMappedUnstructuredGrid<_impl, _cIter>); \
   static _className* New(); \
 protected: \
   _className() \
@@ -254,7 +254,7 @@ private: \
   public vtkUnstructuredGridBase \
   { \
 public: \
-  vtkTypeMacro(_className, vtkUnstructuredGridBase) \
+  vtkTypeMacro(_className, vtkUnstructuredGridBase); \
   static _className* New(); \
 protected: \
   _className() {} \
@@ -269,7 +269,7 @@ private: \
   public vtkUnstructuredGridBase \
   { \
 public: \
-  vtkTypeMacro(_className, vtkUnstructuredGridBase) \
+  vtkTypeMacro(_className, vtkUnstructuredGridBase); \
   static _className* New(); \
 protected: \
   _className() {} \

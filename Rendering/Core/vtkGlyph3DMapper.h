@@ -217,9 +217,9 @@ public:
    * the top-level members of the tree will be mapped to the glyph source table
    * used for SourceIndexing.
    */
-  vtkSetMacro(UseSourceTableTree, bool)
-  vtkGetMacro(UseSourceTableTree, bool)
-  vtkBooleanMacro(UseSourceTableTree, bool)
+  vtkSetMacro(UseSourceTableTree, bool);
+  vtkGetMacro(UseSourceTableTree, bool);
+  vtkBooleanMacro(UseSourceTableTree, bool);
 
   //@{
   /**

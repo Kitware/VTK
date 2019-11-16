@@ -35,7 +35,7 @@ class GL2PSMathTextOutputTest : public vtkContextItem
 {
 public:
   static GL2PSMathTextOutputTest *New();
-  vtkTypeMacro(GL2PSMathTextOutputTest, vtkContextItem)
+  vtkTypeMacro(GL2PSMathTextOutputTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter) override;
 };
@@ -72,7 +72,7 @@ int TestGL2PSMathTextOutput(int, char *[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(GL2PSMathTextOutputTest)
+vtkStandardNewMacro(GL2PSMathTextOutputTest);
 
 // This function aims to test the primitives provided by the 2D API.
 bool GL2PSMathTextOutputTest::Paint(vtkContext2D *painter)

@@ -53,7 +53,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmLevelOfDetail,vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkmLevelOfDetail,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmLevelOfDetail* New();
 

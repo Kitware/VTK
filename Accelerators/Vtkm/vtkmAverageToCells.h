@@ -34,7 +34,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmAverageToCells : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToCells* New();
 

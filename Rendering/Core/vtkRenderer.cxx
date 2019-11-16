@@ -55,7 +55,7 @@ vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkRenderer)
+vtkAbstractObjectFactoryNewMacro(vtkRenderer);
 //----------------------------------------------------------------------------
 
 // Create a vtkRenderer with a black background, a white ambient light,
@@ -1980,4 +1980,4 @@ int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp *prop)
 }
 
 vtkCxxSetObjectMacro(vtkRenderer, GL2PSSpecialPropCollection,
-                     vtkPropCollection)
+                     vtkPropCollection);

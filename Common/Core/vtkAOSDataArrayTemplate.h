@@ -45,7 +45,7 @@ class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate :
           GenericDataArrayType;
 public:
   typedef vtkAOSDataArrayTemplate<ValueTypeT> SelfType;
-  vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
+  vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
   typedef typename Superclass::ValueType ValueType;
 
   enum DeleteMethod
@@ -311,7 +311,7 @@ private:
 };
 
 // Declare vtkArrayDownCast implementations for AoS containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
+vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate);
 
 // This macro is used by the subclasses to create dummy
 // declarations for these functions such that the wrapper
@@ -359,7 +359,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 #pragma warning (disable: 4910) // extern and dllexport incompatible
 #endif
 vtkExternTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate)
+  extern template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate);
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif
@@ -391,7 +391,7 @@ vtkExternTemplateMacro(
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 vtkInstantiateTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate)
+  extern template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate);
 
 #pragma warning (pop)
 

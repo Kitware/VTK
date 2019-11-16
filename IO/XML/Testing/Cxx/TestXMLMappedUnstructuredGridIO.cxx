@@ -187,7 +187,7 @@ private:
   MappedGrid* Owner;
 };
 
-vtkStandardNewMacro(MappedGridImpl)
+vtkStandardNewMacro(MappedGridImpl);
 
 void
 MappedGridImpl::PrintSelf(ostream& os, vtkIndent indent)
@@ -308,7 +308,7 @@ private:
   void operator=(const MappedGrid&) = delete;
 };
 
-vtkStandardNewMacro(MappedGrid)
+vtkStandardNewMacro(MappedGrid);
 
 } // end anonymous namespace
 

@@ -254,8 +254,8 @@ public:
     TF_2D
   };
 
-  vtkSetClampMacro(TransferFunctionMode, int, 0, 1)
-  vtkGetMacro(TransferFunctionMode, int)
+  vtkSetClampMacro(TransferFunctionMode, int, 0, 1);
+  vtkGetMacro(TransferFunctionMode, int);
   //@}
 
   /**

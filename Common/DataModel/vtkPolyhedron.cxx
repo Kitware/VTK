@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace std;
 
-vtkStandardNewMacro(vtkPolyhedron)
+vtkStandardNewMacro(vtkPolyhedron);
 
 // Special typedef
 typedef vector<vtkIdType> vtkIdVectorType;

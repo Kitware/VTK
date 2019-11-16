@@ -20,7 +20,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkStandardNewMacro(vtkPointSetCellIterator)
+vtkStandardNewMacro(vtkPointSetCellIterator);
 
 //------------------------------------------------------------------------------
 void vtkPointSetCellIterator::PrintSelf(ostream &os, vtkIndent indent)

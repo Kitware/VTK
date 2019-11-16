@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
 {
  public:
   static vtkTextPropertyCollection *New();
-  vtkTypeMacro(vtkTextPropertyCollection, vtkCollection)
+  vtkTypeMacro(vtkTextPropertyCollection, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

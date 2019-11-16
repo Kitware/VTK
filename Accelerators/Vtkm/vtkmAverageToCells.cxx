@@ -29,7 +29,7 @@
 #include <vtkm/filter/CellAverage.h>
 #include <vtkm/filter/CellAverage.hxx>
 
-vtkStandardNewMacro(vtkmAverageToCells)
+vtkStandardNewMacro(vtkmAverageToCells);
 
 //------------------------------------------------------------------------------
 vtkmAverageToCells::vtkmAverageToCells()

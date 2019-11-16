@@ -121,7 +121,7 @@ public:
    * Enable/Disable the assumption that the dimension array is cell data.
    * On by default.
    */
-  vtkSetMacro(DimensionArrayAsCell, bool)
+  vtkSetMacro(DimensionArrayAsCell, bool);
   vtkGetMacro(DimensionArrayAsCell, bool);
   vtkBooleanMacro(DimensionArrayAsCell, bool);
   //@}
@@ -167,7 +167,7 @@ public:
    * we **flip the dimensions** here to avoid a deep copy.
    *
    */
-  vtkSetMacro(IsColumnMajor, bool)
+  vtkSetMacro(IsColumnMajor, bool);
   vtkGetMacro(IsColumnMajor, bool);
   vtkBooleanMacro(IsColumnMajor, bool);
   //@}

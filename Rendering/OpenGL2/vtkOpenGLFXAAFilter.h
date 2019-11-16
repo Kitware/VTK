@@ -57,7 +57,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAFilter: public vtkObject
 {
 public:
   static vtkOpenGLFXAAFilter* New();
-  vtkTypeMacro(vtkOpenGLFXAAFilter, vtkObject)
+  vtkTypeMacro(vtkOpenGLFXAAFilter, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -82,21 +82,21 @@ public:
    * Parameter for tuning the FXAA implementation. See vtkFXAAOptions for
    * details and suggested values.
    */
-  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(RelativeContrastThreshold, float)
-  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(HardContrastThreshold, float)
-  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelBlendLimit, float)
-  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(SubpixelContrastThreshold, float)
+  vtkSetClampMacro(RelativeContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(RelativeContrastThreshold, float);
+  vtkSetClampMacro(HardContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(HardContrastThreshold, float);
+  vtkSetClampMacro(SubpixelBlendLimit, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelBlendLimit, float);
+  vtkSetClampMacro(SubpixelContrastThreshold, float, 0.f, 1.f);
+  vtkGetMacro(SubpixelContrastThreshold, float);
   virtual void SetUseHighQualityEndpoints(bool val);
-  vtkGetMacro(UseHighQualityEndpoints, bool)
-  vtkBooleanMacro(UseHighQualityEndpoints, bool)
-  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX)
-  vtkGetMacro(EndpointSearchIterations, int)
+  vtkGetMacro(UseHighQualityEndpoints, bool);
+  vtkBooleanMacro(UseHighQualityEndpoints, bool);
+  vtkSetClampMacro(EndpointSearchIterations, int, 0, VTK_INT_MAX);
+  vtkGetMacro(EndpointSearchIterations, int);
   virtual void SetDebugOptionValue(vtkFXAAOptions::DebugOption opt);
-  vtkGetMacro(DebugOptionValue, vtkFXAAOptions::DebugOption)
+  vtkGetMacro(DebugOptionValue, vtkFXAAOptions::DebugOption);
   //@}
 
 protected:

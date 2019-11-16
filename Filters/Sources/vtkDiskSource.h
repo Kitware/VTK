@@ -41,7 +41,7 @@ public:
   /**
    * Specify inner radius of hole in disc.
    */
-  vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(InnerRadius,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(InnerRadius,double);
   //@}
 
@@ -49,7 +49,7 @@ public:
   /**
    * Specify outer radius of disc.
    */
-  vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(OuterRadius,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(OuterRadius,double);
   //@}
 
@@ -57,7 +57,7 @@ public:
   /**
    * Set the number of points in radius direction.
    */
-  vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX)
+  vtkSetClampMacro(RadialResolution,int,1,VTK_INT_MAX);
   vtkGetMacro(RadialResolution,int);
   //@}
 
@@ -65,7 +65,7 @@ public:
   /**
    * Set the number of points in circumferential direction.
    */
-  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX)
+  vtkSetClampMacro(CircumferentialResolution,int,3,VTK_INT_MAX);
   vtkGetMacro(CircumferentialResolution,int);
   //@}
 

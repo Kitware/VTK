@@ -62,8 +62,8 @@ public:
    * @a i * @a N + @a X.
    * @{
    */
-  vtkSetClampMacro(PieceDistribution, int, Block, Interleave)
-  vtkGetMacro(PieceDistribution, int)
+  vtkSetClampMacro(PieceDistribution, int, Block, Interleave);
+  vtkGetMacro(PieceDistribution, int);
   /**@}*/
 
   //@{

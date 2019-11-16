@@ -33,7 +33,7 @@
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracer: public vtkParticleTracerBase
 {
  public:
-  vtkTypeMacro(vtkParticleTracer,vtkParticleTracerBase)
+  vtkTypeMacro(vtkParticleTracer,vtkParticleTracerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkParticleTracer *New();

@@ -24,7 +24,7 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPolyPointSource);
 
-vtkCxxSetObjectMacro(vtkPolyPointSource, Points, vtkPoints)
+vtkCxxSetObjectMacro(vtkPolyPointSource, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
 vtkPolyPointSource::vtkPolyPointSource()

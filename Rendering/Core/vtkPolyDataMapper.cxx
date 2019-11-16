@@ -25,7 +25,7 @@
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper)
+vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper);
 
 //----------------------------------------------------------------------------
 vtkPolyDataMapper::vtkPolyDataMapper()

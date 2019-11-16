@@ -41,7 +41,7 @@ struct InputFilterPolicy : public vtkmInputFilterPolicy
 
 }
 
-vtkStandardNewMacro(vtkmTriangleMeshPointNormals)
+vtkStandardNewMacro(vtkmTriangleMeshPointNormals);
 
 //------------------------------------------------------------------------------
 void vtkmTriangleMeshPointNormals::PrintSelf(ostream& os, vtkIndent indent)

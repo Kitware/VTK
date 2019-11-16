@@ -45,8 +45,8 @@ public:
           GenericDataArrayType;
   friend class vtkGenericDataArray<vtkTestDataArray<ArrayT>, ValueType>;
 
-  vtkAbstractTemplateTypeMacro(SelfType, GenericDataArrayType)
-  vtkAOSArrayNewInstanceMacro(SelfType)
+  vtkAbstractTemplateTypeMacro(SelfType, GenericDataArrayType);
+  vtkAOSArrayNewInstanceMacro(SelfType);
 
   static vtkTestDataArray<ArrayType>* New()
   { VTK_STANDARD_NEW_BODY(vtkTestDataArray<ArrayType>); }

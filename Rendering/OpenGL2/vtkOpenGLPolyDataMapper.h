@@ -53,7 +53,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMap
 {
 public:
   static vtkOpenGLPolyDataMapper* New();
-  vtkTypeMacro(vtkOpenGLPolyDataMapper, vtkPolyDataMapper)
+  vtkTypeMacro(vtkOpenGLPolyDataMapper, vtkPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

@@ -168,9 +168,9 @@ public:
    * Default is false.
    * @{
    */
-  vtkSetMacro(UseLogScale, bool)
-  vtkGetMacro(UseLogScale, bool)
-  vtkBooleanMacro(UseLogScale, bool)
+  vtkSetMacro(UseLogScale, bool);
+  vtkGetMacro(UseLogScale, bool);
+  vtkBooleanMacro(UseLogScale, bool);
   /**@}*/
 
   /**

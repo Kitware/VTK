@@ -30,7 +30,7 @@
 
 #include "vtk_exodusII.h"
 
-vtkStandardNewMacro(vtkCPExodusIIInSituReader)
+vtkStandardNewMacro(vtkCPExodusIIInSituReader);
 
 //------------------------------------------------------------------------------
 void vtkCPExodusIIInSituReader::PrintSelf(ostream &os, vtkIndent indent)

@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <utility>
 
-vtkObjectFactoryNewMacro(vtkRenderTimerLog)
+vtkObjectFactoryNewMacro(vtkRenderTimerLog);
 
 //------------------------------------------------------------------------------
 vtkRenderTimerLog::vtkRenderTimerLog()

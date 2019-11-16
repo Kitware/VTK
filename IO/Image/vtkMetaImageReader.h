@@ -167,7 +167,7 @@ protected:
   vtkSetMacro(FileLowerLeft, int);
   virtual void ComputeInternalFileName(int slice)
     { vtkImageReader2::ComputeInternalFileName(slice); }
-  vtkGetStringMacro(InternalFileName)
+  vtkGetStringMacro(InternalFileName);
   const char * GetDataByteOrderAsString(void)
     { return vtkImageReader2::GetDataByteOrderAsString(); }
   unsigned long GetHeaderSize(void)

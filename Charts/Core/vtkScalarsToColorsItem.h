@@ -58,7 +58,7 @@ public:
    * Invalid bounds by default.
    */
   vtkSetVector4Macro(UserBounds, double);
-  vtkGetVector4Macro(UserBounds, double)
+  vtkGetVector4Macro(UserBounds, double);
   //@}
 
   /**

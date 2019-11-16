@@ -1456,7 +1456,7 @@ int vtkSLACReader::ReadFieldData(const int *modeFDArray,
     CALL_NETCDF(nc_inq_varndims(modeFDArray[0], varId, &numDims));
     if (numDims < 1 || numDims > 2)
     {
-      vtkWarningMacro(<< "Encountered invalid variable dimensions.")
+      vtkWarningMacro(<< "Encountered invalid variable dimensions.");
       continue;
     }
 

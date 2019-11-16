@@ -149,7 +149,7 @@ bool vtkAMRInterpolatedVelocityField::SetLastDataSet(int level, int id)
 
 void vtkAMRInterpolatedVelocityField::SetLastCellId(vtkIdType, int )
 {
-  vtkWarningMacro("Calling SetLastCellId has no effect")
+  vtkWarningMacro("Calling SetLastCellId has no effect");
 }
 
 bool vtkAMRInterpolatedVelocityField::GetLastDataSetLocation(unsigned int& level, unsigned int& id)

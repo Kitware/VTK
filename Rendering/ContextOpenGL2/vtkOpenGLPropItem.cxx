@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkStandardNewMacro(vtkOpenGLPropItem)
+vtkStandardNewMacro(vtkOpenGLPropItem);
 
 vtkOpenGLPropItem::vtkOpenGLPropItem() = default;
 

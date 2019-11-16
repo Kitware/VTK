@@ -26,7 +26,7 @@
 #define VTK_PCA_NORMCOLUMN "PCA Cov Norm"
 #define VTK_PCA_COMPCOLUMN "PCA"
 
-vtkObjectFactoryNewMacro(vtkPCAStatistics)
+vtkObjectFactoryNewMacro(vtkPCAStatistics);
 
 const char* vtkPCAStatistics::NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1] =
 {

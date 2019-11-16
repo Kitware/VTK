@@ -52,7 +52,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmProbe : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmProbe, vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmProbe, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmProbe* New();
 
@@ -112,8 +112,8 @@ public:
    * hidden points and 0 for valid points.
    * Set to "vtkValidPointMask" by default.
    */
-  vtkSetMacro(ValidPointMaskArrayName, std::string)
-  vtkGetMacro(ValidPointMaskArrayName, std::string)
+  vtkSetMacro(ValidPointMaskArrayName, std::string);
+  vtkGetMacro(ValidPointMaskArrayName, std::string);
   //@}
 
   //@{
@@ -122,8 +122,8 @@ public:
    * hidden points and 0 for valid points.
    * Set to "vtkValidCellMask" by default.
    */
-  vtkSetMacro(ValidCellMaskArrayName, std::string)
-  vtkGetMacro(ValidCellMaskArrayName, std::string)
+  vtkSetMacro(ValidCellMaskArrayName, std::string);
+  vtkGetMacro(ValidCellMaskArrayName, std::string);
   //@}
 
 protected:

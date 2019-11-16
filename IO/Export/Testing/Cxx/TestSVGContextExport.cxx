@@ -46,7 +46,7 @@ class ContextSVGTest : public vtkContextItem
   void SetSpritePoint(int x, int y, vtkImageData *sprite);
 public:
   static ContextSVGTest *New();
-  vtkTypeMacro(ContextSVGTest, vtkContextItem)
+  vtkTypeMacro(ContextSVGTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   bool Paint(vtkContext2D *painter) override;
 };
@@ -90,7 +90,7 @@ int TestSVGContextExport(int, char*[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextSVGTest)
+vtkStandardNewMacro(ContextSVGTest);
 
 // This function aims to test the primitives provided by the 2D API.
 bool ContextSVGTest::Paint(vtkContext2D *painter)

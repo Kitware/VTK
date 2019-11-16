@@ -28,7 +28,7 @@
 
 #include <set>
 
-vtkStandardNewMacro(vtkOpenGLIndexBufferObject)
+vtkStandardNewMacro(vtkOpenGLIndexBufferObject);
 
 vtkOpenGLIndexBufferObject::vtkOpenGLIndexBufferObject()
 {

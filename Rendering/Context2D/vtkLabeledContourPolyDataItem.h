@@ -99,9 +99,9 @@ public:
    * only the mapper returned by GetPolyDataMapper() will be rendered.
    * The default is to draw labels.
    */
-  vtkSetMacro(LabelVisibility, bool)
-  vtkGetMacro(LabelVisibility, bool)
-  vtkBooleanMacro(LabelVisibility, bool)
+  vtkSetMacro(LabelVisibility, bool);
+  vtkGetMacro(LabelVisibility, bool);
+  vtkBooleanMacro(LabelVisibility, bool);
   //@}
 
   //@{
@@ -109,8 +109,8 @@ public:
    * Ensure that there are at least SkipDistance pixels between labels. This
    * is only enforced on labels along the same line. The default is 0.
    */
-  vtkSetMacro(SkipDistance, double)
-  vtkGetMacro(SkipDistance, double)
+  vtkSetMacro(SkipDistance, double);
+  vtkGetMacro(SkipDistance, double);
   //@}
 
 protected:

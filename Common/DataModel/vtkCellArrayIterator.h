@@ -40,7 +40,7 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkCellArrayIterator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCellArrayIterator, vtkObject)
+  vtkTypeMacro(vtkCellArrayIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCellArrayIterator *New();
 
@@ -165,7 +165,7 @@ protected:
   vtkCellArrayIterator() = default;
   ~vtkCellArrayIterator() override = default;
 
-  vtkSetMacro(CellArray, vtkCellArray*)
+  vtkSetMacro(CellArray, vtkCellArray*);
 
   vtkSmartPointer<vtkCellArray> CellArray;
   vtkNew<vtkIdList> TempCell;

@@ -496,8 +496,8 @@ public:
    * vtkAxis::TICK_WILKINSON which uses an extended Wilkinson algorithm to find
    * the optimal range, spacing and font parameters.
    */
-  vtkSetMacro(TickLabelAlgorithm, int)
-  vtkGetMacro(TickLabelAlgorithm, int)
+  vtkSetMacro(TickLabelAlgorithm, int);
+  vtkGetMacro(TickLabelAlgorithm, int);
   //@}
 
   //@{
@@ -505,10 +505,10 @@ public:
    * Get/set the scaling factor used for the axis, this defaults to 1.0 (no
    * scaling), and is used to coordinate scaling with the plots, charts, etc.
    */
-  vtkSetMacro(ScalingFactor, double)
-  vtkGetMacro(ScalingFactor, double)
-  vtkSetMacro(Shift, double)
-  vtkGetMacro(Shift, double)
+  vtkSetMacro(ScalingFactor, double);
+  vtkGetMacro(ScalingFactor, double);
+  vtkSetMacro(Shift, double);
+  vtkGetMacro(Shift, double);
   //@}
 
   /**

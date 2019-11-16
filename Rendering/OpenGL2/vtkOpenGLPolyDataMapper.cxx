@@ -74,7 +74,7 @@
 
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLPolyDataMapper)
+vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()

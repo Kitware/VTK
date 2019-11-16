@@ -47,11 +47,11 @@ class ContextSVGTest : public vtkContextItem
 {
 public:
   static ContextSVGTest *New();
-  vtkTypeMacro(ContextSVGTest, vtkContextItem)
+  vtkTypeMacro(ContextSVGTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   bool Paint(vtkContext2D *painter) override;
 };
-vtkStandardNewMacro(ContextSVGTest)
+vtkStandardNewMacro(ContextSVGTest);
 } // end anon namespace
 
 int TestSVGContextShading(int, char*[])

@@ -37,15 +37,15 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkVASPAnimationReader:
 {
 public:
   static vtkVASPAnimationReader* New();
-  vtkTypeMacro(vtkVASPAnimationReader, vtkMoleculeAlgorithm)
+  vtkTypeMacro(vtkVASPAnimationReader, vtkMoleculeAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
    * The name of the file to read.
    */
-  vtkSetStringMacro(FileName)
-  vtkGetStringMacro(FileName)
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
   //@}
 
 protected:

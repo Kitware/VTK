@@ -88,7 +88,7 @@ class VTKIOEXPORTGL2PS_EXPORT vtkGL2PSExporter : public vtkExporter
 {
 public:
   static vtkGL2PSExporter *New();
-  vtkTypeMacro(vtkGL2PSExporter, vtkExporter)
+  vtkTypeMacro(vtkGL2PSExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

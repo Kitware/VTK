@@ -38,7 +38,7 @@ public:
   vtkVector2i Geometry;
 };
 
-vtkStandardNewMacro(vtkChartMatrix)
+vtkStandardNewMacro(vtkChartMatrix);
 
 vtkChartMatrix::vtkChartMatrix() : Size(0, 0), Gutter(15.0, 15.0)
 {

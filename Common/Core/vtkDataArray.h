@@ -641,7 +641,7 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
   return nullptr;
 }
 
-vtkArrayDownCast_FastCastMacro(vtkDataArray)
+vtkArrayDownCast_FastCastMacro(vtkDataArray);
 
 // These are used by vtkDataArrayPrivate.txx, but need to be available to
 // vtkGenericDataArray.h as well.

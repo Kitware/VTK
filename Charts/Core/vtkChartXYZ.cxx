@@ -42,7 +42,7 @@
 
 #include <sstream>
 
-vtkStandardNewMacro(vtkChartXYZ)
+vtkStandardNewMacro(vtkChartXYZ);
 
 //-----------------------------------------------------------------------------
 vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), IsX(false), Angle(0)

@@ -32,21 +32,21 @@ public: \
   static int VTKType; \
 };
 
-vtkMPIPixelTTMacro1(void)
-vtkMPIPixelTTMacro1(char)
-vtkMPIPixelTTMacro1(signed char)
-vtkMPIPixelTTMacro1(unsigned char)
-vtkMPIPixelTTMacro1(short)
-vtkMPIPixelTTMacro1(unsigned short)
-vtkMPIPixelTTMacro1(int)
-vtkMPIPixelTTMacro1(unsigned int)
-vtkMPIPixelTTMacro1(long)
-vtkMPIPixelTTMacro1(unsigned long)
-vtkMPIPixelTTMacro1(float)
-vtkMPIPixelTTMacro1(double)
-//vtkMPIPixelTTMacro1(vtkIdType)
-vtkMPIPixelTTMacro1(long long)
-vtkMPIPixelTTMacro1(unsigned long long)
+vtkMPIPixelTTMacro1(void);
+vtkMPIPixelTTMacro1(char);
+vtkMPIPixelTTMacro1(signed char);
+vtkMPIPixelTTMacro1(unsigned char);
+vtkMPIPixelTTMacro1(short);
+vtkMPIPixelTTMacro1(unsigned short);
+vtkMPIPixelTTMacro1(int);
+vtkMPIPixelTTMacro1(unsigned int);
+vtkMPIPixelTTMacro1(long);
+vtkMPIPixelTTMacro1(unsigned long);
+vtkMPIPixelTTMacro1(float);
+vtkMPIPixelTTMacro1(double);
+//vtkMPIPixelTTMacro1(vtkIdType);
+vtkMPIPixelTTMacro1(long long);
+vtkMPIPixelTTMacro1(unsigned long long);
 
 #endif
 // VTK-HeaderTest-Exclude: vtkMPIPixelTT.h

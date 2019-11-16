@@ -57,7 +57,7 @@ class VTKIOEXPORT_EXPORT vtkSVGContextDevice2D: public vtkContextDevice2D
 {
 public:
   static vtkSVGContextDevice2D* New();
-  vtkTypeMacro(vtkSVGContextDevice2D, vtkContextDevice2D)
+  vtkTypeMacro(vtkSVGContextDevice2D, vtkContextDevice2D);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /** The svg container element to draw into, and the global definitions
@@ -75,9 +75,9 @@ public:
    *
    * @{
    */
-  vtkSetMacro(EmbedFonts, bool)
-  vtkGetMacro(EmbedFonts, bool)
-  vtkBooleanMacro(EmbedFonts, bool)
+  vtkSetMacro(EmbedFonts, bool);
+  vtkGetMacro(EmbedFonts, bool);
+  vtkBooleanMacro(EmbedFonts, bool);
   /**@}*/
 
   /**
@@ -95,9 +95,9 @@ public:
    *
    * @{
    */
-  vtkSetMacro(TextAsPath, bool)
-  vtkGetMacro(TextAsPath, bool)
-  vtkBooleanMacro(TextAsPath, bool)
+  vtkSetMacro(TextAsPath, bool);
+  vtkGetMacro(TextAsPath, bool);
+  vtkBooleanMacro(TextAsPath, bool);
   /**@}*/
 
   /**
@@ -115,8 +115,8 @@ public:
    *
    * @{
    */
-  vtkSetMacro(SubdivisionThreshold, float)
-  vtkGetMacro(SubdivisionThreshold, float)
+  vtkSetMacro(SubdivisionThreshold, float);
+  vtkGetMacro(SubdivisionThreshold, float);
   /**@}*/
 
   /**

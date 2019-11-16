@@ -113,8 +113,8 @@ public:
    * sprites for each mark size/shape and uses DrawPointSprites to render them.
    * The number of cached markers can be accessed with this function.
    */
-  vtkSetMacro(MaximumMarkerCacheSize, int)
-  vtkGetMacro(MaximumMarkerCacheSize, int)
+  vtkSetMacro(MaximumMarkerCacheSize, int);
+  vtkGetMacro(MaximumMarkerCacheSize, int);
   //@}
 
   /**

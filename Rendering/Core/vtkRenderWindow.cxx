@@ -35,7 +35,7 @@
 
 //----------------------------------------------------------------------------
 // Use the vtkAbstractObjectFactoryNewMacro to allow the object factory overrides.
-vtkAbstractObjectFactoryNewMacro(vtkRenderWindow)
+vtkAbstractObjectFactoryNewMacro(vtkRenderWindow);
 //----------------------------------------------------------------------------
 
 // Construct an instance of  vtkRenderWindow with its screen size
@@ -613,7 +613,7 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 
   if (this->CapturingGL2PSSpecialProps)
   {
-    vtkDebugMacro(<<"Called recursively.")
+    vtkDebugMacro(<<"Called recursively.");
     return;
   }
   this->CapturingGL2PSSpecialProps = 1;

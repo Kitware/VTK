@@ -396,7 +396,7 @@ void vtkChart::SetActionToButton(int action, int button)
 {
   if (action < -1 || action >= MouseActions::MaxAction)
   {
-    vtkErrorMacro("Error, invalid action value supplied: " << action)
+    vtkErrorMacro("Error, invalid action value supplied: " << action);
     return;
   }
   this->Actions[action] = button;
@@ -418,7 +418,7 @@ void vtkChart::SetClickActionToButton(int action, int button)
 {
   if (action != vtkChart::SELECT && action != vtkChart::NOTIFY)
   {
-    vtkErrorMacro("Error, invalid click action value supplied: " << action)
+    vtkErrorMacro("Error, invalid click action value supplied: " << action);
     return;
   }
 

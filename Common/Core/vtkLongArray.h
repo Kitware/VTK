@@ -40,7 +40,7 @@
 class VTKCOMMONCORE_EXPORT vtkLongArray : public vtkDataArray
 {
 public:
-  vtkTypeMacro(vtkLongArray, vtkDataArray)
+  vtkTypeMacro(vtkLongArray, vtkDataArray);
 #ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
@@ -85,6 +85,6 @@ private:
 };
 
 // Define vtkArrayDownCast implementation:
-vtkArrayDownCast_FastCastMacro(vtkLongArray)
+vtkArrayDownCast_FastCastMacro(vtkLongArray);
 
 #endif

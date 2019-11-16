@@ -20,7 +20,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGridBase.h"
 
-vtkStandardNewMacro(vtkUnstructuredGridBaseAlgorithm)
+vtkStandardNewMacro(vtkUnstructuredGridBaseAlgorithm);
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridBaseAlgorithm::vtkUnstructuredGridBaseAlgorithm()

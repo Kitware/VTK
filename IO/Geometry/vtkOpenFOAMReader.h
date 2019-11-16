@@ -285,8 +285,8 @@ public:
    * If true, labels are expected to be 64-bit, rather than 32.
    */
   virtual void SetUse64BitLabels(bool val);
-  vtkGetMacro(Use64BitLabels, bool)
-  vtkBooleanMacro(Use64BitLabels, bool)
+  vtkGetMacro(Use64BitLabels, bool);
+  vtkBooleanMacro(Use64BitLabels, bool);
   //@}
 
   //@{
@@ -294,9 +294,9 @@ public:
    * If true, data of the internal mesh are copied to the cell zones.
    * Default is false.
    */
-  vtkGetMacro(CopyDataToCellZones, bool)
-  vtkSetMacro(CopyDataToCellZones, bool)
-  vtkBooleanMacro(CopyDataToCellZones, bool)
+  vtkGetMacro(CopyDataToCellZones, bool);
+  vtkSetMacro(CopyDataToCellZones, bool);
+  vtkBooleanMacro(CopyDataToCellZones, bool);
   //@}
 
   //@{
@@ -306,8 +306,8 @@ public:
    * is only used to ensure that binary data is correctly parsed.
    */
   virtual void SetUse64BitFloats(bool val);
-  vtkGetMacro(Use64BitFloats, bool)
-  vtkBooleanMacro(Use64BitFloats, bool)
+  vtkGetMacro(Use64BitFloats, bool);
+  vtkBooleanMacro(Use64BitFloats, bool);
   //@}
 
   void SetRefresh() { this->Refresh = true; this->Modified(); }

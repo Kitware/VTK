@@ -50,7 +50,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotBox)
+vtkStandardNewMacro(vtkPlotBox);
 
 //-----------------------------------------------------------------------------
 vtkPlotBox::vtkPlotBox()

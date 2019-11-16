@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper: public vtkTextMapper
 {
 public:
   static vtkOpenGLTextMapper* New();
-  vtkTypeMacro(vtkOpenGLTextMapper, vtkTextMapper)
+  vtkTypeMacro(vtkOpenGLTextMapper, vtkTextMapper);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void RenderOverlay(vtkViewport *vp, vtkActor2D *act) override;

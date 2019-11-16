@@ -33,7 +33,7 @@
 #include <vtkm/filter/CleanGrid.hxx>
 
 
-vtkStandardNewMacro(vtkmCleanGrid)
+vtkStandardNewMacro(vtkmCleanGrid);
 
 //------------------------------------------------------------------------------
 vtkmCleanGrid::vtkmCleanGrid()

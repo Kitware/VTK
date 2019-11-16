@@ -36,7 +36,7 @@
 // hold all the connections
 class vtkQtConnections : public std::vector< vtkQtConnection* > {};
 
-vtkStandardNewMacro(vtkEventQtSlotConnect)
+vtkStandardNewMacro(vtkEventQtSlotConnect);
 
 // constructor
 vtkEventQtSlotConnect::vtkEventQtSlotConnect()

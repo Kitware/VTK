@@ -970,7 +970,7 @@ PyObject *vtkPythonArgs::BuildBytes(const char *a, size_t n)
 #if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(vtkPythonArgs_cxx)
 vtkPythonArgsTemplateMacro(
   extern template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array
-)
+);
 #endif
 
 #endif

@@ -42,8 +42,8 @@ class vtkAngularPeriodicDataArray: public vtkPeriodicDataArray<Scalar>
 {
 public:
   vtkAbstractTemplateTypeMacro(vtkAngularPeriodicDataArray<Scalar>,
-                               vtkPeriodicDataArray<Scalar>)
-  vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>)
+                               vtkPeriodicDataArray<Scalar>);
+  vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>);
   static vtkAngularPeriodicDataArray *New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

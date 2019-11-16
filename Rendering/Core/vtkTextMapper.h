@@ -69,8 +69,8 @@ public:
   /**
    * The input text string to the mapper.
    */
-  vtkSetStringMacro(Input)
-  vtkGetStringMacro(Input)
+  vtkSetStringMacro(Input);
+  vtkGetStringMacro(Input);
   //@}
 
   //@{

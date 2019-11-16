@@ -37,7 +37,7 @@
 
 #include <map>
 
-vtkStandardNewMacro(vtkProteinRibbonFilter)
+vtkStandardNewMacro(vtkProteinRibbonFilter);
 
 namespace
 {

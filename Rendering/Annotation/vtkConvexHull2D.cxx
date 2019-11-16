@@ -175,7 +175,7 @@ void vtkConvexHull2D::ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData)
 
       if (currentDisplaySize[0] == 0.0 || currentDisplaySize[1] == 0.0)
       {
-        vtkWarningMacro(<< "Can not scale a hull with zero display area.")
+        vtkWarningMacro(<< "Can not scale a hull with zero display area.");
         return;
       }
 

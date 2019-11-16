@@ -224,7 +224,7 @@ class CellMap : public vtkObject
 {
 public:
   static CellMap* New();
-  vtkTypeMacro(CellMap, vtkObject)
+  vtkTypeMacro(CellMap, vtkObject);
 
   static bool ValidateCellType(VTKCellType cellType) noexcept
   {

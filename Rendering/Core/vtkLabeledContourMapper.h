@@ -46,7 +46,7 @@ class VTKRENDERINGCORE_EXPORT vtkLabeledContourMapper : public vtkMapper
 {
 public:
   static vtkLabeledContourMapper *New();
-  vtkTypeMacro(vtkLabeledContourMapper, vtkMapper)
+  vtkTypeMacro(vtkLabeledContourMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Render(vtkRenderer *ren, vtkActor *act) override;
@@ -116,9 +116,9 @@ public:
    * only the mapper returned by GetPolyDataMapper() will be rendered.
    * The default is to draw labels.
    */
-  vtkSetMacro(LabelVisibility, bool)
-  vtkGetMacro(LabelVisibility, bool)
-  vtkBooleanMacro(LabelVisibility, bool)
+  vtkSetMacro(LabelVisibility, bool);
+  vtkGetMacro(LabelVisibility, bool);
+  vtkBooleanMacro(LabelVisibility, bool);
   //@}
 
   //@{
@@ -126,15 +126,15 @@ public:
    * Ensure that there are at least SkipDistance pixels between labels. This
    * is only enforced on labels along the same line. The default is 0.
    */
-  vtkSetMacro(SkipDistance, double)
-  vtkGetMacro(SkipDistance, double)
+  vtkSetMacro(SkipDistance, double);
+  vtkGetMacro(SkipDistance, double);
   //@}
 
   //@{
   /**
    * The polydata mapper used to render the contours.
    */
-  vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
+  vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper);
   //@}
 
   void ReleaseGraphicsResources(vtkWindow *) override;

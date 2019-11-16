@@ -38,7 +38,7 @@ class vtkPeriodicDataArray:
 {
   typedef vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar> GenericBase;
 public:
-  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase)
+  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase);
   typedef typename Superclass::ValueType ValueType;
 
   void PrintSelf(ostream& os, vtkIndent indent) override;

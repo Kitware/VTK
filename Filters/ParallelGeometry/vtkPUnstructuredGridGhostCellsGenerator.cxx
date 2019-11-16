@@ -158,7 +158,7 @@ static const int UGGCG_DATA_EXCHANGE_TAG = 9001;
 
 //----------------------------------------------------------------------------
 
-vtkStandardNewMacro(vtkPUnstructuredGridGhostCellsGenerator)
+vtkStandardNewMacro(vtkPUnstructuredGridGhostCellsGenerator);
 vtkSetObjectImplementationMacro(
   vtkPUnstructuredGridGhostCellsGenerator, Controller, vtkMultiProcessController);
 

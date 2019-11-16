@@ -148,22 +148,22 @@ inline vectorType operator/(const vectorType& v1, const vectorType& v2) \
 }
 
 #define vtkVectorOperatorMacro(vectorType, type, size) \
-vtkVectorOperatorNegate(vectorType, type, size) \
-vtkVectorOperatorPlus(vectorType, type, size) \
-vtkVectorOperatorMinus(vectorType, type, size) \
-vtkVectorOperatorMultiply(vectorType, type, size) \
-vtkVectorOperatorMultiplyScalar(vectorType, type, size) \
-vtkVectorOperatorMultiplyScalarPre(vectorType, type, size) \
+vtkVectorOperatorNegate(vectorType, type, size); \
+vtkVectorOperatorPlus(vectorType, type, size); \
+vtkVectorOperatorMinus(vectorType, type, size); \
+vtkVectorOperatorMultiply(vectorType, type, size); \
+vtkVectorOperatorMultiplyScalar(vectorType, type, size); \
+vtkVectorOperatorMultiplyScalarPre(vectorType, type, size); \
 vtkVectorOperatorDivide(vectorType, type, size)
 
 // Description:
 // Overload the operators for the common types.
-vtkVectorOperatorMacro(vtkVector2i, int,    2)
-vtkVectorOperatorMacro(vtkVector2f, float,  2)
-vtkVectorOperatorMacro(vtkVector2d, double, 2)
-vtkVectorOperatorMacro(vtkVector3i, int,    3)
-vtkVectorOperatorMacro(vtkVector3f, float,  3)
-vtkVectorOperatorMacro(vtkVector3d, double, 3)
+vtkVectorOperatorMacro(vtkVector2i, int,    2);
+vtkVectorOperatorMacro(vtkVector2f, float,  2);
+vtkVectorOperatorMacro(vtkVector2d, double, 2);
+vtkVectorOperatorMacro(vtkVector3i, int,    3);
+vtkVectorOperatorMacro(vtkVector3f, float,  3);
+vtkVectorOperatorMacro(vtkVector3d, double, 3);
 
 #endif
 // VTK-HeaderTest-Exclude: vtkVectorOperators.h

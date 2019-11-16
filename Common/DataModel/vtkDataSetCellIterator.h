@@ -31,7 +31,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator: public vtkCellIterator
 {
 public:
   static vtkDataSetCellIterator *New();
-  vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator)
+  vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   bool IsDoneWithTraversal() override;

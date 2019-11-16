@@ -57,7 +57,7 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
 {
   public:
     static vtkEventQtSlotConnect* New();
-    vtkTypeMacro(vtkEventQtSlotConnect, vtkObject)
+    vtkTypeMacro(vtkEventQtSlotConnect, vtkObject);
 
     /**
      * Print the current connections between VTK and Qt

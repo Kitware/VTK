@@ -352,8 +352,8 @@ public:
   /**
    * Get the unit cell origin (for rendering purposes).
    */
-  vtkGetMacro(LatticeOrigin, vtkVector3d)
-  vtkSetMacro(LatticeOrigin, vtkVector3d)
+  vtkGetMacro(LatticeOrigin, vtkVector3d);
+  vtkSetMacro(LatticeOrigin, vtkVector3d);
   //@}
 
   /**

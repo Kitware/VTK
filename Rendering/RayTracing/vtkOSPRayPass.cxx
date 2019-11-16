@@ -165,7 +165,7 @@ void vtkOSPRayPass::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // ----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode)
+vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode);
 
 // ----------------------------------------------------------------------------
 void vtkOSPRayPass::Render(const vtkRenderState *s)

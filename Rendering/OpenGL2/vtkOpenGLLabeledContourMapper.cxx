@@ -33,7 +33,7 @@
 
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLLabeledContourMapper)
+vtkStandardNewMacro(vtkOpenGLLabeledContourMapper);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLLabeledContourMapper::PrintSelf(std::ostream &os,

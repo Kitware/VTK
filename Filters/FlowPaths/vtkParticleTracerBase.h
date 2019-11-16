@@ -104,7 +104,7 @@ public:
     UNKNOWN
   };
 
-  vtkTypeMacro(vtkParticleTracerBase,vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkParticleTracerBase,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintParticleHistories();
 

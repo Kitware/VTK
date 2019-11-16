@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributes : public vtkObje
 {
 public:
   static vtkCompositeDataDisplayAttributes* New();
-  vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject)
+  vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

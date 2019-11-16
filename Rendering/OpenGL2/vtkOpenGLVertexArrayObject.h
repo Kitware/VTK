@@ -37,7 +37,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexArrayObject : public vtkObject
 {
 public:
   static vtkOpenGLVertexArrayObject* New();
-  vtkTypeMacro(vtkOpenGLVertexArrayObject, vtkObject)
+  vtkTypeMacro(vtkOpenGLVertexArrayObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Bind();

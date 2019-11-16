@@ -604,9 +604,9 @@ public:
    * the translucent geometry. Only supported on OpenGL2 with dual-depth
    * peeling. Default is false.
    */
-  vtkSetMacro(UseDepthPeelingForVolumes, bool)
-  vtkGetMacro(UseDepthPeelingForVolumes, bool)
-  vtkBooleanMacro(UseDepthPeelingForVolumes, bool)
+  vtkSetMacro(UseDepthPeelingForVolumes, bool);
+  vtkGetMacro(UseDepthPeelingForVolumes, bool);
+  vtkBooleanMacro(UseDepthPeelingForVolumes, bool);
 
   //@{
   /**
@@ -699,16 +699,16 @@ public:
   /**
    * Turn on/off FXAA anti-aliasing, if supported. Initial value is off.
    */
-  vtkSetMacro(UseFXAA, bool)
-  vtkGetMacro(UseFXAA, bool)
-  vtkBooleanMacro(UseFXAA, bool)
+  vtkSetMacro(UseFXAA, bool);
+  vtkGetMacro(UseFXAA, bool);
+  vtkBooleanMacro(UseFXAA, bool);
   //@}
 
   //@{
   /**
    * The configuration object for FXAA antialiasing.
    */
-  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions)
+  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions);
   virtual void SetFXAAOptions(vtkFXAAOptions*);
   //@}
 
@@ -727,9 +727,9 @@ public:
    * If this flag is true and the rendering engine supports it, wireframe
    * geometry will be drawn using hidden line removal.
    */
-  vtkSetMacro(UseHiddenLineRemoval, vtkTypeBool)
-  vtkGetMacro(UseHiddenLineRemoval, vtkTypeBool)
-  vtkBooleanMacro(UseHiddenLineRemoval, vtkTypeBool)
+  vtkSetMacro(UseHiddenLineRemoval, vtkTypeBool);
+  vtkGetMacro(UseHiddenLineRemoval, vtkTypeBool);
+  vtkBooleanMacro(UseHiddenLineRemoval, vtkTypeBool);
   //@}
 
   // Set/Get a custom render pass.
@@ -752,9 +752,9 @@ public:
    * The input cube map have to be set with SetEnvironmentCubeMap.
    * If not cubemap is specified, this feature is disable.
    */
-  vtkSetMacro(UseImageBasedLighting, bool)
-  vtkGetMacro(UseImageBasedLighting, bool)
-  vtkBooleanMacro(UseImageBasedLighting, bool)
+  vtkSetMacro(UseImageBasedLighting, bool);
+  vtkGetMacro(UseImageBasedLighting, bool);
+  vtkBooleanMacro(UseImageBasedLighting, bool);
   //@}
 
   //@{

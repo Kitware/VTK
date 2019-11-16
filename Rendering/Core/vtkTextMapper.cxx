@@ -34,7 +34,7 @@
 #include <algorithm>
 
 //----------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkTextMapper)
+vtkObjectFactoryNewMacro(vtkTextMapper);
 //----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 

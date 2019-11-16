@@ -593,7 +593,7 @@ int vtkImageEuclideanDistance::IterativeRequestData(
 
   if (!inPtr)
   {
-    vtkErrorMacro(<< "Execute: No scalars for update extent.")
+    vtkErrorMacro(<< "Execute: No scalars for update extent.");
     return 1;
   }
 

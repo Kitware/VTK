@@ -21,7 +21,7 @@
 
 #include "vtk_glew.h"
 
-vtkStandardNewMacro(vtkOpenGLVertexBufferObject)
+vtkStandardNewMacro(vtkOpenGLVertexBufferObject);
 
 vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
 {

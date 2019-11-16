@@ -28,12 +28,12 @@
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
-vtkAbstractObjectFactoryNewMacro(vtkCamera)
+vtkAbstractObjectFactoryNewMacro(vtkCamera);
 
 vtkCxxSetObjectMacro(vtkCamera, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkCamera, EyeTransformMatrix, vtkMatrix4x4);
 vtkCxxSetObjectMacro(vtkCamera, ModelTransformMatrix, vtkMatrix4x4);
-vtkCxxSetObjectMacro(vtkCamera, ExplicitProjectionTransformMatrix, vtkMatrix4x4)
+vtkCxxSetObjectMacro(vtkCamera, ExplicitProjectionTransformMatrix, vtkMatrix4x4);
 
 //-----------------------------------------------------------------------------
 class vtkCameraCallbackCommand : public vtkCommand

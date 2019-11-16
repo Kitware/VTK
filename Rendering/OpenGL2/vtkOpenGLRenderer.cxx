@@ -472,7 +472,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferO
 
   if(this->UseDepthPeeling && !context)
   {
-    vtkErrorMacro("OpenGL render window is required.")
+    vtkErrorMacro("OpenGL render window is required.");
     return;
   }
 

@@ -121,14 +121,14 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     else
     {
       vtkErrorWithObjectMacro(input, "VTK-m does not currently support "
-                                     "PolyVertex cells.")
+                                     "PolyVertex cells.");
     }
   }
   else
   {
     vtkErrorWithObjectMacro(input, "VTK-m does not currently support mixed "
                                    "cell types or triangle strips in "
-                                   "vtkPolyData.")
+                                   "vtkPolyData.");
   }
 
   if (!filled)

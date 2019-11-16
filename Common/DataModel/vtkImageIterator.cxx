@@ -19,4 +19,4 @@
 
 vtkInstantiateTemplateMacro(
   template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator
-)
+);

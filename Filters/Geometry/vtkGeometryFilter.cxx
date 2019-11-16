@@ -40,7 +40,7 @@
 
 
 vtkStandardNewMacro(vtkGeometryFilter);
-vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator)
+vtkCxxSetObjectMacro(vtkGeometryFilter, Locator, vtkIncrementalPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with all types of clipping turned off.

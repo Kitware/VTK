@@ -44,7 +44,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGL2PSHelper: public vtkObject
 {
 public:
   static vtkOpenGLGL2PSHelper* New();
-  vtkAbstractTypeMacro(vtkOpenGLGL2PSHelper, vtkObject)
+  vtkAbstractTypeMacro(vtkOpenGLGL2PSHelper, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
@@ -59,7 +59,7 @@ public:
   /**
    * Get the renderwindow that's being exported.
    */
-  vtkGetMacro(RenderWindow, vtkRenderWindow*)
+  vtkGetMacro(RenderWindow, vtkRenderWindow*);
   //@}
 
   enum State
@@ -80,23 +80,23 @@ public:
    * and use the vtkOpenGLGL2PSHelper API to draw themselves during the capture
    * pass.
    */
-  vtkGetMacro(ActiveState, State)
+  vtkGetMacro(ActiveState, State);
   //@}
 
   //@{
   /**
    * Set/Get the current point size.
    */
-  vtkSetMacro(PointSize, float)
-  vtkGetMacro(PointSize, float)
+  vtkSetMacro(PointSize, float);
+  vtkGetMacro(PointSize, float);
   //@}
 
   //@{
   /**
    * Set/Get the current line width.
    */
-  vtkSetMacro(LineWidth, float)
-  vtkGetMacro(LineWidth, float)
+  vtkSetMacro(LineWidth, float);
+  vtkGetMacro(LineWidth, float);
   //@}
 
   //@{
@@ -104,8 +104,8 @@ public:
    * Set/Get the current line stipple pattern per OpenGL convention. Default is
    * 0xffff.
    */
-  vtkSetMacro(LineStipple, unsigned short)
-  vtkGetMacro(LineStipple, unsigned short)
+  vtkSetMacro(LineStipple, unsigned short);
+  vtkGetMacro(LineStipple, unsigned short);
   //@}
 
   //@{
@@ -173,11 +173,11 @@ protected:
   vtkOpenGLGL2PSHelper();
   ~vtkOpenGLGL2PSHelper() override;
 
-  vtkSetMacro(ActiveState, State)
-  vtkSetMacro(TextAsPath, bool)
-  vtkSetMacro(RenderWindow, vtkRenderWindow*) // Doesn't ref count, not needed.
-  vtkSetMacro(PointSizeFactor, float)
-  vtkSetMacro(LineWidthFactor, float)
+  vtkSetMacro(ActiveState, State);
+  vtkSetMacro(TextAsPath, bool);
+  vtkSetMacro(RenderWindow, vtkRenderWindow*); // Doesn't ref count, not needed.
+  vtkSetMacro(PointSizeFactor, float);
+  vtkSetMacro(LineWidthFactor, float);
 
   static vtkOpenGLGL2PSHelper *Instance;
 

@@ -52,7 +52,7 @@ class VTKIOIMPORT_EXPORT vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOBJPolyDataProcessor *New();
-  vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
@@ -110,9 +110,9 @@ public:
     return MTLFileName;
   }
 
-  vtkSetMacro(VertexScale,double)
-  vtkGetMacro(VertexScale,double)
-  vtkGetMacro(SuccessParsingFiles,int)
+  vtkSetMacro(VertexScale,double);
+  vtkGetMacro(VertexScale,double);
+  vtkGetMacro(SuccessParsingFiles,int);
 
   virtual vtkPolyData* GetOutput(int idx);
 
@@ -143,7 +143,7 @@ protected:
   int RequestData(vtkInformation *,
                   vtkInformationVector **, vtkInformationVector *) override /*override*/;
 
-  vtkSetMacro(SuccessParsingFiles,int)
+  vtkSetMacro(SuccessParsingFiles,int);
 
   std::string FileName;     // filename (.obj) being read
   std::string MTLFileName;  // associated .mtl to *.obj, typically it is *.obj.mtl

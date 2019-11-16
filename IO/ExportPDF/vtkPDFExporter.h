@@ -35,17 +35,17 @@ class VTKIOEXPORTPDF_EXPORT vtkPDFExporter: public vtkExporter
 {
 public:
   static vtkPDFExporter* New();
-  vtkTypeMacro(vtkPDFExporter, vtkExporter)
+  vtkTypeMacro(vtkPDFExporter, vtkExporter);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /** The title of the exported document. @{ */
-  vtkSetStringMacro(Title)
-  vtkGetStringMacro(Title)
+  vtkSetStringMacro(Title);
+  vtkGetStringMacro(Title);
   /** @} */
 
   /** The name of the exported file. @{ */
-  vtkSetStringMacro(FileName)
-  vtkGetStringMacro(FileName)
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
   /** @} */
 
 protected:

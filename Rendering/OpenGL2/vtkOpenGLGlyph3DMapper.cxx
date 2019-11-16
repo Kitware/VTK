@@ -85,7 +85,7 @@ public:
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
-vtkStandardNewMacro(vtkOpenGLGlyph3DMappervtkColorMapper)
+vtkStandardNewMacro(vtkOpenGLGlyph3DMappervtkColorMapper);
 
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry
 {
@@ -163,7 +163,7 @@ public:
   };
 };
 
-vtkStandardNewMacro(vtkOpenGLGlyph3DMapper)
+vtkStandardNewMacro(vtkOpenGLGlyph3DMapper);
 
 // ---------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,

@@ -53,7 +53,7 @@ private:
 };
 
 // Define vtkArrayDownCast implementation:
-vtkArrayDownCast_FastCastMacro(vtkType@VTK_TYPE_NAME@Array)
+vtkArrayDownCast_FastCastMacro(vtkType@VTK_TYPE_NAME@Array);
 
 #undef vtkTypeArrayBase
 

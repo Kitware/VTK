@@ -21,7 +21,7 @@
 #include "vtkPoints.h"
 #include "vtkRectilinearGrid.h"
 
-vtkStandardNewMacro(vtkDataSetCellIterator)
+vtkStandardNewMacro(vtkDataSetCellIterator);
 
 namespace
 {

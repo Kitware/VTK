@@ -32,7 +32,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPointGaussianMapper : public vtkPointG
 {
 public:
   static vtkOpenGLPointGaussianMapper* New();
-  vtkTypeMacro(vtkOpenGLPointGaussianMapper, vtkPointGaussianMapper)
+  vtkTypeMacro(vtkOpenGLPointGaussianMapper, vtkPointGaussianMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

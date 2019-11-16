@@ -163,7 +163,7 @@ class vtkIdTypeArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCellArray, vtkObject)
+  vtkTypeMacro(vtkCellArray, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
   void PrintDebug(ostream &os);
 

@@ -35,7 +35,7 @@ class vtkUnstructuredGrid;
 class VTKACCELERATORSVTKM_EXPORT vtkmCleanGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmCleanGrid, vtkUnstructuredGridAlgorithm)
+  vtkTypeMacro(vtkmCleanGrid, vtkUnstructuredGridAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmCleanGrid* New();

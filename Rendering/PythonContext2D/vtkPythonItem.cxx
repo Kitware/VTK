@@ -125,7 +125,7 @@ bool vtkPythonItem::CheckResult(const char* method, const vtkSmartPyObject &res)
   }
   if (!PyBool_Check(res))
   {
-    vtkWarningMacro("The method \"" << method << "\" should have returned boolean but did not")
+    vtkWarningMacro("The method \"" << method << "\" should have returned boolean but did not");
     return false;
   }
 

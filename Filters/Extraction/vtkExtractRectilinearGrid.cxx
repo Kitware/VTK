@@ -90,14 +90,14 @@ int vtkExtractRectilinearGrid::RequestUpdateExtent(
       int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
       if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
       {
-        vtkWarningMacro("Requested extent outside whole extent.")
+        vtkWarningMacro("Requested extent outside whole extent.");
         idx = 0;
       }
       uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
       {
-        vtkWarningMacro("Requested extent outside whole extent.")
+        vtkWarningMacro("Requested extent outside whole extent.");
         jdx = 0;
       }
       uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);

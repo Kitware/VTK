@@ -50,7 +50,7 @@
 #include <numeric>
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkOpenGLGlyph3DHelper)
+vtkStandardNewMacro(vtkOpenGLGlyph3DHelper);
 
 //-----------------------------------------------------------------------------
 vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()

@@ -32,7 +32,7 @@ class MyArray : public vtkTypedDataArray<float>
 {
   vtkFloatArray *Data;
 public:
-  static MyArray *New() { VTK_STANDARD_NEW_BODY(MyArray) }
+  static MyArray *New() { VTK_STANDARD_NEW_BODY(MyArray); }
   void Init(vtkFloatArray *array)
   {
     this->Data = array;

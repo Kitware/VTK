@@ -350,7 +350,7 @@ bool vtkADIOS2CoreImageReader::OpenAndReadMetaData()
     // sort of request.
     if (!this->Controller)
     {
-      vtkErrorMacro("The reader is built with MPI support but the application is not launched in parallel mode. Abort reading.")
+      vtkErrorMacro("The reader is built with MPI support but the application is not launched in parallel mode. Abort reading.");
       return false;
     }
     vtkMPICommunicator *comm = static_cast<vtkMPICommunicator*>(
@@ -512,7 +512,7 @@ int vtkADIOS2CoreImageReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (!this->Impl->TimeStepsReverseMap.count(this->RequestTimeStep))
     {
       vtkErrorMacro("The requested time step " << this->RequestTimeStep <<
-                    " is not avaible!")
+                    " is not avaible!");
       return 0;
     }
     this->Impl->RequestStep = this->Impl->TimeStepsReverseMap[this->RequestTimeStep];

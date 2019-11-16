@@ -165,8 +165,8 @@ public:
    * The minimum number of ghost levels to add to each processor's output. If
    * the pipeline also requests ghost levels, the larger value will be used.
    */
-  vtkGetMacro(MinimumGhostLevel, int)
-  vtkSetMacro(MinimumGhostLevel, int)
+  vtkGetMacro(MinimumGhostLevel, int);
+  vtkSetMacro(MinimumGhostLevel, int);
 
   /**
    * Turn on collection of timing data

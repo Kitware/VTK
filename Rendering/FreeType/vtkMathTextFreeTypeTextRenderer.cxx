@@ -23,7 +23,7 @@
 #include "vtkUnicodeString.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkMathTextFreeTypeTextRenderer)
+vtkObjectFactoryNewMacro(vtkMathTextFreeTypeTextRenderer);
 
 //------------------------------------------------------------------------------
 void vtkMathTextFreeTypeTextRenderer::PrintSelf(ostream &os, vtkIndent indent)

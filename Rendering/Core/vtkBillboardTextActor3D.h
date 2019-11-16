@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D: public vtkProp3D
 {
 public:
   static vtkBillboardTextActor3D* New();
-  vtkTypeMacro(vtkBillboardTextActor3D, vtkProp3D)
+  vtkTypeMacro(vtkBillboardTextActor3D, vtkProp3D);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -46,7 +46,7 @@ public:
    * @{
    */
   void SetInput(const char *in);
-  vtkGetStringMacro(Input)
+  vtkGetStringMacro(Input);
   /** @} */
 
   /**
@@ -54,8 +54,8 @@ public:
    * Use display coordinates.
    * @{
    */
-  vtkGetVector2Macro(DisplayOffset, int)
-  vtkSetVector2Macro(DisplayOffset, int)
+  vtkGetVector2Macro(DisplayOffset, int);
+  vtkSetVector2Macro(DisplayOffset, int);
   /** @} */
 
   /**
@@ -63,7 +63,7 @@ public:
    * @{
    */
   void SetTextProperty(vtkTextProperty *tprop);
-  vtkGetObjectMacro(TextProperty, vtkTextProperty)
+  vtkGetObjectMacro(TextProperty, vtkTextProperty);
   /** @} */
 
   /**
@@ -104,7 +104,7 @@ public:
    * Returns the anchor position in display coordinates, with depth in NDC.
    * Valid after calling RenderOpaqueGeometry.
    */
-  vtkGetVector3Macro(AnchorDC, double)
+  vtkGetVector3Macro(AnchorDC, double);
 
 protected:
   vtkBillboardTextActor3D();

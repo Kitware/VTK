@@ -30,7 +30,7 @@ int TestBoundingBox(int,char *[])
     vtkBoundingBox bbox(bb);
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
-    TestBoundingBoxFailMacro(res && bb[0]==-1 && bb[1]==0,"Intersect Plane Failed!")
+    TestBoundingBoxFailMacro(res && bb[0]==-1 && bb[1]==0,"Intersect Plane Failed!");
   }
   {
     double n[3]={0,0,1};
@@ -39,7 +39,7 @@ int TestBoundingBox(int,char *[])
     vtkBoundingBox bbox(bb);
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
-    TestBoundingBoxFailMacro(res && bb[4]==0 && bb[5]==1,"Intersect Plane Failed!")
+    TestBoundingBoxFailMacro(res && bb[4]==0 && bb[5]==1,"Intersect Plane Failed!");
   }
   {
     double n[3]={0,0,-1};
@@ -48,7 +48,7 @@ int TestBoundingBox(int,char *[])
     vtkBoundingBox bbox(bb);
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
-    TestBoundingBoxFailMacro(res && bb[4]==-1 && bb[5]==0,"Intersect Plane Failed!")
+    TestBoundingBoxFailMacro(res && bb[4]==-1 && bb[5]==0,"Intersect Plane Failed!");
   }
   {
     double n[3]={0,-1,0};
@@ -57,7 +57,7 @@ int TestBoundingBox(int,char *[])
     vtkBoundingBox bbox(bb);
     bool res = bbox.IntersectPlane(p,n);
     bbox.GetBounds(bb);
-    TestBoundingBoxFailMacro(res && bb[2]==-1 && bb[3]==0,"Intersect Plane Failed!")
+    TestBoundingBoxFailMacro(res && bb[2]==-1 && bb[3]==0,"Intersect Plane Failed!");
   }
 
   {

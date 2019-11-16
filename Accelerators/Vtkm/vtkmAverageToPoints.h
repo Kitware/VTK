@@ -33,7 +33,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmAverageToPoints : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmAverageToPoints,vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmAverageToPoints,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToPoints* New();
 

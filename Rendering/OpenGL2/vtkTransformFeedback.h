@@ -41,7 +41,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkTransformFeedback : public vtkObject
 {
 public:
   static vtkTransformFeedback *New();
-  vtkTypeMacro(vtkTransformFeedback, vtkObject)
+  vtkTypeMacro(vtkTransformFeedback, vtkObject);
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -102,9 +102,9 @@ public:
    * used as input to a draw command and the draw mode, it will calculate the
    * total number of vertices.
    */
-  vtkSetMacro(NumberOfVertices, size_t)
+  vtkSetMacro(NumberOfVertices, size_t);
   void SetNumberOfVertices(int drawMode, size_t inputVerts);
-  vtkGetMacro(NumberOfVertices, size_t)
+  vtkGetMacro(NumberOfVertices, size_t);
   //@}
 
   /**
@@ -118,8 +118,8 @@ public:
    * The bufferMode argument to glTransformFeedbackVaryings. Must be
    * GL_INTERLEAVED_ATTRIBS or GL_SEPARATE_ATTRIBS. Default is interleaved. Must
    * be set prior to calling BindVaryings.
-   * vtkSetMacro(BufferMode, int)
-   * vtkGetMacro(BufferMode, int)
+   * vtkSetMacro(BufferMode, int);
+   * vtkGetMacro(BufferMode, int);
    */
 
   /**
@@ -144,8 +144,8 @@ public:
    * GL_TRIANGLES. Default is GL_POINTS. Must be set prior to calling
    * BindBuffer.
    */
-  vtkSetMacro(PrimitiveMode, int)
-  vtkGetMacro(PrimitiveMode, int)
+  vtkSetMacro(PrimitiveMode, int);
+  vtkGetMacro(PrimitiveMode, int);
   //@}
 
   /**
@@ -178,7 +178,7 @@ public:
    * Get the transform buffer data as a void pointer. Only valid after calling
    * ReadBuffer.
    */
-  vtkGetMacro(BufferData, void*)
+  vtkGetMacro(BufferData, void*);
   //@}
 
   /**

@@ -29,7 +29,7 @@
 
 #include <vtkm/filter/ImageConnectivity.h>
 
-vtkStandardNewMacro(vtkmImageConnectivity)
+vtkStandardNewMacro(vtkmImageConnectivity);
 
 //------------------------------------------------------------------------------
 vtkmImageConnectivity::vtkmImageConnectivity()

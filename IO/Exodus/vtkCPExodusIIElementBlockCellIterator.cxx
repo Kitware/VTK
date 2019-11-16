@@ -22,7 +22,7 @@
 
 #include <algorithm>
 
-vtkStandardNewMacro(vtkCPExodusIIElementBlockCellIterator)
+vtkStandardNewMacro(vtkCPExodusIIElementBlockCellIterator);
 
 //------------------------------------------------------------------------------
 void vtkCPExodusIIElementBlockCellIterator::PrintSelf(ostream &os,

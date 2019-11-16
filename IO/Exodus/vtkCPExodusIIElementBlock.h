@@ -41,7 +41,7 @@ class VTKIOEXODUS_EXPORT vtkCPExodusIIElementBlockImpl : public vtkObject
 public:
   static vtkCPExodusIIElementBlockImpl *New();
   void PrintSelf(ostream &os, vtkIndent indent) override;
-  vtkTypeMacro(vtkCPExodusIIElementBlockImpl, vtkObject)
+  vtkTypeMacro(vtkCPExodusIIElementBlockImpl, vtkObject);
 
   /**
    * Set the Exodus element block data. 'elements' is the array returned from
@@ -112,6 +112,6 @@ private:
 
 vtkMakeExportedMappedUnstructuredGrid(vtkCPExodusIIElementBlock,
                                       vtkCPExodusIIElementBlockImpl,
-                                      VTKIOEXODUS_EXPORT)
+                                      VTKIOEXODUS_EXPORT);
 
 #endif //vtkCPExodusIIElementBlock_h

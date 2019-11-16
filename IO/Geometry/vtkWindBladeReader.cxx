@@ -190,7 +190,7 @@ vtkTypeBool vtkWindBladeReader::ProcessRequest(vtkInformation* reqInfo,
 {
 #ifdef VTK_WORDS_BIGENDIAN
   vtkWarningMacro
-  ("Warning WindBlade reader does not yet work on big endian processors")
+  ("Warning WindBlade reader does not yet work on big endian processors");
 #endif
   if(reqInfo->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
   {

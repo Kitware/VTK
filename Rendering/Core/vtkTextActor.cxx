@@ -36,7 +36,7 @@
 
 #include <algorithm>
 
-vtkObjectFactoryNewMacro(vtkTextActor)
+vtkObjectFactoryNewMacro(vtkTextActor);
 
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -792,7 +792,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     int text_bbox[4];
     if (!this->GetImageBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
     {
-      vtkErrorMacro("Cannot compute bounding box.")
+      vtkErrorMacro("Cannot compute bounding box.");
       return;
     }
     dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );

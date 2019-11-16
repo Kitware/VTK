@@ -35,7 +35,7 @@
 
 #include <vtkm/filter/WarpVector.h>
 
-vtkStandardNewMacro(vtkmWarpVector)
+vtkStandardNewMacro(vtkmWarpVector);
 
 //------------------------------------------------------------------------------
 vtkmWarpVector::vtkmWarpVector() : vtkWarpVector()

@@ -508,7 +508,7 @@ public:
    * @{
    */
   virtual void SetExplicitProjectionTransformMatrix(vtkMatrix4x4*);
-  vtkGetObjectMacro(ExplicitProjectionTransformMatrix, vtkMatrix4x4)
+  vtkGetObjectMacro(ExplicitProjectionTransformMatrix, vtkMatrix4x4);
   /**@}*/
 
   /**
@@ -516,9 +516,9 @@ public:
    * transformation, rather than computing a transform from internal state.
    * @{
    */
-  vtkSetMacro(UseExplicitProjectionTransformMatrix, bool)
-  vtkGetMacro(UseExplicitProjectionTransformMatrix, bool)
-  vtkBooleanMacro(UseExplicitProjectionTransformMatrix, bool)
+  vtkSetMacro(UseExplicitProjectionTransformMatrix, bool);
+  vtkGetMacro(UseExplicitProjectionTransformMatrix, bool);
+  vtkBooleanMacro(UseExplicitProjectionTransformMatrix, bool);
   /**@}*/
 
   /**

@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkViewport.h"
 
-vtkStandardNewMacro(vtkOpenGLTextActor)
+vtkStandardNewMacro(vtkOpenGLTextActor);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLTextActor::PrintSelf(std::ostream &os, vtkIndent indent)

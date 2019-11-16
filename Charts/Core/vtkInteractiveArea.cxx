@@ -59,7 +59,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkInteractiveArea)
+vtkStandardNewMacro(vtkInteractiveArea);
 
 //------------------------------------------------------------------------------
 vtkInteractiveArea::vtkInteractiveArea()

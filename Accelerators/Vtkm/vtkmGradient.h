@@ -39,7 +39,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmGradient : public vtkGradientFilter
 {
 public:
-  vtkTypeMacro(vtkmGradient, vtkGradientFilter)
+  vtkTypeMacro(vtkmGradient, vtkGradientFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmGradient* New();
 

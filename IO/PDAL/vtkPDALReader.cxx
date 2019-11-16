@@ -52,7 +52,7 @@
 #include <pdal/PointView.hpp>
 #include <pdal/StageFactory.hpp>
 
-vtkStandardNewMacro(vtkPDALReader)
+vtkStandardNewMacro(vtkPDALReader);
 
 
 //----------------------------------------------------------------------------

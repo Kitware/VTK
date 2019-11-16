@@ -56,7 +56,7 @@ vtkMatplotlibMathTextUtilities::NOT_TESTED;
 // work in release mode builds.
 #define vtkMplStartUpDebugMacro(x) if(debug){vtkGenericWarningMacro(x);}
 
-vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities)
+vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities);
 
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::Availability

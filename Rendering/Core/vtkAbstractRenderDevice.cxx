@@ -14,7 +14,7 @@
 #include "vtkAbstractRenderDevice.h"
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkAbstractRenderDevice)
+vtkAbstractObjectFactoryNewMacro(vtkAbstractRenderDevice);
 
 vtkAbstractRenderDevice::vtkAbstractRenderDevice() : GLMajor(2), GLMinor(1)
 {

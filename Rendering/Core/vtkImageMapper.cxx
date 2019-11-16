@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkImageMapper)
+vtkAbstractObjectFactoryNewMacro(vtkImageMapper);
 
 //----------------------------------------------------------------------------
 

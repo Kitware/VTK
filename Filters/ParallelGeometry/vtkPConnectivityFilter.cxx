@@ -558,7 +558,7 @@ int vtkPConnectivityFilter::RequestData(
   ExchangeBoundsWorker exchangeBounds(subController);
   if (!exchangeBounds.Execute(output->GetBounds(), allBoundsArray))
   {
-    vtkErrorMacro("Unsupported points array type encountered when exchanging bounds.")
+    vtkErrorMacro("Unsupported points array type encountered when exchanging bounds.");
     return 0;
   }
 
@@ -567,7 +567,7 @@ int vtkPConnectivityFilter::RequestData(
   std::vector<int> myNeighbors;
   if (!findMyNeighbors.Execute(output->GetBounds(), allBoundsArray, myNeighbors))
   {
-    vtkErrorMacro("Unsupported points array type encountered when finding neighbors.")
+    vtkErrorMacro("Unsupported points array type encountered when finding neighbors.");
     return 0;
   }
 
@@ -577,7 +577,7 @@ int vtkPConnectivityFilter::RequestData(
   if (!assemblePointsAndRegionIds.Execute(regionStarts, allBoundsArray, output, pointsForMyNeighbors,
                                           regionIdsForMyNeighbors))
   {
-    vtkErrorMacro("Unsupported points array type encountered when assembling points and region ids.")
+    vtkErrorMacro("Unsupported points array type encountered when assembling points and region ids.");
     return 0;
   }
 
@@ -593,7 +593,7 @@ int vtkPConnectivityFilter::RequestData(
                                  pointsForMyNeighbors, regionIdsForMyNeighbors,
                                  pointsFromMyNeighbors, regionIdsFromMyNeighbors))
   {
-    vtkErrorMacro("Unsupported points array type encountered when sending and receiving points.")
+    vtkErrorMacro("Unsupported points array type encountered when sending and receiving points.");
     return 0;
   }
 

@@ -21,7 +21,7 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSMPMergePoints)
+vtkStandardNewMacro(vtkSMPMergePoints);
 
 //------------------------------------------------------------------------------
 vtkSMPMergePoints::vtkSMPMergePoints() = default;

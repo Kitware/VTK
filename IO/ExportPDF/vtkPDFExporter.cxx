@@ -62,7 +62,7 @@ struct vtkPDFExporter::Details
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPDFExporter)
+vtkStandardNewMacro(vtkPDFExporter);
 
 //------------------------------------------------------------------------------
 void vtkPDFExporter::PrintSelf(std::ostream &os, vtkIndent indent)

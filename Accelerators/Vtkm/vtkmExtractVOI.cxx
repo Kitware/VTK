@@ -42,7 +42,7 @@ struct InputFilterPolicy : public vtkmInputFilterPolicy
 
 }
 
-vtkStandardNewMacro(vtkmExtractVOI)
+vtkStandardNewMacro(vtkmExtractVOI);
 
 //------------------------------------------------------------------------------
 void vtkmExtractVOI::PrintSelf(ostream& os, vtkIndent indent)

@@ -59,7 +59,7 @@
 #include <vector>
 
 
-vtkStandardNewMacro(vtkPDistributedDataFilter)
+vtkStandardNewMacro(vtkPDistributedDataFilter);
 
 #define TEMP_ELEMENT_ID_NAME      "___D3___GlobalCellIds"
 #define TEMP_INSIDE_BOX_FLAG      "___D3___WHERE"

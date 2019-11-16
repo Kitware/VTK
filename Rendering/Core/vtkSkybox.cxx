@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkSkybox)
+vtkObjectFactoryNewMacro(vtkSkybox);
 
 //------------------------------------------------------------------------------
 void vtkSkybox::PrintSelf(std::ostream &os, vtkIndent indent)

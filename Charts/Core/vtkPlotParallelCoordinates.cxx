@@ -58,7 +58,7 @@ public:
 
 
 //-----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPlotParallelCoordinates)
+vtkStandardNewMacro(vtkPlotParallelCoordinates);
 
 //-----------------------------------------------------------------------------
 vtkPlotParallelCoordinates::vtkPlotParallelCoordinates()

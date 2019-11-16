@@ -156,14 +156,14 @@ public:
    */
   vtkSetMacro(LabelMode, int);
   vtkGetMacro(LabelMode, int);
-  void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);};
-  void SetLabelModeToLabelScalars() {this->SetLabelMode(VTK_LABEL_SCALARS);};
-  void SetLabelModeToLabelVectors() {this->SetLabelMode(VTK_LABEL_VECTORS);};
-  void SetLabelModeToLabelNormals() {this->SetLabelMode(VTK_LABEL_NORMALS);};
-  void SetLabelModeToLabelTCoords() {this->SetLabelMode(VTK_LABEL_TCOORDS);};
-  void SetLabelModeToLabelTensors() {this->SetLabelMode(VTK_LABEL_TENSORS);};
+  void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);}
+  void SetLabelModeToLabelScalars() {this->SetLabelMode(VTK_LABEL_SCALARS);}
+  void SetLabelModeToLabelVectors() {this->SetLabelMode(VTK_LABEL_VECTORS);}
+  void SetLabelModeToLabelNormals() {this->SetLabelMode(VTK_LABEL_NORMALS);}
+  void SetLabelModeToLabelTCoords() {this->SetLabelMode(VTK_LABEL_TCOORDS);}
+  void SetLabelModeToLabelTensors() {this->SetLabelMode(VTK_LABEL_TENSORS);}
   void SetLabelModeToLabelFieldData()
-            {this->SetLabelMode(VTK_LABEL_FIELD_DATA);};
+            {this->SetLabelMode(VTK_LABEL_FIELD_DATA);}
   //@}
 
   //@{
@@ -229,7 +229,7 @@ public:
   /**
    * Return the number of labels rendered by the mapper.
    */
-  vtkGetMacro(NumberOfLabels, int)
+  vtkGetMacro(NumberOfLabels, int);
   //@}
 
   //@{

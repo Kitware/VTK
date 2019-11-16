@@ -38,7 +38,7 @@
 
 
 // Return nullptr if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper)
+vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 
 vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()

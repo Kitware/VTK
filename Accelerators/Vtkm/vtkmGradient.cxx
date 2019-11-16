@@ -33,7 +33,7 @@
 #include <vtkm/filter/PointAverage.h>
 #include <vtkm/filter/PointAverage.hxx>
 
-vtkStandardNewMacro(vtkmGradient)
+vtkStandardNewMacro(vtkmGradient);
 
 namespace
 {

@@ -21,8 +21,8 @@
 #include "vtkProp3D.h"
 #include "vtkRenderer.h"
 
-vtkObjectFactoryNewMacro(vtkPropItem)
-vtkCxxSetObjectMacro(vtkPropItem, PropObject, vtkProp)
+vtkObjectFactoryNewMacro(vtkPropItem);
+vtkCxxSetObjectMacro(vtkPropItem, PropObject, vtkProp);
 
 //------------------------------------------------------------------------------
 vtkPropItem::vtkPropItem()

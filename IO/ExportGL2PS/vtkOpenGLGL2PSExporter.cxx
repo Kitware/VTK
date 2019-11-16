@@ -30,7 +30,7 @@
 #include <sstream>
 #include <string>
 
-vtkStandardNewMacro(vtkOpenGLGL2PSExporter)
+vtkStandardNewMacro(vtkOpenGLGL2PSExporter);
 
 //------------------------------------------------------------------------------
 void vtkOpenGLGL2PSExporter::PrintSelf(std::ostream &os, vtkIndent indent)

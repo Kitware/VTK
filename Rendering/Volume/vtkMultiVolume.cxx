@@ -112,7 +112,7 @@ double* vtkMultiVolume::GetBounds()
     if (!mapper)
     {
       vtkErrorMacro(<< "vtkMultiVolume is currently only supported by"
-        " vtkGPUVolumeRayCastMapper.")
+        " vtkGPUVolumeRayCastMapper.");
       return this->Bounds;
     }
     double* bnd = mapper->GetBoundsFromPort(port);
@@ -255,7 +255,7 @@ bool vtkMultiVolume::VolumesChanged()
   if (!mapper)
   {
     vtkErrorMacro(<< "vtkMultiVolume is currently only supported by"
-      " vtkGPUVolumeRayCastMapper.")
+      " vtkGPUVolumeRayCastMapper.");
     return false;
   }
 

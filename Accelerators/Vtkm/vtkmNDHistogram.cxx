@@ -31,7 +31,7 @@
 
 #include <vtkm/filter/NDHistogram.h>
 
-vtkStandardNewMacro(vtkmNDHistogram)
+vtkStandardNewMacro(vtkmNDHistogram);
 
 //------------------------------------------------------------------------------
 void vtkmNDHistogram::PrintSelf(std::ostream& os, vtkIndent indent)

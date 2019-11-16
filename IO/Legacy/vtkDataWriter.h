@@ -113,9 +113,9 @@ public:
    * If true, vtkInformation objects attached to arrays and array component
    * nameswill be written to the output. Default is true.
    */
-  vtkSetMacro(WriteArrayMetaData, bool)
-  vtkGetMacro(WriteArrayMetaData, bool)
-  vtkBooleanMacro(WriteArrayMetaData, bool)
+  vtkSetMacro(WriteArrayMetaData, bool);
+  vtkGetMacro(WriteArrayMetaData, bool);
+  vtkBooleanMacro(WriteArrayMetaData, bool);
   //@}
 
   //@{

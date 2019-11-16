@@ -44,7 +44,7 @@ public:
   /**
    * Set the height of the cylinder. Initial value is 1.
    */
-  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Height,double);
   //@}
 
@@ -52,7 +52,7 @@ public:
   /**
    * Set the radius of the cylinder. Initial value is 0.5
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Radius,double);
   //@}
 
@@ -68,7 +68,7 @@ public:
   /**
    * Set the number of facets used to define cylinder. Initial value is 6.
    */
-  vtkSetClampMacro(Resolution,int,2,VTK_CELL_SIZE)
+  vtkSetClampMacro(Resolution,int,2,VTK_CELL_SIZE);
   vtkGetMacro(Resolution,int);
   //@}
 

@@ -48,7 +48,7 @@ class ContextPDFTest : public vtkContextItem
   void SetSpritePoint(int x, int y, vtkImageData *sprite);
 public:
   static ContextPDFTest *New();
-  vtkTypeMacro(ContextPDFTest, vtkContextItem)
+  vtkTypeMacro(ContextPDFTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
   bool Paint(vtkContext2D *painter) override;
 };
@@ -88,7 +88,7 @@ int TestPDFContextExport(int, char*[])
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextPDFTest)
+vtkStandardNewMacro(ContextPDFTest);
 // This function aims to test the primitives provided by the 2D API.
 bool ContextPDFTest::Paint(vtkContext2D *painter)
 {

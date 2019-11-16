@@ -33,7 +33,7 @@
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
 
-vtkStandardNewMacro(vtkMySQLDatabase)
+vtkStandardNewMacro(vtkMySQLDatabase);
 
 // ----------------------------------------------------------------------
 vtkMySQLDatabase::vtkMySQLDatabase() :

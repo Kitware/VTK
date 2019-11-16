@@ -224,9 +224,9 @@ public:
   /**
    * Enable/disable the usage of the scalar opacity function.
    */
-  vtkSetMacro(EnableOpacityMapping, bool)
-  vtkGetMacro(EnableOpacityMapping, bool)
-  vtkBooleanMacro(EnableOpacityMapping, bool)
+  vtkSetMacro(EnableOpacityMapping, bool);
+  vtkGetMacro(EnableOpacityMapping, bool);
+  vtkBooleanMacro(EnableOpacityMapping, bool);
   //@}
 
   /**

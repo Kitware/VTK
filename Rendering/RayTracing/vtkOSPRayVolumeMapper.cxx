@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 
 //============================================================================
-vtkStandardNewMacro(vtkOSPRayVolumeMapper)
+vtkStandardNewMacro(vtkOSPRayVolumeMapper);
 
 // ----------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()

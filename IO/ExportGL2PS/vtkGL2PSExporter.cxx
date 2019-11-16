@@ -23,8 +23,8 @@
 
 #include <vector>
 
-vtkAbstractObjectFactoryNewMacro(vtkGL2PSExporter)
-vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection)
+vtkAbstractObjectFactoryNewMacro(vtkGL2PSExporter);
+vtkCxxSetObjectMacro(vtkGL2PSExporter, RasterExclusions, vtkPropCollection);
 
 vtkGL2PSExporter::vtkGL2PSExporter()
 {

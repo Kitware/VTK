@@ -32,7 +32,7 @@
 #include <iostream>
 #include <valarray>
 
-vtkStandardNewMacro(vtkLASReader)
+vtkStandardNewMacro(vtkLASReader);
 
 
 //----------------------------------------------------------------------------

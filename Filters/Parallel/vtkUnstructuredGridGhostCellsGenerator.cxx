@@ -37,7 +37,7 @@ const char* UGGCG_GLOBAL_CELL_IDS = "GlobalCellIds";
 }
 
 //----------------------------------------------------------------------------
-vtkObjectFactoryNewMacro(vtkUnstructuredGridGhostCellsGenerator)
+vtkObjectFactoryNewMacro(vtkUnstructuredGridGhostCellsGenerator);
 
   //----------------------------------------------------------------------------
   vtkUnstructuredGridGhostCellsGenerator::vtkUnstructuredGridGhostCellsGenerator()

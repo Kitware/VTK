@@ -212,7 +212,7 @@ class vtkPlotBarSegment : public vtkObject {
           else
           {
             vtkErrorMacro(<< "Number of components not supported: "
-              << this->Colors->GetNumberOfComponents())
+              << this->Colors->GetNumberOfComponents());
           }
         }
         if (orientation == vtkPlotBar::VERTICAL)
@@ -758,7 +758,7 @@ void vtkPlotBar::SetOrientation(int orientation)
 {
   if (orientation < 0 || orientation > 1)
   {
-    vtkErrorMacro("Error, invalid orientation value supplied: " << orientation)
+    vtkErrorMacro("Error, invalid orientation value supplied: " << orientation);
     return;
   }
   this->Orientation = orientation;

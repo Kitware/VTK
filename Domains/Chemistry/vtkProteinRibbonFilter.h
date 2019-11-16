@@ -37,7 +37,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkProteinRibbonFilter
   : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkProteinRibbonFilter, vtkPolyDataAlgorithm)
+  vtkTypeMacro(vtkProteinRibbonFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkProteinRibbonFilter* New();
