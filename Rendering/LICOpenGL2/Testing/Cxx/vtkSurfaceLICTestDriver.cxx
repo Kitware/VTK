@@ -44,7 +44,7 @@
 #ifndef vtkFloatingPointTemplateMacro
 #define vtkFloatingPointTemplateMacro(call) \
   vtkTemplateMacroCase(VTK_DOUBLE, double, call); \
-  vtkTemplateMacroCase(VTK_FLOAT, float, call);
+  vtkTemplateMacroCase(VTK_FLOAT, float, call)
 #endif
 
 // Helper to compute range

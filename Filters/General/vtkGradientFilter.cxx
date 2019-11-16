@@ -53,7 +53,7 @@ namespace
 // have other data types for output arrays and this helps with reducing template expansion
 #define vtkFloatingPointTemplateMacro(call)         \
   vtkTemplateMacroCase(VTK_DOUBLE, double, call);   \
-  vtkTemplateMacroCase(VTK_FLOAT, float, call);
+  vtkTemplateMacroCase(VTK_FLOAT, float, call)
 
 // helper function to replace the gradient of a vector
 // with the vorticity/curl of that vector

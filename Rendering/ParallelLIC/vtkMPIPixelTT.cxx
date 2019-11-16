@@ -16,7 +16,7 @@
 
 #define vtkMPIPixelTTMacro2(_ctype, _mpiEnum, _vtkEnum) \
 MPI_Datatype vtkMPIPixelTT<_ctype>::MPIType = _mpiEnum; \
-int vtkMPIPixelTT<_ctype>::VTKType = _vtkEnum;
+int vtkMPIPixelTT<_ctype>::VTKType = _vtkEnum
 
 vtkMPIPixelTTMacro2(void, MPI_BYTE, VTK_VOID);
 vtkMPIPixelTTMacro2(char, MPI_CHAR, VTK_CHAR);

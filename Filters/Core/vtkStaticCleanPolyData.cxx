@@ -50,7 +50,7 @@ vtkStandardNewMacro(vtkStaticCleanPolyData);
   vtkTemplate2MacroCase1CP(VTK_UNSIGNED_CHAR, unsigned char, call)
 #define vtkTemplate2MacroCase1CP(type1N, type1, call) \
   vtkTemplate2MacroCase2(type1N, type1, VTK_DOUBLE, double, call);                 \
-  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call);
+  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call)
 
 namespace { //anonymous
 

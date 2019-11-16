@@ -83,7 +83,7 @@ case type: \
         "build. The IdType tag has been ignored."); \
     } \
   } \
-  break;
+  break
 
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)

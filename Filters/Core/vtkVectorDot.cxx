@@ -29,10 +29,10 @@ vtkStandardNewMacro(vtkVectorDot);
 // tandem with vtkTemplate2Macro found in vtkSetGet.h.
 #define vtkTemplate2MacroFP(call) \
   vtkTemplate2MacroCase1FP(VTK_DOUBLE, double, call);                           \
-  vtkTemplate2MacroCase1FP(VTK_FLOAT, float, call);
+  vtkTemplate2MacroCase1FP(VTK_FLOAT, float, call)
 #define vtkTemplate2MacroCase1FP(type1N, type1, call) \
   vtkTemplate2MacroCase2(type1N, type1, VTK_DOUBLE, double, call);                 \
-  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call);
+  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call)
 
 
 // The heart of the algorithm plus interface to the SMP tools. Double templated
