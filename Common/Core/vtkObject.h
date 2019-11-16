@@ -283,8 +283,8 @@ private:
      */
     virtual bool operator()(vtkObject*, unsigned long, void*) = 0;
     virtual ~vtkClassMemberCallbackBase(){}
-  };
     //@}
+  };
 
   //@{
   /**
@@ -339,7 +339,6 @@ private:
       void (T::*Method1)();
       void (T::*Method2)(vtkObject*, unsigned long, void*);
       bool (T::*Method3)(vtkObject*, unsigned long, void*);
-  //@}
 
     public:
       vtkClassMemberCallback(T* handler, void (T::*method)())
@@ -392,6 +391,7 @@ private:
         return false;
       }
   };
+  //@}
 
   //@{
   /**

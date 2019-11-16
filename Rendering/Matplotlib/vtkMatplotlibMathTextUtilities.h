@@ -162,7 +162,7 @@ private:
    * Cache the availability of matplotlib in the current python session.
    */
   static Availability MPLMathTextAvailable;
-};
   //@}
+};
 
 #endif

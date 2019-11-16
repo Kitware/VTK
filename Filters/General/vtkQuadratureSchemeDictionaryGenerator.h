@@ -63,7 +63,7 @@ private:
    * for all point data arrays.
    */
   int Generate(vtkUnstructuredGrid *usgOut);
-};
   //@}
+};
 
 #endif

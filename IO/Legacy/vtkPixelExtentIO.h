@@ -70,8 +70,8 @@ public:
         int commRank,
         const char *fileName,
         const vtkPixelExtent &ext);
-};
   //@}
+};
 
 
 /**

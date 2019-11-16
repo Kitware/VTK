@@ -65,7 +65,7 @@ private:
    * meta data in each data array.
    */
   int InterpolateFields(vtkUnstructuredGrid *usgOut);
-};
   //@}
+};
 
 #endif

@@ -146,7 +146,7 @@ private:
    */
   static vtkMathTextUtilities* Instance;
   static vtkMathTextUtilitiesCleanup Cleanup;
-};
   //@}
+};
 
 #endif

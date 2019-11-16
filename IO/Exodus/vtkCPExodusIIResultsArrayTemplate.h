@@ -129,8 +129,8 @@ private:
    * By default Save is false.
    */
   bool Save;
-};
   //@}
+};
 
 #include "vtkCPExodusIIResultsArrayTemplate.txx"
 

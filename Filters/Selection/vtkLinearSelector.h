@@ -149,8 +149,8 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
    * Default: 1e-6
    */
   double VertexEliminationTolerance;
-};
   //@}
+};
 
 
 #endif // vtkLinearSelector_h

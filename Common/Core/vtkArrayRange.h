@@ -109,8 +109,8 @@ private:
    * Stores one-past-the-end of the range.
    */
   CoordinateT End;
-};
   //@}
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkArrayRange.h

@@ -58,8 +58,8 @@ public:
   double AxisX;
   double AxisY;
   double AxisZ;
-};
   //@}
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTDxMotionEventInfo.h

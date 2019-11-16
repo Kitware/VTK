@@ -251,8 +251,8 @@ private:
    * of the array.
    */
   T NullValue;
-};
   //@}
+};
 
 #include "vtkSparseArray.txx"
 

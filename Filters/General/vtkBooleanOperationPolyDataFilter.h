@@ -142,7 +142,7 @@ private:
    * reversed in the difference surface.
    */
   vtkTypeBool ReorientDifferenceCells;
-};
   //@}
+};
 
 #endif

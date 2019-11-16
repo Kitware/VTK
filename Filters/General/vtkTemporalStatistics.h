@@ -176,7 +176,7 @@ private:
    * between time steps.
    */
   bool GeneratedChangingTopologyWarning;
-};
   //@}
+};
 
 #endif //_vtkTemporalStatistics_h

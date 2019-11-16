@@ -178,7 +178,7 @@ private:
    * and return the input pointer.
    */
   static vtkStdString * ToLower(vtkStdString *);
-};
   //@}
+};
 
 #endif

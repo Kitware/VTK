@@ -126,8 +126,8 @@ public:
   virtual void ComputeSendAndReceiveExtent(
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
       int WholeExtent[6], const int N);
-};
   //@}
+};
 
 #endif /* vtkStructuredNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredNeighbor.h

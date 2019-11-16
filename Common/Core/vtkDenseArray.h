@@ -97,8 +97,8 @@ public:
      * Returns a pointer to the block of memory to be used for storage.
      */
     virtual T* GetAddress() = 0;
-  };
     //@}
+  };
 
   //@{
   /**
@@ -228,8 +228,8 @@ private:
    * Stores the stride along each array dimension (used for fast lookups).
    */
   std::vector<vtkIdType> Strides;
-};
   //@}
+};
 
 #include "vtkDenseArray.txx"
 

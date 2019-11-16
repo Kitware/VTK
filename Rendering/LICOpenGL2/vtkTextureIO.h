@@ -89,8 +89,8 @@ public:
   {
       Write(filename.c_str(),texture,exts,origin);
   }
-};
   //@}
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTextureIO.h

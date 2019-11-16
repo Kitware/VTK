@@ -164,8 +164,8 @@ protected:
    * Maximum size the cache list can be.
    */
   size_t MaxSize;
-};
   //@}
+};
 
 template<class Key>
 typename vtkTextureImageCache<Key>::CacheData& vtkTextureImageCache<Key>
@@ -515,8 +515,8 @@ public:
    */
   mutable vtkTextureImageCache<UTF16TextPropertyKey> TextTextureCache;
   mutable vtkTextureImageCache<UTF8TextPropertyKey> MathTextTextureCache;
-};
   //@}
+};
 
 ///////////////////////////////////////////////////////////////////////////////////
 /**

@@ -282,8 +282,8 @@ public:
    * Performs in place division of the quaternions by a scalar value.
    */
   void operator/=(const T& scalar);
-};
   //@}
+};
 
 /**
  * Several macros to define the various operator overloads for the quaternions.

@@ -143,8 +143,8 @@ protected:
    * The only thing stored in memory!
    */
   T Data[Size];
-};
   //@}
+};
 
 //@{
 /**

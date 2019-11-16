@@ -74,8 +74,8 @@ struct vtkTestUtilities
                                                           const char* def,
                                                           const char* fname,
                                                           int slash = 0);
-};
   //@}
+};
 
 inline
 char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])

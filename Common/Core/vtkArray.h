@@ -267,8 +267,8 @@ private:
    * Implemented in concrete derivatives to get dimension labels.
    */
   virtual vtkStdString InternalGetDimensionLabel(DimensionT i) = 0;
-};
   //@}
+};
 
 vtkVariant vtkArray::GetVariantValue(CoordinateT i)
 {

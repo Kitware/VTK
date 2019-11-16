@@ -146,6 +146,7 @@ public:
    * or may not be used.
    */
   static void UseEndl(const EndlType&) {}
+  //@}
 protected:
   // Reference to the real ostream.
   ostream& ostr;
@@ -153,7 +154,6 @@ private:
   vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r) = delete;
   vtkOStreamWrapper& operator << (std_string const&);
 };
-  //@}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkOStreamWrapper.h

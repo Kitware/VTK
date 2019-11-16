@@ -141,8 +141,8 @@ private:
    */
   ValueType *TemporaryScalarPointer;
   size_t TemporaryScalarPointerSize;
-};
   //@}
+};
 
 // Declare vtkArrayDownCast implementations for mapped containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray);

@@ -178,8 +178,8 @@ public:
    * May be NULL for items in the scene itself.
    */
   vtkAbstractContextItem* Item;
-};
   //@}
+};
 
 #endif //vtkContextScenePrivate_h
 // VTK-HeaderTest-Exclude: vtkContextScenePrivate.h

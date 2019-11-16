@@ -990,8 +990,8 @@ private:
    * Estimated size of Y axis spacing
    */
   int YTitleDelta;
-};
   //@}
+};
 
 
 #endif

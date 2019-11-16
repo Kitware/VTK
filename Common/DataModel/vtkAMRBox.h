@@ -341,8 +341,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
   void BuildAMRBox(
       const int ilo, const int jlo, const int klo,
       const int ihi, const int jhi, const int khi );
-};
   //@}
+};
 
 
 //*****************************************************************************

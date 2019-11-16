@@ -60,8 +60,8 @@ public:
    */
   static PyMethodDef *FindConversionMethod(PyMethodDef *methods,
                                            PyObject *arg);
-};
   //@}
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPythonOverload.h

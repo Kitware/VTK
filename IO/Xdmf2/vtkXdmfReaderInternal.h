@@ -365,8 +365,8 @@ private:
    */
   bool UpdateGridAttributeInSIL(
     xdmf2::XdmfAttribute* xmfAttribute, vtkIdType gridSILId);
-};
   //@}
+};
 
 #endif
 #endif

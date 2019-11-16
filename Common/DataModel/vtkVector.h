@@ -143,8 +143,8 @@ public:
     }
     return result;
   }
-};
   //@}
+};
 
 // .NAME vtkVector2 - templated base type for storage of 2D vectors.
 //
@@ -209,8 +209,8 @@ public:
   {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]);
   }
-};
   //@}
+};
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
 //
@@ -302,8 +302,8 @@ public:
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
       (this->Data[0] == v.Data[0] && this->Data[1] == v.Data[1] && this->Data[2] < v.Data[2]);
   }
-};
   //@}
+};
 
 // .NAME vtkVector4 - templated base type for storage of 4D vectors.
 //
@@ -383,8 +383,8 @@ public:
    * Get the w component of the vector, i.e. element 3.
    */
   const T& GetW() const { return this->Data[3]; }
-};
   //@}
+};
 
 /**
  * Some inline functions for the derived types.

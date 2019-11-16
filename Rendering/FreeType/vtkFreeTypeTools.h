@@ -531,8 +531,8 @@ private:
   template<typename T>
   void GetLineMetrics(T begin, T end, MetaData &metaData, int &width,
                       int bbox[4]);
-};
   //@}
+};
 
 // This is here to implement the Schwarz counter idiom.
 static vtkFreeTypeToolsCleanup vtkFreeTypeToolsCleanupInstance;

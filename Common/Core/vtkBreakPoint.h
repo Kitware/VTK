@@ -48,8 +48,8 @@ public:
    * from 0 inside a debugger.
    */
   static void Break();
-};
   //@}
+};
 
 #endif // #ifndef vtkBreakPoint_h
 // VTK-HeaderTest-Exclude: vtkBreakPoint.h
