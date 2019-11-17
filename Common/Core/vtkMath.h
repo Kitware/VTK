@@ -1313,7 +1313,7 @@ inline bool vtkMath::IsPowerOfTwo(vtkTypeUInt64 x)
 // Credit goes to Peter Hart and William Lewis on comp.lang.python 1997
 inline int vtkMath::NearestPowerOfTwo(int x)
 {
-  unsigned int z = ((x > 0) ? x - 1 : 0);
+  unsigned int z = static_cast<unsigned int>(((x > 0) ? x - 1 : 0));
   z |= z >> 1;
   z |= z >> 2;
   z |= z >> 4;
