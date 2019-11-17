@@ -82,6 +82,7 @@
  * If we had also called <code>thr->OutputSet( intervalSets[0] );</code>, there would be two child meshes and
  * one would contain all cells with T < 320 [K].
  * In that case, the output can be represented by this graph
+ *
  * \dot
  * digraph MultiThreshold {
  *   set0 [shape=rect,style=filled,label="point T(0) in [-Inf,320["]
@@ -95,6 +96,7 @@
  *   set3 -> set4
  * }
  * \enddot
+ *
  * The filled rectangles represent sets that are output.
 */
 

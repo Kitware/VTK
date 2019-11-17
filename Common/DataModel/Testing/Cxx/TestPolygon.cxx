@@ -162,7 +162,7 @@ int TestPolygon(int,char *[])
   // return the element to its original state.
   polygon->GetPoints()->SetPoint(3, 0.0, 2.0, 0.0);
 
-  //////// Test Normal : void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3]) ///////////
+  // Test Normal : void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
   double normal[3];
   double points[12];
   for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
@@ -182,7 +182,7 @@ int TestPolygon(int,char *[])
     return EXIT_FAILURE;
   }
 
-  ///////// Test Normal : void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3]) /////////
+  // Test Normal : void vtkPolygon::ComputeNormal(vtkIdTypeArray *ids, vtkPoints *p, double n[3])
   vtkSmartPointer<vtkIdTypeArray> idArray = vtkSmartPointer<vtkIdTypeArray>::New();
   for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
   {
@@ -195,7 +195,7 @@ int TestPolygon(int,char *[])
     return EXIT_FAILURE;
   }
 
-  //////////////////// Polygon intersection test //////////////////
+  // Polygon intersection test
   {
   vtkSmartPointer<vtkPolygon> polygon1 = vtkSmartPointer<vtkPolygon>::New();
 
