@@ -37,7 +37,7 @@
  *
  * @sa
  * vtkFunctionSet vtkGenericStreamTracer
-*/
+ */
 
 #ifndef vtkGenericInterpolatedVelocityField_h
 #define vtkGenericInterpolatedVelocityField_h
@@ -54,14 +54,14 @@ class vtkGenericInterpolatedVelocityFieldDataSetsType;
 class VTKCOMMONDATAMODEL_EXPORT vtkGenericInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
-  vtkTypeMacro(vtkGenericInterpolatedVelocityField,vtkFunctionSet);
+  vtkTypeMacro(vtkGenericInterpolatedVelocityField, vtkFunctionSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkGenericInterpolatedVelocityField with no initial data set.
    * Caching is on. LastCellId is set to -1.
    */
-  static vtkGenericInterpolatedVelocityField *New();
+  static vtkGenericInterpolatedVelocityField* New();
 
   using Superclass::FunctionValues;
   /**
@@ -88,7 +88,7 @@ public:
   /**
    * Return the cell cached from last evaluation.
    */
-  vtkGenericAdaptorCell *GetLastCell();
+  vtkGenericAdaptorCell* GetLastCell();
 
   /**
    * Returns the interpolation weights cached from last evaluation
@@ -121,8 +121,7 @@ public:
    * array.
    */
   vtkGetStringMacro(VectorsSelection);
-  void SelectVectors(const char *fieldName)
-    {this->SetVectorsSelection(fieldName);}
+  void SelectVectors(const char* fieldName) { this->SetVectorsSelection(fieldName); }
   //@}
 
   //@{
@@ -146,7 +145,7 @@ protected:
   vtkGenericInterpolatedVelocityField();
   ~vtkGenericInterpolatedVelocityField() override;
 
-  vtkGenericCellIterator *GenCell; // last cell
+  vtkGenericCellIterator* GenCell; // last cell
 
   double LastPCoords[3]; // last local coordinates
   int CacheHit;
@@ -156,7 +155,7 @@ protected:
   vtkGenericDataSet* LastDataSet;
 
   vtkSetStringMacro(VectorsSelection);
-  char *VectorsSelection;
+  char* VectorsSelection;
 
   vtkGenericInterpolatedVelocityFieldDataSetsType* DataSets;
 

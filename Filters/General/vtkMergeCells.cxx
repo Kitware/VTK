@@ -272,7 +272,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
   vtkUnstructuredGrid* grid = this->UnstructuredGrid;
 
   // Connectivity information for the new data set
-  vtkCellArray *newCells = newGrid->GetCells();
+  vtkCellArray* newCells = newGrid->GetCells();
   vtkIdType newNumCells = newCells->GetNumberOfCells();
   vtkIdType newNumConnections = newCells->GetNumberOfConnectivityIds();
 
@@ -409,7 +409,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
     }
 
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     newGrid->GetCellPoints(oldCellId, npts, pts);
 
     finalCellArray->InsertNextCell(static_cast<int>(npts));
@@ -427,7 +427,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
     {
       havePolyhedron = true;
       vtkIdType nfaces;
-      const vtkIdType *ptIds;
+      const vtkIdType* ptIds;
       newGrid->GetFaceStream(oldCellId, nfaces, ptIds);
 
       facesLocationArray->SetValue(finalCellId, facesArray->GetNumberOfValues());

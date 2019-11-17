@@ -27,15 +27,14 @@
 #include "vtkRenderWindow.h"
 #include "vtkSmartVolumeMapper.h"
 
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMultiBlockVolumeMapper);
 
 //------------------------------------------------------------------------------
 vtkMultiBlockVolumeMapper::vtkMultiBlockVolumeMapper()
-: FallBackMapper(nullptr)
-, VectorMode(vtkSmartVolumeMapper::DISABLED)
-, VectorComponent(0)
+  : FallBackMapper(nullptr)
+  , VectorMode(vtkSmartVolumeMapper::DISABLED)
+  , VectorComponent(0)
 {
 }
 
@@ -76,8 +75,7 @@ void vtkMultiBlockVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::SortMappers(vtkRenderer* ren,
-  vtkMatrix4x4* volumeMat)
+void vtkMultiBlockVolumeMapper::SortMappers(vtkRenderer* ren, vtkMatrix4x4* volumeMat)
 {
   vtkBlockSortHelper::BackToFront<vtkVolumeMapper> sortMappers(ren, volumeMat);
   std::sort(this->Mappers.begin(), this->Mappers.end(), sortMappers);
@@ -96,8 +94,7 @@ double* vtkMultiBlockVolumeMapper::GetBounds()
   {
     this->Update();
 
-    vtkCompositeDataPipeline* exec =
-      vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
+    vtkCompositeDataPipeline* exec = vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
     if (exec->GetPipelineMTime() > this->BoundsComputeTime)
     {
       this->ComputeBounds();
@@ -112,15 +109,14 @@ void vtkMultiBlockVolumeMapper::ComputeBounds()
 {
   vtkMath::UninitializeBounds(this->Bounds);
 
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
-  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  vtkCompositeDataSet* input =
+    vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Not hierarchical, just get the bounds of the data
-  if(!input)
+  if (!input)
   {
-    vtkImageData* img = vtkImageData::SafeDownCast(
-      this->GetExecutive()->GetInputData(0, 0));
+    vtkImageData* img = vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 
     if (img)
     {
@@ -145,11 +141,12 @@ void vtkMultiBlockVolumeMapper::ComputeBounds()
         img->GetBounds(bounds);
         for (int i = 0; i < 3; i++)
         {
-          this->Bounds[i * 2] = (bounds[i * 2] < this->Bounds[i * 2]) ?
-            bounds[i * 2] : this->Bounds[i*2];
+          this->Bounds[i * 2] =
+            (bounds[i * 2] < this->Bounds[i * 2]) ? bounds[i * 2] : this->Bounds[i * 2];
 
-          this->Bounds[i * 2 + 1] = (bounds[i * 2 + 1] > this->Bounds[i * 2 + 1]) ?
-            bounds[i * 2 + 1] : this->Bounds[i * 2 + 1];
+          this->Bounds[i * 2 + 1] = (bounds[i * 2 + 1] > this->Bounds[i * 2 + 1])
+            ? bounds[i * 2 + 1]
+            : this->Bounds[i * 2 + 1];
         }
       }
       else
@@ -181,8 +178,8 @@ void vtkMultiBlockVolumeMapper::LoadDataSet(vtkRenderer* ren, vtkVolume* vol)
 
   vtkExecutive* exec = this->GetExecutive();
   vtkInformation* info = exec->GetInputInformation(0, 0);
-  vtkDataObjectTree* input = vtkDataObjectTree::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObjectTree* input =
+    vtkDataObjectTree::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
   if (!input)
   {
@@ -212,8 +209,8 @@ void vtkMultiBlockVolumeMapper::LoadDataSet(vtkRenderer* ren, vtkVolume* vol)
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::CreateMappers(vtkDataObjectTree* input,
-  vtkRenderer* ren, vtkVolume* vol)
+void vtkMultiBlockVolumeMapper::CreateMappers(
+  vtkDataObjectTree* input, vtkRenderer* ren, vtkVolume* vol)
 {
   // Hierarchical case
   vtkCompositeDataIterator* it = input->NewIterator();
@@ -227,7 +224,7 @@ void vtkMultiBlockVolumeMapper::CreateMappers(vtkDataObjectTree* input,
     if (!warnedOnce && !currentIm)
     {
       vtkErrorMacro("At least one block in the data object is not of type"
-        " vtkImageData.  These blocks will be ignored.");
+                    " vtkImageData.  These blocks will be ignored.");
       warnedOnce = true;
       it->GoToNextItem();
       continue;
@@ -321,8 +318,7 @@ void vtkMultiBlockVolumeMapper::ReleaseGraphicsResources(vtkWindow* window)
 }
 
 //------------------------------------------------------------------------------
-int vtkMultiBlockVolumeMapper::FillInputPortInformation(int vtkNotUsed(port),
-  vtkInformation* info)
+int vtkMultiBlockVolumeMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   return 1;
@@ -440,15 +436,15 @@ void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(double* planes)
   MapperVec::const_iterator end = this->Mappers.end();
   for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)
   {
-    (*it)->SetCroppingRegionPlanes(planes[0], planes[1], planes[2], planes[3],
-      planes[4],planes[5]);
+    (*it)->SetCroppingRegionPlanes(
+      planes[0], planes[1], planes[2], planes[3], planes[4], planes[5]);
   }
   Superclass::SetCroppingRegionPlanes(planes);
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(double arg1, double arg2,
-  double arg3, double arg4, double arg5, double arg6)
+void vtkMultiBlockVolumeMapper::SetCroppingRegionPlanes(
+  double arg1, double arg2, double arg3, double arg4, double arg5, double arg6)
 {
   MapperVec::const_iterator end = this->Mappers.end();
   for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)

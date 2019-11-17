@@ -30,7 +30,8 @@ class vtkStructuredGrid;
 class vtkPoints;
 class vtkDataSet;
 
-namespace tovtkm {
+namespace tovtkm
+{
 
 // convert a vtkPoints array into a coordinate system
 VTKACCELERATORSVTKM_EXPORT
@@ -38,14 +39,11 @@ vtkm::cont::CoordinateSystem Convert(vtkPoints* points);
 
 // convert an structured grid type
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DataSet Convert(vtkStructuredGrid* input,
-                            FieldsFlag fields = FieldsFlag::None);
-
+vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields = FieldsFlag::None);
 
 // determine the type and call the proper Convert routine
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DataSet Convert(vtkDataSet* input,
-                            FieldsFlag fields = FieldsFlag::None);
+vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields = FieldsFlag::None);
 }
 
 #endif // vtkmlib_DataSetConverters_h

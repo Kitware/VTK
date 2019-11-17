@@ -18,7 +18,7 @@
  *
  * Outputs a Geo JSON (http://www.geojson.org) description of the input
  * polydata data set.
-*/
+ */
 
 #ifndef vtkGeoJSONWriter_h
 #define vtkGeoJSONWriter_h
@@ -32,8 +32,8 @@ class VTKIOGEOJSON_EXPORT vtkGeoJSONWriter : public vtkWriter
 {
 public:
   static vtkGeoJSONWriter* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent ) override;
-  vtkTypeMacro(vtkGeoJSONWriter,vtkWriter);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
+  vtkTypeMacro(vtkGeoJSONWriter, vtkWriter);
 
   //@{
   /**
@@ -47,9 +47,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,bool);
-  vtkGetMacro(WriteToOutputString,bool);
-  vtkBooleanMacro(WriteToOutputString,bool);
+  vtkSetMacro(WriteToOutputString, bool);
+  vtkGetMacro(WriteToOutputString, bool);
+  vtkBooleanMacro(WriteToOutputString, bool);
   //@}
 
   //@{
@@ -60,9 +60,9 @@ public:
    */
   vtkGetMacro(OutputStringLength, int);
   vtkGetStringMacro(OutputString);
-  unsigned char *GetBinaryOutputString()
+  unsigned char* GetBinaryOutputString()
   {
-    return reinterpret_cast<unsigned char *>(this->OutputString);
+    return reinterpret_cast<unsigned char*>(this->OutputString);
   }
   //@}
 
@@ -73,15 +73,15 @@ public:
    * When 1, values are mapped through a lookup table and colors are written to the output.
    * When 2, which is the default, the values are written directly.
    */
-  vtkSetMacro(ScalarFormat,int);
-  vtkGetMacro(ScalarFormat,int);
+  vtkSetMacro(ScalarFormat, int);
+  vtkGetMacro(ScalarFormat, int);
   //@}
 
   //@{
   /**
    * Controls the lookup table to use when ValueMode is set to map colors;
    */
-  void SetLookupTable(vtkLookupTable *lut);
+  void SetLookupTable(vtkLookupTable* lut);
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
   //@}
 
@@ -96,34 +96,34 @@ public:
    * so that the user is responsible for deleting the string.
    * I am not sure what the name should be, so it may change in the future.
    */
-  char *RegisterAndGetOutputString();
+  char* RegisterAndGetOutputString();
 
 protected:
   vtkGeoJSONWriter();
   virtual ~vtkGeoJSONWriter();
 
   // Only accepts vtkPolyData
-  virtual int FillInputPortInformation(int port, vtkInformation *info) override;
+  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Implementation of Write()
   void WriteData() override;
 
   // Helper for Write that writes attributes out
-  void WriteScalar(vtkDataArray *da, vtkIdType ptId);
-  vtkLookupTable *LookupTable;
+  void WriteScalar(vtkDataArray* da, vtkIdType ptId);
+  vtkLookupTable* LookupTable;
 
   bool WriteToOutputString;
-  char *OutputString;
+  char* OutputString;
   int OutputStringLength;
 
   int ScalarFormat;
 
   // Internal helpers
-  ostream *OpenFile();
+  ostream* OpenFile();
   void ConditionalComma(vtkIdType, vtkIdType);
-  void CloseFile(ostream *);
+  void CloseFile(ostream*);
   class Internals;
-  Internals *WriterHelper;
+  Internals* WriterHelper;
   char* FileName;
 
 private:

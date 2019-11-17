@@ -29,10 +29,9 @@
 #include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------
-int TestContextImage(int argc, char * argv [])
+int TestContextImage(int argc, char* argv[])
 {
-  char* logo = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/vtk.png");
+  char* logo = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
 
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -50,6 +49,6 @@ int TestContextImage(int argc, char * argv [])
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();
 
-  delete []logo;
+  delete[] logo;
   return EXIT_SUCCESS;
 }

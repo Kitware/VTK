@@ -34,7 +34,7 @@
  * member.
  * @sa
  * vtkLandmarkTransform
-*/
+ */
 
 #ifndef vtkIterativeClosestPointTransform_h
 #define vtkIterativeClosestPointTransform_h
@@ -52,16 +52,16 @@ class vtkDataSet;
 class VTKCOMMONDATAMODEL_EXPORT vtkIterativeClosestPointTransform : public vtkLinearTransform
 {
 public:
-  static vtkIterativeClosestPointTransform *New();
-  vtkTypeMacro(vtkIterativeClosestPointTransform,vtkLinearTransform);
+  static vtkIterativeClosestPointTransform* New();
+  vtkTypeMacro(vtkIterativeClosestPointTransform, vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Specify the source and target data sets.
    */
-  void SetSource(vtkDataSet *source);
-  void SetTarget(vtkDataSet *target);
+  void SetSource(vtkDataSet* source);
+  void SetTarget(vtkDataSet* target);
   vtkGetObjectMacro(Source, vtkDataSet);
   vtkGetObjectMacro(Target, vtkDataSet);
   //@}
@@ -71,8 +71,8 @@ public:
    * Set/Get a spatial locator for speeding up the search process.
    * An instance of vtkCellLocator is used by default.
    */
-  void SetLocator(vtkCellLocator *locator);
-  vtkGetObjectMacro(Locator,vtkCellLocator);
+  void SetLocator(vtkCellLocator* locator);
+  vtkGetObjectMacro(Locator, vtkCellLocator);
   //@}
 
   //@{
@@ -108,14 +108,11 @@ public:
    * Value mode is the mean of the sum of absolute values of the closest
    * point distances. The default is VTK_ICP_MODE_RMS
    */
-  vtkSetClampMacro(MeanDistanceMode,int,
-                   VTK_ICP_MODE_RMS,VTK_ICP_MODE_AV);
-  vtkGetMacro(MeanDistanceMode,int);
-  void SetMeanDistanceModeToRMS()
-    {this->SetMeanDistanceMode(VTK_ICP_MODE_RMS);}
-  void SetMeanDistanceModeToAbsoluteValue()
-    {this->SetMeanDistanceMode(VTK_ICP_MODE_AV);}
-  const char *GetMeanDistanceModeAsString();
+  vtkSetClampMacro(MeanDistanceMode, int, VTK_ICP_MODE_RMS, VTK_ICP_MODE_AV);
+  vtkGetMacro(MeanDistanceMode, int);
+  void SetMeanDistanceModeToRMS() { this->SetMeanDistanceMode(VTK_ICP_MODE_RMS); }
+  void SetMeanDistanceModeToAbsoluteValue() { this->SetMeanDistanceMode(VTK_ICP_MODE_AV); }
+  const char* GetMeanDistanceModeAsString();
   //@}
 
   //@{
@@ -160,7 +157,7 @@ public:
    * Get the internal landmark transform. Use it to constrain the number of
    * degrees of freedom of the solution (i.e. rigid body, similarity, etc.).
    */
-  vtkGetObjectMacro(LandmarkTransform,vtkLandmarkTransform);
+  vtkGetObjectMacro(LandmarkTransform, vtkLandmarkTransform);
   //@}
 
   /**
@@ -172,10 +169,9 @@ public:
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() override;
+  vtkAbstractTransform* MakeTransform() override;
 
 protected:
-
   //@{
   /**
    * Release source and target
@@ -207,11 +203,11 @@ protected:
   /**
    * This method does no type checking, use DeepCopy instead.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) override;
+  void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
   vtkDataSet* Source;
   vtkDataSet* Target;
-  vtkCellLocator *Locator;
+  vtkCellLocator* Locator;
   int MaximumNumberOfIterations;
   vtkTypeBool CheckMeanDistance;
   int MeanDistanceMode;
@@ -221,7 +217,8 @@ protected:
 
   int NumberOfIterations;
   double MeanDistance;
-  vtkLandmarkTransform *LandmarkTransform;
+  vtkLandmarkTransform* LandmarkTransform;
+
 private:
   vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&) = delete;
   void operator=(const vtkIterativeClosestPointTransform&) = delete;

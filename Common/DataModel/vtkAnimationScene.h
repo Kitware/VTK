@@ -25,7 +25,7 @@
  * 1/frame rate apart in time.
  * @sa
  * vtkAnimationCue
-*/
+ */
 
 #ifndef vtkAnimationScene_h
 #define vtkAnimationScene_h
@@ -38,7 +38,7 @@ class vtkCollection;
 class vtkCollectionIterator;
 class vtkTimerLog;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkAnimationScene: public vtkAnimationCue
+class VTKCOMMONDATAMODEL_EXPORT vtkAnimationScene : public vtkAnimationCue
 {
 public:
   vtkTypeMacro(vtkAnimationScene, vtkAnimationCue);
@@ -77,7 +77,7 @@ public:
   void AddCue(vtkAnimationCue* cue);
   void RemoveCue(vtkAnimationCue* cue);
   void RemoveAllCues();
-  int  GetNumberOfCues();
+  int GetNumberOfCues();
   //@}
 
   /**
@@ -117,8 +117,8 @@ public:
 
   enum PlayModes
   {
-    PLAYMODE_SEQUENCE=0,
-    PLAYMODE_REALTIME=1
+    PLAYMODE_SEQUENCE = 0,
+    PLAYMODE_REALTIME = 1
   };
 
 protected:

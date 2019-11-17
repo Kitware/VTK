@@ -43,30 +43,27 @@ vtkStandardNewMacro(vtkCellTypeSource);
 
 namespace
 {
-  const int NumberOf1DCellTypes = 4;
-  const int OneDCellTypes[NumberOf1DCellTypes] = {
-    VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE, VTK_LAGRANGE_CURVE
-  };
-  const int NumberOf2DCellTypes = 6;
-  const int TwoDCellTypes[NumberOf2DCellTypes] = {
-    VTK_TRIANGLE, VTK_QUAD, VTK_QUADRATIC_TRIANGLE, VTK_QUADRATIC_QUAD,
-    VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL
-  };
-  const int NumberOf3DCellTypes = 11;
-  const int ThreeDCellTypes[NumberOf3DCellTypes] = {
-    VTK_TETRA, VTK_HEXAHEDRON, VTK_WEDGE, VTK_PYRAMID,
-    VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON,
-    VTK_QUADRATIC_WEDGE, VTK_QUADRATIC_PYRAMID,
-    VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE
-  };
+const int NumberOf1DCellTypes = 4;
+const int OneDCellTypes[NumberOf1DCellTypes] = { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_CUBIC_LINE,
+  VTK_LAGRANGE_CURVE };
+const int NumberOf2DCellTypes = 6;
+const int TwoDCellTypes[NumberOf2DCellTypes] = { VTK_TRIANGLE, VTK_QUAD, VTK_QUADRATIC_TRIANGLE,
+  VTK_QUADRATIC_QUAD, VTK_LAGRANGE_TRIANGLE, VTK_LAGRANGE_QUADRILATERAL };
+const int NumberOf3DCellTypes = 11;
+const int ThreeDCellTypes[NumberOf3DCellTypes] = { VTK_TETRA, VTK_HEXAHEDRON, VTK_WEDGE,
+  VTK_PYRAMID, VTK_QUADRATIC_TETRA, VTK_QUADRATIC_HEXAHEDRON, VTK_QUADRATIC_WEDGE,
+  VTK_QUADRATIC_PYRAMID, VTK_LAGRANGE_TETRAHEDRON, VTK_LAGRANGE_HEXAHEDRON, VTK_LAGRANGE_WEDGE };
 }
 
 // ----------------------------------------------------------------------------
-vtkCellTypeSource::vtkCellTypeSource() :
-  CellType(VTK_HEXAHEDRON), CellOrder(3), CompleteQuadraticSimplicialElements(false),
-  OutputPrecision(SINGLE_PRECISION), PolynomialFieldOrder(1)
+vtkCellTypeSource::vtkCellTypeSource()
+  : CellType(VTK_HEXAHEDRON)
+  , CellOrder(3)
+  , CompleteQuadraticSimplicialElements(false)
+  , OutputPrecision(SINGLE_PRECISION)
+  , PolynomialFieldOrder(1)
 {
-  for(int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
   {
     this->BlocksDimensions[i] = 1;
   }
@@ -80,27 +77,27 @@ void vtkCellTypeSource::SetCellType(int cellType)
   {
     return;
   }
-  for(int i=0;i<NumberOf1DCellTypes;i++)
+  for (int i = 0; i < NumberOf1DCellTypes; i++)
   {
-    if(cellType == OneDCellTypes[i])
+    if (cellType == OneDCellTypes[i])
     {
       this->CellType = cellType;
       this->Modified();
       return;
     }
   }
-  for(int i=0;i<NumberOf2DCellTypes;i++)
+  for (int i = 0; i < NumberOf2DCellTypes; i++)
   {
-    if(cellType == TwoDCellTypes[i])
+    if (cellType == TwoDCellTypes[i])
     {
       this->CellType = cellType;
       this->Modified();
       return;
     }
   }
-  for(int i=0;i<NumberOf3DCellTypes;i++)
+  for (int i = 0; i < NumberOf3DCellTypes; i++)
   {
-    if(cellType == ThreeDCellTypes[i])
+    if (cellType == ThreeDCellTypes[i])
     {
       this->CellType = cellType;
       this->Modified();
@@ -113,23 +110,23 @@ void vtkCellTypeSource::SetCellType(int cellType)
 // ----------------------------------------------------------------------------
 int vtkCellTypeSource::GetCellDimension()
 {
-  for(int i=0;i<NumberOf1DCellTypes;i++)
+  for (int i = 0; i < NumberOf1DCellTypes; i++)
   {
-    if(this->CellType == OneDCellTypes[i])
+    if (this->CellType == OneDCellTypes[i])
     {
       return 1;
     }
   }
-  for(int i=0;i<NumberOf2DCellTypes;i++)
+  for (int i = 0; i < NumberOf2DCellTypes; i++)
   {
-    if(this->CellType == TwoDCellTypes[i])
+    if (this->CellType == TwoDCellTypes[i])
     {
       return 2;
     }
   }
-  for(int i=0;i<NumberOf3DCellTypes;i++)
+  for (int i = 0; i < NumberOf3DCellTypes; i++)
   {
-    if(this->CellType == ThreeDCellTypes[i])
+    if (this->CellType == ThreeDCellTypes[i])
     {
       return 3;
     }
@@ -140,9 +137,9 @@ int vtkCellTypeSource::GetCellDimension()
 // ----------------------------------------------------------------------------
 void vtkCellTypeSource::SetBlocksDimensions(int* dims)
 {
-  for(int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
   {
-    if(dims[i] != this->BlocksDimensions[i] && dims[i] > 0)
+    if (dims[i] != this->BlocksDimensions[i] && dims[i] > 0)
     {
       this->BlocksDimensions[i] = dims[i];
       this->Modified();
@@ -153,52 +150,47 @@ void vtkCellTypeSource::SetBlocksDimensions(int* dims)
 // ----------------------------------------------------------------------------
 void vtkCellTypeSource::SetBlocksDimensions(int iDim, int jDim, int kDim)
 {
-  int dims[3] = {iDim, jDim, kDim};
+  int dims[3] = { iDim, jDim, kDim };
   this->SetBlocksDimensions(dims);
 }
 
 // ----------------------------------------------------------------------------
-int vtkCellTypeSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkCellTypeSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Get the output
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   vtkNew<vtkExtentTranslator> extentTranslator;
   int dimension = this->GetCellDimension();
-  int wholeExtent[6] = {0, this->BlocksDimensions[0], 0, 0, 0, 0};
-  if(dimension>1)
+  int wholeExtent[6] = { 0, this->BlocksDimensions[0], 0, 0, 0, 0 };
+  if (dimension > 1)
   {
     wholeExtent[3] = this->BlocksDimensions[1];
   }
-  if(dimension>2)
+  if (dimension > 2)
   {
     wholeExtent[5] = this->BlocksDimensions[2];
   }
   int extent[6];
   double bounds[6];
   extentTranslator->PieceToExtentThreadSafe(
-    piece, numPieces, 0, wholeExtent, extent,
-    extentTranslator->GetSplitMode(), 0);
+    piece, numPieces, 0, wholeExtent, extent, extentTranslator->GetSplitMode(), 0);
   int numberOfPoints = 1;
-  for(int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
   {
-    if(extent[i*2+1]!=extent[i*2])
+    if (extent[i * 2 + 1] != extent[i * 2])
     {
-      numberOfPoints *= extent[i*2+1]-extent[i*2]+1;
+      numberOfPoints *= extent[i * 2 + 1] - extent[i * 2] + 1;
     }
-    bounds[i*2] = static_cast<double>(extent[i*2]);
-    bounds[i*2+1] = static_cast<double>(extent[i*2+1]);
+    bounds[i * 2] = static_cast<double>(extent[i * 2]);
+    bounds[i * 2 + 1] = static_cast<double>(extent[i * 2 + 1]);
   }
 
   vtkNew<vtkPoints> points;
@@ -206,7 +198,7 @@ int vtkCellTypeSource::RequestData(
   this->Locator = locator.GetPointer();
   this->Locator->InitPointInsertion(points.GetPointer(), bounds);
   // Set the desired precision for the points in the output.
-  if(this->OutputPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if (this->OutputPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     points->SetDataType(VTK_DOUBLE);
   }
@@ -217,13 +209,13 @@ int vtkCellTypeSource::RequestData(
 
   points->Allocate(numberOfPoints);
   double coord[3];
-  for(int k=extent[4];k<extent[5]+1;k++)
+  for (int k = extent[4]; k < extent[5] + 1; k++)
   {
     coord[2] = static_cast<double>(k);
-    for(int j=extent[2];j<extent[3]+1;j++)
+    for (int j = extent[2]; j < extent[3] + 1; j++)
     {
       coord[1] = static_cast<double>(j);
-      for(int i=extent[0];i<extent[1]+1;i++)
+      for (int i = extent[0]; i < extent[1] + 1; i++)
       {
         coord[0] = static_cast<double>(i);
         this->Locator->InsertNextPoint(coord);
@@ -232,150 +224,150 @@ int vtkCellTypeSource::RequestData(
   }
   output->SetPoints(points);
 
-  switch(this->CellType)
+  switch (this->CellType)
   {
-  case VTK_LINE:
-  {
-    output->Allocate(numberOfPoints-1);
-    for(int i=0;i<numberOfPoints-1;i++)
+    case VTK_LINE:
     {
-      vtkIdType ids[2] = {i, i+1};
-      output->InsertNextCell(VTK_LINE, 2, ids);
-    }
-    break;
-  }
-  case VTK_QUADRATIC_EDGE:
-  {
-    output->Allocate(numberOfPoints-1);
-    for(int i=0;i<numberOfPoints-1;i++)
-    {
-      double point1[3], point2[3];
-      output->GetPoint(i, point1);
-      output->GetPoint(i+1, point2);
-      for(int j=0;j<3;j++)
+      output->Allocate(numberOfPoints - 1);
+      for (int i = 0; i < numberOfPoints - 1; i++)
       {
-        point1[j] = (point1[j]+point2[j])*.5;
+        vtkIdType ids[2] = { i, i + 1 };
+        output->InsertNextCell(VTK_LINE, 2, ids);
       }
-      vtkIdType midPointId = points->InsertNextPoint(point1);
-      vtkIdType ids[3] = {i, i+1, midPointId};
-      output->InsertNextCell(VTK_QUADRATIC_EDGE, 3, ids);
+      break;
     }
-    break;
-  }
-  case VTK_CUBIC_LINE:
-  {
-    output->Allocate(numberOfPoints-1);
-    for(int i=0;i<numberOfPoints-1;i++)
+    case VTK_QUADRATIC_EDGE:
     {
-      double point1[3], point2[3], newPoint1[3], newPoint2[3];
-      output->GetPoint(i, point1);
-      output->GetPoint(i+1, point2);
-      for(int j=0;j<3;j++)
+      output->Allocate(numberOfPoints - 1);
+      for (int i = 0; i < numberOfPoints - 1; i++)
       {
-        newPoint1[j] = point1[j]*2./3.+point2[j]/3.;
-        newPoint2[j] = point1[j]/3.+point2[j]*2./3.;
+        double point1[3], point2[3];
+        output->GetPoint(i, point1);
+        output->GetPoint(i + 1, point2);
+        for (int j = 0; j < 3; j++)
+        {
+          point1[j] = (point1[j] + point2[j]) * .5;
+        }
+        vtkIdType midPointId = points->InsertNextPoint(point1);
+        vtkIdType ids[3] = { i, i + 1, midPointId };
+        output->InsertNextCell(VTK_QUADRATIC_EDGE, 3, ids);
       }
-      vtkIdType newPointId1 = points->InsertNextPoint(newPoint1);
-      vtkIdType newPointId2 = points->InsertNextPoint(newPoint2);
-      vtkIdType ids[4] = {i, i+1, newPointId1, newPointId2};
-      output->InsertNextCell(VTK_CUBIC_LINE, 4, ids);
+      break;
     }
-    break;
-  }
-  case VTK_TRIANGLE:
-  {
-    this->GenerateTriangles(output, extent);
-    break;
-  }
-  case VTK_QUAD:
-  {
-    this->GenerateQuads(output, extent);
-    break;
-  }
-  case VTK_QUADRATIC_TRIANGLE:
-  {
-    this->GenerateQuadraticTriangles(output, extent);
-    break;
-  }
-  case VTK_QUADRATIC_QUAD:
-  {
-    this->GenerateQuadraticQuads(output, extent);
-    break;
-  }
-  case VTK_TETRA:
-  {
-    this->GenerateTetras(output, extent);
-    break;
-  }
-  case VTK_HEXAHEDRON:
-  {
-    this->GenerateHexahedron(output, extent);
-    break;
-  }
-  case VTK_WEDGE:
-  {
-    this->GenerateWedges(output, extent);
-    break;
-  }
-  case VTK_PYRAMID:
-  {
-    this->GeneratePyramids(output, extent);
-    break;
-  }
-  case VTK_QUADRATIC_TETRA:
-  {
-    this->GenerateQuadraticTetras(output, extent);
-    break;
-  }
-  case VTK_QUADRATIC_HEXAHEDRON:
-  {
-    this->GenerateQuadraticHexahedron(output, extent);
-    break;
-  }
-  case VTK_QUADRATIC_WEDGE:
-  {
-    this->GenerateQuadraticWedges(output, extent);
-    break;
-  }
-  case VTK_QUADRATIC_PYRAMID:
-  {
-    this->GenerateQuadraticPyramids(output, extent);
-    break;
-  }
-  case VTK_LAGRANGE_CURVE:
-  {
-    this->GenerateLagrangeCurves(output, extent);
-    break;
-  }
-  case VTK_LAGRANGE_TRIANGLE:
-  {
-    this->GenerateLagrangeTris(output, extent);
-    break;
-  }
-  case VTK_LAGRANGE_QUADRILATERAL:
-  {
-    this->GenerateLagrangeQuads(output, extent);
-    break;
-  }
-  case VTK_LAGRANGE_TETRAHEDRON:
-  {
-    this->GenerateLagrangeTets(output, extent);
-    break;
-  }
-  case VTK_LAGRANGE_HEXAHEDRON:
-  {
-    this->GenerateLagrangeHexes(output, extent);
-    break;
-  }
-  case VTK_LAGRANGE_WEDGE:
-  {
-    this->GenerateLagrangeWedges(output, extent);
-    break;
-  }
-  default:
-  {
-    vtkWarningMacro("Cell type " << this->CellType << " not supported");
-  }
+    case VTK_CUBIC_LINE:
+    {
+      output->Allocate(numberOfPoints - 1);
+      for (int i = 0; i < numberOfPoints - 1; i++)
+      {
+        double point1[3], point2[3], newPoint1[3], newPoint2[3];
+        output->GetPoint(i, point1);
+        output->GetPoint(i + 1, point2);
+        for (int j = 0; j < 3; j++)
+        {
+          newPoint1[j] = point1[j] * 2. / 3. + point2[j] / 3.;
+          newPoint2[j] = point1[j] / 3. + point2[j] * 2. / 3.;
+        }
+        vtkIdType newPointId1 = points->InsertNextPoint(newPoint1);
+        vtkIdType newPointId2 = points->InsertNextPoint(newPoint2);
+        vtkIdType ids[4] = { i, i + 1, newPointId1, newPointId2 };
+        output->InsertNextCell(VTK_CUBIC_LINE, 4, ids);
+      }
+      break;
+    }
+    case VTK_TRIANGLE:
+    {
+      this->GenerateTriangles(output, extent);
+      break;
+    }
+    case VTK_QUAD:
+    {
+      this->GenerateQuads(output, extent);
+      break;
+    }
+    case VTK_QUADRATIC_TRIANGLE:
+    {
+      this->GenerateQuadraticTriangles(output, extent);
+      break;
+    }
+    case VTK_QUADRATIC_QUAD:
+    {
+      this->GenerateQuadraticQuads(output, extent);
+      break;
+    }
+    case VTK_TETRA:
+    {
+      this->GenerateTetras(output, extent);
+      break;
+    }
+    case VTK_HEXAHEDRON:
+    {
+      this->GenerateHexahedron(output, extent);
+      break;
+    }
+    case VTK_WEDGE:
+    {
+      this->GenerateWedges(output, extent);
+      break;
+    }
+    case VTK_PYRAMID:
+    {
+      this->GeneratePyramids(output, extent);
+      break;
+    }
+    case VTK_QUADRATIC_TETRA:
+    {
+      this->GenerateQuadraticTetras(output, extent);
+      break;
+    }
+    case VTK_QUADRATIC_HEXAHEDRON:
+    {
+      this->GenerateQuadraticHexahedron(output, extent);
+      break;
+    }
+    case VTK_QUADRATIC_WEDGE:
+    {
+      this->GenerateQuadraticWedges(output, extent);
+      break;
+    }
+    case VTK_QUADRATIC_PYRAMID:
+    {
+      this->GenerateQuadraticPyramids(output, extent);
+      break;
+    }
+    case VTK_LAGRANGE_CURVE:
+    {
+      this->GenerateLagrangeCurves(output, extent);
+      break;
+    }
+    case VTK_LAGRANGE_TRIANGLE:
+    {
+      this->GenerateLagrangeTris(output, extent);
+      break;
+    }
+    case VTK_LAGRANGE_QUADRILATERAL:
+    {
+      this->GenerateLagrangeQuads(output, extent);
+      break;
+    }
+    case VTK_LAGRANGE_TETRAHEDRON:
+    {
+      this->GenerateLagrangeTets(output, extent);
+      break;
+    }
+    case VTK_LAGRANGE_HEXAHEDRON:
+    {
+      this->GenerateLagrangeHexes(output, extent);
+      break;
+    }
+    case VTK_LAGRANGE_WEDGE:
+    {
+      this->GenerateLagrangeWedges(output, extent);
+      break;
+    }
+    default:
+    {
+      vtkWarningMacro("Cell type " << this->CellType << " not supported");
+    }
   }
 
   this->ComputeFields(output);
@@ -385,13 +377,11 @@ int vtkCellTypeSource::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkCellTypeSource::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkCellTypeSource::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
@@ -399,73 +389,69 @@ int vtkCellTypeSource::RequestInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateTriangles(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateTriangles(vtkUnstructuredGrid* output, int extent[6])
 {
-  int firstDim = extent[1]-extent[0];
-  int secondDim = extent[3]-extent[2];
-  output->Allocate(firstDim*secondDim*2);
-  for(int j=0;j<secondDim;j++)
+  int firstDim = extent[1] - extent[0];
+  int secondDim = extent[3] - extent[2];
+  output->Allocate(firstDim * secondDim * 2);
+  for (int j = 0; j < secondDim; j++)
   {
-    for(int i=0;i<firstDim;i++)
+    for (int i = 0; i < firstDim; i++)
     {
-      vtkIdType ids[3] = {i+j*(firstDim+1), i+1+j*(firstDim+1),
-                          i+(j+1)*(firstDim+1)};
+      vtkIdType ids[3] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
+        i + (j + 1) * (firstDim + 1) };
       output->InsertNextCell(VTK_TRIANGLE, 3, ids);
       ids[0] = ids[1];
-      ids[1] = i+1+(j+1)*(firstDim+1);
+      ids[1] = i + 1 + (j + 1) * (firstDim + 1);
       output->InsertNextCell(VTK_TRIANGLE, 3, ids);
     }
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuads(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuads(vtkUnstructuredGrid* output, int extent[6])
 {
-  int firstDim = extent[1]-extent[0];
-  int secondDim = extent[3]-extent[2];
-  output->Allocate(firstDim*secondDim);
-  for(int j=0;j<secondDim;j++)
+  int firstDim = extent[1] - extent[0];
+  int secondDim = extent[3] - extent[2];
+  output->Allocate(firstDim * secondDim);
+  for (int j = 0; j < secondDim; j++)
   {
-    for(int i=0;i<firstDim;i++)
+    for (int i = 0; i < firstDim; i++)
     {
-      vtkIdType ids[4] = {
-        i+j*(firstDim+1), i+1+j*(firstDim+1),
-        i+1+(j+1)*(firstDim+1), i+(j+1)*(firstDim+1)};
+      vtkIdType ids[4] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
+        i + 1 + (j + 1) * (firstDim + 1), i + (j + 1) * (firstDim + 1) };
       output->InsertNextCell(VTK_QUAD, 4, ids);
     }
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuadraticTriangles(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuadraticTriangles(vtkUnstructuredGrid* output, int extent[6])
 {
-  int firstDim = extent[1]-extent[0];
-  int secondDim = extent[3]-extent[2];
-  output->Allocate(firstDim*secondDim*2);
+  int firstDim = extent[1] - extent[0];
+  int secondDim = extent[3] - extent[2];
+  output->Allocate(firstDim * secondDim * 2);
   EdgeToPointMap edgeToPointId;
-  for(int j=0;j<secondDim;j++)
+  for (int j = 0; j < secondDim; j++)
   {
-    for(int i=0;i<firstDim;i++)
+    for (int i = 0; i < firstDim; i++)
     {
       vtkIdType mids[3];
       std::pair<vtkIdType, vtkIdType> horizontalEdge =
-        std::make_pair(static_cast<vtkIdType>(i+j*(firstDim+1)),
-                       static_cast<vtkIdType>(i+1+j*(firstDim+1)));
-      EdgeToPointMap::iterator it=edgeToPointId.find(horizontalEdge);
-      if(it==edgeToPointId.end())
+        std::make_pair(static_cast<vtkIdType>(i + j * (firstDim + 1)),
+          static_cast<vtkIdType>(i + 1 + j * (firstDim + 1)));
+      EdgeToPointMap::iterator it = edgeToPointId.find(horizontalEdge);
+      if (it == edgeToPointId.end())
       {
         double point1[3], point2[3];
         output->GetPoint(horizontalEdge.first, point1);
         output->GetPoint(horizontalEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[horizontalEdge]=mid;
+        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[horizontalEdge] = mid;
         mids[0] = mid;
       }
       else
@@ -473,20 +459,20 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(
         mids[0] = it->second;
       }
       std::pair<vtkIdType, vtkIdType> verticalEdge =
-        std::make_pair(static_cast<vtkIdType>(i+j*(firstDim+1)),
-                       static_cast<vtkIdType>(i+(j+1)*(firstDim+1)));
-      it=edgeToPointId.find(verticalEdge);
-      if(it==edgeToPointId.end())
+        std::make_pair(static_cast<vtkIdType>(i + j * (firstDim + 1)),
+          static_cast<vtkIdType>(i + (j + 1) * (firstDim + 1)));
+      it = edgeToPointId.find(verticalEdge);
+      if (it == edgeToPointId.end())
       {
         double point1[3], point2[3];
         output->GetPoint(verticalEdge.first, point1);
         output->GetPoint(verticalEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[verticalEdge]=mid;
+        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[verticalEdge] = mid;
         mids[2] = mid;
       }
       else
@@ -495,154 +481,145 @@ void vtkCellTypeSource::GenerateQuadraticTriangles(
       }
       // always need to create the point on the diagonal
       double point1[3], point2[3];
-      output->GetPoint(i+1+j*(firstDim+1), point1);
-      output->GetPoint(i+(j+1)*(firstDim+1), point2);
-      for(int k=0;k<3;k++)
+      output->GetPoint(i + 1 + j * (firstDim + 1), point1);
+      output->GetPoint(i + (j + 1) * (firstDim + 1), point2);
+      for (int k = 0; k < 3; k++)
       {
-        point1[k]=(point1[k]+point2[k])*.5;
+        point1[k] = (point1[k] + point2[k]) * .5;
       }
-      vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
+      vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
       mids[1] = mid;
-      vtkIdType cellPoints[6] = {i+j*(firstDim+1), i+1+j*(firstDim+1),
-                                 i+(j+1)*(firstDim+1), mids[0],
-                                 mids[1], mids[2]};
+      vtkIdType cellPoints[6] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
+        i + (j + 1) * (firstDim + 1), mids[0], mids[1], mids[2] };
       output->InsertNextCell(VTK_QUADRATIC_TRIANGLE, 6, cellPoints);
-      horizontalEdge =
-        std::make_pair(static_cast<vtkIdType>(i+(j+1)*(firstDim+1)),
-                       static_cast<vtkIdType>(i+1+(j+1)*(firstDim+1)));
-      it=edgeToPointId.find(horizontalEdge);
-      if(it==edgeToPointId.end())
+      horizontalEdge = std::make_pair(static_cast<vtkIdType>(i + (j + 1) * (firstDim + 1)),
+        static_cast<vtkIdType>(i + 1 + (j + 1) * (firstDim + 1)));
+      it = edgeToPointId.find(horizontalEdge);
+      if (it == edgeToPointId.end())
       {
         output->GetPoint(horizontalEdge.first, point1);
         output->GetPoint(horizontalEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[horizontalEdge]=mid;
+        mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[horizontalEdge] = mid;
         mids[0] = mid;
       }
       else
       {
         mids[0] = it->second;
       }
-      verticalEdge =
-        std::make_pair(static_cast<vtkIdType>(i+1+j*(firstDim+1)),
-                       static_cast<vtkIdType>(i+1+(j+1)*(firstDim+1)));
-      it=edgeToPointId.find(verticalEdge);
-      if(it==edgeToPointId.end())
+      verticalEdge = std::make_pair(static_cast<vtkIdType>(i + 1 + j * (firstDim + 1)),
+        static_cast<vtkIdType>(i + 1 + (j + 1) * (firstDim + 1)));
+      it = edgeToPointId.find(verticalEdge);
+      if (it == edgeToPointId.end())
       {
         output->GetPoint(verticalEdge.first, point1);
         output->GetPoint(verticalEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[verticalEdge]=mid;
+        mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[verticalEdge] = mid;
         mids[2] = mid;
       }
       else
       {
         mids[2] = it->second;
       }
-      vtkIdType cellPoints2[6] = {i+1+j*(firstDim+1), i+1+(j+1)*(firstDim+1),
-                                  i+(j+1)*(firstDim+1), mids[2], mids[0], mids[1]};
+      vtkIdType cellPoints2[6] = { i + 1 + j * (firstDim + 1), i + 1 + (j + 1) * (firstDim + 1),
+        i + (j + 1) * (firstDim + 1), mids[2], mids[0], mids[1] };
       output->InsertNextCell(VTK_QUADRATIC_TRIANGLE, 6, cellPoints2);
     }
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuadraticQuads(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuadraticQuads(vtkUnstructuredGrid* output, int extent[6])
 {
-  int firstDim = extent[1]-extent[0];
-  int secondDim = extent[3]-extent[2];
-  output->Allocate(firstDim*secondDim);
+  int firstDim = extent[1] - extent[0];
+  int secondDim = extent[3] - extent[2];
+  output->Allocate(firstDim * secondDim);
   EdgeToPointMap edgeToPointId;
-  for(int j=0;j<secondDim;j++)
+  for (int j = 0; j < secondDim; j++)
   {
-    for(int i=0;i<firstDim;i++)
+    for (int i = 0; i < firstDim; i++)
     {
-      vtkIdType pointIds[8] = {
-        i+j*(firstDim+1), i+1+j*(firstDim+1), i+1+(j+1)*(firstDim+1),
-        i+(j+1)*(firstDim+1), -1, -1, -1, -1};
-      std::pair<vtkIdType, vtkIdType> bottomEdge =
-        std::make_pair(pointIds[0], pointIds[1]);
-      EdgeToPointMap::iterator it=edgeToPointId.find(bottomEdge);
-      if(it==edgeToPointId.end())
+      vtkIdType pointIds[8] = { i + j * (firstDim + 1), i + 1 + j * (firstDim + 1),
+        i + 1 + (j + 1) * (firstDim + 1), i + (j + 1) * (firstDim + 1), -1, -1, -1, -1 };
+      std::pair<vtkIdType, vtkIdType> bottomEdge = std::make_pair(pointIds[0], pointIds[1]);
+      EdgeToPointMap::iterator it = edgeToPointId.find(bottomEdge);
+      if (it == edgeToPointId.end())
       {
         double point1[3], point2[3];
         output->GetPoint(bottomEdge.first, point1);
         output->GetPoint(bottomEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[bottomEdge]=mid;
+        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[bottomEdge] = mid;
         pointIds[4] = mid;
       }
       else
       {
         pointIds[4] = it->second;
       }
-      std::pair<vtkIdType, vtkIdType> rightEdge =
-        std::make_pair(pointIds[1], pointIds[2]);
-      it=edgeToPointId.find(rightEdge);
-      if(it==edgeToPointId.end())
+      std::pair<vtkIdType, vtkIdType> rightEdge = std::make_pair(pointIds[1], pointIds[2]);
+      it = edgeToPointId.find(rightEdge);
+      if (it == edgeToPointId.end())
       {
         double point1[3], point2[3];
         output->GetPoint(rightEdge.first, point1);
         output->GetPoint(rightEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[rightEdge]=mid;
+        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[rightEdge] = mid;
         pointIds[5] = mid;
       }
       else
       {
         pointIds[5] = it->second;
       }
-      std::pair<vtkIdType, vtkIdType> topEdge =
-        std::make_pair(pointIds[3], pointIds[2]);
-      it=edgeToPointId.find(topEdge);
-      if(it==edgeToPointId.end())
+      std::pair<vtkIdType, vtkIdType> topEdge = std::make_pair(pointIds[3], pointIds[2]);
+      it = edgeToPointId.find(topEdge);
+      if (it == edgeToPointId.end())
       {
         double point1[3], point2[3];
         output->GetPoint(topEdge.first, point1);
         output->GetPoint(topEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[topEdge]=mid;
+        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[topEdge] = mid;
         pointIds[6] = mid;
       }
       else
       {
         pointIds[6] = it->second;
       }
-      std::pair<vtkIdType, vtkIdType> leftEdge =
-        std::make_pair(pointIds[0], pointIds[3]);
-      it=edgeToPointId.find(leftEdge);
-      if(it==edgeToPointId.end())
+      std::pair<vtkIdType, vtkIdType> leftEdge = std::make_pair(pointIds[0], pointIds[3]);
+      it = edgeToPointId.find(leftEdge);
+      if (it == edgeToPointId.end())
       {
         double point1[3], point2[3];
         output->GetPoint(leftEdge.first, point1);
         output->GetPoint(leftEdge.second, point2);
-        for(int k=0;k<3;k++)
+        for (int k = 0; k < 3; k++)
         {
-          point1[k]=(point1[k]+point2[k])*.5;
+          point1[k] = (point1[k] + point2[k]) * .5;
         }
-        vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-        edgeToPointId[leftEdge]=mid;
+        vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+        edgeToPointId[leftEdge] = mid;
         pointIds[7] = mid;
       }
       else
@@ -655,68 +632,67 @@ void vtkCellTypeSource::GenerateQuadraticQuads(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateTetras(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateTetras(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim*5);
-  for(int k=0;k<zDim;k++)
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim * 5);
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
         vtkIdType hexIds[8] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
         output->GetPoint(hexIds[6], point2);
-        for(int l=0;l<3;l++)
+        for (int l = 0; l < 3; l++)
         {
-          point1[l] = .5*(point1[l]+point2[l]);
+          point1[l] = .5 * (point1[l] + point2[l]);
         }
-        vtkIdType middlePoint =
-          output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType middlePoint = output->GetPoints()->InsertNextPoint(point1);
 
-        vtkIdType pointIds1[4] = {hexIds[0], hexIds[1], hexIds[2], middlePoint};
+        vtkIdType pointIds1[4] = { hexIds[0], hexIds[1], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds1);
-        vtkIdType pointIds2[4] = {hexIds[0], hexIds[2], hexIds[3], middlePoint};
+        vtkIdType pointIds2[4] = { hexIds[0], hexIds[2], hexIds[3], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds2);
 
-        vtkIdType pointIds3[4] = {hexIds[6], hexIds[5], hexIds[4], middlePoint};
+        vtkIdType pointIds3[4] = { hexIds[6], hexIds[5], hexIds[4], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds3);
-        vtkIdType pointIds4[4] = {hexIds[6], hexIds[4], hexIds[7], middlePoint};
+        vtkIdType pointIds4[4] = { hexIds[6], hexIds[4], hexIds[7], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds4);
 
-        vtkIdType pointIds5[4] = {hexIds[1], hexIds[5], hexIds[6], middlePoint};
+        vtkIdType pointIds5[4] = { hexIds[1], hexIds[5], hexIds[6], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds5);
-        vtkIdType pointIds6[4] = {hexIds[1], hexIds[6], hexIds[2], middlePoint};
+        vtkIdType pointIds6[4] = { hexIds[1], hexIds[6], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds6);
 
-        vtkIdType pointIds7[4] = {hexIds[0], hexIds[4], hexIds[5], middlePoint};
+        vtkIdType pointIds7[4] = { hexIds[0], hexIds[4], hexIds[5], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds7);
-        vtkIdType pointIds8[4] = {hexIds[0], hexIds[5], hexIds[1], middlePoint};
+        vtkIdType pointIds8[4] = { hexIds[0], hexIds[5], hexIds[1], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds8);
 
-        vtkIdType pointIds9[4] = {hexIds[0], hexIds[3], hexIds[7], middlePoint};
+        vtkIdType pointIds9[4] = { hexIds[0], hexIds[3], hexIds[7], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds9);
-        vtkIdType pointIds10[4] = {hexIds[0], hexIds[7], hexIds[4], middlePoint};
+        vtkIdType pointIds10[4] = { hexIds[0], hexIds[7], hexIds[4], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds10);
 
-        vtkIdType pointIds11[4] = {hexIds[6], hexIds[7], hexIds[3], middlePoint};
+        vtkIdType pointIds11[4] = { hexIds[6], hexIds[7], hexIds[3], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds11);
-        vtkIdType pointIds12[4] = {hexIds[6], hexIds[3], hexIds[2], middlePoint};
+        vtkIdType pointIds12[4] = { hexIds[6], hexIds[3], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_TETRA, 4, pointIds12);
       }
     }
@@ -724,30 +700,30 @@ void vtkCellTypeSource::GenerateTetras(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateHexahedron(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateHexahedron(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim);
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim);
 
-  for(int k=0;k<zDim;k++)
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
         vtkIdType hexIds[8] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
         output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
       }
     }
@@ -755,36 +731,33 @@ void vtkCellTypeSource::GenerateHexahedron(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateWedges(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  int xDim = extent[1]-extent[0];
-  int yDim = extent[3]-extent[2];
-  int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim*2);
+  int xDim = extent[1] - extent[0];
+  int yDim = extent[3] - extent[2];
+  int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim * 2);
 
-  for(int k=0;k<zDim;k++)
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
-        vtkIdType wedgeIds[6] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1)};
+        vtkIdType wedgeIds[6] = { i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1) };
         output->InsertNextCell(VTK_WEDGE, 6, wedgeIds);
-        vtkIdType wedgeIds2[6] = {
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1)};
+        vtkIdType wedgeIds2[6] = { i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1) };
         output->InsertNextCell(VTK_WEDGE, 6, wedgeIds2);
       }
     }
@@ -792,57 +765,50 @@ void vtkCellTypeSource::GenerateWedges(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GeneratePyramids(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GeneratePyramids(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  int xDim = extent[1]-extent[0];
-  int yDim = extent[3]-extent[2];
-  int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim*6);
+  int xDim = extent[1] - extent[0];
+  int yDim = extent[3] - extent[2];
+  int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim * 6);
 
-  for(int k=0;k<zDim;k++)
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
         vtkIdType hexIds[8] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
         output->GetPoint(hexIds[6], point2);
-        for(int l=0;l<3;l++)
+        for (int l = 0; l < 3; l++)
         {
-          point1[l] = .5*(point1[l]+point2[l]);
+          point1[l] = .5 * (point1[l] + point2[l]);
         }
-        vtkIdType middlePoint =
-          output->GetPoints()->InsertNextPoint(point1);
-        vtkIdType pointIds1[5] = {hexIds[0], hexIds[1], hexIds[2],
-                                  hexIds[3], middlePoint};
+        vtkIdType middlePoint = output->GetPoints()->InsertNextPoint(point1);
+        vtkIdType pointIds1[5] = { hexIds[0], hexIds[1], hexIds[2], hexIds[3], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds1);
-        vtkIdType pointIds2[5] = {hexIds[6], hexIds[5], hexIds[4],
-                                  hexIds[7], middlePoint};
+        vtkIdType pointIds2[5] = { hexIds[6], hexIds[5], hexIds[4], hexIds[7], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds2);
-        vtkIdType pointIds3[5] = {hexIds[1], hexIds[5], hexIds[6],
-                                  hexIds[2], middlePoint};
+        vtkIdType pointIds3[5] = { hexIds[1], hexIds[5], hexIds[6], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds3);
-        vtkIdType pointIds4[5] = {hexIds[0], hexIds[4], hexIds[5],
-                                  hexIds[1], middlePoint};
+        vtkIdType pointIds4[5] = { hexIds[0], hexIds[4], hexIds[5], hexIds[1], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds4);
-        vtkIdType pointIds5[5] = {hexIds[0], hexIds[3], hexIds[7],
-                                  hexIds[4], middlePoint};
+        vtkIdType pointIds5[5] = { hexIds[0], hexIds[3], hexIds[7], hexIds[4], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds5);
-        vtkIdType pointIds6[5] = {hexIds[6], hexIds[7], hexIds[3],
-                                  hexIds[2], middlePoint};
+        vtkIdType pointIds6[5] = { hexIds[6], hexIds[7], hexIds[3], hexIds[2], middlePoint };
         output->InsertNextCell(VTK_PYRAMID, 5, pointIds6);
       }
     }
@@ -850,94 +816,94 @@ void vtkCellTypeSource::GeneratePyramids(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuadraticTetras(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuadraticTetras(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim*5);
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim * 5);
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
   const vtkIdType edgePairs[12][6][2] = {
-    {{0, 1}, {1, 2}, {0, 2}, {0, 8}, {1, 8}, {2, 8}},
-    {{0, 2}, {3, 2}, {0, 3}, {0, 8}, {2, 8}, {3, 8}},
-    {{5, 6}, {4, 5}, {4, 6}, {6, 8}, {5, 8}, {4, 8}},
-    {{4, 6}, {4, 7}, {7, 6}, {6, 8}, {4, 8}, {7, 8}},
-    {{1, 5}, {5, 6}, {1, 6}, {1, 8}, {5, 8}, {6, 8}},
-    {{1, 6}, {2, 6}, {1, 2}, {1, 8}, {6, 8}, {2, 8}},
-    {{0, 4}, {4, 5}, {0, 5}, {0, 8}, {4, 8}, {5, 8}},
-    {{0, 5}, {1, 5}, {0, 1}, {0, 8}, {5, 8}, {1, 8}},
-    {{0, 3}, {3, 7}, {0, 7}, {0, 8}, {3, 8}, {7, 8}},
-    {{0, 7}, {4, 7}, {0, 4}, {0, 8}, {7, 8}, {4, 8}},
-    {{7, 6}, {3, 7}, {3, 6}, {6, 8}, {7, 8}, {3, 8}},
-    {{3, 6}, {3, 2}, {2, 6}, {6, 8}, {3, 8}, {2, 8}},
+    { { 0, 1 }, { 1, 2 }, { 0, 2 }, { 0, 8 }, { 1, 8 }, { 2, 8 } },
+    { { 0, 2 }, { 3, 2 }, { 0, 3 }, { 0, 8 }, { 2, 8 }, { 3, 8 } },
+    { { 5, 6 }, { 4, 5 }, { 4, 6 }, { 6, 8 }, { 5, 8 }, { 4, 8 } },
+    { { 4, 6 }, { 4, 7 }, { 7, 6 }, { 6, 8 }, { 4, 8 }, { 7, 8 } },
+    { { 1, 5 }, { 5, 6 }, { 1, 6 }, { 1, 8 }, { 5, 8 }, { 6, 8 } },
+    { { 1, 6 }, { 2, 6 }, { 1, 2 }, { 1, 8 }, { 6, 8 }, { 2, 8 } },
+    { { 0, 4 }, { 4, 5 }, { 0, 5 }, { 0, 8 }, { 4, 8 }, { 5, 8 } },
+    { { 0, 5 }, { 1, 5 }, { 0, 1 }, { 0, 8 }, { 5, 8 }, { 1, 8 } },
+    { { 0, 3 }, { 3, 7 }, { 0, 7 }, { 0, 8 }, { 3, 8 }, { 7, 8 } },
+    { { 0, 7 }, { 4, 7 }, { 0, 4 }, { 0, 8 }, { 7, 8 }, { 4, 8 } },
+    { { 7, 6 }, { 3, 7 }, { 3, 6 }, { 6, 8 }, { 7, 8 }, { 3, 8 } },
+    { { 3, 6 }, { 3, 2 }, { 2, 6 }, { 6, 8 }, { 3, 8 }, { 2, 8 } },
   };
 
-  for(int k=0;k<zDim;k++)
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
         vtkIdType hexIds[9] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          -1,};
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1,
+        };
 
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
         output->GetPoint(hexIds[6], point2);
-        for(int l=0;l<3;l++)
+        for (int l = 0; l < 3; l++)
         {
-          point1[l] = .5*(point1[l]+point2[l]);
+          point1[l] = .5 * (point1[l] + point2[l]);
         }
         hexIds[8] = output->GetPoints()->InsertNextPoint(point1);
 
-        vtkIdType tetraIds[12][10] = {
-          {hexIds[0], hexIds[1], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[2], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[6], hexIds[5], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[6], hexIds[4], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[1], hexIds[5], hexIds[6], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[1], hexIds[6], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[4], hexIds[5], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[5], hexIds[1], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[3], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[7], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[6], hexIds[7], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1},
-          {hexIds[6], hexIds[3], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1}};
-        for(int c=0;c<12;c++)
+        vtkIdType tetraIds[12][10] = { { hexIds[0], hexIds[1], hexIds[2], hexIds[8], -1, -1, -1, -1,
+                                         -1, -1 },
+          { hexIds[0], hexIds[2], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[5], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[4], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[1], hexIds[5], hexIds[6], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[1], hexIds[6], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[4], hexIds[5], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[5], hexIds[1], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[3], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[7], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[7], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[3], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1 } };
+        for (int c = 0; c < 12; c++)
         {
-          for(int e=0;e<6;e++)
+          for (int e = 0; e < 6; e++)
           {
             std::pair<vtkIdType, vtkIdType> edge =
               std::make_pair(hexIds[edgePairs[c][e][0]], hexIds[edgePairs[c][e][1]]);
-            EdgeToPointMap::iterator it=edgeToPointId.find(edge);
-            if(it==edgeToPointId.end())
+            EdgeToPointMap::iterator it = edgeToPointId.find(edge);
+            if (it == edgeToPointId.end())
             {
               output->GetPoint(edge.first, point1);
               output->GetPoint(edge.second, point2);
-              for(int l=0;l<3;l++)
+              for (int l = 0; l < 3; l++)
               {
-                point1[l]=(point1[l]+point2[l])*.5;
+                point1[l] = (point1[l] + point2[l]) * .5;
               }
-              vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-              edgeToPointId[edge]=mid;
-              tetraIds[c][4+e] = mid;
+              vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+              edgeToPointId[edge] = mid;
+              tetraIds[c][4 + e] = mid;
             }
             else
             {
-              tetraIds[c][4+e] = it->second;
+              tetraIds[c][4 + e] = it->second;
             }
           }
           output->InsertNextCell(VTK_QUADRATIC_TETRA, 10, tetraIds[c]);
@@ -948,59 +914,80 @@ void vtkCellTypeSource::GenerateQuadraticTetras(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuadraticHexahedron(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuadraticHexahedron(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim);
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim);
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
   const vtkIdType edgePairs[12][2] = {
-    {0, 1}, {1, 2}, {3, 2}, {0, 3},
-    {4, 5}, {5, 6}, {7, 6}, {4, 7},
-    {0, 4}, {1, 5}, {2, 6}, {3, 7}, };
+    { 0, 1 },
+    { 1, 2 },
+    { 3, 2 },
+    { 0, 3 },
+    { 4, 5 },
+    { 5, 6 },
+    { 7, 6 },
+    { 4, 7 },
+    { 0, 4 },
+    { 1, 5 },
+    { 2, 6 },
+    { 3, 7 },
+  };
 
-  for(int k=0;k<zDim;k++)
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
         vtkIdType hexIds[20] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,};
-        for(int e=0;e<12;e++)
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+        };
+        for (int e = 0; e < 12; e++)
         {
           std::pair<vtkIdType, vtkIdType> edge =
             std::make_pair(hexIds[edgePairs[e][0]], hexIds[edgePairs[e][1]]);
-          EdgeToPointMap::iterator it=edgeToPointId.find(edge);
-          if(it==edgeToPointId.end())
+          EdgeToPointMap::iterator it = edgeToPointId.find(edge);
+          if (it == edgeToPointId.end())
           {
             double point1[3], point2[3];
             output->GetPoint(edge.first, point1);
             output->GetPoint(edge.second, point2);
-            for(int l=0;l<3;l++)
+            for (int l = 0; l < 3; l++)
             {
-              point1[l]=(point1[l]+point2[l])*.5;
+              point1[l] = (point1[l] + point2[l]) * .5;
             }
-            vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-            edgeToPointId[edge]=mid;
-            hexIds[8+e] = mid;
+            vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+            edgeToPointId[edge] = mid;
+            hexIds[8 + e] = mid;
           }
           else
           {
-            hexIds[8+e] = it->second;
+            hexIds[8 + e] = it->second;
           }
         }
         output->InsertNextCell(VTK_QUADRATIC_HEXAHEDRON, 20, hexIds);
@@ -1010,72 +997,72 @@ void vtkCellTypeSource::GenerateQuadraticHexahedron(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuadraticWedges(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuadraticWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim*2);
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim * 2);
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
   const vtkIdType edgePairs[2][9][2] = {
-    { {0, 3}, {1, 3}, {0, 1}, //
-      {4, 7}, {5, 7}, {4, 5}, //
-      {0, 4}, {3, 7}, {1, 5}  //
-    },
-    { {1, 3}, {3, 2}, {1, 2}, //
-      {5, 7}, {7, 6}, {5, 6}, //
-      {1, 5}, {3, 7}, {2, 6}  //
-    },};
-  for(int k=0;k<zDim;k++)
-  {
-    for(int j=0;j<yDim;j++)
     {
-      for(int i=0;i<xDim;i++)
+      { 0, 3 }, { 1, 3 }, { 0, 1 }, //
+      { 4, 7 }, { 5, 7 }, { 4, 5 }, //
+      { 0, 4 }, { 3, 7 }, { 1, 5 }  //
+    },
+    {
+      { 1, 3 }, { 3, 2 }, { 1, 2 }, //
+      { 5, 7 }, { 7, 6 }, { 5, 6 }, //
+      { 1, 5 }, { 3, 7 }, { 2, 6 }  //
+    },
+  };
+  for (int k = 0; k < zDim; k++)
+  {
+    for (int j = 0; j < yDim; j++)
+    {
+      for (int i = 0; i < xDim; i++)
       {
         vtkIdType hexIds[8] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+        };
 
-        vtkIdType wedgeIds[2][15] = {
-          {hexIds[0], hexIds[3], hexIds[1],
-           hexIds[4], hexIds[7], hexIds[5],
-           -1, -1, -1, -1, -1, -1, -1, -1, -1},
-          {hexIds[1], hexIds[3], hexIds[2],
-           hexIds[5], hexIds[7], hexIds[6],
-           -1, -1, -1, -1, -1, -1, -1, -1, -1} };
-        for(int c=0;c<2;c++)
+        vtkIdType wedgeIds[2][15] = { { hexIds[0], hexIds[3], hexIds[1], hexIds[4], hexIds[7],
+                                        hexIds[5], -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[1], hexIds[3], hexIds[2], hexIds[5], hexIds[7], hexIds[6], -1, -1, -1, -1, -1,
+            -1, -1, -1, -1 } };
+        for (int c = 0; c < 2; c++)
         {
-          for(int e=0;e<9;e++)
+          for (int e = 0; e < 9; e++)
           {
             std::pair<vtkIdType, vtkIdType> edge =
               std::make_pair(hexIds[edgePairs[c][e][0]], hexIds[edgePairs[c][e][1]]);
-            EdgeToPointMap::iterator it=edgeToPointId.find(edge);
-            if(it==edgeToPointId.end())
+            EdgeToPointMap::iterator it = edgeToPointId.find(edge);
+            if (it == edgeToPointId.end())
             {
               double point1[3], point2[3];
               output->GetPoint(edge.first, point1);
               output->GetPoint(edge.second, point2);
-              for(int l=0;l<3;l++)
+              for (int l = 0; l < 3; l++)
               {
-                point1[l]=(point1[l]+point2[l])*.5;
+                point1[l] = (point1[l] + point2[l]) * .5;
               }
-              vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-              edgeToPointId[edge]=mid;
-              wedgeIds[c][6+e] = mid;
+              vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+              edgeToPointId[edge] = mid;
+              wedgeIds[c][6 + e] = mid;
             }
             else
             {
-              wedgeIds[c][6+e] = it->second;
+              wedgeIds[c][6 + e] = it->second;
             }
           }
           output->InsertNextCell(VTK_QUADRATIC_WEDGE, 15, wedgeIds[c]);
@@ -1086,95 +1073,102 @@ void vtkCellTypeSource::GenerateQuadraticWedges(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateQuadraticPyramids(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
-  output->Allocate(xDim*yDim*zDim*6);
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
+  output->Allocate(xDim * yDim * zDim * 6);
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
   const vtkIdType edgePairs[6][8][2] = {
-    { {0, 1}, {1, 2}, {3, 2}, {0, 3}, //
-      {0, 8}, {1, 8}, {2, 8}, {3, 8}  //
+    {
+      { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, //
+      { 0, 8 }, { 1, 8 }, { 2, 8 }, { 3, 8 }  //
     },
-    { {5, 6}, {4, 5}, {4, 7}, {7, 6}, //
-      {6, 8}, {5, 8}, {4, 8}, {7, 8}  //
+    {
+      { 5, 6 }, { 4, 5 }, { 4, 7 }, { 7, 6 }, //
+      { 6, 8 }, { 5, 8 }, { 4, 8 }, { 7, 8 }  //
     },
-    { {1, 5}, {5, 6}, {2, 6}, {1, 2}, //
-      {1, 8}, {5, 8}, {6, 8}, {2, 8}  //
+    {
+      { 1, 5 }, { 5, 6 }, { 2, 6 }, { 1, 2 }, //
+      { 1, 8 }, { 5, 8 }, { 6, 8 }, { 2, 8 }  //
     },
-    { {0, 4}, {4, 5}, {1, 5}, {0, 1}, //
-      {0, 8}, {4, 8}, {5, 8}, {1, 8}  //
+    {
+      { 0, 4 }, { 4, 5 }, { 1, 5 }, { 0, 1 }, //
+      { 0, 8 }, { 4, 8 }, { 5, 8 }, { 1, 8 }  //
     },
-    { {0, 3}, {3, 7}, {4, 7}, {0, 4}, //
-      {0, 8}, {3, 8}, {7, 8}, {4, 8}  //
+    {
+      { 0, 3 }, { 3, 7 }, { 4, 7 }, { 0, 4 }, //
+      { 0, 8 }, { 3, 8 }, { 7, 8 }, { 4, 8 }  //
     },
-    { {7, 6}, {3, 7}, {3, 2}, {2, 6}, //
-      {6, 8}, {7, 8}, {3, 8}, {2, 8}  //
+    {
+      { 7, 6 }, { 3, 7 }, { 3, 2 }, { 2, 6 }, //
+      { 6, 8 }, { 7, 8 }, { 3, 8 }, { 2, 8 }  //
     },
   };
 
-  for(int k=0;k<zDim;k++)
+  for (int k = 0; k < zDim; k++)
   {
-    for(int j=0;j<yDim;j++)
+    for (int j = 0; j < yDim; j++)
     {
-      for(int i=0;i<xDim;i++)
+      for (int i = 0; i < xDim; i++)
       {
         // also add in the middle point id
         vtkIdType hexIds[9] = {
-          i+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+k*(xDim+1)*(yDim+1),
-          i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1), -1,};
+          i + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + k * (xDim + 1) * (yDim + 1),
+          i + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + j * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + 1 + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          i + (j + 1) * (xDim + 1) + (k + 1) * (xDim + 1) * (yDim + 1),
+          -1,
+        };
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
         output->GetPoint(hexIds[6], point2);
-        for(int l=0;l<3;l++)
+        for (int l = 0; l < 3; l++)
         {
-          point1[l] = .5*(point1[l]+point2[l]);
+          point1[l] = .5 * (point1[l] + point2[l]);
         }
-        hexIds[8] =
-          output->GetPoints()->InsertNextPoint(point1);
+        hexIds[8] = output->GetPoints()->InsertNextPoint(point1);
 
         vtkIdType pyramidIds[6][13] = {
-          {hexIds[0], hexIds[1], hexIds[2], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1},
-          {hexIds[6], hexIds[5], hexIds[4], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1},
-          {hexIds[1], hexIds[5], hexIds[6], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[4], hexIds[5], hexIds[1], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1},
-          {hexIds[0], hexIds[3], hexIds[7], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1},
-          {hexIds[6], hexIds[7], hexIds[3], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1} };
+          { hexIds[0], hexIds[1], hexIds[2], hexIds[3], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[5], hexIds[4], hexIds[7], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[1], hexIds[5], hexIds[6], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[4], hexIds[5], hexIds[1], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[0], hexIds[3], hexIds[7], hexIds[4], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 },
+          { hexIds[6], hexIds[7], hexIds[3], hexIds[2], hexIds[8], -1, -1, -1, -1, -1, -1, -1, -1 }
+        };
 
-        for(int c=0;c<6;c++)
+        for (int c = 0; c < 6; c++)
         {
-          for(int e=0;e<8;e++)
+          for (int e = 0; e < 8; e++)
           {
             std::pair<vtkIdType, vtkIdType> edge =
               std::make_pair(hexIds[edgePairs[c][e][0]], hexIds[edgePairs[c][e][1]]);
-            EdgeToPointMap::iterator it=edgeToPointId.find(edge);
-            if(it==edgeToPointId.end())
+            EdgeToPointMap::iterator it = edgeToPointId.find(edge);
+            if (it == edgeToPointId.end())
             {
               output->GetPoint(edge.first, point1);
               output->GetPoint(edge.second, point2);
-              for(int l=0;l<3;l++)
+              for (int l = 0; l < 3; l++)
               {
-                point1[l]=(point1[l]+point2[l])*.5;
+                point1[l] = (point1[l] + point2[l]) * .5;
               }
-              vtkIdType mid=output->GetPoints()->InsertNextPoint(point1);
-              edgeToPointId[edge]=mid;
-              pyramidIds[c][5+e] = mid;
+              vtkIdType mid = output->GetPoints()->InsertNextPoint(point1);
+              edgeToPointId[edge] = mid;
+              pyramidIds[c][5 + e] = mid;
             }
             else
             {
-              pyramidIds[c][5+e] = it->second;
+              pyramidIds[c][5 + e] = it->second;
             }
           }
           output->InsertNextCell(VTK_QUADRATIC_PYRAMID, 13, pyramidIds[c]);
@@ -1185,18 +1179,17 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateLagrangeCurves(
-  vtkUnstructuredGrid* output, int extent[6])
+void vtkCellTypeSource::GenerateLagrangeCurves(vtkUnstructuredGrid* output, int extent[6])
 {
   vtkPoints* points = output->GetPoints();
   vtkIdType numberOfPoints = points->GetNumberOfPoints();
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  //const int yDim = extent[3]-extent[2];
-  //const int zDim = extent[5]-extent[4];
+  const int xDim = extent[1] - extent[0];
+  // const int yDim = extent[3]-extent[2];
+  // const int zDim = extent[5]-extent[4];
   // Connectivity size = (numCells = xDim * (numPtsPerCell = (order + 1) + /* conn size */ 1))
   output->Allocate(xDim * (this->CellOrder + 2));
-    //output->Allocate(numberOfPoints-1);
+  // output->Allocate(numberOfPoints-1);
   std::vector<vtkIdType> conn;
   conn.resize(this->CellOrder + 1);
   for (int i = 0; i < numberOfPoints - 1; ++i)
@@ -1222,12 +1215,11 @@ void vtkCellTypeSource::GenerateLagrangeCurves(
 void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
   const int numCells = (xDim - 1) * (yDim - 1) * 2; // 2 tris per quad
   const int order = this->CellOrder;
-  const int numPtsPerCell =
-    ((order + 1) * (order + 2) / 2) +
+  const int numPtsPerCell = ((order + 1) * (order + 2) / 2) +
     ((order == 2 && this->CompleteQuadraticSimplicialElements) ? 1 : 0);
   vtkIdType bary[3]; // barycentric indices
   output->Allocate(numCells * (numPtsPerCell + 1));
@@ -1239,13 +1231,13 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
   {
     for (int i = 0; i < xDim; ++i)
     {
-      cta[0] = i     +  j      * (xDim + 1); // 0
-      cta[1] = i + 1 +  j      * (xDim + 1); // 1
-      cta[2] = i     + (j + 1) * (xDim + 1); // 3
+      cta[0] = i + j * (xDim + 1);       // 0
+      cta[1] = i + 1 + j * (xDim + 1);   // 1
+      cta[2] = i + (j + 1) * (xDim + 1); // 3
 
       ctb[0] = i + 1 + (j + 1) * (xDim + 1); // 2
-      ctb[1] = i     + (j + 1) * (xDim + 1); // 3
-      ctb[2] = i + 1 +  j      * (xDim + 1); // 1
+      ctb[1] = i + (j + 1) * (xDim + 1);     // 3
+      ctb[2] = i + 1 + j * (xDim + 1);       // 1
 
       vtkVector3d p0, p1, p2, p3, pm;
       output->GetPoint(cta[0], p0.GetData());
@@ -1263,9 +1255,7 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
           }
           double r = static_cast<double>(m) / order;
           double s = static_cast<double>(n) / order;
-          pm =
-            (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
-            r *         (p2 * s + p1 * (1.0 - s));
+          pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
           vtkIdType innerPointId;
           this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
 
@@ -1293,15 +1283,11 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
         double r, s;
         r = 1. / 3.;
         s = 1. / 3.;
-        pm =
-          (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
-          r *         (p2 * s + p1 * (1.0 - s));
+        pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
         this->Locator->InsertUniquePoint(pm.GetData(), cta[numPtsPerCell - 1]);
         r = 2. / 3.;
         s = 2. / 3.;
-        pm =
-          (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
-          r *         (p2 * s + p1 * (1.0 - s));
+        pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
         this->Locator->InsertUniquePoint(pm.GetData(), ctb[numPtsPerCell - 1]);
       }
       output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, &cta[0]);
@@ -1315,8 +1301,8 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
 {
   vtkPoints* points = output->GetPoints();
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
   const int numCells = (xDim - 1) * (yDim - 1);
   const int numPtsPerCell = (this->CellOrder + 1) * (this->CellOrder + 1);
   // Connectivity size = numCells * (numPtsPerCell + 1))
@@ -1329,10 +1315,10 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
   {
     for (int i = 0; i < xDim; ++i)
     {
-      conn[0] = i     +  j      * (xDim + 1);
-      conn[1] = i + 1 +  j      * (xDim + 1);
+      conn[0] = i + j * (xDim + 1);
+      conn[1] = i + 1 + j * (xDim + 1);
       conn[2] = i + 1 + (j + 1) * (xDim + 1);
-      conn[3] = i     + (j + 1) * (xDim + 1);
+      conn[3] = i + (j + 1) * (xDim + 1);
       vtkVector3d p0, p1, p2, p3, pm;
       output->GetPoint(conn[0], p0.GetData());
       output->GetPoint(conn[1], p1.GetData());
@@ -1350,9 +1336,7 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
           int connidx = vtkLagrangeQuadrilateral::PointIndexFromIJK(m, n, order);
           double r = static_cast<double>(m) / order[0];
           double s = static_cast<double>(n) / order[1];
-          pm =
-            (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
-            r *         (p2 * s + p1 * (1.0 - s));
+          pm = (1.0 - r) * (p3 * s + p0 * (1.0 - s)) + r * (p2 * s + p1 * (1.0 - s));
           vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
           conn[connidx] = innerPointId;
         }
@@ -1366,13 +1350,13 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
 void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
   const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1);
-  const int numPtsPerCell =
-    (this->CellOrder == 2 && this->CompleteQuadraticSimplicialElements) ? 15 :
-    (this->CellOrder + 1) * (this->CellOrder + 2) * (this->CellOrder + 3) / 6;
+  const int numPtsPerCell = (this->CellOrder == 2 && this->CompleteQuadraticSimplicialElements)
+    ? 15
+    : (this->CellOrder + 1) * (this->CellOrder + 2) * (this->CellOrder + 3) / 6;
 
   // Allocate numCells * (numPtsPerCell + 1) because connectivity array doesn't
   // hold number of pts per cell, but output cell array does:
@@ -1388,14 +1372,14 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
     {
       for (int i = 0; i < xDim; ++i, ++cc)
       {
-        corners[0] = i +     ( j      +  k      * (yDim + 1)) * (xDim + 1);
-        corners[1] = i + 1 + ( j      +  k      * (yDim + 1)) * (xDim + 1);
-        corners[2] = i + 1 + ((j + 1) +  k      * (yDim + 1)) * (xDim + 1);
-        corners[3] = i +     ((j + 1) +  k      * (yDim + 1)) * (xDim + 1);
-        corners[4] = i +     ( j      + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[5] = i + 1 + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
+        corners[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
+        corners[2] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        corners[3] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        corners[4] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
         corners[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
-        corners[7] = i +     ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[7] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
 
         vtkVector3d pt[8], pm;
         output->GetPoint(corners[0], pt[0].GetData());
@@ -1451,7 +1435,8 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
             };
             for (int extra = 0; extra < 4; ++extra)
             {
-              pm = (tpts[facePts[extra][0]] + tpts[facePts[extra][1]] + tpts[facePts[extra][2]]) * (1.0 / 3.0);
+              pm = (tpts[facePts[extra][0]] + tpts[facePts[extra][1]] + tpts[facePts[extra][2]]) *
+                (1.0 / 3.0);
               this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
               conn[10 + extra] = innerPointId;
             }
@@ -1470,9 +1455,9 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
 void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
   const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1);
   const int numPtsPerCell = (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 1);
   // Connectivity size = numCells * (numPtsPerCell + 1))
@@ -1488,14 +1473,14 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
     {
       for (int i = 0; i < xDim; ++i, ++cc)
       {
-        conn[0] = i +     ( j      +  k      * (yDim + 1)) * (xDim + 1);
-        conn[1] = i + 1 + ( j      +  k      * (yDim + 1)) * (xDim + 1);
-        conn[2] = i + 1 + ((j + 1) +  k      * (yDim + 1)) * (xDim + 1);
-        conn[3] = i +     ((j + 1) +  k      * (yDim + 1)) * (xDim + 1);
-        conn[4] = i +     ( j      + (k + 1) * (yDim + 1)) * (xDim + 1);
-        conn[5] = i + 1 + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1);
+        conn[0] = i + (j + k * (yDim + 1)) * (xDim + 1);
+        conn[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);
+        conn[2] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        conn[3] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);
+        conn[4] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
+        conn[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);
         conn[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
-        conn[7] = i +     ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        conn[7] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
 
         vtkVector3d p0, p1, p2, p3, p4, p5, p6, p7, pm;
         output->GetPoint(conn[0], p0.GetData());
@@ -1513,9 +1498,7 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
           {
             for (int m = 0; m <= order[0]; ++m)
             {
-              if (
-                (m == 0 || m == order[0]) &&
-                (n == 0 || n == order[1]) &&
+              if ((m == 0 || m == order[0]) && (n == 0 || n == order[1]) &&
                 (p == 0 || p == order[2]))
               { // skip corner points
                 continue;
@@ -1524,9 +1507,9 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
               double r = static_cast<double>(m) / order[0];
               double s = static_cast<double>(n) / order[1];
               double t = static_cast<double>(p) / order[2];
-              pm =
-                (1.0 - r) * ((p3 * (1.0 - t) + p7 * t) * s + (p0 * (1.0 - t) + p4 * t) * (1.0 - s)) +
-                r *         ((p2 * (1.0 - t) + p6 * t) * s + (p1 * (1.0 - t) + p5 * t) * (1.0 - s));
+              pm = (1.0 - r) *
+                  ((p3 * (1.0 - t) + p7 * t) * s + (p0 * (1.0 - t) + p4 * t) * (1.0 - s)) +
+                r * ((p2 * (1.0 - t) + p6 * t) * s + (p1 * (1.0 - t) + p5 * t) * (1.0 - s));
               vtkIdType innerPointId;
               this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
               conn[connidx] = innerPointId;
@@ -1535,21 +1518,21 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
         }
         output->InsertNextCell(VTK_LAGRANGE_HEXAHEDRON, numPtsPerCell, &conn[0]);
       } // i
-    } // j
-  } // k
+    }   // j
+  }     // k
 }
 
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int extent[6])
 {
   // cell dimensions
-  const int xDim = extent[1]-extent[0];
-  const int yDim = extent[3]-extent[2];
-  const int zDim = extent[5]-extent[4];
+  const int xDim = extent[1] - extent[0];
+  const int yDim = extent[3] - extent[2];
+  const int zDim = extent[5] - extent[4];
   const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1) * 2; // 2 wedges per hex
-  const int numPtsPerCell =
-    (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2) ? 21 :
-    (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 2) / 2;
+  const int numPtsPerCell = (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2)
+    ? 21
+    : (this->CellOrder + 1) * (this->CellOrder + 1) * (this->CellOrder + 2) / 2;
 
   // There is some ambiguity about whether or not <order> should be a 3-array
   // containing the order in each cardinal direction or a 4-array that
@@ -1570,21 +1553,21 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
     {
       for (int i = 0; i < xDim; ++i, ++cc)
       {
-        cta[0] = i     + ( j      +  k      * (yDim + 1)) * (xDim + 1); // 0
-        cta[1] = i + 1 + ( j      +  k      * (yDim + 1)) * (xDim + 1); // 1
-        cta[2] = i     + ((j + 1) +  k      * (yDim + 1)) * (xDim + 1); // 3
+        cta[0] = i + (j + k * (yDim + 1)) * (xDim + 1);       // 0
+        cta[1] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);   // 1
+        cta[2] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1); // 3
 
-        cta[3] = i     + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1); // 0
-        cta[4] = i + 1 + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1); // 1
-        cta[5] = i     + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 3
+        cta[3] = i + (j + (k + 1) * (yDim + 1)) * (xDim + 1);       // 0
+        cta[4] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);   // 1
+        cta[5] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 3
 
-        ctb[0] = i + 1 + ((j + 1) +  k      * (yDim + 1)) * (xDim + 1); // 2
-        ctb[1] = i     + ((j + 1) +  k      * (yDim + 1)) * (xDim + 1); // 3
-        ctb[2] = i + 1 + ( j      +  k      * (yDim + 1)) * (xDim + 1); // 1
+        ctb[0] = i + 1 + ((j + 1) + k * (yDim + 1)) * (xDim + 1); // 2
+        ctb[1] = i + ((j + 1) + k * (yDim + 1)) * (xDim + 1);     // 3
+        ctb[2] = i + 1 + (j + k * (yDim + 1)) * (xDim + 1);       // 1
 
         ctb[3] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 2
-        ctb[4] = i     + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 3
-        ctb[5] = i + 1 + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1); // 1
+        ctb[4] = i + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);     // 3
+        ctb[5] = i + 1 + (j + (k + 1) * (yDim + 1)) * (xDim + 1);       // 1
 
         vtkVector3d pt[8], pm;
         output->GetPoint(cta[0], pt[0].GetData());
@@ -1602,9 +1585,7 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
           {
             for (int m = 0; m <= order[0]; ++m)
             {
-              if (
-                (m == 0 || m == order[0]) &&
-                (n == 0 || n == order[0]) &&
+              if ((m == 0 || m == order[0]) && (n == 0 || n == order[0]) &&
                 (p == 0 || p == order[2]))
               { // skip corner points
                 continue;
@@ -1612,9 +1593,12 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
               double r = static_cast<double>(m) / order[0];
               double s = static_cast<double>(n) / order[0];
               double t = static_cast<double>(p) / order[2];
-              pm =
-                (1.0 - r) * ((pt[3] * (1.0 - t) + pt[7] * t) * s + (pt[0] * (1.0 - t) + pt[4] * t) * (1.0 - s)) +
-                r *         ((pt[2] * (1.0 - t) + pt[6] * t) * s + (pt[1] * (1.0 - t) + pt[5] * t) * (1.0 - s));
+              pm = (1.0 - r) *
+                  ((pt[3] * (1.0 - t) + pt[7] * t) * s +
+                    (pt[0] * (1.0 - t) + pt[4] * t) * (1.0 - s)) +
+                r *
+                  ((pt[2] * (1.0 - t) + pt[6] * t) * s +
+                    (pt[1] * (1.0 - t) + pt[5] * t) * (1.0 - s));
               vtkIdType innerPointId;
               this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
 
@@ -1625,7 +1609,8 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
               }
               if (m + n >= order[0])
               {
-                int ctbidx = vtkLagrangeWedge::PointIndexFromIJK(order[0] - m, order[0] - n, p, order);
+                int ctbidx =
+                  vtkLagrangeWedge::PointIndexFromIJK(order[0] - m, order[0] - n, p, order);
                 ctb[ctbidx] = innerPointId;
               }
             }
@@ -1651,8 +1636,10 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
           vtkIdType innerA, innerB;
           for (int ii = 0; ii < 2; ++ii)
           {
-            vtkVector3d pA = (pt[facePts[0][ii][0]] + pt[facePts[0][ii][1]] + pt[facePts[0][ii][2]]) * (1. / 3.);
-            vtkVector3d pB = (pt[facePts[1][ii][0]] + pt[facePts[1][ii][1]] + pt[facePts[1][ii][2]]) * (1. / 3.);
+            vtkVector3d pA =
+              (pt[facePts[0][ii][0]] + pt[facePts[0][ii][1]] + pt[facePts[0][ii][2]]) * (1. / 3.);
+            vtkVector3d pB =
+              (pt[facePts[1][ii][0]] + pt[facePts[1][ii][1]] + pt[facePts[1][ii][2]]) * (1. / 3.);
             bodyA = bodyA + 0.5 * pA;
             bodyB = bodyB + 0.5 * pB;
             this->Locator->InsertUniquePoint(pA.GetData(), innerA);
@@ -1676,14 +1663,14 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::ComputeFields(vtkUnstructuredGrid* output)
 {
-  double center[3] = {this->BlocksDimensions[0]*.5, this->BlocksDimensions[1]*.5,
-                            this->BlocksDimensions[2]*.5};
+  double center[3] = { this->BlocksDimensions[0] * .5, this->BlocksDimensions[1] * .5,
+    this->BlocksDimensions[2] * .5 };
   int cellDimension = this->GetCellDimension();
-  if(cellDimension < 3)
+  if (cellDimension < 3)
   {
     center[2] = 0;
   }
-  if(cellDimension < 2)
+  if (cellDimension < 2)
   {
     center[1] = 0;
   }
@@ -1699,31 +1686,30 @@ void vtkCellTypeSource::ComputeFields(vtkUnstructuredGrid* output)
   polynomialField->SetName("Polynomial");
   output->GetPointData()->AddArray(polynomialField);
   polynomialField->FastDelete();
-  for(vtkIdType i=0;i<numberOfPoints;i++)
+  for (vtkIdType i = 0; i < numberOfPoints; i++)
   {
     output->GetPoint(i, coords);
     double d = sqrt(vtkMath::Distance2BetweenPoints(coords, center));
     distanceToCenter->SetComponent(i, 0, d);
     double p = 1;
-    for(int pi=1;pi<=this->PolynomialFieldOrder;pi++)
+    for (int pi = 1; pi <= this->PolynomialFieldOrder; pi++)
     {
       p += this->GetValueOfOrder(pi, coords);
     }
     polynomialField->SetComponent(i, 0, p);
   }
-
 }
 
 //----------------------------------------------------------------------------
 double vtkCellTypeSource::GetValueOfOrder(int order, double coords[3])
 {
   int v = 0;
-  for(int i=0;i<=order;i++)
+  for (int i = 0; i <= order; i++)
   {
-    for(int j=0;j<=order-i;j++)
+    for (int j = 0; j <= order - i; j++)
     {
-      int k=order-i-j;
-      v += pow(coords[0], i)*pow(coords[1], j)*pow(coords[2], k);
+      int k = order - i - j;
+      v += pow(coords[0], i) * pow(coords[1], j) * pow(coords[2], k);
     }
   }
   return v;
@@ -1732,15 +1718,13 @@ double vtkCellTypeSource::GetValueOfOrder(int order, double coords[3])
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "BlocksDimensions: ( "
-     << this->BlocksDimensions[0] << ", "
-     << this->BlocksDimensions[1] << ", "
-     << this->BlocksDimensions[2] << " )\n";
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "BlocksDimensions: ( " << this->BlocksDimensions[0] << ", "
+     << this->BlocksDimensions[1] << ", " << this->BlocksDimensions[2] << " )\n";
   os << indent << "CellType: " << this->CellType << "\n";
   os << indent << "CellOrder: " << this->CellOrder << "\n";
-  os << indent << "CompleteQuadraticSimplicialElements: " <<
-    (this->CompleteQuadraticSimplicialElements ? "TRUE" : "FALSE") << "\n";
+  os << indent << "CompleteQuadraticSimplicialElements: "
+     << (this->CompleteQuadraticSimplicialElements ? "TRUE" : "FALSE") << "\n";
   os << indent << "OutputPrecision: " << this->OutputPrecision << "\n";
   os << indent << "PolynomialFieldOrder: " << this->PolynomialFieldOrder << "\n";
 }

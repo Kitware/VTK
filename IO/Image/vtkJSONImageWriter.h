@@ -18,7 +18,7 @@
  *
  * vtkJSONImageWriter writes a JSON file which will describe the
  * data inside a vtkImageData.
-*/
+ */
 
 #ifndef vtkJSONImageWriter_h
 #define vtkJSONImageWriter_h
@@ -29,8 +29,8 @@
 class VTKIOIMAGE_EXPORT vtkJSONImageWriter : public vtkImageAlgorithm
 {
 public:
-  static vtkJSONImageWriter *New();
-  vtkTypeMacro(vtkJSONImageWriter,vtkImageAlgorithm);
+  static vtkJSONImageWriter* New();
+  vtkTypeMacro(vtkJSONImageWriter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -66,13 +66,12 @@ protected:
   vtkJSONImageWriter();
   ~vtkJSONImageWriter() override;
 
-  char *FileName;
-  char *ArrayName;
+  char* FileName;
+  char* ArrayName;
   int Slice;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkJSONImageWriter(const vtkJSONImageWriter&) = delete;

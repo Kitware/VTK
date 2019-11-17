@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkMatrixToLinearTransform);
-vtkCxxSetObjectMacro(vtkMatrixToLinearTransform,Input,vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkMatrixToLinearTransform, Input, vtkMatrix4x4);
 
 //----------------------------------------------------------------------------
 vtkMatrixToLinearTransform::vtkMatrixToLinearTransform()
@@ -68,10 +68,9 @@ void vtkMatrixToLinearTransform::InternalUpdate()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
+void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
 {
-  vtkMatrixToLinearTransform *transform =
-    static_cast<vtkMatrixToLinearTransform *>(gtrans);
+  vtkMatrixToLinearTransform* transform = static_cast<vtkMatrixToLinearTransform*>(gtrans);
 
   this->SetInput(transform->Input);
 
@@ -82,7 +81,7 @@ void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractTransform *vtkMatrixToLinearTransform::MakeTransform()
+vtkAbstractTransform* vtkMatrixToLinearTransform::MakeTransform()
 {
   return vtkMatrixToLinearTransform::New();
 }

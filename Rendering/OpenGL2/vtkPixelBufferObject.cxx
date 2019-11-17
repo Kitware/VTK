@@ -32,67 +32,40 @@
 
 // Mapping from Usage values to OpenGL values.
 
-static const GLenum OpenGLBufferObjectUsage[9]=
-{
-  GL_STREAM_DRAW,
-  GL_STREAM_READ,
-  GL_STREAM_COPY,
-  GL_STATIC_DRAW,
-  GL_STATIC_READ,
-  GL_STATIC_COPY,
-  GL_DYNAMIC_DRAW,
-  GL_DYNAMIC_READ,
-  GL_DYNAMIC_COPY
-};
+static const GLenum OpenGLBufferObjectUsage[9] = { GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY,
+  GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ,
+  GL_DYNAMIC_COPY };
 
-static const char *BufferObjectUsageAsString[9]=
-{
-  "StreamDraw",
-  "StreamRead",
-  "StreamCopy",
-  "StaticDraw",
-  "StaticRead",
-  "StaticCopy",
-  "DynamicDraw",
-  "DynamicRead",
-  "DynamicCopy"
-};
+static const char* BufferObjectUsageAsString[9] = { "StreamDraw", "StreamRead", "StreamCopy",
+  "StaticDraw", "StaticRead", "StaticCopy", "DynamicDraw", "DynamicRead", "DynamicCopy" };
 
 // access modes
-const GLenum OpenGLBufferObjectAccess[2]=
-{
+const GLenum OpenGLBufferObjectAccess[2] = {
 #ifdef GL_ES_VERSION_3_0
-  GL_MAP_WRITE_BIT,
-  GL_MAP_READ_BIT
+  GL_MAP_WRITE_BIT, GL_MAP_READ_BIT
 #else
-  GL_WRITE_ONLY,
-  GL_READ_ONLY
+  GL_WRITE_ONLY, GL_READ_ONLY
 #endif
 };
 
 // targets
-const GLenum OpenGLBufferObjectTarget[2]=
-{
-  GL_PIXEL_UNPACK_BUFFER,
-  GL_PIXEL_PACK_BUFFER
-};
+const GLenum OpenGLBufferObjectTarget[2] = { GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_PACK_BUFFER };
 
-
-#ifdef  VTK_PBO_DEBUG
+#ifdef VTK_PBO_DEBUG
 #include <pthread.h> // for debugging with MPI, pthread_self()
 #endif
 
 // converting double to float behind the
 // scene so we need sizeof(double)==4
-template< class T >
+template <class T>
 class vtksizeof
 {
 public:
   static int GetSize() { return sizeof(T); }
 };
 
-template<>
-class vtksizeof< double >
+template <>
+class vtksizeof<double>
 {
 public:
   static int GetSize() { return sizeof(float); }
@@ -102,9 +75,7 @@ static int vtkGetSize(int type)
 {
   switch (type)
   {
-    vtkTemplateMacro(
-      return ::vtksizeof<VTK_TT>::GetSize();
-      );
+    vtkTemplateMacro(return ::vtksizeof<VTK_TT>::GetSize(););
   }
   return 0;
 }
@@ -137,7 +108,7 @@ bool vtkPixelBufferObject::IsSupported(vtkRenderWindow*)
 }
 
 //----------------------------------------------------------------------------
-bool vtkPixelBufferObject::LoadRequiredExtensions(vtkRenderWindow *vtkNotUsed(renWin))
+bool vtkPixelBufferObject::LoadRequiredExtensions(vtkRenderWindow* vtkNotUsed(renWin))
 {
   return true;
 }
@@ -146,7 +117,7 @@ bool vtkPixelBufferObject::LoadRequiredExtensions(vtkRenderWindow *vtkNotUsed(re
 void vtkPixelBufferObject::SetContext(vtkRenderWindow* renWin)
 {
   // avoid pointless re-assignment
-  if (this->Context==renWin)
+  if (this->Context == renWin)
   {
     return;
   }
@@ -174,7 +145,7 @@ vtkRenderWindow* vtkPixelBufferObject::GetContext()
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::SetSize(unsigned int nTups, int nComps)
 {
-  this->Size = nTups*nComps;
+  this->Size = nTups * nComps;
 }
 
 //----------------------------------------------------------------------------
@@ -256,139 +227,127 @@ template <class T>
 class vtkUpload3D
 {
 public:
-  static void Upload(void *pboPtr,
-                     T *inData,
-                     unsigned int dims[3],
-                     int numComponents,
-                     vtkIdType continuousIncrements[3],
-                     int components,
-                     int *componentList)
+  static void Upload(void* pboPtr, T* inData, unsigned int dims[3], int numComponents,
+    vtkIdType continuousIncrements[3], int components, int* componentList)
   {
-      //  cout<<"incs[3]="<<continuousIncrements[0]<<" "<<continuousIncrements[1]
-      //      <<" "<<continuousIncrements[2]<<endl;
+    //  cout<<"incs[3]="<<continuousIncrements[0]<<" "<<continuousIncrements[1]
+    //      <<" "<<continuousIncrements[2]<<endl;
 
-      T* fIoMem = static_cast<T*>(pboPtr);
+    T* fIoMem = static_cast<T*>(pboPtr);
 
-      int numComp;
-      int *permutation=nullptr;
-      if(components==0)
+    int numComp;
+    int* permutation = nullptr;
+    if (components == 0)
+    {
+      numComp = numComponents;
+      permutation = new int[numComponents];
+      int i = 0;
+      while (i < numComp)
       {
-        numComp=numComponents;
-        permutation=new int[numComponents];
-        int i=0;
-        while(i<numComp)
-        {
-          permutation[i]=i;
-          ++i;
-        }
+        permutation[i] = i;
+        ++i;
       }
-      else
-      {
-        numComp=components;
-        permutation=componentList;
-      }
+    }
+    else
+    {
+      numComp = components;
+      permutation = componentList;
+    }
 
-      vtkIdType tupleSize =
-        static_cast<vtkIdType>(numComponents + continuousIncrements[0]);
-      for (unsigned int zz=0; zz < dims[2]; zz++)
+    vtkIdType tupleSize = static_cast<vtkIdType>(numComponents + continuousIncrements[0]);
+    for (unsigned int zz = 0; zz < dims[2]; zz++)
+    {
+      for (unsigned int yy = 0; yy < dims[1]; yy++)
       {
-        for (unsigned int yy = 0; yy < dims[1]; yy++)
+        for (unsigned int xx = 0; xx < dims[0]; xx++)
         {
-          for (unsigned int xx=0; xx < dims[0]; xx++)
+          for (int compNo = 0; compNo < numComp; compNo++)
           {
-            for (int compNo=0; compNo < numComp; compNo++)
-            {
-              *fIoMem = inData[permutation[compNo]];
-//              cout<<"upload[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<
-//              compNo<<"] from inData to pbo="<<(double)(*fIoMem)<<endl;
+            *fIoMem = inData[permutation[compNo]];
+            //              cout<<"upload[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<
+            //              compNo<<"] from inData to pbo="<<(double)(*fIoMem)<<endl;
 
-              fIoMem++;
-            }
-            inData += tupleSize+continuousIncrements[0];
+            fIoMem++;
           }
-          // Reached end of row, go to start of next row.
-          inData += continuousIncrements[1] * tupleSize;
+          inData += tupleSize + continuousIncrements[0];
         }
-        // Reached end of 2D plane.
-        inData += continuousIncrements[2] * tupleSize;
+        // Reached end of row, go to start of next row.
+        inData += continuousIncrements[1] * tupleSize;
       }
+      // Reached end of 2D plane.
+      inData += continuousIncrements[2] * tupleSize;
+    }
 
-      if(components==0)
-      {
-        delete[] permutation;
-      }
+    if (components == 0)
+    {
+      delete[] permutation;
+    }
   }
 };
 
-template<>
-class vtkUpload3D< double >
+template <>
+class vtkUpload3D<double>
 {
 public:
-  static void Upload(void *pboPtr,
-                     double *inData,
-                     unsigned int dims[3],
-                     int numComponents,
-                     vtkIdType continuousIncrements[3],
-                     int components,
-                     int *componentList)
+  static void Upload(void* pboPtr, double* inData, unsigned int dims[3], int numComponents,
+    vtkIdType continuousIncrements[3], int components, int* componentList)
   {
-      float* fIoMem = static_cast<float*>(pboPtr);
+    float* fIoMem = static_cast<float*>(pboPtr);
 
-      int numComp;
-      int *permutation=nullptr;
-      if(components==0)
+    int numComp;
+    int* permutation = nullptr;
+    if (components == 0)
+    {
+      numComp = numComponents;
+      permutation = new int[numComponents];
+      int i = 0;
+      while (i < numComp)
       {
-        numComp=numComponents;
-        permutation=new int[numComponents];
-        int i=0;
-        while(i<numComp)
-        {
-          permutation[i]=i;
-          ++i;
-        }
+        permutation[i] = i;
+        ++i;
       }
-      else
-      {
-        numComp=components;
-        permutation=componentList;
-      }
+    }
+    else
+    {
+      numComp = components;
+      permutation = componentList;
+    }
 
-      vtkIdType tupleSize =
-        static_cast<vtkIdType>(numComponents + continuousIncrements[0]);
-      for (unsigned int zz=0; zz < dims[2]; zz++)
+    vtkIdType tupleSize = static_cast<vtkIdType>(numComponents + continuousIncrements[0]);
+    for (unsigned int zz = 0; zz < dims[2]; zz++)
+    {
+      for (unsigned int yy = 0; yy < dims[1]; yy++)
       {
-        for (unsigned int yy = 0; yy < dims[1]; yy++)
+        for (unsigned int xx = 0; xx < dims[0]; xx++)
         {
-          for (unsigned int xx=0; xx < dims[0]; xx++)
+          for (int compNo = 0; compNo < numComponents; compNo++)
           {
-            for (int compNo=0; compNo < numComponents; compNo++)
-            {
-              *fIoMem = static_cast<float>(inData[permutation[compNo]]);
+            *fIoMem = static_cast<float>(inData[permutation[compNo]]);
 
-              //        cout<<"upload specialized double[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<compNo<<"] from inData="<<(*inData)<<" to pbo="<<(*fIoMem)<<endl;
+            //        cout<<"upload specialized
+            //        double[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<compNo<<"] from
+            //        inData="<<(*inData)<<" to pbo="<<(*fIoMem)<<endl;
 
-              fIoMem++;
-            }
-
-            inData += tupleSize+continuousIncrements[0];
+            fIoMem++;
           }
-          // Reached end of row, go to start of next row.
-          inData += continuousIncrements[1] * tupleSize;
+
+          inData += tupleSize + continuousIncrements[0];
         }
-        // Reached end of 2D plane.
-        inData += continuousIncrements[2] * tupleSize;
+        // Reached end of row, go to start of next row.
+        inData += continuousIncrements[1] * tupleSize;
       }
-      if(components==0)
-      {
-        delete[] permutation;
-      }
+      // Reached end of 2D plane.
+      inData += continuousIncrements[2] * tupleSize;
+    }
+    if (components == 0)
+    {
+      delete[] permutation;
+    }
   }
 };
 
 //----------------------------------------------------------------------------
-void *vtkPixelBufferObject::MapBuffer(
-        unsigned int nbytes,
-        BufferType mode)
+void* vtkPixelBufferObject::MapBuffer(unsigned int nbytes, BufferType mode)
 {
   // from vtk to opengl enums
   GLenum target = OpenGLBufferObjectTarget[mode];
@@ -413,9 +372,9 @@ void *vtkPixelBufferObject::MapBuffer(
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
 
 #ifdef GL_ES_VERSION_3_0
-  void *pPBO = glMapBufferRange(target, 0, size, access);
+  void* pPBO = glMapBufferRange(target, 0, size, access);
 #else
-  void *pPBO = glMapBuffer(target, access);
+  void* pPBO = glMapBuffer(target, access);
 #endif
   vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
 
@@ -425,23 +384,19 @@ void *vtkPixelBufferObject::MapBuffer(
 }
 
 //----------------------------------------------------------------------------
-void *vtkPixelBufferObject::MapBuffer(
-        int type,
-        unsigned int numtuples,
-        int comps,
-        BufferType mode)
+void* vtkPixelBufferObject::MapBuffer(int type, unsigned int numtuples, int comps, BufferType mode)
 {
   // from vtk to opengl enums
-  this->Size = numtuples*comps;
+  this->Size = numtuples * comps;
   this->Type = type;
   this->Components = comps;
-  unsigned int size = ::vtkGetSize(type)*this->Size;
+  unsigned int size = ::vtkGetSize(type) * this->Size;
 
   return this->MapBuffer(size, mode);
 }
 
 //----------------------------------------------------------------------------
-void *vtkPixelBufferObject::MapBuffer(BufferType mode)
+void* vtkPixelBufferObject::MapBuffer(BufferType mode)
 {
   // from vtk to opengl enum
   GLuint ioBuf = static_cast<GLuint>(this->Handle);
@@ -458,9 +413,9 @@ void *vtkPixelBufferObject::MapBuffer(BufferType mode)
   vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
 
 #ifdef GL_ES_VERSION_3_0
-  void *pPBO = glMapBufferRange(this->BufferTarget, 0, this->Size, access);
+  void* pPBO = glMapBufferRange(this->BufferTarget, 0, this->Size, access);
 #else
-  void *pPBO = glMapBuffer(target, access);
+  void* pPBO = glMapBuffer(target, access);
 #endif
   vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
 
@@ -494,16 +449,11 @@ void vtkPixelBufferObject::UnmapBuffer(BufferType mode)
 }
 
 //----------------------------------------------------------------------------
-bool vtkPixelBufferObject::Upload3D(
-  int type, void* data,
-  unsigned int dims[3],
-  int numComponents,
-  vtkIdType continuousIncrements[3],
-  int components,
-  int *componentList)
+bool vtkPixelBufferObject::Upload3D(int type, void* data, unsigned int dims[3], int numComponents,
+  vtkIdType continuousIncrements[3], int components, int* componentList)
 {
 #ifdef VTK_PBO_TIMING
-  vtkTimerLog *timer=vtkTimerLog::New();
+  vtkTimerLog* timer = vtkTimerLog::New();
   timer->StartTimer();
 #endif
   assert(this->Context);
@@ -513,29 +463,28 @@ bool vtkPixelBufferObject::Upload3D(
 
   unsigned int size;
 
-  if(components==0)
+  if (components == 0)
   {
-    size = dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(numComponents);
+    size = dims[0] * dims[1] * dims[2] * static_cast<unsigned int>(numComponents);
   }
   else
   {
-    size = dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(components);
+    size = dims[0] * dims[1] * dims[2] * static_cast<unsigned int>(components);
   }
 
   this->Components = numComponents;
 
-  if(data!=nullptr)
+  if (data != nullptr)
   {
-    this->Usage=StreamDraw;
+    this->Usage = StreamDraw;
   }
   else
   {
-    this->Usage=StreamRead;
+    this->Usage = StreamRead;
   }
 
-  glBufferData(this->BufferTarget,
-                    size*static_cast<unsigned int>(::vtkGetSize(type)),
-                    nullptr,OpenGLBufferObjectUsage[this->Usage]);
+  glBufferData(this->BufferTarget, size * static_cast<unsigned int>(::vtkGetSize(type)), nullptr,
+    OpenGLBufferObjectUsage[this->Usage]);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
   this->Type = type;
   if (this->Type == VTK_DOUBLE)
@@ -554,12 +503,8 @@ bool vtkPixelBufferObject::Upload3D(
     vtkOpenGLCheckErrorMacro("");
     switch (type)
     {
-      vtkTemplateMacro(
-        ::vtkUpload3D< VTK_TT >::Upload(ioMem, static_cast<VTK_TT*>(data),
-                                        dims, numComponents,
-                                        continuousIncrements,
-                                        components,componentList);
-        );
+      vtkTemplateMacro(::vtkUpload3D<VTK_TT>::Upload(ioMem, static_cast<VTK_TT*>(data), dims,
+        numComponents, continuousIncrements, components, componentList););
       default:
         vtkErrorMacro("unsupported vtk type");
         return false;
@@ -571,35 +516,29 @@ bool vtkPixelBufferObject::Upload3D(
   this->UnBind();
 #ifdef VTK_PBO_TIMING
   timer->StopTimer();
-  double time=timer->GetElapsedTime();
+  double time = timer->GetElapsedTime();
   timer->Delete();
-  cout<<"Upload data to PBO"<<time<<" seconds."<<endl;
+  cout << "Upload data to PBO" << time << " seconds." << endl;
 #endif
   return true;
 }
 
 //----------------------------------------------------------------------------
-void vtkPixelBufferObject::Allocate(
-        int type,
-        unsigned int numtuples,
-        int comps,
-        BufferType mode)
+void vtkPixelBufferObject::Allocate(int type, unsigned int numtuples, int comps, BufferType mode)
 {
   assert(this->Context);
 
   // from vtk to opengl enums
-  this->Size = numtuples*comps;
+  this->Size = numtuples * comps;
   this->Type = type;
   this->Components = comps;
-  unsigned int size = ::vtkGetSize(type)*this->Size;
+  unsigned int size = ::vtkGetSize(type) * this->Size;
 
   this->Allocate(size, mode);
 }
 
 //----------------------------------------------------------------------------
-void vtkPixelBufferObject::Allocate(
-        unsigned int nbytes,
-        BufferType mode)
+void vtkPixelBufferObject::Allocate(unsigned int nbytes, BufferType mode)
 {
   assert(this->Context);
 
@@ -626,7 +565,6 @@ void vtkPixelBufferObject::Allocate(
   glBindBuffer(target, 0);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkPixelBufferObject::ReleaseMemory()
 {
@@ -641,58 +579,50 @@ void vtkPixelBufferObject::ReleaseMemory()
 
 // ----------------------------------------------------------------------------
 template <class TPBO, class TCPU>
-void vtkDownload3D(TPBO *pboPtr,
-                   TCPU *cpuPtr,
-                   unsigned int dims[3],
-                   int numcomps,
-                   vtkIdType increments[3])
+void vtkDownload3D(
+  TPBO* pboPtr, TCPU* cpuPtr, unsigned int dims[3], int numcomps, vtkIdType increments[3])
 {
-#ifdef  VTK_PBO_DEBUG
+#ifdef VTK_PBO_DEBUG
   cout << "template vtkDownload3D" << endl;
 #endif
   vtkIdType tupleSize = static_cast<vtkIdType>(numcomps + increments[0]);
-  for (unsigned int zz=0; zz < dims[2]; zz++)
+  for (unsigned int zz = 0; zz < dims[2]; zz++)
   {
     for (unsigned int yy = 0; yy < dims[1]; yy++)
     {
-      for (unsigned int xx=0; xx < dims[0]; xx++)
+      for (unsigned int xx = 0; xx < dims[0]; xx++)
       {
-        for (int comp=0; comp < numcomps; comp++)
+        for (int comp = 0; comp < numcomps; comp++)
         {
           *cpuPtr = static_cast<TCPU>(*pboPtr);
-//          cout<<"download[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][comp="<<comp<<"] from pbo="<<(*pboPtr)<<" to cpu="<<(*cpuPtr)<<endl;
+          //          cout<<"download[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][comp="<<comp<<"] from
+          //          pbo="<<(*pboPtr)<<" to cpu="<<(*cpuPtr)<<endl;
           pboPtr++;
           cpuPtr++;
         }
         cpuPtr += increments[0];
       }
       // Reached end of row, go to start of next row.
-      cpuPtr += increments[1]*tupleSize;
+      cpuPtr += increments[1] * tupleSize;
     }
-    cpuPtr += increments[2]*tupleSize;
+    cpuPtr += increments[2] * tupleSize;
   }
 }
 
 // ----------------------------------------------------------------------------
 template <class OType>
-void vtkDownload3DSpe(int iType,
-                      void *iData,
-                      OType odata,
-                      unsigned int dims[3],
-                      int numcomps,
-                      vtkIdType increments[3])
+void vtkDownload3DSpe(
+  int iType, void* iData, OType odata, unsigned int dims[3], int numcomps, vtkIdType increments[3])
 {
-#ifdef  VTK_PBO_DEBUG
+#ifdef VTK_PBO_DEBUG
   cout << "vtkDownload3DSpe" << endl;
 #endif
-  switch(iType)
+  switch (iType)
   {
     vtkTemplateMacro(
-      ::vtkDownload3D(static_cast<VTK_TT*>(iData), odata,
-                      dims, numcomps, increments);
-      );
+      ::vtkDownload3D(static_cast<VTK_TT*>(iData), odata, dims, numcomps, increments););
     default:
-#ifdef  VTK_PBO_DEBUG
+#ifdef VTK_PBO_DEBUG
       cout << "d nested default." << endl;
 #endif
       break;
@@ -701,13 +631,10 @@ void vtkDownload3DSpe(int iType,
 
 //----------------------------------------------------------------------------
 bool vtkPixelBufferObject::Download3D(
-  int type, void* data,
-  unsigned int dims[3],
-  int numcomps,
-  vtkIdType increments[3])
+  int type, void* data, unsigned int dims[3], int numcomps, vtkIdType increments[3])
 {
 #ifdef VTK_PBO_TIMING
-  vtkTimerLog *timer=vtkTimerLog::New();
+  vtkTimerLog* timer = vtkTimerLog::New();
   timer->StartTimer();
 #endif
   assert(this->Context);
@@ -718,14 +645,13 @@ bool vtkPixelBufferObject::Download3D(
     return false;
   }
 
-  if (this->Size < dims[0]*dims[1]*dims[2]*static_cast<unsigned int>(numcomps))
+  if (this->Size < dims[0] * dims[1] * dims[2] * static_cast<unsigned int>(numcomps))
   {
     vtkErrorMacro("Size too small.");
     return false;
   }
 
   this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-
 
 #ifdef GL_ES_VERSION_3_0
   void* ioMem = glMapBufferRange(this->BufferTarget, 0, this->Size, GL_MAP_READ_BIT);
@@ -736,10 +662,8 @@ bool vtkPixelBufferObject::Download3D(
 
   switch (type)
   {
-    vtkTemplateMacro(
-      VTK_TT* odata = static_cast<VTK_TT*>(data);
-      ::vtkDownload3DSpe(this->Type,ioMem,odata,dims,numcomps,increments);
-      );
+    vtkTemplateMacro(VTK_TT* odata = static_cast<VTK_TT*>(data);
+                     ::vtkDownload3DSpe(this->Type, ioMem, odata, dims, numcomps, increments););
     default:
       vtkErrorMacro("unsupported vtk type");
       return false;
@@ -750,9 +674,9 @@ bool vtkPixelBufferObject::Download3D(
 
 #ifdef VTK_PBO_TIMING
   timer->StopTimer();
-  double time=timer->GetElapsedTime();
+  double time = timer->GetElapsedTime();
   timer->Delete();
-  cout<<"dowmload data from PBO"<<time<<" seconds."<<endl;
+  cout << "dowmload data from PBO" << time << " seconds." << endl;
 #endif
 
   return true;
@@ -765,7 +689,6 @@ void vtkPixelBufferObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Context: " << this->Context << endl;
   os << indent << "Handle: " << this->Handle << endl;
   os << indent << "Size: " << this->Size << endl;
-  os << indent << "VTK Type: " << vtkImageScalarTypeNameMacro(this->Type)
-     << endl;
+  os << indent << "VTK Type: " << vtkImageScalarTypeNameMacro(this->Type) << endl;
   os << indent << "Usage:" << BufferObjectUsageAsString[this->Usage] << endl;
 }

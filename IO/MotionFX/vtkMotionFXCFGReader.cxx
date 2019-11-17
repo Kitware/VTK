@@ -50,7 +50,8 @@ namespace impl
 {
 struct Motion;
 
-using MapOfVectorOfMotions = std::map<std::string, std::vector<std::shared_ptr<const impl::Motion> > >;
+using MapOfVectorOfMotions =
+  std::map<std::string, std::vector<std::shared_ptr<const impl::Motion> > >;
 
 //-----------------------------------------------------------------------------
 // this exception is fired to indicate that a required parameter is missing for
@@ -59,12 +60,14 @@ class MissingParameterError : public std::runtime_error
 {
 public:
   MissingParameterError(const std::string& what_arg)
-    : std::runtime_error(what_arg){}
+    : std::runtime_error(what_arg)
+  {
+  }
   MissingParameterError(const char* what_arg)
-    : std::runtime_error(what_arg){}
+    : std::runtime_error(what_arg)
+  {
+  }
 };
-
-
 
 //-----------------------------------------------------------------------------
 // these are a bunch of convenience methods used in constructors for various
@@ -111,8 +114,7 @@ void set(double& ref, const char* pname, const MapType& params)
 // this is a variant of set that doesn't raise MissingParameterError exception
 // instead set the param to the default value indicated.
 template <typename Value, typename MapType>
-void set(Value& ref, const char* pname, const MapType& params,
-  const Value& defaultValue)
+void set(Value& ref, const char* pname, const MapType& params, const Value& defaultValue)
 {
   try
   {
@@ -807,7 +809,9 @@ using namespace tao::pegtl;
 namespace PositionFile
 {
 template <typename Rule>
-struct action : nothing<Rule> {};
+struct action : nothing<Rule>
+{
+};
 
 template <>
 struct action<MotionFX::Common::Number>
@@ -885,7 +889,10 @@ struct ActiveState
   std::map<std::string, Value> ActiveParameters;
   impl::MapOfVectorOfMotions& Motions;
 
-  ActiveState(impl::MapOfVectorOfMotions& motions) : Motions(motions) {}
+  ActiveState(impl::MapOfVectorOfMotions& motions)
+    : Motions(motions)
+  {
+  }
   ~ActiveState() {}
 
 private:
@@ -895,9 +902,11 @@ private:
 //-----------------------------------------------------------------------------
 
 template <typename Rule>
-struct action : nothing<Rule> {};
+struct action : nothing<Rule>
+{
+};
 
-template<>
+template <>
 struct action<MotionFX::CFG::Value>
 {
 
@@ -989,9 +998,9 @@ struct action<MotionFX::CFG::Grammar>
     // let's sort all motions according to tstart_prescribe.
     for (auto& apair : state.Motions)
     {
-      std::sort(
-        apair.second.begin(), apair.second.end(), [](const std::shared_ptr<const impl::Motion>& m0,
-                                                    const std::shared_ptr<const impl::Motion>& m1) {
+      std::sort(apair.second.begin(), apair.second.end(),
+        [](const std::shared_ptr<const impl::Motion>& m0,
+          const std::shared_ptr<const impl::Motion>& m1) {
           return m0->tstart_prescribe < m1->tstart_prescribe;
         });
     }
@@ -1014,15 +1023,13 @@ bool PositionFileMotion::read_position_file(const std::string& rootDir) const
     {
       std::vector<double> numbers;
       tao::pegtl::parse<MotionFX::OrientationsPositionFile::Grammar,
-        Actions::PositionFile::action/*, tao::pegtl::tracer*/>(
-        in, numbers, this->positions);
+        Actions::PositionFile::action /*, tao::pegtl::tracer*/>(in, numbers, this->positions);
     }
     else
     {
       std::vector<double> numbers;
       tao::pegtl::parse<MotionFX::LegacyPositionFile::Grammar,
-        Actions::PositionFile::action/*, tao::pegtl::tracer*/>(
-        in, numbers, this->positions);
+        Actions::PositionFile::action /*, tao::pegtl::tracer*/>(in, numbers, this->positions);
     }
     return true;
   }
@@ -1105,8 +1112,7 @@ public:
     {
       for (const auto& motion : pair.second)
       {
-        if (auto mpf =
-              std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
+        if (auto mpf = std::dynamic_pointer_cast<const impl::PositionFileMotion>(motion))
         {
           mpf->read_position_file(dir);
         }

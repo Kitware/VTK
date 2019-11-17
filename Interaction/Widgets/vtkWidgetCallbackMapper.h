@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkWidgetEvent vtkWidgetEventTranslator
-*/
+ */
 
 #ifndef vtkWidgetCallbackMapper_h
 #define vtkWidgetCallbackMapper_h
@@ -44,13 +44,13 @@ public:
   /**
    * Instantiate the class.
    */
-  static vtkWidgetCallbackMapper *New();
+  static vtkWidgetCallbackMapper* New();
 
   //@{
   /**
    * Standard macros.
    */
-  vtkTypeMacro(vtkWidgetCallbackMapper,vtkObject);
+  vtkTypeMacro(vtkWidgetCallbackMapper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -58,8 +58,8 @@ public:
   /**
    * Specify the vtkWidgetEventTranslator to coordinate with.
    */
-  void SetEventTranslator(vtkWidgetEventTranslator *t);
-  vtkGetObjectMacro(EventTranslator,vtkWidgetEventTranslator);
+  void SetEventTranslator(vtkWidgetEventTranslator* t);
+  vtkGetObjectMacro(EventTranslator, vtkWidgetEventTranslator);
   //@}
 
   /**
@@ -78,16 +78,13 @@ public:
    * unsigned long eventId) then modifiers are ignored. Otherwise, a vtkEvent
    * instance is used to fully quality the events.
    */
-  void SetCallbackMethod(unsigned long VTKEvent, unsigned long widgetEvent,
-                         vtkAbstractWidget *w, CallbackType f);
-  void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode,
-                         int repeatCount, const char* keySym,
-                         unsigned long widgetEvent,
-                         vtkAbstractWidget *w, CallbackType f);
-  void SetCallbackMethod(unsigned long VTKEvent, vtkEventData *ed,
-                         unsigned long widgetEvent,
-                         vtkAbstractWidget *w, CallbackType f);
-  //void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,
+  void SetCallbackMethod(
+    unsigned long VTKEvent, unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f);
+  void SetCallbackMethod(unsigned long VTKEvent, int modifiers, char keyCode, int repeatCount,
+    const char* keySym, unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f);
+  void SetCallbackMethod(unsigned long VTKEvent, vtkEventData* ed, unsigned long widgetEvent,
+    vtkAbstractWidget* w, CallbackType f);
+  // void SetCallbackMethod(vtkWidgetEvent *vtkEvent, unsigned long widgetEvent,
   //                       vtkAbstractWidget *w, CallbackType f);
   //@}
 
@@ -102,26 +99,21 @@ protected:
   ~vtkWidgetCallbackMapper() override;
 
   // Translates VTK events into widget events
-  vtkWidgetEventTranslator *EventTranslator;
+  vtkWidgetEventTranslator* EventTranslator;
 
   // Invoke the method associated with a particular widget event
-  vtkCallbackMap *CallbackMap;
+  vtkCallbackMap* CallbackMap;
 
   /**
    * This method is used to assign a callback (implemented as a static class
    * method) to a particular widget event. This is an internal method used by
    * widgets to map widget events into invocations of class methods.
    */
-  void SetCallbackMethod(unsigned long widgetEvent,
-                         vtkAbstractWidget *w, CallbackType f);
-
+  void SetCallbackMethod(unsigned long widgetEvent, vtkAbstractWidget* w, CallbackType f);
 
 private:
   vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&) = delete;
   void operator=(const vtkWidgetCallbackMapper&) = delete;
-
 };
 
-
 #endif /* vtkWidgetCallbackMapper_h */
-

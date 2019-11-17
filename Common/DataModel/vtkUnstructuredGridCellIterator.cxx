@@ -29,7 +29,7 @@
 vtkStandardNewMacro(vtkUnstructuredGridCellIterator);
 
 //------------------------------------------------------------------------------
-void vtkUnstructuredGridCellIterator::PrintSelf(ostream &os, vtkIndent indent)
+void vtkUnstructuredGridCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -50,13 +50,12 @@ void vtkUnstructuredGridCellIterator::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
-    vtkUnstructuredGrid *ug)
+void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(vtkUnstructuredGrid* ug)
 {
   // If the unstructured grid has not been initialized yet, these may not exist:
-  vtkUnsignedCharArray *cellTypeArray = ug ? ug->GetCellTypesArray() : nullptr;
-  vtkCellArray *cellArray = ug ? ug->GetCells() : nullptr;
-  vtkPoints *points = ug ? ug->GetPoints() : nullptr;
+  vtkUnsignedCharArray* cellTypeArray = ug ? ug->GetCellTypesArray() : nullptr;
+  vtkCellArray* cellArray = ug ? ug->GetCells() : nullptr;
+  vtkPoints* points = ug ? ug->GetPoints() : nullptr;
 
   if (points)
   {
@@ -94,9 +93,7 @@ void vtkUnstructuredGridCellIterator::IncrementToNextCell()
 }
 
 //------------------------------------------------------------------------------
-vtkUnstructuredGridCellIterator::vtkUnstructuredGridCellIterator()
-{
-}
+vtkUnstructuredGridCellIterator::vtkUnstructuredGridCellIterator() {}
 
 //------------------------------------------------------------------------------
 vtkUnstructuredGridCellIterator::~vtkUnstructuredGridCellIterator() = default;
@@ -132,10 +129,11 @@ void vtkUnstructuredGridCellIterator::FetchPoints()
 //------------------------------------------------------------------------------
 // Given a pointer into a set of faces, traverse the faces and return the total
 // number of ids (including size hints) in the face set.
-namespace {
-inline vtkIdType FaceSetSize(const vtkIdType *begin)
+namespace
 {
-  const vtkIdType *result = begin;
+inline vtkIdType FaceSetSize(const vtkIdType* begin)
+{
+  const vtkIdType* result = begin;
   vtkIdType numFaces = *(result++);
   while (numFaces-- > 0)
   {
@@ -152,10 +150,10 @@ void vtkUnstructuredGridCellIterator::FetchFaces()
   {
     const vtkIdType cellId = this->Cells->GetCurrentCellId();
     const vtkIdType faceLoc = this->FaceLocs->GetValue(cellId);
-    const vtkIdType *faceSet = this->FaceConn->GetPointer(faceLoc);
+    const vtkIdType* faceSet = this->FaceConn->GetPointer(faceLoc);
     vtkIdType facesSize = FaceSetSize(faceSet);
     this->Faces->SetNumberOfIds(facesSize);
-    vtkIdType *tmpPtr = this->Faces->GetPointer(0);
+    vtkIdType* tmpPtr = this->Faces->GetPointer(0);
     std::copy_n(faceSet, facesSize, tmpPtr);
   }
   else

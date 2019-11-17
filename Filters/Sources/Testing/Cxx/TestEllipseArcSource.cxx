@@ -21,7 +21,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 
-int TestEllipseArcSource(int vtkNotUsed(argc), char * vtkNotUsed(argv)[])
+int TestEllipseArcSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkEllipseArcSource> source;
   source->SetCenter(0.0, 0.0, 0.0);

@@ -18,13 +18,13 @@
 #include "vtkPointSet.h"
 
 //----------------------------------------------------------------------------
-vtkFindCellStrategy::vtkFindCellStrategy ()
+vtkFindCellStrategy::vtkFindCellStrategy()
 {
   this->PointSet = nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkFindCellStrategy::~vtkFindCellStrategy ()
+vtkFindCellStrategy::~vtkFindCellStrategy()
 {
   // if ( this->PointSet != nullptr )
   // {
@@ -35,13 +35,12 @@ vtkFindCellStrategy::~vtkFindCellStrategy ()
 }
 
 //----------------------------------------------------------------------------
-int vtkFindCellStrategy::Initialize(vtkPointSet *ps)
+int vtkFindCellStrategy::Initialize(vtkPointSet* ps)
 {
   // Make sure everything is up to snuff
-  if ( ps == nullptr || ps->GetPoints() == nullptr ||
-       ps->GetPoints()->GetNumberOfPoints() < 1 )
+  if (ps == nullptr || ps->GetPoints() == nullptr || ps->GetPoints()->GetNumberOfPoints() < 1)
   {
-    vtkLog(ERROR,"Initialize must be called with non-NULL instance of vtkPointSet");
+    vtkLog(ERROR, "Initialize must be called with non-NULL instance of vtkPointSet");
     return 0;
   }
   else
@@ -55,7 +54,7 @@ int vtkFindCellStrategy::Initialize(vtkPointSet *ps)
 //----------------------------------------------------------------------------
 void vtkFindCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "vtkPointSet: " << this->PointSet << "\n";
 }

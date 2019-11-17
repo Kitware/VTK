@@ -28,13 +28,11 @@
 #include "vtkTestUtilities.h"
 #include "vtkTulipReader.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestTulipReaderClusters(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/Infovis/clustered-graph.tlp");
+  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/clustered-graph.tlp");
   VTK_CREATE(vtkTulipReader, reader);
   reader->SetFileName(file);
   delete[] file;

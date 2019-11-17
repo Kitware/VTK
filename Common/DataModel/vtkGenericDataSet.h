@@ -52,7 +52,7 @@
  *
  * @sa
  * vtkGenericAdaptorCell vtkDataSet
-*/
+ */
 
 #ifndef vtkGenericDataSet_h
 #define vtkGenericDataSet_h
@@ -73,7 +73,7 @@ public:
   /**
    * Standard VTK type and print macros.
    */
-  vtkTypeMacro(vtkGenericDataSet,vtkDataObject);
+  vtkTypeMacro(vtkGenericDataSet, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -90,7 +90,7 @@ public:
    * \pre valid_dim_range: (dim>=-1) && (dim<=3)
    * \post positive_result: result>=0
    */
-  virtual vtkIdType GetNumberOfCells(int dim=-1) = 0;
+  virtual vtkIdType GetNumberOfCells(int dim = -1) = 0;
 
   /**
    * Return -1 if the dataset is explicitly defined by cells of varying
@@ -110,7 +110,7 @@ public:
    * THE DATASET IS NOT MODIFIED
    * \pre types_exist: types!=0
    */
-  virtual void GetCellTypes(vtkCellTypes *types);
+  virtual void GetCellTypes(vtkCellTypes* types);
 
   /**
    * Return an iterator to traverse cells of dimension `dim' (or all
@@ -124,7 +124,7 @@ public:
    * \post result_exists: result!=0
    */
   VTK_NEWINSTANCE
-  virtual vtkGenericCellIterator *NewCellIterator(int dim=-1) = 0;
+  virtual vtkGenericCellIterator* NewCellIterator(int dim = -1) = 0;
 
   /**
    * Return an iterator to traverse cell boundaries of dimension `dim' (or
@@ -136,8 +136,7 @@ public:
    * \post result_exists: result!=0
    */
   VTK_NEWINSTANCE
-  virtual vtkGenericCellIterator *NewBoundaryIterator(int dim=-1,
-                                                      int exteriorOnly=0) = 0;
+  virtual vtkGenericCellIterator* NewBoundaryIterator(int dim = -1, int exteriorOnly = 0) = 0;
 
   /**
    * Return an iterator to traverse the points composing the dataset; they
@@ -146,7 +145,7 @@ public:
    * \post result_exists: result!=0
    */
   VTK_NEWINSTANCE
-  virtual vtkGenericPointIterator *NewPointIterator()=0;
+  virtual vtkGenericPointIterator* NewPointIterator() = 0;
 
   /**
    * Locate the closest cell to position `x' (global coordinates) with
@@ -161,19 +160,15 @@ public:
    * \pre cell_exists: cell!=0
    * \pre positive_tolerance: tol2>0
    */
-  virtual int FindCell(double x[3],
-                       vtkGenericCellIterator* &cell,
-                       double tol2,
-                       int &subId,
-                       double pcoords[3]) = 0;
+  virtual int FindCell(
+    double x[3], vtkGenericCellIterator*& cell, double tol2, int& subId, double pcoords[3]) = 0;
 
   /**
    * Locate the closest point `p' to position `x' (global coordinates).
    * \pre not_empty: GetNumberOfPoints()>0
    * \pre p_exists: p!=0
    */
-  virtual void FindPoint(double x[3],
-                         vtkGenericPointIterator *p)=0;
+  virtual void FindPoint(double x[3], vtkGenericPointIterator* p) = 0;
 
   /**
    * Datasets are composite objects and need to check each part for their
@@ -184,7 +179,7 @@ public:
   /**
    * Compute the geometry bounding box.
    */
-  virtual void ComputeBounds()=0;
+  virtual void ComputeBounds() = 0;
 
   /**
    * Return a pointer to the geometry bounding box in the form
@@ -192,7 +187,7 @@ public:
    * The return value is VOLATILE.
    * \post result_exists: result!=0
    */
-  virtual double *GetBounds();
+  virtual double* GetBounds();
 
   /**
    * Return the geometry bounding box in global coordinates in
@@ -205,7 +200,7 @@ public:
    * The return value is VOLATILE.
    * \post result_exists: result!=0
    */
-  virtual double *GetCenter();
+  virtual double* GetCenter();
 
   /**
    * Get the center of the bounding box in global coordinates.
@@ -241,7 +236,9 @@ public:
    * GetAttributesAsFieldData.
    */
   vtkDataSetAttributes* GetAttributes(int type) override
-    { return this->Superclass::GetAttributes(type); }
+  {
+    return this->Superclass::GetAttributes(type);
+  }
 
   //@{
   /**
@@ -249,8 +246,8 @@ public:
    * processing.
    * \pre tessellator_exists: tessellator!=0
    */
-  virtual void SetTessellator(vtkGenericCellTessellator *tessellator);
-  vtkGetObjectMacro(Tessellator,vtkGenericCellTessellator);
+  virtual void SetTessellator(vtkGenericCellTessellator* tessellator);
+  vtkGetObjectMacro(Tessellator, vtkGenericCellTessellator);
   //@}
 
   /**
@@ -275,7 +272,7 @@ public:
    * Retrieve an instance of this class from an information object.
    */
   static vtkGenericDataSet* GetData(vtkInformation* info);
-  static vtkGenericDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkGenericDataSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:
@@ -287,13 +284,13 @@ protected:
 
   ~vtkGenericDataSet() override;
 
-  vtkGenericAttributeCollection *Attributes;
+  vtkGenericAttributeCollection* Attributes;
 
-  //Main helper class to tessellate a higher order cell into linear ones.
-  vtkGenericCellTessellator *Tessellator;
+  // Main helper class to tessellate a higher order cell into linear ones.
+  vtkGenericCellTessellator* Tessellator;
 
-  double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
-  double Center[3]; // Center of the geometric bounding box
+  double Bounds[6];         // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
+  double Center[3];         // Center of the geometric bounding box
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
 
 private:

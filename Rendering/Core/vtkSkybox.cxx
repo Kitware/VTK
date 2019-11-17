@@ -21,14 +21,14 @@
 vtkObjectFactoryNewMacro(vtkSkybox);
 
 //------------------------------------------------------------------------------
-void vtkSkybox::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkSkybox::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
 // Always return uninitialized
-double *vtkSkybox::GetBounds()
+double* vtkSkybox::GetBounds()
 {
   return nullptr;
 }

@@ -18,7 +18,7 @@
  *
  * vtkInformationDoubleVectorKey is used to represent keys for double
  * vector values in vtkInformation.h
-*/
+ */
 
 #ifndef vtkInformationDoubleVectorKey_h
 #define vtkInformationDoubleVectorKey_h
@@ -31,11 +31,10 @@
 class VTKCOMMONCORE_EXPORT vtkInformationDoubleVectorKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationDoubleVectorKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationDoubleVectorKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkInformationDoubleVectorKey(const char* name, const char* location,
-                                 int length=-1);
+  vtkInformationDoubleVectorKey(const char* name, const char* location, int length = -1);
   ~vtkInformationDoubleVectorKey() override;
 
   /**
@@ -43,8 +42,8 @@ public:
    * name, a location and a required length. This method is provided for
    * wrappers. Use the constructor directly from C++ instead.
    */
-  static vtkInformationDoubleVectorKey* MakeKey(const char* name, const char* location,
-    int length=-1)
+  static vtkInformationDoubleVectorKey* MakeKey(
+    const char* name, const char* location, int length = -1)
   {
     return new vtkInformationDoubleVectorKey(name, location, length);
   }
@@ -57,7 +56,7 @@ public:
   void Append(vtkInformation* info, double value);
   void Set(vtkInformation* info, const double* value, int length);
   double* Get(vtkInformation* info);
-  double  Get(vtkInformation* info, int idx);
+  double Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, double* value);
   int Length(vtkInformation* info);
   //@}

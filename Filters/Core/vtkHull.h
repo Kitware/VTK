@@ -36,7 +36,7 @@
  * this class is to manually specify the planes, and then generate the
  * polyhedron from the planes (without squeezing the planes towards the
  * input). The method GenerateHull() is used to do this.
-*/
+ */
 
 #ifndef vtkHull_h
 #define vtkHull_h
@@ -52,14 +52,14 @@ class vtkPolyData;
 class VTKFILTERSCORE_EXPORT vtkHull : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkHull *New();
-  vtkTypeMacro(vtkHull,vtkPolyDataAlgorithm);
+  static vtkHull* New();
+  vtkTypeMacro(vtkHull, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Remove all planes from the current set of planes.
    */
-  void RemoveAllPlanes( void );
+  void RemoveAllPlanes(void);
 
   //@{
   /**
@@ -73,8 +73,8 @@ public:
    * plane that was previously inserted. If a value i < -NumberOfPlanes
    * is returned, then the plane normal is zero length.
    */
-  int  AddPlane( double A, double B, double C );
-  int  AddPlane( double plane[3] );
+  int AddPlane(double A, double B, double C);
+  int AddPlane(double plane[3]);
   //@}
 
   //@{
@@ -86,8 +86,8 @@ public:
    * Note that D is set to zero, except in the case of the method taking
    * a vtkPlanes* argument, where it is set to the D value defined there.
    */
-  void SetPlane( int i, double A, double B, double C );
-  void SetPlane( int i, double plane[3] );
+  void SetPlane(int i, double A, double B, double C);
+  void SetPlane(int i, double plane[3]);
   //@}
 
   //@{
@@ -95,23 +95,23 @@ public:
    * Variations of AddPlane()/SetPlane() that allow D to be set. These
    * methods are used when GenerateHull() is used.
    */
-  int AddPlane( double A, double B, double C, double D );
-  int AddPlane( double plane[3], double D );
-  void SetPlane( int i, double A, double B, double C, double D );
-  void SetPlane( int i, double plane[3], double D );
+  int AddPlane(double A, double B, double C, double D);
+  int AddPlane(double plane[3], double D);
+  void SetPlane(int i, double A, double B, double C, double D);
+  void SetPlane(int i, double plane[3], double D);
   //@}
 
   /**
    * Set all the planes at once using a vtkPlanes implicit function.
    * This also sets the D value, so it can be used with GenerateHull().
    */
-  void SetPlanes( vtkPlanes *planes );
+  void SetPlanes(vtkPlanes* planes);
 
   //@{
   /**
    * Get the number of planes in the current set of planes.
    */
-  vtkGetMacro( NumberOfPlanes, int );
+  vtkGetMacro(NumberOfPlanes, int);
   //@}
 
   /**
@@ -144,7 +144,7 @@ public:
    * used to add the 6 planes from the original octahedron, level 1
    * will add 18 planes, and so on.
    */
-  void AddRecursiveSpherePlanes( int level );
+  void AddRecursiveSpherePlanes(int level);
 
   //@{
   /**
@@ -158,9 +158,9 @@ public:
    * a very generous fit, it's only used to create the initial polygons
    * that are eventually clipped.
    */
-  void GenerateHull(vtkPolyData *pd, double *bounds);
-  void GenerateHull(vtkPolyData *pd, double xmin, double xmax,
-                    double ymin, double ymax, double zmin, double zmax);
+  void GenerateHull(vtkPolyData* pd, double* bounds);
+  void GenerateHull(
+    vtkPolyData* pd, double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   //@}
 
 protected:
@@ -168,31 +168,31 @@ protected:
   ~vtkHull() override;
 
   // The planes - 4 doubles per plane for A, B, C, D
-  double     *Planes;
+  double* Planes;
 
   // This indicates the current size (in planes - 4*sizeof(double)) of
   // the this->Planes array. Planes are allocated in chunks so that the
   // array does not need to be reallocated every time a new plane is added
-  int       PlanesStorageSize;
+  int PlanesStorageSize;
 
   // The number of planes that have been added
-  int       NumberOfPlanes;
+  int NumberOfPlanes;
 
   // Internal method used to find the position of each plane
-  void      ComputePlaneDistances(vtkPolyData *input);
+  void ComputePlaneDistances(vtkPolyData* input);
 
   // Internal method used to create the actual polygons from the set
   // of planes
-  void      ClipPolygonsFromPlanes( vtkPoints *points, vtkCellArray *polys,
-                                    const double *bounds );
+  void ClipPolygonsFromPlanes(vtkPoints* points, vtkCellArray* polys, const double* bounds);
 
   // Internal method used to create the initial "big" polygon from the
   // plane equation. This polygon is clipped by all other planes to form
   // the final polygon (or it may be clipped entirely)
-  void      CreateInitialPolygon( double *, int, const double * );
+  void CreateInitialPolygon(double*, int, const double*);
 
   // The method that does it all...
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkHull(const vtkHull&) = delete;
   void operator=(const vtkHull&) = delete;

@@ -46,7 +46,7 @@
  * @sa
  * vtkPointInterpolator vtkPointInterpolator2D vtkGeneralizedKernel
  * vtkGaussianKernel vtkSPHKernel vtkShepardKernel vtkVoronoiKernel
-*/
+ */
 
 #ifndef vtkInterpolationKernel_h
 #define vtkInterpolationKernel_h
@@ -59,7 +59,6 @@ class vtkIdList;
 class vtkDoubleArray;
 class vtkDataSet;
 class vtkPointData;
-
 
 class VTKFILTERSPOINTS_EXPORT vtkInterpolationKernel : public vtkObject
 {
@@ -81,8 +80,7 @@ public:
    * RequiresInitialization to false, do not call Initialize(), and of course
    * manually initialize the kernel.
    */
-  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd);
+  virtual void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd);
 
   //@{
   /**
@@ -105,7 +103,7 @@ public:
    * cases, although in some kernels it is used to facilitate basis
    * computation.
    */
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) = 0;
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList* pIds, vtkIdType ptId = 0) = 0;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -117,17 +115,16 @@ public:
    * advanced users can invoke ComputeWeights() and provide the interpolation
    * basis points pIds directly.
    */
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights) = 0;
+  virtual vtkIdType ComputeWeights(double x[3], vtkIdList* pIds, vtkDoubleArray* weights) = 0;
 
 protected:
   vtkInterpolationKernel();
   ~vtkInterpolationKernel() override;
 
   bool RequiresInitialization;
-  vtkAbstractPointLocator *Locator;
-  vtkDataSet *DataSet;
-  vtkPointData *PointData;
+  vtkAbstractPointLocator* Locator;
+  vtkDataSet* DataSet;
+  vtkPointData* PointData;
 
   // Just clear out the data. Can be overloaded by subclasses as necessary.
   virtual void FreeStructures();

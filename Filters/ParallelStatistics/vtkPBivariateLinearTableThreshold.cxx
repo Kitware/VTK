@@ -47,15 +47,14 @@ vtkPBivariateLinearTableThreshold::~vtkPBivariateLinearTableThreshold()
 
 void vtkPBivariateLinearTableThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 
-int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
-                                              vtkInformationVector** inputVector,
-                                              vtkInformationVector* outputVector)
+int vtkPBivariateLinearTableThreshold::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  this->Superclass::RequestData(request,inputVector,outputVector);
+  this->Superclass::RequestData(request, inputVector, outputVector);
 
   // single process?
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
@@ -63,21 +62,21 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
     return 1;
   }
 
- vtkCommunicator* comm = this->Controller->GetCommunicator();
+  vtkCommunicator* comm = this->Controller->GetCommunicator();
   if (!comm)
   {
     vtkErrorMacro("Need a communicator.");
     return 0;
   }
 
-  vtkTable* outRowDataTable = vtkTable::GetData( outputVector, OUTPUT_ROW_DATA );
+  vtkTable* outRowDataTable = vtkTable::GetData(outputVector, OUTPUT_ROW_DATA);
 
   int numProcesses = this->Controller->GetNumberOfProcesses();
 
- // 2) gather the selected data together
+  // 2) gather the selected data together
   // for each column, make a new one and add it to a new table
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
-  for (int i=0; i<outRowDataTable->GetNumberOfColumns(); i++)
+  for (int i = 0; i < outRowDataTable->GetNumberOfColumns(); i++)
   {
     vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outRowDataTable->GetColumn(i));
     if (!col)
@@ -85,17 +84,17 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
 
     vtkIdType myLength = col->GetNumberOfTuples();
     vtkIdType totalLength = 0;
-    std::vector<vtkIdType> recvLengths(numProcesses,0);
-    std::vector<vtkIdType> recvOffsets(numProcesses,0);
+    std::vector<vtkIdType> recvLengths(numProcesses, 0);
+    std::vector<vtkIdType> recvOffsets(numProcesses, 0);
 
     // gathers all of the array lengths together
     comm->AllGather(&myLength, &recvLengths[0], 1);
 
     // compute the displacements
     vtkIdType typeSize = col->GetDataTypeSize();
-    for (int j=0; j<numProcesses; j++)
+    for (int j = 0; j < numProcesses; j++)
     {
-      recvOffsets[j] = totalLength*typeSize;
+      recvOffsets[j] = totalLength * typeSize;
       totalLength += recvLengths[j];
       recvLengths[j] *= typeSize;
     }
@@ -104,10 +103,10 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
     vtkAbstractArray* received = vtkAbstractArray::CreateArray(col->GetDataType());
     received->SetNumberOfTuples(totalLength);
 
-    char* sendBuf = (char*) col->GetVoidPointer(0);
-    char* recvBuf = (char*) received->GetVoidPointer(0);
+    char* sendBuf = (char*)col->GetVoidPointer(0);
+    char* recvBuf = (char*)received->GetVoidPointer(0);
 
-    comm->AllGatherV(sendBuf, recvBuf, myLength*typeSize, &recvLengths[0], &recvOffsets[0]);
+    comm->AllGatherV(sendBuf, recvBuf, myLength * typeSize, &recvLengths[0], &recvOffsets[0]);
 
     gatheredTable->AddColumn(received);
     received->Delete();

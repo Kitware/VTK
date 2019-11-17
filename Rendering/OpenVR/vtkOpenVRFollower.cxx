@@ -21,21 +21,16 @@
 
 vtkStandardNewMacro(vtkOpenVRFollower);
 
-vtkOpenVRFollower::vtkOpenVRFollower()
-{
-}
+vtkOpenVRFollower::vtkOpenVRFollower() {}
 
-vtkOpenVRFollower::~vtkOpenVRFollower()
-{
-}
+vtkOpenVRFollower::~vtkOpenVRFollower() {}
 
 //-----------------------------------------------------------------------------
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.
-void vtkOpenVRFollower::Render(vtkRenderer *ren)
+void vtkOpenVRFollower::Render(vtkRenderer* ren)
 {
-  vtkOpenVRRenderWindow *renWin =
-    static_cast<vtkOpenVRRenderWindow *>(ren->GetVTKWindow());
+  vtkOpenVRRenderWindow* renWin = static_cast<vtkOpenVRRenderWindow*>(ren->GetVTKWindow());
 
   renWin->GetPhysicalViewUp(this->LastViewUp);
   this->Superclass::Render(ren);
@@ -47,22 +42,18 @@ void vtkOpenVRFollower::ComputeMatrix()
   // check whether or not need to rebuild the matrix
   // only rebuild on left eye otherwise we get two different
   // poses for two eyes
-  if ( this->Camera->GetLeftEye() &&
-        (this->GetMTime() > this->MatrixMTime ||
-          (this->Camera && this->Camera->GetMTime() > this->MatrixMTime) ))
+  if (this->Camera->GetLeftEye() &&
+    (this->GetMTime() > this->MatrixMTime ||
+      (this->Camera && this->Camera->GetMTime() > this->MatrixMTime)))
   {
     this->GetOrientation();
     this->Transform->Push();
     this->Transform->Identity();
     this->Transform->PostMultiply();
 
-    this->Transform->Translate(-this->Origin[0],
-                               -this->Origin[1],
-                               -this->Origin[2]);
+    this->Transform->Translate(-this->Origin[0], -this->Origin[1], -this->Origin[2]);
     // scale
-    this->Transform->Scale(this->Scale[0],
-                           this->Scale[1],
-                           this->Scale[2]);
+    this->Transform->Scale(this->Scale[0], this->Scale[1], this->Scale[2]);
 
     // rotate
     this->Transform->RotateY(this->Orientation[1]);
@@ -74,7 +65,7 @@ void vtkOpenVRFollower::ComputeMatrix()
       double *pos, *cvup, *vup, distance;
       double Rx[3], Ry[3], Rz[3];
 
-      vtkMatrix4x4 *matrix = this->InternalMatrix;
+      vtkMatrix4x4* matrix = this->InternalMatrix;
       matrix->Identity();
 
       // do the rotation
@@ -92,19 +83,18 @@ void vtkOpenVRFollower::ComputeMatrix()
       }
       else
       {
-        distance = sqrt(
-          (pos[0] - this->Position[0])*(pos[0] - this->Position[0]) +
-          (pos[1] - this->Position[1])*(pos[1] - this->Position[1]) +
-          (pos[2] - this->Position[2])*(pos[2] - this->Position[2]));
+        distance = sqrt((pos[0] - this->Position[0]) * (pos[0] - this->Position[0]) +
+          (pos[1] - this->Position[1]) * (pos[1] - this->Position[1]) +
+          (pos[2] - this->Position[2]) * (pos[2] - this->Position[2]));
         for (int i = 0; i < 3; i++)
         {
-          Rz[i] = (pos[i] - this->Position[i])/distance;
+          Rz[i] = (pos[i] - this->Position[i]) / distance;
         }
       }
 
       // We cannot directly use the vup angle since it can be aligned with Rz:
 
-      //instead use the view right angle:
+      // instead use the view right angle:
       double dop[3], vur[3];
       this->Camera->GetDirectionOfProjection(dop);
 
@@ -116,17 +106,16 @@ void vtkOpenVRFollower::ComputeMatrix()
       //   vup = cvup;
       // }
 
-      vtkMath::Cross(vup,Rz,vur);
+      vtkMath::Cross(vup, Rz, vur);
       vtkMath::Normalize(vur);
 
       // vtkMath::Cross(vup,Rz,Rx);
       // vtkMath::Normalize(Rx);
       // vtkMath::Cross(vup,Rx,Rz);
 
-
       vtkMath::Cross(Rz, vur, Ry);
       vtkMath::Normalize(Ry);
-      vtkMath::Cross(Ry,Rz,Rx);
+      vtkMath::Cross(Ry, Rz, Rx);
 
       matrix->Element[0][0] = Rx[0];
       matrix->Element[1][0] = Rx[1];
@@ -145,8 +134,7 @@ void vtkOpenVRFollower::ComputeMatrix()
     // this is the camera's position blasted through
     // the current matrix
     this->Transform->Translate(this->Origin[0] + this->Position[0],
-                               this->Origin[1] + this->Position[1],
-                               this->Origin[2] + this->Position[2]);
+      this->Origin[1] + this->Position[1], this->Origin[2] + this->Position[2]);
 
     // apply user defined matrix last if there is one
     if (this->UserMatrix)
@@ -163,5 +151,5 @@ void vtkOpenVRFollower::ComputeMatrix()
 
 void vtkOpenVRFollower::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

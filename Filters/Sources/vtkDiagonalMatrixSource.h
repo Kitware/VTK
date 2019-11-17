@@ -26,7 +26,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkDiagonalMatrixSource_h
 #define vtkDiagonalMatrixSource_h
@@ -105,10 +105,7 @@ protected:
   vtkDiagonalMatrixSource();
   ~vtkDiagonalMatrixSource() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) = delete;
@@ -127,4 +124,3 @@ private:
 };
 
 #endif
-

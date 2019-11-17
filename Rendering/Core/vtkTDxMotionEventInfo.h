@@ -21,12 +21,12 @@
  *
  * @sa
  * vtkTDxDevice
-*/
+ */
 
 #ifndef vtkTDxMotionEventInfo_h
 #define vtkTDxMotionEventInfo_h
 
-#include "vtkObject.h" // for the export macro
+#include "vtkObject.h"              // for the export macro
 #include "vtkRenderingCoreModule.h" // For export macro
 
 class VTKRENDERINGCORE_EXPORT vtkTDxMotionEventInfo

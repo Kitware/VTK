@@ -18,7 +18,7 @@
  *
  * vtkXMLPartitionedDataSetCollectionWriter is a vtkXMLCompositeDataWriter
  * subclass to handle vtkPartitionedDataSetCollection.
-*/
+ */
 
 #ifndef vtkXMLPartitionedDataSetCollectionWriter_h
 #define vtkXMLPartitionedDataSetCollectionWriter_h
@@ -36,8 +36,7 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() override
-    { return "vtpc"; }
+  const char* GetDefaultFileExtension() override { return "vtpc"; }
 
 protected:
   vtkXMLPartitionedDataSetCollectionWriter();
@@ -47,13 +46,13 @@ protected:
 
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
-  int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx) override;
+  int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx) override;
 
 private:
-  vtkXMLPartitionedDataSetCollectionWriter(const vtkXMLPartitionedDataSetCollectionWriter&) = delete;
+  vtkXMLPartitionedDataSetCollectionWriter(
+    const vtkXMLPartitionedDataSetCollectionWriter&) = delete;
   void operator=(const vtkXMLPartitionedDataSetCollectionWriter&) = delete;
-
 };
 
 #endif

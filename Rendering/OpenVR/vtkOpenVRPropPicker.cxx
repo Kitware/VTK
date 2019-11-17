@@ -28,19 +28,16 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkOpenVRPropPicker);
 
-vtkOpenVRPropPicker::vtkOpenVRPropPicker()
-{
-}
+vtkOpenVRPropPicker::vtkOpenVRPropPicker() {}
 
-vtkOpenVRPropPicker::~vtkOpenVRPropPicker()
-{
-}
+vtkOpenVRPropPicker::~vtkOpenVRPropPicker() {}
 
 // set up for a pick
 void vtkOpenVRPropPicker::Initialize()
 {
 #ifndef VTK_LEGACY_SILENT
-  vtkErrorMacro("This class is deprecated: Please use vtkPropPicker directly instead of this class");
+  vtkErrorMacro(
+    "This class is deprecated: Please use vtkPropPicker directly instead of this class");
 #endif
   this->vtkAbstractPropPicker::Initialize();
 }

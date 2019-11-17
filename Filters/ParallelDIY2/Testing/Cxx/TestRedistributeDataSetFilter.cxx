@@ -43,8 +43,10 @@
 #include VTK_DIY2(diy/mpi.hpp)
 // clang-format on
 
-namespace {
-bool ValidateDataset(vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, vtkMultiProcessController* controller)
+namespace
+{
+bool ValidateDataset(
+  vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, vtkMultiProcessController* controller)
 {
   const int rank = controller->GetLocalProcessId();
   vtkIdType local_cellid_max = 0;
@@ -65,7 +67,7 @@ bool ValidateDataset(vtkUnstructuredGrid* input, vtkPartitionedDataSet* output, 
   if (rank == 0 && global_cellid_max != input->GetNumberOfCells() - 1)
   {
     vtkLogF(ERROR, "incorrect global cell ids! expected %lld, actual %lld",
-            input->GetNumberOfCells() - 1, global_cellid_max);
+      input->GetNumberOfCells() - 1, global_cellid_max);
     return false;
   }
 
@@ -123,7 +125,8 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
   rdsf->PreservePartitionsInOutputOn();
   rdsf->Update();
 
-  if (!ValidateDataset(data, vtkPartitionedDataSet::SafeDownCast(rdsf->GetOutputDataObject(0)), controller))
+  if (!ValidateDataset(
+        data, vtkPartitionedDataSet::SafeDownCast(rdsf->GetOutputDataObject(0)), controller))
   {
     return EXIT_FAILURE;
   }
@@ -143,8 +146,7 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
   mapper->SetInputConnection(rag->GetOutputPort());
 
   vtkNew<vtkCompositeRenderManager> prm;
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
   renWin->AddRenderer(renderer);

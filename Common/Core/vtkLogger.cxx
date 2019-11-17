@@ -39,11 +39,8 @@ vtkLogger::LogScopeRAII::LogScopeRAII()
 {
 }
 
-vtkLogger::LogScopeRAII::LogScopeRAII(vtkLogger::Verbosity verbosity,
-  const char* fname,
-  unsigned int lineno,
-  const char* format,
-  ...)
+vtkLogger::LogScopeRAII::LogScopeRAII(
+  vtkLogger::Verbosity verbosity, const char* fname, unsigned int lineno, const char* format, ...)
 #if VTK_MODULE_ENABLE_VTK_loguru
   : Internals(new LSInternals())
 #else
@@ -148,9 +145,8 @@ void vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity level)
 }
 
 //----------------------------------------------------------------------------
-void vtkLogger::LogToFile(const char* path,
-  vtkLogger::FileMode filemode,
-  vtkLogger::Verbosity verbosity)
+void vtkLogger::LogToFile(
+  const char* path, vtkLogger::FileMode filemode, vtkLogger::Verbosity verbosity)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
   loguru::add_file(
@@ -195,19 +191,13 @@ std::string vtkLogger::GetThreadName()
 }
 
 //----------------------------------------------------------------------------
-void vtkLogger::AddCallback(const char* id,
-  vtkLogger::LogHandlerCallbackT callback,
-  void* user_data,
-  vtkLogger::Verbosity verbosity,
-  vtkLogger::CloseHandlerCallbackT on_close,
+void vtkLogger::AddCallback(const char* id, vtkLogger::LogHandlerCallbackT callback,
+  void* user_data, vtkLogger::Verbosity verbosity, vtkLogger::CloseHandlerCallbackT on_close,
   vtkLogger::FlushHandlerCallbackT on_flush)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
-  loguru::add_callback(id,
-    reinterpret_cast<loguru::log_handler_t>(callback),
-    user_data,
-    static_cast<loguru::Verbosity>(verbosity),
-    reinterpret_cast<loguru::close_handler_t>(on_close),
+  loguru::add_callback(id, reinterpret_cast<loguru::log_handler_t>(callback), user_data,
+    static_cast<loguru::Verbosity>(verbosity), reinterpret_cast<loguru::close_handler_t>(on_close),
     reinterpret_cast<loguru::flush_handler_t>(on_flush));
 #else
   (void)id;
@@ -269,10 +259,8 @@ vtkLogger::Verbosity vtkLogger::GetCurrentVerbosityCutoff()
 }
 
 //----------------------------------------------------------------------------
-void vtkLogger::Log(vtkLogger::Verbosity verbosity,
-  const char* fname,
-  unsigned int lineno,
-  const char* txt)
+void vtkLogger::Log(
+  vtkLogger::Verbosity verbosity, const char* fname, unsigned int lineno, const char* txt)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
   loguru::log(static_cast<loguru::Verbosity>(verbosity), fname, lineno, "%s", txt);
@@ -285,11 +273,8 @@ void vtkLogger::Log(vtkLogger::Verbosity verbosity,
 }
 
 //----------------------------------------------------------------------------
-void vtkLogger::LogF(vtkLogger::Verbosity verbosity,
-  const char* fname,
-  unsigned int lineno,
-  const char* format,
-  ...)
+void vtkLogger::LogF(
+  vtkLogger::Verbosity verbosity, const char* fname, unsigned int lineno, const char* format, ...)
 {
 #if VTK_MODULE_ENABLE_VTK_loguru
   va_list vlist;

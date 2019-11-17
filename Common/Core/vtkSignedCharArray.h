@@ -19,7 +19,7 @@
  * vtkSignedCharArray is an array of values of type signed char.
  * It provides methods for insertion and retrieval of values and will
  * automatically resize itself to hold new data.
-*/
+ */
 
 #ifndef vtkSignedCharArray_h
 #define vtkSignedCharArray_h
@@ -45,14 +45,14 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(signed char);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkSignedCharArray* FastDownCast(vtkAbstractArray *source)
+  static vtkSignedCharArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkSignedCharArray*>(Superclass::FastDownCast(source));
   }
@@ -72,7 +72,6 @@ protected:
   ~vtkSignedCharArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<signed char> RealSuperclass;
 
   vtkSignedCharArray(const vtkSignedCharArray&) = delete;

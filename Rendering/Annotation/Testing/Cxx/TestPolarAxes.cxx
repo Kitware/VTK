@@ -40,7 +40,7 @@ int TestPolarAxes(int argc, char* argv[])
   vtkNew<vtkBYUReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   reader->SetGeometryFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(reader->GetOutputPort());

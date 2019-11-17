@@ -9,8 +9,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestGradientBackground(int argc, char* argv[])
 {

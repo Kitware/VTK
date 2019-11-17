@@ -23,8 +23,8 @@
 
 // On OS X, disable deprecation warnings since JAWT_GetAWT() is deprecated.
 #if defined(__APPLE__) && defined(__GNUC__)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #if defined(_WIN32)
@@ -33,18 +33,20 @@
 
 #if defined(WIN32_JAWT_LOCK_HACK)
 #define WJLH_MAX_COUNT (32)
-#define WJLH_HASH_FUNC(E,C,H) {\
-  jclass cls = E->GetObjectClass(C);\
-  jmethodID mid = E->GetMethodID(cls, "hashCode", "()I");\
-  H = E->CallIntMethod(C, mid); }
-# include "vtkWindows.h"
+#define WJLH_HASH_FUNC(E, C, H)                                                                    \
+  {                                                                                                \
+    jclass cls = E->GetObjectClass(C);                                                             \
+    jmethodID mid = E->GetMethodID(cls, "hashCode", "()I");                                        \
+    H = E->CallIntMethod(C, mid);                                                                  \
+  }
+#include "vtkWindows.h"
 int WJLH_init_check = 0;
-# include <map> // STL Header
-std::map<int,int> WJLH_lock_map;
+#include <map> // STL Header
+std::map<int, int> WJLH_lock_map;
 #endif
 
-extern "C" JNIEXPORT jint  JNICALL
-Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
+extern "C" JNIEXPORT jint JNICALL Java_vtk_vtkPanel_RenderCreate(
+  JNIEnv* env, jobject canvas, jobject id0)
 {
 #if defined(WIN32_JAWT_LOCK_HACK)
   int hash;
@@ -58,8 +60,8 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   jint lock;
 
   // get the render window pointer
-  vtkRenderWindow *temp0;
-  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0));
+  vtkRenderWindow* temp0;
+  temp0 = (vtkRenderWindow*)(vtkJavaGetPointerFromObject(env, id0));
 
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
@@ -83,7 +85,7 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
-  if((lock & JAWT_LOCK_ERROR) != 0)
+  if ((lock & JAWT_LOCK_ERROR) != 0)
   {
 #ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
@@ -107,10 +109,10 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   temp0->Finalize();
   JAWT_Win32DrawingSurfaceInfo* dsi_win;
   dsi_win = (JAWT_Win32DrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId((void *)dsi_win->hwnd);
-  temp0->SetDisplayId((void *)dsi_win->hdc);
+  temp0->SetWindowId((void*)dsi_win->hwnd);
+  temp0->SetDisplayId((void*)dsi_win->hdc);
   // also set parent id to avoid border sizes being added
-  temp0->SetParentId((void *)dsi_win->hdc);
+  temp0->SetParentId((void*)dsi_win->hdc);
 // use mac code
 #elif defined(__APPLE__)
   JAWT_DrawingSurfaceInfo* dsi_mac;
@@ -120,9 +122,9 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
   dsi_x11 = (JAWT_X11DrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetDisplayId((void *)dsi_x11->display);
-  temp0->SetWindowId((void *)dsi_x11->drawable);
-  temp0->SetParentId((void *)dsi_x11->display);
+  temp0->SetDisplayId((void*)dsi_x11->display);
+  temp0->SetWindowId((void*)dsi_x11->drawable);
+  temp0->SetParentId((void*)dsi_x11->display);
 #endif
 
   /* Free the drawing surface info */
@@ -144,8 +146,8 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   return 0;
 }
 
-extern "C" JNIEXPORT jint  JNICALL
-Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
+extern "C" JNIEXPORT jint JNICALL Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(
+  JNIEnv* env, jobject canvas, jobject id0)
 {
 #if defined(WIN32_JAWT_LOCK_HACK)
   int hash;
@@ -159,8 +161,8 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
   jint lock;
 
   // get the render window pointer
-  vtkRenderWindow *temp0;
-  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,id0));
+  vtkRenderWindow* temp0;
+  temp0 = (vtkRenderWindow*)(vtkJavaGetPointerFromObject(env, id0));
 
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
@@ -184,7 +186,7 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
 
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
-  if((lock & JAWT_LOCK_ERROR) != 0)
+  if ((lock & JAWT_LOCK_ERROR) != 0)
   {
 #ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
@@ -208,10 +210,10 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
   temp0->Finalize();
   JAWT_Win32DrawingSurfaceInfo* dsi_win;
   dsi_win = (JAWT_Win32DrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId((void *)dsi_win->hwnd);
-  temp0->SetDisplayId((void *)dsi_win->hdc);
+  temp0->SetWindowId((void*)dsi_win->hwnd);
+  temp0->SetDisplayId((void*)dsi_win->hdc);
   // also set parent id to avoid border sizes being added
-  temp0->SetParentId((void *)dsi_win->hdc);
+  temp0->SetParentId((void*)dsi_win->hdc);
 // use mac code
 #elif defined(__APPLE__)
   JAWT_DrawingSurfaceInfo* dsi_mac;
@@ -221,9 +223,9 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
   dsi_x11 = (JAWT_X11DrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetDisplayId((void *)dsi_x11->display);
-  temp0->SetWindowId((void *)dsi_x11->drawable);
-  temp0->SetParentId((void *)dsi_x11->display);
+  temp0->SetDisplayId((void*)dsi_x11->display);
+  temp0->SetWindowId((void*)dsi_x11->drawable);
+  temp0->SetParentId((void*)dsi_x11->display);
 #endif
 
   /* Free the drawing surface info */
@@ -252,9 +254,7 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
 // java threads are prevented from accessing X at the same time.  The only
 // requirement JAWT has is that all operations on a JAWT_DrawingSurface
 // MUST be performed from the same thread as the call to GetDrawingSurface.
-extern "C" JNIEXPORT jint  JNICALL
-Java_vtk_vtkPanel_Lock(JNIEnv *env,
-                       jobject canvas)
+extern "C" JNIEXPORT jint JNICALL Java_vtk_vtkPanel_Lock(JNIEnv* env, jobject canvas)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
@@ -290,29 +290,26 @@ Java_vtk_vtkPanel_Lock(JNIEnv *env,
   else
   {
 #endif
-  /* Lock the drawing surface */
-  lock = ds->Lock(ds);
-  if((lock & JAWT_LOCK_ERROR) != 0)
-  {
+    /* Lock the drawing surface */
+    lock = ds->Lock(ds);
+    if ((lock & JAWT_LOCK_ERROR) != 0)
+    {
 #ifndef VTK_JAVA_DEBUG
-    printf("Error locking surface\n");
+      printf("Error locking surface\n");
 #endif
-    awt.FreeDrawingSurface(ds);
-    return 1;
-  }
+      awt.FreeDrawingSurface(ds);
+      return 1;
+    }
 #if defined(WIN32_JAWT_LOCK_HACK)
   }
 #endif
 
   return 0;
-
 }
 
 // UnLock() must be called after a Lock() and execution of a
 // function which might change the drawing surface.  See Lock().
-extern "C" JNIEXPORT jint  JNICALL
-Java_vtk_vtkPanel_UnLock(JNIEnv *env,
-                         jobject canvas)
+extern "C" JNIEXPORT jint JNICALL Java_vtk_vtkPanel_UnLock(JNIEnv* env, jobject canvas)
 {
   JAWT awt;
   JAWT_DrawingSurface* ds;
@@ -346,10 +343,11 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
   }
   else
   {
-    if (WJLH_init_check) WJLH_lock_map[hash]++;
+    if (WJLH_init_check)
+      WJLH_lock_map[hash]++;
 #endif
-  /* Unlock the drawing surface */
-  ds->Unlock(ds);
+    /* Unlock the drawing surface */
+    ds->Unlock(ds);
 #if defined(WIN32_JAWT_LOCK_HACK)
   }
 #endif
@@ -362,7 +360,7 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
 
 // Undo disabling of deprecation warning.
 #if defined(__APPLE__) && defined(__GNUC__)
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 #endif

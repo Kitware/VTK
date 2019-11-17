@@ -254,7 +254,8 @@ int vtkExpandMarkedElements::RequestData(
 
   vtkDIYExplicitAssigner assigner(comm, local_num_blocks);
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
     [](void* b) { delete static_cast<BlockT*>(b); });
 
   vtkLogStartScope(TRACE, "populate master");

@@ -2,9 +2,9 @@
 #define vtkScalarBarActorInternal_h
 // VTK-HeaderTest-Exclude: vtkScalarBarActorInternal.h
 
-#include "vtkColor.h" // for AnnotationColors, LabelColorMap, and tuples
+#include "vtkColor.h"        // for AnnotationColors, LabelColorMap, and tuples
 #include "vtkSmartPointer.h" // for "smart vectors"
-#include "vtkStdString.h" // for LabelMap
+#include "vtkStdString.h"    // for LabelMap
 
 #include <map>
 #include <vector>
@@ -18,13 +18,13 @@ class vtkPolyDataMapper2D;
 class vtkUnsignedCharArray;
 
 /// A vector of smart pointers.
-template<class T>
+template <class T>
 class vtkSmartVector : public std::vector<vtkSmartPointer<T> >
 {
 public:
   /**\brief Convert to an array of "dumb" pointers for functions
-    *  that need a contiguous array pointer as input.
-    */
+   *  that need a contiguous array pointer as input.
+   */
   T** PointerArray()
   {
     // NB: This is relatively evil. But much cheaper than copying the array.
@@ -40,12 +40,12 @@ struct vtkScalarBarBox
   vtkTuple<int, 2> Posn;
 
   /**\brief Size of the box, stored as (thickness, length) not (width, height).
-    *
-    * Thickness is a measure of the box size perpendicular to the long axis of the scalar bar.
-    * When the scalar bar orientation is horizontal, thickness measures height.
-    * Length is a measure of the box size parallel to the long axis of the scalar bar.
-    * When the scalar bar orientation is horizontal, length measures width.
-    */
+   *
+   * Thickness is a measure of the box size perpendicular to the long axis of the scalar bar.
+   * When the scalar bar orientation is horizontal, thickness measures height.
+   * Length is a measure of the box size parallel to the long axis of the scalar bar.
+   * When the scalar bar orientation is horizontal, length measures width.
+   */
   vtkTuple<int, 2> Size;
 };
 
@@ -82,13 +82,13 @@ public:
   typedef vtkSmartVector<vtkTextActor> ActorVector;
 
   // Other vector container types.
-  typedef std::vector<double>      DoubleVector;
+  typedef std::vector<double> DoubleVector;
   typedef std::vector<vtkColor3ub> ColorVector;
 
   /**\brief Cache of dimensions fixed during geometry assembly.
-    *
-    * Only valid within methods invoked by vtkScalarBarActor::RebuildLayout().
-    */
+   *
+   * Only valid within methods invoked by vtkScalarBarActor::RebuildLayout().
+   */
   //@{
   vtkViewport* Viewport;
 
@@ -118,7 +118,8 @@ public:
 
   /// Permutation of (0, 1) that transforms thickness,length into
   /// width,height.
-  int TL[2]; // VERTICAL => TL={0,1}, HORIZONTAL => TL={1,0}, Size[TL[0]] == width, Size[TL[1]] == height
+  int TL[2]; // VERTICAL => TL={0,1}, HORIZONTAL => TL={1,0}, Size[TL[0]] == width, Size[TL[1]] ==
+             // height
 
   /// Point coordinates for the scalar bar actor
   vtkPoints* SwatchPts;
@@ -161,27 +162,27 @@ public:
 
   /// Cache of classes holding geometry assembled and ready for rendering.
   //@{
-  ActorVector          TextActors;
-  vtkPolyData*         AnnotationBoxes;
+  ActorVector TextActors;
+  vtkPolyData* AnnotationBoxes;
   vtkPolyDataMapper2D* AnnotationBoxesMapper;
-  vtkActor2D*          AnnotationBoxesActor;
-  vtkPolyData*         AnnotationLeaders;
+  vtkActor2D* AnnotationBoxesActor;
+  vtkPolyData* AnnotationLeaders;
   vtkPolyDataMapper2D* AnnotationLeadersMapper;
-  vtkActor2D*          AnnotationLeadersActor;
-  ActorVector          AnnotationLabels;
-  DoubleVector         AnnotationAnchors;
-  ColorVector          AnnotationColors;
-  vtkPolyData*         NanSwatch;
+  vtkActor2D* AnnotationLeadersActor;
+  ActorVector AnnotationLabels;
+  DoubleVector AnnotationAnchors;
+  ColorVector AnnotationColors;
+  vtkPolyData* NanSwatch;
   vtkPolyDataMapper2D* NanSwatchMapper;
-  vtkActor2D*          NanSwatchActor;
+  vtkActor2D* NanSwatchActor;
 
-  vtkPolyData*         BelowRangeSwatch;
+  vtkPolyData* BelowRangeSwatch;
   vtkPolyDataMapper2D* BelowRangeSwatchMapper;
-  vtkActor2D*          BelowRangeSwatchActor;
+  vtkActor2D* BelowRangeSwatchActor;
 
-  vtkPolyData*         AboveRangeSwatch;
+  vtkPolyData* AboveRangeSwatch;
   vtkPolyDataMapper2D* AboveRangeSwatchMapper;
-  vtkActor2D*          AboveRangeSwatchActor;
+  vtkActor2D* AboveRangeSwatchActor;
   //@}
 };
 

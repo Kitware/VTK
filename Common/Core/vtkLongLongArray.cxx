@@ -33,5 +33,5 @@ vtkLongLongArray::~vtkLongLongArray() = default;
 //----------------------------------------------------------------------------
 void vtkLongLongArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->RealSuperclass::PrintSelf(os,indent);
+  this->RealSuperclass::PrintSelf(os, indent);
 }

@@ -33,19 +33,18 @@ vtkRecursiveSphereDirectionEncoder::vtkRecursiveSphereDirectionEncoder()
 // Destruct a vtkRecursiveSphereDirectionEncoder - free up any memory used
 vtkRecursiveSphereDirectionEncoder::~vtkRecursiveSphereDirectionEncoder()
 {
-  delete [] this->IndexTable;
-  delete [] this->DecodedNormal;
+  delete[] this->IndexTable;
+  delete[] this->DecodedNormal;
 }
 
-
-int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
+int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection(float n[3])
 {
   float t;
-  int   value;
-  int   xindex, yindex;
+  int value;
+  int xindex, yindex;
   float x, y;
 
-  if ( this->IndexTableRecursionDepth != this->RecursionDepth )
+  if (this->IndexTableRecursionDepth != this->RecursionDepth)
   {
     this->InitializeIndexTable();
   }
@@ -57,12 +56,10 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
 
   // Don't use fabs because it is slow - just convert to absolute
   // using a simple conditional.
-  t =
-    ((n[0]>=0.0)?(n[0]):(-n[0])) +
-    ((n[1]>=0.0)?(n[1]):(-n[1])) +
-    ((n[2]>=0.0)?(n[2]):(-n[2]));
+  t = ((n[0] >= 0.0) ? (n[0]) : (-n[0])) + ((n[1] >= 0.0) ? (n[1]) : (-n[1])) +
+    ((n[2] >= 0.0) ? (n[2]) : (-n[2]));
 
-  if ( t )
+  if (t)
   {
 
     t = 1.0 / t;
@@ -70,61 +67,61 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection( float n[3] )
     x = n[0] * t;
     y = n[1] * t;
 
-    xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5);
-    yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
+    xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
+    yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
 
-    if ( xindex > 2*this->InnerSize )
+    if (xindex > 2 * this->InnerSize)
     {
-      xindex = 2*this->InnerSize;
+      xindex = 2 * this->InnerSize;
     }
-    if ( yindex > 2*this->InnerSize )
+    if (yindex > 2 * this->InnerSize)
     {
-      yindex = 2*this->InnerSize;
+      yindex = 2 * this->InnerSize;
     }
 
-    value = this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex];
+    value = this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex];
 
     // If the z component is less than 0.0, add this->GridSize to the
     // index
-    if ( n[2] < 0.0 )
+    if (n[2] < 0.0)
     {
       value += this->GridSize;
     }
   }
   else
   {
-    value = 2*this->GridSize;
+    value = 2 * this->GridSize;
   }
 
   return value;
 }
 
-float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradient( int value )
+float* vtkRecursiveSphereDirectionEncoder::GetDecodedGradient(int value)
 {
-  if ( this->IndexTableRecursionDepth != this->RecursionDepth )
+  if (this->IndexTableRecursionDepth != this->RecursionDepth)
   {
     this->InitializeIndexTable();
   }
 
-  return (this->DecodedNormal + value*3);
+  return (this->DecodedNormal + value * 3);
 }
 
-int vtkRecursiveSphereDirectionEncoder::GetNumberOfEncodedDirections( )
+int vtkRecursiveSphereDirectionEncoder::GetNumberOfEncodedDirections()
 {
-  int     outer_size, inner_size;
-  int     norm_size;
+  int outer_size, inner_size;
+  int norm_size;
 
-  outer_size = (int)(pow( 2.0, (double) this->RecursionDepth ) + 1);
+  outer_size = (int)(pow(2.0, (double)this->RecursionDepth) + 1);
   inner_size = outer_size - 1;
 
   norm_size = outer_size * outer_size + inner_size * inner_size;
 
-  return (norm_size*2 + 1);
+  return (norm_size * 2 + 1);
 }
 
-float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable( )
+float* vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable()
 {
-  if ( this->IndexTableRecursionDepth != this->RecursionDepth )
+  if (this->IndexTableRecursionDepth != this->RecursionDepth)
   {
     this->InitializeIndexTable();
   }
@@ -145,41 +142,35 @@ float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable( )
 // NORM_SQR_SIZE - 1 grid inside of it.  The vertices all fall on
 // (x,y) locatiions in a grid that is 2*NORM_SQR_SIZE - 1 by
 // 2*NORM_SQR_SIZE - 1, although not every (x,y) location has a vertex.
-void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
+void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable()
 {
-  int     i, j, index, max_index;
-  int     xindex, yindex;
-  float   x, y, z, tmp_x, tmp_y;
-  float   norm;
-  int     limit;
+  int i, j, index, max_index;
+  int xindex, yindex;
+  float x, y, z, tmp_x, tmp_y;
+  float norm;
+  int limit;
 
   // Free up any memory previously used
-  delete [] this->IndexTable;
-  delete [] this->DecodedNormal;
+  delete[] this->IndexTable;
+  delete[] this->DecodedNormal;
 
-  this->OuterSize = (int)(pow( 2.0, (double) this->RecursionDepth ) + 1);
+  this->OuterSize = (int)(pow(2.0, (double)this->RecursionDepth) + 1);
   this->InnerSize = this->OuterSize - 1;
-  this->GridSize =
-    this->OuterSize * this->OuterSize +
-    this->InnerSize * this->InnerSize;
-
+  this->GridSize = this->OuterSize * this->OuterSize + this->InnerSize * this->InnerSize;
 
   // Create space for the tables
-  this->IndexTable = new int [(this->OuterSize + this->InnerSize) *
-                              (this->OuterSize + this->InnerSize)];
+  this->IndexTable =
+    new int[(this->OuterSize + this->InnerSize) * (this->OuterSize + this->InnerSize)];
 
   // Initialize the table to -1 -- we'll use this later to determine which
   // entries are still not filled in
-  for ( i = 0; i < ( (this->OuterSize + this->InnerSize) *
-                     (this->OuterSize + this->InnerSize) ); i ++ )
+  for (i = 0; i < ((this->OuterSize + this->InnerSize) * (this->OuterSize + this->InnerSize)); i++)
   {
-      this->IndexTable[i] = -1;
+    this->IndexTable[i] = -1;
   }
 
-  this->DecodedNormal =
-    new float [ 3 * ( 1 +
-                      2 * this->OuterSize * this->OuterSize +
-                      2 * this->InnerSize * this->InnerSize ) ];
+  this->DecodedNormal = new float[3 *
+    (1 + 2 * this->OuterSize * this->OuterSize + 2 * this->InnerSize * this->InnerSize)];
 
   // Initialize the index
   index = 0;
@@ -190,34 +181,33 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
   // other.  One half of the normals have z components >= 0, and the
   // second half (all with indices above max_index) have z components
   // that are <= 0.
-  max_index =  this->GridSize;
+  max_index = this->GridSize;
 
   // The last normal (max_index*2) is the zero normal
-  this->DecodedNormal[3*(max_index*2) + 0] = 0.0;
-  this->DecodedNormal[3*(max_index*2) + 1] = 0.0;
-  this->DecodedNormal[3*(max_index*2) + 2] = 0.0;
+  this->DecodedNormal[3 * (max_index * 2) + 0] = 0.0;
+  this->DecodedNormal[3 * (max_index * 2) + 1] = 0.0;
+  this->DecodedNormal[3 * (max_index * 2) + 2] = 0.0;
 
   // The outer loop is for this->OuterSize + this->InnerSize rows
-  for ( i = 0; i < this->OuterSize + this->InnerSize; i++ )
+  for (i = 0; i < this->OuterSize + this->InnerSize; i++)
   {
     // Compute the y component for this row
-    tmp_y = (float)(2*i)/(float)(this->InnerSize*2) - 1.0;
+    tmp_y = (float)(2 * i) / (float)(this->InnerSize * 2) - 1.0;
 
     // On the odd rows, we are doing the small grid which has
     // this->InnerSize elements in it
-    limit = ( i%2 )?(this->InnerSize):(this->OuterSize);
+    limit = (i % 2) ? (this->InnerSize) : (this->OuterSize);
 
-    for ( j = 0; j < limit; j++ )
+    for (j = 0; j < limit; j++)
     {
       // compute the x component for this column
-      if ( i%2 )
+      if (i % 2)
       {
-        tmp_x = (float)(2*j)/(float)(this->InnerSize) -
-          1.0 + (1.0/(float)(this->InnerSize));
+        tmp_x = (float)(2 * j) / (float)(this->InnerSize) - 1.0 + (1.0 / (float)(this->InnerSize));
       }
       else
       {
-        tmp_x = (float)(2*j)/(float)(this->InnerSize) - 1.0;
+        tmp_x = (float)(2 * j) / (float)(this->InnerSize) - 1.0;
       }
 
       // rotate by 45 degrees
@@ -228,15 +218,15 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
       y = 0.5 * tmp_x + 0.5 * tmp_y;
 
       // compute the z based on the x and y values
-      if ( x >= 0 && y >= 0 )
+      if (x >= 0 && y >= 0)
       {
         z = 1.0 - x - y;
       }
-      else if ( x >= 0 && y < 0 )
+      else if (x >= 0 && y < 0)
       {
         z = 1.0 - x + y;
       }
-      else if ( x < 0 && y < 0 )
+      else if (x < 0 && y < 0)
       {
         z = 1.0 + x + y;
       }
@@ -248,27 +238,27 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
       // Normalize this direction and set the DecodedNormal table for
       // this index to this normal.  Also set the corresponding
       // entry for this normal with a negative z component
-      norm = sqrt( (double)( x*x + y*y + z*z ) );
-      this->DecodedNormal[3*index + 0] = x / norm;
-      this->DecodedNormal[3*index + 1] = y / norm;
-      this->DecodedNormal[3*index + 2] = z / norm;
-      this->DecodedNormal[3*(index+max_index) + 0] =   x / norm;
-      this->DecodedNormal[3*(index+max_index) + 1] =   y / norm;
-      this->DecodedNormal[3*(index+max_index) + 2] = -(z / norm);
+      norm = sqrt((double)(x * x + y * y + z * z));
+      this->DecodedNormal[3 * index + 0] = x / norm;
+      this->DecodedNormal[3 * index + 1] = y / norm;
+      this->DecodedNormal[3 * index + 2] = z / norm;
+      this->DecodedNormal[3 * (index + max_index) + 0] = x / norm;
+      this->DecodedNormal[3 * (index + max_index) + 1] = y / norm;
+      this->DecodedNormal[3 * (index + max_index) + 2] = -(z / norm);
 
       // Figure out the location in the IndexTable. Be careful with
       // boundary conditions.
-      xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5);
-      yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
-      if ( xindex > 2*this->InnerSize )
+      xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
+      yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
+      if (xindex > 2 * this->InnerSize)
       {
-        xindex = 2*this->InnerSize;
+        xindex = 2 * this->InnerSize;
       }
-      if ( yindex > 2*this->InnerSize )
+      if (yindex > 2 * this->InnerSize)
       {
-        yindex = 2*this->InnerSize;
+        yindex = 2 * this->InnerSize;
       }
-      this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
+      this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex] = index;
 
       // Do the grid location to the left - unless we are at the left
       // border of the grid. We are computing indices only for the
@@ -278,40 +268,40 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
       // This way we can't get bitten by a scan-conversion problem
       // where we skip over some table index due to precision, and
       // therefore it doesn't have a valid value in it.
-      if ( tmp_x > 0 )
+      if (tmp_x > 0)
       {
-        x = 0.5 * (tmp_x - (1.0/(float)this->InnerSize)) - 0.5 * tmp_y;
-        y = 0.5 * (tmp_x - (1.0/(float)this->InnerSize)) + 0.5 * tmp_y;
-        xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5);
-        yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
-        if ( xindex > 2*this->InnerSize )
+        x = 0.5 * (tmp_x - (1.0 / (float)this->InnerSize)) - 0.5 * tmp_y;
+        y = 0.5 * (tmp_x - (1.0 / (float)this->InnerSize)) + 0.5 * tmp_y;
+        xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
+        yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
+        if (xindex > 2 * this->InnerSize)
         {
-          xindex = 2*this->InnerSize;
+          xindex = 2 * this->InnerSize;
         }
-        if ( yindex > 2*this->InnerSize )
+        if (yindex > 2 * this->InnerSize)
         {
-          yindex = 2*this->InnerSize;
+          yindex = 2 * this->InnerSize;
         }
-        this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
+        this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex] = index;
       }
 
       // On the odd rows we also need to do the last grid location on
       // the right.
-      if ( (i%2) && (j == limit - 1) )
+      if ((i % 2) && (j == limit - 1))
       {
-        x = 0.5 * (tmp_x + (1.0/(float)this->InnerSize)) - 0.5 * tmp_y;
-        y = 0.5 * (tmp_x + (1.0/(float)this->InnerSize)) + 0.5 * tmp_y;
-        xindex = (int)((x+1.0)*(float)(this->InnerSize) + 0.5);
-        yindex = (int)((y+1.0)*(float)(this->InnerSize) + 0.5);
-        if ( xindex > 2*this->InnerSize )
+        x = 0.5 * (tmp_x + (1.0 / (float)this->InnerSize)) - 0.5 * tmp_y;
+        y = 0.5 * (tmp_x + (1.0 / (float)this->InnerSize)) + 0.5 * tmp_y;
+        xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
+        yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
+        if (xindex > 2 * this->InnerSize)
         {
-          xindex = 2*this->InnerSize;
+          xindex = 2 * this->InnerSize;
         }
-        if ( yindex > 2*this->InnerSize )
+        if (yindex > 2 * this->InnerSize)
         {
-          yindex = 2*this->InnerSize;
+          yindex = 2 * this->InnerSize;
         }
-        this->IndexTable[xindex*(this->OuterSize+this->InnerSize) + yindex] = index;
+        this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex] = index;
       }
 
       // Increment the index
@@ -319,51 +309,46 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( )
     }
   }
 
-
   // The index table has been initialized for the current recursion
   // depth
   this->IndexTableRecursionDepth = this->RecursionDepth;
-
 
   // Spread the first index value in each row to the left, and the last to the right.
   // This is because we have only filled in a diamond of index values within the square
   // grid, and we need to be careful at the edges due to precision problems. This way
   // we won't be able to access a table location that does not have a valid index in it.
-  for ( j = 0; j < this->OuterSize + this->InnerSize; j++ )
+  for (j = 0; j < this->OuterSize + this->InnerSize; j++)
   {
     // Start from the middle going right, copy the value from the left if
     // this entry is not initialized
-    for ( i = (this->OuterSize+this->InnerSize)/2;
-          i < this->OuterSize + this->InnerSize; i++ )
+    for (i = (this->OuterSize + this->InnerSize) / 2; i < this->OuterSize + this->InnerSize; i++)
     {
-      if ( this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] == -1 )
+      if (this->IndexTable[j * (this->OuterSize + this->InnerSize) + i] == -1)
       {
-        this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
-          this->IndexTable[j*(this->OuterSize+this->InnerSize)+i-1];
+        this->IndexTable[j * (this->OuterSize + this->InnerSize) + i] =
+          this->IndexTable[j * (this->OuterSize + this->InnerSize) + i - 1];
       }
     }
 
     // Start from the middle going left, copy the value from the right if
     // this entry is not initialized
-    for ( i = (this->OuterSize+this->InnerSize)/2; i >= 0; i-- )
+    for (i = (this->OuterSize + this->InnerSize) / 2; i >= 0; i--)
     {
-      if ( this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] == -1 )
+      if (this->IndexTable[j * (this->OuterSize + this->InnerSize) + i] == -1)
       {
-        this->IndexTable[j*(this->OuterSize+this->InnerSize)+i] =
-          this->IndexTable[j*(this->OuterSize+this->InnerSize)+i+1];
+        this->IndexTable[j * (this->OuterSize + this->InnerSize) + i] =
+          this->IndexTable[j * (this->OuterSize + this->InnerSize) + i + 1];
       }
     }
   }
 }
 
-
 // Print the vtkRecursiveSphereDirectionEncoder
 void vtkRecursiveSphereDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Number of encoded directions: " <<
-    this->GetNumberOfEncodedDirections() << endl;
+  os << indent << "Number of encoded directions: " << this->GetNumberOfEncodedDirections() << endl;
 
   os << indent << "Recursion depth: " << this->RecursionDepth << endl;
 }

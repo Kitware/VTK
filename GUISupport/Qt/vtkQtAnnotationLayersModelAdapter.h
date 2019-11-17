@@ -27,7 +27,7 @@
  *
  * @sa
  * vtkQtAbstractModelAdapter vtkQtTableModelAdapter
-*/
+ */
 
 #ifndef vtkQtAnnotationLayersModelAdapter_h
 #define vtkQtAnnotationLayersModelAdapter_h
@@ -44,15 +44,15 @@ class VTKGUISUPPORTQT_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbs
   Q_OBJECT
 
 public:
-  vtkQtAnnotationLayersModelAdapter(QObject *parent = nullptr);
-  vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = nullptr);
+  vtkQtAnnotationLayersModelAdapter(QObject* parent = nullptr);
+  vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject* parent = nullptr);
   ~vtkQtAnnotationLayersModelAdapter() override;
 
   //@{
   /**
    * Set/Get the VTK data object as input to this adapter
    */
-  void SetVTKDataObject(vtkDataObject *data) override;
+  void SetVTKDataObject(vtkDataObject* data) override;
   vtkDataObject* GetVTKDataObject() const override;
   //@}
 
@@ -62,12 +62,9 @@ public:
    */
   virtual vtkAnnotationLayers* QModelIndexListToVTKAnnotationLayers(
     const QModelIndexList qmil) const;
-  virtual QItemSelection VTKAnnotationLayersToQItemSelection(
-    vtkAnnotationLayers *vtkann) const;
-  vtkSelection* QModelIndexListToVTKIndexSelection(
-    const QModelIndexList qmil) const override;
-  QItemSelection VTKIndexSelectionToQItemSelection(
-    vtkSelection *vtksel) const override;
+  virtual QItemSelection VTKAnnotationLayersToQItemSelection(vtkAnnotationLayers* vtkann) const;
+  vtkSelection* QModelIndexListToVTKIndexSelection(const QModelIndexList qmil) const override;
+  QItemSelection VTKIndexSelectionToQItemSelection(vtkSelection* vtksel) const override;
   //@}
 
   void SetKeyColumnName(const char* name) override;
@@ -79,33 +76,32 @@ public:
    */
   void setAnnotationLayers(vtkAnnotationLayers* annotations);
   vtkAnnotationLayers* annotationLayers() const { return this->Annotations; }
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-  bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
-  QVariant headerData(int section, Qt::Orientation orientation,
-                      int role = Qt::DisplayRole) const override;
-  QModelIndex index(int row, int column,
-                    const QModelIndex &parent = QModelIndex()) const override;
-  QModelIndex parent(const QModelIndex &index) const override;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-  int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-/*
-  Qt::DropActions supportedDropActions() const;
-  Qt::DropActions supportedDragActions() const;
-  bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
-  bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
-  virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column, const QModelIndex & parent) ;
-  virtual QMimeData * mimeData ( const QModelIndexList & indexes ) const;
-  virtual QStringList mimeTypes () const ;
-*/
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
+  QVariant headerData(
+    int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+  QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+  QModelIndex parent(const QModelIndex& index) const override;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  /*
+    Qt::DropActions supportedDropActions() const;
+    Qt::DropActions supportedDragActions() const;
+    bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
+    bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
+    virtual bool dropMimeData(const QMimeData * data, Qt::DropAction action, int row, int column,
+    const QModelIndex & parent) ; virtual QMimeData * mimeData ( const QModelIndexList & indexes )
+    const; virtual QStringList mimeTypes () const ;
+  */
 private:
   //@}
 
   bool noAnnotationsCheck() const;
 
-  vtkAnnotationLayers*   Annotations;
+  vtkAnnotationLayers* Annotations;
 
-  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &) = delete;
+  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter&) = delete;
   void operator=(const vtkQtAnnotationLayersModelAdapter&) = delete;
 };
 

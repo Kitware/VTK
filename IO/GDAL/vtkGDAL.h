@@ -16,7 +16,7 @@
  * @class   vtkGDAL
  * @brief   Shared data for GDAL classes
  *
-*/
+ */
 
 #ifndef vtkGDAL_h
 #define vtkGDAL_h
@@ -29,16 +29,16 @@ class vtkInformationIntegerVectorKey;
 
 class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 {
- public:
-  vtkTypeMacro(vtkGDAL,vtkObject);
+public:
+  vtkTypeMacro(vtkGDAL, vtkObject);
   // Key used to put GDAL map projection string in the output information
   // by readers.
   static vtkInformationStringKey* MAP_PROJECTION();
   static vtkInformationIntegerVectorKey* FLIP_AXIS();
- protected:
 
- private:
-  vtkGDAL();  // Static class
+protected:
+private:
+  vtkGDAL(); // Static class
   ~vtkGDAL() override;
   vtkGDAL(const vtkGDAL&) = delete;
   void operator=(const vtkGDAL&) = delete;

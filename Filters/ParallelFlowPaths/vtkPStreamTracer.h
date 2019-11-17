@@ -21,7 +21,7 @@
  * be identical on all processes.
  * @sa
  * vtkStreamTracer
-*/
+ */
 
 #ifndef vtkPStreamTracer_h
 #define vtkPStreamTracer_h
@@ -38,10 +38,10 @@ class AbstractPStreamTracerUtils;
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
-class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
-  vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
+  vtkTypeMacro(vtkPStreamTracer, vtkStreamTracer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -54,15 +54,15 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
-  static vtkPStreamTracer * New();
+  static vtkPStreamTracer* New();
 
 protected:
-
   vtkPStreamTracer();
   ~vtkPStreamTracer();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestUpdateExtent(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
 
@@ -75,15 +75,12 @@ private:
   vtkPStreamTracer(const vtkPStreamTracer&) = delete;
   void operator=(const vtkPStreamTracer&) = delete;
 
-  void Trace( vtkDataSet *input,
-              int vecType,
-              const char* vecName,
-              PStreamTracerPoint* pt,
-              vtkSmartPointer<vtkPolyData>& output,
-              vtkAbstractInterpolatedVelocityField* func,
-              int maxCellSize);
+  void Trace(vtkDataSet* input, int vecType, const char* vecName, PStreamTracerPoint* pt,
+    vtkSmartPointer<vtkPolyData>& output, vtkAbstractInterpolatedVelocityField* func,
+    int maxCellSize);
 
-  bool TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpolatedVelocityField*, PStreamTracerPoint* pt);
+  bool TraceOneStep(
+    vtkPolyData* traceOut, vtkAbstractInterpolatedVelocityField*, PStreamTracerPoint* pt);
 
   void Prepend(vtkPolyData* path, vtkPolyData* headh);
   int Rank;

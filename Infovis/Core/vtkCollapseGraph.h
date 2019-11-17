@@ -38,7 +38,7 @@
  *
  * Input port 0: graph
  * Input port 1: selection
-*/
+ */
 
 #ifndef vtkCollapseGraph_h
 #define vtkCollapseGraph_h
@@ -50,7 +50,7 @@ class VTKINFOVISCORE_EXPORT vtkCollapseGraph : public vtkGraphAlgorithm
 {
 public:
   static vtkCollapseGraph* New();
-  vtkTypeMacro(vtkCollapseGraph,vtkGraphAlgorithm);
+  vtkTypeMacro(vtkCollapseGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Convenience function provided for setting the graph input.
@@ -64,10 +64,7 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkCollapseGraph(const vtkCollapseGraph&) = delete;
@@ -75,4 +72,3 @@ private:
 };
 
 #endif
-

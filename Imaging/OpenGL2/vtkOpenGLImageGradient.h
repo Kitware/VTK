@@ -15,7 +15,7 @@
 /**
  * @class   vtkOpenGLImageGradient
  * @brief   Compute Gradient using the GPU
-*/
+ */
 
 #ifndef vtkOpenGLImageGradient_h
 #define vtkOpenGLImageGradient_h
@@ -29,26 +29,24 @@ class vtkRenderWindow;
 class VTKIMAGINGOPENGL2_EXPORT vtkOpenGLImageGradient : public vtkImageGradient
 {
 public:
-  static vtkOpenGLImageGradient *New();
-  vtkTypeMacro(vtkOpenGLImageGradient,vtkImageGradient);
+  static vtkOpenGLImageGradient* New();
+  vtkTypeMacro(vtkOpenGLImageGradient, vtkImageGradient);
 
   /**
    * Set the render window to get the OpenGL resources from
    */
-  void SetRenderWindow(vtkRenderWindow *);
+  void SetRenderWindow(vtkRenderWindow*);
 
 protected:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkOpenGLImageGradient();
   ~vtkOpenGLImageGradient();
 
-  vtkOpenGLImageAlgorithmHelper *Helper;
+  vtkOpenGLImageAlgorithmHelper* Helper;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int id) override;
 
 private:
   vtkOpenGLImageGradient(const vtkOpenGLImageGradient&) = delete;

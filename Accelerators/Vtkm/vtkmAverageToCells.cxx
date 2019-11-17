@@ -32,36 +32,28 @@
 vtkStandardNewMacro(vtkmAverageToCells);
 
 //------------------------------------------------------------------------------
-vtkmAverageToCells::vtkmAverageToCells()
-{
-}
+vtkmAverageToCells::vtkmAverageToCells() {}
 
 //------------------------------------------------------------------------------
-vtkmAverageToCells::~vtkmAverageToCells()
-{
-}
+vtkmAverageToCells::~vtkmAverageToCells() {}
 
 //------------------------------------------------------------------------------
 int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
-                                 vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet* input =
-      vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataSet* output =
-      vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   output->ShallowCopy(input);
 
   // grab the input array to process to determine the field we want to average
   int association = this->GetInputArrayAssociation(0, inputVector);
   auto fieldArray = this->GetInputArrayToProcess(0, inputVector);
-  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS ||
-      fieldArray == nullptr ||
-      fieldArray->GetName() == nullptr || fieldArray->GetName()[0] == '\0')
+  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS || fieldArray == nullptr ||
+    fieldArray->GetName() == nullptr || fieldArray->GetName()[0] == '\0')
   {
     vtkErrorMacro(<< "Invalid field: Requires a point field with a valid name.");
     return 0;
@@ -84,8 +76,7 @@ int vtkmAverageToCells::RequestData(vtkInformation* vtkNotUsed(request),
     auto result = filter.Execute(in, policy);
 
     // convert back the dataset to VTK, and add the field as a cell field
-    vtkDataArray* resultingArray =
-      fromvtkm::Convert(result.GetCellField(fieldName));
+    vtkDataArray* resultingArray = fromvtkm::Convert(result.GetCellField(fieldName));
     if (resultingArray == nullptr)
     {
       vtkErrorMacro(<< "Unable to convert result array from VTK-m to VTK");

@@ -24,61 +24,49 @@
 #include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 
-int TestAssemblyBounds (int , char *[])
+int TestAssemblyBounds(int, char*[])
 {
-  vtkSmartPointer<vtkSphereSource> source1 =
-    vtkSmartPointer<vtkSphereSource>::New();
-  source1->SetCenter(4,4,4);
+  vtkSmartPointer<vtkSphereSource> source1 = vtkSmartPointer<vtkSphereSource>::New();
+  source1->SetCenter(4, 4, 4);
   source1->SetRadius(2);
 
-  vtkSmartPointer<vtkPlane> plane =
-    vtkSmartPointer<vtkPlane>::New();
+  vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
   plane->SetOrigin(6, 6, 6);
   plane->SetNormal(1, 1, 1);
 
-  vtkSmartPointer<vtkClipPolyData> clipper1 =
-    vtkSmartPointer<vtkClipPolyData>::New();
+  vtkSmartPointer<vtkClipPolyData> clipper1 = vtkSmartPointer<vtkClipPolyData>::New();
   clipper1->SetInputConnection(source1->GetOutputPort());
   clipper1->SetClipFunction(plane);
   clipper1->SetValue(0);
 
-  vtkSmartPointer<vtkDataSetMapper> mapper1 =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> mapper1 = vtkSmartPointer<vtkDataSetMapper>::New();
   mapper1->SetInputConnection(clipper1->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> actor1 =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor1 = vtkSmartPointer<vtkActor>::New();
   actor1->SetMapper(mapper1);
 
-  vtkSmartPointer<vtkSphereSource> source2 =
-    vtkSmartPointer<vtkSphereSource>::New();
-  source2->SetCenter(8,8,8);
+  vtkSmartPointer<vtkSphereSource> source2 = vtkSmartPointer<vtkSphereSource>::New();
+  source2->SetCenter(8, 8, 8);
   source2->SetRadius(2);
 
-  vtkSmartPointer<vtkClipPolyData> clipper2 =
-    vtkSmartPointer<vtkClipPolyData>::New();
+  vtkSmartPointer<vtkClipPolyData> clipper2 = vtkSmartPointer<vtkClipPolyData>::New();
   clipper2->SetInputConnection(source2->GetOutputPort());
   clipper2->SetClipFunction(plane);
   clipper2->SetValue(0);
 
-  vtkSmartPointer<vtkDataSetMapper> mapper2 =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> mapper2 = vtkSmartPointer<vtkDataSetMapper>::New();
   mapper2->SetInputConnection(clipper2->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> actor2 =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor2 = vtkSmartPointer<vtkActor>::New();
   actor2->SetMapper(mapper2);
 
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(renderer);
 
   // Create an assembly
-  vtkSmartPointer<vtkAssembly> assembly =
-    vtkSmartPointer<vtkAssembly>::New();
+  vtkSmartPointer<vtkAssembly> assembly = vtkSmartPointer<vtkAssembly>::New();
   assembly->AddPart(actor1);
   assembly->AddPart(actor2);
 
@@ -87,26 +75,18 @@ int TestAssemblyBounds (int , char *[])
   double clipActorBounds[6];
   actor1->GetBounds(clipActorBounds);
 
-  std::cout << "First actor is entirely clipped, so its bounds are not valid"
-            << std::endl;
-  std::cout << "[" << clipActorBounds[0]
-            << ", " << clipActorBounds[1] << " ]"
-            << "[" << clipActorBounds[2]
-            << ", " << clipActorBounds[3] << " ]"
-            << "[" << clipActorBounds[4]
-            << ", " << clipActorBounds[5] << "] " << std::endl;
+  std::cout << "First actor is entirely clipped, so its bounds are not valid" << std::endl;
+  std::cout << "[" << clipActorBounds[0] << ", " << clipActorBounds[1] << " ]"
+            << "[" << clipActorBounds[2] << ", " << clipActorBounds[3] << " ]"
+            << "[" << clipActorBounds[4] << ", " << clipActorBounds[5] << "] " << std::endl;
 
   double clipActor2Bounds[6];
   actor2->GetBounds(clipActor2Bounds);
 
-  std::cout << "Only the second sphere is visible with these bounds"
-            << std::endl;
-  std::cout << "[" << clipActor2Bounds[0]
-            << ", " << clipActor2Bounds[1] << "] "
-            << "[" << clipActor2Bounds[2]
-            << ", " << clipActor2Bounds[3] << "] "
-            << "[" << clipActor2Bounds[4]
-            << ", " << clipActor2Bounds[5] << "] " << std::endl;
+  std::cout << "Only the second sphere is visible with these bounds" << std::endl;
+  std::cout << "[" << clipActor2Bounds[0] << ", " << clipActor2Bounds[1] << "] "
+            << "[" << clipActor2Bounds[2] << ", " << clipActor2Bounds[3] << "] "
+            << "[" << clipActor2Bounds[4] << ", " << clipActor2Bounds[5] << "] " << std::endl;
 
   double sceneBounds[6];
   renderer->ComputeVisiblePropBounds(sceneBounds);
@@ -117,12 +97,9 @@ int TestAssemblyBounds (int , char *[])
     if (sceneBounds[i] != clipActor2Bounds[i])
     {
       std::cout << "Wrong visible bounds!" << std::endl;
-      std::cout << "["  << sceneBounds[0]
-                << ", " << sceneBounds[1]  << "] "
-                << "["  << sceneBounds[2]
-                << ", " << sceneBounds[3] << "] "
-                << "["  << sceneBounds[4]
-                << ", " << sceneBounds[5] << "] " << std::endl;
+      std::cout << "[" << sceneBounds[0] << ", " << sceneBounds[1] << "] "
+                << "[" << sceneBounds[2] << ", " << sceneBounds[3] << "] "
+                << "[" << sceneBounds[4] << ", " << sceneBounds[5] << "] " << std::endl;
       return EXIT_FAILURE;
     }
   }

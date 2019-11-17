@@ -32,7 +32,7 @@
     return EXIT_FAILURE;                                                                           \
   }
 
-int TestPointSetToMoleculeFilter(int, char* [])
+int TestPointSetToMoleculeFilter(int, char*[])
 {
   vtkNew<vtkPolyData> polyData;
   vtkNew<vtkPoints> points;
@@ -108,7 +108,7 @@ int TestPointSetToMoleculeFilter(int, char* [])
   }
   CheckNumbers("atomic number value", atomicNumbers->GetTuple1(0), firstAtomicNb)
 
-  filter->ConvertLinesIntoBondsOff();
+    filter->ConvertLinesIntoBondsOff();
   filter->Update();
   molecule = filter->GetOutput();
 

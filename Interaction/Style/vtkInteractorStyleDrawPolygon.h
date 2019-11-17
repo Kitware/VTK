@@ -19,7 +19,7 @@
  * This interactor style allows the user to draw a polygon in the render
  * window using the left mouse button while mouse is moving.
  * When the mouse button is released, a SelectionChangedEvent will be fired.
-*/
+ */
 
 #ifndef vtkInteractorStyleDrawPolygon_h
 #define vtkInteractorStyleDrawPolygon_h
@@ -35,7 +35,7 @@ class vtkUnsignedCharArray;
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleDrawPolygon : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleDrawPolygon *New();
+  static vtkInteractorStyleDrawPolygon* New();
   vtkTypeMacro(vtkInteractorStyleDrawPolygon, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -74,7 +74,7 @@ protected:
 
   bool DrawPolygonPixels;
 
-  vtkUnsignedCharArray *PixelArray;
+  vtkUnsignedCharArray* PixelArray;
 
 private:
   vtkInteractorStyleDrawPolygon(const vtkInteractorStyleDrawPolygon&) = delete;

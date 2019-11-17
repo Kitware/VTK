@@ -40,8 +40,7 @@ vtkXMLDataSetWriter::vtkXMLDataSetWriter() = default;
 vtkXMLDataSetWriter::~vtkXMLDataSetWriter() = default;
 
 //----------------------------------------------------------------------------
-int vtkXMLDataSetWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkXMLDataSetWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;

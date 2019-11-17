@@ -24,7 +24,7 @@
  *
  * @todo
  * Generalize to extrusions along arbitrary directions.
-*/
+ */
 
 #ifndef vtkPolyPlane_h
 #define vtkPolyPlane_h
@@ -41,9 +41,9 @@ public:
   /**
    * Construct plane passing through origin and normal to z-axis.
    */
-  static vtkPolyPlane *New();
+  static vtkPolyPlane* New();
 
-  vtkTypeMacro(vtkPolyPlane,vtkImplicitFunction);
+  vtkTypeMacro(vtkPolyPlane, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -64,8 +64,8 @@ public:
    * Set/get point through which plane passes. Plane is defined by point
    * and normal.
    */
-  virtual void SetPolyLine( vtkPolyLine * );
-  vtkGetObjectMacro( PolyLine, vtkPolyLine );
+  virtual void SetPolyLine(vtkPolyLine*);
+  vtkGetObjectMacro(PolyLine, vtkPolyLine);
   //@}
 
   /**
@@ -79,11 +79,11 @@ protected:
 
   void ComputeNormals();
 
-  double           ExtrusionDirection[3];
-  vtkPolyLine    * PolyLine;
-  vtkTimeStamp     NormalComputeTime;
-  vtkDoubleArray * Normals;
-  vtkIdType        ClosestPlaneIdx;
+  double ExtrusionDirection[3];
+  vtkPolyLine* PolyLine;
+  vtkTimeStamp NormalComputeTime;
+  vtkDoubleArray* Normals;
+  vtkIdType ClosestPlaneIdx;
 
 private:
   vtkPolyPlane(const vtkPolyPlane&) = delete;

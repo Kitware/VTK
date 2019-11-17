@@ -66,9 +66,7 @@ int TestOMETIFFReader(int argc, char* argv[])
   }
   else
   {
-    vtkLogF(ERROR,
-      "Failed to read timesteps; expected (%d), got (%d)",
-      sizeT,
+    vtkLogF(ERROR, "Failed to read timesteps; expected (%d), got (%d)", sizeT,
       outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()));
   }
 
@@ -76,9 +74,7 @@ int TestOMETIFFReader(int argc, char* argv[])
   auto img = reader->GetOutput();
   if (img->GetPointData()->GetNumberOfArrays() != sizeC)
   {
-    vtkLogF(ERROR,
-      "Failed to read channels; expected (%d), got (%d)",
-      sizeC,
+    vtkLogF(ERROR, "Failed to read channels; expected (%d), got (%d)", sizeC,
       img->GetPointData()->GetNumberOfArrays());
   }
 
@@ -86,17 +82,15 @@ int TestOMETIFFReader(int argc, char* argv[])
   img->GetDimensions(dims.GetData());
   if (dims != size)
   {
-    vtkLogF(ERROR,
-      "Failed due to size mismatch; expected (%d, %d, %d), got (%d, %d, %d)",
-      size[0], size[1], size[2], dims[0], dims[1], dims[2]);
+    vtkLogF(ERROR, "Failed due to size mismatch; expected (%d, %d, %d), got (%d, %d, %d)", size[0],
+      size[1], size[2], dims[0], dims[1], dims[2]);
   }
 
   vtkVector3d spacing;
   img->GetSpacing(spacing.GetData());
   if ((spacing - physicalSize).Norm() > 0.00001)
   {
-    vtkLogF(ERROR,
-      "Physical size / spacing mismatch; expected (%f, %f, %f), got (%f, %f, %f)",
+    vtkLogF(ERROR, "Physical size / spacing mismatch; expected (%f, %f, %f), got (%f, %f, %f)",
       physicalSize[0], physicalSize[1], physicalSize[2], spacing[0], spacing[1], spacing[2]);
   }
 

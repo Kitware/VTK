@@ -36,20 +36,20 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 {
   // Description:
   // Performs a "B.AddBounds(A)" operation.
-  void Function(const void *A, void *B, vtkIdType length, int datatype) override
+  void Function(const void* A, void* B, vtkIdType length, int datatype) override
   {
     (void)datatype;
-    assert((datatype == VTK_DOUBLE) && (length%6==0));
-    assert("pre: A vector is nullptr" && (A != nullptr) );
-    assert("pre: B vector is nullptr" && (B != nullptr) );
+    assert((datatype == VTK_DOUBLE) && (length % 6 == 0));
+    assert("pre: A vector is nullptr" && (A != nullptr));
+    assert("pre: B vector is nullptr" && (B != nullptr));
     vtkBoundingBox box;
-    const double *aPtr = reinterpret_cast<const double*>(A);
-    double *bPtr       = reinterpret_cast<double*>(B);
-    for(vtkIdType idx=0; idx < length; idx+=6 )
+    const double* aPtr = reinterpret_cast<const double*>(A);
+    double* bPtr = reinterpret_cast<double*>(B);
+    for (vtkIdType idx = 0; idx < length; idx += 6)
     {
-      box.SetBounds(&bPtr[ idx ]);
-      box.AddBounds(&aPtr[ idx ]);
-      box.GetBounds(&bPtr[ idx ]);
+      box.SetBounds(&bPtr[idx]);
+      box.AddBounds(&aPtr[idx]);
+      box.GetBounds(&bPtr[idx]);
     }
   }
 
@@ -91,10 +91,8 @@ void vtkPOutlineFilterInternals::SetIsCornerSource(bool value)
 }
 
 // ----------------------------------------------------------------------------
-int vtkPOutlineFilterInternals::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPOutlineFilterInternals::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
   vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
@@ -135,7 +133,7 @@ int vtkPOutlineFilterInternals::RequestData(
     return this->RequestData(ds, output);
   }
 
-  vtkGraph *graph = vtkGraph::SafeDownCast(input);
+  vtkGraph* graph = vtkGraph::SafeDownCast(input);
   if (graph)
   {
     return this->RequestData(graph, output);
@@ -174,8 +172,7 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
 }
 
 // ----------------------------------------------------------------------------
-int vtkPOutlineFilterInternals::RequestData(
-  vtkDataObjectTree* input, vtkPolyData* output)
+int vtkPOutlineFilterInternals::RequestData(vtkDataObjectTree* input, vtkPolyData* output)
 {
   // Check Output and Input
 
@@ -184,25 +181,22 @@ int vtkPOutlineFilterInternals::RequestData(
 
   // Make an array of bounds from collected bounds
   std::vector<double> boundsList;
-  boundsList.resize(6*this->BoundsList.size());
+  boundsList.resize(6 * this->BoundsList.size());
 
-  for(size_t i =0; i < this->BoundsList.size(); ++i)
+  for (size_t i = 0; i < this->BoundsList.size(); ++i)
   {
-    this->BoundsList[i].GetBounds(&boundsList[i*6]);
+    this->BoundsList[i].GetBounds(&boundsList[i * 6]);
   }
 
   // Collect global bounds and copy into the array
-  if (this->Controller && this->Controller->GetNumberOfProcesses () >1)
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
     AddBoundsListOperator operation;
-    double* temp = new double[6*this->BoundsList.size()];
-    this->Controller->Reduce(&boundsList[0],
-                             temp,
-                             static_cast<vtkIdType>(6*this->BoundsList.size()),
-                             &operation,
-                             0);
-    memcpy(&boundsList[0], temp, 6*this->BoundsList.size()*sizeof(double));
-    delete [] temp;
+    double* temp = new double[6 * this->BoundsList.size()];
+    this->Controller->Reduce(
+      &boundsList[0], temp, static_cast<vtkIdType>(6 * this->BoundsList.size()), &operation, 0);
+    memcpy(&boundsList[0], temp, 6 * this->BoundsList.size() * sizeof(double));
+    delete[] temp;
 
     if (this->Controller->GetLocalProcessId() > 0)
     {
@@ -213,12 +207,12 @@ int vtkPOutlineFilterInternals::RequestData(
 
   // Make output with collected bounds
   vtkNew<vtkAppendPolyData> appender;
-  for (size_t i=0; i < 6*this->BoundsList.size (); i+=6)
+  for (size_t i = 0; i < 6 * this->BoundsList.size(); i += 6)
   {
     vtkBoundingBox box(&boundsList[i]);
     if (box.IsValid())
     {
-      if(this->IsCornerSource)
+      if (this->IsCornerSource)
       {
         vtkNew<vtkOutlineCornerSource> corner;
         corner->SetBounds(&boundsList[i]);
@@ -245,8 +239,7 @@ int vtkPOutlineFilterInternals::RequestData(
 }
 
 // ----------------------------------------------------------------------------
-int vtkPOutlineFilterInternals::RequestData(
-  vtkOverlappingAMR* input, vtkPolyData* output)
+int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyData* output)
 {
   // For Overlapping AMR, we have meta-data on all processes for the complete
   // AMR structure. Hence root node can build the outlines using that
@@ -259,10 +252,10 @@ int vtkPOutlineFilterInternals::RequestData(
   }
 
   vtkNew<vtkAppendPolyData> appender;
-  for (unsigned int level=0; level < input->GetNumberOfLevels(); ++level )
+  for (unsigned int level = 0; level < input->GetNumberOfLevels(); ++level)
   {
     unsigned int num_datasets = input->GetNumberOfDataSets(level);
-    for (unsigned int dataIdx=0; dataIdx < num_datasets; ++dataIdx)
+    for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx)
     {
       double bounds[6];
       input->GetAMRInfo()->GetBounds(level, dataIdx, bounds);
@@ -297,20 +290,19 @@ int vtkPOutlineFilterInternals::RequestData(
 }
 
 // ----------------------------------------------------------------------------
-int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input,
-  vtkPolyData* output)
+int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input, vtkPolyData* output)
 {
   // All processes simply produce the outline for the non-null blocks that exist
   // on the process.
   vtkNew<vtkAppendPolyData> appender;
-  unsigned int block_id=0;
-  for (unsigned int level=0; level < input->GetNumberOfLevels(); ++level )
+  unsigned int block_id = 0;
+  for (unsigned int level = 0; level < input->GetNumberOfLevels(); ++level)
   {
     unsigned int num_datasets = input->GetNumberOfDataSets(level);
-    for (unsigned int dataIdx=0; dataIdx < num_datasets; ++dataIdx, block_id++)
+    for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx, block_id++)
     {
-      vtkUniformGrid *ug = input->GetDataSet( level, dataIdx );
-      if(ug)
+      vtkUniformGrid* ug = input->GetDataSet(level, dataIdx);
+      if (ug)
       {
         double bounds[6];
         ug->GetBounds(bounds);
@@ -346,8 +338,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input,
 }
 
 // ----------------------------------------------------------------------------
-int vtkPOutlineFilterInternals::RequestData(
-  vtkDataSet* input, vtkPolyData* output)
+int vtkPOutlineFilterInternals::RequestData(vtkDataSet* input, vtkPolyData* output)
 {
   double bounds[6];
   input->GetBounds(bounds);
@@ -363,13 +354,13 @@ int vtkPOutlineFilterInternals::RequestData(
       // Satellite node
       return 1;
     }
-    memcpy(bounds, reduced_bounds, 6*sizeof(double));
+    memcpy(bounds, reduced_bounds, 6 * sizeof(double));
   }
 
   if (vtkMath::AreBoundsInitialized(bounds))
   {
     // only output in process 0.
-    if(this->IsCornerSource)
+    if (this->IsCornerSource)
     {
       vtkNew<vtkOutlineCornerSource> corner;
       corner->SetBounds(bounds);
@@ -390,8 +381,7 @@ int vtkPOutlineFilterInternals::RequestData(
 }
 
 // ----------------------------------------------------------------------------
-int vtkPOutlineFilterInternals::RequestData(vtkGraph *input,
-                                            vtkPolyData *output)
+int vtkPOutlineFilterInternals::RequestData(vtkGraph* input, vtkPolyData* output)
 {
   double bounds[6];
   input->GetBounds(bounds);
@@ -407,13 +397,13 @@ int vtkPOutlineFilterInternals::RequestData(vtkGraph *input,
       // Satellite node
       return 1;
     }
-    memcpy(bounds, reduced_bounds, 6*sizeof(double));
+    memcpy(bounds, reduced_bounds, 6 * sizeof(double));
   }
 
   if (vtkMath::AreBoundsInitialized(bounds))
   {
     // only output in process 0.
-    if(this->IsCornerSource)
+    if (this->IsCornerSource)
     {
       vtkNew<vtkOutlineCornerSource> corner;
       corner->SetBounds(bounds);

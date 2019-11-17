@@ -31,7 +31,6 @@
 #include "vtkPointSource.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
@@ -50,18 +49,18 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPolyDataWriter.h"
 
-
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
-int TestLabelPlacementMapper(int argc, char *argv[])
+int TestLabelPlacementMapper(int argc, char* argv[])
 {
   // use non-unit aspect ratio to capture more potential errors
   int windowSize[2] = { 200, 600 };
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindowInteractor> iren;
-  vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle())->SetCurrentStyleToTrackballCamera();
+  vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle())
+    ->SetCurrentStyleToTrackballCamera();
 
   renWin->SetSize(200, 600);
   renWin->AddRenderer(renderer);
@@ -80,9 +79,9 @@ int TestLabelPlacementMapper(int argc, char *argv[])
     int targetLabels = 32;
     double labelRatio = 0.05;
     char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uniform-001371-5x5x5.vtp");
-    //int iteratorType = vtkLabelHierarchy::FULL_SORT;
+    // int iteratorType = vtkLabelHierarchy::FULL_SORT;
     int iteratorType = vtkLabelHierarchy::QUEUE;
-    //int iteratorType = vtkLabelHierarchy::DEPTH_FIRST;
+    // int iteratorType = vtkLabelHierarchy::DEPTH_FIRST;
     double center[3] = { 12.0, 8.0, 30.0 };
 
     vtkNew<vtkSphereSource> sphere;
@@ -207,13 +206,13 @@ int TestLabelPlacementMapper(int argc, char *argv[])
   ///
 
   renWin->Render();
-  //renderer->GetActiveCamera()->ParallelProjectionOn();
+  // renderer->GetActiveCamera()->ParallelProjectionOn();
   renderer->ResetCamera();
   renderer->ResetCamera();
   renderer->ResetCamera();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

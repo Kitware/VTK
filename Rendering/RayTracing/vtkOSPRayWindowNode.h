@@ -17,7 +17,7 @@
  * @brief   links vtkRendererWindows to OSPRay
  *
  * Translates vtkRenderWindow state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayWindowNode_h
 #define vtkOSPRayWindowNode_h
@@ -25,8 +25,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkWindowNode.h"
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayWindowNode :
-  public vtkWindowNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayWindowNode : public vtkWindowNode
 {
 public:
   static vtkOSPRayWindowNode* New();

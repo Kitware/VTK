@@ -7,16 +7,16 @@
 
 #include "WidgetTestingMacros.h"
 
-int vtkTextWidgetTest1(int , char * [] )
+int vtkTextWidgetTest1(int, char*[])
 {
-  vtkSmartPointer< vtkTextWidget > node1 = vtkSmartPointer< vtkTextWidget >::New();
+  vtkSmartPointer<vtkTextWidget> node1 = vtkSmartPointer<vtkTextWidget>::New();
 
-  EXERCISE_BASIC_BORDER_METHODS (node1 );
+  EXERCISE_BASIC_BORDER_METHODS(node1);
 
   vtkSmartPointer<vtkTextRepresentation> rep1 = vtkSmartPointer<vtkTextRepresentation>::New();
   node1->SetRepresentation(rep1);
 
-  vtkTextActor *textActor = node1->GetTextActor();
+  vtkTextActor* textActor = node1->GetTextActor();
   if (textActor)
   {
     std::cout << "Text actor is not null" << std::endl;

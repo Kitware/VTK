@@ -117,44 +117,36 @@ namespace detail
 // that by using Declare[Tuple|Value]RangeSpecialization functions that map an
 // input ArrayTypePtr and tuple size to a specific version of the appropriate
 // Range.
-template <typename ArrayTypePtr,
-          ComponentIdType TupleSize>
+template <typename ArrayTypePtr, ComponentIdType TupleSize>
 struct SelectTupleRange
 {
 private:
   // Allow this to work with vtkNew, vtkSmartPointer, etc.
   using ArrayType = typename detail::StripPointers<ArrayTypePtr>::type;
 
-  static_assert(detail::IsValidTupleSize<TupleSize>::value,
-                "Invalid tuple size.");
-  static_assert(detail::IsVtkDataArray<ArrayType>::value,
-                "Invalid array type.");
+  static_assert(detail::IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
+  static_assert(detail::IsVtkDataArray<ArrayType>::value, "Invalid array type.");
 
 public:
   using type =
-      typename std::decay<decltype(
-          vtk::detail::DeclareTupleRangeSpecialization<ArrayType, TupleSize>(
-              std::declval<ArrayType*>()))>::type;
+    typename std::decay<decltype(vtk::detail::DeclareTupleRangeSpecialization<ArrayType, TupleSize>(
+      std::declval<ArrayType*>()))>::type;
 };
 
-template <typename ArrayTypePtr,
-          ComponentIdType TupleSize>
+template <typename ArrayTypePtr, ComponentIdType TupleSize>
 struct SelectValueRange
 {
 private:
   // Allow this to work with vtkNew, vtkSmartPointer, etc.
   using ArrayType = typename detail::StripPointers<ArrayTypePtr>::type;
 
-  static_assert(detail::IsValidTupleSize<TupleSize>::value,
-                "Invalid tuple size.");
-  static_assert(detail::IsVtkDataArray<ArrayType>::value,
-                "Invalid array type.");
+  static_assert(detail::IsValidTupleSize<TupleSize>::value, "Invalid tuple size.");
+  static_assert(detail::IsVtkDataArray<ArrayType>::value, "Invalid array type.");
 
 public:
   using type =
-      typename std::remove_reference<decltype(
-          vtk::detail::DeclareValueRangeSpecialization<ArrayType, TupleSize>(
-              std::declval<ArrayType*>()))>::type;
+    typename std::remove_reference<decltype(vtk::detail::DeclareValueRangeSpecialization<ArrayType,
+      TupleSize>(std::declval<ArrayType*>()))>::type;
 };
 
 } // end namespace detail
@@ -264,22 +256,16 @@ public:
  * ```
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
-          typename ArrayTypePtr = vtkDataArray*>
-VTK_ITER_INLINE
-auto DataArrayTupleRange(const ArrayTypePtr& array,
-                         TupleIdType start = -1,
-                         TupleIdType end = -1)
-    -> typename detail::SelectTupleRange<ArrayTypePtr, TupleSize>::type
+  typename ArrayTypePtr = vtkDataArray*>
+VTK_ITER_INLINE auto DataArrayTupleRange(const ArrayTypePtr& array, TupleIdType start = -1,
+  TupleIdType end = -1) -> typename detail::SelectTupleRange<ArrayTypePtr, TupleSize>::type
 {
   // Lookup specializations:
-  using RangeType =
-      typename detail::SelectTupleRange<ArrayTypePtr, TupleSize>::type;
+  using RangeType = typename detail::SelectTupleRange<ArrayTypePtr, TupleSize>::type;
 
   assert(array);
 
-  return RangeType(array,
-                   start < 0 ? 0 : start,
-                   end < 0 ? array->GetNumberOfTuples() : end);
+  return RangeType(array, start < 0 ? 0 : start, end < 0 ? array->GetNumberOfTuples() : end);
 }
 
 /**
@@ -380,21 +366,15 @@ auto DataArrayTupleRange(const ArrayTypePtr& array,
  * ```
  */
 template <ComponentIdType TupleSize = detail::DynamicTupleSize,
-          typename ArrayTypePtr = vtkDataArray*>
-VTK_ITER_INLINE
-auto DataArrayValueRange(const ArrayTypePtr& array,
-                         ValueIdType start = -1,
-                         ValueIdType end = -1)
-    -> typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type
+  typename ArrayTypePtr = vtkDataArray*>
+VTK_ITER_INLINE auto DataArrayValueRange(const ArrayTypePtr& array, ValueIdType start = -1,
+  ValueIdType end = -1) -> typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type
 {
-  using RangeType =
-      typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type;
+  using RangeType = typename detail::SelectValueRange<ArrayTypePtr, TupleSize>::type;
 
   assert(array);
 
-  return RangeType(array,
-                   start < 0 ? 0 : start,
-                   end < 0 ? array->GetNumberOfValues() : end);
+  return RangeType(array, start < 0 ? 0 : start, end < 0 ? array->GetNumberOfValues() : end);
 }
 
 } // end namespace vtk

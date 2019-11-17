@@ -38,25 +38,22 @@ vtkImageShiftScale::~vtkImageShiftScale() = default;
 //----------------------------------------------------------------------------
 void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Shift: " << this->Shift << "\n";
   os << indent << "Scale: " << this->Scale << "\n";
   os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
-  os << indent << "ClampOverflow: " << (this->ClampOverflow? "On" : "Off")
-     << "\n";
+  os << indent << "ClampOverflow: " << (this->ClampOverflow ? "On" : "Off") << "\n";
 }
 
 //----------------------------------------------------------------------------
-int vtkImageShiftScale::RequestInformation(vtkInformation*,
-                                           vtkInformationVector**,
-                                           vtkInformationVector* outputVector)
+int vtkImageShiftScale::RequestInformation(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Set the image scalar type for the output.
-  if(this->OutputScalarType != -1)
+  if (this->OutputScalarType != -1)
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    vtkDataObject::SetPointDataActiveScalarInfo(
-      outInfo, this->OutputScalarType, -1);
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
   }
   return 1;
 }
@@ -66,11 +63,8 @@ int vtkImageShiftScale::RequestInformation(vtkInformation*,
 // The last two arguments help the vtkTemplateMacro calls below
 // instantiate the proper input and output types.
 template <class IT, class OT>
-void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
-                               vtkImageData* inData,
-                               vtkImageData* outData,
-                               int outExt[6], int id,
-                               IT*, OT*)
+void vtkImageShiftScaleExecute(vtkImageShiftScale* self, vtkImageData* inData,
+  vtkImageData* outData, int outExt[6], int id, IT*, OT*)
 {
   // Create iterators for the input and output extents assigned to
   // this thread.
@@ -131,21 +125,15 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self,
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageShiftScaleExecute1(vtkImageShiftScale* self,
-                                vtkImageData* inData,
-                                vtkImageData* outData,
-                                int outExt[6], int id, T*)
+void vtkImageShiftScaleExecute1(
+  vtkImageShiftScale* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
   switch (outData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageShiftScaleExecute(self, inData,
-                                outData, outExt, id,
-                                static_cast<T*>(nullptr),
-                                static_cast<VTK_TT*>(nullptr)));
+    vtkTemplateMacro(vtkImageShiftScaleExecute(
+      self, inData, outData, outExt, id, static_cast<T*>(nullptr), static_cast<VTK_TT*>(nullptr)));
     default:
-      vtkErrorWithObjectMacro(
-        self, "ThreadedRequestData: Unknown output ScalarType");
+      vtkErrorWithObjectMacro(self, "ThreadedRequestData: Unknown output ScalarType");
       return;
   }
 }
@@ -155,21 +143,16 @@ void vtkImageShiftScaleExecute1(vtkImageShiftScale* self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the datas data types.
-void vtkImageShiftScale::ThreadedRequestData(vtkInformation*,
-                                             vtkInformationVector**,
-                                             vtkInformationVector*,
-                                             vtkImageData*** inData,
-                                             vtkImageData** outData,
-                                             int outExt[6],
-                                             int threadId)
+void vtkImageShiftScale::ThreadedRequestData(vtkInformation*, vtkInformationVector**,
+  vtkInformationVector*, vtkImageData*** inData, vtkImageData** outData, int outExt[6],
+  int threadId)
 {
   vtkImageData* input = inData[0][0];
   vtkImageData* output = outData[0];
-  switch(input->GetScalarType())
+  switch (input->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageShiftScaleExecute1(this, input, output, outExt, threadId,
-                                 static_cast<VTK_TT*>(nullptr)));
+    vtkTemplateMacro(vtkImageShiftScaleExecute1(
+      this, input, output, outExt, threadId, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro("ThreadedRequestData: Unknown input ScalarType");
       return;

@@ -40,10 +40,9 @@ int TestGPURayCastOrientedVolume(int argc, char* argv[])
 {
   // Load data
   vtkNew<vtkImageReader2> reader;
-  reader->SetDataExtent(0,63,0,63,1,93);
+  reader->SetDataExtent(0, 63, 0, 63, 1, 93);
   reader->SetDataByteOrderToLittleEndian();
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
   reader->SetFilePrefix(fname);
   delete[] fname;
 
@@ -56,11 +55,8 @@ int TestGPURayCastOrientedVolume(int argc, char* argv[])
   trans->RotateZ(20);
   vtkMatrix4x4::DeepCopy(mat4, trans->GetMatrix()->GetData());
 
-  double dir[9] = {
-    mat4[0], mat4[1], mat4[2],
-    mat4[4], mat4[5], mat4[6],
-    mat4[8], mat4[9], mat4[10]
-  };
+  double dir[9] = { mat4[0], mat4[1], mat4[2], mat4[4], mat4[5], mat4[6], mat4[8], mat4[9],
+    mat4[10] };
   reader->SetDataDirection(dir);
 
   // Prepare TFs

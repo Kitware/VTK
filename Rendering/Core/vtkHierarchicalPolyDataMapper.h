@@ -20,7 +20,7 @@
  *
  * @sa
  * vtkPolyDataMapper
-*/
+ */
 
 #ifndef vtkHierarchicalPolyDataMapper_h
 #define vtkHierarchicalPolyDataMapper_h
@@ -32,7 +32,7 @@ class VTKRENDERINGCORE_EXPORT vtkHierarchicalPolyDataMapper : public vtkComposit
 {
 
 public:
-  static vtkHierarchicalPolyDataMapper *New();
+  static vtkHierarchicalPolyDataMapper* New();
   vtkTypeMacro(vtkHierarchicalPolyDataMapper, vtkCompositePolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

@@ -19,7 +19,7 @@
  * vtkOutlineCornerFilter is a filter that generates wireframe outline corners of any
  * data set. The outline consists of the eight corners of the dataset
  * bounding box.
-*/
+ */
 
 #ifndef vtkOutlineCornerFilter_h
 #define vtkOutlineCornerFilter_h
@@ -31,13 +31,13 @@ class vtkOutlineCornerSource;
 class VTKFILTERSSOURCES_EXPORT vtkOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkOutlineCornerFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkOutlineCornerFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct outline corner filter with default corner factor = 0.2
    */
-  static vtkOutlineCornerFilter *New();
+  static vtkOutlineCornerFilter* New();
 
   //@{
   /**
@@ -52,11 +52,12 @@ protected:
   vtkOutlineCornerFilter();
   ~vtkOutlineCornerFilter() override;
 
-  vtkOutlineCornerSource *OutlineCornerSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  vtkOutlineCornerSource* OutlineCornerSource;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double CornerFactor;
+
 private:
   vtkOutlineCornerFilter(const vtkOutlineCornerFilter&) = delete;
   void operator=(const vtkOutlineCornerFilter&) = delete;

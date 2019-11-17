@@ -21,11 +21,10 @@
  *
  * @sa
  * vtkImageAppendComponents
-*/
+ */
 
 #ifndef vtkImageExtractComponents_h
 #define vtkImageExtractComponents_h
-
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -33,8 +32,8 @@
 class VTKIMAGINGCORE_EXPORT vtkImageExtractComponents : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageExtractComponents *New();
-  vtkTypeMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
+  static vtkImageExtractComponents* New();
+  vtkTypeMacro(vtkImageExtractComponents, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -44,7 +43,7 @@ public:
   void SetComponents(int c1);
   void SetComponents(int c1, int c2);
   void SetComponents(int c1, int c2, int c3);
-  vtkGetVector3Macro(Components,int);
+  vtkGetVector3Macro(Components, int);
   //@}
 
   //@{
@@ -52,7 +51,7 @@ public:
    * Get the number of components to extract. This is set implicitly by the
    * SetComponents() method.
    */
-  vtkGetMacro(NumberOfComponents,int);
+  vtkGetMacro(NumberOfComponents, int);
   //@}
 
 protected:
@@ -62,24 +61,13 @@ protected:
   int NumberOfComponents;
   int Components[3];
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) override;
+  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int ext[6], int id) override;
+
 private:
   vtkImageExtractComponents(const vtkImageExtractComponents&) = delete;
   void operator=(const vtkImageExtractComponents&) = delete;
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-

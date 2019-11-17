@@ -39,13 +39,12 @@ vtkParametricKlein::vtkParametricKlein()
 vtkParametricKlein::~vtkParametricKlein() = default;
 
 //----------------------------------------------------------------------------
-void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3],
-                                  double Duvw[9])
+void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
   double v = uvw[1];
-  double *Du = Duvw;
-  double *Dv = Duvw + 3;
+  double* Du = Duvw;
+  double* Dv = Duvw + 3;
 
   double cu = cos(u);
   double su = sin(u);

@@ -34,14 +34,14 @@
 class GL2PSMathTextScalingTest : public vtkContextItem
 {
 public:
-  static GL2PSMathTextScalingTest *New();
+  static GL2PSMathTextScalingTest* New();
   vtkTypeMacro(GL2PSMathTextScalingTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter) override;
+  virtual bool Paint(vtkContext2D* painter) override;
 };
 
 //----------------------------------------------------------------------------
-int TestGL2PSMathTextScaling(int, char *[])
+int TestGL2PSMathTextScaling(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -62,8 +62,8 @@ int TestGL2PSMathTextScaling(int, char *[])
   exp->DrawBackgroundOn();
   exp->Write3DPropsAsRasterImageOff();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSMathTextScaling");
+  std::string fileprefix =
+    vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSMathTextScaling");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
@@ -76,7 +76,7 @@ int TestGL2PSMathTextScaling(int, char *[])
 
 vtkStandardNewMacro(GL2PSMathTextScalingTest);
 
-bool GL2PSMathTextScalingTest::Paint(vtkContext2D *painter)
+bool GL2PSMathTextScalingTest::Paint(vtkContext2D* painter)
 {
   painter->GetBrush()->SetColor(50, 50, 128);
   painter->DrawRect(0, 0, 500, 500);

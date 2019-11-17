@@ -26,11 +26,10 @@
 // .SECTION See Also
 // CustomLinkView.
 
-
 #ifndef EasyView_H
 #define EasyView_H
 
-#include "vtkSmartPointer.h"    // Required for smart pointer internal ivars.
+#include "vtkSmartPointer.h" // Required for smart pointer internal ivars.
 
 #include <QMainWindow>
 
@@ -43,13 +42,11 @@ class vtkGraphLayoutView;
 class vtkQtTableView;
 class vtkQtTreeView;
 
-
 class EasyView : public QMainWindow
 {
   Q_OBJECT
 
 public:
-
   // Constructor/Destructor
   EasyView();
   ~EasyView() override;
@@ -60,24 +57,21 @@ public slots:
   virtual void slotExit();
 
 protected:
-
 protected slots:
 
 private:
-
   // Methods
   void SetupAnnotationLink();
 
-
   // Members
-  vtkSmartPointer<vtkXMLTreeReader>       XMLReader;
-  vtkSmartPointer<vtkGraphLayoutView>     GraphView;
-  vtkSmartPointer<vtkQtTreeView>          TreeView;
-  vtkSmartPointer<vtkQtTableView>         TableView;
-  vtkSmartPointer<vtkQtTreeView>          ColumnView;
+  vtkSmartPointer<vtkXMLTreeReader> XMLReader;
+  vtkSmartPointer<vtkGraphLayoutView> GraphView;
+  vtkSmartPointer<vtkQtTreeView> TreeView;
+  vtkSmartPointer<vtkQtTableView> TableView;
+  vtkSmartPointer<vtkQtTreeView> ColumnView;
 
   // Designer form
-  Ui_EasyView *ui;
+  Ui_EasyView* ui;
 };
 
 #endif // EasyView_H

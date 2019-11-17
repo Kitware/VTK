@@ -30,21 +30,20 @@
 
 #include <QApplication>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
 class APIDiagram2 : public vtkContextItem
 {
 public:
-  static APIDiagram2 *New();
+  static APIDiagram2* New();
   vtkTypeMacro(APIDiagram2, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  virtual bool Paint(vtkContext2D* painter);
 };
 
 //----------------------------------------------------------------------------
-int TestQtDiagram( int argc, char * argv [] )
+int TestQtDiagram(int argc, char* argv[])
 {
   // Set up a QApplication instance to see if heart needs a QApplication
   // to render fonts correctly
@@ -62,8 +61,8 @@ int TestQtDiagram( int argc, char * argv [] )
   renderer->AddActor(actor);
 
   // Force the use of the Qt based rendering strategy - fail if not available
-  if(!vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
-      ->SetStringRendererToQt())
+  if (!vtkOpenGLContextDevice2D::SafeDownCast(actor->GetContext()->GetDevice())
+         ->SetStringRendererToQt())
   {
     // This should never happen as this test is only compiled when VTK_USE_QT
     // is defined.
@@ -84,7 +83,7 @@ int TestQtDiagram( int argc, char * argv [] )
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram2);
 // This function draws our API diagram
-bool APIDiagram2::Paint(vtkContext2D *painter)
+bool APIDiagram2::Paint(vtkContext2D* painter)
 {
   // Drawing a hard wired diagram 800x600 as a demonstration of the 2D API
   painter->GetTextProp()->SetVerticalJustificationToCentered();

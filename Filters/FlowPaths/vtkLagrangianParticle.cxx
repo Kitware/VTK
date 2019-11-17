@@ -85,8 +85,8 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables,
 //---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianParticle::NewInstance(int numberOfVariables, vtkIdType seedId,
   vtkIdType particleId, vtkIdType seedArrayTupleIndex, double integrationTime,
-  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData,
-  vtkIdType numberOfSteps, double previousIntegrationTime)
+  vtkPointData* seedData, int weightsSize, int numberOfTrackedUserData, vtkIdType numberOfSteps,
+  double previousIntegrationTime)
 {
   vtkLagrangianParticle* particle = new vtkLagrangianParticle(numberOfVariables, seedId, particleId,
     seedArrayTupleIndex, integrationTime, seedData, weightsSize, numberOfTrackedUserData);
@@ -112,21 +112,24 @@ vtkLagrangianParticle* vtkLagrangianParticle::NewParticle(vtkIdType particleId)
   }
 
   // Create particle and copy members
-  vtkLagrangianParticle* particle =
-    this->NewInstance(this->GetNumberOfVariables(), this->GetSeedId(), particleId,
-      seedArrayTupleIndex, this->IntegrationTime + this->StepTime, seedData, this->WeightsSize,
-      static_cast<int>(this->TrackedUserData.size()));
+  vtkLagrangianParticle* particle = this->NewInstance(this->GetNumberOfVariables(),
+    this->GetSeedId(), particleId, seedArrayTupleIndex, this->IntegrationTime + this->StepTime,
+    seedData, this->WeightsSize, static_cast<int>(this->TrackedUserData.size()));
   particle->ParentId = this->GetId();
   particle->NumberOfSteps = this->GetNumberOfSteps() + 1;
 
   // Copy Variables
-  std::copy(this->EquationVariables.begin(), this->EquationVariables.end(), particle->PrevEquationVariables.begin());
-  std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), particle->EquationVariables.begin());
+  std::copy(this->EquationVariables.begin(), this->EquationVariables.end(),
+    particle->PrevEquationVariables.begin());
+  std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(),
+    particle->EquationVariables.begin());
   std::fill(particle->NextEquationVariables.begin(), particle->NextEquationVariables.end(), 0);
 
   // Copy UserData
-  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(), particle->PrevTrackedUserData.begin());
-  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), particle->TrackedUserData.begin());
+  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(),
+    particle->PrevTrackedUserData.begin());
+  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(),
+    particle->TrackedUserData.begin());
   std::fill(particle->NextTrackedUserData.begin(), particle->NextTrackedUserData.end(), 0);
 
   return particle;
@@ -142,12 +145,18 @@ vtkLagrangianParticle* vtkLagrangianParticle::CloneParticle()
   clone->ParentId = this->ParentId;
   clone->NumberOfSteps = this->NumberOfSteps;
 
-  std::copy(this->PrevEquationVariables.begin(), this->PrevEquationVariables.end(), clone->PrevEquationVariables.begin());
-  std::copy(this->EquationVariables.begin(), this->EquationVariables.end(), clone->EquationVariables.begin());
-  std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), clone->NextEquationVariables.begin());
-  std::copy(this->PrevTrackedUserData.begin(), this->PrevTrackedUserData.end(), clone->PrevTrackedUserData.begin());
-  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(), clone->TrackedUserData.begin());
-  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), clone->NextTrackedUserData.begin());
+  std::copy(this->PrevEquationVariables.begin(), this->PrevEquationVariables.end(),
+    clone->PrevEquationVariables.begin());
+  std::copy(this->EquationVariables.begin(), this->EquationVariables.end(),
+    clone->EquationVariables.begin());
+  std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(),
+    clone->NextEquationVariables.begin());
+  std::copy(this->PrevTrackedUserData.begin(), this->PrevTrackedUserData.end(),
+    clone->PrevTrackedUserData.begin());
+  std::copy(
+    this->TrackedUserData.begin(), this->TrackedUserData.end(), clone->TrackedUserData.begin());
+  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(),
+    clone->NextTrackedUserData.begin());
   clone->StepTime = this->StepTime;
   return clone;
 }
@@ -355,11 +364,15 @@ double vtkLagrangianParticle::GetPositionVectorMagnitude()
 //---------------------------------------------------------------------------
 void vtkLagrangianParticle::MoveToNextPosition()
 {
-  std::copy(this->EquationVariables.begin(), this->EquationVariables.end(), this->PrevEquationVariables.begin());
-  std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), this->EquationVariables.begin());
+  std::copy(this->EquationVariables.begin(), this->EquationVariables.end(),
+    this->PrevEquationVariables.begin());
+  std::copy(this->NextEquationVariables.begin(), this->NextEquationVariables.end(),
+    this->EquationVariables.begin());
   std::fill(this->NextEquationVariables.begin(), this->NextEquationVariables.end(), 0);
-  std::copy(this->TrackedUserData.begin(), this->TrackedUserData.end(), this->PrevTrackedUserData.begin());
-  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), this->TrackedUserData.begin());
+  std::copy(
+    this->TrackedUserData.begin(), this->TrackedUserData.end(), this->PrevTrackedUserData.begin());
+  std::copy(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(),
+    this->TrackedUserData.begin());
   std::fill(this->NextTrackedUserData.begin(), this->NextTrackedUserData.end(), 0);
 
   this->NumberOfSteps++;

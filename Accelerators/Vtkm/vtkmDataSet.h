@@ -55,7 +55,7 @@ public:
    * the invoking object and the object pointed to by the parameter ds must
    * be of the same type.
    */
-  void CopyStructure(vtkDataSet *ds) override;
+  void CopyStructure(vtkDataSet* ds) override;
 
   /**
    * Determine the number of points composing the dataset.
@@ -70,7 +70,7 @@ public:
   /**
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
    */
-  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
+  double* GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
 
   /**
    * Copy point coordinates into user provided array x[3] for specified
@@ -82,8 +82,8 @@ public:
   /**
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
    */
-  vtkCell *GetCell(vtkIdType cellId) override;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  vtkCell* GetCell(vtkIdType cellId) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
 
   /**
    * Get the bounds of the cell with cellId such that:
@@ -99,12 +99,12 @@ public:
   /**
    * Topological inquiry to get points defining cell.
    */
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override;
+  void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
 
   /**
    * Topological inquiry to get cells using point.
    */
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
+  void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;
 
   //@{
   /**
@@ -125,19 +125,16 @@ public:
    * points in the found cell). Tolerance is used to control how close
    * the point is to be considered "in" the cell.
    */
-  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) override;
 
   /**
    * This is a version of the above method that can be used with
    * multithreaded applications. A vtkGenericCell must be passed in
    * to be used in internal calls that might be made to GetCell()
    */
-  vtkIdType FindCell(double x[3], vtkCell *cell,
-                     vtkGenericCell *gencell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
 
   /**
    * Reclaim any extra memory used to store data.
@@ -179,8 +176,8 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
   //@}
 
 protected:

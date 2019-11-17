@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkAngleWidget vtkHandleRepresentation vtkAngleRepresentation2D
-*/
+ */
 
 #ifndef vtkAngleRepresentation_h
 #define vtkAngleRepresentation_h
@@ -35,7 +35,6 @@
 
 class vtkHandleRepresentation;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkAngleRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -43,7 +42,7 @@ public:
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkAngleRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkAngleRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -81,7 +80,7 @@ public:
    * representation before the widget is enabled. (The method
    * InstantiateHandleRepresentation() is invoked by the vtkAngle widget.)
    */
-  void SetHandleRepresentation(vtkHandleRepresentation *handle);
+  void SetHandleRepresentation(vtkHandleRepresentation* handle);
   void InstantiateHandleRepresentation();
   //@}
 
@@ -89,9 +88,9 @@ public:
   /**
    * Set/Get the handle representations used for the vtkAngleRepresentation.
    */
-  vtkGetObjectMacro(Point1Representation,vtkHandleRepresentation);
-  vtkGetObjectMacro(CenterRepresentation,vtkHandleRepresentation);
-  vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
+  vtkGetObjectMacro(Point1Representation, vtkHandleRepresentation);
+  vtkGetObjectMacro(CenterRepresentation, vtkHandleRepresentation);
+  vtkGetObjectMacro(Point2Representation, vtkHandleRepresentation);
   //@}
 
   //@{
@@ -100,8 +99,8 @@ public:
    * pixels) in which the cursor is considered near enough to the end points
    * of the representation to be active.
    */
-  vtkSetClampMacro(Tolerance,int,1,100);
-  vtkGetMacro(Tolerance,int);
+  vtkSetClampMacro(Tolerance, int, 1, 100);
+  vtkGetMacro(Tolerance, int);
   //@}
 
   //@{
@@ -119,26 +118,32 @@ public:
    * Special methods for turning off the rays and arc that define the cone
    * and arc of the angle.
    */
-  vtkSetMacro(Ray1Visibility,vtkTypeBool);
-  vtkGetMacro(Ray1Visibility,vtkTypeBool);
-  vtkBooleanMacro(Ray1Visibility,vtkTypeBool);
-  vtkSetMacro(Ray2Visibility,vtkTypeBool);
-  vtkGetMacro(Ray2Visibility,vtkTypeBool);
-  vtkBooleanMacro(Ray2Visibility,vtkTypeBool);
-  vtkSetMacro(ArcVisibility,vtkTypeBool);
-  vtkGetMacro(ArcVisibility,vtkTypeBool);
-  vtkBooleanMacro(ArcVisibility,vtkTypeBool);
+  vtkSetMacro(Ray1Visibility, vtkTypeBool);
+  vtkGetMacro(Ray1Visibility, vtkTypeBool);
+  vtkBooleanMacro(Ray1Visibility, vtkTypeBool);
+  vtkSetMacro(Ray2Visibility, vtkTypeBool);
+  vtkGetMacro(Ray2Visibility, vtkTypeBool);
+  vtkBooleanMacro(Ray2Visibility, vtkTypeBool);
+  vtkSetMacro(ArcVisibility, vtkTypeBool);
+  vtkGetMacro(ArcVisibility, vtkTypeBool);
+  vtkBooleanMacro(ArcVisibility, vtkTypeBool);
   //@}
 
   // Used to communicate about the state of the representation
-  enum {Outside=0,NearP1,NearCenter,NearP2};
+  enum
+  {
+    Outside = 0,
+    NearP1,
+    NearCenter,
+    NearP2
+  };
 
   //@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
   void BuildRepresentation() override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void StartWidgetInteraction(double e[2]) override;
   virtual void CenterWidgetInteraction(double e[2]);
   void WidgetInteraction(double e[2]) override;
@@ -149,10 +154,10 @@ protected:
   ~vtkAngleRepresentation() override;
 
   // The handle and the rep used to close the handles
-  vtkHandleRepresentation *HandleRepresentation;
-  vtkHandleRepresentation *Point1Representation;
-  vtkHandleRepresentation *CenterRepresentation;
-  vtkHandleRepresentation *Point2Representation;
+  vtkHandleRepresentation* HandleRepresentation;
+  vtkHandleRepresentation* Point1Representation;
+  vtkHandleRepresentation* CenterRepresentation;
+  vtkHandleRepresentation* Point2Representation;
 
   // Selection tolerance for the handles
   int Tolerance;
@@ -163,7 +168,7 @@ protected:
   vtkTypeBool ArcVisibility;
 
   // Format for the label
-  char *LabelFormat;
+  char* LabelFormat;
 
 private:
   vtkAngleRepresentation(const vtkAngleRepresentation&) = delete;

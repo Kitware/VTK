@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPImageDataWriter
-*/
+ */
 
 #ifndef vtkXMLImageDataWriter_h
 #define vtkXMLImageDataWriter_h
@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
 {
 public:
   static vtkXMLImageDataWriter* New();
-  vtkTypeMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
+  vtkTypeMacro(vtkXMLImageDataWriter, vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -58,7 +58,7 @@ protected:
   // see algorithm for more info
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void WritePrimaryElementAttributes(ostream& os, vtkIndent indent) override;
   void GetInputExtent(int* extent) override;
   const char* GetDataSetName() override;
 

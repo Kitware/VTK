@@ -36,110 +36,101 @@ vtkSQLiteToTableReader::vtkSQLiteToTableReader() = default;
 vtkSQLiteToTableReader::~vtkSQLiteToTableReader() = default;
 
 //----------------------------------------------------------------------------
-int vtkSQLiteToTableReader::RequestData(vtkInformation *,
-                                      vtkInformationVector **,
-                                      vtkInformationVector *outputVector)
+int vtkSQLiteToTableReader::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  //Make sure we have all the information we need to provide a vtkTable
-  if(!this->Database)
+  // Make sure we have all the information we need to provide a vtkTable
+  if (!this->Database)
   {
-    vtkErrorMacro(<<"No open database connection");
+    vtkErrorMacro(<< "No open database connection");
     return 1;
   }
-  if(!this->Database->IsA("vtkSQLiteDatabase"))
+  if (!this->Database->IsA("vtkSQLiteDatabase"))
   {
-    vtkErrorMacro(<<"Wrong type of database for this reader");
+    vtkErrorMacro(<< "Wrong type of database for this reader");
     return 1;
   }
-  if(this->TableName.empty())
+  if (this->TableName.empty())
   {
-    vtkErrorMacro(<<"No table selected");
+    vtkErrorMacro(<< "No table selected");
     return 1;
   }
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // Return all data in the first piece ...
-  if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
+  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
   {
     return 1;
   }
 
-  vtkTable* const output = vtkTable::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* const output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  //perform a query to get the names and types of the columns
+  // perform a query to get the names and types of the columns
   std::string queryStr = "pragma table_info(";
   queryStr += this->TableName;
   queryStr += ")";
-  vtkSQLiteQuery *query =
-    static_cast<vtkSQLiteQuery*>(this->Database->GetQueryInstance());
+  vtkSQLiteQuery* query = static_cast<vtkSQLiteQuery*>(this->Database->GetQueryInstance());
   query->SetQuery(queryStr.c_str());
-  if(!query->Execute())
+  if (!query->Execute())
   {
-    vtkErrorMacro(<<"Error performing 'pragma' query");
+    vtkErrorMacro(<< "Error performing 'pragma' query");
   }
 
-  //use the results of the query to create columns of the proper name & type
+  // use the results of the query to create columns of the proper name & type
   std::vector<std::string> columnTypes;
-  while(query->NextRow())
+  while (query->NextRow())
   {
     std::string columnName = query->DataValue(1).ToString();
     std::string columnType = query->DataValue(2).ToString();
     columnTypes.push_back(columnType);
-    if(columnType == "INTEGER")
+    if (columnType == "INTEGER")
     {
-      vtkSmartPointer<vtkIntArray> column =
-        vtkSmartPointer<vtkIntArray>::New();
+      vtkSmartPointer<vtkIntArray> column = vtkSmartPointer<vtkIntArray>::New();
       column->SetName(columnName.c_str());
       output->AddColumn(column);
     }
-    else if(columnType == "REAL")
+    else if (columnType == "REAL")
     {
-      vtkSmartPointer<vtkDoubleArray> column =
-        vtkSmartPointer<vtkDoubleArray>::New();
+      vtkSmartPointer<vtkDoubleArray> column = vtkSmartPointer<vtkDoubleArray>::New();
       column->SetName(columnName.c_str());
       output->AddColumn(column);
     }
     else
     {
-      vtkSmartPointer<vtkStringArray> column =
-        vtkSmartPointer<vtkStringArray>::New();
+      vtkSmartPointer<vtkStringArray> column = vtkSmartPointer<vtkStringArray>::New();
       column->SetName(columnName.c_str());
       output->AddColumn(column);
     }
   }
 
-  //do a query to get the contents of the SQLite table
+  // do a query to get the contents of the SQLite table
   queryStr = "SELECT * FROM ";
   queryStr += this->TableName;
   query->SetQuery(queryStr.c_str());
-  if(!query->Execute())
+  if (!query->Execute())
   {
-    vtkErrorMacro(<<"Error performing 'select all' query");
+    vtkErrorMacro(<< "Error performing 'select all' query");
   }
 
-  //use the results of the query to populate the columns
-  while(query->NextRow())
+  // use the results of the query to populate the columns
+  while (query->NextRow())
   {
-    for(int col = 0; col < query->GetNumberOfFields(); ++ col)
+    for (int col = 0; col < query->GetNumberOfFields(); ++col)
     {
-      if(columnTypes[col] == "INTEGER")
+      if (columnTypes[col] == "INTEGER")
       {
-        vtkIntArray *column =
-          static_cast<vtkIntArray*>(output->GetColumn(col));
+        vtkIntArray* column = static_cast<vtkIntArray*>(output->GetColumn(col));
         column->InsertNextValue(query->DataValue(col).ToInt());
       }
-      else if(columnTypes[col] == "REAL")
+      else if (columnTypes[col] == "REAL")
       {
-        vtkDoubleArray *column =
-          static_cast<vtkDoubleArray*>(output->GetColumn(col));
+        vtkDoubleArray* column = static_cast<vtkDoubleArray*>(output->GetColumn(col));
         column->InsertNextValue(query->DataValue(col).ToDouble());
       }
       else
       {
-        vtkStringArray *column =
-          static_cast<vtkStringArray*>(output->GetColumn(col));
+        vtkStringArray* column = static_cast<vtkStringArray*>(output->GetColumn(col));
         column->InsertNextValue(query->DataValue(col).ToString());
       }
     }
@@ -152,5 +143,5 @@ int vtkSQLiteToTableReader::RequestData(vtkInformation *,
 //----------------------------------------------------------------------------
 void vtkSQLiteToTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

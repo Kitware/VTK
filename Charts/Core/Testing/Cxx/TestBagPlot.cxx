@@ -50,7 +50,7 @@ const double densities[] = {
 // clang-format on
 
 //----------------------------------------------------------------------------
-int TestBagPlot(int, char * [])
+int TestBagPlot(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -86,8 +86,8 @@ int TestBagPlot(int, char * [])
   {
     for (int i = 0; i < numDataI; ++i)
     {
-      table->SetValue(i + j * numDataI, 0, i); //X
-      table->SetValue(i + j * numDataI, 1, j); //Y
+      table->SetValue(i + j * numDataI, 0, i); // X
+      table->SetValue(i + j * numDataI, 1, j); // Y
       double d = densities[i + j * numDataI];
       table->SetValue(i + j * numDataI, 2, d); // Density
     }
@@ -96,8 +96,7 @@ int TestBagPlot(int, char * [])
 
   vtkNew<vtkPlotBag> bagPlot;
   chart->AddPlot(bagPlot);
-  bagPlot->SetInputData(table, arrX->GetName(),
-    arrY->GetName(), arrDensity->GetName());
+  bagPlot->SetInputData(table, arrX->GetName(), arrY->GetName(), arrDensity->GetName());
   bagPlot->SetColor(255, 0, 0, 255);
   bagPlot->SetMarkerSize(4);
 

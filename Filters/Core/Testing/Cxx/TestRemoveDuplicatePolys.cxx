@@ -18,10 +18,10 @@
 #include <vtkRemoveDuplicatePolys.h>
 #include <vtkSmartPointer.h>
 
-int TestRemoveDuplicatePolys(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestRemoveDuplicatePolys(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -30,7 +30,7 @@ int TestRemoveDuplicatePolys(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   for (unsigned int i = 0; i < 3; ++i)
   {
     double point[3];
-    for(unsigned int j = 0; j < 3; ++j)
+    for (unsigned int j = 0; j < 3; ++j)
     {
       randomSequence->Next();
       point[j] = randomSequence->GetValue();
@@ -71,13 +71,12 @@ int TestRemoveDuplicatePolys(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points->Squeeze();
   verts->Squeeze();
 
-  vtkSmartPointer<vtkPolyData> inputPolyData
-    = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> inputPolyData = vtkSmartPointer<vtkPolyData>::New();
   inputPolyData->SetPoints(points);
   inputPolyData->SetPolys(verts);
 
-  vtkSmartPointer<vtkRemoveDuplicatePolys> removePolyData
-    = vtkSmartPointer<vtkRemoveDuplicatePolys>::New();
+  vtkSmartPointer<vtkRemoveDuplicatePolys> removePolyData =
+    vtkSmartPointer<vtkRemoveDuplicatePolys>::New();
   removePolyData->SetInputData(inputPolyData);
 
   removePolyData->Update();

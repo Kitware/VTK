@@ -7,7 +7,7 @@
     cerr << "ERROR: failed at " << __LINE__ << "!" << endl; /*return EXIT_FAILURE;*/               \
   }
 
-int TestDataArraySelection(int, char* [])
+int TestDataArraySelection(int, char*[])
 {
   vtkNew<vtkDataArraySelection> sel;
   sel->EnableArray("Temperature");

@@ -75,8 +75,8 @@ public:
   /**
    * Standard methods for construction, type and printing.
    */
-  static vtkFitToHeightMapFilter *New();
-  vtkTypeMacro(vtkFitToHeightMapFilter,vtkPolyDataAlgorithm);
+  static vtkFitToHeightMapFilter* New();
+  vtkTypeMacro(vtkFitToHeightMapFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -86,7 +86,7 @@ public:
    * without updating the producer of the data.  See SetHeightMapConnection()
    * for connecting the pipeline.
    */
-  void SetHeightMapData(vtkImageData *idata);
+  void SetHeightMapData(vtkImageData* idata);
 
   //@{
   /**
@@ -99,20 +99,20 @@ public:
   /**
    * Get a pointer to the height map.
    */
-  vtkImageData *GetHeightMap();
-  vtkImageData *GetHeightMap(vtkInformationVector *sourceInfo);
+  vtkImageData* GetHeightMap();
+  vtkImageData* GetHeightMap(vtkInformationVector* sourceInfo);
   //@}
 
   // Strategies to fit the polydata.
   enum FittingStrategy
   {
-    POINT_PROJECTION=0,
-    POINT_MINIMUM_HEIGHT=1,
-    POINT_MAXIMUM_HEIGHT=2,
-    POINT_AVERAGE_HEIGHT=3,
-    CELL_MINIMUM_HEIGHT=4,
-    CELL_MAXIMUM_HEIGHT=5,
-    CELL_AVERAGE_HEIGHT=6,
+    POINT_PROJECTION = 0,
+    POINT_MINIMUM_HEIGHT = 1,
+    POINT_MAXIMUM_HEIGHT = 2,
+    POINT_AVERAGE_HEIGHT = 3,
+    CELL_MINIMUM_HEIGHT = 4,
+    CELL_MAXIMUM_HEIGHT = 5,
+    CELL_AVERAGE_HEIGHT = 6,
   };
 
   //@{
@@ -128,22 +128,15 @@ public:
    * the cell and place the cell at the minimum height (and so on) of the
    * cell's sampled interior points.
    */
-  vtkSetMacro(FittingStrategy,int);
-  vtkGetMacro(FittingStrategy,int);
-  void SetFittingStrategyToPointProjection()
-    { this->SetFittingStrategy(POINT_PROJECTION); }
-  void SetFittingStrategyToPointMinimumHeight()
-    { this->SetFittingStrategy(POINT_MINIMUM_HEIGHT); }
-  void SetFittingStrategyToPointMaximumHeight()
-    { this->SetFittingStrategy(POINT_MAXIMUM_HEIGHT); }
-  void SetFittingStrategyToAverageHeight()
-    { this->SetFittingStrategy(POINT_AVERAGE_HEIGHT); }
-  void SetFittingStrategyToCellMinimumHeight()
-    { this->SetFittingStrategy(CELL_MINIMUM_HEIGHT); }
-  void SetFittingStrategyToCellMaximumHeight()
-    { this->SetFittingStrategy(CELL_MAXIMUM_HEIGHT); }
-  void SetFittingStrategyToCellAverageHeight()
-  { this->SetFittingStrategy(CELL_AVERAGE_HEIGHT); }
+  vtkSetMacro(FittingStrategy, int);
+  vtkGetMacro(FittingStrategy, int);
+  void SetFittingStrategyToPointProjection() { this->SetFittingStrategy(POINT_PROJECTION); }
+  void SetFittingStrategyToPointMinimumHeight() { this->SetFittingStrategy(POINT_MINIMUM_HEIGHT); }
+  void SetFittingStrategyToPointMaximumHeight() { this->SetFittingStrategy(POINT_MAXIMUM_HEIGHT); }
+  void SetFittingStrategyToAverageHeight() { this->SetFittingStrategy(POINT_AVERAGE_HEIGHT); }
+  void SetFittingStrategyToCellMinimumHeight() { this->SetFittingStrategy(CELL_MINIMUM_HEIGHT); }
+  void SetFittingStrategyToCellMaximumHeight() { this->SetFittingStrategy(CELL_MAXIMUM_HEIGHT); }
+  void SetFittingStrategyToCellAverageHeight() { this->SetFittingStrategy(CELL_AVERAGE_HEIGHT); }
   //@}
 
   //@{
@@ -153,25 +146,25 @@ public:
    * which is independent of the height map values. By default this value is
    * true.
    */
-  vtkSetMacro(UseHeightMapOffset,vtkTypeBool);
-  vtkGetMacro(UseHeightMapOffset,vtkTypeBool);
-  vtkBooleanMacro(UseHeightMapOffset,vtkTypeBool);
+  vtkSetMacro(UseHeightMapOffset, vtkTypeBool);
+  vtkGetMacro(UseHeightMapOffset, vtkTypeBool);
+  vtkBooleanMacro(UseHeightMapOffset, vtkTypeBool);
   //@}
 
 protected:
   vtkFitToHeightMapFilter();
   ~vtkFitToHeightMapFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int FittingStrategy;
   vtkTypeBool UseHeightMapOffset;
   double Offset;
 
-  void AdjustPoints(vtkPolyData *output, vtkIdType numCells, vtkPoints *newPts);
-  void AdjustCells(vtkPolyData *output, vtkIdType numCells, double *cellHts,
-                   vtkPoints *inPts, vtkPoints *newPts);
+  void AdjustPoints(vtkPolyData* output, vtkIdType numCells, vtkPoints* newPts);
+  void AdjustCells(
+    vtkPolyData* output, vtkIdType numCells, double* cellHts, vtkPoints* inPts, vtkPoints* newPts);
 
 private:
   vtkFitToHeightMapFilter(const vtkFitToHeightMapFilter&) = delete;

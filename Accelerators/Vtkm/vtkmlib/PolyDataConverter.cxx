@@ -37,7 +37,8 @@
 #include <vtkm/cont/DataSetBuilderUniform.h>
 #include <vtkm/cont/Field.h>
 
-namespace tovtkm {
+namespace tovtkm
+{
 
 //------------------------------------------------------------------------------
 // convert an polydata type
@@ -55,12 +56,9 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
 
   // first check if we only have polys/lines/verts
   bool filled = false;
-  const bool onlyPolys =
-      (input->GetNumberOfCells() == input->GetNumberOfPolys());
-  const bool onlyLines =
-      (input->GetNumberOfCells() == input->GetNumberOfLines());
-  const bool onlyVerts =
-      (input->GetNumberOfCells() == input->GetNumberOfVerts());
+  const bool onlyPolys = (input->GetNumberOfCells() == input->GetNumberOfPolys());
+  const bool onlyLines = (input->GetNumberOfCells() == input->GetNumberOfLines());
+  const bool onlyVerts = (input->GetNumberOfCells() == input->GetNumberOfVerts());
 
   const vtkIdType numPoints = input->GetNumberOfPoints();
   if (onlyPolys)
@@ -70,8 +68,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     if (homoSize == 3)
     {
       // We are all triangles
-      vtkm::cont::DynamicCellSet dcells =
-          ConvertSingleType(cells, VTK_TRIANGLE, numPoints);
+      vtkm::cont::DynamicCellSet dcells = ConvertSingleType(cells, VTK_TRIANGLE, numPoints);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -86,8 +83,9 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     {
       // we have mixture of polygins/quads/triangles, we don't support that
       // currently
-      vtkErrorWithObjectMacro(input, "VTK-m currently only handles vtkPolyData "
-                                     "with only triangles or only quads.");
+      vtkErrorWithObjectMacro(input,
+        "VTK-m currently only handles vtkPolyData "
+        "with only triangles or only quads.");
     }
   }
   else if (onlyLines)
@@ -103,8 +101,9 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      vtkErrorWithObjectMacro(input, "VTK-m does not currently support "
-                                     "PolyLine cells.");
+      vtkErrorWithObjectMacro(input,
+        "VTK-m does not currently support "
+        "PolyLine cells.");
     }
   }
   else if (onlyVerts)
@@ -120,20 +119,22 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      vtkErrorWithObjectMacro(input, "VTK-m does not currently support "
-                                     "PolyVertex cells.");
+      vtkErrorWithObjectMacro(input,
+        "VTK-m does not currently support "
+        "PolyVertex cells.");
     }
   }
   else
   {
-    vtkErrorWithObjectMacro(input, "VTK-m does not currently support mixed "
-                                   "cell types or triangle strips in "
-                                   "vtkPolyData.");
+    vtkErrorWithObjectMacro(input,
+      "VTK-m does not currently support mixed "
+      "cell types or triangle strips in "
+      "vtkPolyData.");
   }
 
   if (!filled)
   {
-    //todo: we need to convert a mixed type which
+    // todo: we need to convert a mixed type which
   }
 
   ProcessFields(input, dataset, fields);
@@ -143,11 +144,11 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
 
 } // namespace tovtkm
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 
 //------------------------------------------------------------------------------
-bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output,
-             vtkDataSet* input)
+bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
   output->SetPoints(points);
@@ -170,17 +171,14 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output,
   bool arraysConverted = ConvertArrays(voutput, output);
 
   // Pass information about attributes.
-  for (int attributeType = 0;
-       attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; attributeType++)
   {
-    vtkDataArray* attribute =
-        input->GetPointData()->GetAttribute(attributeType);
+    vtkDataArray* attribute = input->GetPointData()->GetAttribute(attributeType);
     if (attribute == nullptr)
     {
       continue;
     }
-    output->GetPointData()->SetActiveAttribute(attribute->GetName(),
-                                               attributeType);
+    output->GetPointData()->SetActiveAttribute(attribute->GetName(), attributeType);
   }
 
   return arraysConverted;

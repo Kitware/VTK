@@ -29,7 +29,7 @@
  * vtkArrayIteratorIncludes.h. As new iterators are added and the
  * vtkArrayIteratorTemplateMacro updated, one needs to update this header
  * file alone.
-*/
+ */
 
 #ifndef vtkArrayIteratorIncludes_h
 #define vtkArrayIteratorIncludes_h

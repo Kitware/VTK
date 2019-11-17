@@ -37,10 +37,10 @@ static istream& my_getline(istream& input, std::string& output, char delimiter =
 
 // ----------------------------------------------------------------------
 
-vtkRISReader::vtkRISReader() :
-  FileName(nullptr),
-  Delimiter(nullptr),
-  MaxRecords(0)
+vtkRISReader::vtkRISReader()
+  : FileName(nullptr)
+  , Delimiter(nullptr)
+  , MaxRecords(0)
 {
   this->SetDelimiter(";");
 
@@ -61,20 +61,15 @@ vtkRISReader::~vtkRISReader()
 void vtkRISReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "Delimiter: "
-     << (this->Delimiter ? this->Delimiter : "(none)") << endl;
-  os << indent << "MaxRecords: " << this->MaxRecords
-     << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "Delimiter: " << (this->Delimiter ? this->Delimiter : "(none)") << endl;
+  os << indent << "MaxRecords: " << this->MaxRecords << endl;
 }
 
 // ----------------------------------------------------------------------
 
 int vtkRISReader::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Check that the filename has been specified
   if (!this->FileName)
@@ -85,7 +80,7 @@ int vtkRISReader::RequestData(
 
   // Open the file
   ifstream file(this->FileName, ios::in | ios::binary);
-  if(!file)
+  if (!file)
   {
     vtkErrorMacro(<< "vtkRISReader could not open file " << this->FileName);
     return 0;
@@ -110,19 +105,18 @@ int vtkRISReader::RequestData(
   int record_count = 0;
 
   // For each record in the file ...
-  for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
+  for (my_getline(file, line_buffer); file; my_getline(file, line_buffer))
   {
     // Skip empty lines ...
-    if(line_buffer.empty())
+    if (line_buffer.empty())
       continue;
 
     // Stop if we exceed the maximum number of records ...
-    if(this->MaxRecords && record_count >= this->MaxRecords)
+    if (this->MaxRecords && record_count >= this->MaxRecords)
       break;
 
-    double progress = total_bytes
-      ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes)
-      : 0.5;
+    double progress =
+      total_bytes ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes) : 0.5;
 
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
 
@@ -130,30 +124,33 @@ int vtkRISReader::RequestData(
     table->InsertNextBlankRow();
 
     // For each field in the record ...
-    for(; file; )
+    for (; file;)
     {
-      const std::string tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
+      const std::string tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' &&
+          line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
         ? line_buffer.substr(0, 2)
         : std::string();
 
-      if(tag_type == "ER")
+      if (tag_type == "ER")
         break;
 
       std::string tag_value = line_buffer.size() > 6 ? line_buffer.substr(6) : std::string();
 
       // For each line in the field ...
-      for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
+      for (my_getline(file, line_buffer); file; my_getline(file, line_buffer))
       {
-        const std::string next_tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
+        const std::string next_tag_type = line_buffer.size() >= 6 && line_buffer[2] == ' ' &&
+            line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' '
           ? line_buffer.substr(0, 2)
           : std::string();
 
-        if(next_tag_type == tag_type)
+        if (next_tag_type == tag_type)
         {
-          const std::string next_tag_value = line_buffer.size() > 6 ? line_buffer.substr(6) : std::string();
+          const std::string next_tag_value =
+            line_buffer.size() > 6 ? line_buffer.substr(6) : std::string();
           tag_value += delimiter + next_tag_value;
         }
-        else if(next_tag_type.empty())
+        else if (next_tag_type.empty())
         {
           tag_value += line_buffer;
         }
@@ -164,7 +161,7 @@ int vtkRISReader::RequestData(
       }
 
       // If necessary, add a new column to the table to store this value ...
-      if(!columns.count(tag_type))
+      if (!columns.count(tag_type))
       {
         vtkStringArray* const new_column = vtkStringArray::New();
         new_column->SetName(tag_type.c_str());
@@ -181,81 +178,83 @@ int vtkRISReader::RequestData(
     // Keep track of the current record count ...
     ++record_count;
   }
-/*
-  // Loop through every line in the file ...
-  std::string tag;
-  std::string tag_type;
-  vtkStdString tag_value;
-  bool explicit_tag;
-  for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
-    {
-    if(this->MaxRecords && record_count >= this->MaxRecords)
-      break;
-
-    // Skip empty lines ...
-    if(line_buffer.empty())
-      continue;
-
-    double progress = total_bytes
-      ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes)
-      : 0.5;
-
-    this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-
-    // Try to extract the tag, tag type, and tag value ...
-    if(line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4] == '-' && line_buffer[5] == ' ')
+  /*
+    // Loop through every line in the file ...
+    std::string tag;
+    std::string tag_type;
+    vtkStdString tag_value;
+    bool explicit_tag;
+    for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
       {
-      explicit_tag = true;
-      tag_type = line_buffer.substr(0, 2);
-      tag_value = line_buffer.substr(6);
-      }
-    else
-      {
-      explicit_tag = false;
-      tag_value = line_buffer;
-      }
+      if(this->MaxRecords && record_count >= this->MaxRecords)
+        break;
 
-    // If this is the end of a record ...
-    if(tag_type == "ER")
-      {
-      ++record_count;
-      continue;
-      }
+      // Skip empty lines ...
+      if(line_buffer.empty())
+        continue;
 
-    // If necessary, add a new row to the table to store this value ...
-    while(table->GetNumberOfRows() < record_count + 1)
-      table->InsertNextBlankRow();
+      double progress = total_bytes
+        ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes)
+        : 0.5;
 
-    // If necessary, add a new column to the table to store this value ...
-    if(!columns.count(tag_type))
-      {
-      vtkStringArray* const new_column = vtkStringArray::New();
-      new_column->SetName(tag_type.c_str());
-      new_column->SetNumberOfTuples(record_count + 1);
-      columns[tag_type] = table->GetNumberOfColumns();
-      table->AddColumn(new_column);
-      new_column->Delete();
-      }
+      this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
 
-    // Set the table value ...
-    vtkStdString old_value = table->GetValue(record_count, columns[tag_type]).ToString();
-    if(old_value.empty())
-      {
-      table->SetValue(record_count, columns[tag_type], tag_value);
-      }
-    else
-      {
-      if(explicit_tag)
+      // Try to extract the tag, tag type, and tag value ...
+      if(line_buffer.size() >= 6 && line_buffer[2] == ' ' && line_buffer[3] == ' ' && line_buffer[4]
+    == '-' && line_buffer[5] == ' ')
         {
-        table->SetValue(record_count, columns[tag_type], (old_value + delimiter + tag_value).c_str());
+        explicit_tag = true;
+        tag_type = line_buffer.substr(0, 2);
+        tag_value = line_buffer.substr(6);
         }
       else
         {
-        table->SetValue(record_count, columns[tag_type], (old_value + " " + tag_value).c_str());
+        explicit_tag = false;
+        tag_value = line_buffer;
+        }
+
+      // If this is the end of a record ...
+      if(tag_type == "ER")
+        {
+        ++record_count;
+        continue;
+        }
+
+      // If necessary, add a new row to the table to store this value ...
+      while(table->GetNumberOfRows() < record_count + 1)
+        table->InsertNextBlankRow();
+
+      // If necessary, add a new column to the table to store this value ...
+      if(!columns.count(tag_type))
+        {
+        vtkStringArray* const new_column = vtkStringArray::New();
+        new_column->SetName(tag_type.c_str());
+        new_column->SetNumberOfTuples(record_count + 1);
+        columns[tag_type] = table->GetNumberOfColumns();
+        table->AddColumn(new_column);
+        new_column->Delete();
+        }
+
+      // Set the table value ...
+      vtkStdString old_value = table->GetValue(record_count, columns[tag_type]).ToString();
+      if(old_value.empty())
+        {
+        table->SetValue(record_count, columns[tag_type], tag_value);
+        }
+      else
+        {
+        if(explicit_tag)
+          {
+          table->SetValue(record_count, columns[tag_type], (old_value + delimiter +
+    tag_value).c_str());
+          }
+        else
+          {
+          table->SetValue(record_count, columns[tag_type], (old_value + " " + tag_value).c_str());
+          }
         }
       }
-    }
-*/
+  */
 
   return 1;
 }
@@ -268,8 +267,7 @@ static istream& my_getline(istream& input, std::string& output, char delimiter)
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 
-  while ((nextValue = input.get()) != EOF &&
-         numCharactersRead < output.max_size())
+  while ((nextValue = input.get()) != EOF && numCharactersRead < output.max_size())
   {
     ++numCharactersRead;
 

@@ -35,10 +35,9 @@ vtkVolumePicker::~vtkVolumePicker() = default;
 //----------------------------------------------------------------------------
 void vtkVolumePicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "PickCroppingPlanes: "
-     << (this->PickCroppingPlanes ? "On" : "Off") << "\n";
+  os << indent << "PickCroppingPlanes: " << (this->PickCroppingPlanes ? "On" : "Off") << "\n";
 
   os << indent << "CroppingPlaneId: " << this->CroppingPlaneId << "\n";
 }
@@ -55,16 +54,13 @@ void vtkVolumePicker::ResetPickInfo()
 // Intersect a vtkVolume with a line by ray casting.  Compared to the
 // same method in the superclass, this method will look for cropping planes.
 
-double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
-                                                const double p2[3],
-                                                double t1, double t2,
-                                                vtkProp3D *prop,
-                                                vtkAbstractVolumeMapper *mapper)
+double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3], const double p2[3], double t1,
+  double t2, vtkProp3D* prop, vtkAbstractVolumeMapper* mapper)
 {
   double tMin = VTK_DOUBLE_MAX;
 
-  vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
-  vtkVolumeMapper *vmapper = vtkVolumeMapper::SafeDownCast(mapper);
+  vtkImageData* data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
+  vtkVolumeMapper* vmapper = vtkVolumeMapper::SafeDownCast(mapper);
 
   if (data == nullptr)
   {
@@ -82,8 +78,8 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
   double x1[3], x2[3];
   for (int i = 0; i < 3; i++)
   {
-    x1[i] = (p1[i] - origin[i])/spacing[i];
-    x2[i] = (p2[i] - origin[i])/spacing[i];
+    x1[i] = (p1[i] - origin[i]) / spacing[i];
+    x2[i] = (p2[i] - origin[i]) / spacing[i];
   }
 
   // These are set to the plane that the ray enters through
@@ -112,13 +108,19 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
     vmapper->GetCroppingRegionPlanes(bounds);
     for (int j = 0; j < 3; j++)
     {
-      double b1 = (bounds[2*j] - origin[j])/spacing[j];
-      double b2 = (bounds[2*j+1] - origin[j])/spacing[j];
-      bounds[2*j] = (b1 < b2 ? b1 : b2);
-      bounds[2*j+1] = (b1 < b2 ? b2 : b1);
-      if (bounds[2*j] < extent[2*j]) { bounds[2*j] = extent[2*j]; }
-      if (bounds[2*j+1] > extent[2*j+1]) { bounds[2*j+1] = extent[2*j+1]; }
-      if (bounds[2*j] > bounds[2*j+1])
+      double b1 = (bounds[2 * j] - origin[j]) / spacing[j];
+      double b2 = (bounds[2 * j + 1] - origin[j]) / spacing[j];
+      bounds[2 * j] = (b1 < b2 ? b1 : b2);
+      bounds[2 * j + 1] = (b1 < b2 ? b2 : b1);
+      if (bounds[2 * j] < extent[2 * j])
+      {
+        bounds[2 * j] = extent[2 * j];
+      }
+      if (bounds[2 * j + 1] > extent[2 * j + 1])
+      {
+        bounds[2 * j + 1] = extent[2 * j + 1];
+      }
+      if (bounds[2 * j] > bounds[2 * j + 1])
       {
         return VTK_DOUBLE_MAX;
       }
@@ -126,9 +128,8 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
 
     // Get all of the line segments that intersect the visible blocks
     int flags = vmapper->GetCroppingRegionFlags();
-    if (!this->ClipLineWithCroppingRegion(bounds, extent, flags, x1, x2,
-                                          t1, t2, extentPlaneId, numSegments,
-                                          t1List, t2List, s1List, planeIdList))
+    if (!this->ClipLineWithCroppingRegion(bounds, extent, flags, x1, x2, t1, t2, extentPlaneId,
+          numSegments, t1List, t2List, s1List, planeIdList))
     {
       return VTK_DOUBLE_MAX;
     }
@@ -142,8 +143,8 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
       return VTK_DOUBLE_MAX;
     }
     s1List[0] = s1;
-    t1List[0] = ( (s1 > t1) ? s1 : t1 );
-    t2List[0] = ( (s2 < t2) ? s2 : t2 );
+    t1List[0] = ((s1 > t1) ? s1 : t1);
+    t2List[0] = ((s2 < t2) ? s2 : t2);
   }
 
   if (this->PickCroppingPlanes && vmapper && vmapper->GetCropping())
@@ -165,16 +166,16 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
       double x[3];
       for (int j = 0; j < 3; j++)
       {
-        x[j] = x1[j]*(1.0 - tMin) + x2[j]*tMin;
-        if (planeId >= 0 && j == planeId/2)
+        x[j] = x1[j] * (1.0 - tMin) + x2[j] * tMin;
+        if (planeId >= 0 && j == planeId / 2)
         {
           x[j] = bounds[planeId];
         }
-        else if (planeId < 0 && extentPlaneId >= 0 && j == extentPlaneId/2)
+        else if (planeId < 0 && extentPlaneId >= 0 && j == extentPlaneId / 2)
         {
           x[j] = extent[extentPlaneId];
         }
-        this->MapperPosition[j] = x[j]*spacing[j] + origin[j];
+        this->MapperPosition[j] = x[j] * spacing[j] + origin[j];
       }
 
       this->SetImageDataPickInfo(x, extent);
@@ -186,8 +187,7 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
     for (int segment = 0; segment < numSegments; segment++)
     {
       if ((tMin = this->Superclass::IntersectVolumeWithLine(
-           p1, p2, t1List[segment], t2List[segment], prop, mapper))
-           < VTK_DOUBLE_MAX)
+             p1, p2, t1List[segment], t2List[segment], prop, mapper)) < VTK_DOUBLE_MAX)
       {
         s1 = s1List[segment];
         // Keep the first planeId that was set at the first intersection
@@ -214,10 +214,10 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
       this->MapperNormal[0] = 0.0;
       this->MapperNormal[1] = 0.0;
       this->MapperNormal[2] = 0.0;
-      this->MapperNormal[planeId/2] = 2.0*(planeId%2) - 1.0;
-      if (spacing[planeId/2] < 0)
+      this->MapperNormal[planeId / 2] = 2.0 * (planeId % 2) - 1.0;
+      if (spacing[planeId / 2] < 0)
       {
-        this->MapperNormal[planeId/2] = - this->MapperNormal[planeId/2];
+        this->MapperNormal[planeId / 2] = -this->MapperNormal[planeId / 2];
       }
     }
   }
@@ -235,25 +235,28 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
 // If the segment starts at a cropping plane, the planeIdList will store
 // the Id of that plane, otherwise planeIdList will store -1 for that segment.
 
-int vtkVolumePicker::ClipLineWithCroppingRegion(
-  const double bounds[6], const int extent[6], int flags,
-  const double x1[3], const double x2[3], double t1, double t2,
-  int &extentPlaneId, int &numSegments,
-  double *t1List, double *t2List, double *s1List, int *planeIdList)
+int vtkVolumePicker::ClipLineWithCroppingRegion(const double bounds[6], const int extent[6],
+  int flags, const double x1[3], const double x2[3], double t1, double t2, int& extentPlaneId,
+  int& numSegments, double* t1List, double* t2List, double* s1List, int* planeIdList)
 {
   extentPlaneId = -1;
   numSegments = 0;
   double s1, s2;
 
   // Start by clipping the line with the volume extent
-  if (!vtkVolumePicker::ClipLineWithExtent(extent, x1, x2, s1, s2,
-                                           extentPlaneId))
+  if (!vtkVolumePicker::ClipLineWithExtent(extent, x1, x2, s1, s2, extentPlaneId))
   {
     return 0;
   }
 
-  if (s1 >= t1) { t1 = s1; }
-  if (s2 <= t2) { t2 = s2; }
+  if (s1 >= t1)
+  {
+    t1 = s1;
+  }
+  if (s2 <= t2)
+  {
+    t2 = s2;
+  }
 
   if (t2 < t1)
   {
@@ -264,15 +267,21 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
   double x[3];
   for (int i = 0; i < 3; i++)
   {
-    x[i] = x1[i]*(1.0 - t1) + x2[i]*t1;
+    x[i] = x1[i] * (1.0 - t1) + x2[i] * t1;
     // Watch for out-of-bounds due to numerical roundoff
-    if (x[i] < extent[2*i]) { x[i] = extent[2*i]; }
-    if (x[i] > extent[2*i+1]) { x[i] = extent[2*i+1]; }
+    if (x[i] < extent[2 * i])
+    {
+      x[i] = extent[2 * i];
+    }
+    if (x[i] > extent[2 * i + 1])
+    {
+      x[i] = extent[2 * i + 1];
+    }
   }
   if (t1 == s1 && extentPlaneId >= 0)
   {
     // If right on the boundary, set position exactly
-    x[extentPlaneId/2] = extent[extentPlaneId];
+    x[extentPlaneId / 2] = extent[extentPlaneId];
   }
 
   // Find out which block is hit first, store indices and bounds
@@ -281,20 +290,20 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
   for (int j = 0; j < 3; j++)
   {
     xi[j] = 0;
-    blockBounds[2*j] = extent[2*j];
-    blockBounds[2*j+1] = bounds[2*j];
+    blockBounds[2 * j] = extent[2 * j];
+    blockBounds[2 * j + 1] = bounds[2 * j];
     // Be particular about the ray direction
-    if (x[j] > bounds[2*j] || (x[j] == bounds[2*j] && x1[j] < x2[j]))
+    if (x[j] > bounds[2 * j] || (x[j] == bounds[2 * j] && x1[j] < x2[j]))
     {
       xi[j] = 1;
-      blockBounds[2*j] = bounds[2*j];
-      blockBounds[2*j+1] = bounds[2*j+1];
+      blockBounds[2 * j] = bounds[2 * j];
+      blockBounds[2 * j + 1] = bounds[2 * j + 1];
     }
-    if (x[j] > bounds[2*j+1] || (x[j] == bounds[2*j+1] && x1[j] < x2[j]))
+    if (x[j] > bounds[2 * j + 1] || (x[j] == bounds[2 * j + 1] && x1[j] < x2[j]))
     {
       xi[j] = 2;
-      blockBounds[2*j] = bounds[2*j+1];
-      blockBounds[2*j+1] = extent[2*j+1];
+      blockBounds[2 * j] = bounds[2 * j + 1];
+      blockBounds[2 * j + 1] = extent[2 * j + 1];
     }
   }
 
@@ -303,14 +312,13 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
   int plane2 = -1;
   for (;;)
   {
-    if (!vtkBox::IntersectWithLine(blockBounds, x1, x2,
-                                   s1, s2, nullptr, nullptr, plane1, plane2))
+    if (!vtkBox::IntersectWithLine(blockBounds, x1, x2, s1, s2, nullptr, nullptr, plane1, plane2))
     {
       // This should never happen, but if it does, stop here
       break;
     }
 
-    int blockId = xi[0] + xi[1]*3 + xi[2]*9;
+    int blockId = xi[0] + xi[1] * 3 + xi[2] * 9;
     if ((flags >> blockId) & 1)
     {
       t1List[numSegments] = (t1 > s1 ? t1 : s1);
@@ -326,12 +334,12 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
         // Need to know if the ray is entering the volume, i.e. whether
         // the adjacent block that the ray is coming from is "off", because
         // we can't define a clip plane unless it is off.
-        static const int blockInc[3] = {1, 3, 9};
+        static const int blockInc[3] = { 1, 3, 9 };
         int noPlane = 1;
 
         if (xi[k] == 1)
         {
-          noPlane = (flags >> (blockId + blockInc[k]*(2*l - 1)) & 1);
+          noPlane = (flags >> (blockId + blockInc[k] * (2 * l - 1)) & 1);
           if (!noPlane)
           {
             planeIdList[numSegments] = plane1;
@@ -342,7 +350,7 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
           noPlane = (flags >> (blockId + blockInc[k]) & 1);
           if (!noPlane && l == 1)
           {
-            planeIdList[numSegments] = 2*k;
+            planeIdList[numSegments] = 2 * k;
           }
         }
         else if (xi[k] == 2)
@@ -350,7 +358,7 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
           noPlane = (flags >> (blockId - blockInc[k]) & 1);
           if (!noPlane && l == 0)
           {
-            planeIdList[numSegments] = 2*k + 1;
+            planeIdList[numSegments] = 2 * k + 1;
           }
         }
       }
@@ -358,10 +366,10 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
       // Sanity check: allow no segments with negative length
       if (t1List[numSegments] <= t2List[numSegments])
       {
-        if (numSegments > 0 && t1List[numSegments] == t2List[numSegments-1])
+        if (numSegments > 0 && t1List[numSegments] == t2List[numSegments - 1])
         {
           // Concatenate this segment with the previous one
-          t2List[numSegments-1] = t2List[numSegments];
+          t2List[numSegments - 1] = t2List[numSegments];
         }
         else
         {
@@ -379,22 +387,22 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
 
     // Use the exit plane to choose the next block
     int k = plane2 / 2;
-    xi[k] += 2*(plane2 - 2*k) - 1;
+    xi[k] += 2 * (plane2 - 2 * k) - 1;
 
     if (xi[k] == 0)
     {
-      blockBounds[2*k] = extent[2*k];
-      blockBounds[2*k+1] = bounds[2*k];
+      blockBounds[2 * k] = extent[2 * k];
+      blockBounds[2 * k + 1] = bounds[2 * k];
     }
     else if (xi[k] == 1)
     {
-      blockBounds[2*k] = bounds[2*k];
-      blockBounds[2*k+1] = bounds[2*k+1];
+      blockBounds[2 * k] = bounds[2 * k];
+      blockBounds[2 * k + 1] = bounds[2 * k + 1];
     }
     else if (xi[k] == 2)
     {
-      blockBounds[2*k] = bounds[2*k+1];
-      blockBounds[2*k+1] = extent[2*k+1];
+      blockBounds[2 * k] = bounds[2 * k + 1];
+      blockBounds[2 * k + 1] = extent[2 * k + 1];
     }
     else
     {
@@ -405,4 +413,3 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
 
   return numSegments;
 }
-

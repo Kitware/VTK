@@ -24,7 +24,8 @@
 
 int TestDataSetSurfaceFilterQuadraticTetsGhostCells(int argc, char* argv[])
 {
-  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadratic_tets_with_ghost_cells_0.vtu");
+  char* cfname =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadratic_tets_with_ghost_cells_0.vtu");
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName(cfname);

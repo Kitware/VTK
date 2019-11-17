@@ -43,16 +43,11 @@ int TestSegY2DReader(int argc, char* argv[])
 
   // Read file name.
   char* fname[5];
-  fname[0] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
-  fname[1] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineB.sgy");
-  fname[2] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineC.sgy");
-  fname[3] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineD.sgy");
-  fname[4] =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineE.sgy");
+  fname[0] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineA.sgy");
+  fname[1] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineB.sgy");
+  fname[2] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineC.sgy");
+  fname[3] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineD.sgy");
+  fname[4] = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/lineE.sgy");
 
   vtkNew<vtkColorTransferFunction> lut;
   lut->AddRGBPoint(-6.4, 0.23, 0.30, 0.75);

@@ -21,14 +21,14 @@
  *
  * @sa
  * vtkHexahedron
-*/
+ */
 
 #ifndef vtkLagrangeHexahedron_h
 #define vtkLagrangeHexahedron_h
 
-#include "vtkCellType.h" // For GetCellType.
+#include "vtkCellType.h"              // For GetCellType.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkNew.h" // For member variable.
+#include "vtkNew.h"                   // For member variable.
 #include "vtkNonLinearCell.h"
 #include "vtkSmartPointer.h" // For member variable.
 
@@ -48,7 +48,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkLagrangeHexahedron : public vtkNonLinearCell
 {
 public:
   static vtkLagrangeHexahedron* New();
-  vtkTypeMacro(vtkLagrangeHexahedron,vtkNonLinearCell);
+  vtkTypeMacro(vtkLagrangeHexahedron, vtkNonLinearCell);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   int GetCellType() override { return VTK_LAGRANGE_HEXAHEDRON; }
@@ -62,30 +62,20 @@ public:
   void Initialize() override;
 
   int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-    int& subId, double pcoords[3],
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
     double& dist2, double weights[]) override;
-  void EvaluateLocation(
-    int& subId, const double pcoords[3], double x[3],
-    double* weights) override;
-  void Contour(
-    double value, vtkDataArray* cellScalars,
-    vtkIncrementalPointLocator* locator, vtkCellArray* verts,
-    vtkCellArray* lines, vtkCellArray* polys,
-    vtkPointData* inPd, vtkPointData* outPd,
-    vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
-  void Clip(
-    double value, vtkDataArray* cellScalars,
-    vtkIncrementalPointLocator* locator, vtkCellArray* polys,
-    vtkPointData* inPd, vtkPointData* outPd,
-    vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
-    int insideOut) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-    double x[3], double pcoords[3], int& subId) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
   int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
   void Derivatives(
-    int subId, const double pcoords[3], const double* values,
-    int dim, double* derivs) override;
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   double* GetParametricCoords() override;
   int GetParametricCenter(double center[3]) override;
 
@@ -109,7 +99,8 @@ protected:
   ~vtkLagrangeHexahedron() override;
 
   vtkHexahedron* GetApprox();
-  void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
+  void PrepareApproxData(
+    vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
   vtkHexahedron* GetApproximateHex(
     int subId, vtkDataArray* scalarsIn = nullptr, vtkDataArray* scalarsOut = nullptr);
 

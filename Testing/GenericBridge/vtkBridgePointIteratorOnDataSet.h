@@ -20,7 +20,7 @@
  * isolated points)
  * @sa
  * vtkGenericPointIterator, vtkBridgeDataSet
-*/
+ */
 
 #ifndef vtkBridgePointIteratorOnDataSet_h
 #define vtkBridgePointIteratorOnDataSet_h
@@ -30,11 +30,12 @@
 
 class vtkBridgeDataSet;
 
-class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOnDataSet : public vtkGenericPointIterator
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgePointIteratorOnDataSet
+  : public vtkGenericPointIterator
 {
 public:
-  static vtkBridgePointIteratorOnDataSet *New();
-  vtkTypeMacro(vtkBridgePointIteratorOnDataSet,vtkGenericPointIterator);
+  static vtkBridgePointIteratorOnDataSet* New();
+  vtkTypeMacro(vtkBridgePointIteratorOnDataSet, vtkGenericPointIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -58,7 +59,7 @@ public:
    * \pre not_off: !IsAtEnd()
    * \post result_exists: result!=0
    */
-  double *GetPosition() override;
+  double* GetPosition() override;
 
   /**
    * Point at iterator position.
@@ -78,7 +79,7 @@ public:
    * Iterate over points of `ds'.
    * \pre ds_exists: ds!=0
    */
-  void InitWithDataSet(vtkBridgeDataSet *ds);
+  void InitWithDataSet(vtkBridgeDataSet* ds);
 
 protected:
   /**
@@ -91,9 +92,9 @@ protected:
    */
   ~vtkBridgePointIteratorOnDataSet() override;
 
-  vtkBridgeDataSet *DataSet; // the structure on which the object iterates.
-  vtkIdType Id; // the id at current position.
-  int Size; // size of the structure.
+  vtkBridgeDataSet* DataSet; // the structure on which the object iterates.
+  vtkIdType Id;              // the id at current position.
+  int Size;                  // size of the structure.
 
 private:
   vtkBridgePointIteratorOnDataSet(const vtkBridgePointIteratorOnDataSet&) = delete;

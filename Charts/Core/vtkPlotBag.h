@@ -28,7 +28,7 @@
  *
  * @sa
  * vtkHighestDensityRegionsStatistics
-*/
+ */
 
 #ifndef vtkPlotBag_h
 #define vtkPlotBag_h
@@ -42,12 +42,12 @@ class VTKCHARTSCORE_EXPORT vtkPlotBag : public vtkPlotPoints
 {
 public:
   vtkTypeMacro(vtkPlotBag, vtkPlotPoints);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new Bag Plot object.
    */
-  static vtkPlotBag *New();
+  static vtkPlotBag* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -59,7 +59,7 @@ public:
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -67,22 +67,20 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) override;
+  bool PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int legendIndex) override;
 
   /**
    * Get the plot labels. If this array has a length greater than 1 the index
    * refers to the stacked objects in the plot. See vtkPlotBar for example.
    */
-  vtkStringArray *GetLabels() override;
+  vtkStringArray* GetLabels() override;
 
   /**
    * Generate and return the tooltip label string for this plot
    * The segmentIndex parameter is ignored, except for vtkPlotBar
    */
-  vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
-                                       vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex) override;
+  vtkStdString GetTooltipLabel(
+    const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex) override;
 
   //@{
   /**
@@ -92,17 +90,15 @@ public:
    * Inherited method will call the last SetInputData method with default
    * parameters.
    */
-  void SetInputData(vtkTable *table) override;
-  void SetInputData(vtkTable *table, const vtkStdString &yColumn,
-                            const vtkStdString &densityColumn) override;
-  virtual void SetInputData(vtkTable *table, const vtkStdString &xColumn,
-                            const vtkStdString &yColumn,
-                            const vtkStdString &densityColumn);
+  void SetInputData(vtkTable* table) override;
+  void SetInputData(
+    vtkTable* table, const vtkStdString& yColumn, const vtkStdString& densityColumn) override;
+  virtual void SetInputData(vtkTable* table, const vtkStdString& xColumn,
+    const vtkStdString& yColumn, const vtkStdString& densityColumn);
   //@}
 
-  virtual void SetInputData(vtkTable *table, vtkIdType xColumn,
-                            vtkIdType yColumn,
-                            vtkIdType densityColumn);
+  virtual void SetInputData(
+    vtkTable* table, vtkIdType xColumn, vtkIdType yColumn, vtkIdType densityColumn);
 
   //@{
   /**
@@ -141,8 +137,8 @@ protected:
   vtkPen* LinePen;
 
 private:
-  vtkPlotBag(const vtkPlotBag &) = delete;
-  void operator=(const vtkPlotBag &) = delete;
+  vtkPlotBag(const vtkPlotBag&) = delete;
+  void operator=(const vtkPlotBag&) = delete;
 };
 
-#endif //vtkPlotBag_h
+#endif // vtkPlotBag_h

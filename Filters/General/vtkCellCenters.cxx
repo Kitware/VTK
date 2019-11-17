@@ -32,9 +32,11 @@
 
 vtkStandardNewMacro(vtkCellCenters);
 
-namespace {
+namespace
+{
 
-class CellCenterFunctor {
+class CellCenterFunctor
+{
 public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
@@ -53,7 +55,7 @@ public:
     for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
       this->DataSet->GetCell(cellId, cell);
-      double x[3] = {0.0};
+      double x[3] = { 0.0 };
       if (cell->GetCellType() != VTK_EMPTY_CELL)
       {
         double pcoords[3];

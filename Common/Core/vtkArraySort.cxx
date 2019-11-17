@@ -23,21 +23,21 @@
 
 vtkArraySort::vtkArraySort() = default;
 
-vtkArraySort::vtkArraySort(DimensionT i) :
-  Storage(1)
+vtkArraySort::vtkArraySort(DimensionT i)
+  : Storage(1)
 {
   this->Storage[0] = i;
 }
 
-vtkArraySort::vtkArraySort(DimensionT i, DimensionT j) :
-  Storage(2)
+vtkArraySort::vtkArraySort(DimensionT i, DimensionT j)
+  : Storage(2)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
 }
 
-vtkArraySort::vtkArraySort(DimensionT i, DimensionT j, DimensionT k) :
-  Storage(3)
+vtkArraySort::vtkArraySort(DimensionT i, DimensionT j, DimensionT k)
+  : Storage(3)
 {
   this->Storage[0] = i;
   this->Storage[1] = j;
@@ -76,9 +76,9 @@ bool vtkArraySort::operator!=(const vtkArraySort& rhs) const
 
 ostream& operator<<(ostream& stream, const vtkArraySort& rhs)
 {
-  for(vtkArraySort::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
+  for (vtkArraySort::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
   {
-    if(i)
+    if (i)
       stream << ",";
     stream << rhs[i];
   }

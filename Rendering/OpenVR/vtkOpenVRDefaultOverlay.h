@@ -16,7 +16,7 @@
  * @brief   OpenVR overlay
  *
  * vtkOpenVRDefaultOverlay support for VR overlays
-*/
+ */
 
 #ifndef vtkOpenVRDefaultOverlay_h
 #define vtkOpenVRDefaultOverlay_h
@@ -27,7 +27,7 @@
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRDefaultOverlay : public vtkOpenVROverlay
 {
 public:
-  static vtkOpenVRDefaultOverlay *New();
+  static vtkOpenVRDefaultOverlay* New();
   vtkTypeMacro(vtkOpenVRDefaultOverlay, vtkOpenVROverlay);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

@@ -47,7 +47,7 @@
  *
  * @sa
  * vtkPointCloudFilter vtkExtractPoints vtkImplicitFunction
-*/
+ */
 
 #ifndef vtkFitImplicitFunction_h
 #define vtkFitImplicitFunction_h
@@ -58,7 +58,6 @@
 class vtkImplicitFunction;
 class vtkPointSet;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkFitImplicitFunction : public vtkPointCloudFilter
 {
 public:
@@ -67,8 +66,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkFitImplicitFunction *New();
-  vtkTypeMacro(vtkFitImplicitFunction,vtkPointCloudFilter);
+  static vtkFitImplicitFunction* New();
+  vtkTypeMacro(vtkFitImplicitFunction, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -78,7 +77,7 @@ public:
    * are to be extracted.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -87,8 +86,8 @@ public:
    * Since in this filter the implicit surface is defined as f(x,y,z)=0;
    * the extracted points are (-Threshold <= f(x,y,z) < Threshold).
    */
-  vtkSetClampMacro(Threshold,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Threshold,double);
+  vtkSetClampMacro(Threshold, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Threshold, double);
   //@}
 
   /**
@@ -100,17 +99,16 @@ protected:
   vtkFitImplicitFunction();
   ~vtkFitImplicitFunction() override;
 
-  vtkImplicitFunction *ImplicitFunction;
+  vtkImplicitFunction* ImplicitFunction;
   double Threshold;
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) override;
+  int FilterPoints(vtkPointSet* input) override;
 
 private:
   vtkFitImplicitFunction(const vtkFitImplicitFunction&) = delete;
   void operator=(const vtkFitImplicitFunction&) = delete;
-
 };
 
 #endif

@@ -28,13 +28,11 @@
 #include "vtkRenderer.h"
 #include "vtkTesting.h"
 
-int TestImageDataToExplicitStructuredGrid(int argc, char *argv[])
+int TestImageDataToExplicitStructuredGrid(int argc, char* argv[])
 {
   // Create the sample dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-10, 10,
-                          -10, 10,
-                          -10, 10);
+  wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
   wavelet->SetCenter(0.0, 0.0, 0.0);
   wavelet->Update();
 

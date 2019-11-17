@@ -39,7 +39,7 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayCoordinates_h
 #define vtkArrayCoordinates_h
@@ -117,14 +117,11 @@ public:
    * Inequality comparison
    */
   bool operator!=(const vtkArrayCoordinates& rhs) const;
-  VTKCOMMONCORE_EXPORT friend ostream& operator<<(
-    ostream& stream, const vtkArrayCoordinates& rhs);
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs);
   //@}
 
 private:
-
   std::vector<CoordinateT> Storage;
-
 };
 
 #endif

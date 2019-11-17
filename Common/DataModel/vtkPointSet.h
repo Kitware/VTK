@@ -66,7 +66,7 @@ public:
   /**
    * Standard methdos for type information and printing.
    */
-  vtkTypeMacro(vtkPointSet,vtkDataSet);
+  vtkTypeMacro(vtkPointSet, vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -79,9 +79,9 @@ public:
    * the data is static (see vtkStaticCellLinks, vtkStaticPointLocator,
    * vtkStaticCellLocator).
    */
-  vtkSetMacro(Editable,bool);
-  vtkGetMacro(Editable,bool);
-  vtkBooleanMacro(Editable,bool);
+  vtkSetMacro(Editable, bool);
+  vtkGetMacro(Editable, bool);
+  vtkBooleanMacro(Editable, bool);
   //@}
 
   /**
@@ -92,25 +92,20 @@ public:
   /**
    * Copy the geometric structure of an input point set object.
    */
-  void CopyStructure(vtkDataSet *pd) override;
+  void CopyStructure(vtkDataSet* pd) override;
 
   //@{
   /**
    * See vtkDataSet for additional information.
    */
   vtkIdType GetNumberOfPoints() override;
-  void GetPoint(vtkIdType ptId, double x[3]) override
-    {this->Points->GetPoint(ptId,x);}
+  void GetPoint(vtkIdType ptId, double x[3]) override { this->Points->GetPoint(ptId, x); }
   vtkIdType FindPoint(double x[3]) override;
-  vtkIdType FindPoint(double x, double y, double z) {
-    return this->vtkDataSet::FindPoint(x, y, z);}
-  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
-  vtkIdType FindCell(double x[3], vtkCell *cell,
-                     vtkGenericCell *gencell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
+  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z); }
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
   //@}
 
   /**
@@ -119,8 +114,7 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
-  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override
-    {return this->Points->GetPoint(ptId);}
+  double* GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override { return this->Points->GetPoint(ptId); }
 
   /**
    * Return an iterator that traverses the cells in this data set.
@@ -133,7 +127,7 @@ public:
    * this method in a single thread before using FindCell() or FindPoint().
    */
   void BuildPointLocator();
-  void BuildLocator() {this->BuildPointLocator();}
+  void BuildLocator() { this->BuildPointLocator(); }
   //@}
 
   /**
@@ -149,7 +143,7 @@ public:
    * vtkStaticPointLocator is used, unless the class is set as Editable, in
    * which case a vtkPointLocator is used.
    */
-  virtual void SetPointLocator(vtkAbstractPointLocator *);
+  virtual void SetPointLocator(vtkAbstractPointLocator*);
   vtkGetObjectMacro(PointLocator, vtkAbstractPointLocator);
   //@}
 
@@ -158,7 +152,7 @@ public:
    * Set / get an instance of vtkAbstractCellLocator which may be used
    * when a vtkCellLocatorStrategy is used during a FindCelloperation.
    */
-  virtual void SetCellLocator(vtkAbstractCellLocator *);
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   //@}
 
@@ -182,7 +176,7 @@ public:
    * Specify point array to define point coordinates.
    */
   virtual void SetPoints(vtkPoints*);
-  vtkGetObjectMacro(Points,vtkPoints);
+  vtkGetObjectMacro(Points, vtkPoints);
   //@}
 
   /**
@@ -199,8 +193,8 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
   //@}
 
   //@{
@@ -216,7 +210,7 @@ public:
    * Retrieve an instance of this class from an information object.
    */
   static vtkPointSet* GetData(vtkInformation* info);
-  static vtkPointSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkPointSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:
@@ -224,13 +218,13 @@ protected:
   ~vtkPointSet() override;
 
   bool Editable;
-  vtkPoints *Points;
-  vtkAbstractPointLocator *PointLocator;
-  vtkAbstractCellLocator *CellLocator;
+  vtkPoints* Points;
+  vtkAbstractPointLocator* PointLocator;
+  vtkAbstractCellLocator* CellLocator;
 
   void ReportReferences(vtkGarbageCollector*) override;
-private:
 
+private:
   void Cleanup();
 
   vtkPointSet(const vtkPointSet&) = delete;

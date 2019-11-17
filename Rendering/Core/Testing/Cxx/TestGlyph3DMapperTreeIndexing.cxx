@@ -30,7 +30,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-int TestGlyph3DMapperTreeIndexing(int argc, char *argv[])
+int TestGlyph3DMapperTreeIndexing(int argc, char* argv[])
 {
   // The points to glyph:
   vtkNew<vtkPolyData> input;

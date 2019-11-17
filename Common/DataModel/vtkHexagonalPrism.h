@@ -30,7 +30,7 @@
  * Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
  * class in VTK.
  * Please address all comments to Jean Favre (jfavre at cscs.ch).
-*/
+ */
 
 #ifndef vtkHexagonalPrism_h
 #define vtkHexagonalPrism_h
@@ -45,42 +45,40 @@ class vtkQuad;
 class VTKCOMMONDATAMODEL_EXPORT vtkHexagonalPrism : public vtkCell3D
 {
 public:
-  static vtkHexagonalPrism *New();
-  vtkTypeMacro(vtkHexagonalPrism,vtkCell3D);
+  static vtkHexagonalPrism* New();
+  vtkTypeMacro(vtkHexagonalPrism, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int* &pts) override;
-  void GetFacePoints(int faceId, int* &pts) override;
+  void GetEdgePoints(int edgeId, int*& pts) override;
+  void GetFacePoints(int faceId, int*& pts) override;
   //@}
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_HEXAGONAL_PRISM;}
-  int GetCellDimension() override {return 3;}
-  int GetNumberOfEdges() override {return 18;}
-  int GetNumberOfFaces() override {return 8;}
-  vtkCell *GetEdge(int edgeId) override;
-  vtkCell *GetFace(int faceId) override;
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
+  int GetCellType() override { return VTK_HEXAGONAL_PRISM; }
+  int GetCellDimension() override { return 3; }
+  int GetNumberOfEdges() override { return 18; }
+  int GetNumberOfFaces() override { return 8; }
+  vtkCell* GetEdge(int edgeId) override;
+  vtkCell* GetFace(int faceId) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
   //@}
 
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-                       int& subId, double pcoords[3],
-                       double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
-                        double *weights) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void Derivatives(int subId, const double pcoords[3], const double *values,
-                   int dim, double *derivs) override;
-  double *GetParametricCoords() override;
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
+    double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  void Derivatives(
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
+  double* GetParametricCoords() override;
 
   /**
    * Return the center of the wedge in parametric coordinates.
@@ -102,11 +100,11 @@ public:
    */
   void InterpolateFunctions(const double pcoords[3], double weights[12]) override
   {
-    vtkHexagonalPrism::InterpolationFunctions(pcoords,weights);
+    vtkHexagonalPrism::InterpolationFunctions(pcoords, weights);
   }
   void InterpolateDerivs(const double pcoords[3], double derivs[36]) override
   {
-    vtkHexagonalPrism::InterpolationDerivs(pcoords,derivs);
+    vtkHexagonalPrism::InterpolationDerivs(pcoords, derivs);
   }
   //@}
 
@@ -115,8 +113,8 @@ public:
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int *GetEdgeArray(int edgeId);
-  static int *GetFaceArray(int faceId);
+  static int* GetEdgeArray(int edgeId);
+  static int* GetFaceArray(int faceId);
   //@}
 
   /**
@@ -124,15 +122,15 @@ public:
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
    * function derivatives.
    */
-  void JacobianInverse(const double pcoords[3], double **inverse, double derivs[36]);
+  void JacobianInverse(const double pcoords[3], double** inverse, double derivs[36]);
 
 protected:
   vtkHexagonalPrism();
   ~vtkHexagonalPrism() override;
 
-  vtkLine          *Line;
-  vtkQuad          *Quad;
-  vtkPolygon       *Polygon;
+  vtkLine* Line;
+  vtkQuad* Quad;
+  vtkPolygon* Polygon;
 
 private:
   vtkHexagonalPrism(const vtkHexagonalPrism&) = delete;
@@ -147,5 +145,3 @@ inline int vtkHexagonalPrism::GetParametricCenter(double pcoords[3])
   return 0;
 }
 #endif
-
-

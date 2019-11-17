@@ -32,18 +32,14 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
-const char eventLog[] =
-"o"
-;
+const char eventLog[] = "o";
 
-int TestAxesTransformWidget( int , char *[] )
+int TestAxesTransformWidget(int, char*[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -53,7 +49,7 @@ int TestAxesTransformWidget( int , char *[] )
   // Create a test pipeline
   //
   vtkSmartPointer<vtkSphereSource> ss = vtkSmartPointer<vtkSphereSource>::New();
-  ss->SetCenter(100,250,500);
+  ss->SetCenter(100, 250, 500);
   ss->Update();
 
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -65,8 +61,7 @@ int TestAxesTransformWidget( int , char *[] )
   vtkSmartPointer<vtkAxesTransformRepresentation> rep =
     vtkSmartPointer<vtkAxesTransformRepresentation>::New();
 
-  vtkSmartPointer<vtkAxesTransformWidget> widget =
-    vtkSmartPointer<vtkAxesTransformWidget>::New();
+  vtkSmartPointer<vtkAxesTransformWidget> widget = vtkSmartPointer<vtkAxesTransformWidget>::New();
   widget->SetInteractor(iren);
   widget->SetRepresentation(rep);
 

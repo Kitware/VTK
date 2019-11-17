@@ -48,8 +48,7 @@ int TestVTKMMarchingCubes2(int argc, char* argv[])
 
   vtkNew<vtkmContour> cg;
   cg->SetInputConnection(ev->GetOutputPort());
-  cg->SetInputArrayToProcess(
-      0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
+  cg->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "RTData");
   cg->SetValue(0, 200.0);
   cg->SetValue(1, 220.0);
   cg->ComputeScalarsOn();
@@ -70,11 +69,11 @@ int TestVTKMMarchingCubes2(int argc, char* argv[])
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   if (!cg->GetOutput()->GetPointData()->GetNormals())
   {

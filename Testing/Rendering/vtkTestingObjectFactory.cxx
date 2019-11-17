@@ -22,11 +22,8 @@ VTK_CREATE_CREATE_FUNCTION(vtkTestingInteractor);
 
 vtkTestingObjectFactory::vtkTestingObjectFactory()
 {
-  this->RegisterOverride("vtkRenderWindowInteractor",
-                         "vtkTestingInteractor",
-                         "Overrides for testing",
-                         1,
-                         vtkObjectFactoryCreatevtkTestingInteractor);
+  this->RegisterOverride("vtkRenderWindowInteractor", "vtkTestingInteractor",
+    "Overrides for testing", 1, vtkObjectFactoryCreatevtkTestingInteractor);
 }
 
 const char* vtkTestingObjectFactory::GetVTKSourceVersion()
@@ -36,7 +33,6 @@ const char* vtkTestingObjectFactory::GetVTKSourceVersion()
 
 void vtkTestingObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Description: " << this->GetDescription() << endl;
 }
-

@@ -28,13 +28,13 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
-int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayExtractFactoredArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
@@ -58,10 +58,9 @@ int ArrayExtractFactoredArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return EXIT_SUCCESS;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     std::cout << e.what() << std::endl;
     return EXIT_FAILURE;
   }
 }
-

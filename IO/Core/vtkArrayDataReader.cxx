@@ -29,8 +29,8 @@
 
 vtkStandardNewMacro(vtkArrayDataReader);
 
-vtkArrayDataReader::vtkArrayDataReader() :
-  FileName(nullptr)
+vtkArrayDataReader::vtkArrayDataReader()
+  : FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->ReadFromInputString = false;
@@ -44,11 +44,9 @@ vtkArrayDataReader::~vtkArrayDataReader()
 void vtkArrayDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "InputString: " << this->InputString << endl;
-  os << indent << "ReadFromInputString: "
-     << (this->ReadFromInputString ? "on" : "off") << endl;
+  os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "on" : "off") << endl;
 }
 
 void vtkArrayDataReader::SetInputString(const vtkStdString& string)
@@ -63,27 +61,25 @@ vtkStdString vtkArrayDataReader::GetInputString()
 }
 
 int vtkArrayDataReader::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   try
   {
     vtkArrayData* array_data = nullptr;
-    if(this->ReadFromInputString)
+    if (this->ReadFromInputString)
     {
       array_data = this->Read(this->InputString);
     }
     else
     {
-      if(!this->FileName)
+      if (!this->FileName)
         throw std::runtime_error("FileName not set.");
 
       ifstream file(this->FileName, std::ios::binary);
 
       array_data = this->Read(file);
     }
-    if(!array_data)
+    if (!array_data)
       throw std::runtime_error("Error reading vtkArrayData.");
 
     vtkArrayData* const output_array_data = vtkArrayData::GetData(outputVector);
@@ -92,7 +88,7 @@ int vtkArrayDataReader::RequestData(
 
     return 1;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkErrorMacro(<< e.what());
   }
@@ -119,11 +115,11 @@ vtkArrayData* vtkArrayDataReader::Read(istream& stream)
     vtkIdType header_size;
     header_buffer >> header_name >> header_size;
 
-    if(header_name != "vtkArrayData")
+    if (header_name != "vtkArrayData")
     {
       throw std::runtime_error("Not a vtkArrayData file");
     }
-    if(header_size < 0)
+    if (header_size < 0)
     {
       throw std::runtime_error("Invalid number of arrays");
     }
@@ -136,7 +132,7 @@ vtkArrayData* vtkArrayDataReader::Read(istream& stream)
     }
     return data;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     vtkGenericWarningMacro(<< e.what());
   }

@@ -27,7 +27,7 @@
  * Resolution means the number of latitude or longitude lines for a complete
  * sphere. If you create partial spheres the number of latitude/longitude
  * lines may be off by one.
-*/
+ */
 
 #ifndef vtkSphereSource_h
 #define vtkSphereSource_h
@@ -40,29 +40,29 @@
 class VTKFILTERSSOURCES_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSphereSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSphereSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct sphere with radius=0.5 and default resolution 8 in both Phi
    * and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
    */
-  static vtkSphereSource *New();
+  static vtkSphereSource* New();
 
   //@{
   /**
    * Set radius of sphere. Default is .5.
    */
-  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Radius,double);
+  vtkSetClampMacro(Radius, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
   /**
    * Set the center of the sphere. Default is 0,0,0.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
   //@}
 
   //@{
@@ -70,8 +70,8 @@ public:
    * Set the number of points in the longitude direction (ranging from
    * StartTheta to EndTheta).
    */
-  vtkSetClampMacro(ThetaResolution,int,3,VTK_MAX_SPHERE_RESOLUTION);
-  vtkGetMacro(ThetaResolution,int);
+  vtkSetClampMacro(ThetaResolution, int, 3, VTK_MAX_SPHERE_RESOLUTION);
+  vtkGetMacro(ThetaResolution, int);
   //@}
 
   //@{
@@ -79,24 +79,24 @@ public:
    * Set the number of points in the latitude direction (ranging
    * from StartPhi to EndPhi).
    */
-  vtkSetClampMacro(PhiResolution,int,3,VTK_MAX_SPHERE_RESOLUTION);
-  vtkGetMacro(PhiResolution,int);
+  vtkSetClampMacro(PhiResolution, int, 3, VTK_MAX_SPHERE_RESOLUTION);
+  vtkGetMacro(PhiResolution, int);
   //@}
 
   //@{
   /**
    * Set the starting longitude angle. By default StartTheta=0 degrees.
    */
-  vtkSetClampMacro(StartTheta,double,0.0,360.0);
-  vtkGetMacro(StartTheta,double);
+  vtkSetClampMacro(StartTheta, double, 0.0, 360.0);
+  vtkGetMacro(StartTheta, double);
   //@}
 
   //@{
   /**
    * Set the ending longitude angle. By default EndTheta=360 degrees.
    */
-  vtkSetClampMacro(EndTheta,double,0.0,360.0);
-  vtkGetMacro(EndTheta,double);
+  vtkSetClampMacro(EndTheta, double, 0.0, 360.0);
+  vtkGetMacro(EndTheta, double);
   //@}
 
   //@{
@@ -104,16 +104,16 @@ public:
    * Set the starting latitude angle (0 is at north pole). By default
    * StartPhi=0 degrees.
    */
-  vtkSetClampMacro(StartPhi,double,0.0,360.0);
-  vtkGetMacro(StartPhi,double);
+  vtkSetClampMacro(StartPhi, double, 0.0, 360.0);
+  vtkGetMacro(StartPhi, double);
   //@}
 
   //@{
   /**
    * Set the ending latitude angle. By default EndPhi=180 degrees.
    */
-  vtkSetClampMacro(EndPhi,double,0.0,360.0);
-  vtkGetMacro(EndPhi,double);
+  vtkSetClampMacro(EndPhi, double, 0.0, 360.0);
+  vtkGetMacro(EndPhi, double);
   //@}
 
   //@{
@@ -125,9 +125,9 @@ public:
    * except at the poles. This can be useful for generating a wireframe
    * sphere with natural latitude and longitude lines.
    */
-  vtkSetMacro(LatLongTessellation,vtkTypeBool);
-  vtkGetMacro(LatLongTessellation,vtkTypeBool);
-  vtkBooleanMacro(LatLongTessellation,vtkTypeBool);
+  vtkSetMacro(LatLongTessellation, vtkTypeBool);
+  vtkGetMacro(LatLongTessellation, vtkTypeBool);
+  vtkBooleanMacro(LatLongTessellation, vtkTypeBool);
   //@}
 
   //@{
@@ -136,16 +136,16 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
-  vtkSphereSource(int res=8);
+  vtkSphereSource(int res = 8);
   ~vtkSphereSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Radius;
   double Center[3];

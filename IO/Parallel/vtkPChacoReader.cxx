@@ -52,7 +52,7 @@ vtkPChacoReader::~vtkPChacoReader()
   this->SetController(nullptr);
 }
 //----------------------------------------------------------------------------
-void vtkPChacoReader::SetController(vtkMultiProcessController *c)
+void vtkPChacoReader::SetController(vtkMultiProcessController* c)
 {
   if ((c == nullptr) || (c->GetNumberOfProcesses() == 0))
   {
@@ -82,14 +82,12 @@ void vtkPChacoReader::SetController(vtkMultiProcessController *c)
 
   c->Register(this);
   this->NumProcesses = c->GetNumberOfProcesses();
-  this->MyId    = c->GetLocalProcessId();
+  this->MyId = c->GetLocalProcessId();
 }
 
 //----------------------------------------------------------------------------
 int vtkPChacoReader::RequestInformation(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (!this->BaseName)
   {
@@ -97,15 +95,14 @@ int vtkPChacoReader::RequestInformation(
     return 0;
   }
 
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 
   int retVal = 1;
 
   if (this->MyId == 0)
   {
-    retVal =
-      this->Superclass::RequestInformation(request, inputVector, outputVector);
+    retVal = this->Superclass::RequestInformation(request, inputVector, outputVector);
   }
 
   if (this->NumProcesses == 1)
@@ -141,18 +138,17 @@ int vtkPChacoReader::RequestInformation(
     retVal = metadata[0];
     if (retVal)
     {
-      this->RemakeDataCacheFlag       = static_cast<int>(metadata[1]);
+      this->RemakeDataCacheFlag = static_cast<int>(metadata[1]);
       if (this->RemakeDataCacheFlag)
       {
-        this->Dimensionality            = static_cast<int>(metadata[2]);
-        this->NumberOfVertices          = static_cast<vtkIdType>(metadata[3]);
-        this->NumberOfEdges             = static_cast<vtkIdType>(metadata[4]);
-        this->NumberOfVertexWeights     = static_cast<int>(metadata[5]);
-        this->NumberOfEdgeWeights       = static_cast<int>(metadata[6]);
+        this->Dimensionality = static_cast<int>(metadata[2]);
+        this->NumberOfVertices = static_cast<vtkIdType>(metadata[3]);
+        this->NumberOfEdges = static_cast<vtkIdType>(metadata[4]);
+        this->NumberOfVertexWeights = static_cast<int>(metadata[5]);
+        this->NumberOfEdgeWeights = static_cast<int>(metadata[6]);
         this->GraphFileHasVertexNumbers = static_cast<int>(metadata[7]);
 
-        this->MakeWeightArrayNames(this->NumberOfVertexWeights,
-                                   this->NumberOfEdgeWeights);
+        this->MakeWeightArrayNames(this->NumberOfVertexWeights, this->NumberOfEdgeWeights);
 
         this->SetCurrentBaseName(this->BaseName);
       }
@@ -161,12 +157,9 @@ int vtkPChacoReader::RequestInformation(
   return retVal;
 }
 
-
 //----------------------------------------------------------------------------
-int vtkPChacoReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkPChacoReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   if (!this->BaseName)
   {
@@ -175,19 +168,17 @@ int vtkPChacoReader::RequestData(
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int piece =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  int numPieces =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   int pieceZeroProc = 0;
 
-  vtkMultiProcessController *contr = this->Controller;
+  vtkMultiProcessController* contr = this->Controller;
 
-  int i=0;
+  int i = 0;
 
   int oops = ((piece != this->MyId) || (numPieces != this->NumProcesses));
   int sum = 0;
@@ -199,18 +190,18 @@ int vtkPChacoReader::RequestData(
   {
     // I don't know if this situation can occur, but we'll try to handle it.
 
-    int *myPiece = new int [this->NumProcesses];
+    int* myPiece = new int[this->NumProcesses];
 
     contr->AllGather(&piece, myPiece, 1);
 
-    vtkMultiProcessController *subController;
-    vtkProcessGroup *group = vtkProcessGroup::New();
+    vtkMultiProcessController* subController;
+    vtkProcessGroup* group = vtkProcessGroup::New();
 
     group->Initialize(contr);
 
     int nparticipants = 0;
 
-    for (i=0; i<this->NumProcesses; i++)
+    for (i = 0; i < this->NumProcesses; i++)
     {
       if ((myPiece[i] >= 0) && (myPiece[i] < numPieces))
       {
@@ -223,7 +214,7 @@ int vtkPChacoReader::RequestData(
       }
     }
 
-    delete [] myPiece;
+    delete[] myPiece;
 
     if (nparticipants < numPieces) // Can this happen?
     {
@@ -246,7 +237,7 @@ int vtkPChacoReader::RequestData(
     }
   }
 
-  if ( !contr)
+  if (!contr)
   {
     // This process doesn't participate (can this happen?)
 
@@ -281,7 +272,7 @@ int vtkPChacoReader::RequestData(
   return retVal;
 }
 //----------------------------------------------------------------------------
-void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
+void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid* output)
 {
   int i;
   // Note: The cell and point arrays should be added in the same order in
@@ -292,12 +283,12 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 
   if (this->GetGenerateVertexWeightArrays())
   {
-    for (i=0; i < this->NumberOfVertexWeights; i++)
+    for (i = 0; i < this->NumberOfVertexWeights; i++)
     {
-      vtkDoubleArray *da = vtkDoubleArray::New();
+      vtkDoubleArray* da = vtkDoubleArray::New();
       da->SetNumberOfTuples(0);
       da->SetNumberOfComponents(1);
-      da->SetName(this->GetVertexWeightArrayName(i+1));
+      da->SetName(this->GetVertexWeightArrayName(i + 1));
       output->GetPointData()->AddArray(da);
       da->Delete();
     }
@@ -307,12 +298,12 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 
   if (this->GetGenerateEdgeWeightArrays())
   {
-    for (i=0; i < this->NumberOfEdgeWeights; i++)
+    for (i = 0; i < this->NumberOfEdgeWeights; i++)
     {
-      vtkDoubleArray *da = vtkDoubleArray::New();
+      vtkDoubleArray* da = vtkDoubleArray::New();
       da->SetNumberOfTuples(0);
       da->SetNumberOfComponents(1);
-      da->SetName(this->GetEdgeWeightArrayName(i+1));
+      da->SetName(this->GetEdgeWeightArrayName(i + 1));
       output->GetCellData()->AddArray(da);
       da->Delete();
     }
@@ -322,7 +313,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 
   if (this->GetGenerateGlobalElementIdArray())
   {
-    vtkIntArray *ia = vtkIntArray::New();
+    vtkIntArray* ia = vtkIntArray::New();
     ia->SetNumberOfTuples(0);
     ia->SetNumberOfComponents(1);
     ia->SetName(this->GetGlobalElementIdArrayName());
@@ -331,7 +322,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 
   if (this->GetGenerateGlobalNodeIdArray())
   {
-    vtkIntArray *ia = vtkIntArray::New();
+    vtkIntArray* ia = vtkIntArray::New();
     ia->SetNumberOfTuples(0);
     ia->SetNumberOfComponents(1);
     ia->SetName(this->GetGlobalNodeIdArrayName());
@@ -339,17 +330,17 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
   }
 }
 //----------------------------------------------------------------------------
-int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
-                                  vtkUnstructuredGrid *output, int source)
+int vtkPChacoReader::DivideCells(
+  vtkMultiProcessController* contr, vtkUnstructuredGrid* output, int source)
 {
   int retVal = 1;
 
-  int i=0;
+  int i = 0;
 
   int nprocs = contr->GetNumberOfProcesses();
   int myrank = contr->GetLocalProcessId();
 
-  vtkUnstructuredGrid *mygrid = nullptr;
+  vtkUnstructuredGrid* mygrid = nullptr;
 
   if (source == myrank)
   {
@@ -359,11 +350,11 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
 
     vtkIdType startId = 0;
 
-    for (i=0; i < nprocs; i++)
+    for (i = 0; i < nprocs; i++)
     {
       if (!retVal && (i != myrank))
       {
-        this->SendGrid(contr, i, nullptr);  // we failed
+        this->SendGrid(contr, i, nullptr); // we failed
         continue;
       }
 
@@ -371,7 +362,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
 
       vtkIdType endId = startId + ncells - 1;
 
-      vtkUnstructuredGrid *ug = this->SubGrid(output, startId, endId);
+      vtkUnstructuredGrid* ug = this->SubGrid(output, startId, endId);
 
       if (i != myrank)
       {
@@ -416,12 +407,11 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
 
   return retVal;
 }
-int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
-                              int to, vtkUnstructuredGrid *grid)
+int vtkPChacoReader::SendGrid(vtkMultiProcessController* contr, int to, vtkUnstructuredGrid* grid)
 {
   int retVal = 1;
 
-  vtkIdType bufsize=0;
+  vtkIdType bufsize = 0;
   int ack = 0;
 
   if (!grid)
@@ -432,7 +422,7 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
     return retVal;
   }
 
-  char *buf = this->MarshallDataSet(grid, bufsize);
+  char* buf = this->MarshallDataSet(grid, bufsize);
 
   contr->Send(&bufsize, 1, to, 0x11);
 
@@ -447,16 +437,15 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
     contr->Send(buf, bufsize, to, 0x13);
   }
 
-  delete [] buf;
+  delete[] buf;
   return retVal;
 }
-vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
-                                              int from)
+vtkUnstructuredGrid* vtkPChacoReader::GetGrid(vtkMultiProcessController* contr, int from)
 {
-  vtkUnstructuredGrid *grid = nullptr;
+  vtkUnstructuredGrid* grid = nullptr;
 
-  vtkIdType bufsize=0;
-  int ack=1;
+  vtkIdType bufsize = 0;
+  int ack = 1;
 
   contr->Receive(&bufsize, 1, from, 0x11);
 
@@ -466,14 +455,14 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
     return nullptr;
   }
 
-  char *buf = new char [bufsize];
+  char* buf = new char[bufsize];
 
   if (buf)
   {
     contr->Send(&ack, 1, from, 0x12);
     contr->Receive(buf, bufsize, from, 0x13);
     grid = this->UnMarshallDataSet(buf, bufsize);
-    delete [] buf;
+    delete[] buf;
   }
   else
   {
@@ -483,10 +472,9 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
   return grid;
 }
 
-vtkUnstructuredGrid  *
-  vtkPChacoReader::SubGrid(vtkUnstructuredGrid *ug, vtkIdType from, vtkIdType to)
+vtkUnstructuredGrid* vtkPChacoReader::SubGrid(vtkUnstructuredGrid* ug, vtkIdType from, vtkIdType to)
 {
-  vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
+  vtkUnstructuredGrid* tmp = vtkUnstructuredGrid::New();
 
   if (from > to)
   {
@@ -496,7 +484,7 @@ vtkUnstructuredGrid  *
   {
     tmp->ShallowCopy(ug);
 
-    vtkExtractCells *ec = vtkExtractCells::New();
+    vtkExtractCells* ec = vtkExtractCells::New();
     ec->AddCellRange(from, to);
     ec->SetInputData(tmp);
     ec->Update();
@@ -508,12 +496,12 @@ vtkUnstructuredGrid  *
 
   return tmp;
 }
-char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, vtkIdType &len)
+char* vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid* extractedGrid, vtkIdType& len)
 {
   // taken from vtkCommunicator::WriteDataSet
 
-  vtkUnstructuredGrid *copy;
-  vtkDataSetWriter *writer = vtkDataSetWriter::New();
+  vtkUnstructuredGrid* copy;
+  vtkDataSetWriter* writer = vtkDataSetWriter::New();
 
   copy = extractedGrid->NewInstance();
   copy->ShallowCopy(extractedGrid);
@@ -530,7 +518,7 @@ char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, vtkId
 
   len = writer->GetOutputStringLength();
 
-  char *packedFormat = writer->RegisterAndGetOutputString();
+  char* packedFormat = writer->RegisterAndGetOutputString();
 
   writer->Delete();
 
@@ -538,11 +526,11 @@ char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, vtkId
 
   return packedFormat;
 }
-vtkUnstructuredGrid *vtkPChacoReader::UnMarshallDataSet(char *buf, vtkIdType size)
+vtkUnstructuredGrid* vtkPChacoReader::UnMarshallDataSet(char* buf, vtkIdType size)
 {
   // taken from vtkCommunicator::ReadDataSet
 
-  vtkDataSetReader *reader = vtkDataSetReader::New();
+  vtkDataSetReader* reader = vtkDataSetReader::New();
 
   reader->ReadFromInputStringOn();
 
@@ -553,10 +541,10 @@ vtkUnstructuredGrid *vtkPChacoReader::UnMarshallDataSet(char *buf, vtkIdType siz
   reader->SetInputArray(mystring);
   mystring->Delete();
 
-  vtkDataSet *output = reader->GetOutput();
+  vtkDataSet* output = reader->GetOutput();
   reader->Update();
 
-  vtkUnstructuredGrid *newGrid = vtkUnstructuredGrid::New();
+  vtkUnstructuredGrid* newGrid = vtkUnstructuredGrid::New();
 
   newGrid->ShallowCopy(output);
 
@@ -567,9 +555,8 @@ vtkUnstructuredGrid *vtkPChacoReader::UnMarshallDataSet(char *buf, vtkIdType siz
 //----------------------------------------------------------------------------
 void vtkPChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkChacoReader::PrintSelf(os,indent);
+  vtkChacoReader::PrintSelf(os, indent);
   os << indent << "MyId: " << this->MyId << endl;
   os << indent << "NumProcesses: " << this->NumProcesses << endl;
   os << indent << "Controller: " << this->Controller << endl;
 }
-

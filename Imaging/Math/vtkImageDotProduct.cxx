@@ -31,26 +31,19 @@ vtkImageDotProduct::vtkImageDotProduct()
 
 //----------------------------------------------------------------------------
 // Colapse the first axis
-int vtkImageDotProduct::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector *outputVector)
+int vtkImageDotProduct::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkDataObject::SetPointDataActiveScalarInfo(
-    outputVector->GetInformationObject(0), -1, 1);
+  vtkDataObject::SetPointDataActiveScalarInfo(outputVector->GetInformationObject(0), -1, 1);
   return 1;
 }
-
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-void vtkImageDotProductExecute(vtkImageDotProduct *self,
-                               vtkImageData *in1Data,
-                               vtkImageData *in2Data,
-                               vtkImageData *outData,
-                               int outExt[6], int id, T *)
+void vtkImageDotProductExecute(vtkImageDotProduct* self, vtkImageData* in1Data,
+  vtkImageData* in2Data, vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);
@@ -87,42 +80,32 @@ void vtkImageDotProductExecute(vtkImageDotProduct *self,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageDotProduct::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector * vtkNotUsed( outputVector ),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageDotProduct::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input1 ScalarType, "
-                  <<  inData[0][0]->GetScalarType()
-                  << ", must match output ScalarType "
-                  << outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input1 ScalarType, " << inData[0][0]->GetScalarType()
+                  << ", must match output ScalarType " << outData[0]->GetScalarType());
     return;
   }
 
   if (inData[1][0]->GetScalarType() != outData[0]->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input2 ScalarType, "
-                  << inData[1][0]->GetScalarType()
-                  << ", must match output ScalarType "
-                  << outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input2 ScalarType, " << inData[1][0]->GetScalarType()
+                  << ", must match output ScalarType " << outData[0]->GetScalarType());
     return;
   }
 
   // this filter expects that inputs that have the same number of components
-  if (inData[0][0]->GetNumberOfScalarComponents() !=
-      inData[1][0]->GetNumberOfScalarComponents())
+  if (inData[0][0]->GetNumberOfScalarComponents() != inData[1][0]->GetNumberOfScalarComponents())
   {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
                   << inData[0][0]->GetNumberOfScalarComponents()
@@ -133,26 +116,10 @@ void vtkImageDotProduct::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageDotProductExecute(this, inData[0][0],
-                                inData[1][0], outData[0], outExt, id,
-                                static_cast<VTK_TT *>(nullptr)));
+    vtkTemplateMacro(vtkImageDotProductExecute(
+      this, inData[0][0], inData[1][0], outData[0], outExt, id, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

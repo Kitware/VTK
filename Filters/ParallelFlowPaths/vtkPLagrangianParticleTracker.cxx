@@ -62,7 +62,7 @@ public:
 
   int GetSize() { return this->Size; }
 
-  template<class T>
+  template <class T>
   MessageStream& operator<<(T t)
   {
     size_t size = sizeof(T);
@@ -74,7 +74,7 @@ public:
     return *this;
   }
 
-  template<class T>
+  template <class T>
   MessageStream& operator>>(T& t)
   {
     size_t size = sizeof(T);
@@ -126,7 +126,9 @@ public:
     // Compute StreamSize for one particle
     // This is strongly linked to Send and Receive code
     this->StreamSize = sizeof(int) * 2 + sizeof(double) * 2 + 4 * sizeof(vtkIdType) + sizeof(int) +
-      2 * sizeof(double) + 3 * sizeof(double) * (model->GetNumberOfIndependentVariables() + model->GetNumberOfTrackedUserData());
+      2 * sizeof(double) +
+      3 * sizeof(double) *
+        (model->GetNumberOfIndependentVariables() + model->GetNumberOfTrackedUserData());
     for (int i = 0; i < seedData->GetNumberOfArrays(); i++)
     {
       vtkDataArray* array = seedData->GetArray(i);
@@ -272,17 +274,17 @@ public:
       }
 
       std::vector<double>& prevTracked = particle->GetPrevTrackedUserData();
-      for (auto &var : prevTracked)
+      for (auto& var : prevTracked)
       {
         *this->ReceiveStream >> var;
       }
       std::vector<double>& tracked = particle->GetTrackedUserData();
-      for (auto &var : tracked)
+      for (auto& var : tracked)
       {
         *this->ReceiveStream >> var;
       }
       std::vector<double>& nextTracked = particle->GetNextTrackedUserData();
-      for (auto &var : nextTracked)
+      for (auto& var : nextTracked)
       {
         *this->ReceiveStream >> var;
       }
@@ -327,7 +329,7 @@ private:
   MessageStream* SendStream;
   MessageStream* ReceiveStream;
   vtkPointData* SeedData;
-  ParticleStreamManager(const ParticleStreamManager&){}
+  ParticleStreamManager(const ParticleStreamManager&) {}
   std::vector<vtkBoundingBox> Boxes;
   std::vector<vtkMPICommunicator::Request*> SendRequests;
 };
@@ -789,7 +791,8 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
         initialIntegrationTimes ? initialIntegrationTimes->GetTuple1(i) : 0;
       vtkIdType particleId = this->GetNewParticleId();
       vtkLagrangianParticle* particle = new vtkLagrangianParticle(nVar, particleId, particleId, i,
-        initialIntegrationTime, seedData, this->IntegrationModel->GetWeightsSize(), this->IntegrationModel->GetNumberOfTrackedUserData());
+        initialIntegrationTime, seedData, this->IntegrationModel->GetWeightsSize(),
+        this->IntegrationModel->GetNumberOfTrackedUserData());
       memcpy(particle->GetPosition(), position, 3 * sizeof(double));
       initialVelocities->GetTuple(i, particle->GetVelocity());
       this->IntegrationModel->InitializeParticle(particle);

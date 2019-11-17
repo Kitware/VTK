@@ -63,15 +63,14 @@ vtkRenderedTreeAreaRepresentation* vtkTreeAreaView::GetTreeAreaRepresentation()
   if (!treeAreaRep)
   {
     vtkSmartPointer<vtkTree> g = vtkSmartPointer<vtkTree>::New();
-    treeAreaRep = vtkRenderedTreeAreaRepresentation::SafeDownCast(
-      this->AddRepresentationFromInput(g));
+    treeAreaRep =
+      vtkRenderedTreeAreaRepresentation::SafeDownCast(this->AddRepresentationFromInput(g));
   }
   return treeAreaRep;
 }
 
 //----------------------------------------------------------------------------
-vtkDataRepresentation* vtkTreeAreaView::CreateDefaultRepresentation(
-  vtkAlgorithmOutput* port)
+vtkDataRepresentation* vtkTreeAreaView::CreateDefaultRepresentation(vtkAlgorithmOutput* port)
 {
   vtkRenderedTreeAreaRepresentation* rep = vtkRenderedTreeAreaRepresentation::New();
   rep->SetInputConnection(port);
@@ -364,6 +363,5 @@ bool vtkTreeAreaView::GetEdgeScalarBarVisibility()
 //----------------------------------------------------------------------------
 void vtkTreeAreaView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
-

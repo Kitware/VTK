@@ -39,8 +39,8 @@ const char* UGGCG_GLOBAL_CELL_IDS = "GlobalCellIds";
 //----------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkUnstructuredGridGhostCellsGenerator);
 
-  //----------------------------------------------------------------------------
-  vtkUnstructuredGridGhostCellsGenerator::vtkUnstructuredGridGhostCellsGenerator()
+//----------------------------------------------------------------------------
+vtkUnstructuredGridGhostCellsGenerator::vtkUnstructuredGridGhostCellsGenerator()
 {
   this->BuildIfRequired = true;
   this->MinimumNumberOfGhostLevels = 1;

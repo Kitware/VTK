@@ -18,7 +18,7 @@
  *
  * vtkOpenGLTexture is a concrete implementation of the abstract class
  * vtkTexture. vtkOpenGLTexture interfaces to the OpenGL rendering library.
-*/
+ */
 
 #ifndef vtkOpenGLTexture_h
 #define vtkOpenGLTexture_h
@@ -33,7 +33,7 @@ class vtkTextureObject;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
-  static vtkOpenGLTexture *New();
+  static vtkOpenGLTexture* New();
   vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -70,20 +70,20 @@ public:
   /**
    * Provide for specifying a format for the texture
    */
-  vtkGetMacro(IsDepthTexture,int);
-  vtkSetMacro(IsDepthTexture,int);
+  vtkGetMacro(IsDepthTexture, int);
+  vtkSetMacro(IsDepthTexture, int);
   //@}
 
   //@{
   /**
    * What type of texture map GL_TEXTURE_2D versus GL_TEXTURE_RECTANGLE
    */
-  vtkGetMacro(TextureType,int);
-  vtkSetMacro(TextureType,int);
+  vtkGetMacro(TextureType, int);
+  vtkSetMacro(TextureType, int);
   //@}
 
   vtkGetObjectMacro(TextureObject, vtkTextureObject);
-  void SetTextureObject(vtkTextureObject *);
+  void SetTextureObject(vtkTextureObject*);
 
   /**
    * Return the texture unit used for this texture
@@ -102,20 +102,19 @@ protected:
   vtkOpenGLTexture();
   ~vtkOpenGLTexture() override;
 
-  vtkTimeStamp   LoadTime;
-  vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
+  vtkTimeStamp LoadTime;
+  vtkWeakPointer<vtkRenderWindow> RenderWindow; // RenderWindow used for previous render
 
   bool ExternalTextureObject;
-  vtkTextureObject *TextureObject;
+  vtkTextureObject* TextureObject;
 
   int IsDepthTexture;
   int TextureType;
   int PrevBlendParams[4];
 
   // used when the texture exceeds the GL limit
-  unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize,
-                                      unsigned char *dptr, int bpp, int maxTexSize);
-
+  unsigned char* ResampleToPowerOfTwo(
+    int& xsize, int& ysize, unsigned char* dptr, int bpp, int maxTexSize);
 
 private:
   vtkOpenGLTexture(const vtkOpenGLTexture&) = delete;

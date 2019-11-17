@@ -19,8 +19,7 @@
 
 // Task 2 for TaskParallelism.
 // See TaskParallelism.cxx for more information.
-vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
-                         vtkCamera* cam)
+vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data, vtkCamera* cam)
 {
   double extent = data;
   int iextent = static_cast<int>(data);
@@ -28,34 +27,32 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
 
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
-  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent,
-                           -1*iextent, iextent );
+  source1->SetWholeExtent(-1 * iextent, iextent, -1 * iextent, iextent, -1 * iextent, iextent);
   source1->SetCenter(0, 0, 0);
-  source1->SetStandardDeviation( 0.5 );
-  source1->SetMaximum( 255.0 );
-  source1->SetXFreq( 60 );
-  source1->SetXMag( 10 );
-  source1->SetYFreq( 30 );
-  source1->SetYMag( 18 );
-  source1->SetZFreq( 40 );
-  source1->SetZMag( 5 );
-  source1->GetOutput()->SetSpacing(2.0/extent,2.0/extent,2.0/extent);
+  source1->SetStandardDeviation(0.5);
+  source1->SetMaximum(255.0);
+  source1->SetXFreq(60);
+  source1->SetXMag(10);
+  source1->SetYFreq(30);
+  source1->SetYMag(18);
+  source1->SetZFreq(40);
+  source1->SetZMag(5);
+  source1->GetOutput()->SetSpacing(2.0 / extent, 2.0 / extent, 2.0 / extent);
 
   // Gradient vector.
   vtkImageGradient* grad = vtkImageGradient::New();
-  grad->SetDimensionality( 3 );
+  grad->SetDimensionality(3);
   grad->SetInputConnection(source1->GetOutputPort());
 
   vtkImageShrink3D* mask = vtkImageShrink3D::New();
   mask->SetInputConnection(grad->GetOutputPort());
   mask->SetShrinkFactors(5, 5, 5);
 
-
   // Label the scalar field as the active vectors.
   vtkAssignAttribute* aa = vtkAssignAttribute::New();
   aa->SetInputConnection(mask->GetOutputPort());
-  aa->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS,
-             vtkAssignAttribute::POINT_DATA);
+  aa->Assign(
+    vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS, vtkAssignAttribute::POINT_DATA);
 
   vtkGlyphSource2D* arrow = vtkGlyphSource2D::New();
   arrow->SetGlyphTypeToArrow();
@@ -83,7 +80,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   renWin->AddRenderer(ren);
 
   ren->AddActor(actor);
-  ren->SetActiveCamera( cam );
+  ren->SetActiveCamera(cam);
 
   // Cleanup
   source1->Delete();
@@ -97,9 +94,3 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
 
   return mapper;
 }
-
-
-
-
-
-

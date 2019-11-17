@@ -49,7 +49,7 @@
  * If the input table is missing a field specified by AddField(), it is an error.
  * If no fields are specified, no splitting is performed.
  * If the delimiter for a field is an empty string, no splitting is performed on that field.
-*/
+ */
 
 #ifndef vtkBoostSplitTableField_h
 #define vtkBoostSplitTableField_h
@@ -73,16 +73,12 @@ protected:
   vtkBoostSplitTableField();
   ~vtkBoostSplitTableField();
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkStringArray* Fields;
   vtkStringArray* Delimiters;
 
 private:
-
   class implementation;
 
   vtkBoostSplitTableField(const vtkBoostSplitTableField&) = delete;

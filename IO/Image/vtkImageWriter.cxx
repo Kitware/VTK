@@ -51,82 +51,71 @@ vtkImageWriter::vtkImageWriter()
   this->SetNumberOfOutputPorts(0);
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkImageWriter::~vtkImageWriter()
 {
   // get rid of memory allocated for file names
-  delete [] this->FilePrefix;
+  delete[] this->FilePrefix;
   this->FilePrefix = nullptr;
-  delete [] this->FilePattern;
+  delete[] this->FilePattern;
   this->FilePattern = nullptr;
-  delete [] this->FileName;
+  delete[] this->FileName;
   this->FileName = nullptr;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "(none)") << "\n";
-  os << indent << "FilePrefix: " <<
-    (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
-  os << indent << "FilePattern: " <<
-    (this->FilePattern ? this->FilePattern : "(none)") << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "FilePrefix: " << (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
+  os << indent << "FilePattern: " << (this->FilePattern ? this->FilePattern : "(none)") << "\n";
 
   os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
   os << indent << "WriteToMemory: " << this->WriteToMemory << "\n";
 }
 
-
 //----------------------------------------------------------------------------
-vtkImageData *vtkImageWriter::GetInput()
+vtkImageData* vtkImageWriter::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
     return nullptr;
   }
-  return vtkImageData::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, 0));
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 //----------------------------------------------------------------------------
 
-int vtkImageWriter::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed( outputVector) )
+int vtkImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *input =
-    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Error checking
-  if (input == nullptr )
+  if (input == nullptr)
   {
-    vtkErrorMacro(<<"Write:Please specify an input!");
+    vtkErrorMacro(<< "Write:Please specify an input!");
     return 0;
   }
-  if ( !this->WriteToMemory && !this->FileName && !this->FilePattern)
+  if (!this->WriteToMemory && !this->FileName && !this->FilePattern)
   {
-    vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
+    vtkErrorMacro(<< "Write:Please specify either a FileName or a file prefix and pattern");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
   }
 
   // Make sure the file name is allocated
   this->InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
-                               (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
-                               (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
+    (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
   this->InternalFileName = new char[this->InternalFileNameSize];
 
   // Fill in image information.
-  int *wExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* wExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   this->FileNumber = wExt[4];
   this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
   this->FilesDeleted = 0;
@@ -151,7 +140,7 @@ int vtkImageWriter::RequestData(
   this->UpdateProgress(1.0);
   this->InvokeEvent(vtkCommand::EndEvent);
 
-  delete [] this->InternalFileName;
+  delete[] this->InternalFileName;
   this->InternalFileName = nullptr;
   this->InternalFileNameSize = 0;
 
@@ -169,13 +158,11 @@ void vtkImageWriter::Write()
 
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
-void vtkImageWriter::RecursiveWrite(int axis,
-                                    vtkImageData *cache,
-                                    vtkInformation* inInfo,
-                                    ostream *file)
+void vtkImageWriter::RecursiveWrite(
+  int axis, vtkImageData* cache, vtkInformation* inInfo, ostream* file)
 {
-  vtkImageData    *data;
-  int             fileOpenedHere = 0;
+  vtkImageData* data;
+  int fileOpenedHere = 0;
 
   // if we need to open another slice, do it
   if (!file && (axis + 1) == this->FileDimensionality)
@@ -183,27 +170,19 @@ void vtkImageWriter::RecursiveWrite(int axis,
     // determine the name
     if (this->FileName)
     {
-      snprintf(this->InternalFileName,
-               this->InternalFileNameSize,
-               "%s",
-               this->FileName);
+      snprintf(this->InternalFileName, this->InternalFileNameSize, "%s", this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        snprintf(this->InternalFileName,
-                 this->InternalFileNameSize,
-                 this->FilePattern,
-                 this->FilePrefix,
-                 this->FileNumber);
+        snprintf(this->InternalFileName, this->InternalFileNameSize, this->FilePattern,
+          this->FilePrefix, this->FileNumber);
       }
       else
       {
-        snprintf(this->InternalFileName,
-                 this->InternalFileNameSize,
-                 this->FilePattern,
-                 this->FileNumber);
+        snprintf(
+          this->InternalFileName, this->InternalFileNameSize, this->FilePattern, this->FileNumber);
       }
       if (this->FileNumber < this->MinimumFileNumber)
       {
@@ -223,8 +202,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
     fileOpenedHere = 1;
     if (file->fail())
     {
-      vtkErrorMacro("RecursiveWrite: Could not open file " <<
-                    this->InternalFileName);
+      vtkErrorMacro("RecursiveWrite: Could not open file " << this->InternalFileName);
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       delete file;
       return;
@@ -236,7 +214,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->flush();
     if (file->fail())
     {
-      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      ofstream* ofile = dynamic_cast<ofstream*>(file);
       if (ofile)
       {
         ofile->close();
@@ -250,21 +228,19 @@ void vtkImageWriter::RecursiveWrite(int axis,
 
   // Propagate the update extent so we can determine pipeline size
   vtkStreamingDemandDrivenPipeline* inputExec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(
-      vtkExecutive::PRODUCER()->GetExecutive(inInfo));
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(vtkExecutive::PRODUCER()->GetExecutive(inInfo));
   int inputOutputPort = vtkExecutive::PRODUCER()->GetPort(inInfo);
   inputExec->PropagateUpdateExtent(inputOutputPort);
 
   // just get the data and write it out
 #ifndef NDEBUG
-  int *ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 #endif
-  vtkDebugMacro("Getting input extent: " << ext[0] << ", " <<
-                ext[1] << ", " << ext[2] << ", " << ext[3] << ", " <<
-                ext[4] << ", " << ext[5] << endl);
+  vtkDebugMacro("Getting input extent: " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", "
+                                         << ext[3] << ", " << ext[4] << ", " << ext[5] << endl);
   inputExec->Update(inputOutputPort);
   data = cache;
-  this->RecursiveWrite(axis,cache,data,inInfo,file);
+  this->RecursiveWrite(axis, cache, data, inInfo, file);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     this->DeleteFiles();
@@ -272,13 +248,13 @@ void vtkImageWriter::RecursiveWrite(int axis,
   }
   if (file && fileOpenedHere)
   {
-    this->WriteFileTrailer(file,cache);
+    this->WriteFileTrailer(file, cache);
     file->flush();
     if (file->fail())
     {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
-    ofstream *ofile = dynamic_cast<ofstream*>(file);
+    ofstream* ofile = dynamic_cast<ofstream*>(file);
     if (ofile)
     {
       ofile->close();
@@ -287,14 +263,10 @@ void vtkImageWriter::RecursiveWrite(int axis,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // same idea as the previous method, but it knows that the data is ready
-void vtkImageWriter::RecursiveWrite(int axis,
-                                    vtkImageData *cache,
-                                    vtkImageData *data,
-                                    vtkInformation* inInfo,
-                                    ostream *file)
+void vtkImageWriter::RecursiveWrite(
+  int axis, vtkImageData* cache, vtkImageData* data, vtkInformation* inInfo, ostream* file)
 {
   int idx, min, max;
 
@@ -302,13 +274,12 @@ void vtkImageWriter::RecursiveWrite(int axis,
   // if the file is already open then just write to it
   if (file)
   {
-    this->WriteFile(file,data,
-                    inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
-                    wExt);
+    this->WriteFile(
+      file, data, inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), wExt);
     file->flush();
     if (file->fail())
     {
-      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      ofstream* ofile = dynamic_cast<ofstream*>(file);
       if (ofile)
       {
         ofile->close();
@@ -325,27 +296,19 @@ void vtkImageWriter::RecursiveWrite(int axis,
     // determine the name
     if (this->FileName)
     {
-      snprintf(this->InternalFileName,
-               this->InternalFileNameSize,
-               "%s",
-               this->FileName);
+      snprintf(this->InternalFileName, this->InternalFileNameSize, "%s", this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        snprintf(this->InternalFileName,
-                 this->InternalFileNameSize,
-                 this->FilePattern,
-                 this->FilePrefix,
-                 this->FileNumber);
+        snprintf(this->InternalFileName, this->InternalFileNameSize, this->FilePattern,
+          this->FilePrefix, this->FileNumber);
       }
       else
       {
-        snprintf(this->InternalFileName,
-                 this->InternalFileNameSize,
-                 this->FilePattern,
-                 this->FileNumber);
+        snprintf(
+          this->InternalFileName, this->InternalFileNameSize, this->FilePattern, this->FileNumber);
       }
       if (this->FileNumber < this->MinimumFileNumber)
       {
@@ -364,8 +327,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
 #endif
     if (file->fail())
     {
-      vtkErrorMacro("RecursiveWrite: Could not open file " <<
-                    this->InternalFileName);
+      vtkErrorMacro("RecursiveWrite: Could not open file " << this->InternalFileName);
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       delete file;
       return;
@@ -376,7 +338,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->flush();
     if (file->fail())
     {
-      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      ofstream* ofile = dynamic_cast<ofstream*>(file);
       if (ofile)
       {
         ofile->close();
@@ -386,12 +348,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
       return;
     }
     this->WriteFile(
-      file,data,
-      inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),wExt);
+      file, data, inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), wExt);
     file->flush();
     if (file->fail())
     {
-      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      ofstream* ofile = dynamic_cast<ofstream*>(file);
       if (ofile)
       {
         ofile->close();
@@ -401,13 +362,13 @@ void vtkImageWriter::RecursiveWrite(int axis,
       return;
     }
     ++this->FileNumber;
-    this->WriteFileTrailer(file,cache);
+    this->WriteFileTrailer(file, cache);
     file->flush();
     if (file->fail())
     {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
-    ofstream *ofile = dynamic_cast<ofstream*>(file);
+    ofstream* ofile = dynamic_cast<ofstream*>(file);
     if (ofile)
     {
       ofile->close();
@@ -419,14 +380,13 @@ void vtkImageWriter::RecursiveWrite(int axis,
   // if the current region is too high a dimension forthe file
   // the we will split the current axis
   int* updateExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  cache->GetAxisUpdateExtent(axis, min, max,
-                             updateExtent);
+  cache->GetAxisUpdateExtent(axis, min, max, updateExtent);
 
   int axisUpdateExtent[6];
   // if it is the y axis then flip by default
   if (axis == 1 && !this->FileLowerLeft)
   {
-    for(idx = max; idx >= min; idx--)
+    for (idx = max; idx >= min; idx--)
     {
       cache->SetAxisUpdateExtent(axis, idx, idx, updateExtent, axisUpdateExtent);
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
@@ -442,11 +402,10 @@ void vtkImageWriter::RecursiveWrite(int axis,
   }
   else
   {
-    for(idx = min; idx <= max; idx++)
+    for (idx = min; idx <= max; idx++)
     {
       cache->SetAxisUpdateExtent(axis, idx, idx, updateExtent, axisUpdateExtent);
-      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-        axisUpdateExtent, 6);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
       if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
       {
         this->RecursiveWrite(axis - 1, cache, data, inInfo, file);
@@ -460,10 +419,8 @@ void vtkImageWriter::RecursiveWrite(int axis,
 
   // restore original extent
   cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-    axisUpdateExtent, 6);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
 }
-
 
 //----------------------------------------------------------------------------
 template <class T>
@@ -475,19 +432,18 @@ unsigned long vtkImageWriterGetSize(T*)
 //----------------------------------------------------------------------------
 // Writes a region in a file.  Subclasses can override this method
 // to produce a header. This method only handles 3d data (plus components).
-void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
-                               int extent[6], int wExtent[6])
+void vtkImageWriter::WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExtent[6])
 {
   int idxY, idxZ;
   int rowLength; // in bytes
-  void *ptr;
+  void* ptr;
   unsigned long count = 0;
   unsigned long target;
   float progress = this->Progress;
   float area;
 
   // Make sure we actually have data.
-  if ( !data->GetPointData()->GetScalars())
+  if (!data->GetPointData()->GetScalars())
   {
     vtkErrorMacro(<< "Could not get data from input.");
     return;
@@ -496,9 +452,7 @@ void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
   // take into consideration the scalar type
   switch (data->GetScalarType())
   {
-    vtkTemplateMacro(
-      rowLength = vtkImageWriterGetSize(static_cast<VTK_TT*>(nullptr))
-      );
+    vtkTemplateMacro(rowLength = vtkImageWriterGetSize(static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown output ScalarType");
       return;
@@ -506,15 +460,13 @@ void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
   rowLength *= data->GetNumberOfScalarComponents();
   rowLength *= (extent[1] - extent[0] + 1);
 
-  area = (float) ((extent[5] - extent[4] + 1)*
-                  (extent[3] - extent[2] + 1)*
-                  (extent[1] - extent[0] + 1)) /
-         (float) ((wExtent[5] -wExtent[4] + 1)*
-                  (wExtent[3] -wExtent[2] + 1)*
-                  (wExtent[1] -wExtent[0] + 1));
+  area = (float)((extent[5] - extent[4] + 1) * (extent[3] - extent[2] + 1) *
+           (extent[1] - extent[0] + 1)) /
+    (float)((wExtent[5] - wExtent[4] + 1) * (wExtent[3] - wExtent[2] + 1) *
+      (wExtent[1] - wExtent[0] + 1));
 
-  target = (unsigned long)((extent[5]-extent[4]+1)*
-                           (extent[3]-extent[2]+1)/(50.0*area));
+  target =
+    (unsigned long)((extent[5] - extent[4] + 1) * (extent[3] - extent[2] + 1) / (50.0 * area));
   target++;
 
   int ystart = extent[3];
@@ -523,7 +475,7 @@ void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
   if (this->FileLowerLeft)
   {
     ystart = extent[2];
-    yend = extent[3]+1;
+    yend = extent[3] + 1;
     yinc = 1;
   }
 
@@ -531,13 +483,13 @@ void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
   {
     for (idxY = ystart; idxY != yend; idxY = idxY + yinc)
     {
-      if (!(count%target))
+      if (!(count % target))
       {
-        this->UpdateProgress(progress + count/(50.0*target));
+        this->UpdateProgress(progress + count / (50.0 * target));
       }
       count++;
       ptr = data->GetScalarPointer(extent[0], idxY, idxZ);
-      if ( ! file->write((char *)ptr, rowLength))
+      if (!file->write((char*)ptr, rowLength))
       {
         return;
       }
@@ -563,26 +515,26 @@ void vtkImageWriter::DeleteFiles()
     if (this->FilePrefix)
     {
       size_t fileNameLength = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
-      char *fileName = new char[fileNameLength];
+      char* fileName = new char[fileNameLength];
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
         snprintf(fileName, fileNameLength, this->FilePattern, this->FilePrefix, i);
         vtksys::SystemTools::RemoveFile(fileName);
       }
-      delete [] fileName;
+      delete[] fileName;
     }
     else
     {
       size_t fileNameLength = strlen(this->FilePattern) + 10;
-      char *fileName = new char[fileNameLength];
+      char* fileName = new char[fileNameLength];
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
         snprintf(fileName, fileNameLength, this->FilePattern, i);
         vtksys::SystemTools::RemoveFile(fileName);
       }
-      delete [] fileName;
+      delete[] fileName;
     }
   }
   this->FilesDeleted = 1;

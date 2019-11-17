@@ -19,14 +19,13 @@
  * Writes debug/warning/error output to a log file instead of the console.
  * To use this class, instantiate it and then call SetInstance(this).
  *
-*/
+ */
 
 #ifndef vtkFileOutputWindow_h
 #define vtkFileOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
-
 
 class VTKCOMMONCORE_EXPORT vtkFileOutputWindow : public vtkOutputWindow
 {
@@ -87,6 +86,5 @@ private:
   vtkFileOutputWindow(const vtkFileOutputWindow&) = delete;
   void operator=(const vtkFileOutputWindow&) = delete;
 };
-
 
 #endif

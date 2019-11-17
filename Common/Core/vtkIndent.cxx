@@ -21,18 +21,17 @@ vtkIndent* vtkIndent::New()
   return new vtkIndent; // not a VTK object, don't use object factory macros
 }
 
-
 #define VTK_STD_INDENT 2
 #define VTK_NUMBER_OF_BLANKS 40
 
-static const char blanks[VTK_NUMBER_OF_BLANKS+1]="                                        ";
+static const char blanks[VTK_NUMBER_OF_BLANKS + 1] = "                                        ";
 
 // Determine the next indentation level. Keep indenting by two until the
 // max of forty.
 vtkIndent vtkIndent::GetNextIndent()
 {
   int indent = this->Indent + VTK_STD_INDENT;
-  if ( indent > VTK_NUMBER_OF_BLANKS )
+  if (indent > VTK_NUMBER_OF_BLANKS)
   {
     indent = VTK_NUMBER_OF_BLANKS;
   }
@@ -42,7 +41,6 @@ vtkIndent vtkIndent::GetNextIndent()
 // Print out the indentation. Basically output a bunch of spaces.
 ostream& operator<<(ostream& os, const vtkIndent& ind)
 {
-  os << blanks + (VTK_NUMBER_OF_BLANKS-ind.Indent) ;
+  os << blanks + (VTK_NUMBER_OF_BLANKS - ind.Indent);
   return os;
 }
-

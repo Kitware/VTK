@@ -25,7 +25,7 @@ existing tests to get an idea of what to do.
 /*=========================================================================
 The main entry point
 =========================================================================*/
-int main( int argc, char *argv[] )
+int main(int argc, char* argv[])
 {
   // create the timing framework
   vtkRenderTimings a;
@@ -34,13 +34,12 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new surfaceTest("Surface", false, false));
   a.TestsToRun.push_back(new surfaceTest("SurfaceColored", true, false));
   a.TestsToRun.push_back(new surfaceTest("SurfaceWithNormals", false, true));
-  a.TestsToRun.push_back(
-    new surfaceTest("SurfaceColoredWithNormals", true, true));
+  a.TestsToRun.push_back(new surfaceTest("SurfaceColoredWithNormals", true, true));
 
   a.TestsToRun.push_back(new glyphTest("Glyphing"));
 
   a.TestsToRun.push_back(new moleculeTest("Molecule"));
-  a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
+  a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly", true));
 
   a.TestsToRun.push_back(new volumeTest("Volume", false));
   a.TestsToRun.push_back(new volumeTest("VolumeWithShading", true));

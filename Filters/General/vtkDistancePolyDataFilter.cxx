@@ -27,7 +27,8 @@
 vtkStandardNewMacro(vtkDistancePolyDataFilter);
 
 //-----------------------------------------------------------------------------
-vtkDistancePolyDataFilter::vtkDistancePolyDataFilter() : vtkPolyDataAlgorithm()
+vtkDistancePolyDataFilter::vtkDistancePolyDataFilter()
+  : vtkPolyDataAlgorithm()
 {
   this->SignedDistance = 1;
   this->NegateDistance = 0;
@@ -41,14 +42,12 @@ vtkDistancePolyDataFilter::vtkDistancePolyDataFilter() : vtkPolyDataAlgorithm()
 //-----------------------------------------------------------------------------
 vtkDistancePolyDataFilter::~vtkDistancePolyDataFilter() = default;
 
-
 //-----------------------------------------------------------------------------
-int vtkDistancePolyDataFilter::RequestData(vtkInformation*        vtkNotUsed(request),
-                                           vtkInformationVector** inputVector,
-                                           vtkInformationVector*  outputVector)
+int vtkDistancePolyDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkPolyData *input0 = vtkPolyData::GetData(inputVector[0], 0);
-  vtkPolyData *input1 = vtkPolyData::GetData(inputVector[1], 0);
+  vtkPolyData* input0 = vtkPolyData::GetData(inputVector[0], 0);
+  vtkPolyData* input1 = vtkPolyData::GetData(inputVector[1], 0);
   vtkPolyData* output0 = vtkPolyData::GetData(outputVector, 0);
   vtkPolyData* output1 = vtkPolyData::GetData(outputVector, 1);
 
@@ -72,43 +71,43 @@ int vtkDistancePolyDataFilter::RequestData(vtkInformation*        vtkNotUsed(req
 //-----------------------------------------------------------------------------
 void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyData* src)
 {
-  vtkDebugMacro(<<"Start vtkDistancePolyDataFilter::GetPolyDataDistance");
+  vtkDebugMacro(<< "Start vtkDistancePolyDataFilter::GetPolyDataDistance");
 
   if (mesh->GetNumberOfCells() == 0 || mesh->GetNumberOfPoints() == 0)
   {
-    vtkErrorMacro(<<"No points/cells to operate on");
+    vtkErrorMacro(<< "No points/cells to operate on");
     return;
   }
 
   if (src->GetNumberOfPolys() == 0 || src->GetNumberOfPoints() == 0)
   {
-    vtkErrorMacro(<<"No points/cells to difference from");
+    vtkErrorMacro(<< "No points/cells to difference from");
     return;
   }
 
   vtkImplicitPolyDataDistance* imp = vtkImplicitPolyDataDistance::New();
-  imp->SetInput( src );
+  imp->SetInput(src);
 
   // Calculate distance from points.
   int numPts = mesh->GetNumberOfPoints();
 
   vtkDoubleArray* pointArray = vtkDoubleArray::New();
-  pointArray->SetName( "Distance" );
-  pointArray->SetNumberOfComponents( 1 );
-  pointArray->SetNumberOfTuples( numPts );
+  pointArray->SetName("Distance");
+  pointArray->SetNumberOfComponents(1);
+  pointArray->SetNumberOfTuples(numPts);
 
   for (vtkIdType ptId = 0; ptId < numPts; ptId++)
   {
     double pt[3];
-    mesh->GetPoint( ptId, pt );
-    double val = imp->EvaluateFunction( pt );
+    mesh->GetPoint(ptId, pt);
+    double val = imp->EvaluateFunction(pt);
     double dist = SignedDistance ? (NegateDistance ? -val : val) : fabs(val);
-    pointArray->SetValue( ptId, dist );
+    pointArray->SetValue(ptId, dist);
   }
 
-  mesh->GetPointData()->AddArray( pointArray );
+  mesh->GetPointData()->AddArray(pointArray);
   pointArray->Delete();
-  mesh->GetPointData()->SetActiveScalars( "Distance" );
+  mesh->GetPointData()->SetActiveScalars("Distance");
 
   // Calculate distance from cell centers.
   if (this->ComputeCellCenterDistance)
@@ -116,32 +115,32 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
     int numCells = mesh->GetNumberOfCells();
 
     vtkDoubleArray* cellArray = vtkDoubleArray::New();
-    cellArray->SetName( "Distance" );
-    cellArray->SetNumberOfComponents( 1 );
-    cellArray->SetNumberOfTuples( numCells );
+    cellArray->SetName("Distance");
+    cellArray->SetNumberOfComponents(1);
+    cellArray->SetNumberOfTuples(numCells);
 
     for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
-      vtkCell *cell = mesh->GetCell( cellId );
+      vtkCell* cell = mesh->GetCell(cellId);
       int subId;
       double pcoords[3], x[3], weights[256];
 
-      cell->GetParametricCenter( pcoords );
-      cell->EvaluateLocation( subId, pcoords, x, weights );
+      cell->GetParametricCenter(pcoords);
+      cell->EvaluateLocation(subId, pcoords, x, weights);
 
-      double val = imp->EvaluateFunction( x );
+      double val = imp->EvaluateFunction(x);
       double dist = SignedDistance ? (NegateDistance ? -val : val) : fabs(val);
-      cellArray->SetValue( cellId, dist );
+      cellArray->SetValue(cellId, dist);
     }
 
-    mesh->GetCellData()->AddArray( cellArray );
+    mesh->GetCellData()->AddArray(cellArray);
     cellArray->Delete();
     mesh->GetCellData()->SetActiveScalars("Distance");
   }
 
   imp->Delete();
 
-  vtkDebugMacro(<<"End vtkDistancePolyDataFilter::GetPolyDataDistance");
+  vtkDebugMacro(<< "End vtkDistancePolyDataFilter::GetPolyDataDistance");
 }
 
 //-----------------------------------------------------------------------------
@@ -157,7 +156,7 @@ vtkPolyData* vtkDistancePolyDataFilter::GetSecondDistanceOutput()
 //-----------------------------------------------------------------------------
 void vtkDistancePolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "SignedDistance: " << this->SignedDistance << "\n";
   os << indent << "NegateDistance: " << this->NegateDistance << "\n";
   os << indent << "ComputeSecondDistance: " << this->ComputeSecondDistance << "\n";

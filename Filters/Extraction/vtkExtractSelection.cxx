@@ -53,15 +53,12 @@ vtkExtractSelection::vtkExtractSelection()
 }
 
 //----------------------------------------------------------------------------
-vtkExtractSelection::~vtkExtractSelection()
-{
-}
+vtkExtractSelection::~vtkExtractSelection() {}
 
 //----------------------------------------------------------------------------
-int vtkExtractSelection::FillInputPortInformation(
-  int port, vtkInformation* info)
+int vtkExtractSelection::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if (port==0)
+  if (port == 0)
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   }
@@ -75,9 +72,7 @@ int vtkExtractSelection::FillInputPortInformation(
 
 //----------------------------------------------------------------------------
 int vtkExtractSelection::RequestDataObject(
-  vtkInformation*,
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
@@ -139,7 +134,7 @@ int vtkExtractSelection::RequestDataObject(
     return 1;
   }
 
-  if (!outputDO || ! outputDO->IsTypeOf(inputDO->GetClassName()))
+  if (!outputDO || !outputDO->IsTypeOf(inputDO->GetClassName()))
   {
     outputDO = inputDO->NewInstance();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), outputDO);
@@ -152,7 +147,8 @@ int vtkExtractSelection::RequestDataObject(
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject::AttributeTypes vtkExtractSelection::GetAttributeTypeOfSelection(vtkSelection* sel, bool& sane)
+vtkDataObject::AttributeTypes vtkExtractSelection::GetAttributeTypeOfSelection(
+  vtkSelection* sel, bool& sane)
 {
   sane = true;
   int fieldType = -1;
@@ -187,23 +183,21 @@ vtkDataObject::AttributeTypes vtkExtractSelection::GetAttributeTypeOfSelection(v
 
 namespace
 {
-  void InvertSelection(vtkSignedCharArray* array)
-  {
-    const vtkIdType n = array->GetNumberOfTuples();
-    vtkSMPTools::For(0, n, [&array](vtkIdType start, vtkIdType end) {
-      for (vtkIdType i = start; i < end; ++i)
-      {
-        array->SetValue(i, static_cast<signed char>(array->GetValue(i) * -1 + 1));
-      }
-    });
-  }
+void InvertSelection(vtkSignedCharArray* array)
+{
+  const vtkIdType n = array->GetNumberOfTuples();
+  vtkSMPTools::For(0, n, [&array](vtkIdType start, vtkIdType end) {
+    for (vtkIdType i = start; i < end; ++i)
+    {
+      array->SetValue(i, static_cast<signed char>(array->GetValue(i) * -1 + 1));
+    }
+  });
+}
 }
 
 //----------------------------------------------------------------------------
-int vtkExtractSelection::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector ,
-  vtkInformationVector* outputVector)
+int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
   vtkSelection* selection = vtkSelection::GetData(inputVector[1], 0);
@@ -212,7 +206,7 @@ int vtkExtractSelection::RequestData(
   // If no input, error
   if (!input)
   {
-    vtkErrorMacro(<<"No input specified");
+    vtkErrorMacro(<< "No input specified");
     return 0;
   }
 
@@ -233,7 +227,7 @@ int vtkExtractSelection::RequestData(
   }
 
   // Create operators for each of vtkSelectionNode instances and initialize them.
-  std::map< std::string, vtkSmartPointer< vtkSelector > > selectors;
+  std::map<std::string, vtkSmartPointer<vtkSelector> > selectors;
   for (unsigned int cc = 0, max = selection->GetNumberOfNodes(); cc < max; ++cc)
   {
     auto node = selection->GetNode(cc);
@@ -281,7 +275,8 @@ int vtkExtractSelection::RequestData(
     fieldData->AddArray(blockInsidedness);
   };
 
-  auto extract = [&assoc, this](vtkDataObject* inpDO, vtkDataObject* opDO) -> vtkSmartPointer<vtkDataObject> {
+  auto extract = [&assoc, this](
+                   vtkDataObject* inpDO, vtkDataObject* opDO) -> vtkSmartPointer<vtkDataObject> {
     auto fd = opDO->GetAttributes(assoc);
     auto array =
       fd ? vtkSignedCharArray::SafeDownCast(fd->GetArray("__vtkInsidedness__")) : nullptr;
@@ -338,7 +333,8 @@ int vtkExtractSelection::RequestData(
     vtkLogStartScope(TRACE, "extract output");
     for (outIter->GoToFirstItem(); !outIter->IsDoneWithTraversal(); outIter->GoToNextItem())
     {
-      outputCD->SetDataSet(outIter, extract(inputCD->GetDataSet(outIter), outIter->GetCurrentDataObject()));
+      outputCD->SetDataSet(
+        outIter, extract(inputCD->GetDataSet(outIter), outIter->GetCurrentDataObject()));
     }
     vtkLogEndScope("extract output");
   }
@@ -456,9 +452,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::ExtractSelectedCells(
-  vtkDataSet* input,
-  vtkUnstructuredGrid* output,
-  vtkSignedCharArray* cellInside)
+  vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* cellInside)
 {
   if (!cellInside || cellInside->GetNumberOfTuples() <= 0)
   {
@@ -469,10 +463,10 @@ void vtkExtractSelection::ExtractSelectedCells(
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
 
-  vtkPointData *pd = input->GetPointData();
-  vtkCellData *cd = input->GetCellData();
-  vtkPointData *outputPD = output->GetPointData();
-  vtkCellData *outputCD = output->GetCellData();
+  vtkPointData* pd = input->GetPointData();
+  vtkCellData* cd = input->GetCellData();
+  vtkPointData* outputPD = output->GetPointData();
+  vtkCellData* outputCD = output->GetCellData();
 
   // To copy points in a type agnostic way later
   auto pointSet = vtkPointSet::SafeDownCast(input);
@@ -482,7 +476,7 @@ void vtkExtractSelection::ExtractSelectedCells(
   {
     newPts->SetDataType(pointSet->GetPoints()->GetDataType());
   }
-  newPts->Allocate(numPts/4,numPts);
+  newPts->Allocate(numPts / 4, numPts);
 
   outputPD->SetCopyGlobalIds(1);
   outputPD->CopyFieldOff("vtkOriginalPointIds");
@@ -526,39 +520,38 @@ void vtkExtractSelection::ExtractSelectedCells(
       int cellType = input->GetCellType(cellId);
       vtkIdType numCellPts = cellPts->GetNumberOfIds();
       newCellPts->Reset();
-        for (vtkIdType i = 0; i < numCellPts; ++i)
+      for (vtkIdType i = 0; i < numCellPts; ++i)
+      {
+        vtkIdType ptId = cellPts->GetId(i);
+        vtkIdType newPointId = pointMap[ptId];
+        if (newPointId < 0)
         {
-          vtkIdType ptId = cellPts->GetId(i);
-          vtkIdType newPointId = pointMap[ptId];
-          if (newPointId < 0)
+          if (pointSet)
           {
-            if (pointSet)
-            {
-              newPointId = newPts->GetNumberOfPoints();
-              newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
-            }
-            else
-            {
-              input->GetPoint(ptId, x);
-              newPointId = newPts->InsertNextPoint(x);
-            }
-            outputPD->CopyData(pd,ptId,newPointId);
-            originalPointIds->InsertNextValue(ptId);
-            pointMap[ptId] = newPointId;
+            newPointId = newPts->GetNumberOfPoints();
+            newPts->InsertPoints(newPointId, 1, ptId, pointSet->GetPoints());
           }
-          newCellPts->InsertId(i,newPointId);
+          else
+          {
+            input->GetPoint(ptId, x);
+            newPointId = newPts->InsertNextPoint(x);
+          }
+          outputPD->CopyData(pd, ptId, newPointId);
+          originalPointIds->InsertNextValue(ptId);
+          pointMap[ptId] = newPointId;
         }
-        // special handling for polyhedron cells
-        if (vtkUnstructuredGrid::SafeDownCast(input) &&
-            cellType == VTK_POLYHEDRON)
-        {
-          newCellPts->Reset();
-          vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
-          vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, &pointMap[0]);
-        }
-        vtkIdType newCellId = output->InsertNextCell(cellType, newCellPts);
-        outputCD->CopyData(cd,cellId,newCellId);
-        originalCellIds->InsertNextValue(cellId);
+        newCellPts->InsertId(i, newPointId);
+      }
+      // special handling for polyhedron cells
+      if (vtkUnstructuredGrid::SafeDownCast(input) && cellType == VTK_POLYHEDRON)
+      {
+        newCellPts->Reset();
+        vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(cellId, newCellPts);
+        vtkUnstructuredGrid::ConvertFaceStreamPointIds(newCellPts, &pointMap[0]);
+      }
+      vtkIdType newCellId = output->InsertNextCell(cellType, newCellPts);
+      outputCD->CopyData(cd, cellId, newCellId);
+      originalCellIds->InsertNextValue(cellId);
     }
   }
   output->SetPoints(newPts);
@@ -566,9 +559,7 @@ void vtkExtractSelection::ExtractSelectedCells(
 
 //----------------------------------------------------------------------------
 void vtkExtractSelection::ExtractSelectedPoints(
-  vtkDataSet* input,
-  vtkUnstructuredGrid* output,
-  vtkSignedCharArray* pointInside)
+  vtkDataSet* input, vtkUnstructuredGrid* output, vtkSignedCharArray* pointInside)
 {
   if (!pointInside || pointInside->GetNumberOfTuples() <= 0)
   {
@@ -578,8 +569,8 @@ void vtkExtractSelection::ExtractSelectedPoints(
 
   vtkIdType numPts = input->GetNumberOfPoints();
 
-  vtkPointData *pd = input->GetPointData();
-  vtkPointData *outputPD = output->GetPointData();
+  vtkPointData* pd = input->GetPointData();
+  vtkPointData* outputPD = output->GetPointData();
 
   // To copy points in a type agnostic way later
   auto pointSet = vtkPointSet::SafeDownCast(input);
@@ -589,7 +580,7 @@ void vtkExtractSelection::ExtractSelectedPoints(
   {
     newPts->SetDataType(pointSet->GetPoints()->GetDataType());
   }
-  newPts->Allocate(numPts/4,numPts);
+  newPts->Allocate(numPts / 4, numPts);
 
   vtkNew<vtkIdList> newCellPts;
   newCellPts->Allocate(VTK_CELL_SIZE);
@@ -624,12 +615,12 @@ void vtkExtractSelection::ExtractSelectedPoints(
         newPointId = newPts->InsertNextPoint(x);
       }
       assert(newPointId >= 0);
-      outputPD->CopyData(pd,ptId,newPointId);
+      outputPD->CopyData(pd, ptId, newPointId);
       originalPointIds->InsertNextValue(ptId);
     }
   }
 
-  //produce a new vtk_vertex cell for each accepted point
+  // produce a new vtk_vertex cell for each accepted point
   for (vtkIdType ptId = 0; ptId < newPts->GetNumberOfPoints(); ++ptId)
   {
     newCellPts->Reset();
@@ -640,7 +631,8 @@ void vtkExtractSelection::ExtractSelectedPoints(
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractSelection::ExtractSelectedRows(vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside)
+void vtkExtractSelection::ExtractSelectedRows(
+  vtkTable* input, vtkTable* output, vtkSignedCharArray* rowsInside)
 {
   const vtkIdType numRows = input->GetNumberOfRows();
   vtkNew<vtkIdTypeArray> originalRowIds;

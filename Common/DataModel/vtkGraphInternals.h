@@ -23,7 +23,7 @@
  *
  * This is the internal representation of vtkGraph, used only in rare cases
  * where one must modify that representation.
-*/
+ */
 
 #ifndef vtkGraphInternals_h
 #define vtkGraphInternals_h
@@ -51,7 +51,7 @@ public:
 class VTKCOMMONDATAMODEL_EXPORT vtkGraphInternals : public vtkObject
 {
 public:
-  static vtkGraphInternals *New();
+  static vtkGraphInternals* New();
 
   vtkTypeMacro(vtkGraphInternals, vtkObject);
   std::vector<vtkVertexAdjacencyList> Adjacency;

@@ -18,7 +18,7 @@
  *
  * vtkXMLMultiGroupDataReader is a legacy reader that reads multi group files
  * into multiblock datasets.
-*/
+ */
 
 #ifndef vtkXMLMultiGroupDataReader_h
 #define vtkXMLMultiGroupDataReader_h
@@ -30,7 +30,7 @@ class VTKIOXML_EXPORT vtkXMLMultiGroupDataReader : public vtkXMLMultiBlockDataRe
 {
 public:
   static vtkXMLMultiGroupDataReader* New();
-  vtkTypeMacro(vtkXMLMultiGroupDataReader,vtkXMLMultiBlockDataReader);
+  vtkTypeMacro(vtkXMLMultiGroupDataReader, vtkXMLMultiBlockDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -38,10 +38,7 @@ protected:
   ~vtkXMLMultiGroupDataReader() override;
 
   // Get the name of the data set being read.
-  const char* GetDataSetName() override
-  {
-    return "vtkMultiGroupDataSet";
-  }
+  const char* GetDataSetName() override { return "vtkMultiGroupDataSet"; }
 
 private:
   vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&) = delete;

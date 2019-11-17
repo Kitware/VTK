@@ -34,14 +34,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
+typedef vtkPolyDataMapper* (*taskFunction)(vtkRenderWindow* renWin, double data, vtkCamera* cam);
 
-typedef vtkPolyDataMapper* (*taskFunction)(vtkRenderWindow* renWin,
-                                           double data, vtkCamera* cam);
-
-
-vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,vtkCamera* cam);
-vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,vtkCamera* cam);
-
+vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data, vtkCamera* cam);
+vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data, vtkCamera* cam);
 
 static const double EXTENT = 20;
 

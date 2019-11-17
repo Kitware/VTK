@@ -23,7 +23,7 @@
  * mesh's cell data or point data, in an array with names varied with different
  * quality being queried. Note this filter always assume the data associate with
  * the cells or points are 3 by 3 matrix.
-*/
+ */
 
 #ifndef vtkMatrixMathFilter_h
 #define vtkMatrixMathFilter_h
@@ -39,22 +39,22 @@ class VTKFILTERSVERDICT_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
 
   enum
   {
-  NONE = 0,
-  DETERMINANT,
-  EIGENVALUE,
-  EIGENVECTOR,
-  INVERSE
+    NONE = 0,
+    DETERMINANT,
+    EIGENVALUE,
+    EIGENVECTOR,
+    INVERSE
   };
   enum
   {
-  POINT_QUALITY = 0,
-  CELL_QUALITY
+    POINT_QUALITY = 0,
+    CELL_QUALITY
   };
 
 public:
-  void PrintSelf (ostream&, vtkIndent) override;
+  void PrintSelf(ostream&, vtkIndent) override;
   vtkTypeMacro(vtkMatrixMathFilter, vtkDataSetAlgorithm);
-  static vtkMatrixMathFilter* New ();
+  static vtkMatrixMathFilter* New();
 
   //@{
   /**
@@ -62,30 +62,17 @@ public:
    */
   vtkSetMacro(Operation, int);
   vtkGetMacro(Operation, int);
-  void SetOperationToDeterminant ()
-  {
-     this->SetOperation(DETERMINANT);
-  }
-  void SetOperationToEigenvalue ()
-  {
-     this->SetOperation(EIGENVALUE);
-  }
-  void SetOperationToEigenvector ()
-  {
-     this->SetOperation(EIGENVECTOR);
-  }
-  void SetOperationToInverse ()
-  {
-     this->SetOperation(INVERSE);
-  }
+  void SetOperationToDeterminant() { this->SetOperation(DETERMINANT); }
+  void SetOperationToEigenvalue() { this->SetOperation(EIGENVALUE); }
+  void SetOperationToEigenvector() { this->SetOperation(EIGENVECTOR); }
+  void SetOperationToInverse() { this->SetOperation(INVERSE); }
   //@}
 
 protected:
- ~vtkMatrixMathFilter () override;
-  vtkMatrixMathFilter ();
+  ~vtkMatrixMathFilter() override;
+  vtkMatrixMathFilter();
 
-  int RequestData
-    (vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int Operation;
 

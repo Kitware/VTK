@@ -40,7 +40,7 @@
  *
  * @sa
  * vtkImplicitFunction vtkClipPolyData
-*/
+ */
 
 #ifndef vtkCutter_h
 #define vtkCutter_h
@@ -63,70 +63,68 @@ class vtkRectilinearSynchronizedTemplates;
 class VTKFILTERSCORE_EXPORT vtkCutter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkCutter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCutter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; initial value of 0.0; and
    * generating cut scalars turned off.
    */
-  static vtkCutter *New();
+  static vtkCutter* New();
 
   /**
    * Set a particular contour value at contour number i. The index i ranges
    * between 0<=i<NumberOfContours.
    */
-  void SetValue(int i, double value)
-    {this->ContourValues->SetValue(i,value);}
+  void SetValue(int i, double value) { this->ContourValues->SetValue(i, value); }
 
   /**
    * Get the ith contour value.
    */
-  double GetValue(int i)
-    {return this->ContourValues->GetValue(i);}
+  double GetValue(int i) { return this->ContourValues->GetValue(i); }
 
   /**
    * Get a pointer to an array of contour values. There will be
    * GetNumberOfContours() values in the list.
    */
-  double *GetValues()
-    {return this->ContourValues->GetValues();}
+  double* GetValues() { return this->ContourValues->GetValues(); }
 
   /**
    * Fill a supplied list with contour values. There will be
    * GetNumberOfContours() values in the list. Make sure you allocate
    * enough memory to hold the list.
    */
-  void GetValues(double *contourValues)
-    {this->ContourValues->GetValues(contourValues);}
+  void GetValues(double* contourValues) { this->ContourValues->GetValues(contourValues); }
 
   /**
    * Set the number of contours to place into the list. You only really
    * need to use this method to reduce list size. The method SetValue()
    * will automatically increase list size as needed.
    */
-  void SetNumberOfContours(int number)
-    {this->ContourValues->SetNumberOfContours(number);}
+  void SetNumberOfContours(int number) { this->ContourValues->SetNumberOfContours(number); }
 
   /**
    * Get the number of contours in the list of contour values.
    */
-  vtkIdType GetNumberOfContours()
-    {return this->ContourValues->GetNumberOfContours();}
+  vtkIdType GetNumberOfContours() { return this->ContourValues->GetNumberOfContours(); }
 
   /**
    * Generate numContours equally spaced contour values between specified
    * range. Contour values will include min/max range values.
    */
   void GenerateValues(int numContours, double range[2])
-    {this->ContourValues->GenerateValues(numContours, range);}
+  {
+    this->ContourValues->GenerateValues(numContours, range);
+  }
 
   /**
    * Generate numContours equally spaced contour values between specified
    * range. Contour values will include min/max range values.
    */
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
-    {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
+  {
+    this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+  }
 
   /**
    * Override GetMTime because we delegate to vtkContourValues and refer to
@@ -139,7 +137,7 @@ public:
    * Specify the implicit function to perform the cutting.
    */
   virtual void SetCutFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(CutFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -148,31 +146,31 @@ public:
    * interpolated from the implicit function values, and not the input scalar
    * data.
    */
-  vtkSetMacro(GenerateCutScalars,vtkTypeBool);
-  vtkGetMacro(GenerateCutScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateCutScalars,vtkTypeBool);
+  vtkSetMacro(GenerateCutScalars, vtkTypeBool);
+  vtkGetMacro(GenerateCutScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateCutScalars, vtkTypeBool);
   //@}
 
- //@{
- /**
-  * If this is enabled (by default), the output will be triangles
-  * otherwise, the output will be the intersection polygons
-  * WARNING: if the cutting function is not a plane, the output
-  * will be 3D poygons, which might be nice to look at but hard
-  * to compute with downstream.
-  */
-  vtkSetMacro(GenerateTriangles,vtkTypeBool);
-  vtkGetMacro(GenerateTriangles,vtkTypeBool);
-  vtkBooleanMacro(GenerateTriangles,vtkTypeBool);
- //@}
+  //@{
+  /**
+   * If this is enabled (by default), the output will be triangles
+   * otherwise, the output will be the intersection polygons
+   * WARNING: if the cutting function is not a plane, the output
+   * will be 3D poygons, which might be nice to look at but hard
+   * to compute with downstream.
+   */
+  vtkSetMacro(GenerateTriangles, vtkTypeBool);
+  vtkGetMacro(GenerateTriangles, vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles, vtkTypeBool);
+  //@}
 
   //@{
   /**
    * Specify a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   //@{
@@ -191,13 +189,11 @@ public:
    * Cell data will be scrambled because with
    * vtkPolyData output, verts and lines have lower cell ids than triangles.
    */
-  vtkSetClampMacro(SortBy,int,VTK_SORT_BY_VALUE,VTK_SORT_BY_CELL);
-  vtkGetMacro(SortBy,int);
-  void SetSortByToSortByValue()
-    {this->SetSortBy(VTK_SORT_BY_VALUE);}
-  void SetSortByToSortByCell()
-    {this->SetSortBy(VTK_SORT_BY_CELL);}
-  const char *GetSortByAsString();
+  vtkSetClampMacro(SortBy, int, VTK_SORT_BY_VALUE, VTK_SORT_BY_CELL);
+  vtkGetMacro(SortBy, int);
+  void SetSortByToSortByValue() { this->SetSortBy(VTK_SORT_BY_VALUE); }
+  void SetSortByToSortByCell() { this->SetSortBy(VTK_SORT_BY_CELL); }
+  const char* GetSortByAsString();
   //@}
 
   /**
@@ -224,32 +220,32 @@ public:
   //@}
 
 protected:
-  vtkCutter(vtkImplicitFunction *cf=nullptr);
+  vtkCutter(vtkImplicitFunction* cf = nullptr);
   ~vtkCutter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  void UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output);
-  void DataSetCutter(vtkDataSet *input, vtkPolyData *output);
-  void StructuredPointsCutter(vtkDataSet *, vtkPolyData *,
-                              vtkInformation *, vtkInformationVector **,
-                              vtkInformationVector *);
-  void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
-  void RectilinearGridCutter(vtkDataSet *, vtkPolyData *);
-  vtkImplicitFunction *CutFunction;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  void UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output);
+  void DataSetCutter(vtkDataSet* input, vtkPolyData* output);
+  void StructuredPointsCutter(
+    vtkDataSet*, vtkPolyData*, vtkInformation*, vtkInformationVector**, vtkInformationVector*);
+  void StructuredGridCutter(vtkDataSet*, vtkPolyData*);
+  void RectilinearGridCutter(vtkDataSet*, vtkPolyData*);
+  vtkImplicitFunction* CutFunction;
   vtkTypeBool GenerateTriangles;
 
-  vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
-  vtkSynchronizedTemplatesCutter3D *SynchronizedTemplatesCutter3D;
-  vtkGridSynchronizedTemplates3D *GridSynchronizedTemplates;
-  vtkRectilinearSynchronizedTemplates *RectilinearSynchronizedTemplates;
+  vtkSynchronizedTemplates3D* SynchronizedTemplates3D;
+  vtkSynchronizedTemplatesCutter3D* SynchronizedTemplatesCutter3D;
+  vtkGridSynchronizedTemplates3D* GridSynchronizedTemplates;
+  vtkRectilinearSynchronizedTemplates* RectilinearSynchronizedTemplates;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
   int SortBy;
-  vtkContourValues *ContourValues;
+  vtkContourValues* ContourValues;
   vtkTypeBool GenerateCutScalars;
   int OutputPointsPrecision;
+
 private:
   vtkCutter(const vtkCutter&) = delete;
   void operator=(const vtkCutter&) = delete;
@@ -259,9 +255,9 @@ private:
 /**
  * Return the sorting procedure as a descriptive character string.
  */
-inline const char *vtkCutter::GetSortByAsString(void)
+inline const char* vtkCutter::GetSortByAsString(void)
 {
-  if ( this->SortBy == VTK_SORT_BY_VALUE )
+  if (this->SortBy == VTK_SORT_BY_VALUE)
   {
     return "SortByValue";
   }

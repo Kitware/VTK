@@ -18,7 +18,7 @@
  *
  * vtkBase64InputStream implements base64 decoding with the
  * vtkInputStream interface.
-*/
+ */
 
 #ifndef vtkBase64InputStream_h
 #define vtkBase64InputStream_h
@@ -29,8 +29,8 @@
 class VTKIOCORE_EXPORT vtkBase64InputStream : public vtkInputStream
 {
 public:
-  vtkTypeMacro(vtkBase64InputStream,vtkInputStream);
-  static vtkBase64InputStream *New();
+  vtkTypeMacro(vtkBase64InputStream, vtkInputStream);
+  static vtkBase64InputStream* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

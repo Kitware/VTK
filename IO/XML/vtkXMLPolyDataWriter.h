@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkXMLPPolyDataWriter
-*/
+ */
 
 #ifndef vtkXMLPolyDataWriter_h
 #define vtkXMLPolyDataWriter_h
@@ -38,7 +38,7 @@ class vtkPolyData;
 class VTKIOXML_EXPORT vtkXMLPolyDataWriter : public vtkXMLUnstructuredDataWriter
 {
 public:
-  vtkTypeMacro(vtkXMLPolyDataWriter,vtkXMLUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLPolyDataWriter, vtkXMLUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPolyDataWriter* New();
 
@@ -80,10 +80,10 @@ protected:
   unsigned long* NumberOfStripsPositions;
   unsigned long* NumberOfPolysPositions;
 
-  OffsetsManagerArray *VertsOM;
-  OffsetsManagerArray *LinesOM;
-  OffsetsManagerArray *StripsOM;
-  OffsetsManagerArray *PolysOM;
+  OffsetsManagerArray* VertsOM;
+  OffsetsManagerArray* LinesOM;
+  OffsetsManagerArray* StripsOM;
+  OffsetsManagerArray* PolysOM;
 
 private:
   vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&) = delete;

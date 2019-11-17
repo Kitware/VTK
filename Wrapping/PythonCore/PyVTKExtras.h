@@ -31,7 +31,7 @@
 // initialization of the vtkCommonCore python module.
 extern "C"
 {
-VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_PyVTKExtras(PyObject *dict);
+  VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_PyVTKExtras(PyObject* dict);
 }
 
 #endif

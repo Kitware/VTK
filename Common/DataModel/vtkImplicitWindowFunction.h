@@ -28,7 +28,7 @@
  *
  * @sa
  * vtkImplicitFunction
-*/
+ */
 
 #ifndef vtkImplicitWindowFunction_h
 #define vtkImplicitWindowFunction_h
@@ -39,13 +39,13 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitWindowFunction, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with window range (0,1) and window values (0,1).
    */
-  static vtkImplicitWindowFunction *New();
+  static vtkImplicitWindowFunction* New();
 
   //@{
   /**
@@ -65,7 +65,7 @@ public:
    * Specify an implicit function to operate on.
    */
   virtual void SetImplicitFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(ImplicitFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -73,8 +73,8 @@ public:
    * Specify the range of function values which are considered to lie within
    * the window. WindowRange[0] is assumed to be less than WindowRange[1].
    */
-  vtkSetVector2Macro(WindowRange,double);
-  vtkGetVectorMacro(WindowRange,double,2);
+  vtkSetVector2Macro(WindowRange, double);
+  vtkGetVectorMacro(WindowRange, double, 2);
   //@}
 
   //@{
@@ -83,8 +83,8 @@ public:
    * into. This is effectively a scaling and shifting of the original
    * function values.
    */
-  vtkSetVector2Macro(WindowValues,double);
-  vtkGetVectorMacro(WindowValues,double,2);
+  vtkSetVector2Macro(WindowValues, double);
+  vtkGetVectorMacro(WindowValues, double, 2);
   //@}
 
   /**
@@ -106,7 +106,7 @@ protected:
 
   void ReportReferences(vtkGarbageCollector*) override;
 
-  vtkImplicitFunction *ImplicitFunction;
+  vtkImplicitFunction* ImplicitFunction;
   double WindowRange[2];
   double WindowValues[2];
 
@@ -116,5 +116,3 @@ private:
 };
 
 #endif
-
-

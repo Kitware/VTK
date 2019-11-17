@@ -43,8 +43,7 @@ int TestSegY3DReader(int argc, char* argv[])
 
   // Read file name.
   char* fname;
-  fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/waha8.sgy");
+  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SegY/waha8.sgy");
 
   vtkNew<vtkColorTransferFunction> lut;
   lut->AddRGBPoint(-127, 0.23, 0.30, 0.75);

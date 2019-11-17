@@ -1,15 +1,15 @@
- /*=========================================================================
+/*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkLookupTable.h
+ Program:   Visualization Toolkit
+ Module:    vtkLookupTable.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ All rights reserved.
+ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+    This software is distributed WITHOUT ANY WARRANTY; without even
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+    PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
@@ -49,7 +49,7 @@
  *
  * @sa
  * vtkLogLookupTable vtkWindowLevelLookupTable
-*/
+ */
 
 #ifndef vtkLookupTable_h
 #define vtkLookupTable_h
@@ -85,9 +85,9 @@ public:
    * Construct with range=[0,1]; and hsv ranges set up for rainbow color table
    * (from red to blue).
    */
-  static vtkLookupTable *New();
+  static vtkLookupTable* New();
 
-  vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
+  vtkTypeMacro(vtkLookupTable, vtkScalarsToColors);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -96,15 +96,14 @@ public:
    * equal to 1.
    */
   int IsOpaque() override;
-  int IsOpaque(vtkAbstractArray *scalars,
-                int colorMode, int component) override;
+  int IsOpaque(vtkAbstractArray* scalars, int colorMode, int component) override;
   //@}
 
   /**
    * Allocate a color table of specified size.
    * Note that ext is no longer used.
    */
-  int Allocate(int sz=256, int ext=256);
+  int Allocate(int sz = 256, int ext = 256);
 
   /**
    * Generate lookup table from hue, saturation, value, alpha min/max values.
@@ -139,11 +138,11 @@ public:
    *
    * The equation for the SQRT is y = sqrt(x).
    */
-  vtkSetMacro(Ramp,int);
+  vtkSetMacro(Ramp, int);
   void SetRampToLinear() { this->SetRamp(VTK_RAMP_LINEAR); }
   void SetRampToSCurve() { this->SetRamp(VTK_RAMP_SCURVE); }
   void SetRampToSQRT() { this->SetRamp(VTK_RAMP_SQRT); }
-  vtkGetMacro(Ramp,int);
+  vtkGetMacro(Ramp, int);
   //@}
 
   //@{
@@ -155,7 +154,7 @@ public:
   void SetScale(int scale);
   void SetScaleToLinear() { this->SetScale(VTK_SCALE_LINEAR); }
   void SetScaleToLog10() { this->SetScale(VTK_SCALE_LOG10); }
-  vtkGetMacro(Scale,int);
+  vtkGetMacro(Scale, int);
   //@}
 
   //@{
@@ -169,7 +168,7 @@ public:
    */
   virtual void SetTableRange(const double r[2]);
   virtual void SetTableRange(double min, double max);
-  vtkGetVectorMacro(TableRange,double,2);
+  vtkGetVectorMacro(TableRange, double, 2);
   //@}
 
   //@{
@@ -177,8 +176,8 @@ public:
    * Set the range in hue (using automatic generation). Hue ranges
    * between [0,1].
    */
-  vtkSetVector2Macro(HueRange,double);
-  vtkGetVector2Macro(HueRange,double);
+  vtkSetVector2Macro(HueRange, double);
+  vtkGetVector2Macro(HueRange, double);
   //@}
 
   //@{
@@ -186,8 +185,8 @@ public:
    * Set the range in saturation (using automatic generation). Saturation
    * ranges between [0,1].
    */
-  vtkSetVector2Macro(SaturationRange,double);
-  vtkGetVector2Macro(SaturationRange,double);
+  vtkSetVector2Macro(SaturationRange, double);
+  vtkGetVector2Macro(SaturationRange, double);
   //@}
 
   //@{
@@ -195,8 +194,8 @@ public:
    * Set the range in value (using automatic generation). Value ranges
    * between [0,1].
    */
-  vtkSetVector2Macro(ValueRange,double);
-  vtkGetVector2Macro(ValueRange,double);
+  vtkSetVector2Macro(ValueRange, double);
+  vtkGetVector2Macro(ValueRange, double);
   //@}
 
   //@{
@@ -204,8 +203,8 @@ public:
    * Set the range in alpha (using automatic generation). Alpha ranges from
    * [0,1].
    */
-  vtkSetVector2Macro(AlphaRange,double);
-  vtkGetVector2Macro(AlphaRange,double);
+  vtkSetVector2Macro(AlphaRange, double);
+  vtkGetVector2Macro(AlphaRange, double);
   //@}
 
   //@{
@@ -226,8 +225,7 @@ public:
   /**
    * Given an RGBA[4] color in the [0,1] range, convert it to RGBA[4] in the [0,255] range.
    */
-  static void GetColorAsUnsignedChars(const double colorIn[4],
-                                      unsigned char colorOut[4]);
+  static void GetColorAsUnsignedChars(const double colorIn[4], unsigned char colorOut[4]);
 
   //@{
   /**
@@ -313,14 +311,13 @@ public:
    * Directly load color into lookup table. Use [0,1] double values for color
    * component specification. Alpha defaults to 1 if unspecified.
    */
-  virtual void SetTableValue(vtkIdType indx,
-                              double r, double g, double b, double a=1.0);
+  virtual void SetTableValue(vtkIdType indx, double r, double g, double b, double a = 1.0);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
-  double *GetTableValue(vtkIdType id) VTK_SIZEHINT(4);
+  double* GetTableValue(vtkIdType id) VTK_SIZEHINT(4);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
@@ -332,8 +329,7 @@ public:
    * Get pointer to color table data. Format is array of unsigned char
    * R-G-B-A...R-G-B-A.
    */
-  unsigned char *GetPointer(vtkIdType id) {
-    return this->Table->GetPointer(4*id); }
+  unsigned char* GetPointer(vtkIdType id) { return this->Table->GetPointer(4 * id); }
 
   /**
    * Get pointer to data. Useful for direct writes into object. MaxId is bumped
@@ -345,17 +341,15 @@ public:
    * afterwards to ensure that the special colors (below/above range and NaN
    * value) are up-to-date.
    */
-  unsigned char *WritePointer(vtkIdType id, int number);
+  unsigned char* WritePointer(vtkIdType id, int number);
 
   //@{
   /**
    * Sets/Gets the range of scalars which will be mapped.  This is a duplicate
    * of Get/SetTableRange.
    */
-  double *GetRange() VTK_SIZEHINT(2) override
-    { return this->GetTableRange(); }
-  void SetRange(double min, double max) override
-    { this->SetTableRange(min, max); }
+  double* GetRange() VTK_SIZEHINT(2) override { return this->GetTableRange(); }
+  void SetRange(double min, double max) override { this->SetTableRange(min, max); }
   void SetRange(const double rng[2]) override { this->SetRange(rng[0], rng[1]); }
   //@}
 
@@ -370,8 +364,7 @@ public:
   /**
    * Apply log to value, with appropriate constraints.
    */
-  static double ApplyLogScale(double v, const double range[2],
-    const double log_range[2]);
+  static double ApplyLogScale(double v, const double range[2], const double log_range[2]);
 
   //@{
   /**
@@ -380,8 +373,8 @@ public:
    * after the table has been built whereas SetNumberOfColors() has no
    * effect after the table has been built.
    */
-  vtkSetClampMacro(NumberOfColors,vtkIdType,2,VTK_ID_MAX);
-  vtkGetMacro(NumberOfColors,vtkIdType);
+  vtkSetClampMacro(NumberOfColors, vtkIdType, 2, VTK_ID_MAX);
+  vtkGetMacro(NumberOfColors, vtkIdType);
   //@}
 
   //@{
@@ -390,8 +383,8 @@ public:
    * to colors.  The table array is an unsigned char array with 4
    * components representing RGBA.
    */
-  void SetTable(vtkUnsignedCharArray *);
-  vtkGetObjectMacro(Table,vtkUnsignedCharArray);
+  void SetTable(vtkUnsignedCharArray*);
+  vtkGetObjectMacro(Table, vtkUnsignedCharArray);
   //@}
 
   /**
@@ -399,26 +392,19 @@ public:
 
    * This member function is thread safe.
    */
-  void MapScalarsThroughTable2(void *input,
-                               unsigned char *output,
-                               int inputDataType,
-                               int numberOfValues,
-                               int inputIncrement,
-                               int outputIncrement) override;
+  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputIncrement) override;
 
   /**
    * Copy the contents from another LookupTable.
    */
-  void DeepCopy(vtkScalarsToColors *lut) override;
+  void DeepCopy(vtkScalarsToColors* lut) override;
 
   /**
    * This should return 1 if the subclass is using log scale for mapping scalars
    * to colors. Returns 1 is scale == VTK_SCALE_LOG10.
    */
-  int UsingLogScale() override
-  {
-    return (this->GetScale() == VTK_SCALE_LOG10) ? 1 : 0;
-  }
+  int UsingLogScale() override { return (this->GetScale() == VTK_SCALE_LOG10) ? 1 : 0; }
 
   /**
    * Get the number of available colors for mapping to.
@@ -435,11 +421,11 @@ public:
   void GetIndexedColor(vtkIdType idx, double rgba[4]) override;
 
 protected:
-  vtkLookupTable(int sze=256, int ext=256);
+  vtkLookupTable(int sze = 256, int ext = 256);
   ~vtkLookupTable() override;
 
   vtkIdType NumberOfColors;
-  vtkUnsignedCharArray *Table;
+  vtkUnsignedCharArray* Table;
   double TableRange[2];
   double HueRange[2];
   double SaturationRange[2];
@@ -447,15 +433,15 @@ protected:
   double AlphaRange[2];
   double NanColor[4];
   double BelowRangeColor[4];
-  vtkTypeBool    UseBelowRangeColor;
+  vtkTypeBool UseBelowRangeColor;
   double AboveRangeColor[4];
-  vtkTypeBool    UseAboveRangeColor;
+  vtkTypeBool UseAboveRangeColor;
 
   int Scale;
   int Ramp;
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
-  double RGBA[4]; //used during conversion process
+  double RGBA[4]; // used during conversion process
   unsigned char NanColorChar[4];
 
   int OpaqueFlag;
@@ -473,11 +459,10 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline unsigned char *vtkLookupTable::WritePointer(vtkIdType id,
-                                                   int number)
+inline unsigned char* vtkLookupTable::WritePointer(vtkIdType id, int number)
 {
   this->InsertTime.Modified();
-  return this->Table->WritePointer(4*id, 4*number);
+  return this->Table->WritePointer(4 * id, 4 * number);
 }
 
 #endif

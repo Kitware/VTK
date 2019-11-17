@@ -22,7 +22,7 @@
  * shader to be captured into a buffer for later processing. This is used in
  * VTK to capture vertex information during GL2PS export when using the OpenGL2
  * backend as a replacement for the deprecated OpenGL feedback buffer.
-*/
+ */
 
 #ifndef vtkTransformFeedback_h
 #define vtkTransformFeedback_h
@@ -40,9 +40,9 @@ class vtkOpenGLBufferObject;
 class VTKRENDERINGOPENGL2_EXPORT vtkTransformFeedback : public vtkObject
 {
 public:
-  static vtkTransformFeedback *New();
+  static vtkTransformFeedback* New();
   vtkTypeMacro(vtkTransformFeedback, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The role a captured varying fills. Useful for parsing later.
@@ -57,8 +57,11 @@ public:
 
   struct VaryingMetaData
   {
-    VaryingMetaData(VaryingRole role, const std::string &id)
-      : Role(role), Identifier(id) {}
+    VaryingMetaData(VaryingRole role, const std::string& id)
+      : Role(role)
+      , Identifier(id)
+    {
+    }
     VaryingRole Role;
     std::string Identifier;
   };
@@ -71,15 +74,12 @@ public:
   /**
    * Capture the varying 'var' with the indicated role.
    */
-  void AddVarying(VaryingRole role, const std::string &var);
+  void AddVarying(VaryingRole role, const std::string& var);
 
   /**
    * Get the list of captured varyings,
    */
-  const std::vector<VaryingMetaData>& GetVaryings() const
-  {
-    return this->Varyings;
-  }
+  const std::vector<VaryingMetaData>& GetVaryings() const { return this->Varyings; }
 
   /**
    * Returns the number of data elements each vertex requires for a given role.
@@ -126,7 +126,7 @@ public:
    * Call glTransformFeedbackVaryings(). Must be called after the shaders are
    * attached to \a prog, but before the program is linked.
    */
-  void BindVaryings(vtkShaderProgram *prog);
+  void BindVaryings(vtkShaderProgram* prog);
 
   /**
    * Get the transform buffer object. Only valid after calling BindBuffer.
@@ -198,8 +198,8 @@ protected:
   ~vtkTransformFeedback() override;
 
 private:
-  vtkTransformFeedback(const vtkTransformFeedback &) = delete;
-  void operator=(const vtkTransformFeedback &) = delete;
+  vtkTransformFeedback(const vtkTransformFeedback&) = delete;
+  void operator=(const vtkTransformFeedback&) = delete;
 
   bool VaryingsBound;
 
@@ -210,12 +210,11 @@ private:
   std::vector<vtkOpenGLBufferObject*> Buffers;
   int PrimitiveMode;
 
-  unsigned char *BufferData;
+  unsigned char* BufferData;
 };
 
 //------------------------------------------------------------------------------
-inline size_t vtkTransformFeedback::GetBytesPerVertex(
-    vtkTransformFeedback::VaryingRole role)
+inline size_t vtkTransformFeedback::GetBytesPerVertex(vtkTransformFeedback::VaryingRole role)
 {
   switch (role)
   {

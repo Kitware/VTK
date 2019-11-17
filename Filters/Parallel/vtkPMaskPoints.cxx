@@ -90,15 +90,13 @@ vtkMultiProcessController* vtkPMaskPoints::GetController()
 }
 
 //----------------------------------------------------------------------------
-void vtkPMaskPoints::InternalScatter(unsigned long* a, unsigned long* b,
-                                     int c, int d)
+void vtkPMaskPoints::InternalScatter(unsigned long* a, unsigned long* b, int c, int d)
 {
   this->Controller->Scatter(a, b, c, d);
 }
 
 //----------------------------------------------------------------------------
-void vtkPMaskPoints::InternalGather(unsigned long* a, unsigned long* b,
-                                    int c, int d)
+void vtkPMaskPoints::InternalGather(unsigned long* a, unsigned long* b, int c, int d)
 {
   this->Controller->Gather(a, b, c, d);
 }
@@ -125,8 +123,7 @@ void vtkPMaskPoints::InternalBarrier()
 void vtkPMaskPoints::InternalSplitController(int color, int key)
 {
   this->OriginalController = this->Controller;
-  this->Controller = this->OriginalController->PartitionController(color,
-                                                                   key);
+  this->Controller = this->OriginalController->PartitionController(color, key);
 }
 
 //----------------------------------------------------------------------------

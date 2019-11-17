@@ -28,7 +28,6 @@
 #include "vtkRenderer.h"
 #include "vtkSphere.h"
 
-
 int TestVTKMClipWithImplicitFunction(int argc, char* argv[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;

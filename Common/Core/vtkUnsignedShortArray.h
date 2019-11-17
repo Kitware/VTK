@@ -23,7 +23,7 @@
  * The C++ standard does not define the exact size of the unsigned short type,
  * so use of this type directly is discouraged.  If an array of 16 bit
  * unsigned integers is needed, prefer vtkTypeUInt16Array to this class.
-*/
+ */
 
 #ifndef vtkUnsignedShortArray_h
 #define vtkUnsignedShortArray_h
@@ -49,17 +49,16 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned short);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkUnsignedShortArray* FastDownCast(vtkAbstractArray *source)
+  static vtkUnsignedShortArray* FastDownCast(vtkAbstractArray* source)
   {
-    return static_cast<vtkUnsignedShortArray*>(
-          Superclass::FastDownCast(source));
+    return static_cast<vtkUnsignedShortArray*>(Superclass::FastDownCast(source));
   }
 
   /**
@@ -77,7 +76,6 @@ protected:
   ~vtkUnsignedShortArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<unsigned short> RealSuperclass;
 
   vtkUnsignedShortArray(const vtkUnsignedShortArray&) = delete;

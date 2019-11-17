@@ -28,7 +28,7 @@
  *
  * @sa
  * vtkGraph
-*/
+ */
 
 #ifndef vtkGraphEdge_h
 #define vtkGraphEdge_h
@@ -39,7 +39,7 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkGraphEdge : public vtkObject
 {
 public:
-  static vtkGraphEdge *New();
+  static vtkGraphEdge* New();
   vtkTypeMacro(vtkGraphEdge, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

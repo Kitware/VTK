@@ -41,7 +41,7 @@ namespace
 {
 //----------------------------------------------------------------------------
 // Replacement for std::to_string as it is not supported by certain compilers
-template<typename T>
+template <typename T>
 std::string value_to_string(const T& val)
 {
   std::ostringstream ss;
@@ -732,9 +732,9 @@ int vtkGLTFReader::RequestInformation(
     return 0;
   }
 
-  std::string fileNameAsString (this->FileName);
+  std::string fileNameAsString(this->FileName);
 
-  if(fileNameAsString.find('\\') != std::string::npos)
+  if (fileNameAsString.find('\\') != std::string::npos)
   {
     vtksys::SystemTools::ConvertToUnixSlashes(fileNameAsString);
   }
@@ -744,7 +744,7 @@ int vtkGLTFReader::RequestInformation(
     fileNameAsString = vtksys::SystemTools::CollapseFullPath(fileNameAsString);
   }
 
-  if(this->FileName != fileNameAsString)
+  if (this->FileName != fileNameAsString)
   {
     this->SetFileName(fileNameAsString.c_str());
   }

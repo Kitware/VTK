@@ -28,7 +28,7 @@
  * Note that vtkMultiPieceDataSet is intended to be included in other composite
  * datasets eg. vtkMultiBlockDataSet, vtkHierarchicalBoxDataSet. Hence the lack
  * of algorithms producting vtkMultiPieceDataSet.
-*/
+ */
 
 #ifndef vtkMultiPieceDataSet_h
 #define vtkMultiPieceDataSet_h
@@ -48,34 +48,25 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override {return VTK_MULTIPIECE_DATA_SET;}
+  int GetDataObjectType() override { return VTK_MULTIPIECE_DATA_SET; }
 
   /**
    * Set the number of pieces. This will cause allocation if the new number of
    * pieces is greater than the current size. All new pieces are initialized to
    * null.
    */
-  void SetNumberOfPieces(unsigned int numpieces)
-  {
-    this->SetNumberOfPartitions(numpieces);
-  }
+  void SetNumberOfPieces(unsigned int numpieces) { this->SetNumberOfPartitions(numpieces); }
 
   /**
    * Returns the number of pieces.
    */
-  unsigned int GetNumberOfPieces()
-  {
-    return this->GetNumberOfPartitions();
-  }
+  unsigned int GetNumberOfPieces() { return this->GetNumberOfPartitions(); }
 
   //@{
   /**
    * Returns the piece at the given index.
    */
-  vtkDataSet* GetPiece(unsigned int pieceno)
-  {
-    return this->GetPartition(pieceno);
-  }
+  vtkDataSet* GetPiece(unsigned int pieceno) { return this->GetPartition(pieceno); }
   vtkDataObject* GetPieceAsDataObject(unsigned int pieceno)
   {
     return this->GetPartitionAsDataObject(pieceno);
@@ -86,17 +77,14 @@ public:
    * Sets the data object as the given piece. The total number of pieces will
    * be resized to fit the requested piece no.
    */
-  void SetPiece(unsigned int pieceno, vtkDataObject* piece)
-  {
-    this->SetPartition(pieceno, piece);
-  }
+  void SetPiece(unsigned int pieceno, vtkDataObject* piece) { this->SetPartition(pieceno, piece); }
 
   //@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkMultiPieceDataSet* GetData(vtkInformation* info);
-  static vtkMultiPieceDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkMultiPieceDataSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:
@@ -106,9 +94,6 @@ protected:
 private:
   vtkMultiPieceDataSet(const vtkMultiPieceDataSet&) = delete;
   void operator=(const vtkMultiPieceDataSet&) = delete;
-
 };
 
 #endif
-
-

@@ -26,7 +26,7 @@
  * input point set and uses that tree for selection.  The output is a
  * vtkSelection containing the ids found in the kd-tree using the specified
  * bounds.
-*/
+ */
 
 #ifndef vtkKdTreeSelector_h
 #define vtkKdTreeSelector_h
@@ -124,13 +124,9 @@ protected:
   double SingleSelectionThreshold;
   int SelectionAttribute;
 
-  int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkKdTreeSelector(const vtkKdTreeSelector&) = delete;

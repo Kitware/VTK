@@ -36,5 +36,5 @@ vtkIdTypeArray::~vtkIdTypeArray() = default;
 //----------------------------------------------------------------------------
 void vtkIdTypeArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->RealSuperclass::PrintSelf(os,indent);
+  this->RealSuperclass::PrintSelf(os, indent);
 }

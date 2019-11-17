@@ -34,18 +34,14 @@ vtkPassThroughLayoutStrategy::~vtkPassThroughLayoutStrategy() = default;
 
 // ----------------------------------------------------------------------
 // Set the graph that will be laid out
-void vtkPassThroughLayoutStrategy::Initialize()
-{
-}
+void vtkPassThroughLayoutStrategy::Initialize() {}
 
 // ----------------------------------------------------------------------
 
 // Simple graph layout method
-void vtkPassThroughLayoutStrategy::Layout()
-{
-}
+void vtkPassThroughLayoutStrategy::Layout() {}
 
 void vtkPassThroughLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

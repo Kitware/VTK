@@ -26,7 +26,7 @@
  * Use SetInputArrayToProcess(0, ...) to set the array to that has
  * the network ip addresses.
  * Currently this array must be a vtkStringArray.
-*/
+ */
 
 #ifndef vtkNetworkHierarchy_h
 #define vtkNetworkHierarchy_h
@@ -40,7 +40,7 @@ class VTKINFOVISCORE_EXPORT vtkNetworkHierarchy : public vtkTreeAlgorithm
 {
 public:
   static vtkNetworkHierarchy* New();
-  vtkTypeMacro(vtkNetworkHierarchy,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkNetworkHierarchy, vtkTreeAlgorithm);
 
   //@{
   /**
@@ -56,15 +56,10 @@ protected:
   vtkNetworkHierarchy();
   ~vtkNetworkHierarchy() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info) override;
-  int FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info) override;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
+  int FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
 private:
   vtkNetworkHierarchy(const vtkNetworkHierarchy&) = delete;
@@ -72,11 +67,9 @@ private:
 
   // Internal helper functions
   unsigned int ITON(const vtkStdString& ip);
-  void GetSubnets(unsigned int packedIP, int *subnets);
+  void GetSubnets(unsigned int packedIP, int* subnets);
 
-  char *IPArrayName;
-
+  char* IPArrayName;
 };
 
 #endif
-

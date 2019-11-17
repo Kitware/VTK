@@ -24,7 +24,7 @@
 #include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestLinePlotDouble2(int, char *[])
+int TestLinePlotDouble2(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -50,7 +50,7 @@ int TestLinePlotDouble2(int, char *[])
     table->SetValue(i, 0, x);
     table->SetValue(i, 1, cos((x - 1.0) * 1.0e11));
   }
-  vtkPlot *line = chart->AddPlot(vtkChart::LINE);
+  vtkPlot* line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 1);
 
   // Render the scene and compare the image to a reference image

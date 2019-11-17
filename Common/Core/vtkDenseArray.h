@@ -41,7 +41,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkDenseArray_h
 #define vtkDenseArray_h
@@ -50,13 +50,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkTypedArray.h"
 
-template<typename T>
+template <typename T>
 class vtkDenseArray : public vtkTypedArray<T>
 {
 public:
   static vtkDenseArray<T>* New();
   vtkTemplateTypeMacro(vtkDenseArray<T>, vtkTypedArray<T>);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::DimensionT DimensionT;
@@ -106,14 +106,13 @@ public:
    * new[] and delete[].  Note: HeapMemoryBlock is the default used by vtkDenseArray
    * for its "normal" internal memory allocation.
    */
-  class HeapMemoryBlock :
-    public MemoryBlock
+  class HeapMemoryBlock : public MemoryBlock
   {
   public:
     HeapMemoryBlock(const vtkArrayExtents& extents);
     ~HeapMemoryBlock() override;
     T* GetAddress() override;
-  //@}
+    //@}
 
   private:
     T* Storage;
@@ -123,13 +122,12 @@ public:
   /**
    * MemoryBlock implementation that manages a static (will not be freed) memory block.
    */
-  class StaticMemoryBlock :
-    public MemoryBlock
+  class StaticMemoryBlock : public MemoryBlock
   {
   public:
     StaticMemoryBlock(T* const storage);
     T* GetAddress() override;
-  //@}
+    //@}
 
   private:
     T* Storage;

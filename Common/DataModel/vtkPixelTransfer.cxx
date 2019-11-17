@@ -1,32 +1,15 @@
 #include "vtkPixelTransfer.h"
 
 //-----------------------------------------------------------------------------
-int vtkPixelTransfer::Blit(
-       const vtkPixelExtent &srcWholeExt,
-       const vtkPixelExtent &srcExt,
-       const vtkPixelExtent &destWholeExt,
-       const vtkPixelExtent &destExt,
-       int nSrcComps,
-       int srcType,
-       void *srcData,
-       int nDestComps,
-       int destType,
-       void *destData)
+int vtkPixelTransfer::Blit(const vtkPixelExtent& srcWholeExt, const vtkPixelExtent& srcExt,
+  const vtkPixelExtent& destWholeExt, const vtkPixelExtent& destExt, int nSrcComps, int srcType,
+  void* srcData, int nDestComps, int destType, void* destData)
 {
   // first layer of dispatch
-  switch(srcType)
+  switch (srcType)
   {
-    vtkTemplateMacro(
-        return vtkPixelTransfer::Blit(
-            srcWholeExt,
-            srcExt,
-            destWholeExt,
-            destExt,
-            nSrcComps,
-            static_cast<VTK_TT*>(srcData),
-            nDestComps,
-            destType,
-            destData));
+    vtkTemplateMacro(return vtkPixelTransfer::Blit(srcWholeExt, srcExt, destWholeExt, destExt,
+      nSrcComps, static_cast<VTK_TT*>(srcData), nDestComps, destType, destData));
   }
   return 0;
 }

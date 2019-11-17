@@ -30,8 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestKdTreeFunctions()
 {
@@ -82,7 +81,7 @@ int TestKdTreeFunctions()
     retVal++;
   }
 
-  double center[3] = {0.0, 0.0, 0.0};
+  double center[3] = { 0.0, 0.0, 0.0 };
   vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
   kd->FindPointsWithinRadius(10, center, idList);
   vtkIdType n = idList->GetNumberOfIds();
@@ -95,7 +94,7 @@ int TestKdTreeFunctions()
   return retVal;
 }
 
-int TestKdTreeRepresentation(int argc, char *argv[])
+int TestKdTreeRepresentation(int argc, char* argv[])
 {
   double glyphSize = 0.05;
   const vtkIdType num_points = 10;
@@ -118,12 +117,12 @@ int TestKdTreeRepresentation(int argc, char *argv[])
   VTK_CREATE(vtkPolyData, pointData);
   VTK_CREATE(vtkPoints, points);
   points->SetDataTypeToDouble();
-  points->SetNumberOfPoints( num_points );
+  points->SetNumberOfPoints(num_points);
   pointData->AllocateEstimate(num_points, 1);
   for (vtkIdType i = 0; i < num_points; ++i)
   {
-    points->SetPoint( i, p[i] );
-    pointData->InsertNextCell(VTK_VERTEX,1, &i);
+    points->SetPoint(i, p[i]);
+    pointData->InsertNextCell(VTK_VERTEX, 1, &i);
   }
   pointData->SetPoints(points);
 
@@ -134,7 +133,7 @@ int TestKdTreeRepresentation(int argc, char *argv[])
 
   // generate a kdtree representation
   VTK_CREATE(vtkPolyData, kdTreeRepr);
-  kdTree->GenerateRepresentation(/*kdTree->GetLevel()*/2, kdTreeRepr);
+  kdTree->GenerateRepresentation(/*kdTree->GetLevel()*/ 2, kdTreeRepr);
   VTK_CREATE(vtkPolyDataMapper, kdTreeReprMapper);
   kdTreeReprMapper->SetInputData(kdTreeRepr);
 
@@ -165,7 +164,7 @@ int TestKdTreeRepresentation(int argc, char *argv[])
   // Set up render window
   //
 
-  VTK_CREATE (vtkCamera, camera);
+  VTK_CREATE(vtkCamera, camera);
   vtkSmartPointer<vtkCamera>::New();
   camera->SetPosition(-10, 10, 20);
   camera->SetFocalPoint(0, 0, 0);
@@ -186,8 +185,8 @@ int TestKdTreeRepresentation(int argc, char *argv[])
   VTK_CREATE(vtkInteractorStyleRubberBandPick, interact);
   iren->SetInteractorStyle(interact);
 
-  int retVal = vtkRegressionTestImage (win);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(win);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;

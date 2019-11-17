@@ -19,7 +19,7 @@
  *
  *
  * This class encapsulates the settings for vtkOpenGLFXAAFilter.
-*/
+ */
 
 #ifndef vtkFXAAOptions_h
 #define vtkFXAAOptions_h
@@ -27,7 +27,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
-class VTKRENDERINGCORE_EXPORT vtkFXAAOptions: public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkFXAAOptions : public vtkObject
 {
 public:
   /**
@@ -48,7 +48,7 @@ public:
 
   static vtkFXAAOptions* New();
   vtkTypeMacro(vtkFXAAOptions, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

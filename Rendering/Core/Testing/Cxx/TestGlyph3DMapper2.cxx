@@ -26,17 +26,14 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 
-int TestGlyph3DMapper2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestGlyph3DMapper2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // create empty input data
-  vtkSmartPointer<vtkPolyData> polydata =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
 
-  vtkSmartPointer<vtkCubeSource> cubeSource =
-    vtkSmartPointer<vtkCubeSource>::New();
+  vtkSmartPointer<vtkCubeSource> cubeSource = vtkSmartPointer<vtkCubeSource>::New();
 
-  vtkSmartPointer<vtkGlyph3DMapper> glyph3Dmapper =
-    vtkSmartPointer<vtkGlyph3DMapper>::New();
+  vtkSmartPointer<vtkGlyph3DMapper> glyph3Dmapper = vtkSmartPointer<vtkGlyph3DMapper>::New();
   glyph3Dmapper->SetSourceConnection(cubeSource->GetOutputPort());
   glyph3Dmapper->SetInputData(polydata);
   glyph3Dmapper->Update();
@@ -45,10 +42,11 @@ int TestGlyph3DMapper2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkMath::UninitializeBounds(boundsAnswer);
   // since there is nothing inside the scene, the boundsResult should be an
   // uninitializeBounds
-  const double *boundsResult = glyph3Dmapper->GetBounds();
+  const double* boundsResult = glyph3Dmapper->GetBounds();
   for (int i = 0; i < 6; ++i)
   {
-    if (boundsResult[i] != boundsAnswer[i]) return -1;
+    if (boundsResult[i] != boundsAnswer[i])
+      return -1;
   }
   return 0;
 }

@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkBMPReader
-*/
+ */
 
 #ifndef vtkBMPWriter_h
 #define vtkBMPWriter_h
@@ -34,8 +34,8 @@ class vtkUnsignedCharArray;
 class VTKIOIMAGE_EXPORT vtkBMPWriter : public vtkImageWriter
 {
 public:
-  static vtkBMPWriter *New();
-  vtkTypeMacro(vtkBMPWriter,vtkImageWriter);
+  static vtkBMPWriter* New();
+  vtkTypeMacro(vtkBMPWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -60,17 +60,15 @@ protected:
   vtkBMPWriter();
   ~vtkBMPWriter() override;
 
-  void WriteFile(ostream *file, vtkImageData *data, int ext[6], int wExt[6]) override;
-  void WriteFileHeader(ostream *, vtkImageData *, int wExt[6]) override;
-  void MemoryWrite(int, vtkImageData *, int wExt[6], vtkInformation *inInfo) override;
+  void WriteFile(ostream* file, vtkImageData* data, int ext[6], int wExt[6]) override;
+  void WriteFileHeader(ostream*, vtkImageData*, int wExt[6]) override;
+  void MemoryWrite(int, vtkImageData*, int wExt[6], vtkInformation* inInfo) override;
 
 private:
   vtkBMPWriter(const vtkBMPWriter&) = delete;
   void operator=(const vtkBMPWriter&) = delete;
 
-  vtkUnsignedCharArray *Result;
+  vtkUnsignedCharArray* Result;
 };
 
 #endif
-
-

@@ -45,7 +45,7 @@
  *
  * @sa
  * vtkArrayDispatch vtkTypeListMacros
-*/
+ */
 
 #ifndef vtkTypeList_h
 #define vtkTypeList_h
@@ -61,7 +61,9 @@ namespace vtkTypeList
 /**
  * Used to terminate a TypeList.
  */
-struct NullType {};
+struct NullType
+{
+};
 
 //------------------------------------------------------------------------------
 //@{
@@ -170,7 +172,7 @@ struct Append;
 namespace vtkTypeList
 {
 
-template <typename ...Ts>
+template <typename... Ts>
 using Create = typename vtkTypeList::detail::CreateImpl<Ts...>::type;
 
 } // end namespace vtkTypeList

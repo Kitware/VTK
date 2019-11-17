@@ -27,7 +27,7 @@
  * if your program leaked, due to exit crashes that was removed.
  * @sa
  * vtkWin32VideoSource vtkVideoSource
-*/
+ */
 
 #ifndef vtkMILVideoSource_h
 #define vtkMILVideoSource_h
@@ -36,41 +36,41 @@
 #include "vtkVideoSource.h"
 
 // digitizer hardware
-#define VTK_MIL_DEFAULT        0
-#define VTK_MIL_METEOR         "M_SYSTEM_METEOR"
-#define VTK_MIL_METEOR_II      "M_SYSTEM_METEOR_II"
-#define VTK_MIL_METEOR_II_DIG  "M_SYSTEM_METEOR_II_DIG"
-#define VTK_MIL_METEOR_II_CL   "M_SYSTEM_METEOR_II_CL"
+#define VTK_MIL_DEFAULT 0
+#define VTK_MIL_METEOR "M_SYSTEM_METEOR"
+#define VTK_MIL_METEOR_II "M_SYSTEM_METEOR_II"
+#define VTK_MIL_METEOR_II_DIG "M_SYSTEM_METEOR_II_DIG"
+#define VTK_MIL_METEOR_II_CL "M_SYSTEM_METEOR_II_CL"
 #define VTK_MIL_METEOR_II_1394 "M_SYSTEM_METEOR_II_1394"
-#define VTK_MIL_CORONA         "M_SYSTEM_CORONA"
-#define VTK_MIL_CORONA_II      "M_SYSTEM_CORONA_II"
-#define VTK_MIL_PULSAR         "M_SYSTEM_PULSAR"
-#define VTK_MIL_GENESIS        "M_SYSTEM_GENESIS"
-#define VTK_MIL_GENESIS_PLUS   "M_SYSTEM_GENESIS_PLUS"
-#define VTK_MIL_ORION          "M_SYSTEM_ORION"
-#define VTK_MIL_CRONOS         "M_SYSTEM_CRONOS"
-#define VTK_MIL_ODYSSEY        "M_SYSTEM_ODYSSEY"
+#define VTK_MIL_CORONA "M_SYSTEM_CORONA"
+#define VTK_MIL_CORONA_II "M_SYSTEM_CORONA_II"
+#define VTK_MIL_PULSAR "M_SYSTEM_PULSAR"
+#define VTK_MIL_GENESIS "M_SYSTEM_GENESIS"
+#define VTK_MIL_GENESIS_PLUS "M_SYSTEM_GENESIS_PLUS"
+#define VTK_MIL_ORION "M_SYSTEM_ORION"
+#define VTK_MIL_CRONOS "M_SYSTEM_CRONOS"
+#define VTK_MIL_ODYSSEY "M_SYSTEM_ODYSSEY"
 
 // video inputs:
-#define VTK_MIL_MONO          0
-#define VTK_MIL_COMPOSITE     1
-#define VTK_MIL_YC            2
-#define VTK_MIL_RGB           3
-#define VTK_MIL_DIGITAL       4
+#define VTK_MIL_MONO 0
+#define VTK_MIL_COMPOSITE 1
+#define VTK_MIL_YC 2
+#define VTK_MIL_RGB 3
+#define VTK_MIL_DIGITAL 4
 
 // video formats:
-#define VTK_MIL_RS170         0
-#define VTK_MIL_NTSC          1
-#define VTK_MIL_CCIR          2
-#define VTK_MIL_PAL           3
-#define VTK_MIL_SECAM         4
-#define VTK_MIL_NONSTANDARD   5
+#define VTK_MIL_RS170 0
+#define VTK_MIL_NTSC 1
+#define VTK_MIL_CCIR 2
+#define VTK_MIL_PAL 3
+#define VTK_MIL_SECAM 4
+#define VTK_MIL_NONSTANDARD 5
 
 class VTKIOVIDEO_EXPORT vtkMILVideoSource : public vtkVideoSource
 {
 public:
-  static vtkMILVideoSource *New();
-  vtkTypeMacro(vtkMILVideoSource,vtkVideoSource);
+  static vtkMILVideoSource* New();
+  vtkTypeMacro(vtkMILVideoSource, vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
@@ -121,9 +121,8 @@ public:
   void SetVideoFormatToSECAM() { this->SetVideoFormat(VTK_MIL_SECAM); }
   void SetVideoFormatToRS170() { this->SetVideoFormat(VTK_MIL_RS170); }
   void SetVideoFormatToCCIR() { this->SetVideoFormat(VTK_MIL_CCIR); }
-  void SetVideoFormatToNonStandard() {
-    this->SetVideoFormat(VTK_MIL_NONSTANDARD); }
-  vtkGetMacro(VideoFormat,int);
+  void SetVideoFormatToNonStandard() { this->SetVideoFormat(VTK_MIL_NONSTANDARD); }
+  vtkGetMacro(VideoFormat, int);
   //@}
 
   //@{
@@ -132,11 +131,11 @@ public:
    */
   virtual void SetVideoInput(int input);
   void SetVideoInputToMono() { this->SetVideoInput(VTK_MIL_MONO); }
-  void SetVideoInputToComposite() {this->SetVideoInput(VTK_MIL_COMPOSITE);}
+  void SetVideoInputToComposite() { this->SetVideoInput(VTK_MIL_COMPOSITE); }
   void SetVideoInputToYC() { this->SetVideoInput(VTK_MIL_YC); }
   void SetVideoInputToRGB() { this->SetVideoInput(VTK_MIL_RGB); }
   void SetVideoInputToDigital() { this->SetVideoInput(VTK_MIL_DIGITAL); }
-  vtkGetMacro(VideoInput,int);
+  vtkGetMacro(VideoInput, int);
   //@}
 
   //@{
@@ -148,13 +147,13 @@ public:
    * Saturation [0.0,2.0]
    */
   virtual void SetContrastLevel(float contrast);
-  vtkGetMacro(ContrastLevel,float);
+  vtkGetMacro(ContrastLevel, float);
   virtual void SetBrightnessLevel(float brightness);
-  vtkGetMacro(BrightnessLevel,float);
+  vtkGetMacro(BrightnessLevel, float);
   virtual void SetHueLevel(float hue);
-  vtkGetMacro(HueLevel,float);
+  vtkGetMacro(HueLevel, float);
   virtual void SetSaturationLevel(float saturation);
-  vtkGetMacro(SaturationLevel,float);
+  vtkGetMacro(SaturationLevel, float);
   //@}
 
   //@{
@@ -163,11 +162,9 @@ public:
    * between 0.0 and 255.0.
    */
   virtual void SetBlackLevel(float value);
-  virtual float GetBlackLevel() {
-    return this->BlackLevel; }
+  virtual float GetBlackLevel() { return this->BlackLevel; }
   virtual void SetWhiteLevel(float value);
-  virtual float GetWhiteLevel() {
-    return this->WhiteLevel; }
+  virtual float GetWhiteLevel() { return this->WhiteLevel; }
   //@}
 
   //@{
@@ -195,8 +192,8 @@ public:
   /**
    * Set the system number if you have multiple systems of the same type
    */
-  vtkSetMacro(MILSystemNumber,int);
-  vtkGetMacro(MILSystemNumber,int);
+  vtkSetMacro(MILSystemNumber, int);
+  vtkGetMacro(MILSystemNumber, int);
   //@}
 
   //@{
@@ -211,8 +208,8 @@ public:
   /**
    * Set the digitizer number for systems with multiple digitizers
    */
-  vtkSetMacro(MILDigitizerNumber,int);
-  vtkGetMacro(MILDigitizerNumber,int);
+  vtkSetMacro(MILDigitizerNumber, int);
+  vtkGetMacro(MILDigitizerNumber, int);
   //@}
 
   //@{
@@ -220,20 +217,20 @@ public:
    * Set whether to display MIL error messages (default on)
    */
   virtual void SetMILErrorMessages(int yesno);
-  vtkBooleanMacro(MILErrorMessages,int);
-  vtkGetMacro(MILErrorMessages,int);
+  vtkBooleanMacro(MILErrorMessages, int);
+  vtkGetMacro(MILErrorMessages, int);
   //@}
 
   //@{
   /**
    * Allows fine-grained control
    */
-  vtkSetMacro(MILAppID,long);
-  vtkGetMacro(MILAppID,long);
-  vtkSetMacro(MILSysID,long);
-  vtkGetMacro(MILSysID,long);
-  vtkGetMacro(MILDigID,long);
-  vtkGetMacro(MILBufID,long);
+  vtkSetMacro(MILAppID, long);
+  vtkGetMacro(MILAppID, long);
+  vtkSetMacro(MILSysID, long);
+  vtkGetMacro(MILSysID, long);
+  vtkGetMacro(MILDigID, long);
+  vtkGetMacro(MILBufID, long);
   //@}
 
   /**
@@ -252,8 +249,8 @@ public:
   /**
    * For internal use only
    */
-  void *OldHookFunction;
-  void *OldUserDataPtr;
+  void* OldHookFunction;
+  void* OldUserDataPtr;
   int FrameCounter;
   int ForceGrab;
   void InternalGrab() override;
@@ -266,8 +263,8 @@ protected:
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();
 
-  virtual char *MILInterpreterForSystem(const char *system);
-  char *MILInterpreterDLL;
+  virtual char* MILInterpreterForSystem(const char* system);
+  char* MILInterpreterDLL;
 
   int VideoChannel;
   int VideoInput;
@@ -291,11 +288,11 @@ protected:
   // long MILDispBufID;
   // long MILDispID;
 
-  char *MILSystemType;
+  char* MILSystemType;
   int MILSystemNumber;
 
   int MILDigitizerNumber;
-  char *MILDigitizerDCF;
+  char* MILDigitizerDCF;
 
   int MILErrorMessages;
 

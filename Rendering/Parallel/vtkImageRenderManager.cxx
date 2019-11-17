@@ -25,17 +25,13 @@
 vtkStandardNewMacro(vtkImageRenderManager);
 
 //----------------------------------------------------------------------------
-vtkImageRenderManager::vtkImageRenderManager()
-{
-}
+vtkImageRenderManager::vtkImageRenderManager() {}
 
 //----------------------------------------------------------------------------
-vtkImageRenderManager::~vtkImageRenderManager()
-{
-}
+vtkImageRenderManager::~vtkImageRenderManager() {}
 
 //----------------------------------------------------------------------------
-void vtkImageRenderManager::PrintSelf(ostream &os, vtkIndent indent)
+void vtkImageRenderManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

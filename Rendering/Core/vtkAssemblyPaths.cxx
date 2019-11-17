@@ -21,7 +21,7 @@ vtkMTimeType vtkAssemblyPaths::GetMTime()
 {
   vtkMTimeType mtime = this->vtkCollection::GetMTime();
 
-  vtkAssemblyPath *path;
+  vtkAssemblyPath* path;
   for (this->InitTraversal(); (path = this->GetNextItem());)
   {
     vtkMTimeType pathMTime = path->GetMTime();

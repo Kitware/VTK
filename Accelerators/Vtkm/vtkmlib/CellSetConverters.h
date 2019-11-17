@@ -27,23 +27,23 @@ class vtkCellArray;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
 
-namespace tovtkm {
+namespace tovtkm
+{
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
-                                             vtkIdType numberOfPoints);
+vtkm::cont::DynamicCellSet ConvertSingleType(
+  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints);
 
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
-                                   vtkCellArray* cells,
-                                   vtkIdType numberOfPoints);
+vtkm::cont::DynamicCellSet Convert(
+  vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints);
 }
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 
 VTKACCELERATORSVTKM_EXPORT
-bool Convert(const vtkm::cont::DynamicCellSet& toConvert,
-             vtkCellArray* cells,
-             vtkUnsignedCharArray* types = nullptr);
+bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
+  vtkUnsignedCharArray* types = nullptr);
 }
 
 #endif // vtkmlib_CellSetConverters_h

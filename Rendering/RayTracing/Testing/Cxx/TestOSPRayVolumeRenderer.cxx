@@ -46,7 +46,7 @@
 #include <vtkAutoInit.h>
 VTK_MODULE_INIT(vtkRenderingRayTracing);
 
-int TestOSPRayVolumeRenderer(int argc, char *argv[])
+int TestOSPRayVolumeRenderer(int argc, char* argv[])
 {
   double scalarRange[2];
 
@@ -55,8 +55,7 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   vtkNew<vtkOSPRayVolumeMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   // Put inside an open box to evaluate composite order
@@ -64,8 +63,8 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   dssFilter->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkClipPolyData> clip;
   vtkNew<vtkPlane> plane;
-  plane->SetOrigin(0,50,0);
-  plane->SetNormal(0,-1,0);
+  plane->SetOrigin(0, 50, 0);
+  plane->SetNormal(0, -1, 0);
   clip->SetInputConnection(dssFilter->GetOutputPort());
   clip->SetClipFunction(plane);
   dssMapper->SetInputConnection(clip->GetOutputPort());
@@ -87,8 +86,8 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
-//  vtkNew<vtkInteractorStyleTrackballCamera> style;
-//  iren->SetInteractorStyle(style);
+  //  vtkNew<vtkInteractorStyleTrackballCamera> style;
+  //  iren->SetInteractorStyle(style);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -118,8 +117,8 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 50.0 );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renWin, 50.0);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

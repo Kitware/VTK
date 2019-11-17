@@ -21,7 +21,7 @@
  * generates vtkUnstructuredGrid as output. vtkmCleanGrid will convert all cells
  * to an explicit representation, and if enabled, will remove unused points.
  *
-*/
+ */
 
 #ifndef vtkmCleanGrid_h
 #define vtkmCleanGrid_h
@@ -55,9 +55,8 @@ protected:
   vtkmCleanGrid();
   ~vtkmCleanGrid();
 
-  int FillInputPortInformation(int, vtkInformation *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool CompactPoints;
 

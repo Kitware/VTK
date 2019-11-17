@@ -15,13 +15,12 @@
 #include "vtkInformationDataObjectKey.h"
 
 #if defined(vtkCommonDataModel_ENABLED)
-# include "../DataModel/vtkDataObject.h"
+#include "../DataModel/vtkDataObject.h"
 #endif
 
-
 //----------------------------------------------------------------------------
-vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
@@ -36,8 +35,7 @@ void vtkInformationDataObjectKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::Set(vtkInformation* info,
-                                      vtkDataObject* value)
+void vtkInformationDataObjectKey::Set(vtkInformation* info, vtkDataObject* value)
 {
 #if defined(vtkCommonDataModel_ENABLED)
   this->SetAsObjectBase(info, value);
@@ -48,22 +46,20 @@ void vtkInformationDataObjectKey::Set(vtkInformation* info,
 vtkDataObject* vtkInformationDataObjectKey::Get(vtkInformation* info)
 {
 #if defined(vtkCommonDataModel_ENABLED)
-  return static_cast<vtkDataObject *>(this->GetAsObjectBase(info));
+  return static_cast<vtkDataObject*>(this->GetAsObjectBase(info));
 #else
   return 0;
 #endif
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::ShallowCopy(vtkInformation* from,
-                                              vtkInformation* to)
+void vtkInformationDataObjectKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDataObjectKey::Report(vtkInformation* info,
-                                         vtkGarbageCollector* collector)
+void vtkInformationDataObjectKey::Report(vtkInformation* info, vtkGarbageCollector* collector)
 {
   this->ReportAsObjectBase(info, collector);
 }

@@ -13,18 +13,20 @@
 
 using namespace std;
 
-bool CompareGrids(vtkUnstructuredGrid *s, vtkUnstructuredGrid *t)
+bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
 {
   if (s->GetNumberOfCells() != t->GetNumberOfCells())
   {
-    cerr << "The number of cells does not match: " << s->GetNumberOfCells() << " != " << t->GetNumberOfCells() << endl;
+    cerr << "The number of cells does not match: " << s->GetNumberOfCells()
+         << " != " << t->GetNumberOfCells() << endl;
     return false;
   }
-  for(vtkIdType i = 0; i < s->GetNumberOfCells(); ++i)
+  for (vtkIdType i = 0; i < s->GetNumberOfCells(); ++i)
   {
     if (s->GetCellType(i) != t->GetCellType(i))
     {
-      cerr << "The cell type does not match: " << s->GetCellType(i) << " != " << t->GetCellType(i) << endl;
+      cerr << "The cell type does not match: " << s->GetCellType(i) << " != " << t->GetCellType(i)
+           << endl;
       return false;
     }
     vtkNew<vtkIdList> sIds, tIds;
@@ -41,16 +43,17 @@ bool CompareGrids(vtkUnstructuredGrid *s, vtkUnstructuredGrid *t)
     if (sIds->GetNumberOfIds() != tIds->GetNumberOfIds())
     {
       cerr << "Cell type : " << s->GetCellType(i) << endl;
-      cerr << "The number of ids does not match: " << sIds->GetNumberOfIds() << " != " << tIds->GetNumberOfIds() << endl;
+      cerr << "The number of ids does not match: " << sIds->GetNumberOfIds()
+           << " != " << tIds->GetNumberOfIds() << endl;
       return false;
     }
 
-    for(vtkIdType j = 0; j < sIds->GetNumberOfIds(); ++j)
+    for (vtkIdType j = 0; j < sIds->GetNumberOfIds(); ++j)
     {
       vtkIdType sId = sIds->GetId(j);
       vtkIdType tId = tIds->GetId(j);
 
-      if(sId != tId)
+      if (sId != tId)
       {
         cerr << "Cell type : " << s->GetCellType(i) << endl;
         cerr << "The id at position " << j << " does not match: " << sId << " != " << tId << endl;
@@ -64,7 +67,7 @@ bool CompareGrids(vtkUnstructuredGrid *s, vtkUnstructuredGrid *t)
 
 int TestParallelUnstructuredGridIO(int argc, char* argv[])
 {
- vtkNew<vtkPoints> points;
+  vtkNew<vtkPoints> points;
 
   points->InsertNextPoint(0, 0, 0);
   points->InsertNextPoint(1, 0, 0);
@@ -137,7 +140,8 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   faces->InsertNextId(8);
 
   // insert the polyhedron cell
-  ug->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+  ug->InsertNextCell(
+    VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
 
   // put another pyramid on the bottom towards the 10th point
   faces->Reset();
@@ -180,22 +184,22 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   faces->InsertNextId(9);
 
   // insert the cell. We now have two pyramids with a cube in between
-  ug->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+  ug->InsertNextCell(
+    VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
 
   vtkMultiProcessController* ctrl = vtkMultiProcessController::GetGlobalController();
   vtkNew<vtkXMLPUnstructuredGridWriter> w;
   w->SetController(ctrl);
   w->SetInputData(ug);
   w->SetUseSubdirectory(true);
-  char* tempDir = vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv,
-                                                         "VTK_TEMP_DIR",
-                                                         "Testing/Temporary");
+  char* tempDir =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string dir(tempDir);
   std::string fn = dir + "/ug.pvtu";
   w->SetFileName(fn.c_str());
   w->SetDataModeToAscii();
   w->Update();
-  delete [] tempDir;
+  delete[] tempDir;
   ifstream f(fn.c_str());
   if (!f.good())
   {
@@ -211,7 +215,8 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   // first try reading the piece with a non-parallel reader
   vtkUnstructuredGrid* read = r->GetOutput();
   cout << "Comparing original with .vtu" << endl;
-  if (!CompareGrids(ug.GetPointer(), read)) return EXIT_FAILURE;
+  if (!CompareGrids(ug.GetPointer(), read))
+    return EXIT_FAILURE;
 
   // now read the .pvtu file with the paralle reader
   vtkNew<vtkXMLPUnstructuredGridReader> pr;
@@ -221,8 +226,8 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
 
   read = pr->GetOutput();
   cout << "Comparing original with .pvtu" << endl;
-  if (!CompareGrids(ug.GetPointer(), read)) return EXIT_FAILURE;
+  if (!CompareGrids(ug.GetPointer(), read))
+    return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
-
 }

@@ -44,12 +44,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // The actual test function
-int TestProgrammaticPlacement( int argc, char *argv[] )
+int TestProgrammaticPlacement(int argc, char* argv[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
@@ -70,7 +68,7 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
 
   // Create the widget and its representation
   VTK_CREATE(vtkPointHandleRepresentation2D, handle);
-  handle->GetProperty()->SetColor(1,0,0);
+  handle->GetProperty()->SetColor(1, 0, 0);
 
   VTK_CREATE(vtkDistanceRepresentation2D, dRep);
   dRep->SetHandleRepresentation(handle);
@@ -88,7 +86,7 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
 
   // Create the widget and its representation
   VTK_CREATE(vtkPointHandleRepresentation3D, handle2);
-  handle2->GetProperty()->SetColor(1,1,0);
+  handle2->GetProperty()->SetColor(1, 1, 0);
 
   VTK_CREATE(vtkDistanceRepresentation3D, dRep2);
   dRep2->SetHandleRepresentation(handle2);
@@ -114,22 +112,31 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
   dWidget->On();
   dWidget2->On();
 
-  double p[3]; p[0] = 25; p[1] = 50; p[2] = 0;
+  double p[3];
+  p[0] = 25;
+  p[1] = 50;
+  p[2] = 0;
   dRep->SetPoint1DisplayPosition(p);
-  p[0] = 275; p[1] = 250; p[2] = 0;
+  p[0] = 275;
+  p[1] = 250;
+  p[2] = 0;
   dRep->SetPoint2DisplayPosition(p);
 
-  p[0] = -0.75; p[1] = 0.75; p[2] = 0;
+  p[0] = -0.75;
+  p[1] = 0.75;
+  p[2] = 0;
   dRep2->SetPoint1WorldPosition(p);
-  p[0] = 0.75; p[1] = -0.75; p[2] = 0;
+  p[0] = 0.75;
+  p[1] = -0.75;
+  p[2] = 0;
   dRep2->SetPoint2WorldPosition(p);
 
   renWin->Render();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

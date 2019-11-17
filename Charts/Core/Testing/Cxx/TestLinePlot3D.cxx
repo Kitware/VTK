@@ -29,7 +29,7 @@
 // http://en.wikipedia.org/wiki/Lorenz_system
 namespace
 {
-void lorenz(const float * varX, float * varXDerivative)
+void lorenz(const float* varX, float* varXDerivative)
 {
   const float sigma = 10.f;
   const float rho = 28.f;
@@ -42,7 +42,7 @@ void lorenz(const float * varX, float * varXDerivative)
 } // end anonymous namespace
 
 //----------------------------------------------------------------------------
-int TestLinePlot3D(int, char * [])
+int TestLinePlot3D(int, char*[])
 {
   // Create the data.
   vtkNew<vtkTable> varXSolution;

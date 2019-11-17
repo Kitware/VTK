@@ -39,17 +39,17 @@
 //#define BENCHMARK
 
 #ifdef BENCHMARK
-#  ifdef PROFILE
-#    define NUM_BENCHMARKS 10
-#  else // PROFILE
-#    define NUM_BENCHMARKS 100
-#  endif // PROFILE
+#ifdef PROFILE
+#define NUM_BENCHMARKS 10
+#else // PROFILE
+#define NUM_BENCHMARKS 100
+#endif // PROFILE
 #endif // BENCHMARK
 
 //------------------------------------------------------------------------------
 // Compare the cell type, point ids, and points in 'grid' with those returned
 // in 'iter'.
-bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
+bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
 {
   vtkIdType cellId = 0;
   vtkNew<vtkGenericCell> cell;
@@ -73,8 +73,7 @@ bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
 
     for (vtkIdType pointInd = 0; pointInd < numPoints; ++pointInd)
     {
-      if (iter->GetPointIds()->GetId(pointInd)
-          != cell->PointIds->GetId(pointInd))
+      if (iter->GetPointIds()->GetId(pointInd) != cell->PointIds->GetId(pointInd))
       {
         cerr << "Point id mismatch in cell " << cellId << endl;
         return false;
@@ -84,9 +83,8 @@ bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
       double cellPoint[3];
       iter->GetPoints()->GetPoint(pointInd, iterPoint);
       cell->Points->GetPoint(pointInd, cellPoint);
-      if (iterPoint[0] != cellPoint[0] ||
-          iterPoint[1] != cellPoint[1] ||
-          iterPoint[2] != cellPoint[2] )
+      if (iterPoint[0] != cellPoint[0] || iterPoint[1] != cellPoint[1] ||
+        iterPoint[2] != cellPoint[2])
       {
         cerr << "Point mismatch in cell " << cellId << endl;
         return false;
@@ -104,36 +102,35 @@ bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
     return false;
   }
 
-//  cout << "Verified " << cellId << " cells with a " << iter->GetClassName()
-//       << "." << endl;
+  //  cout << "Verified " << cellId << " cells with a " << iter->GetClassName()
+  //       << "." << endl;
   return true;
 }
 
-#define TEST_ITERATOR(iter_, className_) \
-  if (std::string(#className_) != std::string(iter->GetClassName())) \
-  { \
-    cerr << "Unexpected iterator type (expected " #className_ ", got " \
-         << (iter_)->GetClassName() << ")" << endl; \
-    return false; \
-  } \
-  \
-  if (!testCellIterator(iter_, grid)) \
-  { \
-    cerr << #className_ << " test failed." << endl; \
-    return false; \
-  } \
-  \
-  if (!testCellIterator(iter_, grid)) \
-  { \
-    cerr << #className_ << " test failed after rewind." << endl; \
-    return false; \
-  } \
+#define TEST_ITERATOR(iter_, className_)                                                           \
+  if (std::string(#className_) != std::string(iter->GetClassName()))                               \
+  {                                                                                                \
+    cerr << "Unexpected iterator type (expected " #className_ ", got " << (iter_)->GetClassName()  \
+         << ")" << endl;                                                                           \
+    return false;                                                                                  \
+  }                                                                                                \
+                                                                                                   \
+  if (!testCellIterator(iter_, grid))                                                              \
+  {                                                                                                \
+    cerr << #className_ << " test failed." << endl;                                                \
+    return false;                                                                                  \
+  }                                                                                                \
+                                                                                                   \
+  if (!testCellIterator(iter_, grid))                                                              \
+  {                                                                                                \
+    cerr << #className_ << " test failed after rewind." << endl;                                   \
+    return false;                                                                                  \
+  }
 
-
-bool runValidation(vtkUnstructuredGrid *grid)
+bool runValidation(vtkUnstructuredGrid* grid)
 {
   // vtkDataSetCellIterator:
-  vtkCellIterator *iter = grid->vtkDataSet::NewCellIterator();
+  vtkCellIterator* iter = grid->vtkDataSet::NewCellIterator();
   TEST_ITERATOR(iter, vtkDataSetCellIterator);
   iter->Delete();
 
@@ -156,7 +153,8 @@ bool runValidation(vtkUnstructuredGrid *grid)
 // Do-nothing function that ensures arguments passed in will not be compiled
 // out. Aggressive optimization will otherwise remove portions of the following
 // loops, throwing off the benchmark results:
-namespace {
+namespace
+{
 std::stringstream _sink;
 template <class Type>
 void useData(const Type& data)
@@ -173,12 +171,12 @@ void useData(const Type& data)
 //   Iterator through cells in an unstructured grid, using API only
 // - double ()(vtkCellIterator *)
 //   Iterator through all cells available through the iterator.
-double benchmarkTypeIteration(vtkUnstructuredGrid *grid)
+double benchmarkTypeIteration(vtkUnstructuredGrid* grid)
 {
   vtkIdType numCells = grid->GetNumberOfCells();
-  vtkUnsignedCharArray *types = grid->GetCellTypesArray();
-  unsigned char *ptr = types->GetPointer(0);
-  unsigned char range[2] = {VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN};
+  vtkUnsignedCharArray* types = grid->GetCellTypesArray();
+  unsigned char* ptr = types->GetPointer(0);
+  unsigned char range[2] = { VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN };
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -195,11 +193,11 @@ double benchmarkTypeIteration(vtkUnstructuredGrid *grid)
   return timer->GetElapsedTime();
 }
 
-double benchmarkTypeIteration(vtkUnstructuredGrid *grid, int)
+double benchmarkTypeIteration(vtkUnstructuredGrid* grid, int)
 {
   vtkIdType numCells = grid->GetNumberOfCells();
   unsigned char tmp;
-  unsigned char range[2] = {VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN};
+  unsigned char range[2] = { VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN };
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -217,9 +215,9 @@ double benchmarkTypeIteration(vtkUnstructuredGrid *grid, int)
   return timer->GetElapsedTime();
 }
 
-double benchmarkTypeIteration(vtkCellIterator *iter)
+double benchmarkTypeIteration(vtkCellIterator* iter)
 {
-  int range[2] = {VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN};
+  int range[2] = { VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN };
   int tmp;
 
   vtkNew<vtkTimerLog> timer;
@@ -238,12 +236,12 @@ double benchmarkTypeIteration(vtkCellIterator *iter)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPointIdIteration(vtkUnstructuredGrid *grid)
+double benchmarkPointIdIteration(vtkUnstructuredGrid* grid)
 {
-  vtkCellArray *cellArray = grid->GetCells();
+  vtkCellArray* cellArray = grid->GetCells();
   vtkIdType numCells = cellArray->GetNumberOfCells();
-  vtkIdType *cellPtr = cellArray-;
-  vtkIdType range[2] = {VTK_ID_MAX, VTK_ID_MIN};
+  vtkIdType* cellPtr = cellArray - ;
+  vtkIdType range[2] = { VTK_ID_MAX, VTK_ID_MIN };
   vtkIdType cellSize;
 
   vtkNew<vtkTimerLog> timer;
@@ -266,13 +264,13 @@ double benchmarkPointIdIteration(vtkUnstructuredGrid *grid)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPointIdIteration(vtkUnstructuredGrid *grid, int)
+double benchmarkPointIdIteration(vtkUnstructuredGrid* grid, int)
 {
   vtkIdType numCells = grid->GetNumberOfCells();
-  vtkIdType range[2] = {VTK_ID_MAX, VTK_ID_MIN};
+  vtkIdType range[2] = { VTK_ID_MAX, VTK_ID_MIN };
   vtkIdType cellSize;
-  vtkIdList *cellPointIds = vtkIdList::New();
-  vtkIdType *cellPtr;
+  vtkIdList* cellPointIds = vtkIdList::New();
+  vtkIdType* cellPtr;
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -297,11 +295,11 @@ double benchmarkPointIdIteration(vtkUnstructuredGrid *grid, int)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPointIdIteration(vtkCellIterator *iter)
+double benchmarkPointIdIteration(vtkCellIterator* iter)
 {
-  vtkIdType range[2] = {VTK_ID_MAX, VTK_ID_MIN};
-  vtkIdType *cellPtr;
-  vtkIdType *cellEnd;
+  vtkIdType range[2] = { VTK_ID_MAX, VTK_ID_MIN };
+  vtkIdType* cellPtr;
+  vtkIdType* cellEnd;
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -324,22 +322,22 @@ double benchmarkPointIdIteration(vtkCellIterator *iter)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPointsIteration(vtkUnstructuredGrid *grid)
+double benchmarkPointsIteration(vtkUnstructuredGrid* grid)
 {
-  vtkCellArray *cellArray = grid->GetCells();
+  vtkCellArray* cellArray = grid->GetCells();
   const vtkIdType numCells = cellArray->GetNumberOfCells();
-  vtkIdType *cellPtr = cellArray-;
+  vtkIdType* cellPtr = cellArray - ;
   vtkIdType cellSize;
 
-  vtkPoints *points = grid->GetPoints();
-  vtkFloatArray *pointDataArray = vtkArrayDownCast<vtkFloatArray>(points->GetData());
+  vtkPoints* points = grid->GetPoints();
+  vtkFloatArray* pointDataArray = vtkArrayDownCast<vtkFloatArray>(points->GetData());
   if (!pointDataArray)
   {
     return -1.0;
   }
-  float *pointData = pointDataArray->GetPointer(0);
-  float *point;
-  float dummy[3] = {0.f, 0.f, 0.f};
+  float* pointData = pointDataArray->GetPointer(0);
+  float* point;
+  float dummy[3] = { 0.f, 0.f, 0.f };
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -364,15 +362,15 @@ double benchmarkPointsIteration(vtkUnstructuredGrid *grid)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPointsIteration(vtkUnstructuredGrid *grid, int)
+double benchmarkPointsIteration(vtkUnstructuredGrid* grid, int)
 {
-  vtkIdList *pointIds = vtkIdList::New();
+  vtkIdList* pointIds = vtkIdList::New();
   vtkIdType cellSize;
-  vtkIdType *cellPtr;
+  vtkIdType* cellPtr;
 
-  vtkPoints *points = grid->GetPoints();
+  vtkPoints* points = grid->GetPoints();
   double point[3];
-  double dummy[3] = {0.f, 0.f, 0.f};
+  double dummy[3] = { 0.f, 0.f, 0.f };
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -401,9 +399,9 @@ double benchmarkPointsIteration(vtkUnstructuredGrid *grid, int)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPointsIteration(vtkCellIterator *iter)
+double benchmarkPointsIteration(vtkCellIterator* iter)
 {
-  float dummy[3] = {0.f, 0.f, 0.f};
+  float dummy[3] = { 0.f, 0.f, 0.f };
 
   // Ensure that the call to GetPoints() is at a valid cell:
   iter->InitTraversal();
@@ -411,10 +409,9 @@ double benchmarkPointsIteration(vtkCellIterator *iter)
   {
     return -1.0;
   }
-  vtkFloatArray *pointArray =
-      vtkArrayDownCast<vtkFloatArray>(iter->GetPoints()->GetData());
-  float *pointsData;
-  float *pointsDataEnd;
+  vtkFloatArray* pointArray = vtkArrayDownCast<vtkFloatArray>(iter->GetPoints()->GetData());
+  float* pointsData;
+  float* pointsDataEnd;
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -438,9 +435,9 @@ double benchmarkPointsIteration(vtkCellIterator *iter)
   return timer->GetElapsedTime();
 }
 
-double benchmarkCellIteration(vtkUnstructuredGrid *grid)
+double benchmarkCellIteration(vtkUnstructuredGrid* grid)
 {
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkGenericCell* cell = vtkGenericCell::New();
   vtkIdType numCells = grid->GetNumberOfCells();
 
   vtkNew<vtkTimerLog> timer;
@@ -454,15 +451,15 @@ double benchmarkCellIteration(vtkUnstructuredGrid *grid)
   return timer->GetElapsedTime();
 }
 
-double benchmarkCellIteration(vtkUnstructuredGrid *grid, int)
+double benchmarkCellIteration(vtkUnstructuredGrid* grid, int)
 {
   // No real difference here....
   return benchmarkCellIteration(grid);
 }
 
-double benchmarkCellIteration(vtkCellIterator *it)
+double benchmarkCellIteration(vtkCellIterator* it)
 {
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkGenericCell* cell = vtkGenericCell::New();
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -475,32 +472,32 @@ double benchmarkCellIteration(vtkCellIterator *it)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid)
+double benchmarkPiecewiseIteration(vtkUnstructuredGrid* grid)
 {
   // Setup for types:
-  vtkUnsignedCharArray *typeArray = grid->GetCellTypesArray();
-  unsigned char *typePtr = typeArray->GetPointer(0);
-  unsigned char typeRange[2] = {VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN};
+  vtkUnsignedCharArray* typeArray = grid->GetCellTypesArray();
+  unsigned char* typePtr = typeArray->GetPointer(0);
+  unsigned char typeRange[2] = { VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN };
 
   // Setup for point ids:
-  vtkCellArray *cellArray = grid->GetCells();
-  vtkIdType *cellArrayPtr = cellArray-;
-  vtkIdType ptIdRange[2] = {VTK_ID_MAX, VTK_ID_MIN};
+  vtkCellArray* cellArray = grid->GetCells();
+  vtkIdType* cellArrayPtr = cellArray - ;
+  vtkIdType ptIdRange[2] = { VTK_ID_MAX, VTK_ID_MIN };
   vtkIdType cellSize;
 
   // Setup for points:
-  vtkPoints *points = grid->GetPoints();
-  vtkFloatArray *pointDataArray = vtkArrayDownCast<vtkFloatArray>(points->GetData());
+  vtkPoints* points = grid->GetPoints();
+  vtkFloatArray* pointDataArray = vtkArrayDownCast<vtkFloatArray>(points->GetData());
   if (!pointDataArray)
   {
     return -1.0;
   }
-  float *pointData = pointDataArray->GetPointer(0);
-  float *point;
-  float dummy[3] = {0.f, 0.f, 0.f};
+  float* pointData = pointDataArray->GetPointer(0);
+  float* point;
+  float dummy[3] = { 0.f, 0.f, 0.f };
 
   // Setup for cells
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkGenericCell* cell = vtkGenericCell::New();
 
   vtkIdType numCells = grid->GetNumberOfCells();
   vtkNew<vtkTimerLog> timer;
@@ -546,25 +543,25 @@ double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid, int)
+double benchmarkPiecewiseIteration(vtkUnstructuredGrid* grid, int)
 {
   // Setup for type
   unsigned char cellType;
-  unsigned char typeRange[2] = {VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN};
+  unsigned char typeRange[2] = { VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN };
 
   // Setup for point ids
-  vtkIdType ptIdRange[2] = {VTK_ID_MAX, VTK_ID_MIN};
+  vtkIdType ptIdRange[2] = { VTK_ID_MAX, VTK_ID_MIN };
   vtkIdType cellSize;
-  vtkIdList *cellPointIds = vtkIdList::New();
-  vtkIdType *cellPtIdPtr;
+  vtkIdList* cellPointIds = vtkIdList::New();
+  vtkIdType* cellPtIdPtr;
 
   // Setup for points
-  vtkPoints *points = grid->GetPoints();
+  vtkPoints* points = grid->GetPoints();
   double point[3];
-  double dummy[3] = {0.f, 0.f, 0.f};
+  double dummy[3] = { 0.f, 0.f, 0.f };
 
   // Setup for cells
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkGenericCell* cell = vtkGenericCell::New();
 
   vtkIdType numCells = grid->GetNumberOfCells();
   vtkNew<vtkTimerLog> timer;
@@ -590,7 +587,6 @@ double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid, int)
       dummy[0] += point[0];
       dummy[1] += point[1];
       dummy[2] += point[2];
-
     }
 
     // Cell:
@@ -613,22 +609,22 @@ double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid, int)
   return timer->GetElapsedTime();
 }
 
-double benchmarkPiecewiseIteration(vtkCellIterator *iter)
+double benchmarkPiecewiseIteration(vtkCellIterator* iter)
 {
   // Type setup:
-  int typeRange[2] = {VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN};
+  int typeRange[2] = { VTK_UNSIGNED_CHAR_MAX, VTK_UNSIGNED_CHAR_MIN };
 
   // Point ids setups:
-  vtkIdType ptIdRange[2] = {VTK_ID_MAX, VTK_ID_MIN};
-  vtkIdType *cellPtr;
+  vtkIdType ptIdRange[2] = { VTK_ID_MAX, VTK_ID_MIN };
+  vtkIdType* cellPtr;
   vtkIdType cellSize;
 
   // Points setup:
-  float dummy[3] = {0.f, 0.f, 0.f};
-  float *pointsPtr;
+  float dummy[3] = { 0.f, 0.f, 0.f };
+  float* pointsPtr;
 
   // Cell setup
-  vtkGenericCell *cell = vtkGenericCell::New();
+  vtkGenericCell* cell = vtkGenericCell::New();
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -674,30 +670,29 @@ double benchmarkPiecewiseIteration(vtkCellIterator *iter)
   return timer->GetElapsedTime();
 }
 
-#define BENCHMARK_ITERATORS(grid_, test_, bench_) \
-  if (!runBenchmark(grid_, test_, bench_, bench_, bench_)) \
-  { \
-    cerr << "Benchmark '" << test_ << "' encountered an error." << endl; \
-    return false; \
+#define BENCHMARK_ITERATORS(grid_, test_, bench_)                                                  \
+  if (!runBenchmark(grid_, test_, bench_, bench_, bench_))                                         \
+  {                                                                                                \
+    cerr << "Benchmark '" << test_ << "' encountered an error." << endl;                           \
+    return false;                                                                                  \
   }
 
 typedef double (*BenchmarkRefType)(vtkUnstructuredGrid*);
 typedef double (*BenchmarkApiType)(vtkUnstructuredGrid*, int);
 typedef double (*BenchmarkIterType)(vtkCellIterator*);
-bool runBenchmark(vtkUnstructuredGrid *grid, const std::string &test,
-                  BenchmarkRefType refBench, BenchmarkApiType apiBench,
-                  BenchmarkIterType iterBench)
+bool runBenchmark(vtkUnstructuredGrid* grid, const std::string& test, BenchmarkRefType refBench,
+  BenchmarkApiType apiBench, BenchmarkIterType iterBench)
 {
   const int numBenchmarks = NUM_BENCHMARKS;
   double refTime = 0.;
   double apiTime = 0.;
-  double dsTime  = 0.;
-  double psTime  = 0.;
-  double ugTime  = 0.;
+  double dsTime = 0.;
+  double psTime = 0.;
+  double ugTime = 0.;
 
-  vtkCellIterator *dsIter = grid->vtkDataSet::NewCellIterator();
-  vtkCellIterator *psIter = grid->vtkPointSet::NewCellIterator();
-  vtkCellIterator *ugIter = grid->NewCellIterator();
+  vtkCellIterator* dsIter = grid->vtkDataSet::NewCellIterator();
+  vtkCellIterator* psIter = grid->vtkPointSet::NewCellIterator();
+  vtkCellIterator* ugIter = grid->NewCellIterator();
 
   cout << "Testing " << test << " (" << numBenchmarks << " samples):" << endl;
 
@@ -711,45 +706,34 @@ bool runBenchmark(vtkUnstructuredGrid *grid, const std::string &test,
   {
 #ifdef PROFILE
     std::fill_n(prog.begin() + 1, i * 10 / numBenchmarks, '=');
-    cout << "\rProgress: " << prog << " (" << i << "/" << numBenchmarks << ")"
-         << endl;
+    cout << "\rProgress: " << prog << " (" << i << "/" << numBenchmarks << ")" << endl;
 #endif // PROFILE
 
     refTime += refBench(grid);
     apiTime += apiBench(grid, 0);
-    dsTime  += iterBench(dsIter);
-    psTime  += iterBench(psIter);
-    ugTime  += iterBench(ugIter);
+    dsTime += iterBench(dsIter);
+    psTime += iterBench(psIter);
+    ugTime += iterBench(ugIter);
   }
 
 #ifdef PROFILE
   std::fill_n(prog.begin() + 1, 10, '=');
-  cout << "\rProgress: " << prog << " (" << numBenchmarks << "/"
-       << numBenchmarks << ")" << endl;
+  cout << "\rProgress: " << prog << " (" << numBenchmarks << "/" << numBenchmarks << ")" << endl;
 #endif // PROFILE
 
   refTime /= static_cast<double>(numBenchmarks);
   apiTime /= static_cast<double>(numBenchmarks);
-  dsTime  /= static_cast<double>(numBenchmarks);
-  psTime  /= static_cast<double>(numBenchmarks);
-  ugTime  /= static_cast<double>(numBenchmarks);
+  dsTime /= static_cast<double>(numBenchmarks);
+  psTime /= static_cast<double>(numBenchmarks);
+  ugTime /= static_cast<double>(numBenchmarks);
 
   const std::string sep("\t");
   cout << std::setw(8)
 
        << "\t"
-       << "Ref (raw)" << sep
-       << "Ref (api)" << sep
-       << "DSIter" << sep
-       << "PSIter" << sep
-       << "UGIter"
+       << "Ref (raw)" << sep << "Ref (api)" << sep << "DSIter" << sep << "PSIter" << sep << "UGIter"
        << endl
-       << "\t"
-       << refTime << sep
-       << apiTime << sep
-       << dsTime << sep
-       << psTime << sep
-       << ugTime
+       << "\t" << refTime << sep << apiTime << sep << dsTime << sep << psTime << sep << ugTime
        << endl;
 
   dsIter->Delete();
@@ -759,7 +743,7 @@ bool runBenchmark(vtkUnstructuredGrid *grid, const std::string &test,
   return true;
 }
 
-bool runBenchmarks(vtkUnstructuredGrid *grid)
+bool runBenchmarks(vtkUnstructuredGrid* grid)
 {
   BENCHMARK_ITERATORS(grid, "cell type", benchmarkTypeIteration);
   BENCHMARK_ITERATORS(grid, "cell pointId", benchmarkPointIdIteration);
@@ -770,18 +754,17 @@ bool runBenchmarks(vtkUnstructuredGrid *grid)
 }
 #endif // Benchmark
 
-int TestCellIterators(int argc, char *argv[])
+int TestCellIterators(int argc, char* argv[])
 {
   // Load an unstructured grid dataset
-  char *fileNameC = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                         "Data/blowGeom.vtk");
+  char* fileNameC = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/blowGeom.vtk");
   std::string fileName(fileNameC);
-  delete [] fileNameC;
+  delete[] fileNameC;
 
   vtkNew<vtkUnstructuredGridReader> reader;
   reader->SetFileName(fileName.c_str());
   reader->Update();
-  vtkUnstructuredGrid *grid(reader->GetOutput());
+  vtkUnstructuredGrid* grid(reader->GetOutput());
   if (!grid)
   {
     cerr << "Error reading file: " << fileName << endl;

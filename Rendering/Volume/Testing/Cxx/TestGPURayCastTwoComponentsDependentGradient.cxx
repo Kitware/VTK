@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
+int TestGPURayCastTwoComponentsDependentGradient(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -43,7 +43,7 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 
   // Fill the first half rectangular parallelopiped along X with the
   // first component values and the second half with second component values
-  double * ptr = static_cast<double *> (image->GetScalarPointer(0, 0, 0));
+  double* ptr = static_cast<double*>(image->GetScalarPointer(0, 0, 0));
 
   for (int z = 0; z < dims[2]; ++z)
   {
@@ -142,8 +142,8 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

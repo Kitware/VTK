@@ -26,7 +26,7 @@
  *
  * @warning
  * Normals can be operated on only if they are present in the data.
-*/
+ */
 
 #ifndef vtkReverseSense_h
 #define vtkReverseSense_h
@@ -37,43 +37,43 @@
 class VTKFILTERSCORE_EXPORT vtkReverseSense : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkReverseSense,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkReverseSense, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object so that behavior is to reverse cell ordering and
    * leave normal orientation as is.
    */
-  static vtkReverseSense *New();
+  static vtkReverseSense* New();
 
   //@{
   /**
    * Flag controls whether to reverse cell ordering.
    */
-  vtkSetMacro(ReverseCells,vtkTypeBool);
-  vtkGetMacro(ReverseCells,vtkTypeBool);
-  vtkBooleanMacro(ReverseCells,vtkTypeBool);
+  vtkSetMacro(ReverseCells, vtkTypeBool);
+  vtkGetMacro(ReverseCells, vtkTypeBool);
+  vtkBooleanMacro(ReverseCells, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Flag controls whether to reverse normal orientation.
    */
-  vtkSetMacro(ReverseNormals,vtkTypeBool);
-  vtkGetMacro(ReverseNormals,vtkTypeBool);
-  vtkBooleanMacro(ReverseNormals,vtkTypeBool);
+  vtkSetMacro(ReverseNormals, vtkTypeBool);
+  vtkGetMacro(ReverseNormals, vtkTypeBool);
+  vtkBooleanMacro(ReverseNormals, vtkTypeBool);
   //@}
-
 
 protected:
   vtkReverseSense();
   ~vtkReverseSense() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool ReverseCells;
   vtkTypeBool ReverseNormals;
+
 private:
   vtkReverseSense(const vtkReverseSense&) = delete;
   void operator=(const vtkReverseSense&) = delete;

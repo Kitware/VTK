@@ -33,5 +33,5 @@ vtkSignedCharArray::~vtkSignedCharArray() = default;
 //----------------------------------------------------------------------------
 void vtkSignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->RealSuperclass::PrintSelf(os,indent);
+  this->RealSuperclass::PrintSelf(os, indent);
 }

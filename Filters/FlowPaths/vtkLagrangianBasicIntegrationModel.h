@@ -59,8 +59,8 @@
 #include "vtkNew.h"         // For arrays
 #include "vtkWeakPointer.h" // For weak pointer
 
-#include <map> // for array indexes
-#include <mutex>  // for mutexes
+#include <map>   // for array indexes
+#include <mutex> // for mutexes
 #include <queue> // for new particles
 
 class vtkAbstractArray;
@@ -340,10 +340,10 @@ public:
    * implementation.
    * This method is thread-safe, its reimplementation should still be thread-safe.
    */
-  virtual bool ManualIntegration(vtkInitialValueProblemSolver* integrator,
-    double* xcur, double* xnext, double t, double& delT,
-    double& delTActual, double minStep, double maxStep, double maxError, double cellLength,
-    double& error, int& integrationResult, vtkLagrangianParticle* particle);
+  virtual bool ManualIntegration(vtkInitialValueProblemSolver* integrator, double* xcur,
+    double* xnext, double t, double& delT, double& delTActual, double minStep, double maxStep,
+    double maxError, double cellLength, double& error, int& integrationResult,
+    vtkLagrangianParticle* particle);
 
   /**
    * Method called by parallel algorithm
@@ -425,7 +425,8 @@ public:
    * stepEnum enables to select which data to insert, Prev, Current or Next.
    * Reimplement as needed in acccordance with InitializeParticleData.
    */
-  virtual void InsertParticleData(vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
+  virtual void InsertParticleData(
+    vtkLagrangianParticle* particle, vtkFieldData* data, int stepEnum);
 
   /**
    * Method used by the LPT to insert data from the partice into

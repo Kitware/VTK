@@ -16,7 +16,7 @@
  * @class   vtkUnstructuredGridCellIterator
  * @brief   Implementation of vtkCellIterator
  * specialized for vtkUnstructuredGrid.
-*/
+ */
 
 #ifndef vtkUnstructuredGridCellIterator_h
 #define vtkUnstructuredGridCellIterator_h
@@ -32,11 +32,10 @@ class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 class vtkPoints;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridCellIterator :
-    public vtkCellIterator
+class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridCellIterator : public vtkCellIterator
 {
 public:
-  static vtkUnstructuredGridCellIterator *New();
+  static vtkUnstructuredGridCellIterator* New();
   vtkTypeMacro(vtkUnstructuredGridCellIterator, vtkCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -55,7 +54,7 @@ protected:
   void FetchFaces() override;
 
   friend class vtkUnstructuredGrid;
-  void SetUnstructuredGrid(vtkUnstructuredGrid *ug);
+  void SetUnstructuredGrid(vtkUnstructuredGrid* ug);
 
   vtkSmartPointer<vtkCellArrayIterator> Cells;
   vtkSmartPointer<vtkUnsignedCharArray> Types;
@@ -64,8 +63,8 @@ protected:
   vtkSmartPointer<vtkPoints> Coords;
 
 private:
-  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &) = delete;
-  void operator=(const vtkUnstructuredGridCellIterator &) = delete;
+  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator&) = delete;
+  void operator=(const vtkUnstructuredGridCellIterator&) = delete;
 };
 
-#endif //vtkUnstructuredGridCellIterator_h
+#endif // vtkUnstructuredGridCellIterator_h

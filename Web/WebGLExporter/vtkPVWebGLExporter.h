@@ -21,8 +21,8 @@
 class VTKWEBGLEXPORTER_EXPORT vtkPVWebGLExporter : public vtkExporter
 {
 public:
-  static vtkPVWebGLExporter *New();
-  vtkTypeMacro(vtkPVWebGLExporter,vtkExporter);
+  static vtkPVWebGLExporter* New();
+  vtkTypeMacro(vtkPVWebGLExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
@@ -36,7 +36,7 @@ protected:
 
   void WriteData() override;
 
-  char *FileName;
+  char* FileName;
 
 private:
   vtkPVWebGLExporter(const vtkPVWebGLExporter&) = delete;

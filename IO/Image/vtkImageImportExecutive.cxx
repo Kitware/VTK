@@ -27,14 +27,13 @@
 vtkStandardNewMacro(vtkImageImportExecutive);
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkImageImportExecutive::ProcessRequest(vtkInformation* request,
-                                            vtkInformationVector** inInfoVec,
-                                            vtkInformationVector* outInfoVec)
+vtkTypeBool vtkImageImportExecutive::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec)
 {
-  if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
+  if (this->Algorithm && request->Has(REQUEST_INFORMATION()))
   {
     // Invoke the callback
-    vtkImageImport *ii = vtkImageImport::SafeDownCast(this->Algorithm);
+    vtkImageImport* ii = vtkImageImport::SafeDownCast(this->Algorithm);
     ii->InvokeUpdateInformationCallbacks();
   }
 

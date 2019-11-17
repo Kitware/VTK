@@ -22,7 +22,7 @@
  * by reader producing composite datasets to describes the relationships among
  * the blocks.
  * Refer to http://www.paraview.org/Wiki/Block_Hierarchy_Meta_Data for details.
-*/
+ */
 
 #ifndef vtkSILBuilder_h
 #define vtkSILBuilder_h
@@ -83,7 +83,6 @@ protected:
 private:
   vtkSILBuilder(const vtkSILBuilder&) = delete;
   void operator=(const vtkSILBuilder&) = delete;
-
 };
 
 #endif

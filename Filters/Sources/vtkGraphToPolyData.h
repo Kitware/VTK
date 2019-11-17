@@ -30,7 +30,7 @@
  *
  * Only the owned graph edges (i.e. edges with ghost level 0) are copied
  * into the vtkPolyData.
-*/
+ */
 
 #ifndef vtkGraphToPolyData_h
 #define vtkGraphToPolyData_h
@@ -41,8 +41,8 @@
 class VTKFILTERSSOURCES_EXPORT vtkGraphToPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkGraphToPolyData *New();
-  vtkTypeMacro(vtkGraphToPolyData,vtkPolyDataAlgorithm);
+  static vtkGraphToPolyData* New();
+  vtkTypeMacro(vtkGraphToPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -83,7 +83,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.

@@ -26,11 +26,10 @@
  *
  * @sa
  * vtkImageButterworthLowPass vtkImageIdealHighPass vtkImageFFT vtkImageRFFT
-*/
+ */
 
 #ifndef vtkImageIdealLowPass_h
 #define vtkImageIdealLowPass_h
-
 
 #include "vtkImagingFourierModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -38,8 +37,8 @@
 class VTKIMAGINGFOURIER_EXPORT vtkImageIdealLowPass : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageIdealLowPass *New();
-  vtkTypeMacro(vtkImageIdealLowPass,vtkThreadedImageAlgorithm);
+  static vtkImageIdealLowPass* New();
+  vtkTypeMacro(vtkImageIdealLowPass, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -48,15 +47,15 @@ public:
    * The values are specified in the order X, Y, Z, Time.
    * Units: Cycles per world unit (as defined by the data spacing).
    */
-  vtkSetVector3Macro(CutOff,double);
-  void SetCutOff(double v) {this->SetCutOff(v, v, v);}
+  vtkSetVector3Macro(CutOff, double);
+  void SetCutOff(double v) { this->SetCutOff(v, v, v); }
   void SetXCutOff(double v);
   void SetYCutOff(double v);
   void SetZCutOff(double v);
-  vtkGetVector3Macro(CutOff,double);
-  double GetXCutOff() {return this->CutOff[0];}
-  double GetYCutOff() {return this->CutOff[1];}
-  double GetZCutOff() {return this->CutOff[2];}
+  vtkGetVector3Macro(CutOff, double);
+  double GetXCutOff() { return this->CutOff[0]; }
+  double GetYCutOff() { return this->CutOff[1]; }
+  double GetZCutOff() { return this->CutOff[2]; }
   //@}
 
 protected:
@@ -65,11 +64,10 @@ protected:
 
   double CutOff[3];
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int outExt[6], int id) override;
+
 private:
   vtkImageIdealLowPass(const vtkImageIdealLowPass&) = delete;
   void operator=(const vtkImageIdealLowPass&) = delete;

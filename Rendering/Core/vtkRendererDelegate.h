@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkRenderer
-*/
+ */
 
 #ifndef vtkRendererDelegate_h
 #define vtkRendererDelegate_h
@@ -37,13 +37,13 @@ class vtkRenderer;
 class VTKRENDERINGCORE_EXPORT vtkRendererDelegate : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkRendererDelegate,vtkObject);
+  vtkTypeMacro(vtkRendererDelegate, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Render the props of vtkRenderer if Used is on.
    */
-  virtual void Render(vtkRenderer *r)=0;
+  virtual void Render(vtkRenderer* r) = 0;
 
   //@{
   /**

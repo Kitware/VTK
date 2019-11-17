@@ -43,16 +43,15 @@ public:
   /**
    * Instantiate the class.
    */
-  static vtkQWidgetRepresentation *New();
+  static vtkQWidgetRepresentation* New();
 
   //@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkQWidgetRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkQWidgetRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
-
 
   /**
    * Satisfies superclass API.  This returns a pointer to the underlying
@@ -72,18 +71,16 @@ public:
    */
   void PlaceWidget(double bounds[6]) override;
   void BuildRepresentation() override;
-  int ComputeComplexInteractionState(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) override;
+  int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata, int modify = 0) override;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void GetActors(vtkPropCollection *pc) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void GetActors(vtkPropCollection* pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
@@ -93,7 +90,7 @@ public:
   // Manage the state of the widget
   enum _InteractionState
   {
-    Outside=0,
+    Outside = 0,
     Inside
   };
 
@@ -107,13 +104,13 @@ public:
    * geometric considerations (i.e., cursor near a widget feature), then
    * based on events, the widget may modify this further.
    */
-  vtkSetClampMacro(InteractionState,int,Outside,Inside);
+  vtkSetClampMacro(InteractionState, int, Outside, Inside);
   //@}
 
   /**
    * Set the QWidget this representation will render
    */
-  void SetWidget(QWidget *w);
+  void SetWidget(QWidget* w);
 
   /**
    * Get the QWidgetTexture used by the representation
@@ -138,13 +135,13 @@ protected:
 
   int WidgetCoordinates[2];
 
-  vtkPlaneSource    *PlaneSource;
-  vtkPolyDataMapper *PlaneMapper;
-  vtkActor          *PlaneActor;
-  vtkOpenGLTexture  *PlaneTexture;
-  vtkQWidgetTexture *QWidgetTexture;
+  vtkPlaneSource* PlaneSource;
+  vtkPolyDataMapper* PlaneMapper;
+  vtkActor* PlaneActor;
+  vtkOpenGLTexture* PlaneTexture;
+  vtkQWidgetTexture* QWidgetTexture;
 
-  vtkCellPicker *Picker;
+  vtkCellPicker* Picker;
 
   // Register internal Pickers within PickingManager
   void RegisterPickers() override;

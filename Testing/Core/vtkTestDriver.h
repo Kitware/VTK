@@ -20,7 +20,7 @@
 #include <exception> // for std::exception
 
 #include <clocale> // C setlocale()
-#include <locale> // C++ locale
+#include <locale>  // C++ locale
 
 #include <vtksys/SystemInformation.hxx> // for stacktrace
 

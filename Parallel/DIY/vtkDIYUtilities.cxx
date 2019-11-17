@@ -83,7 +83,7 @@ void vtkDIYUtilities::InitializeEnvironmentForDIY()
     vtkDIYUtilitiesCleanupMPIController = vtkMPIController::New();
 
     static int argc = 0;
-    static char** argv = {nullptr};
+    static char** argv = { nullptr };
     vtkDIYUtilitiesCleanupMPIController->Initialize(&argc, &argv);
   }
 #endif

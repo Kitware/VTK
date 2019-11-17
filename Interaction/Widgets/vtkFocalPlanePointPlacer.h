@@ -31,13 +31,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkFocalPlanePointPlacer *New();
+  static vtkFocalPlanePointPlacer* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkFocalPlanePointPlacer,vtkPointPlacer);
+  vtkTypeMacro(vtkFocalPlanePointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -49,10 +49,8 @@ public:
   // computed by projecting the display position onto the
   // focal plane. This method is typically used to place a
   // point for the first time.
-  int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2],
-                            double worldPos[3],
-                            double worldOrient[9] ) override;
+  int ComputeWorldPosition(
+    vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Given a renderer, a display position, and a reference
@@ -64,20 +62,16 @@ public:
    * position. This method is typically used to move existing
    * points.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2],
-                            double refWorldPos[3],
-                            double worldPos[3],
-                            double worldOrient[9] ) override;
+  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[3],
+    double worldPos[3], double worldOrient[9]) override;
 
   //@{
   /**
    * Validate a world position. All world positions
    * are valid so these methods always return 1.
    */
-  int ValidateWorldPosition( double worldPos[3] ) override;
-  int ValidateWorldPosition( double worldPos[3],
-                             double worldOrient[9]) override;
+  int ValidateWorldPosition(double worldPos[3]) override;
+  int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
   //@}
 
   //@{
@@ -86,8 +80,8 @@ public:
    * be placed at.  If negative, the constraint plane is offset closer to the
    * camera. If positive, its further away from the camera.
    */
-  vtkSetMacro( Offset, double );
-  vtkGetMacro( Offset, double );
+  vtkSetMacro(Offset, double);
+  vtkGetMacro(Offset, double);
   //@}
 
   //@{
@@ -95,15 +89,15 @@ public:
    * Optionally Restrict the points to a set of bounds. The placer will
    * invalidate points outside these bounds.
    */
-  vtkSetVector6Macro( PointBounds, double );
-  vtkGetVector6Macro( PointBounds, double );
+  vtkSetVector6Macro(PointBounds, double);
+  vtkGetVector6Macro(PointBounds, double);
   //@}
 
 protected:
   vtkFocalPlanePointPlacer();
   ~vtkFocalPlanePointPlacer() override;
 
-  void GetCurrentOrientation( double worldOrient[9] );
+  void GetCurrentOrientation(double worldOrient[9]);
 
   double PointBounds[6];
   double Offset;

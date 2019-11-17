@@ -16,7 +16,9 @@
 
 vtkAbstractObjectFactoryNewMacro(vtkAbstractRenderDevice);
 
-vtkAbstractRenderDevice::vtkAbstractRenderDevice() : GLMajor(2), GLMinor(1)
+vtkAbstractRenderDevice::vtkAbstractRenderDevice()
+  : GLMajor(2)
+  , GLMinor(1)
 {
 }
 

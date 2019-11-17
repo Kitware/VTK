@@ -34,9 +34,7 @@ vtkOTKernelSmoothing::vtkOTKernelSmoothing()
 }
 
 //-----------------------------------------------------------------------------
-vtkOTKernelSmoothing::~vtkOTKernelSmoothing()
-{
-}
+vtkOTKernelSmoothing::~vtkOTKernelSmoothing() {}
 
 //-----------------------------------------------------------------------------
 void vtkOTKernelSmoothing::PrintSelf(ostream& os, vtkIndent indent)
@@ -81,10 +79,8 @@ int vtkOTKernelSmoothing::Process(Sample* input)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOTKernelSmoothing::ComputePDF(Sample* input,
-  KernelSmoothing* ks,
-  double* range,
-  const char* pdfName)
+void vtkOTKernelSmoothing::ComputePDF(
+  Sample* input, KernelSmoothing* ks, double* range, const char* pdfName)
 {
   ks->setBoundaryCorrection(this->BoundaryCorrection);
 

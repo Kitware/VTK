@@ -75,7 +75,6 @@ void vtkInformationIterator::SetInformationWeak(vtkInformation* inf)
     this->Information = inf;
     this->Modified();
   }
-
 }
 
 //----------------------------------------------------------------------------
@@ -110,7 +109,7 @@ int vtkInformationIterator::IsDoneWithTraversal()
     return 1;
   }
 
-  if(this->Internal->Iterator == this->Information->Internal->Map.end())
+  if (this->Internal->Iterator == this->Information->Internal->Map.end())
   {
     return 1;
   }
@@ -131,7 +130,7 @@ vtkInformationKey* vtkInformationIterator::GetCurrentKey()
 //----------------------------------------------------------------------------
 void vtkInformationIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Information: ";
   if (this->Information)
@@ -144,4 +143,3 @@ void vtkInformationIterator::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
 }
-

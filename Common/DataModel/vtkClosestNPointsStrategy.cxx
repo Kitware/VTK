@@ -25,28 +25,24 @@
 #include <set>
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro( vtkClosestNPointsStrategy );
+vtkStandardNewMacro(vtkClosestNPointsStrategy);
 
 //----------------------------------------------------------------------------
-vtkClosestNPointsStrategy::vtkClosestNPointsStrategy ()
+vtkClosestNPointsStrategy::vtkClosestNPointsStrategy()
 {
   this->ClosestNPoints = 9;
 }
 
 //----------------------------------------------------------------------------
-vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy ()
-{
-}
+vtkClosestNPointsStrategy::~vtkClosestNPointsStrategy() {}
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkClosestNPointsStrategy::
-FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
-         vtkIdType cellId, double tol2, int& subId,
-         double pcoords[3], double *weights)
+vtkIdType vtkClosestNPointsStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
+  vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
   // First try standard strategy which is reasonably fast
-  vtkIdType foundCell = this->Superclass::
-    FindCell(x,cell,gencell,cellId,tol2,subId,pcoords,weights);
+  vtkIdType foundCell =
+    this->Superclass::FindCell(x, cell, gencell, cellId, tol2, subId, pcoords, weights);
   if (foundCell >= 0)
   {
     return foundCell;
@@ -60,26 +56,25 @@ FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
   // subdivision of hexahedral cells). Using large N affects performance but
   // produces better results.
   vtkIdType numPts = this->NearPointIds->GetNumberOfIds();
-  this->PointLocator->
-    FindClosestNPoints(numPts+this->ClosestNPoints, x, this->NearPointIds);
-  numPts=this->NearPointIds->GetNumberOfIds();
+  this->PointLocator->FindClosestNPoints(numPts + this->ClosestNPoints, x, this->NearPointIds);
+  numPts = this->NearPointIds->GetNumberOfIds();
 
   vtkIdType i, j, ptId, numCells;
   int ret;
   double closest[3], dist2;
-  for ( i=0; i < numPts; ++i )
+  for (i = 0; i < numPts; ++i)
   {
     ptId = this->NearPointIds->GetId(i);
     this->PointSet->GetPointCells(ptId, this->CellIds);
     numCells = this->CellIds->GetNumberOfIds();
-    for ( j=0; j < numCells; j++ )
+    for (j = 0; j < numCells; j++)
     {
       cellId = this->CellIds->GetId(j);
-      if ( this->VisitedCells.find(cellId) == this->VisitedCells.end() )
+      if (this->VisitedCells.find(cellId) == this->VisitedCells.end())
       {
-        cell = this->SelectCell(this->PointSet,cellId,nullptr,gencell);
+        cell = this->SelectCell(this->PointSet, cellId, nullptr, gencell);
         ret = cell->EvaluatePosition(x, closest, subId, pcoords, dist2, weights);
-        if (ret != -1  && dist2 <= tol2 )
+        if (ret != -1 && dist2 <= tol2)
         {
           return cellId;
         }
@@ -94,6 +89,5 @@ FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
 //----------------------------------------------------------------------------
 void vtkClosestNPointsStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }

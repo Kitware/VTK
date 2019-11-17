@@ -24,14 +24,14 @@
 
 // Disable warnings that Qt headers give.
 #ifdef _MSC_VER
-#pragma warning(disable:4127)
-#pragma warning(disable:4512)
+#pragma warning(disable : 4127)
+#pragma warning(disable : 4512)
 #endif
 
 #if !defined(_DEBUG)
-# if !defined(QT_NO_DEBUG)
-#  define QT_NO_DEBUG
-# endif
+#if !defined(QT_NO_DEBUG)
+#define QT_NO_DEBUG
+#endif
 #endif
 
 #include "Q4VTKWidgetPlugin.h"
@@ -99,7 +99,7 @@ QString QVTKWidgetPlugin::group() const
 QIcon QVTKWidgetPlugin::icon() const
 {
   qDebug("QVTKWidgetPlugin::icon\n");
-  return QIcon( QPixmap( QVTKWidget_image ) );
+  return QIcon(QPixmap(QVTKWidget_image));
 }
 
 //! the name of the include file for building an app with a widget

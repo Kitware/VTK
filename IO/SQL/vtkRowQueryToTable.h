@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkSQLDatabase vtkRowQuery
-*/
+ */
 
 #ifndef vtkRowQueryToTable_h
 #define vtkRowQueryToTable_h
@@ -69,10 +69,7 @@ protected:
 
   vtkRowQuery* Query;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkRowQueryToTable(const vtkRowQueryToTable&) = delete;
@@ -80,4 +77,3 @@ private:
 };
 
 #endif
-

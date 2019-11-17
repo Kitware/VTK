@@ -48,7 +48,7 @@ int vtkServerSocket::CreateServer(int port)
   {
     return -1;
   }
-  if ( this->BindSocket(this->SocketDescriptor, port) != 0||
+  if (this->BindSocket(this->SocketDescriptor, port) != 0 ||
     this->Listen(this->SocketDescriptor) != 0)
   {
     // failed to bind or listen.

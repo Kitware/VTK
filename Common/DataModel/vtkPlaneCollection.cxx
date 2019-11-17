@@ -17,8 +17,7 @@
 
 vtkStandardNewMacro(vtkPlaneCollection);
 
-vtkPlane *vtkPlaneCollection::GetNextPlane(
-  vtkCollectionSimpleIterator &cookie)
+vtkPlane* vtkPlaneCollection::GetNextPlane(vtkCollectionSimpleIterator& cookie)
 {
-  return static_cast<vtkPlane *>(this->GetNextItemAsObject(cookie));
+  return static_cast<vtkPlane*>(this->GetNextItemAsObject(cookie));
 }

@@ -21,23 +21,23 @@
 
 namespace
 {
-void InitializePolyData(vtkPolyData *polyData, int dataType)
+void InitializePolyData(vtkPolyData* polyData, int dataType)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
   verts->InsertNextCell(4);
 
-  if(dataType == VTK_DOUBLE)
+  if (dataType == VTK_DOUBLE)
   {
     points->SetDataType(VTK_DOUBLE);
-    for(unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
       double point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = randomSequence->GetValue();
@@ -48,10 +48,10 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
   else
   {
     points->SetDataType(VTK_FLOAT);
-    for(unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
       float point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = static_cast<float>(randomSequence->GetValue());
@@ -68,15 +68,13 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
 
 int ClipPolyData(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkPolyData> inputPolyData
-    = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> inputPolyData = vtkSmartPointer<vtkPolyData>::New();
   InitializePolyData(inputPolyData, dataType);
 
   vtkSmartPointer<vtkPlanes> planes = vtkSmartPointer<vtkPlanes>::New();
   planes->SetBounds(0.0, 1.0, 0.0, 1.0, 0.0, 1.0);
 
-  vtkSmartPointer<vtkClipPolyData> clipPolyData
-    = vtkSmartPointer<vtkClipPolyData>::New();
+  vtkSmartPointer<vtkClipPolyData> clipPolyData = vtkSmartPointer<vtkClipPolyData>::New();
   clipPolyData->SetOutputPointsPrecision(outputPointsPrecision);
   clipPolyData->SetClipFunction(planes);
   clipPolyData->SetInputData(inputPolyData);
@@ -90,46 +88,46 @@ int ClipPolyData(int dataType, int outputPointsPrecision)
 }
 }
 
-int TestClipPolyData(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestClipPolyData(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int dataType = ClipPolyData(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = ClipPolyData(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = ClipPolyData(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = ClipPolyData(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = ClipPolyData(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = ClipPolyData(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

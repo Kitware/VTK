@@ -78,9 +78,7 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 }
 
 //-----------------------------------------------------------------------------
-vtkAdaptiveDataSetSurfaceFilter::~vtkAdaptiveDataSetSurfaceFilter()
-{
-}
+vtkAdaptiveDataSetSurfaceFilter::~vtkAdaptiveDataSetSurfaceFilter() {}
 
 //----------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)

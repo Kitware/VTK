@@ -16,13 +16,13 @@
  * @class   vtkAtom
  * @brief   convenience proxy for vtkMolecule
  *
-*/
+ */
 
 #ifndef vtkAtom_h
 #define vtkAtom_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkObject.h" // For macros, defines, etc
+#include "vtkObject.h"                // For macros, defines, etc
 
 class vtkMolecule;
 class vtkVector3d;
@@ -30,8 +30,8 @@ class vtkVector3f;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAtom
 {
- public:
-  void PrintSelf(ostream &os, vtkIndent indent);
+public:
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   /**
    * Return the Id used to identify this atom in the parent molecule.
@@ -41,7 +41,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAtom
   /**
    * Return the parent molecule of this atom.
    */
-  vtkMolecule * GetMolecule();
+  vtkMolecule* GetMolecule();
 
   //@{
   /**
@@ -60,15 +60,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAtom
   void SetPosition(const float pos[3]);
   void SetPosition(float x, float y, float z);
   vtkVector3f GetPosition() const;
-  void SetPosition(const vtkVector3f &pos);
+  void SetPosition(const vtkVector3f& pos);
   //@}
 
- protected:
+protected:
   friend class vtkMolecule;
 
-  vtkAtom(vtkMolecule *parent, vtkIdType id);
+  vtkAtom(vtkMolecule* parent, vtkIdType id);
 
-  vtkMolecule *Molecule;
+  vtkMolecule* Molecule;
   vtkIdType Id;
 };
 
@@ -77,7 +77,7 @@ inline vtkIdType vtkAtom::GetId() const
   return this->Id;
 }
 
-inline vtkMolecule * vtkAtom::GetMolecule()
+inline vtkMolecule* vtkAtom::GetMolecule()
 {
   return this->Molecule;
 }

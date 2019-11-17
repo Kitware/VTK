@@ -8,7 +8,7 @@ class vtkGraphLayoutView;
 class GraphLayoutViewItem : public QVTKGraphicsItem
 {
 public:
-  GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p=0);
+  GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p = 0);
   ~GraphLayoutViewItem();
 
 protected:

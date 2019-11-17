@@ -21,7 +21,7 @@
 #include "vtkPoints.h"
 
 //------------------------------------------------------------------------------
-void vtkCellIterator::PrintSelf(ostream &os, vtkIndent indent)
+void vtkCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "CacheFlags: ";
   switch (this->CacheFlags)
@@ -117,7 +117,7 @@ int vtkCellIterator::GetCellDimension()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellIterator::GetCell(vtkGenericCell *cell)
+void vtkCellIterator::GetCell(vtkGenericCell* cell)
 {
   cell->SetCellType(this->GetCellType());
   cell->SetPointIds(this->GetPointIds());
@@ -126,7 +126,7 @@ void vtkCellIterator::GetCell(vtkGenericCell *cell)
   cell->SetFaces(nullptr);
   if (cell->RequiresExplicitFaceRepresentation())
   {
-    vtkIdList *faces = this->GetFaces();
+    vtkIdList* faces = this->GetFaces();
     if (faces->GetNumberOfIds() != 0)
     {
       cell->SetFaces(faces->GetPointer(0));
@@ -141,8 +141,8 @@ void vtkCellIterator::GetCell(vtkGenericCell *cell)
 
 //------------------------------------------------------------------------------
 vtkCellIterator::vtkCellIterator()
-  : CellType(VTK_EMPTY_CELL),
-    CacheFlags(UninitializedFlag)
+  : CellType(VTK_EMPTY_CELL)
+  , CacheFlags(UninitializedFlag)
 {
   this->Points = this->PointsContainer;
   this->PointIds = this->PointIdsContainer;

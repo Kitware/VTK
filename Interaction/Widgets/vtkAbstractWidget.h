@@ -47,7 +47,7 @@
  *
  * @sa
  * vtkWidgetRepresentation vtkWidgetEventTranslator vtkWidgetCallbackMapper
-*/
+ */
 
 #ifndef vtkAbstractWidget_h
 #define vtkAbstractWidget_h
@@ -59,7 +59,6 @@ class vtkWidgetEventTranslator;
 class vtkWidgetCallbackMapper;
 class vtkWidgetRepresentation;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkAbstractWidget : public vtkInteractorObserver
 {
 public:
@@ -67,7 +66,7 @@ public:
   /**
    * Standard macros implementing standard VTK methods.
    */
-  vtkTypeMacro(vtkAbstractWidget,vtkInteractorObserver);
+  vtkTypeMacro(vtkAbstractWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -96,8 +95,7 @@ public:
    * Get the event translator. Careful manipulation of this class enables
    * the user to override the default event bindings.
    */
-  vtkWidgetEventTranslator *GetEventTranslator()
-    {return this->EventTranslator;}
+  vtkWidgetEventTranslator* GetEventTranslator() { return this->EventTranslator; }
 
   /**
    * Create the default widget representation if one is not set. The
@@ -121,8 +119,8 @@ public:
    * When a widget has a parent, it defers the rendering to the parent. It
    * may also defer managing the cursor (see ManagesCursor ivar).
    */
-  void SetParent(vtkAbstractWidget *parent) {this->Parent = parent;}
-  vtkGetObjectMacro(Parent,vtkAbstractWidget);
+  void SetParent(vtkAbstractWidget* parent) { this->Parent = parent; }
+  vtkGetObjectMacro(Parent, vtkAbstractWidget);
 
   //@{
   /**
@@ -131,10 +129,10 @@ public:
    * vtkProp (typically a subclass of vtkWidgetRepresentation) so it can be
    * added to the renderer independent of the widget.
    */
-  vtkWidgetRepresentation *GetRepresentation()
+  vtkWidgetRepresentation* GetRepresentation()
   {
-      this->CreateDefaultRepresentation();
-      return this->WidgetRep;
+    this->CreateDefaultRepresentation();
+    return this->WidgetRep;
   }
   //@}
 
@@ -146,9 +144,9 @@ public:
    * composite widgets, and the parent widget takes over the cursor
    * management.
    */
-  vtkSetMacro(ManagesCursor,vtkTypeBool);
-  vtkGetMacro(ManagesCursor,vtkTypeBool);
-  vtkBooleanMacro(ManagesCursor,vtkTypeBool);
+  vtkSetMacro(ManagesCursor, vtkTypeBool);
+  vtkGetMacro(ManagesCursor, vtkTypeBool);
+  vtkBooleanMacro(ManagesCursor, vtkTypeBool);
   //@}
 
   /**
@@ -156,38 +154,38 @@ public:
    * priority of the widget. Unlike the superclass documentation, no
    * methods such as SetInteractor to null and reset it etc. are necessary
    */
-  void SetPriority( float ) override;
+  void SetPriority(float) override;
 
 protected:
   vtkAbstractWidget();
   ~vtkAbstractWidget() override;
 
   // Handles the events; centralized here for all widgets.
-  static void ProcessEventsHandler(vtkObject* object, unsigned long event,
-                            void* clientdata, void* calldata);
+  static void ProcessEventsHandler(
+    vtkObject* object, unsigned long event, void* clientdata, void* calldata);
 
   // The representation for the widget. This is typically called by the
   // SetRepresentation() methods particular to each widget (i.e. subclasses
   // of this class). This method does the actual work; the SetRepresentation()
   // methods constrain the type that can be set.
-  void SetWidgetRepresentation(vtkWidgetRepresentation *r);
-  vtkWidgetRepresentation *WidgetRep;
+  void SetWidgetRepresentation(vtkWidgetRepresentation* r);
+  vtkWidgetRepresentation* WidgetRep;
 
   // helper methods for cursor management
   vtkTypeBool ManagesCursor;
   virtual void SetCursor(int vtkNotUsed(state)) {}
 
   // For translating and invoking events
-  vtkWidgetEventTranslator *EventTranslator;
-  vtkWidgetCallbackMapper  *CallbackMapper;
+  vtkWidgetEventTranslator* EventTranslator;
+  vtkWidgetCallbackMapper* CallbackMapper;
 
   // The parent, if any, for this widget
-  vtkAbstractWidget *Parent;
+  vtkAbstractWidget* Parent;
 
   // Call data which can be retrieved by the widget. This data is set
   // by ProcessEvents() if call data is provided during a callback
   // sequence.
-  void *CallData;
+  void* CallData;
 
   // Flag indicating if the widget should handle interaction events.
   // On by default.

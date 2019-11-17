@@ -20,7 +20,7 @@
  * subclass of vtkInformationKey defined in the vtkCommon library.
  * It makes sure that the table of keys is created before and
  * destroyed after it is used.
-*/
+ */
 
 #ifndef vtkCommonInformationKeyManager_h
 #define vtkCommonInformationKeyManager_h
@@ -49,8 +49,7 @@ public:
 private:
   // Unimplemented
   vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&);
-  vtkCommonInformationKeyManager& operator=(
-    const vtkCommonInformationKeyManager&);
+  vtkCommonInformationKeyManager& operator=(const vtkCommonInformationKeyManager&);
 
   static void ClassInitialize();
   static void ClassFinalize();

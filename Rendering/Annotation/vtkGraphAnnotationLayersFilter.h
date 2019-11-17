@@ -44,7 +44,7 @@
  *
  * @par Thanks:
  * Thanks to Colin Myers, University of Leeds for providing this implementation.
-*/
+ */
 
 #ifndef vtkGraphAnnotationLayersFilter_h
 #define vtkGraphAnnotationLayersFilter_h
@@ -57,11 +57,10 @@ class vtkAppendPolyData;
 class vtkConvexHull2D;
 class vtkRenderer;
 
-
-class VTKRENDERINGANNOTATION_EXPORT vtkGraphAnnotationLayersFilter: public vtkPolyDataAlgorithm
+class VTKRENDERINGANNOTATION_EXPORT vtkGraphAnnotationLayersFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkGraphAnnotationLayersFilter *New();
+  static vtkGraphAnnotationLayersFilter* New();
   vtkTypeMacro(vtkGraphAnnotationLayersFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -118,8 +117,7 @@ protected:
   /**
    * This is called by the superclass. This is the method you should override.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Set the input to vtkGraph and vtkAnnotationLayers.

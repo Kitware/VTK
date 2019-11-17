@@ -24,7 +24,7 @@
  * vtkXMLPImageDataWriter vtkXMLPStructuredGridWriter
  * vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
  * vtkXMLPUnstructuredGridWriter
-*/
+ */
 
 #ifndef vtkXMLPDataSetWriter_h
 #define vtkXMLPDataSetWriter_h
@@ -35,7 +35,7 @@
 class VTKIOPARALLELXML_EXPORT vtkXMLPDataSetWriter : public vtkXMLPDataWriter
 {
 public:
-  vtkTypeMacro(vtkXMLPDataSetWriter,vtkXMLPDataWriter);
+  vtkTypeMacro(vtkXMLPDataSetWriter, vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPDataSetWriter* New();
 

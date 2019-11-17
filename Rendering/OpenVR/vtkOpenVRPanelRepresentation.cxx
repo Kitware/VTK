@@ -27,8 +27,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenVRRenderWindowInteractor.h"
 
-
-
 // todo
 // - use text bounds for position/scale (done)
 // - fix bearing to be correct (done)
@@ -45,7 +43,7 @@ vtkOpenVRPanelRepresentation::vtkOpenVRPanelRepresentation()
   this->Text = "This is a Panel Widget";
   this->TextActor->SetInput(this->Text.c_str());
 
-  vtkTextProperty *prop = this->TextActor->GetTextProperty();
+  vtkTextProperty* prop = this->TextActor->GetTextProperty();
   this->TextActor->ForceOpaqueOn();
   this->TextActor->SetUserMatrix(vtkMatrix4x4::New());
   this->TextActor->GetUserMatrix()->Delete();
@@ -71,9 +69,9 @@ vtkOpenVRPanelRepresentation::~vtkOpenVRPanelRepresentation()
 void vtkOpenVRPanelRepresentation::SetCoordinateSystemToWorld()
 {
   if (this->CoordinateSystem == World)
-    {
-      return;
-    }
+  {
+    return;
+  }
   this->TextActor->GetUserMatrix()->Identity();
   this->CoordinateSystem = World;
   this->Modified();
@@ -82,9 +80,9 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToWorld()
 void vtkOpenVRPanelRepresentation::SetCoordinateSystemToHMD()
 {
   if (this->CoordinateSystem == HMD)
-    {
-      return;
-    }
+  {
+    return;
+  }
   this->CoordinateSystem = HMD;
   this->Modified();
 }
@@ -92,9 +90,9 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToHMD()
 void vtkOpenVRPanelRepresentation::SetCoordinateSystemToLeftController()
 {
   if (this->CoordinateSystem == LeftController)
-    {
-      return;
-    }
+  {
+    return;
+  }
   this->CoordinateSystem = LeftController;
   this->Modified();
 }
@@ -102,43 +100,35 @@ void vtkOpenVRPanelRepresentation::SetCoordinateSystemToLeftController()
 void vtkOpenVRPanelRepresentation::SetCoordinateSystemToRightController()
 {
   if (this->CoordinateSystem == RightController)
-    {
-      return;
-    }
+  {
+    return;
+  }
   this->CoordinateSystem = RightController;
   this->Modified();
 }
 
 int vtkOpenVRPanelRepresentation::ComputeComplexInteractionState(
-  vtkRenderWindowInteractor *,
-  vtkAbstractWidget *,
-  unsigned long , void *calldata, int )
+  vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata, int)
 {
-  if (!this->AllowAdjustment ||
-      this->InteractionState == vtkOpenVRPanelRepresentation::Moving)
+  if (!this->AllowAdjustment || this->InteractionState == vtkOpenVRPanelRepresentation::Moving)
   {
     return this->InteractionState;
   }
 
-  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
-  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  vtkEventData* edata = static_cast<vtkEventData*>(calldata);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
   if (edd)
   {
     double pos[4];
     edd->GetWorldPosition(pos);
     pos[3] = 1.0;
 
-    const double *bds = this->TextActor->GetBounds();
-    double length = sqrt((bds[1]-bds[0])*(bds[1]-bds[0]) +
-                         (bds[3]-bds[2])*(bds[3]-bds[2]) +
-                         (bds[5]-bds[4])*(bds[5]-bds[4]));
-    double tolerance = length*0.05;
-    if (pos[0] > bds[0] - tolerance &&
-        pos[0] < bds[1] + tolerance &&
-        pos[1] > bds[2] - tolerance &&
-        pos[1] < bds[3] + tolerance &&
-        pos[2] > bds[4] - tolerance &&
-        pos[2] < bds[5] + tolerance)
+    const double* bds = this->TextActor->GetBounds();
+    double length = sqrt((bds[1] - bds[0]) * (bds[1] - bds[0]) +
+      (bds[3] - bds[2]) * (bds[3] - bds[2]) + (bds[5] - bds[4]) * (bds[5] - bds[4]));
+    double tolerance = length * 0.05;
+    if (pos[0] > bds[0] - tolerance && pos[0] < bds[1] + tolerance && pos[1] > bds[2] - tolerance &&
+      pos[1] < bds[3] + tolerance && pos[2] > bds[4] - tolerance && pos[2] < bds[5] + tolerance)
     {
       this->InteractionState = vtkOpenVRPanelRepresentation::Moving;
     }
@@ -152,12 +142,10 @@ int vtkOpenVRPanelRepresentation::ComputeComplexInteractionState(
 }
 
 void vtkOpenVRPanelRepresentation::StartComplexInteraction(
-  vtkRenderWindowInteractor *,
-  vtkAbstractWidget *,
-  unsigned long, void *calldata)
+  vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
-  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
-  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  vtkEventData* edata = static_cast<vtkEventData*>(calldata);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
   if (edd)
   {
     edd->GetWorldPosition(this->StartEventPosition);
@@ -165,18 +153,16 @@ void vtkOpenVRPanelRepresentation::StartComplexInteraction(
     this->LastEventPosition[1] = this->StartEventPosition[1];
     this->LastEventPosition[2] = this->StartEventPosition[2];
     edd->GetWorldOrientation(this->StartEventOrientation);
-    std::copy(this->StartEventOrientation, this->StartEventOrientation + 4,
-      this->LastEventOrientation);
+    std::copy(
+      this->StartEventOrientation, this->StartEventOrientation + 4, this->LastEventOrientation);
   }
 }
 
 void vtkOpenVRPanelRepresentation::ComplexInteraction(
-  vtkRenderWindowInteractor *,
-  vtkAbstractWidget *,
-  unsigned long, void *calldata )
+  vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata)
 {
-  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
-  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  vtkEventData* edata = static_cast<vtkEventData*>(calldata);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
   if (edd)
   {
     double eventPos[3];
@@ -185,7 +171,7 @@ void vtkOpenVRPanelRepresentation::ComplexInteraction(
     edd->GetWorldOrientation(eventDir);
 
     // Process the motion
-    if ( this->InteractionState == vtkOpenVRPanelRepresentation::Moving )
+    if (this->InteractionState == vtkOpenVRPanelRepresentation::Moving)
     {
       // this->TranslateOutline(this->LastEventPosition, eventPos);
       this->UpdatePose(this->LastEventPosition, this->LastEventOrientation, eventPos, eventDir);
@@ -201,20 +187,15 @@ void vtkOpenVRPanelRepresentation::ComplexInteraction(
 }
 
 void vtkOpenVRPanelRepresentation::EndComplexInteraction(
-  vtkRenderWindowInteractor *,
-  vtkAbstractWidget *,
-  unsigned long, void *)
+  vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void*)
 {
   this->InteractionState = vtkOpenVRPanelRepresentation::Outside;
 }
 
-
 //----------------------------------------------------------------------------
 // Loop through all points and translate and rotate them
 void vtkOpenVRPanelRepresentation::UpdatePose(
-  double *p1, double *orient1,
-  double *p2, double *orient2
-  )
+  double* p1, double* orient1, double* p2, double* orient2)
 {
   if (this->CoordinateSystem == World)
   {
@@ -224,17 +205,17 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
 
   if (this->CoordinateSystem == HMD)
   {
-    vtkMatrix4x4 *mat = this->TextActor->GetUserMatrix();
+    vtkMatrix4x4* mat = this->TextActor->GetUserMatrix();
     mat->Register(this);
     this->TextActor->SetUserMatrix(nullptr);
 
     this->TempMatrix->DeepCopy(mat);
     this->TempMatrix->Invert();
     double p14[4];
-    std::copy(p1,p1+3,p14);
+    std::copy(p1, p1 + 3, p14);
     p14[3] = 1.0;
     double p24[4];
-    std::copy(p2,p2+3,p24);
+    std::copy(p2, p2 + 3, p24);
     p24[3] = 1.0;
     this->TempMatrix->MultiplyPoint(p14, p14);
     this->TempMatrix->MultiplyPoint(p24, p24);
@@ -245,12 +226,12 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
       trans[i] = p24[i] - p14[i];
     }
 
-    vtkTransform *newTransform = this->TempTransform;
+    vtkTransform* newTransform = this->TempTransform;
 
     // changes in Z adjust the scale
-    double ratio = (0.5+trans[2]/this->LastScale)/0.5;
-    double *scale = this->TextActor->GetScale();
-    this->TextActor->SetScale(scale[0]*ratio,scale[1]*ratio, scale[2]*ratio);
+    double ratio = (0.5 + trans[2] / this->LastScale) / 0.5;
+    double* scale = this->TextActor->GetScale();
+    this->TextActor->SetScale(scale[0] * ratio, scale[1] * ratio, scale[2] * ratio);
     this->TextActor->AddPosition(trans[0], trans[1], 0.0);
 
     // compute the net rotation
@@ -261,16 +242,16 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
     q2.SetRotationAngleAndAxis(
       vtkMath::RadiansFromDegrees(orient2[0]), orient2[1], orient2[2], orient2[3]);
     q1.Conjugate();
-    q2 = q2*q1;
+    q2 = q2 * q1;
     double axis[4];
-    axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis+1));
+    axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis + 1));
 
     newTransform->Identity();
     newTransform->PostMultiply();
     newTransform->Concatenate(this->TempMatrix);
-    newTransform->TransformNormal(axis+1,axis+1);
+    newTransform->TransformNormal(axis + 1, axis + 1);
 
-    vtkMatrix4x4 *oldMatrix = this->TempMatrix;
+    vtkMatrix4x4* oldMatrix = this->TempMatrix;
     this->TextActor->GetMatrix(oldMatrix);
 
     newTransform->Identity();
@@ -286,21 +267,19 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
     mat->UnRegister(this);
   }
 
-
-  if (this->CoordinateSystem == LeftController ||
-      this->CoordinateSystem == RightController)
+  if (this->CoordinateSystem == LeftController || this->CoordinateSystem == RightController)
   {
-    vtkMatrix4x4 *mat = this->TextActor->GetUserMatrix();
+    vtkMatrix4x4* mat = this->TextActor->GetUserMatrix();
     mat->Register(this);
     this->TextActor->SetUserMatrix(nullptr);
 
     this->TempMatrix->DeepCopy(mat);
     this->TempMatrix->Invert();
     double p14[4];
-    std::copy(p1,p1+3,p14);
+    std::copy(p1, p1 + 3, p14);
     p14[3] = 1.0;
     double p24[4];
-    std::copy(p2,p2+3,p24);
+    std::copy(p2, p2 + 3, p24);
     p24[3] = 1.0;
     this->TempMatrix->MultiplyPoint(p14, p14);
     this->TempMatrix->MultiplyPoint(p24, p24);
@@ -312,7 +291,7 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
     }
     this->TextActor->AddPosition(trans[0], trans[1], trans[2]);
 
-    vtkTransform *newTransform = this->TempTransform;
+    vtkTransform* newTransform = this->TempTransform;
 
     // compute the net rotation
     vtkQuaternion<double> q1;
@@ -322,16 +301,16 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
     q2.SetRotationAngleAndAxis(
       vtkMath::RadiansFromDegrees(orient2[0]), orient2[1], orient2[2], orient2[3]);
     q1.Conjugate();
-    q2 = q2*q1;
+    q2 = q2 * q1;
     double axis[4];
-    axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis+1));
+    axis[0] = vtkMath::DegreesFromRadians(q2.GetRotationAngleAndAxis(axis + 1));
 
     newTransform->Identity();
     newTransform->PostMultiply();
     newTransform->Concatenate(this->TempMatrix);
-    newTransform->TransformNormal(axis+1,axis+1);
+    newTransform->TransformNormal(axis + 1, axis + 1);
 
-    vtkMatrix4x4 *oldMatrix = this->TempMatrix;
+    vtkMatrix4x4* oldMatrix = this->TempMatrix;
     this->TextActor->GetMatrix(oldMatrix);
 
     newTransform->Identity();
@@ -346,56 +325,54 @@ void vtkOpenVRPanelRepresentation::UpdatePose(
     this->TextActor->SetUserMatrix(mat);
     mat->UnRegister(this);
   }
-
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::ReleaseGraphicsResources(vtkWindow *w)
+void vtkOpenVRPanelRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->TextActor->ReleaseGraphicsResources(w);
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
+void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer* ren)
 {
   // check whether or not need to rebuild the matrix
   // only rebuild on left eye otherwise we get two different
   // poses for two eyes
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkCamera* cam = ren->GetActiveCamera();
   if (this->CoordinateSystem != World && cam->GetLeftEye())
   {
-    vtkOpenVRRenderWindow *rw =
-      static_cast<vtkOpenVRRenderWindow*>(ren->GetVTKWindow());
+    vtkOpenVRRenderWindow* rw = static_cast<vtkOpenVRRenderWindow*>(ren->GetVTKWindow());
 
     if (this->CoordinateSystem == HMD)
     {
-      vtkTransform *vt = cam->GetViewTransformObject();
+      vtkTransform* vt = cam->GetViewTransformObject();
       vt->GetInverse(this->TextActor->GetUserMatrix());
 
       if (rw->GetPhysicalScale() != this->LastScale)
       {
-        double ratio = rw->GetPhysicalScale()/this->LastScale;
-        double *scale = this->TextActor->GetScale();
-        this->TextActor->SetScale(scale[0]*ratio,scale[1]*ratio, scale[2]*ratio);
-        double *pos = this->TextActor->GetPosition();
-        this->TextActor->SetPosition(pos[0]*ratio,pos[1]*ratio, -0.5*rw->GetPhysicalScale());
+        double ratio = rw->GetPhysicalScale() / this->LastScale;
+        double* scale = this->TextActor->GetScale();
+        this->TextActor->SetScale(scale[0] * ratio, scale[1] * ratio, scale[2] * ratio);
+        double* pos = this->TextActor->GetPosition();
+        this->TextActor->SetPosition(pos[0] * ratio, pos[1] * ratio, -0.5 * rw->GetPhysicalScale());
         this->LastScale = rw->GetPhysicalScale();
       }
       else
       {
-        double *pos = this->TextActor->GetPosition();
-        this->TextActor->SetPosition(pos[0], pos[1], -0.5*rw->GetPhysicalScale());
+        double* pos = this->TextActor->GetPosition();
+        this->TextActor->SetPosition(pos[0], pos[1], -0.5 * rw->GetPhysicalScale());
       }
     }
 
     if (this->CoordinateSystem == LeftController)
     {
-      vr::TrackedDevicePose_t *tdPose;
+      vr::TrackedDevicePose_t* tdPose;
       rw->GetTrackedDevicePose(vtkEventDataDevice::LeftController, &tdPose);
       if (tdPose && tdPose->bPoseIsValid)
       {
         vtkNew<vtkMatrix4x4> poseMatrixWorld;
-        static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
+        static_cast<vtkOpenVRRenderWindowInteractor*>(rw->GetInteractor())
           ->ConvertOpenVRPoseToMatrices(*tdPose, poseMatrixWorld);
         this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
       }
@@ -403,12 +380,12 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
 
     if (this->CoordinateSystem == RightController)
     {
-      vr::TrackedDevicePose_t *tdPose;
+      vr::TrackedDevicePose_t* tdPose;
       rw->GetTrackedDevicePose(vtkEventDataDevice::RightController, &tdPose);
       if (tdPose && tdPose->bPoseIsValid)
       {
         vtkNew<vtkMatrix4x4> poseMatrixWorld;
-        static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
+        static_cast<vtkOpenVRRenderWindowInteractor*>(rw->GetInteractor())
           ->ConvertOpenVRPoseToMatrices(*tdPose, poseMatrixWorld);
         this->TextActor->GetUserMatrix()->DeepCopy(poseMatrixWorld);
       }
@@ -417,7 +394,7 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------------
-int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   if (!this->GetVisibility())
   {
@@ -427,7 +404,7 @@ int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   // make sure the device has the same matrix
   if (true /* HMD coords */)
   {
-    vtkRenderer *ren = static_cast<vtkRenderer *>(v);
+    vtkRenderer* ren = static_cast<vtkRenderer*>(v);
     this->ComputeMatrix(ren);
   }
 
@@ -436,8 +413,7 @@ int vtkOpenVRPanelRepresentation::RenderOpaqueGeometry(vtkViewport *v)
 }
 
 //-----------------------------------------------------------------------------
-int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(
-  vtkViewport *v)
+int vtkOpenVRPanelRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
   if (!this->GetVisibility())
   {
@@ -472,34 +448,29 @@ void vtkOpenVRPanelRepresentation::PlaceWidget(double bds[6])
   {
     // center the planel
     this->TextActor->SetPosition(
-      0.5*(bds[0] + bds[1]),
-      0.5*(bds[2] + bds[3]),
-      0.5*(bds[4] + bds[5]));
+      0.5 * (bds[0] + bds[1]), 0.5 * (bds[2] + bds[3]), 0.5 * (bds[4] + bds[5]));
 
-    double length = sqrt((bds[1]-bds[0])*(bds[1]-bds[0]) +
-                         (bds[3]-bds[2])*(bds[3]-bds[2]) +
-                         (bds[5]-bds[4])*(bds[5]-bds[4]));
-    this->TextActor->SetScale(length/700.0, length/700.0, length/700.0);
+    double length = sqrt((bds[1] - bds[0]) * (bds[1] - bds[0]) +
+      (bds[3] - bds[2]) * (bds[3] - bds[2]) + (bds[5] - bds[4]) * (bds[5] - bds[4]));
+    this->TextActor->SetScale(length / 700.0, length / 700.0, length / 700.0);
     this->LastScale = length;
   }
 
   if (this->CoordinateSystem != World)
   {
-    double scale = sqrt((bds[1]-bds[0])*(bds[1]-bds[0]) +
-                         (bds[3]-bds[2])*(bds[3]-bds[2]) +
-                         (bds[5]-bds[4])*(bds[5]-bds[4]));
-    this->TextActor->SetScale(scale/700.0, scale/700.0, scale/700.0);
+    double scale = sqrt((bds[1] - bds[0]) * (bds[1] - bds[0]) +
+      (bds[3] - bds[2]) * (bds[3] - bds[2]) + (bds[5] - bds[4]) * (bds[5] - bds[4]));
+    this->TextActor->SetScale(scale / 700.0, scale / 700.0, scale / 700.0);
     this->LastScale = scale;
-    this->TextActor->SetPosition(0.0,0.0,-0.5*scale);
+    this->TextActor->SetPosition(0.0, 0.0, -0.5 * scale);
   }
 }
 
 void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
-  const double *bds, const double *normal,
-  const double *upvec, double scale)
+  const double* bds, const double* normal, const double* upvec, double scale)
 {
   this->TextActor->GetUserMatrix()->Identity();
-  this->TextActor->SetOrientation(0,0,0);
+  this->TextActor->SetOrientation(0, 0, 0);
   this->LastScale = scale;
 
   // grab the bounding box of the text
@@ -549,33 +520,25 @@ void vtkOpenVRPanelRepresentation::PlaceWidgetExtended(
   if (this->CoordinateSystem == World)
   {
     // center the planel and default size to 400cm
-    this->TextActor->SetScale(
-      0.4*scale/maxdim, 0.4*scale/maxdim, 0.4*scale/maxdim);
+    this->TextActor->SetScale(0.4 * scale / maxdim, 0.4 * scale / maxdim, 0.4 * scale / maxdim);
     this->TextActor->SetPosition(
-      0.5*(bds[0] + bds[1]),
-      0.5*(bds[2] + bds[3]),
-      0.5*(bds[4] + bds[5]));
+      0.5 * (bds[0] + bds[1]), 0.5 * (bds[2] + bds[3]), 0.5 * (bds[4] + bds[5]));
   }
 
-  if (this->CoordinateSystem == LeftController
-      || this->CoordinateSystem == RightController)
+  if (this->CoordinateSystem == LeftController || this->CoordinateSystem == RightController)
   {
     // position the planel and default size to 400cm
-    this->TextActor->SetScale(0.4/maxdim, 0.4/maxdim, 0.4/maxdim);
-    this->TextActor->SetPosition(
-      0.5*(bds[0] + bds[1]) - 0.2*(tbounds[1] - tbounds[0])/maxdim,
-      0.5*(bds[2] + bds[3]),
-      0.5*(bds[4] + bds[5]));
+    this->TextActor->SetScale(0.4 / maxdim, 0.4 / maxdim, 0.4 / maxdim);
+    this->TextActor->SetPosition(0.5 * (bds[0] + bds[1]) - 0.2 * (tbounds[1] - tbounds[0]) / maxdim,
+      0.5 * (bds[2] + bds[3]), 0.5 * (bds[4] + bds[5]));
   }
 
   if (this->CoordinateSystem == HMD)
   {
     // center the planel and default size to 400cm
-    this->TextActor->SetScale(0.4*scale/maxdim, 0.4*scale/maxdim, 0.4*scale/maxdim);
-    this->TextActor->SetPosition(
-      -0.2*(tbounds[1] - tbounds[0])*scale/maxdim,
-      -0.2*(tbounds[3] - tbounds[2])*scale/maxdim,
-      -0.5*scale);
+    this->TextActor->SetScale(0.4 * scale / maxdim, 0.4 * scale / maxdim, 0.4 * scale / maxdim);
+    this->TextActor->SetPosition(-0.2 * (tbounds[1] - tbounds[0]) * scale / maxdim,
+      -0.2 * (tbounds[3] - tbounds[2]) * scale / maxdim, -0.5 * scale);
   }
 }
 
@@ -594,7 +557,6 @@ void vtkOpenVRPanelRepresentation::BuildRepresentation()
   //   this->TextActor3D->SetScale(scale, scale, scale);
   //   this->TextActor3D->SetInput(text.c_str());
 
-
   //   this->BuildTime.Modified();
   // }
 }
@@ -606,7 +568,7 @@ void vtkOpenVRPanelRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenVRPanelRepresentation::SetText(const char *text)
+void vtkOpenVRPanelRepresentation::SetText(const char* text)
 {
   if (this->Text == text)
   {

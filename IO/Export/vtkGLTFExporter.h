@@ -30,7 +30,7 @@
  *
  * @sa
  * vtkExporter
-*/
+ */
 
 #ifndef vtkGLTFExporter_h
 #define vtkGLTFExporter_h
@@ -43,8 +43,8 @@
 class VTKIOEXPORT_EXPORT vtkGLTFExporter : public vtkExporter
 {
 public:
-  static vtkGLTFExporter *New();
-  vtkTypeMacro(vtkGLTFExporter,vtkExporter);
+  static vtkGLTFExporter* New();
+  vtkTypeMacro(vtkGLTFExporter, vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -73,7 +73,7 @@ public:
   /**
    * Write the result to a provided ostream
    */
-  void WriteToStream(ostream &out);
+  void WriteToStream(ostream& out);
 
 protected:
   vtkGLTFExporter();
@@ -81,7 +81,7 @@ protected:
 
   void WriteData() override;
 
-  char *FileName;
+  char* FileName;
   bool InlineData;
 
 private:

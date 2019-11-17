@@ -29,9 +29,7 @@ vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 }
 
 //----------------------------------------------------------------------------
-vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
-{
-}
+vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow() {}
 
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
@@ -56,10 +54,9 @@ void vtkExternalOpenGLRenderWindow::Start(void)
   vtkCollectionSimpleIterator sit;
   vtkRenderer* renderer;
   for (this->GetRenderers()->InitTraversal(sit);
-    (renderer = this->GetRenderers()->GetNextRenderer(sit)); )
+       (renderer = this->GetRenderers()->GetNextRenderer(sit));)
   {
-    if (bufferType == GL_BACK_RIGHT || bufferType == GL_RIGHT
-      || bufferType == GL_FRONT_RIGHT)
+    if (bufferType == GL_BACK_RIGHT || bufferType == GL_RIGHT || bufferType == GL_FRONT_RIGHT)
     {
       this->StereoRenderOn();
       this->SetStereoTypeToRight();

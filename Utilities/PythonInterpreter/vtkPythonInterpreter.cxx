@@ -36,8 +36,9 @@
 
 #if PY_VERSION_HEX >= 0x03000000
 #if defined(__APPLE__) && PY_VERSION_HEX < 0x03050000
-extern "C" {
-extern wchar_t* _Py_DecodeUTF8_surrogateescape(const char* s, Py_ssize_t size);
+extern "C"
+{
+  extern wchar_t* _Py_DecodeUTF8_surrogateescape(const char* s, Py_ssize_t size);
 }
 #endif
 #endif
@@ -123,7 +124,7 @@ char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
 }
 #endif
 
-static std::vector<vtkWeakPointer<vtkPythonInterpreter> > * GlobalInterpreters;
+static std::vector<vtkWeakPointer<vtkPythonInterpreter> >* GlobalInterpreters;
 static std::vector<std::string> PythonPaths;
 
 void NotifyInterpreters(unsigned long eventid, void* calldata = nullptr)
@@ -242,9 +243,9 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     {
       PyEval_InitThreads(); // initialize and acquire GIL
     }
-    // Always release GIL, as it has been acquired either by PyEval_InitThreads 
+    // Always release GIL, as it has been acquired either by PyEval_InitThreads
     // prior to Python 3.7 or by Py_InitializeEx in Python 3.7 and after
-    PyEval_SaveThread(); 
+    PyEval_SaveThread();
 #endif
 
 #ifdef SIGINT
@@ -315,8 +316,9 @@ void vtkPythonInterpreter::SetProgramName(const char* programname)
     wchar_t* argv0 = vtk_Py_DecodeLocale(programname, nullptr);
     if (argv0 == 0)
     {
-      fprintf(stderr, "Fatal vtkpython error: "
-                      "unable to decode the program name\n");
+      fprintf(stderr,
+        "Fatal vtkpython error: "
+        "unable to decode the program name\n");
       static wchar_t empty[1] = { 0 };
       argv0 = empty;
       Py_SetProgramName(argv0);
@@ -448,17 +450,14 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
         PyObject* minor = PyObject_GetAttrString(version_info, "minor");
         PyObject* micro = PyObject_GetAttrString(version_info, "micro");
 
-        auto py_number_cmp = [] (PyObject* obj, long expected) {
+        auto py_number_cmp = [](PyObject* obj, long expected) {
           return obj && PyLong_Check(obj) && PyLong_AsLong(obj) == expected;
         };
 
         // Only 3.7.0 has this issue. Any failures to get the version
         // information is OK; we'll just crash later anyways if the version is
         // bad.
-        is_ok =
-          !py_number_cmp(major, 3) ||
-          !py_number_cmp(minor, 7) ||
-          !py_number_cmp(micro, 0);
+        is_ok = !py_number_cmp(major, 3) || !py_number_cmp(minor, 7) || !py_number_cmp(micro, 0);
 
         Py_XDECREF(micro);
         Py_XDECREF(minor);
@@ -473,9 +472,9 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     if (!is_ok)
     {
       std::cerr << "Python 3.7.0 has a known issue that causes a crash with a "
-        "specific API usage pattern. This has been fixed in 3.7.1 and all "
-        "newer 3.7.x Python releases. Exiting now to avoid the crash." <<
-        std::endl;
+                   "specific API usage pattern. This has been fixed in 3.7.1 and all "
+                   "newer 3.7.x Python releases. Exiting now to avoid the crash."
+                << std::endl;
       return 1;
     }
   }
@@ -503,8 +502,9 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     argvWide2[argcWide] = argvWide[argcWide];
     if (argvWide[argcWide] == 0)
     {
-      fprintf(stderr, "Fatal vtkpython error: "
-                      "unable to decode the command line argument #%i\n",
+      fprintf(stderr,
+        "Fatal vtkpython error: "
+        "unable to decode the command line argument #%i\n",
         i + 1);
       for (int k = 0; k < argcWide; k++)
       {
@@ -529,7 +529,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 
   // process command line arguments to remove unhandled args.
   std::vector<char*> newargv;
-  for (int i=0; i < argc; ++i)
+  for (int i = 0; i < argc; ++i)
   {
     if (argv[i] && strcmp(argv[i], "--enable-bt") == 0)
     {
@@ -614,9 +614,7 @@ void vtkPythonInterpreter::WriteStdOut(const char* txt)
 }
 
 //----------------------------------------------------------------------------
-void vtkPythonInterpreter::FlushStdOut()
-{
-}
+void vtkPythonInterpreter::FlushStdOut() {}
 
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::WriteStdErr(const char* txt)
@@ -633,9 +631,7 @@ void vtkPythonInterpreter::WriteStdErr(const char* txt)
 }
 
 //----------------------------------------------------------------------------
-void vtkPythonInterpreter::FlushStdErr()
-{
-}
+void vtkPythonInterpreter::FlushStdErr() {}
 
 //----------------------------------------------------------------------------
 vtkStdString vtkPythonInterpreter::ReadStdin()
@@ -733,7 +729,7 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
     {
       env_path = vtkdir;
     }
-    systools::PutEnv(std::string("PATH=")+env_path);
+    systools::PutEnv(std::string("PATH=") + env_path);
   }
 #endif
 

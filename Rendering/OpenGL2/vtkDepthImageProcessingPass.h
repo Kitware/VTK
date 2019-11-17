@@ -29,7 +29,7 @@ Ph.D. thesis of Christian BOUCHENY.
  *
  * @sa
  * vtkRenderPass vtkDepthImageProcessingPass vtkEDLShading
-*/
+ */
 
 #ifndef vtkDepthImageProcessingPass_h
 #define vtkDepthImageProcessingPass_h
@@ -48,7 +48,7 @@ public:
   vtkTypeMacro(vtkDepthImageProcessingPass, vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
- protected:
+protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
    */
@@ -68,14 +68,9 @@ public:
    * \pre colortarget_exists: colortarget!=0
    * \pre colortarget_has_context: colortarget->GetContext()!=0
    */
-  virtual void RenderDelegate(const vtkRenderState *s,
-                      int width,
-                      int height,
-                      int newWidth,
-                      int newHeight,
-                      vtkOpenGLFramebufferObject *fbo,
-                      vtkTextureObject *colortarget,
-                      vtkTextureObject *depthtarget);
+  virtual void RenderDelegate(const vtkRenderState* s, int width, int height, int newWidth,
+    int newHeight, vtkOpenGLFramebufferObject* fbo, vtkTextureObject* colortarget,
+    vtkTextureObject* depthtarget);
 
   /**
    * Read parent size - for sake of code clarity
@@ -84,14 +79,14 @@ public:
    */
   void ReadWindowSize(const vtkRenderState* s);
 
-  int    Origin[2];   // Viewport origin
-  int    Width;       // parent window width
-  int    Height;      // parent window height
-  int    W;           // this width
-  int    H;           // this height
-  int    ExtraPixels; // w(h) = width(height) + 2*extrapixels
+  int Origin[2];   // Viewport origin
+  int Width;       // parent window width
+  int Height;      // parent window height
+  int W;           // this width
+  int H;           // this height
+  int ExtraPixels; // w(h) = width(height) + 2*extrapixels
 
- private:
+private:
   vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) = delete;
   void operator=(const vtkDepthImageProcessingPass&) = delete;
 };

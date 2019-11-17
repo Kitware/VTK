@@ -25,15 +25,15 @@
 
 #include <vtksys/SystemTools.hxx>
 
-int TestWriteToMemory(int argc, char *argv[])
+int TestWriteToMemory(int argc, char* argv[])
 {
-  if ( argc <= 1 )
+  if (argc <= 1)
   {
     cout << "Usage: " << argv[0] << " <output file name>" << endl;
     return EXIT_FAILURE;
   }
 
-  int extent[6] = {0, 99, 0, 99, 0, 0};
+  int extent[6] = { 0, 99, 0, 99, 0, 0 };
   vtkSmartPointer<vtkImageCanvasSource2D> imageSource =
     vtkSmartPointer<vtkImageCanvasSource2D>::New();
   imageSource->SetExtent(extent);
@@ -41,13 +41,12 @@ int TestWriteToMemory(int argc, char *argv[])
   imageSource->SetNumberOfScalarComponents(3);
   imageSource->SetDrawColor(127, 45, 255);
   imageSource->FillBox(0, 99, 0, 99);
-  imageSource->SetDrawColor(255,255,255);
+  imageSource->SetDrawColor(255, 255, 255);
   imageSource->FillBox(40, 70, 20, 50);
   imageSource->Update();
 
-  vtkSmartPointer<vtkImageCast> castFilter =
-    vtkSmartPointer<vtkImageCast>::New();
-  castFilter->SetOutputScalarTypeToUnsignedChar ();
+  vtkSmartPointer<vtkImageCast> castFilter = vtkSmartPointer<vtkImageCast>::New();
+  castFilter->SetOutputScalarTypeToUnsignedChar();
   castFilter->SetInputConnection(imageSource->GetOutputPort());
   castFilter->Update();
 
@@ -64,22 +63,19 @@ int TestWriteToMemory(int argc, char *argv[])
 
   if (fileext == "png")
   {
-    vtkSmartPointer<vtkPNGWriter> pngWriter =
-      vtkSmartPointer<vtkPNGWriter>::New();
+    vtkSmartPointer<vtkPNGWriter> pngWriter = vtkSmartPointer<vtkPNGWriter>::New();
     pngWriter->WriteToMemoryOn();
     writer = pngWriter;
   }
   else if (fileext == "jpeg" || fileext == "jpg")
   {
-    vtkSmartPointer<vtkJPEGWriter> jpgWriter =
-      vtkSmartPointer<vtkJPEGWriter>::New();
+    vtkSmartPointer<vtkJPEGWriter> jpgWriter = vtkSmartPointer<vtkJPEGWriter>::New();
     jpgWriter->WriteToMemoryOn();
     writer = jpgWriter;
   }
   else if (fileext == "bmp")
   {
-    vtkSmartPointer<vtkBMPWriter> bmpWriter =
-      vtkSmartPointer<vtkBMPWriter>::New();
+    vtkSmartPointer<vtkBMPWriter> bmpWriter = vtkSmartPointer<vtkBMPWriter>::New();
     bmpWriter->WriteToMemoryOn();
     writer = bmpWriter;
   }

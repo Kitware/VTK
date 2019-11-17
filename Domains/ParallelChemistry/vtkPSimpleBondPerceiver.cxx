@@ -79,8 +79,7 @@ bool vtkPSimpleBondPerceiver::CreateGhosts(vtkMolecule* molecule)
   vtkDistributedPointCloudFilter::GetPointsInsideBounds(
     controller, inputPoly.Get(), outputPoly.Get(), outterBounds);
 
-  molecule->Initialize(
-    outputPoly->GetPoints(), outputPoly->GetPointData());
+  molecule->Initialize(outputPoly->GetPoints(), outputPoly->GetPointData());
 
   molecule->AllocateAtomGhostArray();
   vtkUnsignedCharArray* atomGhostArray = molecule->GetAtomGhostArray();

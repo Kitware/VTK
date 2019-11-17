@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
  * corresponding offsets (i.e. node i in the graph must correspond to node i in
  * the tree).
  *
-*/
+ */
 
 #ifndef vtkTransferAttributes_h
 #define vtkTransferAttributes_h
@@ -52,9 +52,9 @@ public:
    * SourceFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS,
    * TargetFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS
    */
-  static vtkTransferAttributes *New();
+  static vtkTransferAttributes* New();
 
-  vtkTypeMacro(vtkTransferAttributes,vtkPassInputTypeAlgorithm);
+  vtkTypeMacro(vtkTransferAttributes, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -131,7 +131,7 @@ protected:
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTransferAttributes(const vtkTransferAttributes&) = delete;

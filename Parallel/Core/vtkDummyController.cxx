@@ -36,7 +36,7 @@ vtkDummyController::~vtkDummyController()
 
 void vtkDummyController::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Communicator: " << this->Communicator << endl;
   os << indent << "RMICommunicator: " << this->RMICommunicator << endl;
@@ -65,7 +65,7 @@ void vtkDummyController::MultipleMethodExecute()
   int i = this->GetLocalProcessId();
 
   vtkProcessFunctionType multipleMethod;
-  void *multipleData;
+  void* multipleData;
   this->GetMultipleMethod(i, multipleMethod, multipleData);
   if (multipleMethod)
   {

@@ -23,7 +23,7 @@
  * This class should not be used directly, as it only exists on systems
  * where the long long type is defined.  If you need a 64 bit integer
  * data array, use vtkTypeInt64Array instead.
-*/
+ */
 
 #ifndef vtkLongLongArray_h
 #define vtkLongLongArray_h
@@ -49,14 +49,14 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(long long);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkLongLongArray* FastDownCast(vtkAbstractArray *source)
+  static vtkLongLongArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkLongLongArray*>(Superclass::FastDownCast(source));
   }
@@ -76,7 +76,6 @@ protected:
   ~vtkLongLongArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<long long> RealSuperclass;
 
   vtkLongLongArray(const vtkLongLongArray&) = delete;

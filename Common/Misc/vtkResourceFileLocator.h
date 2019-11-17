@@ -110,7 +110,6 @@ protected:
   vtkResourceFileLocator();
   ~vtkResourceFileLocator() override;
 
-
 private:
   vtkResourceFileLocator(const vtkResourceFileLocator&) = delete;
   void operator=(const vtkResourceFileLocator&) = delete;

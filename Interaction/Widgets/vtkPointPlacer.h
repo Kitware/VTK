@@ -36,7 +36,7 @@
  * display position is allowed. These classes are currently used by the
  * HandleWidget and the ContourWidget to allow various constraints to be
  * enforced on the placement of their handles.
-*/
+ */
 
 #ifndef vtkPointPlacer_h
 #define vtkPointPlacer_h
@@ -52,13 +52,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkPointPlacer *New();
+  static vtkPointPlacer* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkPointPlacer,vtkObject);
+  vtkTypeMacro(vtkPointPlacer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -69,10 +69,8 @@ public:
    * representation to place the point initially. A return value of 1
    * indicates that constraints of the placer are met.
    */
-  virtual int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2],
-                                    double worldPos[3],
-                                    double worldOrient[9] );
+  virtual int ComputeWorldPosition(
+    vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9]);
 
   /**
    * Given a renderer, a display position, and a reference world
@@ -81,29 +79,25 @@ public:
    * representation to move the point. A return value of 1 indicates that
    * constraints of the placer are met.
    */
-  virtual int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2],
-                                    double refWorldPos[3],
-                                    double worldPos[3],
-                                    double worldOrient[9] );
+  virtual int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[3],
+    double worldPos[3], double worldOrient[9]);
 
   /**
    * Given a world position check the validity of this
    * position according to the constraints of the placer.
    */
-  virtual int ValidateWorldPosition( double worldPos[3] );
+  virtual int ValidateWorldPosition(double worldPos[3]);
 
   /**
    * Given a display position, check the validity of this position.
    */
-  virtual int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] );
+  virtual int ValidateDisplayPosition(vtkRenderer*, double displayPos[2]);
 
   /**
    * Given a world position and a world orientation,
    * validate it according to the constraints of the placer.
    */
-  virtual int ValidateWorldPosition( double worldPos[3],
-                                     double worldOrient[9] );
+  virtual int ValidateWorldPosition(double worldPos[3], double worldOrient[9]);
 
   /**
    * Given a current renderer, world position and orientation,
@@ -116,9 +110,7 @@ public:
    * be updated and was left alone. By default this is a no-op -
    * leaving the point as is.
    */
-  virtual int UpdateWorldPosition( vtkRenderer *ren,
-                                   double worldPos[3],
-                                   double worldOrient[9] );
+  virtual int UpdateWorldPosition(vtkRenderer* ren, double worldPos[3], double worldOrient[9]);
 
   /**
    * Give the placer a chance to update the node information, if any. Most
@@ -128,22 +120,21 @@ public:
    * may be used to pass that in.
    * Update world position
    */
-  virtual int UpdateNodeWorldPosition(
-      double worldPos[3], vtkIdType nodePointId);
+  virtual int UpdateNodeWorldPosition(double worldPos[3], vtkIdType nodePointId);
 
   /**
    * Called by the representation to give the placer a chance
    * to update itself.
    */
-  virtual int UpdateInternalState() {return 0;}
+  virtual int UpdateInternalState() { return 0; }
 
   //@{
   /**
    * Set/get the tolerance used when performing computations
    * in display coordinates.
    */
-  vtkSetClampMacro(PixelTolerance,int,1,100);
-  vtkGetMacro(PixelTolerance,int);
+  vtkSetClampMacro(PixelTolerance, int, 1, 100);
+  vtkGetMacro(PixelTolerance, int);
   //@}
 
   //@{
@@ -159,8 +150,8 @@ protected:
   vtkPointPlacer();
   ~vtkPointPlacer() override;
 
-  int          PixelTolerance;
-  double       WorldTolerance;
+  int PixelTolerance;
+  double WorldTolerance;
 
 private:
   vtkPointPlacer(const vtkPointPlacer&) = delete;
@@ -168,8 +159,3 @@ private:
 };
 
 #endif
-
-
-
-
-

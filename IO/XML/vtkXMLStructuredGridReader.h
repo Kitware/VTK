@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPStructuredGridReader
-*/
+ */
 
 #ifndef vtkXMLStructuredGridReader_h
 #define vtkXMLStructuredGridReader_h
@@ -37,16 +37,16 @@ class vtkStructuredGrid;
 class VTKIOXML_EXPORT vtkXMLStructuredGridReader : public vtkXMLStructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLStructuredGridReader,vtkXMLStructuredDataReader);
+  vtkTypeMacro(vtkXMLStructuredGridReader, vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLStructuredGridReader *New();
+  static vtkXMLStructuredGridReader* New();
 
   //@{
   /**
    * Get the reader's output.
    */
-  vtkStructuredGrid *GetOutput();
-  vtkStructuredGrid *GetOutput(int idx);
+  vtkStructuredGrid* GetOutput();
+  vtkStructuredGrid* GetOutput(int idx);
   //@}
 
 protected:

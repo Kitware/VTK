@@ -30,21 +30,20 @@
  * Each entry in the point field will be a number that identifies to which
  * region it belongs. By default, this output point field is named “component”.
  *
-  * @sa
+ * @sa
  * vtkConnectivityFilter, vtkImageConnectivityFilter
-*/
+ */
 
 #ifndef vtkmImageConnectivity_h
 #define vtkmImageConnectivity_h
 
-#include "vtkImageAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
+#include "vtkImageAlgorithm.h"
 
-class VTKACCELERATORSVTKM_EXPORT vtkmImageConnectivity :
-  public vtkImageAlgorithm
+class VTKACCELERATORSVTKM_EXPORT vtkmImageConnectivity : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmImageConnectivity,vtkImageAlgorithm);
+  vtkTypeMacro(vtkmImageConnectivity, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmImageConnectivity* New();
 
@@ -52,8 +51,7 @@ protected:
   vtkmImageConnectivity();
   ~vtkmImageConnectivity();
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmImageConnectivity(const vtkmImageConnectivity&) = delete;

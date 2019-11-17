@@ -26,7 +26,8 @@ class vtkPoints;
 
 #include <vtkm/cont/internal/IteratorFromArrayPortal.h>
 
-namespace tovtkm {
+namespace tovtkm
+{
 
 template <typename Type, typename VTKDataArrayType_>
 class VTKM_ALWAYS_EXPORT vtkArrayPortal
@@ -46,10 +47,7 @@ public:
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
-  vtkm::Id GetNumberOfValues() const
-  {
-    return this->Size;
-  }
+  vtkm::Id GetNumberOfValues() const { return this->Size; }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
@@ -59,33 +57,24 @@ public:
   VTKM_EXEC_CONT
   inline void Set(vtkm::Id index, const ValueType& value) const;
 
-  typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkArrayPortal>
-      IteratorType;
+  typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkArrayPortal> IteratorType;
 
   VTKM_CONT
-  IteratorType GetIteratorBegin() const
-  {
-    return IteratorType(*this, 0);
-  }
+  IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
 
   VTKM_CONT
-  IteratorType GetIteratorEnd() const
-  {
-    return IteratorType(*this, this->Size);
-  }
+  IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
 
   VTKM_CONT
-  VTKDataArrayType* GetVtkData() const
-  {
-    return this->VTKData;
-  }
+  VTKDataArrayType* GetVtkData() const { return this->VTKData; }
 
 private:
   VTKDataArrayType* VTKData;
   vtkm::Id Size;
 };
 
-template <typename Type> class VTKM_ALWAYS_EXPORT vtkPointsPortal
+template <typename Type>
+class VTKM_ALWAYS_EXPORT vtkPointsPortal
 {
   static const int NUM_COMPONENTS = vtkm::VecTraits<Type>::NUM_COMPONENTS;
 
@@ -101,10 +90,7 @@ public:
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
-  vtkm::Id GetNumberOfValues() const
-  {
-    return this->Size;
-  }
+  vtkm::Id GetNumberOfValues() const { return this->Size; }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   VTKM_EXEC_CONT
@@ -114,26 +100,16 @@ public:
   VTKM_EXEC_CONT
   inline void Set(vtkm::Id index, const ValueType& value) const;
 
-  typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkPointsPortal>
-      IteratorType;
+  typedef vtkm::cont::internal::IteratorFromArrayPortal<vtkPointsPortal> IteratorType;
 
   VTKM_CONT
-  IteratorType GetIteratorBegin() const
-  {
-    return IteratorType(*this, 0);
-  }
+  IteratorType GetIteratorBegin() const { return IteratorType(*this, 0); }
 
   VTKM_CONT
-  IteratorType GetIteratorEnd() const
-  {
-    return IteratorType(*this, this->Size);
-  }
+  IteratorType GetIteratorEnd() const { return IteratorType(*this, this->Size); }
 
   VTKM_CONT
-  vtkPoints* GetVtkData() const
-  {
-    return Points;
-  }
+  vtkPoints* GetVtkData() const { return Points; }
 
 private:
   vtkPoints* Points;
@@ -144,16 +120,17 @@ private:
 
 #ifndef vtkmlib_Portals_cxx
 #include <vtkm/cont/internal/ArrayPortalFromIterators.h>
-namespace tovtkm {
+namespace tovtkm
+{
 // T extern template instantiations
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-    vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> const>;
+  vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> const>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-    vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> const>;
+  vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> const>;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-    vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3>>;
+  vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> >;
 extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-    vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3>>;
+  vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> >;
 }
 
 #endif // defined vtkmlib_Portals_cxx

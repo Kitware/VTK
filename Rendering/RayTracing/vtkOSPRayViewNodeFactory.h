@@ -19,7 +19,7 @@
  *
  * Ensures that vtkOSPRayPass makes ospray specific translator instances
  * for every VTK rendering pipeline class instance it encounters.
-*/
+ */
 
 #ifndef vtkOSPRayViewNodeFactory_h
 #define vtkOSPRayViewNodeFactory_h
@@ -27,8 +27,7 @@
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkViewNodeFactory.h"
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayViewNodeFactory :
-  public vtkViewNodeFactory
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayViewNodeFactory : public vtkViewNodeFactory
 {
 public:
   static vtkOSPRayViewNodeFactory* New();

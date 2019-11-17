@@ -49,28 +49,28 @@ vtkStandardNewMacro(vtkThreadedCompositeDataPipeline);
 //----------------------------------------------------------------------------
 namespace
 {
-  static vtkInformationVector** Clone(vtkInformationVector** src, int n)
+static vtkInformationVector** Clone(vtkInformationVector** src, int n)
+{
+  vtkInformationVector** dst = new vtkInformationVector*[n];
+  for (int i = 0; i < n; ++i)
   {
-    vtkInformationVector** dst = new vtkInformationVector*[n];
-    for(int i=0; i<n; ++i)
-    {
-      dst[i] = vtkInformationVector::New();
-      dst[i]->Copy(src[i],1);
-    }
-    return dst;
+    dst[i] = vtkInformationVector::New();
+    dst[i]->Copy(src[i], 1);
   }
-  static void DeleteAll(vtkInformationVector** dst, int n)
+  return dst;
+}
+static void DeleteAll(vtkInformationVector** dst, int n)
+{
+  for (int i = 0; i < n; ++i)
   {
-    for(int i=0; i<n; ++i)
-    {
-      dst[i]->Delete();
-    }
-    delete []dst;
+    dst[i]->Delete();
   }
+  delete[] dst;
+}
 };
 
 //----------------------------------------------------------------------------
-class ProcessBlockData: public vtkObjectBase
+class ProcessBlockData : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(ProcessBlockData, vtkObjectBase);
@@ -81,19 +81,18 @@ public:
   static ProcessBlockData* New()
   {
     // Can't use object factory macros, this is not a vtkObject.
-    ProcessBlockData *ret = new ProcessBlockData;
+    ProcessBlockData* ret = new ProcessBlockData;
     ret->InitializeObjectBase();
     return ret;
   }
 
-  void Construct(vtkInformationVector** inInfoVec,
-                 int inInfoVecSize,
-                 vtkInformationVector* outInfoVec)
+  void Construct(
+    vtkInformationVector** inInfoVec, int inInfoVecSize, vtkInformationVector* outInfoVec)
   {
-    this->InSize  = inInfoVecSize;
+    this->InSize = inInfoVecSize;
     this->In = Clone(inInfoVec, inInfoVecSize);
     this->Out = vtkInformationVector::New();
-    this->Out->Copy(outInfoVec,1);
+    this->Out->Copy(outInfoVec, 1);
   }
 
   ~ProcessBlockData() override
@@ -103,32 +102,26 @@ public:
   }
 
 protected:
-  ProcessBlockData():
-    In(nullptr),
-    Out(nullptr)
+  ProcessBlockData()
+    : In(nullptr)
+    , Out(nullptr)
   {
-
   }
 };
 //----------------------------------------------------------------------------
 class ProcessBlock
 {
 public:
-  ProcessBlock(vtkThreadedCompositeDataPipeline* exec,
-               vtkInformationVector** inInfoVec,
-               vtkInformationVector* outInfoVec,
-               int compositePort,
-               int connection,
-               vtkInformation* request,
-               const std::vector<vtkDataObject*>& inObjs,
-               std::vector<vtkDataObject*>& outObjs)
-    : Exec(exec),
-      InInfoVec(inInfoVec),
-      OutInfoVec(outInfoVec),
-      CompositePort(compositePort),
-      Connection(connection),
-      Request(request),
-      InObjs(inObjs)
+  ProcessBlock(vtkThreadedCompositeDataPipeline* exec, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec, int compositePort, int connection, vtkInformation* request,
+    const std::vector<vtkDataObject*>& inObjs, std::vector<vtkDataObject*>& outObjs)
+    : Exec(exec)
+    , InInfoVec(inInfoVec)
+    , OutInfoVec(outInfoVec)
+    , CompositePort(compositePort)
+    , Connection(connection)
+    , Request(request)
+    , InObjs(inObjs)
   {
     int numInputPorts = this->Exec->GetNumberOfInputPorts();
     this->OutObjs = &outObjs[0];
@@ -138,20 +131,16 @@ public:
 
   ~ProcessBlock()
   {
-    vtkSMPThreadLocal<vtkInformationVector**>::iterator itr1 =
-      this->InInfoVecs.begin();
-    vtkSMPThreadLocal<vtkInformationVector**>::iterator end1 =
-      this->InInfoVecs.end();
+    vtkSMPThreadLocal<vtkInformationVector**>::iterator itr1 = this->InInfoVecs.begin();
+    vtkSMPThreadLocal<vtkInformationVector**>::iterator end1 = this->InInfoVecs.end();
     while (itr1 != end1)
     {
       DeleteAll(*itr1, this->InfoPrototype->InSize);
       ++itr1;
     }
 
-    vtkSMPThreadLocal<vtkInformationVector*>::iterator itr2 =
-      this->OutInfoVecs.begin();
-    vtkSMPThreadLocal<vtkInformationVector*>::iterator end2 =
-      this->OutInfoVecs.end();
+    vtkSMPThreadLocal<vtkInformationVector*>::iterator itr2 = this->OutInfoVecs.begin();
+    vtkSMPThreadLocal<vtkInformationVector*>::iterator end2 = this->OutInfoVecs.end();
     while (itr2 != end2)
     {
       (*itr2)->Delete();
@@ -170,10 +159,9 @@ public:
 
     vtkInformation*& request = this->Requests.Local();
     request->Copy(this->Request, 1);
-
   }
 
-  void operator() (vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end)
   {
     vtkInformationVector** inInfoVec = this->InInfoVecs.Local();
     vtkInformationVector* outInfoVec = this->OutInfoVecs.Local();
@@ -181,14 +169,10 @@ public:
 
     vtkInformation* inInfo = inInfoVec[this->CompositePort]->GetInformationObject(this->Connection);
 
-    for(vtkIdType i= begin; i<end; ++i)
+    for (vtkIdType i = begin; i < end; ++i)
     {
-      std::vector<vtkDataObject*> outObjList =
-        this->Exec->ExecuteSimpleAlgorithmForBlock(&inInfoVec[0],
-                                                   outInfoVec,
-                                                   inInfo,
-                                                   request,
-                                                   this->InObjs[i]);
+      std::vector<vtkDataObject*> outObjList = this->Exec->ExecuteSimpleAlgorithmForBlock(
+        &inInfoVec[0], outInfoVec, inInfo, request, this->InObjs[i]);
       for (int j = 0; j < outInfoVec->GetNumberOfInformationObjects(); ++j)
       {
         this->OutObjs[i * outInfoVec->GetNumberOfInformationObjects() + j] = outObjList[j];
@@ -196,9 +180,7 @@ public:
     }
   }
 
-  void Reduce()
-  {
-  }
+  void Reduce() {}
 
 protected:
   vtkThreadedCompositeDataPipeline* Exec;
@@ -216,7 +198,6 @@ protected:
   vtkSMPThreadLocalObject<vtkInformation> Requests;
 };
 
-
 //----------------------------------------------------------------------------
 vtkThreadedCompositeDataPipeline::vtkThreadedCompositeDataPipeline() = default;
 
@@ -224,19 +205,16 @@ vtkThreadedCompositeDataPipeline::vtkThreadedCompositeDataPipeline() = default;
 vtkThreadedCompositeDataPipeline::~vtkThreadedCompositeDataPipeline() = default;
 
 //-------------------------------------------------------------------------
-void vtkThreadedCompositeDataPipeline::PrintSelf(ostream &os, vtkIndent indent)
+void vtkThreadedCompositeDataPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-------------------------------------------------------------------------
 void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* iter,
-                                                   vtkInformationVector** inInfoVec,
-                                                   vtkInformationVector* outInfoVec,
-                                                   int compositePort,
-                                                   int connection,
-                                                   vtkInformation* request,
-                                                   std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutput)
+  vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec, int compositePort,
+  int connection, vtkInformation* request,
+  std::vector<vtkSmartPointer<vtkCompositeDataSet> >& compositeOutput)
 {
   // from input data objects  itr -> (inObjs, indices)
   // inObjs are the non-null objects that we will loop over.
@@ -249,7 +227,7 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
     if (dobj)
     {
       inObjs.push_back(dobj);
-      indices.push_back(static_cast<int>(inObjs.size())-1);
+      indices.push_back(static_cast<int>(inObjs.size()) - 1);
     }
     else
     {
@@ -262,13 +240,8 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
   outObjs.resize(indices.size() * outInfoVec->GetNumberOfInformationObjects(), nullptr);
 
   // create the parallel task processBlock
-  ProcessBlock processBlock(this,
-                            inInfoVec,
-                            outInfoVec,
-                            compositePort,
-                            connection,
-                            request,
-                            inObjs,outObjs);
+  ProcessBlock processBlock(
+    this, inInfoVec, outInfoVec, compositePort, connection, request, inObjs, outObjs);
 
   vtkSmartPointer<vtkProgressObserver> origPo(this->Algorithm->GetProgressObserver());
   vtkNew<vtkSMPProgressObserver> po;
@@ -276,11 +249,11 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
   vtkSMPTools::For(0, static_cast<vtkIdType>(inObjs.size()), processBlock);
   this->Algorithm->SetProgressObserver(origPo);
 
-  int i =0;
+  int i = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), i++)
   {
     int j = indices[i];
-    if(j>=0)
+    if (j >= 0)
     {
       for (int k = 0; k < outInfoVec->GetNumberOfInformationObjects(); ++k)
       {
@@ -297,8 +270,7 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
 
 //----------------------------------------------------------------------------
 int vtkThreadedCompositeDataPipeline::CallAlgorithm(vtkInformation* request, int direction,
-                                                    vtkInformationVector** inInfo,
-                                                    vtkInformationVector* outInfo)
+  vtkInformationVector** inInfo, vtkInformationVector* outInfo)
 {
   // Copy default information in the direction of information flow.
   this->CopyDefaultInformation(request, direction, inInfo, outInfo);
@@ -307,12 +279,10 @@ int vtkThreadedCompositeDataPipeline::CallAlgorithm(vtkInformation* request, int
   int result = this->Algorithm->ProcessRequest(request, inInfo, outInfo);
 
   // If the algorithm failed report it now.
-  if(!result)
+  if (!result)
   {
-    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName()
-                  << "(" << this->Algorithm
-                  << ") returned failure for request: "
-                  << *request);
+    vtkErrorMacro("Algorithm " << this->Algorithm->GetClassName() << "(" << this->Algorithm
+                               << ") returned failure for request: " << *request);
   }
 
   return result;

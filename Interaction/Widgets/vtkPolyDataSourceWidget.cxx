@@ -18,9 +18,8 @@
 #include "vtkDataSet.h"
 #include "vtkProp3D.h"
 
-
-
-vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() : vtk3DWidget()
+vtkPolyDataSourceWidget::vtkPolyDataSourceWidget()
+  : vtk3DWidget()
 {
   // child classes should call this constructor so that the vtk3DWidget()
   // constructor can set up some pertinent variables (e.g. Input and Prop3D)
@@ -30,11 +29,11 @@ void vtkPolyDataSourceWidget::PlaceWidget()
 {
   double bounds[6];
 
-  if ( this->Prop3D )
+  if (this->Prop3D)
   {
     this->Prop3D->GetBounds(bounds);
   }
-  else if ( this->GetInput() )
+  else if (this->GetInput())
   {
     this->UpdateInput();
     this->GetInput()->GetBounds(bounds);
@@ -58,5 +57,5 @@ void vtkPolyDataSourceWidget::PlaceWidget()
 
 void vtkPolyDataSourceWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

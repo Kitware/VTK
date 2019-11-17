@@ -37,12 +37,10 @@ vtkStandardNewMacro(vtkQWidgetRepresentation);
 vtkQWidgetRepresentation::vtkQWidgetRepresentation()
 {
   this->PlaneSource = vtkPlaneSource::New();
-  this->PlaneSource->SetOutputPointsPrecision(
-    vtkAlgorithm::DOUBLE_PRECISION);
+  this->PlaneSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   this->PlaneMapper = vtkPolyDataMapper::New();
-  this->PlaneMapper->SetInputConnection(
-    this->PlaneSource->GetOutputPort());
+  this->PlaneMapper->SetInputConnection(this->PlaneSource->GetOutputPort());
 
   this->QWidgetTexture = vtkQWidgetTexture::New();
   this->PlaneTexture = vtkOpenGLTexture::New();
@@ -66,7 +64,7 @@ vtkQWidgetRepresentation::vtkQWidgetRepresentation()
   // Initial creation of the widget, serves to initialize it
   this->PlaceWidget(bounds);
 
-  //Manage the picking stuff
+  // Manage the picking stuff
   this->Picker = vtkCellPicker::New();
   this->Picker->SetTolerance(0.005);
   this->Picker->AddPickList(this->PlaneActor);
@@ -85,7 +83,7 @@ vtkQWidgetRepresentation::~vtkQWidgetRepresentation()
   this->Picker->Delete();
 }
 
-void vtkQWidgetRepresentation::SetWidget(QWidget *w)
+void vtkQWidgetRepresentation::SetWidget(QWidget* w)
 {
   // just pass down to the QWidgetTexture
   this->QWidgetTexture->SetWidget(w);
@@ -95,12 +93,10 @@ void vtkQWidgetRepresentation::SetWidget(QWidget *w)
 // see if the event hits the widget rep, if so set the WidgetCoordinates
 // and move to Inside state
 int vtkQWidgetRepresentation::ComputeComplexInteractionState(
-  vtkRenderWindowInteractor *,
-  vtkAbstractWidget *,
-  unsigned long , void *calldata, int )
+  vtkRenderWindowInteractor*, vtkAbstractWidget*, unsigned long, void* calldata, int)
 {
-  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
-  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  vtkEventData* edata = static_cast<vtkEventData*>(calldata);
+  vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
   if (edd)
   {
     double pos[3];
@@ -121,9 +117,9 @@ int vtkQWidgetRepresentation::ComputeComplexInteractionState(
     this->InteractionState = vtkQWidgetRepresentation::Inside;
 
     // compute the widget coordinates
-    vtkPoints *pp = this->Picker->GetPickedPositions();
+    vtkPoints* pp = this->Picker->GetPickedPositions();
     double ppos[3];
-    pp->GetPoint(0,ppos);
+    pp->GetPoint(0, ppos);
 
     double origin[3];
     this->PlaneSource->GetOrigin(origin);
@@ -145,9 +141,9 @@ int vtkQWidgetRepresentation::ComputeComplexInteractionState(
       wCoords[0] += ppos[i] * axis0[i];
       wCoords[1] += ppos[i] * axis1[i];
     }
-    QWidget *widget = this->QWidgetTexture->GetWidget();
-    this->WidgetCoordinates[0] = wCoords[0]*widget->width() / lengtha0;
-    this->WidgetCoordinates[1] = wCoords[1]*widget->height() / lengtha1;
+    QWidget* widget = this->QWidgetTexture->GetWidget();
+    this->WidgetCoordinates[0] = wCoords[0] * widget->width() / lengtha0;
+    this->WidgetCoordinates[1] = wCoords[1] * widget->height() / lengtha1;
     this->WidgetCoordinates[1] = widget->height() - this->WidgetCoordinates[1];
   }
 
@@ -155,20 +151,20 @@ int vtkQWidgetRepresentation::ComputeComplexInteractionState(
 }
 
 //----------------------------------------------------------------------
-double *vtkQWidgetRepresentation::GetBounds()
+double* vtkQWidgetRepresentation::GetBounds()
 {
   this->BuildRepresentation();
   return this->PlaneActor->GetBounds();
 }
 
 //----------------------------------------------------------------------------
-void vtkQWidgetRepresentation::GetActors(vtkPropCollection *pc)
+void vtkQWidgetRepresentation::GetActors(vtkPropCollection* pc)
 {
   this->PlaneActor->GetActors(pc);
 }
 
 //----------------------------------------------------------------------------
-void vtkQWidgetRepresentation::ReleaseGraphicsResources(vtkWindow *w)
+void vtkQWidgetRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->PlaneActor->ReleaseGraphicsResources(w);
   this->PlaneMapper->ReleaseGraphicsResources(w);
@@ -176,14 +172,14 @@ void vtkQWidgetRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 }
 
 //----------------------------------------------------------------------------
-int vtkQWidgetRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+int vtkQWidgetRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
-  vtkInformation *info = this->GetPropertyKeys();
+  vtkInformation* info = this->GetPropertyKeys();
   this->PlaneActor->SetPropertyKeys(info);
 
-  vtkOpenGLRenderWindow *renWin =
-    static_cast<vtkOpenGLRenderWindow *>(this->Renderer->GetRenderWindow());
-  vtkOpenGLState *ostate = renWin->GetState();
+  vtkOpenGLRenderWindow* renWin =
+    static_cast<vtkOpenGLRenderWindow*>(this->Renderer->GetRenderWindow());
+  vtkOpenGLState* ostate = renWin->GetState();
 
   // always draw over the rest
   ostate->vtkglDepthFunc(GL_ALWAYS);
@@ -194,7 +190,7 @@ int vtkQWidgetRepresentation::RenderOpaqueGeometry(vtkViewport *v)
 }
 
 //-----------------------------------------------------------------------------
-int vtkQWidgetRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *)
+int vtkQWidgetRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport*)
 {
   return 0;
 }
@@ -208,7 +204,7 @@ vtkTypeBool vtkQWidgetRepresentation::HasTranslucentPolygonalGeometry()
 //----------------------------------------------------------------------------
 void vtkQWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors
@@ -217,23 +213,21 @@ void vtkQWidgetRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkQWidgetRepresentation::PlaceWidget(double bds[6])
 {
-  this->PlaneSource->SetOrigin(bds[0],bds[2],bds[4]);
-  this->PlaneSource->SetPoint1(bds[1],bds[2],bds[4]);
-  this->PlaneSource->SetPoint2(bds[0],bds[2],bds[5]);
+  this->PlaneSource->SetOrigin(bds[0], bds[2], bds[4]);
+  this->PlaneSource->SetPoint1(bds[1], bds[2], bds[4]);
+  this->PlaneSource->SetPoint2(bds[0], bds[2], bds[5]);
 
   this->ValidPick = 1; // since we have positioned the widget successfully
 }
 
 //----------------------------------------------------------------------------
-vtkPolyDataAlgorithm *vtkQWidgetRepresentation::GetPolyDataAlgorithm()
+vtkPolyDataAlgorithm* vtkQWidgetRepresentation::GetPolyDataAlgorithm()
 {
   return this->PlaneSource;
 }
 
 //----------------------------------------------------------------------------
-void vtkQWidgetRepresentation::UpdatePlacement()
-{
-}
+void vtkQWidgetRepresentation::UpdatePlacement() {}
 
 //----------------------------------------------------------------------------
 void vtkQWidgetRepresentation::BuildRepresentation()

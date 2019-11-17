@@ -40,7 +40,8 @@
 // clang-format on
 
 #ifdef _WIN32
-#pragma warning( disable : 4275 ) /* non dll-interface class `diy::StaticAssigner` used as base for dll-interface class */
+#pragma warning(disable : 4275) /* non dll-interface class `diy::StaticAssigner` used as base for  \
+                                   dll-interface class */
 #endif
 
 class VTKPARALLELDIY_EXPORT vtkDIYExplicitAssigner : public diy::StaticAssigner

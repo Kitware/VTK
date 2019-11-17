@@ -17,7 +17,7 @@
  * @brief   internal class used by
  * vtkGenericDataArray to support LookupValue.
  *
-*/
+ */
 
 #ifndef vtkGenericDataArrayLookupHelper_h
 #define vtkGenericDataArrayLookupHelper_h
@@ -30,24 +30,19 @@
 
 namespace detail
 {
-template <typename T, bool> struct has_NaN;
+template <typename T, bool>
+struct has_NaN;
 
 template <typename T>
 struct has_NaN<T, true>
 {
-static bool isnan(T x)
-{
-  return std::isnan(x);
-}
+  static bool isnan(T x) { return std::isnan(x); }
 };
 
 template <typename T>
 struct has_NaN<T, false>
 {
-  static bool isnan(T)
-  {
-    return false;
-  }
+  static bool isnan(T) { return false; }
 };
 
 template <typename T>
@@ -67,12 +62,9 @@ public:
 
   vtkGenericDataArrayLookupHelper() = default;
 
-  ~vtkGenericDataArrayLookupHelper()
-  {
-    this->ClearLookup();
-  }
+  ~vtkGenericDataArrayLookupHelper() { this->ClearLookup(); }
 
-  void SetArray(ArrayTypeT *array)
+  void SetArray(ArrayTypeT* array)
   {
     if (this->AssociatedArray != array)
     {
@@ -124,9 +116,8 @@ private:
 
   void UpdateLookup()
   {
-    if ( !this->AssociatedArray ||
-         (this->AssociatedArray->GetNumberOfTuples() < 1) ||
-         (!this->ValueMap.empty() || !this->NanIndices.empty()) )
+    if (!this->AssociatedArray || (this->AssociatedArray->GetNumberOfTuples() < 1) ||
+      (!this->ValueMap.empty() || !this->NanIndices.empty()))
     {
       return;
     }
@@ -138,9 +129,9 @@ private:
       auto value = this->AssociatedArray->GetValue(i);
       if (::detail::isnan(value))
       {
-        NanIndices.push_back( i );
+        NanIndices.push_back(i);
       }
-      this->ValueMap[ value ].push_back( i );
+      this->ValueMap[value].push_back(i);
     }
   }
 
@@ -148,21 +139,21 @@ private:
   // found in the array.
   std::vector<vtkIdType>* FindIndexVec(ValueType value)
   {
-    std::vector<vtkIdType>* indices{nullptr};
-    if(::detail::isnan(value) && !this->NanIndices.empty())
+    std::vector<vtkIdType>* indices{ nullptr };
+    if (::detail::isnan(value) && !this->NanIndices.empty())
     {
       indices = &this->NanIndices;
     }
     const auto& pos = this->ValueMap.find(value);
-    if ( pos != this->ValueMap.end())
+    if (pos != this->ValueMap.end())
     {
       indices = &pos->second;
     }
     return indices;
   }
 
-  ArrayTypeT *AssociatedArray{ nullptr };
-  std::unordered_map<ValueType,std::vector<vtkIdType>> ValueMap;
+  ArrayTypeT* AssociatedArray{ nullptr };
+  std::unordered_map<ValueType, std::vector<vtkIdType> > ValueMap;
   std::vector<vtkIdType> NanIndices;
 };
 

@@ -43,7 +43,6 @@ using namespace std;
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
-
 static double* ComputeNormal(double* reference, bool flipSign)
 {
   double* normal = new double[3];
@@ -63,9 +62,7 @@ static double* ComputeNormal(double* reference, bool flipSign)
   return normal;
 }
 
-
-static double* ComputeOrigin(double* focalPoint, double* reference,
-                             double distance, bool flipSign)
+static double* ComputeOrigin(double* focalPoint, double* reference, double distance, bool flipSign)
 {
 
   double* origin = new double[3];
@@ -85,10 +82,8 @@ static double* ComputeOrigin(double* focalPoint, double* reference,
   return origin;
 }
 
-
-static void UpdateFrontClippingPlane(vtkPlane* frontClippingPlane,
-                                     double* normal, double* focalPoint,
-                                     double slabThickness)
+static void UpdateFrontClippingPlane(
+  vtkPlane* frontClippingPlane, double* normal, double* focalPoint, double slabThickness)
 {
   // The front plane is the start of ray cast
   // The front normal should be in the same direction as the camera
@@ -103,13 +98,12 @@ static void UpdateFrontClippingPlane(vtkPlane* frontClippingPlane,
   frontClippingPlane->SetNormal(frontNormal);
   frontClippingPlane->SetOrigin(frontOrigin);
 
-  delete [] frontNormal;
-  delete [] frontOrigin;
+  delete[] frontNormal;
+  delete[] frontOrigin;
 }
 
-
-static void UpdateRearClippingPlane(vtkPlane* rearClippingPlane, double* normal,
-                                    double* focalPoint, double slabThickness)
+static void UpdateRearClippingPlane(
+  vtkPlane* rearClippingPlane, double* normal, double* focalPoint, double slabThickness)
 {
 
   // The rear normal is the end of ray cast
@@ -125,25 +119,21 @@ static void UpdateRearClippingPlane(vtkPlane* rearClippingPlane, double* normal,
   rearClippingPlane->SetNormal(rearNormal);
   rearClippingPlane->SetOrigin(rearOrigin);
 
-  delete [] rearNormal;
-  delete [] rearOrigin;
+  delete[] rearNormal;
+  delete[] rearOrigin;
 }
-
 
 class vtkInteractorStyleCallback : public vtkCommand
 {
 public:
-  static vtkInteractorStyleCallback *New()
-  {
-    return new vtkInteractorStyleCallback;
-  }
+  static vtkInteractorStyleCallback* New() { return new vtkInteractorStyleCallback; }
 
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
     vtkInteractorStyle* style = reinterpret_cast<vtkInteractorStyle*>(caller);
 
-    vtkCamera * camera = style->GetCurrentRenderer()->GetActiveCamera();
-    //vtkCamera *camera = reinterpret_cast<vtkCamera*>(caller);
+    vtkCamera* camera = style->GetCurrentRenderer()->GetActiveCamera();
+    // vtkCamera *camera = reinterpret_cast<vtkCamera*>(caller);
 
     // Get the normal and focal point of the camera
     double* normal = camera->GetViewPlaneNormal();
@@ -157,23 +147,16 @@ public:
 
   vtkInteractorStyleCallback() = default;
 
-  void SetFrontClippingPlane(vtkPlane* fcPlane)
-  {
-    this->frontClippingPlane = fcPlane;
-  }
+  void SetFrontClippingPlane(vtkPlane* fcPlane) { this->frontClippingPlane = fcPlane; }
 
-  void SetRearClippingPlane(vtkPlane* rcPlane)
-  {
-    this->rearClippingPlane = rcPlane;
-  }
+  void SetRearClippingPlane(vtkPlane* rcPlane) { this->rearClippingPlane = rcPlane; }
 
   double slabThickness;
   vtkPlane* frontClippingPlane;
   vtkPlane* rearClippingPlane;
 };
 
-
-int TestGPURayCastClippingUserTransform(int argc, char *argv[])
+int TestGPURayCastClippingUserTransform(int argc, char* argv[])
 {
   int width = 256;
   int height = 256;
@@ -182,10 +165,9 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   // Read the image
   streampos size;
-  char * memblock;
+  char* memblock;
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                     "Data/MagnitudeImage_256x256x148");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/MagnitudeImage_256x256x148");
 
   ifstream file(fname, ios::in | ios::binary | ios::ate);
   if (file.is_open())
@@ -206,9 +188,10 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   unsigned short* shortData = new unsigned short[size / 2];
   int idx = 0;
   int idx2 = 0;
-  for (idx = 0; idx < size / 2; idx ++) {
+  for (idx = 0; idx < size / 2; idx++)
+  {
     idx2 = idx * 2;
-    shortData[idx] = (short)(((memblock[idx2] & 0xFF) << 8) | (memblock[idx2+1] & 0xFF));
+    shortData[idx] = (short)(((memblock[idx2] & 0xFF) << 8) | (memblock[idx2 + 1] & 0xFF));
   }
 
   //
@@ -235,7 +218,7 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   // Create a mapper
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
-  //volumeMapper->SetInputConnection(reader->GetOutputPort());
+  // volumeMapper->SetInputConnection(reader->GetOutputPort());
   volumeMapper->SetInputData(imageData);
   volumeMapper->SetBlendModeToMaximumIntensity();
   volumeMapper->AutoAdjustSampleDistancesOff();
@@ -365,7 +348,6 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   {
     iren->Start();
   }
-
 
   delete[] memblock;
   delete[] shortData;

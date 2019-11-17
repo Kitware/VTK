@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPPolyDataReader
-*/
+ */
 
 #ifndef vtkXMLPolyDataReader_h
 #define vtkXMLPolyDataReader_h
@@ -37,16 +37,16 @@ class vtkPolyData;
 class VTKIOXML_EXPORT vtkXMLPolyDataReader : public vtkXMLUnstructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLPolyDataReader,vtkXMLUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLPolyDataReader, vtkXMLUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLPolyDataReader *New();
+  static vtkXMLPolyDataReader* New();
 
   //@{
   /**
    * Get the reader's output.
    */
-  vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx);
+  vtkPolyData* GetOutput();
+  vtkPolyData* GetOutput(int idx);
   //@}
 
   //@{
@@ -75,8 +75,7 @@ protected:
   int ReadPieceData() override;
 
   // Read a data array whose tuples coorrespond to cells.
-  int ReadArrayForCells(vtkXMLDataElement* da,
-    vtkAbstractArray* outArray) override;
+  int ReadArrayForCells(vtkXMLDataElement* da, vtkAbstractArray* outArray) override;
 
   // Get the number of cells in the given piece.  Valid after
   // UpdateInformation.

@@ -38,7 +38,7 @@
 #include "vtkTestUtilities.h"
 
 // Test of vtkPolyhedron. A dodecahedron is created for testing clip and contour
-int TestPolyhedron1( int argc, char* argv[] )
+int TestPolyhedron1(int argc, char* argv[])
 {
   // create a dodecahedron
   double dodechedronPoint[20][3] = {
@@ -70,8 +70,8 @@ int TestPolyhedron1( int argc, char* argv[] )
     dodechedronPoints->InsertNextPoint(dodechedronPoint[i]);
   }
 
-  vtkIdType dodechedronPointsIds[20] = {0,   1,  2,  3,  4,  5,  6,  7,  8,  9,
-                                        10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+  vtkIdType dodechedronPointsIds[20] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    17, 18, 19 };
 
   vtkIdType dodechedronFace[12][5] = {
     { 0, 1, 2, 3, 4 },
@@ -94,38 +94,34 @@ int TestPolyhedron1( int argc, char* argv[] )
     dodechedronFaces->InsertNextCell(5, dodechedronFace[i]);
   }
 
-  double offset = 0;//0.375185;
+  double offset = 0; // 0.375185;
 
-
-  double normal[3] = {0.0, 0.0, 1.0};
-  double origin[3] = {0.0, 0.0, offset};
-  double x[3] = {1.0, 0.0, 0.0};
-  double y[3] = {0.0, 1.0, 0.0};
+  double normal[3] = { 0.0, 0.0, 1.0 };
+  double origin[3] = { 0.0, 0.0, offset };
+  double x[3] = { 1.0, 0.0, 0.0 };
+  double y[3] = { 0.0, 1.0, 0.0 };
 
   vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<vtkPlaneSource>::New();
   planeSource->SetNormal(normal);
   planeSource->SetOrigin(origin);
-  planeSource->SetPoint1(origin[0] + 5*x[0], origin[1] + 5*x[1], origin[2] + 5*x[2]);
-  planeSource->SetPoint2(origin[0] + 7*y[0], origin[1] + 7*y[1], origin[2] + 7*y[2]);
+  planeSource->SetPoint1(origin[0] + 5 * x[0], origin[1] + 5 * x[1], origin[2] + 5 * x[2]);
+  planeSource->SetPoint2(origin[0] + 7 * y[0], origin[1] + 7 * y[1], origin[2] + 7 * y[2]);
   planeSource->SetCenter(origin);
   planeSource->SetResolution(1, 1);
   planeSource->Update();
 
-
   vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
   plane->SetNormal(normal);
   plane->SetOrigin(origin);
-  vtkSmartPointer<vtkDoubleArray> pointDataArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> pointDataArray = vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray->Initialize();
   for (int i = 0; i < 20; i++)
   {
     cout << plane->EvaluateFunction(dodechedronPoint[i]) << endl;
-    pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i])+0.01);
+    pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i]) + 0.01);
   }
 
-  vtkSmartPointer<vtkDoubleArray> cellDataArray =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> cellDataArray = vtkSmartPointer<vtkDoubleArray>::New();
   cellDataArray->Initialize();
   for (int i = 0; i < 12; i++)
   {
@@ -135,102 +131,76 @@ int TestPolyhedron1( int argc, char* argv[] )
   vtkNew<vtkIdTypeArray> legacyFaces;
   dodechedronFaces->ExportLegacyFormat(legacyFaces);
 
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid =
-    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   ugrid->SetPoints(dodechedronPoints);
-  ugrid->InsertNextCell(VTK_POLYHEDRON, 20, dodechedronPointsIds,
-    12, legacyFaces->GetPointer(0));
+  ugrid->InsertNextCell(VTK_POLYHEDRON, 20, dodechedronPointsIds, 12, legacyFaces->GetPointer(0));
   ugrid->GetPointData()->SetScalars(pointDataArray);
-  //ugrid->GetCellData()->SetScalars(cellDataArray);
+  // ugrid->GetCellData()->SetScalars(cellDataArray);
 
-  vtkPolyhedron *polyhedron = static_cast<vtkPolyhedron*>(ugrid->GetCell(0));
-  vtkPolyData * planePoly = planeSource->GetOutput();
+  vtkPolyhedron* polyhedron = static_cast<vtkPolyhedron*>(ugrid->GetCell(0));
+  vtkPolyData* planePoly = planeSource->GetOutput();
   polyhedron->GetPolyData()->GetPointData()->SetScalars(pointDataArray);
-  //polyhedron->GetPolyData()->GetCellData()->SetScalars(cellDataArray);
+  // polyhedron->GetPolyData()->GetCellData()->SetScalars(cellDataArray);
 
   // test contour
-  vtkSmartPointer<vtkPointLocator> locator =
-    vtkSmartPointer<vtkPointLocator>::New();
-  vtkSmartPointer<vtkCellArray> resultPolys =
-    vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPointData> resultPd =
-    vtkSmartPointer<vtkPointData>::New();
-  vtkSmartPointer<vtkCellData> resultCd =
-    vtkSmartPointer<vtkCellData>::New();
-  vtkSmartPointer<vtkPoints> resultPoints =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPointLocator> locator = vtkSmartPointer<vtkPointLocator>::New();
+  vtkSmartPointer<vtkCellArray> resultPolys = vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPointData> resultPd = vtkSmartPointer<vtkPointData>::New();
+  vtkSmartPointer<vtkCellData> resultCd = vtkSmartPointer<vtkCellData>::New();
+  vtkSmartPointer<vtkPoints> resultPoints = vtkSmartPointer<vtkPoints>::New();
   resultPoints->DeepCopy(ugrid->GetPoints());
   locator->InitPointInsertion(resultPoints, ugrid->GetBounds());
 
-  polyhedron->Contour(0, ugrid->GetPointData()->GetScalars(), locator,
-                      nullptr, nullptr, resultPolys,
-                      ugrid->GetPointData(), resultPd,
-                      ugrid->GetCellData(), 0, resultCd);
+  polyhedron->Contour(0, ugrid->GetPointData()->GetScalars(), locator, nullptr, nullptr,
+    resultPolys, ugrid->GetPointData(), resultPd, ugrid->GetCellData(), 0, resultCd);
 
   // output the contour
-  vtkSmartPointer<vtkUnstructuredGrid> contourResult =
-    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkSmartPointer<vtkUnstructuredGrid> contourResult = vtkSmartPointer<vtkUnstructuredGrid>::New();
   contourResult->SetPoints(locator->GetPoints());
   contourResult->SetCells(VTK_POLYGON, resultPolys);
   contourResult->GetPointData()->DeepCopy(resultPd);
 
   // test clip
-  vtkSmartPointer<vtkPointLocator> locator1 =
-    vtkSmartPointer<vtkPointLocator>::New();
-  vtkSmartPointer<vtkCellArray> resultPolys1 =
-    vtkSmartPointer<vtkCellArray>::New();
-  vtkSmartPointer<vtkPointData> resultPd1 =
-    vtkSmartPointer<vtkPointData>::New();
-  vtkSmartPointer<vtkCellData> resultCd1 =
-    vtkSmartPointer<vtkCellData>::New();
-  vtkSmartPointer<vtkPoints> resultPoints1 =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPointLocator> locator1 = vtkSmartPointer<vtkPointLocator>::New();
+  vtkSmartPointer<vtkCellArray> resultPolys1 = vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkPointData> resultPd1 = vtkSmartPointer<vtkPointData>::New();
+  vtkSmartPointer<vtkCellData> resultCd1 = vtkSmartPointer<vtkCellData>::New();
+  vtkSmartPointer<vtkPoints> resultPoints1 = vtkSmartPointer<vtkPoints>::New();
   resultPoints1->DeepCopy(ugrid->GetPoints());
   locator1->InitPointInsertion(resultPoints1, ugrid->GetBounds());
 
-  polyhedron->Clip(0, ugrid->GetPointData()->GetScalars(), locator1,
-                   resultPolys1, ugrid->GetPointData(), resultPd1,
-                   ugrid->GetCellData(), 0, resultCd1, 1);
+  polyhedron->Clip(0, ugrid->GetPointData()->GetScalars(), locator1, resultPolys1,
+    ugrid->GetPointData(), resultPd1, ugrid->GetCellData(), 0, resultCd1, 1);
 
   // output the clipped polyhedron
-  vtkSmartPointer<vtkUnstructuredGrid> clipResult =
-    vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkSmartPointer<vtkUnstructuredGrid> clipResult = vtkSmartPointer<vtkUnstructuredGrid>::New();
   clipResult->SetPoints(locator1->GetPoints());
   clipResult->SetCells(VTK_POLYHEDRON, resultPolys1);
   clipResult->GetPointData()->DeepCopy(resultPd1);
 
   // create actors
-  vtkSmartPointer<vtkDataSetMapper> mapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> mapper = vtkSmartPointer<vtkDataSetMapper>::New();
   mapper->SetInputData(polyhedron->GetPolyData());
 
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkDataSetMapper> planeMapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> planeMapper = vtkSmartPointer<vtkDataSetMapper>::New();
   planeMapper->SetInputData(planePoly);
 
-  vtkSmartPointer<vtkActor> planeActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> planeActor = vtkSmartPointer<vtkActor>::New();
   planeActor->SetMapper(planeMapper);
 
-
-  vtkSmartPointer<vtkDataSetMapper> contourMapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> contourMapper = vtkSmartPointer<vtkDataSetMapper>::New();
   contourMapper->SetInputData(contourResult);
 
-  vtkSmartPointer<vtkActor> contourActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> contourActor = vtkSmartPointer<vtkActor>::New();
   contourActor->SetMapper(contourMapper);
 
-  vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper =
-    vtkSmartPointer<vtkDataSetMapper>::New();
+  vtkSmartPointer<vtkDataSetMapper> clipPolyhedronMapper = vtkSmartPointer<vtkDataSetMapper>::New();
   clipPolyhedronMapper->SetInputData(clipResult);
 
-  vtkSmartPointer<vtkActor> clipPolyhedronActor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> clipPolyhedronActor = vtkSmartPointer<vtkActor>::New();
   clipPolyhedronActor->SetMapper(clipPolyhedronMapper);
 
   // Create rendering infrastructure
@@ -256,16 +226,14 @@ int TestPolyhedron1( int argc, char* argv[] )
   contourActor->SetProperty(prop1);
   clipPolyhedronActor->SetProperty(prop);
 
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
   ren->AddActor(planeActor);
   ren->AddActor(contourActor);
   ren->AddActor(clipPolyhedronActor);
-  ren->SetBackground(.5,.5,.5);
+  ren->SetBackground(.5, .5, .5);
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren);
 
@@ -277,8 +245,8 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

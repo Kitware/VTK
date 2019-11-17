@@ -34,7 +34,7 @@
  * vtkLinearTransform vtkIdentityTransform
  * vtkTransformPolyDataFilter vtkTransformFilter vtkImageReslice
  * vtkImplicitFunction
-*/
+ */
 
 #ifndef vtkAbstractTransform_h
 #define vtkAbstractTransform_h
@@ -50,37 +50,40 @@ class vtkSimpleCriticalSection;
 class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
 {
 public:
-
-  vtkTypeMacro(vtkAbstractTransform,vtkObject);
+  vtkTypeMacro(vtkAbstractTransform, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a coordinate.  You can use the same
    * array to store both the input and output point.
    */
-  void TransformPoint(const float in[3], float out[3]) {
-    this->Update(); this->InternalTransformPoint(in,out); }
+  void TransformPoint(const float in[3], float out[3])
+  {
+    this->Update();
+    this->InternalTransformPoint(in, out);
+  }
 
   /**
    * Apply the transformation to a double-precision coordinate.
    * You can use the same array to store both the input and output point.
    */
-  void TransformPoint(const double in[3], double out[3]) {
-    this->Update(); this->InternalTransformPoint(in,out); }
+  void TransformPoint(const double in[3], double out[3])
+  {
+    this->Update();
+    this->InternalTransformPoint(in, out);
+  }
 
   /**
    * Apply the transformation to a double-precision coordinate.
    * Use this if you are programming in Python or Java.
    */
-  double *TransformPoint(double x, double y, double z)
-    VTK_SIZEHINT(3)
+  double* TransformPoint(double x, double y, double z) VTK_SIZEHINT(3)
   {
-    return this->TransformDoublePoint(x,y,z);
+    return this->TransformDoublePoint(x, y, z);
   }
-  double *TransformPoint(const double point[3])
-    VTK_SIZEHINT(3)
+  double* TransformPoint(const double point[3]) VTK_SIZEHINT(3)
   {
-    return this->TransformPoint(point[0],point[1],point[2]);
+    return this->TransformPoint(point[0], point[1], point[2]);
   }
 
   //@{
@@ -88,19 +91,17 @@ public:
    * Apply the transformation to an (x,y,z) coordinate.
    * Use this if you are programming in Python or Java.
    */
-  float *TransformFloatPoint(float x, float y, float z)
-    VTK_SIZEHINT(3)
+  float* TransformFloatPoint(float x, float y, float z) VTK_SIZEHINT(3)
   {
-      this->InternalFloatPoint[0] = x;
-      this->InternalFloatPoint[1] = y;
-      this->InternalFloatPoint[2] = z;
-      this->TransformPoint(this->InternalFloatPoint,this->InternalFloatPoint);
-      return this->InternalFloatPoint;
+    this->InternalFloatPoint[0] = x;
+    this->InternalFloatPoint[1] = y;
+    this->InternalFloatPoint[2] = z;
+    this->TransformPoint(this->InternalFloatPoint, this->InternalFloatPoint);
+    return this->InternalFloatPoint;
   }
-  float *TransformFloatPoint(const float point[3])
-    VTK_SIZEHINT(3)
+  float* TransformFloatPoint(const float point[3]) VTK_SIZEHINT(3)
   {
-    return this->TransformFloatPoint(point[0],point[1],point[2]);
+    return this->TransformFloatPoint(point[0], point[1], point[2]);
   }
   //@}
 
@@ -109,19 +110,17 @@ public:
    * Apply the transformation to a double-precision (x,y,z) coordinate.
    * Use this if you are programming in Python or Java.
    */
-  double *TransformDoublePoint(double x, double y, double z)
-    VTK_SIZEHINT(3)
+  double* TransformDoublePoint(double x, double y, double z) VTK_SIZEHINT(3)
   {
     this->InternalDoublePoint[0] = x;
     this->InternalDoublePoint[1] = y;
     this->InternalDoublePoint[2] = z;
-    this->TransformPoint(this->InternalDoublePoint,this->InternalDoublePoint);
+    this->TransformPoint(this->InternalDoublePoint, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
-  double *TransformDoublePoint(const double point[3])
-    VTK_SIZEHINT(3)
+  double* TransformDoublePoint(const double point[3]) VTK_SIZEHINT(3)
   {
-    return this->TransformDoublePoint(point[0],point[1],point[2]);
+    return this->TransformDoublePoint(point[0], point[1], point[2]);
   }
   //@}
 
@@ -131,17 +130,13 @@ public:
    * transformation is a vtkLinearTransform, you can use TransformNormal()
    * instead.
    */
-  void TransformNormalAtPoint(const float point[3], const float in[3],
-                              float out[3]);
-  void TransformNormalAtPoint(const double point[3], const double in[3],
-                              double out[3]);
+  void TransformNormalAtPoint(const float point[3], const float in[3], float out[3]);
+  void TransformNormalAtPoint(const double point[3], const double in[3], double out[3]);
   //@}
 
-  double *TransformNormalAtPoint(const double point[3],
-                                 const double normal[3])
-    VTK_SIZEHINT(3)
+  double* TransformNormalAtPoint(const double point[3], const double normal[3]) VTK_SIZEHINT(3)
   {
-    this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
+    this->TransformNormalAtPoint(point, normal, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
 
@@ -151,11 +146,10 @@ public:
    * vertex.  If the transformation is a vtkLinearTransform, you can use
    * TransformDoubleNormal() instead.
    */
-  double *TransformDoubleNormalAtPoint(const double point[3],
-                                       const double normal[3])
+  double* TransformDoubleNormalAtPoint(const double point[3], const double normal[3])
     VTK_SIZEHINT(3)
   {
-    this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
+    this->TransformNormalAtPoint(point, normal, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
   //@}
@@ -166,11 +160,9 @@ public:
    * vertex.  If the transformation is a vtkLinearTransform, you can use
    * TransformFloatNormal() instead.
    */
-  float *TransformFloatNormalAtPoint(const float point[3],
-                                     const float normal[3])
-    VTK_SIZEHINT(3)
+  float* TransformFloatNormalAtPoint(const float point[3], const float normal[3]) VTK_SIZEHINT(3)
   {
-    this->TransformNormalAtPoint(point,normal,this->InternalFloatPoint);
+    this->TransformNormalAtPoint(point, normal, this->InternalFloatPoint);
     return this->InternalFloatPoint;
   }
   //@}
@@ -181,17 +173,13 @@ public:
    * transformation is a vtkLinearTransform, you can use TransformVector()
    * instead.
    */
-  void TransformVectorAtPoint(const float point[3], const float in[3],
-                              float out[3]);
-  void TransformVectorAtPoint(const double point[3], const double in[3],
-                              double out[3]);
+  void TransformVectorAtPoint(const float point[3], const float in[3], float out[3]);
+  void TransformVectorAtPoint(const double point[3], const double in[3], double out[3]);
   //@}
 
-  double *TransformVectorAtPoint(const double point[3],
-                                 const double vector[3])
-    VTK_SIZEHINT(3)
+  double* TransformVectorAtPoint(const double point[3], const double vector[3]) VTK_SIZEHINT(3)
   {
-    this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
+    this->TransformVectorAtPoint(point, vector, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
 
@@ -201,11 +189,10 @@ public:
    * vertex.  If the transformation is a vtkLinearTransform, you can use
    * TransformDoubleVector() instead.
    */
-  double *TransformDoubleVectorAtPoint(const double point[3],
-                                       const double vector[3])
+  double* TransformDoubleVectorAtPoint(const double point[3], const double vector[3])
     VTK_SIZEHINT(3)
   {
-    this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
+    this->TransformVectorAtPoint(point, vector, this->InternalDoublePoint);
     return this->InternalDoublePoint;
   }
   //@}
@@ -216,11 +203,9 @@ public:
    * vertex.  If the transformation is a vtkLinearTransform, you can use
    * TransformFloatVector() instead.
    */
-  float *TransformFloatVectorAtPoint(const float point[3],
-                                     const float vector[3])
-    VTK_SIZEHINT(3)
+  float* TransformFloatVectorAtPoint(const float point[3], const float vector[3]) VTK_SIZEHINT(3)
   {
-    this->TransformVectorAtPoint(point,vector,this->InternalFloatPoint);
+    this->TransformVectorAtPoint(point, vector, this->InternalFloatPoint);
     return this->InternalFloatPoint;
   }
   //@}
@@ -229,21 +214,16 @@ public:
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  virtual void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  virtual void TransformPoints(vtkPoints* inPts, vtkPoints* outPts);
 
   /**
    * Apply the transformation to a combination of points, normals
    * and vectors.
    */
-  virtual void TransformPointsNormalsVectors(vtkPoints *inPts,
-                                             vtkPoints *outPts,
-                                             vtkDataArray *inNms,
-                                             vtkDataArray *outNms,
-                                             vtkDataArray *inVrs,
-                                             vtkDataArray *outVrs,
-                                             int nOptionalVectors = 0,
-                                             vtkDataArray** inVrsArr = nullptr,
-                                             vtkDataArray** outVrsArr = nullptr);
+  virtual void TransformPointsNormalsVectors(vtkPoints* inPts, vtkPoints* outPts,
+    vtkDataArray* inNms, vtkDataArray* outNms, vtkDataArray* inVrs, vtkDataArray* outVrs,
+    int nOptionalVectors = 0, vtkDataArray** inVrsArr = nullptr,
+    vtkDataArray** outVrsArr = nullptr);
 
   /**
    * Get the inverse of this transform.  If you modify this transform,
@@ -252,14 +232,14 @@ public:
    * GetLinearInverse() instead which will type cast the result from
    * vtkAbstractTransform to vtkLinearTransform.
    */
-  vtkAbstractTransform *GetInverse();
+  vtkAbstractTransform* GetInverse();
 
   /**
    * Set a transformation that this transform will be the inverse of.
    * This transform will automatically update to agree with the
    * inverse transform that you set.
    */
-  void SetInverse(vtkAbstractTransform *transform);
+  void SetInverse(vtkAbstractTransform* transform);
 
   /**
    * Invert the transformation.
@@ -269,7 +249,7 @@ public:
   /**
    * Copy this transform from another of the same type.
    */
-  void DeepCopy(vtkAbstractTransform *);
+  void DeepCopy(vtkAbstractTransform*);
 
   /**
    * Update the transform to account for any changes which
@@ -295,16 +275,16 @@ public:
    * transformation at that point.  This method does not call Update.
    * Meant for use only within other VTK classes.
    */
-  virtual void InternalTransformDerivative(const float in[3], float out[3],
-                                           float derivative[3][3]) = 0;
-  virtual void InternalTransformDerivative(const double in[3], double out[3],
-                                           double derivative[3][3]) = 0;
+  virtual void InternalTransformDerivative(
+    const float in[3], float out[3], float derivative[3][3]) = 0;
+  virtual void InternalTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) = 0;
   //@}
 
   /**
    * Make another transform of the same type.
    */
-  virtual VTK_NEWINSTANCE vtkAbstractTransform *MakeTransform() = 0;
+  virtual VTK_NEWINSTANCE vtkAbstractTransform* MakeTransform() = 0;
 
   /**
    * Check for self-reference.  Will return true if concatenating
@@ -314,7 +294,7 @@ public:
    * and Concatenate(vtkXTransform *).  Avoid using this function,
    * it is experimental.
    */
-  virtual int CircuitCheck(vtkAbstractTransform *transform);
+  virtual int CircuitCheck(vtkAbstractTransform* transform);
 
   /**
    * Override GetMTime necessary because of inverse transforms.
@@ -325,7 +305,7 @@ public:
    * Needs a special UnRegister() implementation to avoid
    * circular references.
    */
-  void UnRegister(vtkObjectBase *O) override;
+  void UnRegister(vtkObjectBase* O) override;
 
 protected:
   vtkAbstractTransform();
@@ -339,13 +319,12 @@ protected:
   /**
    * Perform any subclass-specific DeepCopy.
    */
-  virtual void InternalDeepCopy(vtkAbstractTransform *) {}
+  virtual void InternalDeepCopy(vtkAbstractTransform*) {}
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
 
 private:
-
   // We need to record the time of the last update, and we also need
   // to do mutex locking so updates don't collide.  These are private
   // because Update() is not virtual.
@@ -354,13 +333,13 @@ private:
   // if necessary.
 
   vtkTimeStamp UpdateTime;
-  vtkSimpleCriticalSection *UpdateMutex;
-  vtkSimpleCriticalSection *InverseMutex;
+  vtkSimpleCriticalSection* UpdateMutex;
+  vtkSimpleCriticalSection* InverseMutex;
   int DependsOnInverse;
 
   // MyInverse is a transform which is the inverse of this one.
 
-  vtkAbstractTransform *MyInverse;
+  vtkAbstractTransform* MyInverse;
 
   int InUnRegister;
 
@@ -378,13 +357,15 @@ class vtkTransformPair
 public:
   vtkTransformPair() {}
 
-  vtkAbstractTransform *ForwardTransform;
-  vtkAbstractTransform *InverseTransform;
+  vtkAbstractTransform* ForwardTransform;
+  vtkAbstractTransform* InverseTransform;
 
-  void SwapForwardInverse() {
-    vtkAbstractTransform *tmp = this->ForwardTransform;
+  void SwapForwardInverse()
+  {
+    vtkAbstractTransform* tmp = this->ForwardTransform;
     this->ForwardTransform = this->InverseTransform;
-    this->InverseTransform = tmp; }
+    this->InverseTransform = tmp;
+  }
 };
 
 // .NAME vtkTransformConcatenation - store a series of transformations.
@@ -394,14 +375,13 @@ public:
 class VTKCOMMONTRANSFORMS_EXPORT vtkTransformConcatenation
 {
 public:
-  static vtkTransformConcatenation *New() {
-    return new vtkTransformConcatenation(); }
+  static vtkTransformConcatenation* New() { return new vtkTransformConcatenation(); }
   void Delete() { delete this; }
 
   /**
    * add a transform to the list according to Pre/PostMultiply semantics
    */
-  void Concatenate(vtkAbstractTransform *transform);
+  void Concatenate(vtkAbstractTransform* transform);
 
   /**
    * concatenate with a matrix according to Pre/PostMultiply semantics
@@ -441,7 +421,7 @@ public:
   void Identity();
 
   // copy the list
-  void DeepCopy(vtkTransformConcatenation *transform);
+  void DeepCopy(vtkTransformConcatenation* transform);
 
   /**
    * the number of stored transforms
@@ -458,13 +438,12 @@ public:
   /**
    * the number of transforms that were post-concatenated.
    */
-  int GetNumberOfPostTransforms() {
-    return this->NumberOfTransforms-this->NumberOfPreTransforms; }
+  int GetNumberOfPostTransforms() { return this->NumberOfTransforms - this->NumberOfPreTransforms; }
 
   /**
    * get one of the transforms
    */
-  vtkAbstractTransform *GetTransform(int i);
+  vtkAbstractTransform* GetTransform(int i);
 
   /**
    * get maximum MTime of all transforms
@@ -480,19 +459,18 @@ protected:
   int InverseFlag;
   int PreMultiplyFlag;
 
-  vtkMatrix4x4 *PreMatrix;
-  vtkMatrix4x4 *PostMatrix;
-  vtkAbstractTransform *PreMatrixTransform;
-  vtkAbstractTransform *PostMatrixTransform;
+  vtkMatrix4x4* PreMatrix;
+  vtkMatrix4x4* PostMatrix;
+  vtkAbstractTransform* PreMatrixTransform;
+  vtkAbstractTransform* PostMatrixTransform;
 
   int NumberOfTransforms;
   int NumberOfPreTransforms;
   int MaxNumberOfTransforms;
-  vtkTransformPair *TransformList;
+  vtkTransformPair* TransformList;
 
 private:
-  vtkTransformConcatenation(const vtkTransformConcatenation&)
-    = delete;
+  vtkTransformConcatenation(const vtkTransformConcatenation&) = delete;
   void operator=(const vtkTransformConcatenation&) = delete;
 };
 
@@ -503,40 +481,33 @@ private:
 class VTKCOMMONTRANSFORMS_EXPORT vtkTransformConcatenationStack
 {
 public:
-  static vtkTransformConcatenationStack *New()
-  {
-      return new vtkTransformConcatenationStack();
-  }
-  void Delete()
-  {
-      delete this;
-  }
+  static vtkTransformConcatenationStack* New() { return new vtkTransformConcatenationStack(); }
+  void Delete() { delete this; }
 
   /**
    * pop will pop delete 'concat', then pop the
    * top item on the stack onto 'concat'.
    */
-  void Pop(vtkTransformConcatenation **concat);
+  void Pop(vtkTransformConcatenation** concat);
 
   /**
    * push will move 'concat' onto the stack, and
    * make 'concat' a copy of its previous self
    */
-  void Push(vtkTransformConcatenation **concat);
+  void Push(vtkTransformConcatenation** concat);
 
-  void DeepCopy(vtkTransformConcatenationStack *stack);
+  void DeepCopy(vtkTransformConcatenationStack* stack);
 
 protected:
   vtkTransformConcatenationStack();
   ~vtkTransformConcatenationStack();
 
   int StackSize;
-  vtkTransformConcatenation **Stack;
-  vtkTransformConcatenation **StackBottom;
+  vtkTransformConcatenation** Stack;
+  vtkTransformConcatenation** StackBottom;
 
 private:
-  vtkTransformConcatenationStack(const vtkTransformConcatenationStack&)
-    = delete;
+  vtkTransformConcatenationStack(const vtkTransformConcatenationStack&) = delete;
   void operator=(const vtkTransformConcatenationStack&) = delete;
 };
 

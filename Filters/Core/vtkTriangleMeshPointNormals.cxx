@@ -29,23 +29,20 @@ vtkStandardNewMacro(vtkTriangleMeshPointNormals);
 
 namespace
 {
-template<typename ptDataType>
-const char* computeNormalsDirection(vtkPolyData* mesh, float *n)
+template <typename ptDataType>
+const char* computeNormalsDirection(vtkPolyData* mesh, float* n)
 {
-  ptDataType *points = reinterpret_cast<ptDataType*>
-    (mesh->GetPoints()->GetData()->GetVoidPointer(0));
+  ptDataType* points =
+    reinterpret_cast<ptDataType*>(mesh->GetPoints()->GetData()->GetVoidPointer(0));
   vtkIdType v0Offset, v1Offset, v2Offset;
   ptDataType *p0, *p1, *p2;
   float a[3], b[3], tn[3];
 
-  auto cellIter =
-      vtkSmartPointer<vtkCellArrayIterator>::Take(mesh->GetPolys()->NewIterator());
-  for (cellIter->GoToFirstCell();
-       !cellIter->IsDoneWithTraversal();
-       cellIter->GoToNextCell())
+  auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(mesh->GetPolys()->NewIterator());
+  for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
   {
     vtkIdType cellSize;
-    const vtkIdType *cell;
+    const vtkIdType* cell;
     cellIter->GetCurrentCell(cellSize, cell);
 
     // First value in cellArray indicates number of points in cell.
@@ -101,37 +98,33 @@ const char* computeNormalsDirection(vtkPolyData* mesh, float *n)
 }
 
 // Generate normals for polygon meshes
-int vtkTriangleMeshPointNormals::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro(<<"Generating surface normals");
+  vtkDebugMacro(<< "Generating surface normals");
 
   vtkIdType numPts = input->GetNumberOfPoints(); // nbr of points from input
-  if ( numPts < 1 )
+  if (numPts < 1)
   {
-    vtkDebugMacro(<<"No data to generate normals for!");
+    vtkDebugMacro(<< "No data to generate normals for!");
     return 1;
   }
 
-  if (input->GetVerts()->GetNumberOfCells() != 0 ||
-      input->GetLines()->GetNumberOfCells() != 0 ||
-      input->GetStrips()->GetNumberOfCells() != 0)
+  if (input->GetVerts()->GetNumberOfCells() != 0 || input->GetLines()->GetNumberOfCells() != 0 ||
+    input->GetStrips()->GetNumberOfCells() != 0)
   {
-    vtkErrorMacro(<< "Can not compute normals for a mesh with Verts, Lines or Strips, as it will "
-                  << "corrupt the number of points used during the normals computation."
-                  << "Make sure your input PolyData only has triangles (Polys with 3 components)).");
+    vtkErrorMacro(
+      << "Can not compute normals for a mesh with Verts, Lines or Strips, as it will "
+      << "corrupt the number of points used during the normals computation."
+      << "Make sure your input PolyData only has triangles (Polys with 3 components)).");
     return 0;
   }
 
@@ -150,7 +143,7 @@ int vtkTriangleMeshPointNormals::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   // Prepare array for normals
-  vtkFloatArray *normals = vtkFloatArray::New();
+  vtkFloatArray* normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetNumberOfTuples(numPts);
   normals->SetName("Normals");
@@ -161,16 +154,11 @@ int vtkTriangleMeshPointNormals::RequestData(
   this->UpdateProgress(0.1);
 
   // Compute normals direction
-  float *n = reinterpret_cast<float*>(normals->GetVoidPointer(0));
+  float* n = reinterpret_cast<float*>(normals->GetVoidPointer(0));
   switch (output->GetPoints()->GetDataType())
   {
-    vtkTemplateMacro(
-      const char *warning = computeNormalsDirection<VTK_TT>(output, n);
-      if(warning)
-      {
-        vtkWarningMacro( << warning);
-      }
-    );
+    vtkTemplateMacro(const char* warning = computeNormalsDirection<VTK_TT>(output, n);
+                     if (warning) { vtkWarningMacro(<< warning); });
   }
   this->UpdateProgress(0.5);
 
@@ -180,13 +168,11 @@ int vtkTriangleMeshPointNormals::RequestData(
   for (vtkIdType i = 0; i < numPts; ++i)
   {
     i3 = i * 3;
-    if ((l = sqrt(n[i3] * n[i3] +
-        n[i3 + 1] * n[i3 + 1] +
-        n[i3 + 2] * n[i3 + 2])) != 0.0)
+    if ((l = sqrt(n[i3] * n[i3] + n[i3 + 1] * n[i3 + 1] + n[i3 + 2] * n[i3 + 2])) != 0.0)
     {
-        n[i3] /= l;
-        n[i3 + 1] /= l;
-        n[i3 + 2] /= l;
+      n[i3] /= l;
+      n[i3 + 1] /= l;
+      n[i3 + 2] /= l;
     }
   }
   this->UpdateProgress(0.9);
@@ -199,5 +185,5 @@ int vtkTriangleMeshPointNormals::RequestData(
 
 void vtkTriangleMeshPointNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

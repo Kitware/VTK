@@ -61,18 +61,22 @@ struct BlockT
 
   void AddPoints(vtkPoints* pts)
   {
-    if (!pts) { return; }
+    if (!pts)
+    {
+      return;
+    }
 
     const auto start_offset = this->Points.size();
     this->Points.resize(start_offset + pts->GetNumberOfPoints());
 
-    vtkSMPTools::For(0, pts->GetNumberOfPoints(), [this, pts, start_offset](vtkIdType start, vtkIdType end) {
-      for (vtkIdType cc = start; cc < end; ++cc)
-      {
-        auto& pt = this->Points[cc + start_offset];
-        pts->GetPoint(cc, pt.coords.GetData());
-      }
-    });
+    vtkSMPTools::For(
+      0, pts->GetNumberOfPoints(), [this, pts, start_offset](vtkIdType start, vtkIdType end) {
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          auto& pt = this->Points[cc + start_offset];
+          pts->GetPoint(cc, pt.coords.GetData());
+        }
+      });
   }
 };
 
@@ -98,14 +102,10 @@ unsigned int nextPowerOf2(unsigned int n)
 }
 
 //----------------------------------------------------------------------------
-vtkDIYKdTreeUtilities::vtkDIYKdTreeUtilities()
-{
-}
+vtkDIYKdTreeUtilities::vtkDIYKdTreeUtilities() {}
 
 //----------------------------------------------------------------------------
-vtkDIYKdTreeUtilities::~vtkDIYKdTreeUtilities()
-{
-}
+vtkDIYKdTreeUtilities::~vtkDIYKdTreeUtilities() {}
 
 //----------------------------------------------------------------------------
 void vtkDIYKdTreeUtilities::PrintSelf(ostream& os, vtkIndent indent)
@@ -179,7 +179,8 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
       num_cuts, comm.size());
   }
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new BlockT); },
     [](void* b) { delete static_cast<BlockT*>(b); });
 
   const diy::ContinuousBounds gdomain = vtkDIYUtilities::Convert(bbox);
@@ -266,7 +267,8 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
   using VectorOfUG = std::vector<vtkSmartPointer<vtkUnstructuredGrid> >;
   using VectorOfVectorOfUG = std::vector<VectorOfUG>;
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new VectorOfVectorOfUG()); },
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new VectorOfVectorOfUG()); },
     [](void* b) { delete static_cast<VectorOfVectorOfUG*>(b); });
 
   diy::ContiguousAssigner assigner(comm.size(), comm.size());
@@ -348,8 +350,8 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
 }
 
 //----------------------------------------------------------------------------
-bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(
-  vtkPartitionedDataSet* parts, vtkMultiProcessController* controller, vtkIdType* mb_offset/*=nullptr*/)
+bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
+  vtkMultiProcessController* controller, vtkIdType* mb_offset /*=nullptr*/)
 {
   // We need to generate global cells ids. The algorithm is simple.
   // 1. globally count non-ghost cells and then determine what range of gids
@@ -406,7 +408,6 @@ bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(
     diy::mpi::all_reduce(comm, total_local_cells, total_global_cells, std::plus<vtkIdType>());
     (*mb_offset) += total_global_cells;
   }
-
 
   // compute exclusive scan to determine the global id offsets for each local partition.
   std::vector<vtkIdType> local_cell_offsets(nblocks, 0);

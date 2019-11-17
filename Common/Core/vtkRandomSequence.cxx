@@ -15,7 +15,6 @@
 
 #include <cassert>
 
-
 // ----------------------------------------------------------------------------
 vtkRandomSequence::vtkRandomSequence() = default;
 

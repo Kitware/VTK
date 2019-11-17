@@ -21,16 +21,17 @@
 // Description:
 // Traits class for converting from vtk data type enum
 // to the appropriate C or MPI datatype.
-template<typename T> class vtkMPIPixelTT;
+template <typename T>
+class vtkMPIPixelTT;
 
-#define vtkMPIPixelTTMacro1(_ctype) \
-template<> \
-class vtkMPIPixelTT<_ctype> \
-{ \
-public: \
-  static MPI_Datatype MPIType; \
-  static int VTKType; \
-}
+#define vtkMPIPixelTTMacro1(_ctype)                                                                \
+  template <>                                                                                      \
+  class vtkMPIPixelTT<_ctype>                                                                      \
+  {                                                                                                \
+  public:                                                                                          \
+    static MPI_Datatype MPIType;                                                                   \
+    static int VTKType;                                                                            \
+  }
 
 vtkMPIPixelTTMacro1(void);
 vtkMPIPixelTTMacro1(char);
@@ -44,7 +45,7 @@ vtkMPIPixelTTMacro1(long);
 vtkMPIPixelTTMacro1(unsigned long);
 vtkMPIPixelTTMacro1(float);
 vtkMPIPixelTTMacro1(double);
-//vtkMPIPixelTTMacro1(vtkIdType);
+// vtkMPIPixelTTMacro1(vtkIdType);
 vtkMPIPixelTTMacro1(long long);
 vtkMPIPixelTTMacro1(unsigned long long);
 

@@ -24,7 +24,7 @@
  * Based on vtkCurveRepresentation
  * @sa
  * vtkSplineRepresentation
-*/
+ */
 
 #ifndef vtkPolyLineRepresentation_h
 #define vtkPolyLineRepresentation_h
@@ -51,7 +51,7 @@ public:
    * provides the vtkPolyData and the points and polyline are added to
    * it.
    */
-  void GetPolyData(vtkPolyData *pd) override;
+  void GetPolyData(vtkPolyData* pd) override;
 
   /**
    * Set the number of handles for this widget.
@@ -87,7 +87,7 @@ protected:
   ~vtkPolyLineRepresentation() override;
 
   // The poly line source
-  vtkPolyLineSource *PolyLineSource;
+  vtkPolyLineSource* PolyLineSource;
 
   // Specialized method to insert a handle on the poly line.
   int InsertHandleOnLine(double* pos) override;
@@ -95,7 +95,6 @@ protected:
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) = delete;
   void operator=(const vtkPolyLineRepresentation&) = delete;
-
 };
 
 #endif

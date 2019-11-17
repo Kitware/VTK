@@ -31,13 +31,12 @@
  * for image processing, subsampling large volumes to reduce data size, or
  * extracting regions of a volume with interesting data.
  *
-*/
+ */
 #ifndef vtkmExtractVOI_h
 #define vtkmExtractVOI_h
 
 #include "vtkAcceleratorsVTKmModule.h" // for export macro
 #include "vtkExtractVOI.h"
-
 
 class VTKACCELERATORSVTKM_EXPORT vtkmExtractVOI : public vtkExtractVOI
 {
@@ -50,8 +49,7 @@ protected:
   vtkmExtractVOI();
   ~vtkmExtractVOI();
 
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmExtractVOI(const vtkmExtractVOI&) = delete;

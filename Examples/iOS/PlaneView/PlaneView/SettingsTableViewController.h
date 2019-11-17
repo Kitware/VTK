@@ -13,6 +13,7 @@
 =========================================================================*/
 #import <UIKit/UIKit.h>
 
-@interface SettingsTableViewController : UITableViewController <UIDocumentPickerDelegate,UIDocumentMenuDelegate>
+@interface SettingsTableViewController
+  : UITableViewController<UIDocumentPickerDelegate, UIDocumentMenuDelegate>
 
 @end

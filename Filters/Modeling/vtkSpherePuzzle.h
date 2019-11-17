@@ -17,7 +17,7 @@
  * @brief   create a polygonal sphere centered at the origin
  *
  * vtkSpherePuzzle creates
-*/
+ */
 
 #ifndef vtkSpherePuzzle_h
 #define vtkSpherePuzzle_h
@@ -32,10 +32,10 @@ class vtkTransform;
 class VTKFILTERSMODELING_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkSpherePuzzle, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkSpherePuzzle *New();
+  static vtkSpherePuzzle* New();
 
   /**
    * Reset the state of this puzzle back to its original state.
@@ -72,13 +72,13 @@ public:
   /**
    * For drawing state as arrows.
    */
-  int *GetState() {return this->State;}
+  int* GetState() { return this->State; }
 
 protected:
   vtkSpherePuzzle();
   ~vtkSpherePuzzle() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void MarkVertical(int section);
   void MarkHorizontal(int section);
 
@@ -86,7 +86,7 @@ protected:
 
   // Stuff for storing a partial move.
   int PieceMask[32];
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // Colors for faces.
   unsigned char Colors[96];

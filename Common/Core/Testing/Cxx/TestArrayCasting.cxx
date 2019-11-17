@@ -30,28 +30,27 @@
 
 #include <boost/algorithm/string.hpp>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-  { \
-    std::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw std::runtime_error(buffer.str()); \
-  } \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+    {                                                                                              \
+      std::ostringstream buffer;                                                                   \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
+      throw std::runtime_error(buffer.str());                                                      \
+    }                                                                                              \
+  }
 
 class DowncastTest
 {
 public:
-  DowncastTest(int& count) :
-    Count(count)
+  DowncastTest(int& count)
+    : Count(count)
   {
   }
 
-  template<typename T>
+  template <typename T>
   void operator()(T* vtkNotUsed(array)) const
   {
     ++Count;
@@ -63,18 +62,18 @@ private:
   DowncastTest& operator=(const DowncastTest&);
 };
 
-template<template <typename> class TargetT, typename TypesT>
+template <template <typename> class TargetT, typename TypesT>
 void SuccessTest(vtkObject* source, int line)
 {
   int count = 0;
-  if(!vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
+  if (!vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
   {
     std::ostringstream buffer;
     buffer << "Expression failed at line " << line;
     throw std::runtime_error(buffer.str());
   }
 
-  if(count != 1)
+  if (count != 1)
   {
     std::ostringstream buffer;
     buffer << "Functor was called " << count << " times at line " << line;
@@ -82,18 +81,18 @@ void SuccessTest(vtkObject* source, int line)
   }
 }
 
-template<template <typename> class TargetT, typename TypesT>
+template <template <typename> class TargetT, typename TypesT>
 void FailTest(vtkObject* source, int line)
 {
   int count = 0;
-  if(vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
+  if (vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
   {
     std::ostringstream buffer;
     buffer << "Expression failed at line " << line;
     throw std::runtime_error(buffer.str());
   }
 
-  if(count != 0)
+  if (count != 0)
   {
     std::ostringstream buffer;
     buffer << "Functor was called " << count << " times at line " << line;
@@ -102,7 +101,8 @@ void FailTest(vtkObject* source, int line)
 }
 
 /*
-// This functor increments array values in-place using a parameter passed via the algorithm (instead of a parameter
+// This functor increments array values in-place using a parameter passed via the algorithm (instead
+of a parameter
 // stored in the functor).  It can work with any numeric array type.
 struct IncrementValues
 {
@@ -114,8 +114,10 @@ struct IncrementValues
   }
 };
 
-// This functor converts strings in-place to a form suitable for case-insensitive comparison.  It's an example of
-// how you can write generic code while still specializing functionality on a case-by-case basis, since
+// This functor converts strings in-place to a form suitable for case-insensitive comparison.  It's
+an example of
+// how you can write generic code while still specializing functionality on a case-by-case basis,
+since
 // in this situation we want to use some special functionality provided by vtkUnicodeString.
 struct FoldCase
 {
@@ -137,7 +139,8 @@ struct FoldCase
   }
 };
 
-// This functor efficiently creates a transposed array.  It's one example of how you can create an output array
+// This functor efficiently creates a transposed array.  It's one example of how you can create an
+output array
 // with the same type as an input array.
 struct Transpose
 {
@@ -172,7 +175,7 @@ struct Transpose
 //
 //
 
-int TestArrayCasting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayCasting(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
@@ -225,7 +228,7 @@ int TestArrayCasting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;

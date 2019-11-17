@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #define vtkXMLOffsetsManager_DoNotInclude
 #include "vtkXMLOffsetsManager.h"
-#undef  vtkXMLOffsetsManager_DoNotInclude
+#undef vtkXMLOffsetsManager_DoNotInclude
 
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
@@ -109,26 +109,22 @@ void vtkXMLPolyDataWriter::WriteInlinePieceAttributes()
   }
 
   vtkPolyData* input = this->GetInput();
-  this->WriteScalarAttribute("NumberOfVerts",
-                             input->GetVerts()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfVerts", input->GetVerts()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->WriteScalarAttribute("NumberOfLines",
-                             input->GetLines()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfLines", input->GetLines()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->WriteScalarAttribute("NumberOfStrips",
-                             input->GetStrips()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfStrips", input->GetStrips()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->WriteScalarAttribute("NumberOfPolys",
-                             input->GetPolys()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfPolys", input->GetPolys()->GetNumberOfCells());
 }
 
 //----------------------------------------------------------------------------
@@ -198,26 +194,22 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)
   {
     return;
   }
-  this->NumberOfVertsPositions[index] =
-    this->ReserveAttributeSpace("NumberOfVerts");
+  this->NumberOfVertsPositions[index] = this->ReserveAttributeSpace("NumberOfVerts");
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->NumberOfLinesPositions[index] =
-    this->ReserveAttributeSpace("NumberOfLines");
+  this->NumberOfLinesPositions[index] = this->ReserveAttributeSpace("NumberOfLines");
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->NumberOfStripsPositions[index] =
-    this->ReserveAttributeSpace("NumberOfStrips");
+  this->NumberOfStripsPositions[index] = this->ReserveAttributeSpace("NumberOfStrips");
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
-  this->NumberOfPolysPositions[index] =
-    this->ReserveAttributeSpace("NumberOfPolys");
+  this->NumberOfPolysPositions[index] = this->ReserveAttributeSpace("NumberOfPolys");
 }
 
 //----------------------------------------------------------------------------
@@ -230,32 +222,28 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
   }
 
   this->ConvertCells(this->GetInput()->GetVerts());
-  this->WriteCellsAppended("Verts", nullptr, indent,
-    &this->VertsOM->GetPiece(index));
+  this->WriteCellsAppended("Verts", nullptr, indent, &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
   this->ConvertCells(this->GetInput()->GetLines());
-  this->WriteCellsAppended("Lines", nullptr, indent ,
-    &this->LinesOM->GetPiece(index));
+  this->WriteCellsAppended("Lines", nullptr, indent, &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
   this->ConvertCells(this->GetInput()->GetStrips());
-  this->WriteCellsAppended("Strips", nullptr, indent,
-    &this->StripsOM->GetPiece(index));
+  this->WriteCellsAppended("Strips", nullptr, indent, &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
   this->ConvertCells(this->GetInput()->GetPolys());
-  this->WriteCellsAppended("Polys", nullptr, indent,
-    &this->PolysOM->GetPiece(index));
+  this->WriteCellsAppended("Polys", nullptr, indent, &this->PolysOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -266,32 +254,28 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
 
   unsigned long returnPosition = os.tellp();
   os.seekp(this->NumberOfVertsPositions[index]);
-  this->WriteScalarAttribute("NumberOfVerts",
-                             input->GetVerts()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfVerts", input->GetVerts()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
   os.seekp(this->NumberOfLinesPositions[index]);
-  this->WriteScalarAttribute("NumberOfLines",
-                             input->GetLines()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfLines", input->GetLines()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
   os.seekp(this->NumberOfStripsPositions[index]);
-  this->WriteScalarAttribute("NumberOfStrips",
-                             input->GetStrips()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfStrips", input->GetStrips()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
   }
 
   os.seekp(this->NumberOfPolysPositions[index]);
-  this->WriteScalarAttribute("NumberOfPolys",
-                             input->GetPolys()->GetNumberOfCells());
+  this->WriteScalarAttribute("NumberOfPolys", input->GetPolys()->GetNumberOfCells());
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -319,9 +303,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 1, fractions);
 
   // Write the Verts.
-  this->WriteCellsAppendedData(input->GetVerts(), nullptr,
-                               this->CurrentTimeIndex,
-                               &this->VertsOM->GetPiece(index));
+  this->WriteCellsAppendedData(
+    input->GetVerts(), nullptr, this->CurrentTimeIndex, &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -331,9 +314,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 2, fractions);
 
   // Write the Lines.
-  this->WriteCellsAppendedData(input->GetLines(), nullptr,
-                               this->CurrentTimeIndex,
-                               &this->LinesOM->GetPiece(index));
+  this->WriteCellsAppendedData(
+    input->GetLines(), nullptr, this->CurrentTimeIndex, &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -343,9 +325,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 3, fractions);
 
   // Write the Strips.
-  this->WriteCellsAppendedData(input->GetStrips(), nullptr,
-                               this->CurrentTimeIndex,
-                               &this->StripsOM->GetPiece(index));
+  this->WriteCellsAppendedData(
+    input->GetStrips(), nullptr, this->CurrentTimeIndex, &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
   {
     return;
@@ -355,19 +336,16 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 4, fractions);
 
   // Write the Polys.
-  this->WriteCellsAppendedData(input->GetPolys(), nullptr,
-                               this->CurrentTimeIndex,
-                               &this->PolysOM->GetPiece(index));
+  this->WriteCellsAppendedData(
+    input->GetPolys(), nullptr, this->CurrentTimeIndex, &this->PolysOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLPolyDataWriter::GetNumberOfInputCells()
 {
   vtkPolyData* input = this->GetInput();
-  return (input->GetVerts()->GetNumberOfCells()+
-          input->GetLines()->GetNumberOfCells()+
-          input->GetStrips()->GetNumberOfCells()+
-          input->GetPolys()->GetNumberOfCells());
+  return (input->GetVerts()->GetNumberOfCells() + input->GetLines()->GetNumberOfCells() +
+    input->GetStrips()->GetNumberOfCells() + input->GetPolys()->GetNumberOfCells());
 }
 
 //----------------------------------------------------------------------------
@@ -378,8 +356,8 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
   // The superclass will write point/cell data and point specifications.
   int pdArrays = input->GetPointData()->GetNumberOfArrays();
   int cdArrays = input->GetCellData()->GetNumberOfArrays();
-  vtkIdType pdSize = pdArrays*this->GetNumberOfInputPoints();
-  vtkIdType cdSize = cdArrays*this->GetNumberOfInputCells();
+  vtkIdType pdSize = pdArrays * this->GetNumberOfInputPoints();
+  vtkIdType cdSize = cdArrays * this->GetNumberOfInputCells();
   vtkIdType pointsSize = this->GetNumberOfInputPoints();
 
   // This class will write cell specifications.
@@ -392,18 +370,18 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
   vtkIdType offsetSizeS = input->GetStrips()->GetNumberOfCells();
   vtkIdType offsetSizeP = input->GetPolys()->GetNumberOfCells();
   fractions[0] = 0;
-  fractions[1] = fractions[0] + pdSize+cdSize+pointsSize;
-  fractions[2] = fractions[1] + connectSizeV+offsetSizeV;
-  fractions[3] = fractions[2] + connectSizeL+offsetSizeL;
-  fractions[4] = fractions[3] + connectSizeS+offsetSizeS;
-  fractions[5] = fractions[4] + connectSizeP+offsetSizeP;
+  fractions[1] = fractions[0] + pdSize + cdSize + pointsSize;
+  fractions[2] = fractions[1] + connectSizeV + offsetSizeV;
+  fractions[3] = fractions[2] + connectSizeL + offsetSizeL;
+  fractions[4] = fractions[3] + connectSizeS + offsetSizeS;
+  fractions[5] = fractions[4] + connectSizeP + offsetSizeP;
   if (fractions[5] == 0)
   {
     fractions[5] = 1;
   }
   for (int i = 0; i < 5; ++i)
   {
-    fractions[i+1] = fractions[i+1] / fractions[5];
+    fractions[i + 1] = fractions[i + 1] / fractions[5];
   }
 }
 

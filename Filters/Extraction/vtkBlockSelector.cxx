@@ -28,9 +28,9 @@
 
 #include <set>
 
-class vtkBlockSelector::vtkInternals {
+class vtkBlockSelector::vtkInternals
+{
 public:
-
   // This functor is only needed for vtkArrayDispatch to correctly fill it up.
   // Otherwise, it would simply be a set.
   class CompositeIdsT : public std::set<unsigned int>

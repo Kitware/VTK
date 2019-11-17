@@ -20,14 +20,13 @@
 #include <string>
 
 // Registration of MySQL dynamically with the vtkSQLDatabase factory method.
-vtkSQLDatabase * MySQLCreateFunction(const char* URL)
+vtkSQLDatabase* MySQLCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkMySQLDatabase *db = 0;
+  vtkMySQLDatabase* db = 0;
 
-  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
-      protocol == "mysql")
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "mysql")
   {
     db = vtkMySQLDatabase::New();
     db->ParseURL(URL);

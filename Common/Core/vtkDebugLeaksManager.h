@@ -20,7 +20,7 @@
  * that will use vtkDebugLeaks or that implements the singleton
  * pattern.  It makes sure that the vtkDebugLeaks singleton is created
  * before and destroyed after all other singletons in VTK.
-*/
+ */
 
 #ifndef vtkDebugLeaksManager_h
 #define vtkDebugLeaksManager_h
@@ -33,10 +33,10 @@ class VTKCOMMONCORE_EXPORT vtkDebugLeaksManager
 public:
   vtkDebugLeaksManager();
   ~vtkDebugLeaksManager();
+
 private:
   vtkDebugLeaksManager(const vtkDebugLeaksManager&);
-  vtkDebugLeaksManager& operator=(
-    const vtkDebugLeaksManager&);
+  vtkDebugLeaksManager& operator=(const vtkDebugLeaksManager&);
 };
 
 // This instance will show up in any translation unit that uses

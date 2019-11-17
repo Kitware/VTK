@@ -38,7 +38,7 @@
  *
  * @sa
  * vtkHoverWidget vtkHardwareSelector
-*/
+ */
 
 #ifndef vtkScenePicker_h
 #define vtkScenePicker_h
@@ -120,7 +120,7 @@ protected:
   // The RenderWindowInteractor must be set, so that avoid scene picks (which
   // involve extra renders) during interaction. This is done by observing the
   // RenderWindowInteractor for start and end interaction events.
-  void SetInteractor(vtkRenderWindowInteractor *);
+  void SetInteractor(vtkRenderWindowInteractor*);
 
   vtkTypeBool EnableVertexPicking;
   vtkHardwareSelector* Selector;
@@ -134,6 +134,7 @@ protected:
   vtkScenePickerSelectionRenderCommand* SelectionRenderCommand;
 
   vtkTimeStamp PickRenderTime;
+
 private:
   vtkScenePicker(const vtkScenePicker&) = delete;
   void operator=(const vtkScenePicker&) = delete;

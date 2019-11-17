@@ -32,7 +32,8 @@
 
 class vtkImplicitFunction;
 
-namespace tovtkm {
+namespace tovtkm
+{
 
 class ImplicitFunctionConverter;
 
@@ -43,7 +44,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmClip : public vtkUnstructuredGridAlgorithm
 public:
   static vtkmClip* New();
   vtkTypeMacro(vtkmClip, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The scalar value to use when clipping the dataset. Values greater than
@@ -64,7 +65,7 @@ public:
    * \c ClipValue is ignored and the clipping is performed using the implicit
    * function.
    */
-  void SetClipFunction(vtkImplicitFunction *);
+  void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
 
   vtkMTimeType GetMTime() override;
@@ -73,15 +74,14 @@ protected:
   vtkmClip();
   ~vtkmClip();
 
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double ClipValue;
   bool ComputeScalars;
 
-  vtkImplicitFunction *ClipFunction;
+  vtkImplicitFunction* ClipFunction;
   std::unique_ptr<tovtkm::ImplicitFunctionConverter> ClipFunctionConverter;
 
 private:

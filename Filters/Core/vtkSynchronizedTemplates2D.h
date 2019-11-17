@@ -26,7 +26,7 @@
  * @sa
  * vtkContourFilter vtkFlyingEdges2D vtkMarchingSquares
  * vtkSynchronizedTemplates3D vtkDiscreteFlyingEdges2D
-*/
+ */
 
 #ifndef vtkSynchronizedTemplates2D_h
 #define vtkSynchronizedTemplates2D_h
@@ -41,8 +41,8 @@ class vtkImageData;
 class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkSynchronizedTemplates2D *New();
-  vtkTypeMacro(vtkSynchronizedTemplates2D,vtkPolyDataAlgorithm);
+  static vtkSynchronizedTemplates2D* New();
+  vtkTypeMacro(vtkSynchronizedTemplates2D, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -54,63 +54,64 @@ public:
    * Set a particular contour value at contour number i. The index i ranges
    * between 0<=i<NumberOfContours.
    */
-  void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
+  void SetValue(int i, double value) { this->ContourValues->SetValue(i, value); }
 
   /**
    * Get the ith contour value.
    */
-  double GetValue(int i) {return this->ContourValues->GetValue(i);}
+  double GetValue(int i) { return this->ContourValues->GetValue(i); }
 
   /**
    * Get a pointer to an array of contour values. There will be
    * GetNumberOfContours() values in the list.
    */
-  double *GetValues() {return this->ContourValues->GetValues();}
+  double* GetValues() { return this->ContourValues->GetValues(); }
 
   /**
    * Fill a supplied list with contour values. There will be
    * GetNumberOfContours() values in the list. Make sure you allocate
    * enough memory to hold the list.
    */
-  void GetValues(double *contourValues) {
-    this->ContourValues->GetValues(contourValues);}
+  void GetValues(double* contourValues) { this->ContourValues->GetValues(contourValues); }
 
   /**
    * Set the number of contours to place into the list. You only really
    * need to use this method to reduce list size. The method SetValue()
    * will automatically increase list size as needed.
    */
-  void SetNumberOfContours(int number) {
-    this->ContourValues->SetNumberOfContours(number);}
+  void SetNumberOfContours(int number) { this->ContourValues->SetNumberOfContours(number); }
 
   /**
    * Get the number of contours in the list of contour values.
    */
-  vtkIdType GetNumberOfContours() {
-    return this->ContourValues->GetNumberOfContours();}
+  vtkIdType GetNumberOfContours() { return this->ContourValues->GetNumberOfContours(); }
 
   /**
    * Generate numContours equally spaced contour values between specified
    * range. Contour values will include min/max range values.
    */
-  void GenerateValues(int numContours, double range[2]) {
-    this->ContourValues->GenerateValues(numContours, range);}
+  void GenerateValues(int numContours, double range[2])
+  {
+    this->ContourValues->GenerateValues(numContours, range);
+  }
 
   /**
    * Generate numContours equally spaced contour values between specified
    * range. Contour values will include min/max range values.
    */
   void GenerateValues(int numContours, double rangeStart, double rangeEnd)
-    {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
+  {
+    this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
+  }
 
   //@{
   /**
    * Option to set the point scalars of the output.  The scalars will be the
    * iso value of course.  By default this flag is on.
    */
-  vtkSetMacro(ComputeScalars,vtkTypeBool);
-  vtkGetMacro(ComputeScalars,vtkTypeBool);
-  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
+  vtkSetMacro(ComputeScalars, vtkTypeBool);
+  vtkGetMacro(ComputeScalars, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -125,9 +126,9 @@ protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  vtkContourValues *ContourValues;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  vtkContourValues* ContourValues;
 
   vtkTypeBool ComputeScalars;
   int ArrayComponent;
@@ -136,6 +137,5 @@ private:
   vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&) = delete;
   void operator=(const vtkSynchronizedTemplates2D&) = delete;
 };
-
 
 #endif

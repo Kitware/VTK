@@ -57,7 +57,7 @@
  *
  * @sa
  * vtkMeanValueCoordinatesInterpolator vtkProbePolyhedron vtkPolyhedron
-*/
+ */
 
 #ifndef vtkDeformPointSet_h
 #define vtkDeformPointSet_h
@@ -70,7 +70,6 @@
 class vtkDoubleArray;
 class vtkPolyData;
 
-
 class VTKFILTERSGENERAL_EXPORT vtkDeformPointSet : public vtkPointSetAlgorithm
 {
 public:
@@ -78,8 +77,8 @@ public:
   /**
    * Standard methods for instantiable (i.e., concrete) class.
    */
-  static vtkDeformPointSet *New();
-  vtkTypeMacro(vtkDeformPointSet,vtkPointSetAlgorithm);
+  static vtkDeformPointSet* New();
+  vtkTypeMacro(vtkDeformPointSet, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -88,8 +87,8 @@ public:
    * Specify the control mesh to deform the input vtkPointSet. The control
    * mesh must be a closed, non-self-intersecting, manifold mesh.
    */
-  void SetControlMeshData(vtkPolyData *controlMesh);
-  vtkPolyData *GetControlMeshData();
+  void SetControlMeshData(vtkPolyData* controlMesh);
+  vtkPolyData* GetControlMeshData();
   //@}
 
   /**
@@ -125,13 +124,11 @@ protected:
   vtkIdType InitialNumberOfPointSetCells;
   vtkSmartPointer<vtkDoubleArray> Weights;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkDeformPointSet(const vtkDeformPointSet&) = delete;
   void operator=(const vtkDeformPointSet&) = delete;
-
 };
 
 #endif

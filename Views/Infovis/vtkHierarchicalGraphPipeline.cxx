@@ -96,7 +96,7 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
 
   this->Bundle->SetBundlingStrength(0.5);
   this->Spline->SetSplineType(vtkSplineGraphEdges::BSPLINE);
-  //this->Spline->SetNumberOfSubdivisions(4);
+  // this->Spline->SetNumberOfSubdivisions(4);
 }
 
 vtkHierarchicalGraphPipeline::~vtkHierarchicalGraphPipeline()
@@ -170,8 +170,7 @@ vtkTextProperty* vtkHierarchicalGraphPipeline::GetLabelTextProperty()
 void vtkHierarchicalGraphPipeline::SetColorArrayName(const char* name)
 {
   this->SetColorArrayNameInternal(name);
-  this->ApplyColors->SetInputArrayToProcess(1, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_EDGES, name);
+  this->ApplyColors->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_EDGES, name);
 }
 
 const char* vtkHierarchicalGraphPipeline::GetColorArrayName()
@@ -210,36 +209,32 @@ int vtkHierarchicalGraphPipeline::GetSplineType()
 }
 
 void vtkHierarchicalGraphPipeline::PrepareInputConnections(
-  vtkAlgorithmOutput* graphConn,
-  vtkAlgorithmOutput* treeConn,
-  vtkAlgorithmOutput* annConn)
+  vtkAlgorithmOutput* graphConn, vtkAlgorithmOutput* treeConn, vtkAlgorithmOutput* annConn)
 {
   this->Bundle->SetInputConnection(0, graphConn);
   this->Bundle->SetInputConnection(1, treeConn);
   this->ApplyColors->SetInputConnection(1, annConn);
 }
 
-vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(vtkDataRepresentation* rep, vtkSelection* sel)
+vtkSelection* vtkHierarchicalGraphPipeline::ConvertSelection(
+  vtkDataRepresentation* rep, vtkSelection* sel)
 {
   vtkSelection* converted = vtkSelection::New();
   for (unsigned int j = 0; j < sel->GetNumberOfNodes(); ++j)
   {
     vtkSelectionNode* node = sel->GetNode(j);
-    vtkProp* prop = vtkProp::SafeDownCast(
-      node->GetProperties()->Get(vtkSelectionNode::PROP()));
+    vtkProp* prop = vtkProp::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
     if (prop == this->Actor)
     {
       vtkDataObject* input = this->Bundle->GetInputDataObject(0, 0);
       vtkDataObject* poly = this->GraphToPoly->GetOutput();
-      vtkSmartPointer<vtkSelection> edgeSel =
-        vtkSmartPointer<vtkSelection>::New();
-      vtkSmartPointer<vtkSelectionNode> nodeCopy =
-        vtkSmartPointer<vtkSelectionNode>::New();
+      vtkSmartPointer<vtkSelection> edgeSel = vtkSmartPointer<vtkSelection>::New();
+      vtkSmartPointer<vtkSelectionNode> nodeCopy = vtkSmartPointer<vtkSelectionNode>::New();
       nodeCopy->ShallowCopy(node);
       nodeCopy->GetProperties()->Remove(vtkSelectionNode::PROP());
       edgeSel->AddNode(nodeCopy);
-      vtkSelection* polyConverted = vtkConvertSelection::ToSelectionType(
-        edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
+      vtkSelection* polyConverted =
+        vtkConvertSelection::ToSelectionType(edgeSel, poly, vtkSelectionNode::PEDIGREEIDS);
       for (unsigned int i = 0; i < polyConverted->GetNumberOfNodes(); ++i)
       {
         polyConverted->GetNode(i)->SetFieldType(vtkSelectionNode::EDGE);
@@ -293,5 +288,6 @@ void vtkHierarchicalGraphPipeline::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)\n";
   }
-  os << indent << "HoverArrayName: " << (this->HoverArrayName ? this->HoverArrayName : "(none)") << "\n";
+  os << indent << "HoverArrayName: " << (this->HoverArrayName ? this->HoverArrayName : "(none)")
+     << "\n";
 }

@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkLogLookupTable);
 // Construct with (minimum,maximum) range 1 to 10 (based on
 // logarithmic values).
 vtkLogLookupTable::vtkLogLookupTable(int sze, int ext)
-  : vtkLookupTable(sze,ext)
+  : vtkLookupTable(sze, ext)
 {
   this->Scale = VTK_SCALE_LOG10;
 
@@ -32,5 +32,5 @@ vtkLogLookupTable::vtkLogLookupTable(int sze, int ext)
 
 void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

@@ -25,7 +25,7 @@
  * triggers the renders. All other processes, simply listen to the StartEvent
  * fired and beginning of the render to ensure that vtkHardwareSelector's
  * CurrentPass is updated appropriately.
-*/
+ */
 
 #ifndef vtkPHardwareSelector_h
 #define vtkPHardwareSelector_h
@@ -75,7 +75,6 @@ private:
   class vtkObserver;
   friend class vtkObserver;
   vtkObserver* Observer;
-
 };
 
 #endif

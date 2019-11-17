@@ -44,13 +44,11 @@ void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageSobel3D::RequestInformation (vtkInformation *request,
-                                         vtkInformationVector **inputVector,
-                                         vtkInformationVector *outputVector)
+int vtkImageSobel3D::RequestInformation(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  int retval =
-    this->Superclass::RequestInformation(request, inputVector, outputVector);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  int retval = this->Superclass::RequestInformation(request, inputVector, outputVector);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, 3);
   return retval;
 }
@@ -60,10 +58,8 @@ int vtkImageSobel3D::RequestInformation (vtkInformation *request,
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageSobel3DExecute(vtkImageSobel3D *self,
-                            vtkImageData *inData, T *inPtr,
-                            vtkImageData *outData, int *outExt,
-                            double *outPtr, int id, vtkInformation *inInfo)
+void vtkImageSobel3DExecute(vtkImageSobel3D* self, vtkImageData* inData, T* inPtr,
+  vtkImageData* outData, int* outExt, double* outPtr, int id, vtkInformation* inInfo)
 {
   double r0, r1, r2, *r;
   // For looping though output (and input) pixels.
@@ -96,12 +92,15 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   // Get information to march through data (skip component)
   inData->GetIncrements(inInc0, inInc1, inInc2);
   outData->GetIncrements(outInc0, outInc1, outInc2);
-  min0 = outExt[0];   max0 = outExt[1];
-  min1 = outExt[2];   max1 = outExt[3];
-  min2 = outExt[4];   max2 = outExt[5];
+  min0 = outExt[0];
+  max0 = outExt[1];
+  min1 = outExt[2];
+  max1 = outExt[3];
+  min2 = outExt[4];
+  max2 = outExt[5];
 
   // We want the input pixel to correspond to output
-  inPtr = static_cast<T *>(inData->GetScalarPointer(min0,min1,min2));
+  inPtr = static_cast<T*>(inData->GetScalarPointer(min0, min1, min2));
 
   // The data spacing is important for computing the gradient.
   // Scale so it has the same range as gradient.
@@ -110,7 +109,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   r1 = 0.060445 / r[1];
   r2 = 0.060445 / r[2];
 
-  target = static_cast<unsigned long>((max2-min2+1)*(max1-min1+1)/50.0);
+  target = static_cast<unsigned long>((max2 - min2 + 1) * (max1 - min1 + 1) / 50.0);
   target++;
 
   // loop through pixels of output
@@ -127,9 +126,9 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -149,42 +148,48 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc0L;
         inPtrR = inPtr0 + inInc0R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += static_cast<double>(inPtrR[inInc1L] + inPtrR[inInc1R]
-                + inPtrR[inInc2L] + inPtrR[inInc2R]);
-        sum += static_cast<double>(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
-                         + inPtrR[inInc1R+inInc2L] + inPtrR[inInc1R+inInc2R]));
-        sum -= static_cast<double>(inPtrL[inInc1L] + inPtrL[inInc1R]
-                + inPtrL[inInc2L] + inPtrL[inInc2R]);
-        sum -= static_cast<double>(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
-                         + inPtrL[inInc1R+inInc2L] + inPtrL[inInc1R+inInc2R]));
+        sum += static_cast<double>(
+          inPtrR[inInc1L] + inPtrR[inInc1R] + inPtrR[inInc2L] + inPtrR[inInc2R]);
+        sum += static_cast<double>(0.586 *
+          (inPtrR[inInc1L + inInc2L] + inPtrR[inInc1L + inInc2R] + inPtrR[inInc1R + inInc2L] +
+            inPtrR[inInc1R + inInc2R]));
+        sum -= static_cast<double>(
+          inPtrL[inInc1L] + inPtrL[inInc1R] + inPtrL[inInc2L] + inPtrL[inInc2R]);
+        sum -= static_cast<double>(0.586 *
+          (inPtrL[inInc1L + inInc2L] + inPtrL[inInc1L + inInc2R] + inPtrL[inInc1R + inInc2L] +
+            inPtrL[inInc1R + inInc2R]));
         *outPtrV = sum * r0;
         ++outPtrV;
         // 02 Plane
         inPtrL = inPtr0 + inInc1L;
         inPtrR = inPtr0 + inInc1R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R]
-                + inPtrR[inInc2L] + inPtrR[inInc2R]);
-        sum += static_cast<double>(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
-                         + inPtrR[inInc0R+inInc2L] + inPtrR[inInc0R+inInc2R]));
-        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R]
-                + inPtrL[inInc2L] + inPtrL[inInc2R]);
-        sum -= static_cast<double>(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
-                         + inPtrL[inInc0R+inInc2L] + inPtrL[inInc0R+inInc2R]));
+        sum += static_cast<double>(
+          inPtrR[inInc0L] + inPtrR[inInc0R] + inPtrR[inInc2L] + inPtrR[inInc2R]);
+        sum += static_cast<double>(0.586 *
+          (inPtrR[inInc0L + inInc2L] + inPtrR[inInc0L + inInc2R] + inPtrR[inInc0R + inInc2L] +
+            inPtrR[inInc0R + inInc2R]));
+        sum -= static_cast<double>(
+          inPtrL[inInc0L] + inPtrL[inInc0R] + inPtrL[inInc2L] + inPtrL[inInc2R]);
+        sum -= static_cast<double>(0.586 *
+          (inPtrL[inInc0L + inInc2L] + inPtrL[inInc0L + inInc2R] + inPtrL[inInc0R + inInc2L] +
+            inPtrL[inInc0R + inInc2R]));
         *outPtrV = sum * r1;
         ++outPtrV;
         // 01 Plane
         inPtrL = inPtr0 + inInc2L;
         inPtrR = inPtr0 + inInc2R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R]
-                + inPtrR[inInc1L] + inPtrR[inInc1R]);
-        sum += static_cast<double>(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
-                         + inPtrR[inInc0R+inInc1L] + inPtrR[inInc0R+inInc1R]));
-        sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R]
-                + inPtrL[inInc1L] + inPtrL[inInc1R]);
-        sum -= static_cast<double>(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
-                         + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
+        sum += static_cast<double>(
+          inPtrR[inInc0L] + inPtrR[inInc0R] + inPtrR[inInc1L] + inPtrR[inInc1R]);
+        sum += static_cast<double>(0.586 *
+          (inPtrR[inInc0L + inInc1L] + inPtrR[inInc0L + inInc1R] + inPtrR[inInc0R + inInc1L] +
+            inPtrR[inInc0R + inInc1R]));
+        sum -= static_cast<double>(
+          inPtrL[inInc0L] + inPtrL[inInc0R] + inPtrL[inInc1L] + inPtrL[inInc1R]);
+        sum -= static_cast<double>(0.586 *
+          (inPtrL[inInc0L + inInc1L] + inPtrL[inInc0L + inInc1R] + inPtrL[inInc0R + inInc1L] +
+            inPtrL[inInc0R + inInc1R]));
         *outPtrV = static_cast<double>(sum * r2);
         ++outPtrV;
 
@@ -204,18 +209,14 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 // templated function for the input Data type.  The output Data
 // must be of type double.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
-void vtkImageSobel3D::ThreadedRequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageSobel3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
   void *inPtr, *outPtr;
   int inExt[6], wholeExt[6];
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
   this->InternalRequestUpdateExtent(inExt, outExt, wholeExt);
 
@@ -239,10 +240,8 @@ void vtkImageSobel3D::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageSobel3DExecute(this, inData[0][0],
-                             static_cast<VTK_TT *>(inPtr), outData[0], outExt,
-                             static_cast<double *>(outPtr),id, inInfo));
+    vtkTemplateMacro(vtkImageSobel3DExecute(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
+      outData[0], outExt, static_cast<double*>(outPtr), id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

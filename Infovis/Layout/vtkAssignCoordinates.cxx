@@ -47,29 +47,28 @@ vtkAssignCoordinates::~vtkAssignCoordinates()
   delete[] this->ZCoordArrayName;
 }
 
-int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
-                            vtkInformationVector **inputVector,
-                            vtkInformationVector *outputVector)
+int vtkAssignCoordinates::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   // Do a shallow copy of the input to the output
   output->ShallowCopy(input);
 
   // Create new points on the output
-  vtkDataSetAttributes *data = nullptr;
+  vtkDataSetAttributes* data = nullptr;
   vtkPoints* pts = vtkPoints::New();
   if (vtkPointSet::SafeDownCast(input))
   {
-    vtkPointSet *psInput = vtkPointSet::SafeDownCast(input);
-    vtkPointSet *psOutput = vtkPointSet::SafeDownCast(output);
+    vtkPointSet* psInput = vtkPointSet::SafeDownCast(input);
+    vtkPointSet* psOutput = vtkPointSet::SafeDownCast(output);
     pts->DeepCopy(psInput->GetPoints());
     psOutput->SetPoints(pts);
     pts->Delete();
@@ -77,8 +76,8 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   }
   else if (vtkGraph::SafeDownCast(input))
   {
-    vtkGraph *graphInput = vtkGraph::SafeDownCast(input);
-    vtkGraph *graphOutput = vtkGraph::SafeDownCast(output);
+    vtkGraph* graphInput = vtkGraph::SafeDownCast(input);
+    vtkGraph* graphOutput = vtkGraph::SafeDownCast(output);
     pts->DeepCopy(graphInput->GetPoints());
     graphOutput->SetPoints(pts);
     pts->Delete();
@@ -86,7 +85,7 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   }
   else
   {
-    vtkErrorMacro(<<"Input must be graph or point set.");
+    vtkErrorMacro(<< "Input must be graph or point set.");
     return 0;
   }
 
@@ -138,12 +137,12 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   int numPts = pts->GetNumberOfPoints();
   for (int i = 0; i < numPts; i++)
   {
-    double rx,ry,rz;
+    double rx, ry, rz;
     if (Jitter)
     {
-      rx = vtkMath::Random()-.5;
-      ry = vtkMath::Random()-.5;
-      rz = vtkMath::Random()-.5;
+      rx = vtkMath::Random() - .5;
+      ry = vtkMath::Random() - .5;
+      rz = vtkMath::Random() - .5;
       rx *= .02;
       ry *= .02;
       rz *= .02;
@@ -156,23 +155,21 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
     {
       if (ZArray)
       {
-        pts->SetPoint(i, XArray->GetTuple1(i)+rx,
-                         YArray->GetTuple1(i)+ry,
-                         ZArray->GetTuple1(i)+rz);
+        pts->SetPoint(
+          i, XArray->GetTuple1(i) + rx, YArray->GetTuple1(i) + ry, ZArray->GetTuple1(i) + rz);
       }
       else
       {
-        pts->SetPoint(i, XArray->GetTuple1(i)+rx,
-                         YArray->GetTuple1(i)+ry, 0);
+        pts->SetPoint(i, XArray->GetTuple1(i) + rx, YArray->GetTuple1(i) + ry, 0);
       }
     }
     else
     {
-      pts->SetPoint(i, XArray->GetTuple1(i)+rx, 0, 0);
+      pts->SetPoint(i, XArray->GetTuple1(i) + rx, 0, 0);
     }
   }
 
-    return 1;
+  return 1;
 }
 
 int vtkAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
@@ -186,17 +183,16 @@ int vtkAssignCoordinates::FillInputPortInformation(int vtkNotUsed(port), vtkInfo
 
 void vtkAssignCoordinates::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "XCoordArrayName: "
-     << (this->XCoordArrayName ? this->XCoordArrayName : "(none)") << endl;
+  os << indent << "XCoordArrayName: " << (this->XCoordArrayName ? this->XCoordArrayName : "(none)")
+     << endl;
 
-  os << indent << "YCoordArrayName: "
-     << (this->YCoordArrayName ? this->YCoordArrayName : "(none)") << endl;
+  os << indent << "YCoordArrayName: " << (this->YCoordArrayName ? this->YCoordArrayName : "(none)")
+     << endl;
 
-  os << indent << "ZCoordArrayName: "
-     << (this->ZCoordArrayName ? this->ZCoordArrayName : "(none)") << endl;
+  os << indent << "ZCoordArrayName: " << (this->ZCoordArrayName ? this->ZCoordArrayName : "(none)")
+     << endl;
 
-  os << indent << "Jitter: "
-     << (this->Jitter ? "True" : "False") << endl;
+  os << indent << "Jitter: " << (this->Jitter ? "True" : "False") << endl;
 }

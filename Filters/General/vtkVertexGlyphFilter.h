@@ -29,7 +29,7 @@
  * cluttered than the glyph filter. This filter may take a graph or point set
  * as input.
  *
-*/
+ */
 
 #ifndef vtkVertexGlyphFilter_h
 #define vtkVertexGlyphFilter_h
@@ -41,20 +41,19 @@ class VTKFILTERSGENERAL_EXPORT vtkVertexGlyphFilter : public vtkPolyDataAlgorith
 {
 public:
   vtkTypeMacro(vtkVertexGlyphFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkVertexGlyphFilter *New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkVertexGlyphFilter* New();
 
 protected:
   vtkVertexGlyphFilter();
   ~vtkVertexGlyphFilter() override;
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkVertexGlyphFilter(const vtkVertexGlyphFilter &) = delete;
-  void operator=(const vtkVertexGlyphFilter &) = delete;
+  vtkVertexGlyphFilter(const vtkVertexGlyphFilter&) = delete;
+  void operator=(const vtkVertexGlyphFilter&) = delete;
 };
 
 #endif //_vtkVertexGlyphFilter_h

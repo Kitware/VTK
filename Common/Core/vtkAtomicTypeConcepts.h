@@ -25,14 +25,19 @@ namespace atomic
 namespace detail
 {
 
-template <bool> struct CompileTimeCheck;
-template <> struct CompileTimeCheck<true> {};
-
-template <typename T> struct IntegralType
+template <bool>
+struct CompileTimeCheck;
+template <>
+struct CompileTimeCheck<true>
 {
-  CompileTimeCheck<std::numeric_limits<T>::is_specialized &&
-                   std::numeric_limits<T>::is_integer &&
-                   (sizeof(T) == 4 || sizeof(T) == 8)> c;
+};
+
+template <typename T>
+struct IntegralType
+{
+  CompileTimeCheck<std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer &&
+    (sizeof(T) == 4 || sizeof(T) == 8)>
+    c;
 };
 
 } // detail

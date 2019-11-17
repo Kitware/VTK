@@ -55,7 +55,7 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayExtents_h
 #define vtkArrayExtents_h
@@ -225,13 +225,10 @@ public:
    */
   bool Contains(const vtkArrayCoordinates& coordinates) const;
 
-  VTKCOMMONCORE_EXPORT friend ostream& operator<<(
-    ostream& stream, const vtkArrayExtents& rhs);
+  VTKCOMMONCORE_EXPORT friend ostream& operator<<(ostream& stream, const vtkArrayExtents& rhs);
 
 private:
-
   std::vector<vtkArrayRange> Storage;
-
 };
 
 #endif

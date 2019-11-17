@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkASCIITextCodecFactory
  *
-*/
+ */
 
 #ifndef vtkASCIITextCodec_h
 #define vtkASCIITextCodec_h
@@ -40,12 +40,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkTextCodec.h"
 
-
 class VTKIOCORE_EXPORT vtkASCIITextCodec : public vtkTextCodec
 {
 public:
   vtkTypeMacro(vtkASCIITextCodec, vtkTextCodec);
-  static vtkASCIITextCodec* New() ;
+  static vtkASCIITextCodec* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -61,30 +60,26 @@ public:
    */
   bool IsValid(istream& InputStream) override;
 
-
   /**
    * Iterate through the sequence represented by the stream assigning the result
    * to the output iterator.  The stream will be advanced to its end so subsequent use
    * would need to reset it.
    */
-  void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) override ;
+  void ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output) override;
 
   /**
    * Return the next code point from the sequence represented by the stream
    * advancing the stream through however many places needed to assemble that code point
    */
-  vtkUnicodeString::value_type NextUnicode(istream& inputStream) override ;
+  vtkUnicodeString::value_type NextUnicode(istream& inputStream) override;
 
 protected:
-  vtkASCIITextCodec() ;
+  vtkASCIITextCodec();
   ~vtkASCIITextCodec() override;
 
 private:
-  vtkASCIITextCodec(const vtkASCIITextCodec &) = delete;
-  void operator=(const vtkASCIITextCodec &) = delete;
-
+  vtkASCIITextCodec(const vtkASCIITextCodec&) = delete;
+  void operator=(const vtkASCIITextCodec&) = delete;
 };
-
 
 #endif

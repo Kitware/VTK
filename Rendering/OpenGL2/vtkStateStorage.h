@@ -63,7 +63,8 @@ public:
   vtkStateStorage() {}
 
   // clear the storage
-  void Clear() {
+  void Clear()
+  {
     this->Storage.clear();
     this->StorageOffsets.clear();
     this->StorageNames.clear();
@@ -71,9 +72,10 @@ public:
 
   // append a data item to the state
   template <class T>
-  void Append(const T &value, const char *name);
+  void Append(const T& value, const char* name);
 
-  bool operator !=(const vtkStateStorage &b) const {
+  bool operator!=(const vtkStateStorage& b) const
+  {
     // for debug we also lookup the name of what was different
     this->WhatWasDifferent = "";
     if (this->Storage.size() != b.Storage.size())
@@ -86,7 +88,7 @@ public:
       if (this->Storage[i] != b.Storage[i])
       {
         size_t block = 0;
-        while (this->StorageOffsets.size() > block + 1 && this->StorageOffsets[block+1] >= i)
+        while (this->StorageOffsets.size() > block + 1 && this->StorageOffsets[block + 1] >= i)
         {
           block++;
         }
@@ -97,7 +99,8 @@ public:
     return false;
   }
 
-  vtkStateStorage& operator=(const vtkStateStorage&b) {
+  vtkStateStorage& operator=(const vtkStateStorage& b)
+  {
     this->Storage = b.Storage;
     this->StorageNames = b.StorageNames;
     this->StorageOffsets = b.StorageOffsets;
@@ -110,16 +113,16 @@ protected:
   std::vector<size_t> StorageOffsets;
   mutable std::string WhatWasDifferent;
 
- private:
+private:
   vtkStateStorage(const vtkStateStorage&) = delete;
 };
 
 template <class T>
-inline void vtkStateStorage::Append(const T &value, const char *name)
+inline void vtkStateStorage::Append(const T& value, const char* name)
 {
   this->StorageOffsets.push_back(this->Storage.size());
   this->StorageNames.push_back(name);
-  const char *start = reinterpret_cast<const char *>(&value);
+  const char* start = reinterpret_cast<const char*>(&value);
   this->Storage.insert(this->Storage.end(), start, start + sizeof(T));
 }
 
@@ -135,13 +138,12 @@ public:
 
   // append a data item to the state
   template <class T>
-  void Append(const T &value, const char *name);
+  void Append(const T& value, const char* name);
 
-  bool operator !=(const vtkStateStorage &b) const {
-    return this->Storage != b.Storage;
-  }
+  bool operator!=(const vtkStateStorage& b) const { return this->Storage != b.Storage; }
 
-  vtkStateStorage& operator=(const vtkStateStorage&b) {
+  vtkStateStorage& operator=(const vtkStateStorage& b)
+  {
     this->Storage = b.Storage;
     return *this;
   }
@@ -149,14 +151,14 @@ public:
 protected:
   std::vector<unsigned char> Storage;
 
- private:
+private:
   vtkStateStorage(const vtkStateStorage&) = delete;
 };
 
 template <class T>
-inline void vtkStateStorage::Append(const T &value, const char *)
+inline void vtkStateStorage::Append(const T& value, const char*)
 {
-  const char *start = reinterpret_cast<const char *>(&value);
+  const char* start = reinterpret_cast<const char*>(&value);
   this->Storage.insert(this->Storage.end(), start, start + sizeof(T));
 }
 

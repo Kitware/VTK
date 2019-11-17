@@ -39,9 +39,10 @@
 
 #include <limits>
 
-namespace {
-  // For C format strings
-  constexpr int max_double_digits = std::numeric_limits<double>::max_digits10;
+namespace
+{
+// For C format strings
+constexpr int max_double_digits = std::numeric_limits<double>::max_digits10;
 }
 
 vtkStandardNewMacro(vtkVRMLExporter);
@@ -55,10 +56,10 @@ vtkVRMLExporter::vtkVRMLExporter()
 
 vtkVRMLExporter::~vtkVRMLExporter()
 {
-  delete [] this->FileName;
+  delete[] this->FileName;
 }
 
-void vtkVRMLExporter::SetFilePointer(FILE *fp)
+void vtkVRMLExporter::SetFilePointer(FILE* fp)
 {
   if (fp != this->FilePointer)
   {
@@ -67,16 +68,15 @@ void vtkVRMLExporter::SetFilePointer(FILE *fp)
   }
 }
 
-
 void vtkVRMLExporter::WriteData()
 {
-  vtkActorCollection *ac;
+  vtkActorCollection* ac;
   vtkActor *anActor, *aPart;
-  vtkLightCollection *lc;
-  vtkLight *aLight;
-  vtkCamera *cam;
-  double *tempd;
-  FILE *fp;
+  vtkLightCollection* lc;
+  vtkLight* aLight;
+  vtkCamera* cam;
+  double* tempd;
+  FILE* fp;
 
   // make sure the user specified a FileName or FilePointer
   if (!this->FilePointer && (this->FileName == nullptr))
@@ -86,7 +86,7 @@ void vtkVRMLExporter::WriteData()
   }
 
   // get the renderer
-  vtkRenderer *ren = this->ActiveRenderer;
+  vtkRenderer* ren = this->ActiveRenderer;
   if (!ren)
   {
     ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
@@ -102,7 +102,7 @@ void vtkVRMLExporter::WriteData()
   // try opening the files
   if (!this->FilePointer)
   {
-    fp = fopen(this->FileName,"w");
+    fp = fopen(this->FileName, "w");
     if (!fp)
     {
       vtkErrorMacro(<< "unable to open VRML file " << this->FileName);
@@ -118,67 +118,62 @@ void vtkVRMLExporter::WriteData()
   //  Write header
   //
   vtkDebugMacro("Writing VRML file");
-  fprintf(fp,"#VRML V2.0 utf8\n");
-  fprintf(fp,"# VRML file written by the visualization toolkit\n\n");
+  fprintf(fp, "#VRML V2.0 utf8\n");
+  fprintf(fp, "# VRML file written by the visualization toolkit\n\n");
 
   // Start write the Background
   double background[3];
   ren->GetBackground(background);
-  fprintf(fp,"    Background {\n ");
-  fprintf(fp,"   skyColor [%f %f %f, ]\n", background[0],
-          background[1], background[2]);
-  fprintf(fp,"    }\n ");
+  fprintf(fp, "    Background {\n ");
+  fprintf(fp, "   skyColor [%f %f %f, ]\n", background[0], background[1], background[2]);
+  fprintf(fp, "    }\n ");
   // End of Background
 
   // do the camera
   cam = ren->GetActiveCamera();
-  fprintf(fp,"    Viewpoint\n      {\n      fieldOfView %f\n",
-          cam->GetViewAngle()*vtkMath::Pi()/180.0);
-  fprintf(fp,"      position %f %f %f\n",cam->GetPosition()[0],
-          cam->GetPosition()[1], cam->GetPosition()[2]);
-  fprintf(fp,"      description \"Default View\"\n");
+  fprintf(fp, "    Viewpoint\n      {\n      fieldOfView %f\n",
+    cam->GetViewAngle() * vtkMath::Pi() / 180.0);
+  fprintf(fp, "      position %f %f %f\n", cam->GetPosition()[0], cam->GetPosition()[1],
+    cam->GetPosition()[2]);
+  fprintf(fp, "      description \"Default View\"\n");
   tempd = cam->GetOrientationWXYZ();
-  fprintf(fp,"      orientation %.*g %.*g %.*g %.*g\n      }\n",
-    max_double_digits, tempd[1],
-    max_double_digits, tempd[2],
-    max_double_digits, tempd[3],
-    max_double_digits, tempd[0]*vtkMath::Pi()/180.0);
+  fprintf(fp, "      orientation %.*g %.*g %.*g %.*g\n      }\n", max_double_digits, tempd[1],
+    max_double_digits, tempd[2], max_double_digits, tempd[3], max_double_digits,
+    tempd[0] * vtkMath::Pi() / 180.0);
 
   // do the lights first the ambient then the others
-  fprintf(fp,
-    "    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n",
-          this->Speed);
+  fprintf(
+    fp, "    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n", this->Speed);
   if (ren->GetLights()->GetNumberOfItems() == 0)
   {
-    fprintf(fp,"      headlight TRUE}\n\n");
+    fprintf(fp, "      headlight TRUE}\n\n");
   }
   else
   {
-    fprintf(fp,"      headlight FALSE}\n\n");
+    fprintf(fp, "      headlight FALSE}\n\n");
   }
-  fprintf(fp,
-    "    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
-  fprintf(fp,"      color %f %f %f }\n\n", ren->GetAmbient()[0],
-          ren->GetAmbient()[1], ren->GetAmbient()[2]);
+  fprintf(fp, "    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
+  fprintf(fp, "      color %f %f %f }\n\n", ren->GetAmbient()[0], ren->GetAmbient()[1],
+    ren->GetAmbient()[2]);
 
   // make sure we have a default light
   // if we don't then use a headlight
   lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
-  for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
+  for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit));)
   {
     this->WriteALight(aLight, fp);
   }
 
   // do the actors now
   ac = ren->GetActors();
-  vtkAssemblyPath *apath;
+  vtkAssemblyPath* apath;
   vtkCollectionSimpleIterator ait;
-  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
+  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait));)
   {
-    for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
+    for (anActor->InitPathTraversal(); (apath = anActor->GetNextPath());)
     {
-      aPart=static_cast<vtkActor *>(apath->GetLastNode()->GetViewProp());
+      aPart = static_cast<vtkActor*>(apath->GetLastNode()->GetViewProp());
       this->WriteAnActor(aPart, fp);
     }
   }
@@ -188,7 +183,7 @@ void vtkVRMLExporter::WriteData()
   }
 }
 
-void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
+void vtkVRMLExporter::WriteALight(vtkLight* aLight, FILE* fp)
 {
   double *pos, *focus, *color;
   double dir[3];
@@ -204,58 +199,58 @@ void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 
   if (aLight->GetPositional())
   {
-    double *attn;
+    double* attn;
 
     if (aLight->GetConeAngle() >= 90.0)
     {
-      fprintf(fp,"    PointLight {\n");
+      fprintf(fp, "    PointLight {\n");
     }
     else
     {
-      fprintf(fp,"    SpotLight {\n");
-      fprintf(fp,"      direction %f %f %f\n",dir[0], dir[1], dir[2]);
-      fprintf(fp,"      cutOffAngle %f\n", aLight->GetConeAngle());
+      fprintf(fp, "    SpotLight {\n");
+      fprintf(fp, "      direction %f %f %f\n", dir[0], dir[1], dir[2]);
+      fprintf(fp, "      cutOffAngle %f\n", aLight->GetConeAngle());
     }
-    fprintf(fp,"      location %f %f %f\n", pos[0], pos[1], pos[2]);
+    fprintf(fp, "      location %f %f %f\n", pos[0], pos[1], pos[2]);
     attn = aLight->GetAttenuationValues();
-    fprintf(fp,"      attenuation %f %f %f\n", attn[0], attn[1], attn[2]);
+    fprintf(fp, "      attenuation %f %f %f\n", attn[0], attn[1], attn[2]);
   }
   else
   {
-    fprintf(fp,"    DirectionalLight {\n");
-    fprintf(fp,"      direction %f %f %f\n",dir[0], dir[1], dir[2]);
+    fprintf(fp, "    DirectionalLight {\n");
+    fprintf(fp, "      direction %f %f %f\n", dir[0], dir[1], dir[2]);
   }
 
-  fprintf(fp,"      color %f %f %f\n", color[0], color[1], color[2]);
-  fprintf(fp,"      intensity %f\n", aLight->GetIntensity());
+  fprintf(fp, "      color %f %f %f\n", color[0], color[1], color[2]);
+  fprintf(fp, "      intensity %f\n", aLight->GetIntensity());
   if (aLight->GetSwitch())
   {
-    fprintf(fp,"      on TRUE\n      }\n");
+    fprintf(fp, "      on TRUE\n      }\n");
   }
   else
   {
-    fprintf(fp,"      on FALSE\n      }\n");
+    fprintf(fp, "      on FALSE\n      }\n");
   }
 }
 
-void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
+void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
 {
   vtkSmartPointer<vtkPolyData> pd;
-  vtkPointData *pntData;
-  vtkPoints *points;
-  vtkDataArray *normals = nullptr;
-  vtkDataArray *tcoords = nullptr;
+  vtkPointData* pntData;
+  vtkPoints* points;
+  vtkDataArray* normals = nullptr;
+  vtkDataArray* tcoords = nullptr;
   int i, i1, i2;
-  double *tempd;
-  vtkCellArray *cells;
+  double* tempd;
+  vtkCellArray* cells;
   vtkIdType npts = 0;
-  const vtkIdType *indx = nullptr;
+  const vtkIdType* indx = nullptr;
   int pointDataWritten = 0;
-  vtkPolyDataMapper *pm;
-  vtkUnsignedCharArray *colors;
-  double *p;
-  unsigned char *c;
-  vtkTransform *trans;
+  vtkPolyDataMapper* pm;
+  vtkUnsignedCharArray* colors;
+  double* p;
+  unsigned char* c;
+  vtkTransform* trans;
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == nullptr)
@@ -279,17 +274,15 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   if (inputDO->IsA("vtkCompositeDataSet"))
   {
     vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInputConnection(
-        anActor->GetMapper()->GetInputConnection(0, 0));
+    gf->SetInputConnection(anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     gf->Delete();
   }
   else if (inputDO->GetDataObjectType() != VTK_POLY_DATA)
   {
-    vtkGeometryFilter *gf = vtkGeometryFilter::New();
-    gf->SetInputConnection(
-      anActor->GetMapper()->GetInputConnection(0, 0));
+    vtkGeometryFilter* gf = vtkGeometryFilter::New();
+    gf->SetInputConnection(anActor->GetMapper()->GetInputConnection(0, 0));
     gf->Update();
     pd = gf->GetOutput();
     gf->Delete();
@@ -297,7 +290,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   else
   {
     anActor->GetMapper()->Update();
-    pd = static_cast<vtkPolyData *>(inputDO);
+    pd = static_cast<vtkPolyData*>(inputDO);
   }
 
   if (pd == nullptr || pd->GetNumberOfPoints() == 0)
@@ -309,24 +302,18 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   trans = vtkTransform::New();
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
 
-  fprintf(fp,"    Transform {\n");
+  fprintf(fp, "    Transform {\n");
   tempd = trans->GetPosition();
-  fprintf(fp,"      translation %.*g %.*g %.*g\n",
-    max_double_digits, tempd[0],
-    max_double_digits, tempd[1],
-    max_double_digits, tempd[2]);
+  fprintf(fp, "      translation %.*g %.*g %.*g\n", max_double_digits, tempd[0], max_double_digits,
+    tempd[1], max_double_digits, tempd[2]);
   tempd = trans->GetOrientationWXYZ();
-  fprintf(fp,"      rotation %.*g %.*g %.*g %.*g\n",
-    max_double_digits, tempd[1],
-    max_double_digits, tempd[2],
-    max_double_digits, tempd[3],
-    max_double_digits, tempd[0]*vtkMath::Pi()/180.0);
+  fprintf(fp, "      rotation %.*g %.*g %.*g %.*g\n", max_double_digits, tempd[1],
+    max_double_digits, tempd[2], max_double_digits, tempd[3], max_double_digits,
+    tempd[0] * vtkMath::Pi() / 180.0);
   tempd = trans->GetScale();
-  fprintf(fp,"      scale %.*g %.*g %.*g\n",
-    max_double_digits, tempd[0],
-    max_double_digits, tempd[1],
-    max_double_digits, tempd[2]);
-  fprintf(fp,"      children [\n");
+  fprintf(fp, "      scale %.*g %.*g %.*g\n", max_double_digits, tempd[0], max_double_digits,
+    tempd[1], max_double_digits, tempd[2]);
+  fprintf(fp, "      children [\n");
   trans->Delete();
 
   pm = vtkPolyDataMapper::New();
@@ -336,18 +323,18 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());
   pm->SetScalarMode(anActor->GetMapper()->GetScalarMode());
 
-  if ( pm->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
-       pm->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+  if (pm->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
+    pm->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
   {
-    if ( anActor->GetMapper()->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
+    if (anActor->GetMapper()->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID)
     {
-      pm->ColorByArrayComponent(anActor->GetMapper()->GetArrayId(),
-        anActor->GetMapper()->GetArrayComponent());
+      pm->ColorByArrayComponent(
+        anActor->GetMapper()->GetArrayId(), anActor->GetMapper()->GetArrayComponent());
     }
     else
     {
-      pm->ColorByArrayComponent(anActor->GetMapper()->GetArrayName(),
-        anActor->GetMapper()->GetArrayComponent());
+      pm->ColorByArrayComponent(
+        anActor->GetMapper()->GetArrayName(), anActor->GetMapper()->GetArrayComponent());
     }
   }
 
@@ -355,15 +342,15 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pntData = pd->GetPointData();
   normals = pntData->GetNormals();
   tcoords = pntData->GetTCoords();
-  colors  = pm->MapScalars(1.0);
+  colors = pm->MapScalars(1.0);
 
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
   {
-    WriteShapeBegin(anActor,fp, pd, pntData, colors);
-    fprintf(fp,"          geometry IndexedFaceSet {\n");
+    WriteShapeBegin(anActor, fp, pd, pntData, colors);
+    fprintf(fp, "          geometry IndexedFaceSet {\n");
     // two sided lighting ? for now assume it is on
-    fprintf(fp,"            solid FALSE\n");
+    fprintf(fp, "            solid FALSE\n");
     if (!pointDataWritten)
     {
       this->WritePointData(points, normals, tcoords, colors, fp);
@@ -371,44 +358,44 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
     else
     {
-      fprintf(fp,"            coord  USE VTKcoordinates\n");
+      fprintf(fp, "            coord  USE VTKcoordinates\n");
       if (normals)
       {
-        fprintf(fp,"            normal  USE VTKnormals\n");
+        fprintf(fp, "            normal  USE VTKnormals\n");
       }
       if (tcoords)
       {
-        fprintf(fp,"            texCoord  USE VTKtcoords\n");
+        fprintf(fp, "            texCoord  USE VTKtcoords\n");
       }
       if (colors)
       {
-        fprintf(fp,"            color  USE VTKcolors\n");
+        fprintf(fp, "            color  USE VTKcolors\n");
       }
     }
 
-    fprintf(fp,"            coordIndex  [\n");
+    fprintf(fp, "            coordIndex  [\n");
 
     cells = pd->GetPolys();
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp,"              ");
+      fprintf(fp, "              ");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ", static_cast<int>(indx[i]));
+        fprintf(fp, "%i, ", static_cast<int>(indx[i]));
       }
-      fprintf(fp,"-1,\n");
+      fprintf(fp, "-1,\n");
     }
-    fprintf(fp,"            ]\n");
-    fprintf(fp,"          }\n");
+    fprintf(fp, "            ]\n");
+    fprintf(fp, "          }\n");
     WriteShapeEnd(fp);
   }
 
   // write out tstrips if any
   if (pd->GetNumberOfStrips() > 0)
   {
-    WriteShapeBegin(anActor,fp, pd, pntData, colors);
-    fprintf(fp,"          geometry IndexedFaceSet {\n");
+    WriteShapeBegin(anActor, fp, pd, pntData, colors);
+    fprintf(fp, "          geometry IndexedFaceSet {\n");
     if (!pointDataWritten)
     {
       this->WritePointData(points, normals, tcoords, colors, fp);
@@ -416,27 +403,27 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
     else
     {
-      fprintf(fp,"            coord  USE VTKcoordinates\n");
+      fprintf(fp, "            coord  USE VTKcoordinates\n");
       if (normals)
       {
-        fprintf(fp,"            normal  USE VTKnormals\n");
+        fprintf(fp, "            normal  USE VTKnormals\n");
       }
       if (tcoords)
       {
-        fprintf(fp,"            texCoord  USE VTKtcoords\n");
+        fprintf(fp, "            texCoord  USE VTKtcoords\n");
       }
       if (colors)
       {
-        fprintf(fp,"            color  USE VTKcolors\n");
+        fprintf(fp, "            color  USE VTKcolors\n");
       }
     }
-    fprintf(fp,"            coordIndex  [\n");
+    fprintf(fp, "            coordIndex  [\n");
     cells = pd->GetStrips();
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
       for (i = 2; i < npts; i++)
       {
-        if (i%2)
+        if (i % 2)
         {
           i1 = i - 1;
           i2 = i - 2;
@@ -447,21 +434,20 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
           i2 = i - 1;
         }
         // treating vtkIdType as int
-        fprintf(fp,"              %i, %i, %i, -1,\n",
-                static_cast<int>(indx[i1]),
-                static_cast<int>(indx[i2]),static_cast<int>(indx[i]));
+        fprintf(fp, "              %i, %i, %i, -1,\n", static_cast<int>(indx[i1]),
+          static_cast<int>(indx[i2]), static_cast<int>(indx[i]));
       }
     }
-    fprintf(fp,"            ]\n");
-    fprintf(fp,"          }\n");
+    fprintf(fp, "            ]\n");
+    fprintf(fp, "          }\n");
     WriteShapeEnd(fp);
   }
 
   // write out lines if any
   if (pd->GetNumberOfLines() > 0)
   {
-    WriteShapeBegin(anActor,fp, pd,  pntData, colors);
-    fprintf(fp,"          geometry IndexedLineSet {\n");
+    WriteShapeBegin(anActor, fp, pd, pntData, colors);
+    fprintf(fp, "          geometry IndexedLineSet {\n");
     if (!pointDataWritten)
     {
       this->WritePointData(points, nullptr, nullptr, colors, fp);
@@ -469,135 +455,122 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
     else
     {
-      fprintf(fp,"            coord  USE VTKcoordinates\n");
+      fprintf(fp, "            coord  USE VTKcoordinates\n");
       if (colors)
       {
-        fprintf(fp,"            color  USE VTKcolors\n");
+        fprintf(fp, "            color  USE VTKcolors\n");
       }
     }
 
-    fprintf(fp,"            coordIndex  [\n");
+    fprintf(fp, "            coordIndex  [\n");
 
     cells = pd->GetLines();
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp,"              ");
+      fprintf(fp, "              ");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fprintf(fp,"%i, ", static_cast<int>(indx[i]));
+        fprintf(fp, "%i, ", static_cast<int>(indx[i]));
       }
-      fprintf(fp,"-1,\n");
+      fprintf(fp, "-1,\n");
     }
-    fprintf(fp,"            ]\n");
-    fprintf(fp,"          }\n");
+    fprintf(fp, "            ]\n");
+    fprintf(fp, "          }\n");
     WriteShapeEnd(fp);
   }
 
   // write out verts if any
   if (pd->GetNumberOfVerts() > 0)
   {
-    WriteShapeBegin(anActor,fp, pd, pntData, colors);
-    fprintf(fp,"          geometry PointSet {\n");
+    WriteShapeBegin(anActor, fp, pd, pntData, colors);
+    fprintf(fp, "          geometry PointSet {\n");
     cells = pd->GetVerts();
-    fprintf(fp,"            coord Coordinate {");
-    fprintf(fp,"              point [");
-    for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+    fprintf(fp, "            coord Coordinate {");
+    fprintf(fp, "              point [");
+    for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp,"              ");
+      fprintf(fp, "              ");
       for (i = 0; i < npts; i++)
       {
         p = points->GetPoint(indx[i]);
-        fprintf (fp,"              %.*g %.*g %.*g,\n",
-          max_double_digits, p[0],
-          max_double_digits, p[1],
-          max_double_digits, p[2]);
+        fprintf(fp, "              %.*g %.*g %.*g,\n", max_double_digits, p[0], max_double_digits,
+          p[1], max_double_digits, p[2]);
       }
     }
-    fprintf(fp,"              ]\n");
-    fprintf(fp,"            }\n");
+    fprintf(fp, "              ]\n");
+    fprintf(fp, "            }\n");
     if (colors)
     {
-      fprintf(fp,"            color Color {");
-      fprintf(fp,"              color [");
-      for (cells->InitTraversal(); cells->GetNextCell(npts,indx); )
+      fprintf(fp, "            color Color {");
+      fprintf(fp, "              color [");
+      for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
       {
-        fprintf(fp,"              ");
+        fprintf(fp, "              ");
         for (i = 0; i < npts; i++)
         {
-          c = colors->GetPointer(4*indx[i]);
-          fprintf (fp,"           %.*g %.*g %.*g,\n",
-            max_double_digits, c[0]/255.0,
-            max_double_digits, c[1]/255.0,
-            max_double_digits, c[2]/255.0);
+          c = colors->GetPointer(4 * indx[i]);
+          fprintf(fp, "           %.*g %.*g %.*g,\n", max_double_digits, c[0] / 255.0,
+            max_double_digits, c[1] / 255.0, max_double_digits, c[2] / 255.0);
         }
       }
-      fprintf(fp,"              ]\n");
-      fprintf(fp,"            }\n");
+      fprintf(fp, "              ]\n");
+      fprintf(fp, "            }\n");
     }
-    fprintf(fp,"          }\n");
+    fprintf(fp, "          }\n");
     WriteShapeEnd(fp);
   }
 
-  fprintf(fp,"      ]\n"); // close the original transforms children
-  fprintf(fp,"    }\n"); // close the original transform
+  fprintf(fp, "      ]\n"); // close the original transforms children
+  fprintf(fp, "    }\n");   // close the original transform
 
   pm->Delete();
 }
 
-void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
-                                       vtkPolyData* polyData,
-                                       vtkPointData* pntData,
-                                       vtkUnsignedCharArray* color)
+void vtkVRMLExporter::WriteShapeBegin(vtkActor* actor, FILE* fileP, vtkPolyData* polyData,
+  vtkPointData* pntData, vtkUnsignedCharArray* color)
 {
-  double *tempd;
+  double* tempd;
   double tempf2;
 
-  fprintf(fileP,"        Shape {\n");
+  fprintf(fileP, "        Shape {\n");
   vtkProperty* props = actor->GetProperty();
   // write out the material properties to the mat file
-  fprintf(fileP,"          appearance Appearance {\n");
-  fprintf(fileP,"            material Material {\n");
-  fprintf(fileP,"              ambientIntensity %.*g\n",
-    max_double_digits, props->GetAmbient());
+  fprintf(fileP, "          appearance Appearance {\n");
+  fprintf(fileP, "            material Material {\n");
+  fprintf(fileP, "              ambientIntensity %.*g\n", max_double_digits, props->GetAmbient());
   // if we don't have colors and we have only lines & points
   // use emissive to color them
   if (!(pntData->GetNormals() || color || polyData->GetNumberOfPolys() ||
-                  polyData->GetNumberOfStrips()))
+        polyData->GetNumberOfStrips()))
   {
     tempf2 = props->GetAmbient();
     tempd = props->GetAmbientColor();
-    fprintf(fileP,"              emissiveColor %.*g %.*g %.*g\n",
-      max_double_digits, tempd[0]*tempf2,
-      max_double_digits, tempd[1]*tempf2,
-      max_double_digits, tempd[2]*tempf2);
+    fprintf(fileP, "              emissiveColor %.*g %.*g %.*g\n", max_double_digits,
+      tempd[0] * tempf2, max_double_digits, tempd[1] * tempf2, max_double_digits,
+      tempd[2] * tempf2);
   }
   tempf2 = props->GetDiffuse();
   tempd = props->GetDiffuseColor();
-  fprintf(fileP,"              diffuseColor %.*g %.*g %.*g\n",
-    max_double_digits, tempd[0]*tempf2,
-    max_double_digits, tempd[1]*tempf2,
-    max_double_digits, tempd[2]*tempf2);
+  fprintf(fileP, "              diffuseColor %.*g %.*g %.*g\n", max_double_digits,
+    tempd[0] * tempf2, max_double_digits, tempd[1] * tempf2, max_double_digits, tempd[2] * tempf2);
   tempf2 = props->GetSpecular();
   tempd = props->GetSpecularColor();
-  fprintf(fileP,"              specularColor %.*g %.*g %.*g\n",
-    max_double_digits, tempd[0]*tempf2,
-    max_double_digits, tempd[1]*tempf2,
-    max_double_digits, tempd[2]*tempf2);
-  fprintf(fileP,"              shininess %.*g\n",
-    max_double_digits, props->GetSpecularPower()/128.0);
-  fprintf(fileP,"              transparency %.*g\n",
-    max_double_digits, 1.0-props->GetOpacity());
-  fprintf(fileP,"              }\n"); // close matrial
+  fprintf(fileP, "              specularColor %.*g %.*g %.*g\n", max_double_digits,
+    tempd[0] * tempf2, max_double_digits, tempd[1] * tempf2, max_double_digits, tempd[2] * tempf2);
+  fprintf(
+    fileP, "              shininess %.*g\n", max_double_digits, props->GetSpecularPower() / 128.0);
+  fprintf(fileP, "              transparency %.*g\n", max_double_digits, 1.0 - props->GetOpacity());
+  fprintf(fileP, "              }\n"); // close matrial
 
   // is there a texture map
   if (actor->GetTexture())
   {
-    vtkTexture *aTexture = actor->GetTexture();
+    vtkTexture* aTexture = actor->GetTexture();
     int *size, xsize, ysize, bpp;
-    vtkDataArray *scalars;
-    vtkDataArray *mappedScalars;
-    unsigned char *txtrData;
+    vtkDataArray* scalars;
+    vtkDataArray* mappedScalars;
+    unsigned char* txtrData;
 
     // make sure it is updated and then get some info
     if (aTexture->GetInput() == nullptr)
@@ -618,9 +591,9 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetColorMode() == VTK_COLOR_MODE_MAP_SCALARS ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
+      (scalars->GetDataType() != VTK_UNSIGNED_CHAR))
     {
-      mappedScalars = aTexture->GetMappedScalars ();
+      mappedScalars = aTexture->GetMappedScalars();
     }
     else
     {
@@ -632,7 +605,8 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
     // could be any of them, so lets find it
     if (size[0] == 1)
     {
-      xsize = size[1]; ysize = size[2];
+      xsize = size[1];
+      ysize = size[2];
     }
     else
     {
@@ -652,131 +626,121 @@ void vtkVRMLExporter::WriteShapeBegin( vtkActor* actor, FILE *fileP,
       }
     }
 
-    fprintf(fileP,"            texture PixelTexture {\n");
+    fprintf(fileP, "            texture PixelTexture {\n");
     bpp = mappedScalars->GetNumberOfComponents();
-    fprintf(fileP,"              image %i %i %i\n", xsize, ysize, bpp);
-    txtrData =
-    static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
-    int totalValues = xsize*ysize;
+    fprintf(fileP, "              image %i %i %i\n", xsize, ysize, bpp);
+    txtrData = static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
+    int totalValues = xsize * ysize;
     for (int i = 0; i < totalValues; i++)
     {
-      fprintf(fileP,"0x%.2x",*txtrData);
+      fprintf(fileP, "0x%.2x", *txtrData);
       txtrData++;
       if (bpp > 1)
       {
-        fprintf(fileP,"%.2x",*txtrData);
+        fprintf(fileP, "%.2x", *txtrData);
         txtrData++;
       }
       if (bpp > 2)
       {
-        fprintf(fileP,"%.2x",*txtrData);
+        fprintf(fileP, "%.2x", *txtrData);
         txtrData++;
       }
       if (bpp > 3)
       {
-        fprintf(fileP,"%.2x",*txtrData);
+        fprintf(fileP, "%.2x", *txtrData);
         txtrData++;
       }
-      if (i%8 == 0)
+      if (i % 8 == 0)
       {
-        fprintf(fileP,"\n");
+        fprintf(fileP, "\n");
       }
       else
       {
-        fprintf(fileP," ");
+        fprintf(fileP, " ");
       }
     }
     if (!(aTexture->GetRepeat()))
     {
-      fprintf(fileP,"              repeatS FALSE\n");
-      fprintf(fileP,"              repeatT FALSE\n");
+      fprintf(fileP, "              repeatS FALSE\n");
+      fprintf(fileP, "              repeatT FALSE\n");
     }
-    fprintf(fileP,"              }\n"); // close texture
+    fprintf(fileP, "              }\n"); // close texture
   }
-  fprintf(fileP,"            }\n"); // close appearance
+  fprintf(fileP, "            }\n"); // close appearance
 }
 
-void vtkVRMLExporter::WriteShapeEnd( FILE *fileP )
+void vtkVRMLExporter::WriteShapeEnd(FILE* fileP)
 {
-  fprintf(fileP,"        }\n"); // close the  Shape
+  fprintf(fileP, "        }\n"); // close the  Shape
 }
 
-void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
-                                     vtkDataArray *tcoords,
-                                     vtkUnsignedCharArray *colors, FILE *fp)
+void vtkVRMLExporter::WritePointData(vtkPoints* points, vtkDataArray* normals,
+  vtkDataArray* tcoords, vtkUnsignedCharArray* colors, FILE* fp)
 {
-  double *p;
+  double* p;
   int i;
-  unsigned char *c;
+  unsigned char* c;
 
   // write out the points
-  fprintf(fp,"            coord DEF VTKcoordinates Coordinate {\n");
-  fprintf(fp,"              point [\n");
+  fprintf(fp, "            coord DEF VTKcoordinates Coordinate {\n");
+  fprintf(fp, "              point [\n");
   for (i = 0; i < points->GetNumberOfPoints(); i++)
   {
     p = points->GetPoint(i);
-    fprintf (fp,"              %.*g %.*g %.*g,\n",
-      max_double_digits, p[0],
-      max_double_digits, p[1],
+    fprintf(fp, "              %.*g %.*g %.*g,\n", max_double_digits, p[0], max_double_digits, p[1],
       max_double_digits, p[2]);
   }
-  fprintf(fp,"              ]\n");
-  fprintf(fp,"            }\n");
+  fprintf(fp, "              ]\n");
+  fprintf(fp, "            }\n");
 
   // write out the point data
   if (normals)
   {
-    fprintf(fp,"            normal DEF VTKnormals Normal {\n");
-    fprintf(fp,"              vector [\n");
+    fprintf(fp, "            normal DEF VTKnormals Normal {\n");
+    fprintf(fp, "              vector [\n");
     for (i = 0; i < normals->GetNumberOfTuples(); i++)
     {
       p = normals->GetTuple(i);
-      fprintf (fp,"           %.*g %.*g %.*g,\n",
-        max_double_digits, p[0],
-        max_double_digits, p[1],
+      fprintf(fp, "           %.*g %.*g %.*g,\n", max_double_digits, p[0], max_double_digits, p[1],
         max_double_digits, p[2]);
     }
-    fprintf(fp,"            ]\n");
-    fprintf(fp,"          }\n");
+    fprintf(fp, "            ]\n");
+    fprintf(fp, "          }\n");
   }
 
   // write out the point data
   if (tcoords)
   {
-    fprintf(fp,"            texCoord DEF VTKtcoords TextureCoordinate {\n");
-    fprintf(fp,"              point [\n");
+    fprintf(fp, "            texCoord DEF VTKtcoords TextureCoordinate {\n");
+    fprintf(fp, "              point [\n");
     for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
     {
       p = tcoords->GetTuple(i);
-      fprintf (fp,"           %.*g %.*g,\n",
-        max_double_digits, p[0],
-        max_double_digits, p[1]);
+      fprintf(fp, "           %.*g %.*g,\n", max_double_digits, p[0], max_double_digits, p[1]);
     }
-    fprintf(fp,"            ]\n");
-    fprintf(fp,"          }\n");
+    fprintf(fp, "            ]\n");
+    fprintf(fp, "          }\n");
   }
 
   // write out the point data
   if (colors)
   {
-    fprintf(fp,"            color DEF VTKcolors Color {\n");
-    fprintf(fp,"              color [\n");
+    fprintf(fp, "            color DEF VTKcolors Color {\n");
+    fprintf(fp, "              color [\n");
     for (i = 0; i < colors->GetNumberOfTuples(); i++)
     {
-      c = colors->GetPointer(4*i);
-      fprintf (fp,"           %.*g %.*g %.*g,\n",
-        max_double_digits, c[0]/255.0,
-        max_double_digits, c[1]/255.0,
-        max_double_digits, c[2]/255.0);
+      c = colors->GetPointer(4 * i);
+      fprintf(fp, "           %.*g %.*g %.*g,\n", max_double_digits, c[0] / 255.0,
+        max_double_digits, c[1] / 255.0, max_double_digits, c[2] / 255.0);
     }
-    fprintf(fp,"            ]\n");
-    fprintf(fp,"          }\n");
+    fprintf(fp, "            ]\n");
+    fprintf(fp, "          }\n");
   }
 }
 
 void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->FileName)
   {

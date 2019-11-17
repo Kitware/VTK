@@ -16,7 +16,7 @@
  * @class   vtkObjectIdMap
  * @brief   class used to assign Id to any VTK object and be able
  * to retrieve it base on its id.
-*/
+ */
 
 #ifndef vtkObjectIdMap_h
 #define vtkObjectIdMap_h
@@ -70,7 +70,6 @@ private:
 
   struct vtkInternals;
   vtkInternals* Internals;
-
 };
 
 #endif

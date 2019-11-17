@@ -42,7 +42,7 @@ vtkStandardNewMacro(vtkPanoramicProjectionPass);
 // ----------------------------------------------------------------------------
 void vtkPanoramicProjectionPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "CubeResolution: " << this->CubeResolution << "\n";
   os << indent << "ProjectionType: ";
@@ -169,8 +169,7 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
   {
     std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
 
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::FSQ::Decl",
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
       "uniform samplerCube source;\n"
       "uniform float angle;\n"
       "uniform vec2 scale;\n"
@@ -214,9 +213,7 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
     vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl", ss.str());
 
     this->QuadHelper = new vtkOpenGLQuadHelper(renWin,
-      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(),
-      FSSource.c_str(),
-      "");
+      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(), FSSource.c_str(), "");
 
     this->QuadHelper->ShaderChangeValue = this->MTime;
   }

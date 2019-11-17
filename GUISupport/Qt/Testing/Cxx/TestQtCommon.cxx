@@ -85,7 +85,8 @@ std::shared_ptr<QObject> create_widget_or_window(Type type, vtkGenericOpenGLRend
   return nullptr;
 }
 
-std::shared_ptr<QWidget> create_widget(Type type, vtkGenericOpenGLRenderWindow* renWin, QWidget* parent)
+std::shared_ptr<QWidget> create_widget(
+  Type type, vtkGenericOpenGLRenderWindow* renWin, QWidget* parent)
 {
   auto widget = std::dynamic_pointer_cast<QWidget>(create_widget_or_window(type, renWin));
   if (widget && parent)

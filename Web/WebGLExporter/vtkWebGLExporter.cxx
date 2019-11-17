@@ -80,8 +80,8 @@ vtkStandardNewMacro(vtkWebGLExporter);
 
 vtkWebGLExporter::vtkWebGLExporter()
 {
-  this->meshObjMaxSize = 65532/3;
-  this->lineObjMaxSize = 65534/2;
+  this->meshObjMaxSize = 65532 / 3;
+  this->lineObjMaxSize = 65534 / 2;
   this->Internal = new vtkInternal();
   this->TriangleFilter = nullptr;
   this->GradientBackground = false;
@@ -95,7 +95,7 @@ vtkWebGLExporter::vtkWebGLExporter()
 
 vtkWebGLExporter::~vtkWebGLExporter()
 {
-  while(!this->Internal->Objects.empty())
+  while (!this->Internal->Objects.empty())
   {
     vtkWebGLObject* obj = this->Internal->Objects.back();
     obj->Delete();
@@ -112,11 +112,16 @@ void vtkWebGLExporter::SetMaxAllowedSize(int mesh, int lines)
 {
   this->meshObjMaxSize = mesh;
   this->lineObjMaxSize = lines;
-  if (this->meshObjMaxSize*3 > 65532) this->meshObjMaxSize = 65532/3;
-  if (this->lineObjMaxSize*2 > 65534) this->lineObjMaxSize = 65534/2;
-  if (this->meshObjMaxSize < 10) this->meshObjMaxSize = 10;
-  if (this->lineObjMaxSize < 10) this->lineObjMaxSize = 10;
-  for(size_t i=0; i<this->Internal->Objects.size(); i++) this->Internal->Objects[i]->GenerateBinaryData();
+  if (this->meshObjMaxSize * 3 > 65532)
+    this->meshObjMaxSize = 65532 / 3;
+  if (this->lineObjMaxSize * 2 > 65534)
+    this->lineObjMaxSize = 65534 / 2;
+  if (this->meshObjMaxSize < 10)
+    this->meshObjMaxSize = 10;
+  if (this->lineObjMaxSize < 10)
+    this->lineObjMaxSize = 10;
+  for (size_t i = 0; i < this->Internal->Objects.size(); i++)
+    this->Internal->Objects[i]->GenerateBinaryData();
 }
 
 void vtkWebGLExporter::SetMaxAllowedSize(int size)
@@ -131,52 +136,58 @@ void vtkWebGLExporter::SetCenterOfRotation(float a1, float a2, float a3)
   this->CenterOfRotation[2] = a3;
 }
 
-
-void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUsed(viewId), bool onlyWidget, void* vtkNotUsed(mapTime))
+void vtkWebGLExporter::parseRenderer(
+  vtkRenderer* renderer, const char* vtkNotUsed(viewId), bool onlyWidget, void* vtkNotUsed(mapTime))
 {
   vtkPropCollection* propCollection = renderer->GetViewProps();
-  for (int i=0; i<propCollection->GetNumberOfItems(); i++)
+  for (int i = 0; i < propCollection->GetNumberOfItems(); i++)
   {
     vtkProp* prop = (vtkProp*)propCollection->GetItemAsObject(i);
     vtkWidgetRepresentation* trt = vtkWidgetRepresentation::SafeDownCast(prop);
-    if (trt!=nullptr) this->hasWidget = true;
-    if ((onlyWidget==false || trt!=nullptr) && prop->GetVisibility())
+    if (trt != nullptr)
+      this->hasWidget = true;
+    if ((onlyWidget == false || trt != nullptr) && prop->GetVisibility())
     {
       vtkPropCollection* allactors = vtkPropCollection::New();
       prop->GetActors(allactors);
-      for (int j=0; j<allactors->GetNumberOfItems(); j++)
+      for (int j = 0; j < allactors->GetNumberOfItems(); j++)
       {
         vtkActor* actor = vtkActor::SafeDownCast(allactors->GetItemAsObject(j));
         vtkActor* key = actor;
         vtkMTimeType previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != nullptr);
+        this->parseActor(
+          actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != nullptr);
       }
       allactors->Delete();
     }
-    if (onlyWidget==false && prop->GetVisibility())
+    if (onlyWidget == false && prop->GetVisibility())
     {
       vtkPropCollection* all2dactors = vtkPropCollection::New();
       prop->GetActors2D(all2dactors);
-      for (int k=0; k<all2dactors->GetNumberOfItems(); k++)
+      for (int k = 0; k < all2dactors->GetNumberOfItems(); k++)
       {
         vtkActor2D* actor = vtkActor2D::SafeDownCast(all2dactors->GetItemAsObject(k));
         vtkActor2D* key = actor;
         vtkMTimeType previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != nullptr);
+        this->parseActor2D(
+          actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != nullptr);
       }
       all2dactors->Delete();
     }
   }
 }
 
-void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, vtkMTimeType actorTime, size_t renderId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor2D(
+  vtkActor2D* actor, vtkMTimeType actorTime, size_t renderId, int layer, bool isWidget)
 {
   vtkActor2D* key = actor;
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
 
-  vtkMTimeType dataMTime = actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
-  dataMTime += (vtkMTimeType) actor->GetMapper();
-  if (scalarbar) dataMTime += scalarbar->GetLookupTable()->GetMTime();
+  vtkMTimeType dataMTime =
+    actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
+  dataMTime += (vtkMTimeType)actor->GetMapper();
+  if (scalarbar)
+    dataMTime += scalarbar->GetLookupTable()->GetMTime();
   if (dataMTime != actorTime && actor->GetVisibility())
   {
     this->Internal->ActorTimestamp[key] = dataMTime;
@@ -212,13 +223,13 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, vtkMTimeType actorTime, s
   {
     this->Internal->ActorTimestamp[key] = dataMTime;
     std::stringstream ss;
-    ss << (vtkMTimeType) actor;
-    for (size_t i=0; i<this->Internal->tempObj.size(); i++)
+    ss << (vtkMTimeType)actor;
+    for (size_t i = 0; i < this->Internal->tempObj.size(); i++)
     {
       if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
       {
         vtkWebGLObject* obj = this->Internal->tempObj[i];
-        this->Internal->tempObj.erase(this->Internal->tempObj.begin()+i);
+        this->Internal->tempObj.erase(this->Internal->tempObj.begin() + i);
         obj->SetVisibility(actor->GetVisibility() != 0);
         this->Internal->Objects.push_back(obj);
       }
@@ -226,7 +237,8 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, vtkMTimeType actorTime, s
   }
 }
 
-void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_t rendererId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor(
+  vtkActor* actor, vtkMTimeType actorTime, size_t rendererId, int layer, bool isWidget)
 {
   vtkMapper* mapper = actor->GetMapper();
   if (mapper)
@@ -236,42 +248,49 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
     vtkActor* key = actor;
     dataMTime = actor->GetMTime() + mapper->GetLookupTable()->GetMTime();
     dataMTime += actor->GetProperty()->GetMTime() + mapper->GetMTime() + actor->GetRedrawMTime();
-    dataMTime += polydata->GetOutput()->GetNumberOfLines() + polydata->GetOutput()->GetNumberOfPolys();
-    dataMTime += actor->GetProperty()->GetRepresentation() + mapper->GetScalarMode() + actor->GetVisibility();
+    dataMTime +=
+      polydata->GetOutput()->GetNumberOfLines() + polydata->GetOutput()->GetNumberOfPolys();
+    dataMTime +=
+      actor->GetProperty()->GetRepresentation() + mapper->GetScalarMode() + actor->GetVisibility();
     dataMTime += polydata->GetInput()->GetMTime();
-    if (vtkFollower::SafeDownCast(actor)) dataMTime += vtkFollower::SafeDownCast(actor)->GetCamera()->GetMTime();
-    if(dataMTime != actorTime && actor->GetVisibility())
+    if (vtkFollower::SafeDownCast(actor))
+      dataMTime += vtkFollower::SafeDownCast(actor)->GetCamera()->GetMTime();
+    if (dataMTime != actorTime && actor->GetVisibility())
     {
       double bb[6];
       actor->GetBounds(bb);
-      double m1 = std::max(bb[1]-bb[0], bb[3]-bb[2]); m1 = std::max(m1, bb[5]-bb[4]);
-      double m2 = std::max(this->SceneSize[0], this->SceneSize[1]); m2 = std::max(m2, this->SceneSize[2]);
+      double m1 = std::max(bb[1] - bb[0], bb[3] - bb[2]);
+      m1 = std::max(m1, bb[5] - bb[4]);
+      double m2 = std::max(this->SceneSize[0], this->SceneSize[1]);
+      m2 = std::max(m2, this->SceneSize[2]);
       if (m1 > m2)
       {
-        this->SceneSize[0] = bb[1]-bb[0];
-        this->SceneSize[1] = bb[3]-bb[2];
-        this->SceneSize[2] = bb[5]-bb[4];
+        this->SceneSize[0] = bb[1] - bb[0];
+        this->SceneSize[1] = bb[3] - bb[2];
+        this->SceneSize[2] = bb[5] - bb[4];
       }
 
       this->Internal->ActorTimestamp[key] = dataMTime;
       vtkWebGLObject* obj = nullptr;
       std::stringstream ss;
       ss << (size_t)actor;
-      for (size_t i=0; i<this->Internal->tempObj.size(); i++)
+      for (size_t i = 0; i < this->Internal->tempObj.size(); i++)
       {
         if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
         {
           obj = this->Internal->tempObj[i];
-          this->Internal->tempObj.erase(this->Internal->tempObj.begin()+i);
+          this->Internal->tempObj.erase(this->Internal->tempObj.begin() + i);
         }
       }
-      if (obj == nullptr) obj = vtkWebGLPolyData::New();
+      if (obj == nullptr)
+        obj = vtkWebGLPolyData::New();
 
       if (polydata->GetOutput()->GetNumberOfPolys() != 0)
       {
         if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
         {
-          ((vtkWebGLPolyData*)obj)->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, nullptr);
+          ((vtkWebGLPolyData*)obj)
+            ->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, nullptr);
         }
         else
         {
@@ -279,8 +298,10 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
           if (actor->GetProperty()->GetEdgeVisibility())
           {
             vtkWebGLPolyData* newobj = vtkWebGLPolyData::New();
-            double ccc[3]; actor->GetProperty()->GetEdgeColor(&ccc[0]);
-            ((vtkWebGLPolyData*)newobj)->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, ccc);
+            double ccc[3];
+            actor->GetProperty()->GetEdgeColor(&ccc[0]);
+            ((vtkWebGLPolyData*)newobj)
+              ->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, ccc);
             newobj->SetId(ss.str() + "1");
             newobj->SetRendererId(static_cast<int>(rendererId));
             this->Internal->Objects.push_back(newobj);
@@ -293,17 +314,19 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
             newobj->GenerateBinaryData();
           }
 
-
-          switch(mapper->GetScalarMode())
+          switch (mapper->GetScalarMode())
           {
             case VTK_SCALAR_MODE_USE_POINT_FIELD_DATA:
-               ((vtkWebGLPolyData*)obj)->GetPolygonsFromPointData(polydata, actor, this->meshObjMaxSize);
+              ((vtkWebGLPolyData*)obj)
+                ->GetPolygonsFromPointData(polydata, actor, this->meshObjMaxSize);
               break;
             case VTK_SCALAR_MODE_USE_CELL_FIELD_DATA:
-              ((vtkWebGLPolyData*)obj)->GetPolygonsFromCellData(polydata, actor, this->meshObjMaxSize);
+              ((vtkWebGLPolyData*)obj)
+                ->GetPolygonsFromCellData(polydata, actor, this->meshObjMaxSize);
               break;
             default:
-               ((vtkWebGLPolyData*)obj)->GetPolygonsFromPointData(polydata, actor, this->meshObjMaxSize);
+              ((vtkWebGLPolyData*)obj)
+                ->GetPolygonsFromPointData(polydata, actor, this->meshObjMaxSize);
               break;
           }
         }
@@ -334,7 +357,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
       }
       else if (polydata->GetOutput()->GetNumberOfPoints() != 0)
       {
-        ((vtkWebGLPolyData*)obj)->GetPoints(polydata, actor, 65534);//Wendel
+        ((vtkWebGLPolyData*)obj)->GetPoints(polydata, actor, 65534); // Wendel
         obj->SetId(ss.str());
         obj->SetRendererId(static_cast<int>(rendererId));
         this->Internal->Objects.push_back(obj);
@@ -347,7 +370,8 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
         obj->GenerateBinaryData();
       }
 
-      if (polydata->GetOutput()->GetNumberOfPolys() != 0 && polydata->GetOutput()->GetNumberOfLines() != 0)
+      if (polydata->GetOutput()->GetNumberOfPolys() != 0 &&
+        polydata->GetOutput()->GetNumberOfLines() != 0)
       {
         obj = vtkWebGLPolyData::New();
         ((vtkWebGLPolyData*)obj)->GetLines(polydata, actor, this->lineObjMaxSize);
@@ -364,7 +388,9 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
         obj->GenerateBinaryData();
       }
 
-      if (polydata->GetOutput()->GetNumberOfLines() == 0 && polydata->GetOutput()->GetNumberOfPolys() == 0 && polydata->GetOutput()->GetNumberOfPoints() == 0)
+      if (polydata->GetOutput()->GetNumberOfLines() == 0 &&
+        polydata->GetOutput()->GetNumberOfPolys() == 0 &&
+        polydata->GetOutput()->GetNumberOfPoints() == 0)
       {
         obj->Delete();
       }
@@ -374,12 +400,12 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
       this->Internal->ActorTimestamp[key] = actorTime;
       std::stringstream ss;
       ss << (size_t)actor;
-      for (size_t i=0; i<this->Internal->tempObj.size(); i++)
+      for (size_t i = 0; i < this->Internal->tempObj.size(); i++)
       {
         if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
         {
           vtkWebGLObject* obj = this->Internal->tempObj[i];
-          this->Internal->tempObj.erase(this->Internal->tempObj.begin()+i);
+          this->Internal->tempObj.erase(this->Internal->tempObj.begin() + i);
           obj->SetVisibility(actor->GetVisibility() != 0);
           this->Internal->Objects.push_back(obj);
         }
@@ -388,14 +414,16 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
   }
 }
 
-void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* viewId, int parseType)
+void vtkWebGLExporter::parseScene(
+  vtkRendererCollection* renderers, const char* viewId, int parseType)
 {
-  if (!renderers) return;
+  if (!renderers)
+    return;
 
   bool onlyWidget = parseType == VTK_ONLYWIDGET;
   bool cameraOnly = onlyWidget && !this->hasWidget;
 
-  this->SceneId = viewId? viewId : "";
+  this->SceneId = viewId ? viewId : "";
   if (cameraOnly)
   {
     this->generateRendererData(renderers, viewId);
@@ -404,19 +432,19 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
 
   if (onlyWidget)
   {
-    for (int i= static_cast<int>(this->Internal->Objects.size())-1; i>=0; i--)
+    for (int i = static_cast<int>(this->Internal->Objects.size()) - 1; i >= 0; i--)
     {
       vtkWebGLObject* obj = this->Internal->Objects[i];
       if (obj->InteractAtServer())
       {
         this->Internal->tempObj.push_back(obj);
-        this->Internal->Objects.erase(this->Internal->Objects.begin()+i);
+        this->Internal->Objects.erase(this->Internal->Objects.begin() + i);
       }
     }
   }
   else
   {
-    while(!this->Internal->Objects.empty())
+    while (!this->Internal->Objects.empty())
     {
       this->Internal->tempObj.push_back(this->Internal->Objects.back());
       this->Internal->Objects.pop_back();
@@ -424,14 +452,16 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
   }
 
   this->Internal->OldActorTimestamp = this->Internal->ActorTimestamp;
-  if (!onlyWidget) this->Internal->ActorTimestamp.clear();
+  if (!onlyWidget)
+    this->Internal->ActorTimestamp.clear();
   this->hasWidget = false;
-  for(int i=0; i<renderers->GetNumberOfItems(); i++)
+  for (int i = 0; i < renderers->GetNumberOfItems(); i++)
   {
     vtkRenderer* renderer = vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i));
-    if (renderer->GetDraw()) this->parseRenderer(renderer, viewId, onlyWidget, nullptr);
+    if (renderer->GetDraw())
+      this->parseRenderer(renderer, viewId, onlyWidget, nullptr);
   }
-  while(!this->Internal->tempObj.empty())
+  while (!this->Internal->tempObj.empty())
   {
     vtkWebGLObject* obj = this->Internal->tempObj.back();
     this->Internal->tempObj.pop_back();
@@ -441,23 +471,25 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
   this->generateRendererData(renderers, viewId);
 }
 
-bool sortLayer(vtkRenderer* i,vtkRenderer* j)
+bool sortLayer(vtkRenderer* i, vtkRenderer* j)
 {
   return (i->GetLayer() < j->GetLayer());
 }
 
-void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, const char* vtkNotUsed(viewId))
+void vtkWebGLExporter::generateRendererData(
+  vtkRendererCollection* renderers, const char* vtkNotUsed(viewId))
 {
   std::stringstream ss;
   ss << "\"Renderers\": [";
 
   std::vector<vtkRenderer*> orderedList;
   orderedList.reserve(renderers->GetNumberOfItems());
-  for(int i=0; i<renderers->GetNumberOfItems(); i++) orderedList.push_back(vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i)));
-  std::sort(orderedList.begin(), orderedList.begin()+orderedList.size(), sortLayer);
+  for (int i = 0; i < renderers->GetNumberOfItems(); i++)
+    orderedList.push_back(vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i)));
+  std::sort(orderedList.begin(), orderedList.begin() + orderedList.size(), sortLayer);
 
-  int *fullSize = nullptr;
-  for(size_t i=0; i<orderedList.size(); i++)
+  int* fullSize = nullptr;
+  for (size_t i = 0; i < orderedList.size(); i++)
   {
     vtkRenderer* renderer = orderedList[i];
 
@@ -466,15 +498,19 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
       fullSize = renderer->GetSize();
     }
 
-    double cam[10]; cam[0] = renderer->GetActiveCamera()->GetViewAngle();
+    double cam[10];
+    cam[0] = renderer->GetActiveCamera()->GetViewAngle();
     renderer->GetActiveCamera()->GetFocalPoint(&cam[1]);
     renderer->GetActiveCamera()->GetViewUp(&cam[4]);
     renderer->GetActiveCamera()->GetPosition(&cam[7]);
-    int* s, *o; s = renderer->GetSize(); o = renderer->GetOrigin();
-    ss << "{\"layer\":" << renderer->GetLayer() << ",";     //Render Layer
-    if (renderer->GetLayer() == 0)                          //Render Background
+    int *s, *o;
+    s = renderer->GetSize();
+    o = renderer->GetOrigin();
+    ss << "{\"layer\":" << renderer->GetLayer() << ","; // Render Layer
+    if (renderer->GetLayer() == 0)                      // Render Background
     {
-      double back[3]; renderer->GetBackground(back);
+      double back[3];
+      renderer->GetBackground(back);
       ss << "\"Background1\":[" << back[0] << "," << back[1] << "," << back[2] << "],";
       if (renderer->GetGradientBackground())
       {
@@ -482,13 +518,17 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
         ss << "\"Background2\":[" << back[0] << "," << back[1] << "," << back[2] << "],";
       }
     }
-    ss << "\"LookAt\":[";                                  //Render Camera
-    for (int j=0; j<9; j++) ss << cam[j] << ",";
+    ss << "\"LookAt\":["; // Render Camera
+    for (int j = 0; j < 9; j++)
+      ss << cam[j] << ",";
     ss << cam[9] << "], ";
-    ss << "\"size\": [" << (float)(s[0]/(float)fullSize[0]) << "," << (float)(s[1]/(float)fullSize[1]) << "],";    //Render Size
-    ss << "\"origin\": [" << (float)(o[0]/(float)fullSize[0]) << "," << (float)(o[1]/(float)fullSize[1]) << "]";   //Render Position
+    ss << "\"size\": [" << (float)(s[0] / (float)fullSize[0]) << ","
+       << (float)(s[1] / (float)fullSize[1]) << "],"; // Render Size
+    ss << "\"origin\": [" << (float)(o[0] / (float)fullSize[0]) << ","
+       << (float)(o[1] / (float)fullSize[1]) << "]"; // Render Position
     ss << "}";
-    if (static_cast<int>(i+1) != renderers->GetNumberOfItems()) ss << ", ";
+    if (static_cast<int>(i + 1) != renderers->GetNumberOfItems())
+      ss << ", ";
   }
   ss << "]";
   this->renderersMetaData = ss.str();
@@ -517,7 +557,8 @@ vtkTriangleFilter* vtkWebGLExporter::GetPolyData(vtkMapper* mapper, vtkMTimeType
   }
 
   // Converting to triangles. WebGL only support triangles.
-  if (this->TriangleFilter) this->TriangleFilter->Delete();
+  if (this->TriangleFilter)
+    this->TriangleFilter->Delete();
   this->TriangleFilter = vtkTriangleFilter::New();
   this->TriangleFilter->SetInputData(dataset);
   this->TriangleFilter->Update();
@@ -534,31 +575,34 @@ vtkTriangleFilter* vtkWebGLExporter::GetPolyData(vtkMapper* mapper, vtkMTimeType
 */
 const char* vtkWebGLExporter::GenerateMetadata()
 {
-  double max = std::max(this->SceneSize[0], this->SceneSize[1]); max = std::max(max, this->SceneSize[2]);
+  double max = std::max(this->SceneSize[0], this->SceneSize[1]);
+  max = std::max(max, this->SceneSize[2]);
   std::stringstream ss;
 
   ss << "{\"id\":" << this->SceneId.c_str() << ",";
   ss << "\"MaxSize\":" << max << ",";
   ss << "\"Center\":[";
-  for (int i=0; i<2; i++) ss << this->CenterOfRotation[i] << ", ";
+  for (int i = 0; i < 2; i++)
+    ss << this->CenterOfRotation[i] << ", ";
   ss << this->CenterOfRotation[2] << "],";
 
   ss << this->renderersMetaData << ",";
 
   ss << " \"Objects\":[";
   bool first = true;
-  for (size_t i=0; i<this->Internal->Objects.size(); i++)
+  for (size_t i = 0; i < this->Internal->Objects.size(); i++)
   {
     vtkWebGLObject* obj = this->Internal->Objects[i];
     if (obj->isVisible())
     {
-      if (first) first = false;
-      else ss << ", ";
+      if (first)
+        first = false;
+      else
+        ss << ", ";
       ss << "{\"id\":" << obj->GetId() << ", \"md5\":\"" << obj->GetMD5() << "\""
          << ", \"parts\":" << obj->GetNumberOfParts()
          << ", \"interactAtServer\":" << obj->InteractAtServer()
-         << ", \"transparency\":" << obj->HasTransparency()
-         << ", \"layer\":" << obj->GetLayer()
+         << ", \"transparency\":" << obj->HasTransparency() << ", \"layer\":" << obj->GetLayer()
          << ", \"wireframe\":" << obj->isWireframeMode() << "}";
     }
   }
@@ -570,33 +614,35 @@ const char* vtkWebGLExporter::GenerateMetadata()
 
 const char* vtkWebGLExporter::GenerateExportMetadata()
 {
-  double max = std::max(this->SceneSize[0], this->SceneSize[1]); max = std::max(max, this->SceneSize[2]);
+  double max = std::max(this->SceneSize[0], this->SceneSize[1]);
+  max = std::max(max, this->SceneSize[2]);
   std::stringstream ss;
 
   ss << "{\"id\":" << this->SceneId << ",";
   ss << "\"MaxSize\":" << max << ",";
   ss << "\"Center\":[";
-  for (int i=0; i<2; i++) ss << this->CenterOfRotation[i] << ", ";
+  for (int i = 0; i < 2; i++)
+    ss << this->CenterOfRotation[i] << ", ";
   ss << this->CenterOfRotation[2] << "],";
 
   ss << this->renderersMetaData << ",";
 
   ss << " \"Objects\":[";
   bool first = true;
-  for (size_t i=0; i<this->Internal->Objects.size(); i++)
+  for (size_t i = 0; i < this->Internal->Objects.size(); i++)
   {
     vtkWebGLObject* obj = this->Internal->Objects[i];
     if (obj->isVisible())
     {
-      for(int j=0; j<obj->GetNumberOfParts(); j++)
+      for (int j = 0; j < obj->GetNumberOfParts(); j++)
       {
-        if (first) first = false;
-        else ss << ", ";
+        if (first)
+          first = false;
+        else
+          ss << ", ";
         ss << "{\"id\":" << obj->GetId() << ", \"md5\":\"" << obj->GetMD5() << "\""
-           << ", \"parts\":" << 1
-           << ", \"interactAtServer\":" << obj->InteractAtServer()
-           << ", \"transparency\":" << obj->HasTransparency()
-           << ", \"layer\":" << obj->GetLayer()
+           << ", \"parts\":" << 1 << ", \"interactAtServer\":" << obj->InteractAtServer()
+           << ", \"transparency\":" << obj->HasTransparency() << ", \"layer\":" << obj->GetLayer()
            << ", \"wireframe\":" << obj->isWireframeMode() << "}";
       }
     }
@@ -629,18 +675,25 @@ const char* vtkWebGLExporter::GetId()
 
 bool vtkWebGLExporter::hasChanged()
 {
-  for (size_t i=0; i<this->Internal->Objects.size(); i++) if (this->Internal->Objects[i]->HasChanged()) return true;
+  for (size_t i = 0; i < this->Internal->Objects.size(); i++)
+    if (this->Internal->Objects[i]->HasChanged())
+      return true;
   return false;
 }
 
-void vtkWebGLExporter::exportStaticScene(vtkRendererCollection *renderers, int width, int height, std::string path)
+void vtkWebGLExporter::exportStaticScene(
+  vtkRendererCollection* renderers, int width, int height, std::string path)
 {
   std::stringstream ss;
   ss << width << "," << height;
-  std::string resultHTML = "<html><head></head><body onload='loadStaticScene();' style='margin: 0px; padding: 0px; position: absolute; overflow: hidden; top:0px; left:0px;'>";
-  resultHTML += "<div id='container' onclick='consumeEvent(event);' style='margin: 0px; padding: 0px; position: absolute; overflow: hidden; top:0px; left:0px;'></div></body>\n";
+  std::string resultHTML =
+    "<html><head></head><body onload='loadStaticScene();' style='margin: 0px; padding: 0px; "
+    "position: absolute; overflow: hidden; top:0px; left:0px;'>";
+  resultHTML += "<div id='container' onclick='consumeEvent(event);' style='margin: 0px; padding: "
+                "0px; position: absolute; overflow: hidden; top:0px; left:0px;'></div></body>\n";
   resultHTML += "<script type='text/javascript'> var rendererWebGL = null;";
-  resultHTML += "function reresize(event){ if (rendererWebGL != null) rendererWebGL.setSize(window.innerWidth, window.innerHeight); }";
+  resultHTML += "function reresize(event){ if (rendererWebGL != null) "
+                "rendererWebGL.setSize(window.innerWidth, window.innerHeight); }";
   resultHTML += "function loadStaticScene(){ ";
   resultHTML += "  var objs=[];";
   resultHTML += "  for(i=0; i<object.length; i++){";
@@ -654,23 +707,30 @@ void vtkWebGLExporter::exportStaticScene(vtkRendererCollection *renderers, int w
   resultHTML += "  rendererWebGL.start(metadata, objs);";
   resultHTML += "  window.onresize = reresize;";
   resultHTML += "}\n";
-  resultHTML += "function consumeEvent(event) { if (event.preventDefault) { event.preventDefault();} else { event.returnValue= false;} return false;}";
+  resultHTML += "function consumeEvent(event) { if (event.preventDefault) { "
+                "event.preventDefault();} else { event.returnValue= false;} return false;}";
 
-  resultHTML += "function ntos(n){ n=n.toString(16); if (n.length == 1) n='0'+n; n='%'+n; return unescape(n); }";
+  resultHTML += "function ntos(n){ n=n.toString(16); if (n.length == 1) n='0'+n; n='%'+n; return "
+                "unescape(n); }";
   resultHTML += "var END_OF_INPUT = -1; var base64Chars = new Array(";
-  resultHTML += "'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X',";
-  resultHTML += "'Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',";
+  resultHTML += "'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','"
+                "U','V','W','X',";
+  resultHTML += "'Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','"
+                "s','t','u','v',";
   resultHTML += "'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/');";
   resultHTML += "var base64Str; var base64Count;";
   resultHTML += "var reverseBase64Chars = new Array();";
-  resultHTML += "for (var i=0; i < base64Chars.length; i++){ reverseBase64Chars[base64Chars[i]] = i; }";
+  resultHTML +=
+    "for (var i=0; i < base64Chars.length; i++){ reverseBase64Chars[base64Chars[i]] = i; }";
   resultHTML += "function readReverseBase64(){ if (!base64Str) return END_OF_INPUT;";
   resultHTML += "while (true){ if (base64Count >= base64Str.length) return END_OF_INPUT;";
   resultHTML += "var nextCharacter = base64Str.charAt(base64Count); base64Count++;";
-  resultHTML += "if (reverseBase64Chars[nextCharacter]){ return reverseBase64Chars[nextCharacter]; }";
+  resultHTML +=
+    "if (reverseBase64Chars[nextCharacter]){ return reverseBase64Chars[nextCharacter]; }";
   resultHTML += "if (nextCharacter == 'A') return 0; } return END_OF_INPUT; }";
   resultHTML += "function decode64(str){";
-  resultHTML += "base64Str = str; base64Count = 0; var result = ''; var inBuffer = new Array(4); var done = false;";
+  resultHTML += "base64Str = str; base64Count = 0; var result = ''; var inBuffer = new Array(4); "
+                "var done = false;";
   resultHTML += "while (!done && (inBuffer[0] = readReverseBase64()) != END_OF_INPUT";
   resultHTML += "&& (inBuffer[1] = readReverseBase64()) != END_OF_INPUT){";
   resultHTML += "inBuffer[2] = readReverseBase64();";
@@ -687,10 +747,10 @@ void vtkWebGLExporter::exportStaticScene(vtkRendererCollection *renderers, int w
   vtkBase64Utilities* base64 = vtkBase64Utilities::New();
 
   this->parseScene(renderers, "1234567890", VTK_PARSEALL);
-  const char * metadata = this->GenerateExportMetadata();
+  const char* metadata = this->GenerateExportMetadata();
   resultHTML += "var metadata = '" + std::string(metadata) + "';";
   resultHTML += "var object = [";
-  for(int i=0; i<this->GetNumberOfObjects(); i++)
+  for (int i = 0; i < this->GetNumberOfObjects(); i++)
   {
     std::string test;
     int size = 0;
@@ -698,11 +758,11 @@ void vtkWebGLExporter::exportStaticScene(vtkRendererCollection *renderers, int w
     vtkWebGLObject* obj = this->GetWebGLObject(i);
     if (obj->isVisible())
     {
-      for(int j=0; j<obj->GetNumberOfParts(); j++)
+      for (int j = 0; j < obj->GetNumberOfParts(); j++)
       {
-        unsigned char* output = new unsigned char[obj->GetBinarySize(j)*2];
+        unsigned char* output = new unsigned char[obj->GetBinarySize(j) * 2];
         size = base64->Encode(obj->GetBinaryData(j), obj->GetBinarySize(j), output, false);
-        test = std::string((const char *)output, size);
+        test = std::string((const char*)output, size);
         resultHTML += "'" + test + "',\n";
         delete[] output;
       }
@@ -724,7 +784,7 @@ void vtkWebGLExporter::exportStaticScene(vtkRendererCollection *renderers, int w
 }
 
 //-----------------------------------------------------------------------------
-void vtkWebGLExporter::ComputeMD5(const unsigned char* content, int size, std::string &hash)
+void vtkWebGLExporter::ComputeMD5(const unsigned char* content, int size, std::string& hash)
 {
   unsigned char digest[16];
   char md5Hash[33];

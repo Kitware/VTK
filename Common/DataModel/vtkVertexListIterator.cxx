@@ -45,7 +45,7 @@ vtkVertexListIterator::~vtkVertexListIterator()
 }
 
 //----------------------------------------------------------------------------
-void vtkVertexListIterator::SetGraph(vtkGraph *graph)
+void vtkVertexListIterator::SetGraph(vtkGraph* graph)
 {
   vtkSetObjectBodyMacro(Graph, vtkGraph, graph);
   if (this->Graph)
@@ -55,12 +55,10 @@ void vtkVertexListIterator::SetGraph(vtkGraph *graph)
 
     // For a distributed graph, shift the iteration space to cover
     // local vertices
-    vtkDistributedGraphHelper *helper
-      = this->Graph->GetDistributedGraphHelper();
+    vtkDistributedGraphHelper* helper = this->Graph->GetDistributedGraphHelper();
     if (helper)
     {
-      int myRank
-        = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
+      int myRank = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
       this->Current = helper->MakeDistributedId(myRank, this->Current);
       this->End = helper->MakeDistributedId(myRank, this->End);
     }
@@ -70,7 +68,7 @@ void vtkVertexListIterator::SetGraph(vtkGraph *graph)
 //----------------------------------------------------------------------------
 void vtkVertexListIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Graph: " << (this->Graph ? "" : "(null)") << endl;
   if (this->Graph)
   {

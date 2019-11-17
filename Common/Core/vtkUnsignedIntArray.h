@@ -23,7 +23,7 @@
  * The C++ standard does not define the exact size of the unsigned int type,
  * so use of this type directly is discouraged.  If an array of 32 bit unsigned
  * integers is needed, prefer vtkTypeUInt32Array to this class.
-*/
+ */
 
 #ifndef vtkUnsignedIntArray_h
 #define vtkUnsignedIntArray_h
@@ -49,14 +49,14 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned int);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkUnsignedIntArray* FastDownCast(vtkAbstractArray *source)
+  static vtkUnsignedIntArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkUnsignedIntArray*>(Superclass::FastDownCast(source));
   }
@@ -76,7 +76,6 @@ protected:
   ~vtkUnsignedIntArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<unsigned int> RealSuperclass;
 
   vtkUnsignedIntArray(const vtkUnsignedIntArray&) = delete;

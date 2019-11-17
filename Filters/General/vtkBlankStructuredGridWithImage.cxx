@@ -38,42 +38,38 @@ vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage() = default;
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-void vtkBlankStructuredGridWithImage::SetBlankingInputData(vtkImageData *input)
+void vtkBlankStructuredGridWithImage::SetBlankingInputData(vtkImageData* input)
 {
   this->SetInputData(1, input);
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-vtkImageData *vtkBlankStructuredGridWithImage::GetBlankingInput()
+vtkImageData* vtkBlankStructuredGridWithImage::GetBlankingInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
     return nullptr;
   }
 
-  return vtkImageData::SafeDownCast(
-    this->GetExecutive()->GetInputData(1, 0));
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
 //----------------------------------------------------------------------------
-int vtkBlankStructuredGridWithImage::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkBlankStructuredGridWithImage::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *imageInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* imageInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *image = vtkImageData::SafeDownCast(
-    imageInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid* grid =
+    vtkStructuredGrid::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* image = vtkImageData::SafeDownCast(imageInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid* output =
+    vtkStructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int gridDims[3], imageDims[3];
 
@@ -82,36 +78,33 @@ int vtkBlankStructuredGridWithImage::RequestData(
   // Perform error checking
   grid->GetDimensions(gridDims);
   image->GetDimensions(imageDims);
-  if ( gridDims[0] != imageDims[0] || gridDims[1] != imageDims[1] ||
-       gridDims[2] != imageDims[2] )
+  if (gridDims[0] != imageDims[0] || gridDims[1] != imageDims[1] || gridDims[2] != imageDims[2])
   {
     vtkErrorMacro("Blanking dimensions must be identical with grid dimensions. "
-                  "Blanking dimensions are " << imageDims[0] << " "
-                  << imageDims[1] << " " << imageDims[2]
-                  << ". Grid dimensions are " << gridDims[0] << " "
-                  << gridDims[1] << " " << gridDims[2] << ".");
+                  "Blanking dimensions are "
+      << imageDims[0] << " " << imageDims[1] << " " << imageDims[2] << ". Grid dimensions are "
+      << gridDims[0] << " " << gridDims[1] << " " << gridDims[2] << ".");
     return 1;
   }
 
-  if ( image->GetScalarType() != VTK_UNSIGNED_CHAR ||
-       image->GetNumberOfScalarComponents() != 1 )
+  if (image->GetScalarType() != VTK_UNSIGNED_CHAR || image->GetNumberOfScalarComponents() != 1)
   {
-    vtkErrorMacro(<<"This filter requires unsigned char images with one component");
+    vtkErrorMacro(<< "This filter requires unsigned char images with one component");
     return 1;
   }
 
   // Get the image, set it as the blanking array.
-  unsigned char *data = static_cast<unsigned char *>(image->GetScalarPointer());
-  vtkUnsignedCharArray *visibility = vtkUnsignedCharArray::New();
+  unsigned char* data = static_cast<unsigned char*>(image->GetScalarPointer());
+  vtkUnsignedCharArray* visibility = vtkUnsignedCharArray::New();
   const vtkIdType numberOfValues = gridDims[0] * gridDims[1] * gridDims[2];
   visibility->SetArray(data, numberOfValues, 1);
-  vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::New();
   ghosts->SetNumberOfValues(numberOfValues);
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
-  for(vtkIdType ptId = 0; ptId < numberOfValues; ++ptId)
+  for (vtkIdType ptId = 0; ptId < numberOfValues; ++ptId)
   {
     unsigned char value = 0;
-    if(visibility->GetValue(ptId) == 0)
+    if (visibility->GetValue(ptId) == 0)
     {
       value |= vtkDataSetAttributes::HIDDENPOINT;
     }
@@ -128,8 +121,7 @@ int vtkBlankStructuredGridWithImage::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkBlankStructuredGridWithImage::FillInputPortInformation(
-  int port, vtkInformation *info)
+int vtkBlankStructuredGridWithImage::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -142,5 +134,5 @@ int vtkBlankStructuredGridWithImage::FillInputPortInformation(
 //----------------------------------------------------------------------------
 void vtkBlankStructuredGridWithImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

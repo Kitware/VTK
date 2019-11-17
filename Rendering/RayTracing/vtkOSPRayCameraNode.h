@@ -17,7 +17,7 @@
  * @brief   links vtkCamera to OSPRay
  *
  * Translates vtkCamera state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayCameraNode_h
 #define vtkOSPRayCameraNode_h
@@ -28,8 +28,7 @@
 class vtkInformationIntegerKey;
 class vtkCamera;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCameraNode :
-  public vtkCameraNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayCameraNode : public vtkCameraNode
 {
 public:
   static vtkOSPRayCameraNode* New();

@@ -53,7 +53,7 @@
  *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
  * </pre>
  *
-*/
+ */
 
 #ifndef vtkAffineWidget_h
 #define vtkAffineWidget_h
@@ -63,20 +63,19 @@
 
 class vtkAffineRepresentation;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkAffineWidget : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate this class.
    */
-  static vtkAffineWidget *New();
+  static vtkAffineWidget* New();
 
   //@{
   /**
    * Standard VTK class macros.
    */
-  vtkTypeMacro(vtkAffineWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkAffineWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -85,14 +84,18 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkAffineRepresentation *r)
-    {this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkAffineRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Return the representation as a vtkAffineRepresentation.
    */
-  vtkAffineRepresentation *GetAffineRepresentation()
-    {return reinterpret_cast<vtkAffineRepresentation*>(this->WidgetRep);}
+  vtkAffineRepresentation* GetAffineRepresentation()
+  {
+    return reinterpret_cast<vtkAffineRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -123,7 +126,7 @@ protected:
   int WidgetState;
   enum _WidgetState
   {
-    Start=0,
+    Start = 0,
     Active
   };
 

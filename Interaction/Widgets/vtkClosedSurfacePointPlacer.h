@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkParallelopipedRepresentation
-*/
+ */
 
 #ifndef vtkClosedSurfacePointPlacer_h
 #define vtkClosedSurfacePointPlacer_h
@@ -42,13 +42,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkClosedSurfacePointPlacer *New();
+  static vtkClosedSurfacePointPlacer* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkClosedSurfacePointPlacer,vtkPointPlacer);
+  vtkTypeMacro(vtkClosedSurfacePointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -61,12 +61,12 @@ public:
    * bounding a point to an oblique reliced image that has hexagonal shape)
    * than a simple extent.
    */
-  void AddBoundingPlane(vtkPlane *plane);
-  void RemoveBoundingPlane(vtkPlane *plane);
+  void AddBoundingPlane(vtkPlane* plane);
+  void RemoveBoundingPlane(vtkPlane* plane);
   void RemoveAllBoundingPlanes();
   virtual void SetBoundingPlanes(vtkPlaneCollection*);
-  vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
-  void SetBoundingPlanes(vtkPlanes *planes);
+  vtkGetObjectMacro(BoundingPlanes, vtkPlaneCollection);
+  void SetBoundingPlanes(vtkPlanes* planes);
   //@}
 
   /**
@@ -83,10 +83,8 @@ public:
    * returned to indicate a valid return position and
    * orientation.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2],
-                            double worldPos[3],
-                            double worldOrient[9] ) override;
+  int ComputeWorldPosition(
+    vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Given a renderer, a display position and a reference position, "worldPos"
@@ -99,30 +97,26 @@ public:
    * NOTE: Note that a set of bounding planes must be supplied. The Oblique
    * plane, if supplied is ignored.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                            double displayPos[2],
-                            double refWorldPos[2],
-                            double worldPos[3],
-                            double worldOrient[9] ) override;
+  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[2],
+    double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Give a world position check if it is valid - does
    * it lie on the plane and within the bounds? Returns
    * 1 if it is valid, 0 otherwise.
    */
-  int ValidateWorldPosition( double worldPos[3] ) override;
+  int ValidateWorldPosition(double worldPos[3]) override;
 
   // Descrption:
   // Orientationation is ignored, and the above method
   // is called instead.
-  int ValidateWorldPosition( double worldPos[3],
-                             double worldOrient[9]) override;
+  int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
   // Descrption:
   // The minimum distance the object should be from the faces of the object.
   // Must be greater than 0. Default is 0.
-  vtkSetClampMacro( MinimumDistance, double, 0.0, VTK_DOUBLE_MAX );
-  vtkGetMacro( MinimumDistance, double );
+  vtkSetClampMacro(MinimumDistance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(MinimumDistance, double);
 
 protected:
   vtkClosedSurfacePointPlacer();
@@ -130,19 +124,17 @@ protected:
 
   // A collection of planes used to bound the projection
   // plane
-  vtkPlaneCollection *BoundingPlanes;
+  vtkPlaneCollection* BoundingPlanes;
 
   // Calculate the distance of a point from the Object. Negative
   // values imply that the point is outside. Positive values imply that it is
   // inside. The closest point to the object is returned in closestPt.
-  static double GetDistanceFromObject( double               pos[3],
-                                       vtkPlaneCollection * pc,
-                                       double               closestPt[3]);
+  static double GetDistanceFromObject(double pos[3], vtkPlaneCollection* pc, double closestPt[3]);
 
   void BuildPlanes();
 
-  double               MinimumDistance;
-  vtkPlaneCollection * InnerBoundingPlanes;
+  double MinimumDistance;
+  vtkPlaneCollection* InnerBoundingPlanes;
 
 private:
   vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&) = delete;

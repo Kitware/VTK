@@ -30,13 +30,12 @@ class vtkExtentTranslator;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkMinimalStandardRandomSequence;
 
-class VTKFILTERSSOURCES_EXPORT vtkRandomHyperTreeGridSource
-    : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkRandomHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
 public:
   static vtkRandomHyperTreeGridSource* New();
   vtkTypeMacro(vtkRandomHyperTreeGridSource, vtkHyperTreeGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The Dimensions of the output vtkHyperTreeGrid.
@@ -86,20 +85,18 @@ protected:
   vtkRandomHyperTreeGridSource();
   ~vtkRandomHyperTreeGridSource() override;
 
-  int RequestInformation(vtkInformation *req,
-                         vtkInformationVector **inInfo,
-                         vtkInformationVector *outInfo) override;
+  int RequestInformation(
+    vtkInformation* req, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  int RequestData(vtkInformation *req,
-                  vtkInformationVector **inInfo,
-                  vtkInformationVector *outInfo) override;
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
   // We just do the work in RequestData.
-  int ProcessTrees(vtkHyperTreeGrid *, vtkDataObject *) final { return 1; }
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) final { return 1; }
 
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  void SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor *cursor, vtkIdType treeId);
+  void SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId);
 
   bool ShouldRefine(vtkIdType level);
 
@@ -115,7 +112,7 @@ private:
 
   vtkNew<vtkMinimalStandardRandomSequence> RNG;
   vtkNew<vtkExtentTranslator> ExtentTranslator;
-  vtkDoubleArray *Levels;
+  vtkDoubleArray* Levels;
 };
 
 #endif // vtkRandomHyperTreeGridSource_h

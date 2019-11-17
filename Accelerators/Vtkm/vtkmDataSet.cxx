@@ -43,8 +43,8 @@
 namespace
 {
 
-using SupportedCellSets = vtkm::ListTagJoin<vtkmInputFilterPolicy::AllCellSetList,
-                                            vtkmOutputFilterPolicy::AllCellSetList>;
+using SupportedCellSets =
+  vtkm::ListTagJoin<vtkmInputFilterPolicy::AllCellSetList, vtkmOutputFilterPolicy::AllCellSetList>;
 
 template <typename LocatorControl>
 struct VtkmLocator
@@ -103,7 +103,7 @@ vtkm::cont::DataSet vtkmDataSet::GetVtkmDataSet() const
 }
 
 //----------------------------------------------------------------------------
-void vtkmDataSet::CopyStructure(vtkDataSet *ds)
+void vtkmDataSet::CopyStructure(vtkDataSet* ds)
 {
   auto vtkmds = vtkmDataSet::SafeDownCast(ds);
   if (vtkmds)
@@ -121,7 +121,7 @@ vtkIdType vtkmDataSet::GetNumberOfPoints()
 
 vtkIdType vtkmDataSet::GetNumberOfCells()
 {
-  auto *csBase = this->Internals->CellSet.GetCellSetBase();
+  auto* csBase = this->Internals->CellSet.GetCellSetBase();
   return csBase ? csBase->GetNumberOfCells() : 0;
 }
 
@@ -166,11 +166,13 @@ void vtkmDataSet::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 
 void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  if (this->Internals->Coordinates.GetData().IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>() &&
-      this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3>>())
+  if (this->Internals->Coordinates.GetData()
+        .IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>() &&
+    this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3> >())
   {
     auto portal = this->Internals->Coordinates.GetData()
-                  .Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>().GetPortalConstControl();
+                    .Cast<vtkm::cont::ArrayHandleUniformPointCoordinates>()
+                    .GetPortalConstControl();
 
     vtkm::internal::ConnectivityStructuredInternals<3> helper;
     helper.SetPointDimensions(portal.GetDimensions());
@@ -179,8 +181,8 @@ void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
     auto max = min + portal.GetSpacing();
     for (int i = 0; i < 3; ++i)
     {
-      bounds[2*i] = min[i];
-      bounds[2*i + 1] = max[i];
+      bounds[2 * i] = min[i];
+      bounds[2 * i + 1] = max[i];
     }
   }
   else
@@ -191,7 +193,7 @@ void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
 
 int vtkmDataSet::GetCellType(vtkIdType cellId)
 {
-  auto *csBase = this->Internals->CellSet.GetCellSetBase();
+  auto* csBase = this->Internals->CellSet.GetCellSetBase();
   if (csBase)
   {
     return csBase->GetCellShape(cellId);
@@ -199,7 +201,7 @@ int vtkmDataSet::GetCellType(vtkIdType cellId)
   return VTK_EMPTY_CELL;
 }
 
-void vtkmDataSet::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
+void vtkmDataSet::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 {
   auto* csBase = this->Internals->CellSet.GetCellSetBase();
   if (csBase)
@@ -215,7 +217,7 @@ namespace
 
 struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
 {
-  using ControlSignature = void (CellSetIn);
+  using ControlSignature = void(CellSetIn);
   using ExecutionSignature = void(CellCount, CellIndices, Device);
   using ScatterType = vtkm::worklet::ScatterPermutation<>;
 
@@ -225,7 +227,9 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
   }
 
   template <typename IndicesVecType>
-  VTKM_EXEC void operator()(vtkm::Id, IndicesVecType, vtkm::cont::DeviceAdapterTagCuda) const {}
+  VTKM_EXEC void operator()(vtkm::Id, IndicesVecType, vtkm::cont::DeviceAdapterTagCuda) const
+  {
+  }
 
   VTKM_SUPPRESS_EXEC_WARNINGS
   template <typename IndicesVecType, typename Device>
@@ -243,18 +247,17 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
 
 } // anonymous namespace
 
-void vtkmDataSet::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
+void vtkmDataSet::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
   auto scatter = WorkletGetPointCells::ScatterType(vtkm::cont::make_ArrayHandle(&ptId, 1));
   vtkm::cont::Invoker invoke(vtkm::cont::DeviceAdapterTagSerial{});
-  invoke(WorkletGetPointCells{cellIds},
-         scatter,
-         this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}));
+  invoke(WorkletGetPointCells{ cellIds }, scatter,
+    this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}));
 }
 
 vtkIdType vtkmDataSet::FindPoint(double x[3])
 {
-  auto &locator = this->Internals->PointLocator;
+  auto& locator = this->Internals->PointLocator;
   // critical section
   {
     std::lock_guard<std::mutex> lock(locator.lock);
@@ -277,18 +280,18 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
 }
 
 // non thread-safe version
-vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkIdType, double, int& subId,
-                                double pcoords[3], double *weights)
+vtkIdType vtkmDataSet::FindCell(
+  double x[3], vtkCell*, vtkIdType, double, int& subId, double pcoords[3], double* weights)
 {
   // just call the thread-safe version
   return this->FindCell(x, nullptr, nullptr, -1, 0.0, subId, pcoords, weights);
 }
 
 // thread-safe version
-vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdType,
-                                double, int& subId, double pcoords[3], double *weights)
+vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdType, double,
+  int& subId, double pcoords[3], double* weights)
 {
-  auto &locator = this->Internals->CellLocator;
+  auto& locator = this->Internals->CellLocator;
   // critical section
   {
     std::lock_guard<std::mutex> lock(locator.lock);
@@ -357,7 +360,8 @@ namespace
 struct MaxCellSize
 {
   template <vtkm::IdComponent DIM>
-  void operator()(const vtkm::cont::CellSetStructured<DIM>& cellset, vtkm::IdComponent& result) const
+  void operator()(
+    const vtkm::cont::CellSetStructured<DIM>& cellset, vtkm::IdComponent& result) const
   {
     result = cellset.GetNumberOfPointsInCell(0);
   }
@@ -369,10 +373,12 @@ struct MaxCellSize
   }
 
   template <typename S1, typename S2, typename S3>
-  void operator()(const vtkm::cont::CellSetExplicit<S1, S2, S3>& cellset, vtkm::IdComponent& result) const
+  void operator()(
+    const vtkm::cont::CellSetExplicit<S1, S2, S3>& cellset, vtkm::IdComponent& result) const
   {
-    auto counts = cellset.GetNumIndicesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
-    result = vtkm::cont::Algorithm::Reduce(counts, vtkm::IdComponent{0}, vtkm::Maximum{});
+    auto counts =
+      cellset.GetNumIndicesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    result = vtkm::cont::Algorithm::Reduce(counts, vtkm::IdComponent{ 0 }, vtkm::Maximum{});
   }
 
   template <typename CellSetType>
@@ -391,7 +397,8 @@ struct MaxCellSize
 int vtkmDataSet::GetMaxCellSize()
 {
   vtkm::IdComponent result = 0;
-  vtkm::cont::CastAndCall(this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}), MaxCellSize{}, result);
+  vtkm::cont::CastAndCall(
+    this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}), MaxCellSize{}, result);
   return result;
 }
 
@@ -400,7 +407,7 @@ unsigned long vtkmDataSet::GetActualMemorySize()
   return this->Superclass::GetActualMemorySize();
 }
 
-void vtkmDataSet::ShallowCopy(vtkDataObject *src)
+void vtkmDataSet::ShallowCopy(vtkDataObject* src)
 {
   auto obj = vtkmDataSet::SafeDownCast(src);
   if (obj)
@@ -410,7 +417,7 @@ void vtkmDataSet::ShallowCopy(vtkDataObject *src)
   }
 }
 
-void vtkmDataSet::DeepCopy(vtkDataObject *src)
+void vtkmDataSet::DeepCopy(vtkDataObject* src)
 {
   auto other = vtkmDataSet::SafeDownCast(src);
   if (other)

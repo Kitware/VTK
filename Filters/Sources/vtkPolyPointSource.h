@@ -18,7 +18,7 @@
  *
  * vtkPolyPointSource is a source object that creates a vert from
  * user-specified points. The output is a vtkPolyData.
-*/
+ */
 
 #ifndef vtkPolyPointSource_h
 #define vtkPolyPointSource_h
@@ -70,7 +70,7 @@ protected:
   vtkPolyPointSource();
   ~vtkPolyPointSource() override;
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkPoints* Points;
 

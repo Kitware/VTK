@@ -25,7 +25,7 @@
  * vtkColorTransferControlPointsItem
  * vtkCompositeTransferFunctionItem
  * vtkPiecewisePointHandleItem
-*/
+ */
 
 #ifndef vtkCompositeControlPointsItem_h
 #define vtkCompositeControlPointsItem_h
@@ -36,12 +36,11 @@
 class vtkPiecewiseFunction;
 class vtkPiecewisePointHandleItem;
 
-class VTKCHARTSCORE_EXPORT vtkCompositeControlPointsItem:
-  public vtkColorTransferControlPointsItem
+class VTKCHARTSCORE_EXPORT vtkCompositeControlPointsItem : public vtkColorTransferControlPointsItem
 {
 public:
   vtkTypeMacro(vtkCompositeControlPointsItem, vtkColorTransferControlPointsItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a piecewise control points object
@@ -61,7 +60,8 @@ public:
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);
   //@}
 
-  enum PointsFunctionType{
+  enum PointsFunctionType
+  {
     ColorPointsFunction = 1,
     OpacityPointsFunction = 2,
     ColorAndOpacityPointsFunction = 3
@@ -113,9 +113,9 @@ public:
   /**
    * Mouse move event. To take care of some special Key stroke
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse) override;
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent& mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
   //@}
 
 protected:
@@ -126,24 +126,24 @@ protected:
 
   vtkMTimeType GetControlPointsMTime() override;
 
-  vtkIdType GetNumberOfPoints()const override;
+  vtkIdType GetNumberOfPoints() const override;
   void DrawPoint(vtkContext2D* painter, vtkIdType index) override;
-  void GetControlPoint(vtkIdType index, double* pos)const override;
-  void SetControlPoint(vtkIdType index, double *point) override;
+  void GetControlPoint(vtkIdType index, double* pos) const override;
+  void SetControlPoint(vtkIdType index, double* point) override;
   void EditPoint(float tX, float tY) override;
   virtual void EditPointCurve(vtkIdType idx);
 
   void MergeTransferFunctions();
   void SilentMergeTransferFunctions();
 
-  int                   PointsFunction;
+  int PointsFunction;
   vtkPiecewiseFunction* OpacityFunction;
   vtkPiecewisePointHandleItem* OpacityPointHandle;
   bool UseOpacityPointHandles;
 
 private:
-  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) = delete;
-  void operator=(const vtkCompositeControlPointsItem &) = delete;
+  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem&) = delete;
+  void operator=(const vtkCompositeControlPointsItem&) = delete;
 };
 
 #endif

@@ -44,8 +44,7 @@
 
 //--------------------------------------------------------------------
 PyVTKSpecialType::PyVTKSpecialType(
-    PyTypeObject *typeobj, PyMethodDef *cmethods, PyMethodDef *ccons,
-    vtkcopyfunc copyfunc)
+  PyTypeObject* typeobj, PyMethodDef* cmethods, PyMethodDef* ccons, vtkcopyfunc copyfunc)
 {
   this->py_type = typeobj;
   this->vtk_methods = cmethods;
@@ -57,11 +56,11 @@ PyVTKSpecialType::PyVTKSpecialType(
 // Object protocol
 
 //--------------------------------------------------------------------
-PyObject *PyVTKSpecialObject_Repr(PyObject *self)
+PyObject* PyVTKSpecialObject_Repr(PyObject* self)
 {
-  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
-  PyTypeObject *type = Py_TYPE(self);
-  const char *name = Py_TYPE(self)->tp_name;
+  PyVTKSpecialObject* obj = (PyVTKSpecialObject*)self;
+  PyTypeObject* type = Py_TYPE(self);
+  const char* name = Py_TYPE(self)->tp_name;
 
   while (type->tp_base && !type->tp_str)
   {
@@ -69,10 +68,10 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
   }
 
   // use str() if available
-  PyObject *s = nullptr;
+  PyObject* s = nullptr;
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
   {
-    PyObject *t = type->tp_str(self);
+    PyObject* t = type->tp_str(self);
     if (t == nullptr)
     {
       Py_XDECREF(s);
@@ -97,16 +96,15 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
 }
 
 //--------------------------------------------------------------------
-PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
+PyObject* PyVTKSpecialObject_SequenceString(PyObject* self)
 {
   Py_ssize_t n, i;
-  PyObject *s = nullptr;
+  PyObject* s = nullptr;
   PyObject *t, *o, *comma;
-  const char *bracket = "[...]";
+  const char* bracket = "[...]";
 
-  if (Py_TYPE(self)->tp_as_sequence &&
-      Py_TYPE(self)->tp_as_sequence->sq_item != nullptr &&
-      Py_TYPE(self)->tp_as_sequence->sq_ass_item == nullptr)
+  if (Py_TYPE(self)->tp_as_sequence && Py_TYPE(self)->tp_as_sequence->sq_item != nullptr &&
+    Py_TYPE(self)->tp_as_sequence->sq_ass_item == nullptr)
   {
     bracket = "(...)";
   }
@@ -132,7 +130,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
       if (i > 0)
       {
 #ifdef VTK_PY3K
-        PyObject *tmp = PyUnicode_Concat(s, comma);
+        PyObject* tmp = PyUnicode_Concat(s, comma);
         Py_DECREF(s);
         s = tmp;
 #else
@@ -149,7 +147,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
       if (t)
       {
 #ifdef VTK_PY3K
-        PyObject *tmp = PyUnicode_Concat(s, t);
+        PyObject* tmp = PyUnicode_Concat(s, t);
         Py_DECREF(s);
         Py_DECREF(t);
         s = tmp;
@@ -168,14 +166,13 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
     if (s)
     {
 #ifdef VTK_PY3K
-      PyObject *tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
-      PyObject *tmp2 = PyUnicode_Concat(s, tmp1);
+      PyObject* tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
+      PyObject* tmp2 = PyUnicode_Concat(s, tmp1);
       Py_DECREF(s);
       Py_DECREF(tmp1);
       s = tmp2;
 #else
-      PyString_ConcatAndDel(&s,
-        PyString_FromStringAndSize(&bracket[4], 1));
+      PyString_ConcatAndDel(&s, PyString_FromStringAndSize(&bracket[4], 1));
 #endif
     }
 
@@ -192,60 +189,55 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 
 //--------------------------------------------------------------------
 // Create a new python object from the pointer to a C++ object
-PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
+PyObject* PyVTKSpecialObject_New(const char* classname, void* ptr)
 {
   // would be nice if "info" could be passed instead if "classname",
   // but this way of doing things is more dynamic if less efficient
-  PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+  PyVTKSpecialType* info = vtkPythonUtil::FindSpecialType(classname);
 
-  PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
+  PyVTKSpecialObject* self = PyObject_New(PyVTKSpecialObject, info->py_type);
 
   self->vtk_info = info;
   self->vtk_ptr = ptr;
   self->vtk_hash = -1;
 
-  return (PyObject *)self;
+  return (PyObject*)self;
 }
 
 //--------------------------------------------------------------------
 // Create a new python object via the copy constructor of the C++ object
-PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
+PyObject* PyVTKSpecialObject_CopyNew(const char* classname, const void* ptr)
 {
-  PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+  PyVTKSpecialType* info = vtkPythonUtil::FindSpecialType(classname);
 
   if (info == nullptr)
   {
-    return PyErr_Format(PyExc_ValueError,
-                        "cannot create object of unknown type \"%s\"",
-                        classname);
+    return PyErr_Format(PyExc_ValueError, "cannot create object of unknown type \"%s\"", classname);
   }
   else if (info->vtk_copy == nullptr)
   {
-    return PyErr_Format(PyExc_ValueError,
-                        "no copy constructor for object of type \"%s\"",
-                        classname);
+    return PyErr_Format(
+      PyExc_ValueError, "no copy constructor for object of type \"%s\"", classname);
   }
 
-  PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
+  PyVTKSpecialObject* self = PyObject_New(PyVTKSpecialObject, info->py_type);
 
   self->vtk_info = info;
   self->vtk_ptr = info->vtk_copy(ptr);
   self->vtk_hash = -1;
 
-  return (PyObject *)self;
+  return (PyObject*)self;
 }
 
 //--------------------------------------------------------------------
 // Add a special type, add methods and members to its type object.
 // A return value of nullptr signifies that it was already added.
-PyTypeObject *PyVTKSpecialType_Add(PyTypeObject *pytype,
-  PyMethodDef *methods, PyMethodDef *constructors,
-  vtkcopyfunc copyfunc)
+PyTypeObject* PyVTKSpecialType_Add(
+  PyTypeObject* pytype, PyMethodDef* methods, PyMethodDef* constructors, vtkcopyfunc copyfunc)
 {
   // Check whether the type is already in the map (use classname as key),
   // and return it if so.  If not, then add it to the map.
-  pytype = vtkPythonUtil::AddSpecialTypeToMap(
-      pytype, methods, constructors, copyfunc);
+  pytype = vtkPythonUtil::AddSpecialTypeToMap(pytype, methods, constructors, copyfunc);
 
   // If type object already has a dict, we're done
   if (pytype->tp_dict)
@@ -257,9 +249,9 @@ PyTypeObject *PyVTKSpecialType_Add(PyTypeObject *pytype,
   pytype->tp_dict = PyDict_New();
 
   // Add all of the methods
-  for (PyMethodDef *meth = methods; meth && meth->ml_name; meth++)
+  for (PyMethodDef* meth = methods; meth && meth->ml_name; meth++)
   {
-    PyObject *func = PyVTKMethodDescriptor_New(pytype, meth);
+    PyObject* func = PyVTKMethodDescriptor_New(pytype, meth);
     PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
     Py_DECREF(func);
   }

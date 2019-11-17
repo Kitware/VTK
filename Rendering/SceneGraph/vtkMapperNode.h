@@ -17,7 +17,7 @@
  * @brief   vtkViewNode specialized for vtkMappers
  *
  * State storage and graph traversal for vtkMapper
-*/
+ */
 
 #ifndef vtkMapperNode_h
 #define vtkMapperNode_h
@@ -32,8 +32,7 @@ class vtkDataSet;
 class vtkMapper;
 class vtkPolyData;
 
-class VTKRENDERINGSCENEGRAPH_EXPORT vtkMapperNode :
-  public vtkViewNode
+class VTKRENDERINGSCENEGRAPH_EXPORT vtkMapperNode : public vtkViewNode
 {
 public:
   static vtkMapperNode* New();
@@ -44,8 +43,7 @@ protected:
   vtkMapperNode();
   ~vtkMapperNode();
 
-  vtkAbstractArray *GetArrayToProcess
-    (vtkDataSet* input, int& association);
+  vtkAbstractArray* GetArrayToProcess(vtkDataSet* input, int& association);
 
 private:
   vtkMapperNode(const vtkMapperNode&) = delete;

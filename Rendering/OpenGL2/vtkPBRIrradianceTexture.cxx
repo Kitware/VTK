@@ -50,7 +50,7 @@ void vtkPBRIrradianceTexture::PrintSelf(ostream& os, vtkIndent indent)
 
 // ---------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
-void vtkPBRIrradianceTexture::ReleaseGraphicsResources(vtkWindow *win)
+void vtkPBRIrradianceTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (this->InputCubeMap)
   {

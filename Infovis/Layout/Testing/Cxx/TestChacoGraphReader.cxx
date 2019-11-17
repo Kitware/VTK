@@ -31,13 +31,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestChacoGraphReader(int argc, char* argv[])
 {
-  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                    "Data/Infovis/small.graph");
+  char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/small.graph");
   VTK_CREATE(vtkChacoGraphReader, reader);
   reader->SetFileName(file);
   delete[] file;

@@ -23,23 +23,23 @@
 class vtkSliderCallback : public vtkCommand
 {
 public:
-  static vtkSliderCallback *New()
+  static vtkSliderCallback* New() { return new vtkSliderCallback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    return new vtkSliderCallback;
-  }
-  void Execute(vtkObject *caller, unsigned long, void*) override
-  {
-    vtkSliderWidget *sliderWidget =
-      reinterpret_cast<vtkSliderWidget*>(caller);
-    int value = static_cast<int>(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
-    this->SphereSource->SetPhiResolution(value/2);
+    vtkSliderWidget* sliderWidget = reinterpret_cast<vtkSliderWidget*>(caller);
+    int value = static_cast<int>(
+      static_cast<vtkSliderRepresentation*>(sliderWidget->GetRepresentation())->GetValue());
+    this->SphereSource->SetPhiResolution(value / 2);
     this->SphereSource->SetThetaResolution(value);
   }
-  vtkSliderCallback():SphereSource(nullptr) {}
-  vtkSphereSource *SphereSource;
+  vtkSliderCallback()
+    : SphereSource(nullptr)
+  {
+  }
+  vtkSphereSource* SphereSource;
 };
 
-int main (int, char *[])
+int main(int, char*[])
 {
   // A sphere
   vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
@@ -61,7 +61,8 @@ int main (int, char *[])
   renderWindow->AddRenderer(renderer);
 
   // An interactor
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   // Add the actors to the scene
@@ -70,15 +71,16 @@ int main (int, char *[])
   // Render an image (lights and cameras are created automatically)
   renderWindow->Render();
 
-  vtkSmartPointer<vtkSliderRepresentation3D> sliderRep = vtkSmartPointer<vtkSliderRepresentation3D>::New();
+  vtkSmartPointer<vtkSliderRepresentation3D> sliderRep =
+    vtkSmartPointer<vtkSliderRepresentation3D>::New();
   sliderRep->SetMinimumValue(3.0);
   sliderRep->SetMaximumValue(50.0);
   sliderRep->SetValue(sphereSource->GetThetaResolution());
   sliderRep->SetTitleText("Sphere Resolution");
   sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
-  sliderRep->GetPoint1Coordinate()->SetValue(-4,6,0);
+  sliderRep->GetPoint1Coordinate()->SetValue(-4, 6, 0);
   sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
-  sliderRep->GetPoint2Coordinate()->SetValue(4,6,0);
+  sliderRep->GetPoint2Coordinate()->SetValue(4, 6, 0);
   sliderRep->SetSliderLength(0.075);
   sliderRep->SetSliderWidth(0.05);
   sliderRep->SetEndCapLength(0.05);
@@ -92,7 +94,7 @@ int main (int, char *[])
   vtkSmartPointer<vtkSliderCallback> callback = vtkSmartPointer<vtkSliderCallback>::New();
   callback->SphereSource = sphereSource;
 
-  sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
+  sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
   renderWindowInteractor->Initialize();
   renderWindow->Render();

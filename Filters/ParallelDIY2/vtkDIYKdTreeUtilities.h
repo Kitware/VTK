@@ -98,9 +98,8 @@ public:
    * the dataset is being split based on the cuts provided. This simplifies the
    * implementation and reduces communication.
    */
-  static bool GenerateGlobalCellIds(
-    vtkPartitionedDataSet* parts, vtkMultiProcessController* controller,
-    vtkIdType* mb_offset = nullptr);
+  static bool GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
+    vtkMultiProcessController* controller, vtkIdType* mb_offset = nullptr);
 
 protected:
   vtkDIYKdTreeUtilities();

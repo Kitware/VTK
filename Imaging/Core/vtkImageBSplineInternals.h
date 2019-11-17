@@ -31,7 +31,7 @@
  * [2] D. Ruijters, P. Thevenaz,
  *     "GPU Prefilter for Accurate Cubic B-spline Interpolation,"
  *     The Computer Journal, doi: 10.1093/comjnl/bxq086, 2010.
-*/
+ */
 
 #ifndef vtkImageBSplineInternals_h
 #define vtkImageBSplineInternals_h
@@ -47,24 +47,21 @@ public:
    * Returns zero if an illegal degree is given (allowed range 2 to 9).
    * The parameter numPoles will be set to a value between 1 and 4.
    */
-  static int GetPoleValues(double poles[4], long &numPoles, long degree);
+  static int GetPoleValues(double poles[4], long& numPoles, long degree);
 
   /**
    * Internal method.  Compute the coefficients for one row of data.
    */
-  static void ConvertToInterpolationCoefficients(
-    double data[], long size, long border, double poles[4], long numPoles,
-    double tol) VTK_SIZEHINT(data, size);
+  static void ConvertToInterpolationCoefficients(double data[], long size, long border,
+    double poles[4], long numPoles, double tol) VTK_SIZEHINT(data, size);
 
   //@{
   /**
    * Internal method.  Get interpolation weights for offset w, where
    * w is between 0 and 1.  You must provide the degree of the spline.
    */
-  static int GetInterpolationWeights(
-    double weights[10], double w, long degree);
-  static int GetInterpolationWeights(
-    float weights[10], double w, long degree);
+  static int GetInterpolationWeights(double weights[10], double w, long degree);
+  static int GetInterpolationWeights(float weights[10], double w, long degree);
   //@}
 
   //@{
@@ -72,14 +69,10 @@ public:
    * Internal method.  Interpolate a value from the supplied 3D array
    * of coefficients with dimensions width x height x slices.
    */
-  static int InterpolatedValue(
-    const double *coeffs, double *value,
-    long width, long height, long slices, long depth,
-    double x, double y, double z, long degree, long border);
-  static int InterpolatedValue(
-    const float *coeffs, float *value,
-    long width, long height, long slices, long depth,
-    double x, double y, double z, long degree, long border);
+  static int InterpolatedValue(const double* coeffs, double* value, long width, long height,
+    long slices, long depth, double x, double y, double z, long degree, long border);
+  static int InterpolatedValue(const float* coeffs, float* value, long width, long height,
+    long slices, long depth, double x, double y, double z, long degree, long border);
   //@}
 
 protected:

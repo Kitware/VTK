@@ -44,7 +44,7 @@ vtkUnicodeStringArray::~vtkUnicodeStringArray()
 
 void vtkUnicodeStringArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 vtkTypeBool vtkUnicodeStringArray::Allocate(vtkIdType sz, vtkIdType)
@@ -84,7 +84,7 @@ void vtkUnicodeStringArray::SetNumberOfTuples(vtkIdType number)
 void vtkUnicodeStringArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
-  if(!array)
+  if (!array)
   {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
@@ -97,25 +97,24 @@ void vtkUnicodeStringArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray*
 void vtkUnicodeStringArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
-  if(!array)
+  if (!array)
   {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
   }
 
-  if(static_cast<vtkIdType>(this->Internal->Storage.size()) <= i)
+  if (static_cast<vtkIdType>(this->Internal->Storage.size()) <= i)
     this->Internal->Storage.resize(i + 1);
 
   this->Internal->Storage[i] = array->Internal->Storage[j];
   this->DataChanged();
 }
 
-void vtkUnicodeStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                                         vtkAbstractArray *source)
+void vtkUnicodeStringArray::InsertTuples(
+  vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source)
 {
-  vtkUnicodeStringArray* const array =
-      vtkArrayDownCast<vtkUnicodeStringArray>(source);
-  if(!array)
+  vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
+  if (!array)
   {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
@@ -144,22 +143,21 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
   for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
   {
     this->Internal->Storage[dstIds->GetId(idIndex)] =
-        array->Internal->Storage[srcIds->GetId(idIndex)];
+      array->Internal->Storage[srcIds->GetId(idIndex)];
   }
 
   this->DataChanged();
 }
 
 //------------------------------------------------------------------------------
-void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
-                                         vtkIdType srcStart,
-                                         vtkAbstractArray *source)
+void vtkUnicodeStringArray::InsertTuples(
+  vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* sa = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if (!sa)
   {
     vtkWarningMacro("Input and outputs array data types do not match.");
-    return ;
+    return;
   }
 
   if (this->NumberOfComponents != source->GetNumberOfComponents())
@@ -171,9 +169,8 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
   vtkIdType srcEnd = srcStart + n;
   if (srcEnd > source->GetNumberOfTuples())
   {
-    vtkWarningMacro("Source range exceeds array size (srcStart=" << srcStart
-                    << ", n=" << n << ", numTuples="
-                    << source->GetNumberOfTuples() << ").");
+    vtkWarningMacro("Source range exceeds array size (srcStart="
+      << srcStart << ", n=" << n << ", numTuples=" << source->GetNumberOfTuples() << ").");
     return;
   }
 
@@ -194,7 +191,7 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
 vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 {
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
-  if(!array)
+  if (!array)
   {
     vtkWarningMacro("Input and output array data types do not match.");
     return 0;
@@ -216,14 +213,14 @@ void* vtkUnicodeStringArray::GetVoidPointer(vtkIdType id)
 
 void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
 {
-  if(!da)
+  if (!da)
     return;
 
-  if(this == da)
+  if (this == da)
     return;
 
   vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(da);
-  if(!array)
+  if (!array)
   {
     vtkWarningMacro("Input and output array data types do not match.");
     return;
@@ -233,13 +230,12 @@ void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
   this->DataChanged();
 }
 
-void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights)
+void vtkUnicodeStringArray::InterpolateTuple(
+  vtkIdType i, vtkIdList* ptIndices, vtkAbstractArray* source, double* weights)
 {
-  if(this->GetDataType() != source->GetDataType())
+  if (this->GetDataType() != source->GetDataType())
   {
-    vtkErrorMacro("Cannot CopyValue from array of type "
-      << source->GetDataTypeAsString());
+    vtkErrorMacro("Cannot CopyValue from array of type " << source->GetDataTypeAsString());
     return;
   }
 
@@ -254,7 +250,7 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   // it's the index with maximum weight.
   vtkIdType nearest = ptIndices->GetId(0);
   double max_weight = weights[0];
-  for (int k=1; k < ptIndices->GetNumberOfIds(); k++)
+  for (int k = 1; k < ptIndices->GetNumberOfIds(); k++)
   {
     if (weights[k] > max_weight)
     {
@@ -266,9 +262,8 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   this->InsertTuple(i, nearest, source);
 }
 
-void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
-    vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t)
+void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray* source1,
+  vtkIdType id2, vtkAbstractArray* source2, double t)
 {
   if (source1->GetDataType() != this->GetDataType() ||
     source2->GetDataType() != this->GetDataType())
@@ -312,7 +307,7 @@ void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int, int)
   vtkErrorMacro("Not implemented.");
 }
 
-void vtkUnicodeStringArray::SetArrayFreeFunction(void (*)(void *))
+void vtkUnicodeStringArray::SetArrayFreeFunction(void (*)(void*))
 {
   vtkErrorMacro("Not implemented.");
 }
@@ -320,7 +315,7 @@ void vtkUnicodeStringArray::SetArrayFreeFunction(void (*)(void *))
 unsigned long vtkUnicodeStringArray::GetActualMemorySize()
 {
   unsigned long count = 0;
-  for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
+  for (Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
   {
     count += static_cast<unsigned long>(this->Internal->Storage[i].byte_count());
     count += static_cast<unsigned long>(sizeof(vtkUnicodeString));
@@ -348,9 +343,9 @@ vtkIdType vtkUnicodeStringArray::LookupValue(vtkVariant value)
 {
   const vtkUnicodeString search_value = value.ToUnicodeString();
 
-  for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
+  for (Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
   {
-    if(this->Internal->Storage[i] == search_value)
+    if (this->Internal->Storage[i] == search_value)
       return static_cast<vtkIdType>(i);
   }
 
@@ -362,21 +357,21 @@ void vtkUnicodeStringArray::LookupValue(vtkVariant value, vtkIdList* ids)
   const vtkUnicodeString search_value = value.ToUnicodeString();
 
   ids->Reset();
-  for(Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
+  for (Implementation::StorageT::size_type i = 0; i != this->Internal->Storage.size(); ++i)
   {
-    if(this->Internal->Storage[i] == search_value)
+    if (this->Internal->Storage[i] == search_value)
       ids->InsertNextId(static_cast<vtkIdType>(i));
   }
 }
 
 void vtkUnicodeStringArray::SetVariantValue(vtkIdType id, vtkVariant value)
 {
-  this->SetValue( id, value.ToUnicodeString() );
+  this->SetValue(id, value.ToUnicodeString());
 }
 
 void vtkUnicodeStringArray::InsertVariantValue(vtkIdType id, vtkVariant value)
 {
-  this->InsertValue( id, value.ToUnicodeString() );
+  this->InsertValue(id, value.ToUnicodeString());
 }
 
 void vtkUnicodeStringArray::DataChanged()
@@ -384,9 +379,7 @@ void vtkUnicodeStringArray::DataChanged()
   this->MaxId = static_cast<vtkIdType>(this->Internal->Storage.size()) - 1;
 }
 
-void vtkUnicodeStringArray::ClearLookup()
-{
-}
+void vtkUnicodeStringArray::ClearLookup() {}
 
 vtkIdType vtkUnicodeStringArray::InsertNextValue(const vtkUnicodeString& value)
 {
@@ -398,7 +391,7 @@ vtkIdType vtkUnicodeStringArray::InsertNextValue(const vtkUnicodeString& value)
 void vtkUnicodeStringArray::InsertValue(vtkIdType i, const vtkUnicodeString& value)
 {
   // Range check
-  if(static_cast<vtkIdType>(this->Internal->Storage.size()) <= i)
+  if (static_cast<vtkIdType>(this->Internal->Storage.size()) <= i)
     this->Internal->Storage.resize(i + 1);
 
   this->SetValue(i, value);

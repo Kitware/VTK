@@ -34,7 +34,7 @@ Copyright and License information
 // Forward declarations
 class vtkWindow;
 
-template<class T>
+template <class T>
 class vtkOpenGLVolumeLookupTables : public vtkObject
 {
 public:

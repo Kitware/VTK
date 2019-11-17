@@ -37,14 +37,14 @@ vtkMTimeType vtkImplicitBoolean::GetMTime()
 {
   vtkMTimeType fMtime;
   vtkMTimeType mtime = this->vtkImplicitFunction::GetMTime();
-  vtkImplicitFunction *f;
+  vtkImplicitFunction* f;
 
   vtkCollectionSimpleIterator sit;
   for (this->FunctionList->InitTraversal(sit);
-       (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+       (f = this->FunctionList->GetNextImplicitFunction(sit));)
   {
     fMtime = f->GetMTime();
-    if ( fMtime > mtime )
+    if (fMtime > mtime)
     {
       mtime = fMtime;
     }
@@ -53,9 +53,9 @@ vtkMTimeType vtkImplicitBoolean::GetMTime()
 }
 
 // Add another implicit function to the list of functions.
-void vtkImplicitBoolean::AddFunction(vtkImplicitFunction *f)
+void vtkImplicitBoolean::AddFunction(vtkImplicitFunction* f)
 {
-  if ( ! this->FunctionList->IsItemPresent(f) )
+  if (!this->FunctionList->IsItemPresent(f))
   {
     this->Modified();
     this->FunctionList->AddItem(f);
@@ -63,9 +63,9 @@ void vtkImplicitBoolean::AddFunction(vtkImplicitFunction *f)
 }
 
 // Remove a function from the list of implicit functions to boolean.
-void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction *f)
+void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction* f)
 {
-  if ( this->FunctionList->IsItemPresent(f) )
+  if (this->FunctionList->IsItemPresent(f))
   {
     this->Modified();
     this->FunctionList->RemoveItem(f);
@@ -77,7 +77,7 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
 {
   double value = 0;
   double v;
-  vtkImplicitFunction *f;
+  vtkImplicitFunction* f;
 
   if (this->FunctionList->GetNumberOfItems() == 0)
   {
@@ -85,63 +85,63 @@ double vtkImplicitBoolean::EvaluateFunction(double x[3])
   }
 
   vtkCollectionSimpleIterator sit;
-  if ( this->OperationType == VTK_UNION )
-  { //take minimum value
+  if (this->OperationType == VTK_UNION)
+  { // take minimum value
     for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
-         (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( (v=f->FunctionValue(x)) < value )
+      if ((v = f->FunctionValue(x)) < value)
       {
         value = v;
       }
     }
   }
 
-  else if ( this->OperationType == VTK_INTERSECTION )
-  { //take maximum value
-    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+  else if (this->OperationType == VTK_INTERSECTION)
+  { // take maximum value
+    for (value = -VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( (v=f->FunctionValue(x)) > value )
+      if ((v = f->FunctionValue(x)) > value)
       {
         value = v;
       }
     }
   }
 
-  else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
-  { //take minimum absolute value
+  else if (this->OperationType == VTK_UNION_OF_MAGNITUDES)
+  { // take minimum absolute value
     for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( (v=fabs(f->FunctionValue(x))) < value )
+      if ((v = fabs(f->FunctionValue(x))) < value)
       {
         value = v;
       }
     }
   }
 
-  else //difference
+  else // difference
   {
-    vtkImplicitFunction *firstF;
+    vtkImplicitFunction* firstF;
     this->FunctionList->InitTraversal(sit);
-    if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != nullptr )
+    if ((firstF = this->FunctionList->GetNextImplicitFunction(sit)) != nullptr)
     {
       value = firstF->FunctionValue(x);
     }
 
     for (this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( f != firstF )
+      if (f != firstF)
       {
-        if ( (v=(-1.0)*f->FunctionValue(x)) > value )
+        if ((v = (-1.0) * f->FunctionValue(x)) > value)
         {
           value = v;
         }
       }
     }
-  }//else
+  } // else
 
   return value;
 }
@@ -151,99 +151,105 @@ void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
 {
   double value = 0;
   double v;
-  vtkImplicitFunction *f;
+  vtkImplicitFunction* f;
   vtkCollectionSimpleIterator sit;
 
   if (this->FunctionList->GetNumberOfItems() == 0)
   {
-    g[0] = 0; g[1] = 0; g[2] = 0;
+    g[0] = 0;
+    g[1] = 0;
+    g[2] = 0;
     return;
   }
 
-  if ( this->OperationType == VTK_UNION )
-  { //take minimum value
+  if (this->OperationType == VTK_UNION)
+  { // take minimum value
     for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( (v=f->FunctionValue(x)) < value )
+      if ((v = f->FunctionValue(x)) < value)
       {
         value = v;
-        f->FunctionGradient(x,g);
+        f->FunctionGradient(x, g);
       }
     }
   }
 
-  else if ( this->OperationType == VTK_INTERSECTION )
-  { //take maximum value
-    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+  else if (this->OperationType == VTK_INTERSECTION)
+  { // take maximum value
+    for (value = -VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( (v=f->FunctionValue(x)) > value )
+      if ((v = f->FunctionValue(x)) > value)
       {
         value = v;
-        f->FunctionGradient(x,g);
+        f->FunctionGradient(x, g);
       }
     }
   }
 
-  if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
-  { //take minimum value
+  if (this->OperationType == VTK_UNION_OF_MAGNITUDES)
+  { // take minimum value
     for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( (v=fabs(f->FunctionValue(x))) < value )
+      if ((v = fabs(f->FunctionValue(x))) < value)
       {
         value = v;
-        f->FunctionGradient(x,g);
+        f->FunctionGradient(x, g);
       }
     }
   }
 
-  else //difference
+  else // difference
   {
     double gTemp[3];
-    vtkImplicitFunction *firstF;
+    vtkImplicitFunction* firstF;
     this->FunctionList->InitTraversal(sit);
-    if ( (firstF = this->FunctionList->GetNextImplicitFunction(sit)) != nullptr )
+    if ((firstF = this->FunctionList->GetNextImplicitFunction(sit)) != nullptr)
     {
       value = firstF->FunctionValue(x);
-      firstF->FunctionGradient(x,gTemp);
-      g[0] = -1.0*gTemp[0]; g[1] = -1.0*gTemp[1]; g[2] = -1.0*gTemp[2];
+      firstF->FunctionGradient(x, gTemp);
+      g[0] = -1.0 * gTemp[0];
+      g[1] = -1.0 * gTemp[1];
+      g[2] = -1.0 * gTemp[2];
     }
 
     for (this->FunctionList->InitTraversal(sit);
-    (f=this->FunctionList->GetNextImplicitFunction(sit)); )
+         (f = this->FunctionList->GetNextImplicitFunction(sit));)
     {
-      if ( f != firstF )
+      if (f != firstF)
       {
-        if ( (v=(-1.0)*f->FunctionValue(x)) > value )
+        if ((v = (-1.0) * f->FunctionValue(x)) > value)
         {
           value = v;
-          f->FunctionGradient(x,gTemp);
-          g[0] = -1.0*gTemp[0]; g[1] = -1.0*gTemp[1]; g[2] = -1.0*gTemp[2];
+          f->FunctionGradient(x, gTemp);
+          g[0] = -1.0 * gTemp[0];
+          g[1] = -1.0 * gTemp[1];
+          g[2] = -1.0 * gTemp[2];
         }
       }
     }
-  }//else
+  } // else
 }
 
 void vtkImplicitBoolean::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Function List:\n";
-  this->FunctionList->PrintSelf(os,indent.GetNextIndent());
+  this->FunctionList->PrintSelf(os, indent.GetNextIndent());
 
   os << indent << "Operator Type: ";
-  if ( this->OperationType == VTK_INTERSECTION )
+  if (this->OperationType == VTK_INTERSECTION)
   {
     os << "VTK_INTERSECTION\n";
   }
-  else if ( this->OperationType == VTK_UNION )
+  else if (this->OperationType == VTK_UNION)
   {
     os << "VTK_UNION\n";
   }
-  else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
+  else if (this->OperationType == VTK_UNION_OF_MAGNITUDES)
   {
     os << "VTK_UNION_OF_MAGNITUDES\n";
   }

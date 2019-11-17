@@ -64,7 +64,7 @@
  *
  * @sa
  * vtkQuantizePolyDataPoints
-*/
+ */
 
 #ifndef vtkCleanPolyData_h
 #define vtkCleanPolyData_h
@@ -77,9 +77,9 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSCORE_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkCleanPolyData *New();
+  static vtkCleanPolyData* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkCleanPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCleanPolyData, vtkPolyDataAlgorithm);
 
   //@{
   /**
@@ -87,9 +87,9 @@ public:
    * a fraction of Bounding box diagonal, if true, AbsoluteTolerance is
    * used when adding points to locator (merging)
    */
-  vtkSetMacro(ToleranceIsAbsolute,vtkTypeBool);
-  vtkBooleanMacro(ToleranceIsAbsolute,vtkTypeBool);
-  vtkGetMacro(ToleranceIsAbsolute,vtkTypeBool);
+  vtkSetMacro(ToleranceIsAbsolute, vtkTypeBool);
+  vtkBooleanMacro(ToleranceIsAbsolute, vtkTypeBool);
+  vtkGetMacro(ToleranceIsAbsolute, vtkTypeBool);
   //@}
 
   //@{
@@ -97,43 +97,43 @@ public:
    * Specify tolerance in terms of fraction of bounding box length.
    * Default is 0.0.
    */
-  vtkSetClampMacro(Tolerance,double,0.0,1.0);
-  vtkGetMacro(Tolerance,double);
+  vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
+  vtkGetMacro(Tolerance, double);
   //@}
 
   //@{
   /**
    * Specify tolerance in absolute terms. Default is 1.0.
    */
-  vtkSetClampMacro(AbsoluteTolerance,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(AbsoluteTolerance,double);
+  vtkSetClampMacro(AbsoluteTolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(AbsoluteTolerance, double);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate lines to points. Default is On.
    */
-  vtkSetMacro(ConvertLinesToPoints,vtkTypeBool);
-  vtkBooleanMacro(ConvertLinesToPoints,vtkTypeBool);
-  vtkGetMacro(ConvertLinesToPoints,vtkTypeBool);
+  vtkSetMacro(ConvertLinesToPoints, vtkTypeBool);
+  vtkBooleanMacro(ConvertLinesToPoints, vtkTypeBool);
+  vtkGetMacro(ConvertLinesToPoints, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate polys to lines. Default is On.
    */
-  vtkSetMacro(ConvertPolysToLines,vtkTypeBool);
-  vtkBooleanMacro(ConvertPolysToLines,vtkTypeBool);
-  vtkGetMacro(ConvertPolysToLines,vtkTypeBool);
+  vtkSetMacro(ConvertPolysToLines, vtkTypeBool);
+  vtkBooleanMacro(ConvertPolysToLines, vtkTypeBool);
+  vtkGetMacro(ConvertPolysToLines, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate strips to polys. Default is On.
    */
-  vtkSetMacro(ConvertStripsToPolys,vtkTypeBool);
-  vtkBooleanMacro(ConvertStripsToPolys,vtkTypeBool);
-  vtkGetMacro(ConvertStripsToPolys,vtkTypeBool);
+  vtkSetMacro(ConvertStripsToPolys, vtkTypeBool);
+  vtkBooleanMacro(ConvertStripsToPolys, vtkTypeBool);
+  vtkGetMacro(ConvertStripsToPolys, vtkTypeBool);
   //@}
 
   //@{
@@ -143,9 +143,9 @@ public:
    * the appropriate tolerance may be merged. If off, points are never
    * merged. By default, merging is on.
    */
-  vtkSetMacro(PointMerging,vtkTypeBool);
-  vtkGetMacro(PointMerging,vtkTypeBool);
-  vtkBooleanMacro(PointMerging,vtkTypeBool);
+  vtkSetMacro(PointMerging, vtkTypeBool);
+  vtkGetMacro(PointMerging, vtkTypeBool);
+  vtkBooleanMacro(PointMerging, vtkTypeBool);
   //@}
 
   //@{
@@ -153,14 +153,14 @@ public:
    * Set/Get a spatial locator for speeding the search process. By
    * default an instance of vtkMergePoints is used.
    */
-  virtual void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  virtual void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
    * Create default locator. Used to create one when none is specified.
    */
-  void CreateDefaultLocator(vtkPolyData *input = nullptr);
+  void CreateDefaultLocator(vtkPolyData* input = nullptr);
 
   /**
    * Release locator
@@ -197,29 +197,30 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
   vtkCleanPolyData();
- ~vtkCleanPolyData() override;
+  ~vtkCleanPolyData() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkTypeBool   PointMerging;
+  vtkTypeBool PointMerging;
   double Tolerance;
   double AbsoluteTolerance;
   vtkTypeBool ConvertLinesToPoints;
   vtkTypeBool ConvertPolysToLines;
   vtkTypeBool ConvertStripsToPolys;
   vtkTypeBool ToleranceIsAbsolute;
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
 
   vtkTypeBool PieceInvariant;
   int OutputPointsPrecision;
+
 private:
   vtkCleanPolyData(const vtkCleanPolyData&) = delete;
   void operator=(const vtkCleanPolyData&) = delete;

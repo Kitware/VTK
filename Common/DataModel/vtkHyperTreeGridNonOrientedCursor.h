@@ -33,11 +33,10 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedCursor_h
 #define vtkHyperTreeGridNonOrientedCursor_h
-
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
@@ -52,7 +51,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedCursor : public vtkOb
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridNonOrientedCursor, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedCursor* New();
 
   /**
@@ -64,17 +63,18 @@ public:
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false );
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridEntry& entry);
+  void Initialize(
+    vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkHyperTreeGridEntry& entry);
 
   /**
    * Initialize cursor at root of given tree index in grid.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index);
+  void Initialize(vtkHyperTreeGrid* grid, vtkHyperTree* tree, unsigned int level, vtkIdType index);
 
   //@{
   /**
@@ -123,18 +123,18 @@ public:
   /**
    * JB
    */
-  void SetGlobalIndexStart( vtkIdType index );
+  void SetGlobalIndexStart(vtkIdType index);
 
   /**
    * JB
    */
-  void SetGlobalIndexFromLocal( vtkIdType index );
+  void SetGlobalIndexFromLocal(vtkIdType index);
 
   /**
    * Set the blanking mask is empty or not
    * \pre not_tree: tree
    */
-  void SetMask( bool state );
+  void SetMask(bool state);
 
   /**
    * Determine whether blanking mask is empty or not
@@ -168,7 +168,7 @@ public:
    * \pre valid_child: ichild>=0 && ichild<GetNumberOfChildren()
    * \pre depth_limiter: GetLevel() <= GetDepthLimiter()
    */
-  void ToChild( unsigned char ichild );
+  void ToChild(unsigned char ichild);
 
   /**
    * Move the cursor to the root vertex.
@@ -185,7 +185,6 @@ public:
   void ToParent();
 
 protected:
-
   /**
    * Constructor
    */
@@ -219,7 +218,7 @@ protected:
   /**
    * JB Hyper tree grid to which the cursor is attached
    */
-  std::vector< vtkHyperTreeGridEntry > Entries;
+  std::vector<vtkHyperTreeGridEntry> Entries;
 
 private:
   vtkHyperTreeGridNonOrientedCursor(const vtkHyperTreeGridNonOrientedCursor&) = delete;

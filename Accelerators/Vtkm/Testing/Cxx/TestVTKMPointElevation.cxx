@@ -36,65 +36,65 @@
 
 namespace
 {
-  int RunVTKPipeline(vtkPlaneSource* plane, int argc, char* argv[])
+int RunVTKPipeline(vtkPlaneSource* plane, int argc, char* argv[])
+{
+  vtkNew<vtkRenderer> ren;
+  vtkNew<vtkRenderWindow> renWin;
+  vtkNew<vtkRenderWindowInteractor> iren;
+
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
+
+  vtkNew<vtkTriangleFilter> tf;
+  tf->SetInputConnection(plane->GetOutputPort());
+  tf->Update();
+
+  vtkNew<vtkPolyData> pd;
+  pd->CopyStructure(tf->GetOutput());
+  vtkIdType numPts = pd->GetNumberOfPoints();
+  vtkPoints* oldPts = tf->GetOutput()->GetPoints();
+  vtkNew<vtkPoints> newPts;
+  newPts->SetNumberOfPoints(numPts);
+  for (vtkIdType i = 0; i < numPts; i++)
   {
-    vtkNew<vtkRenderer> ren;
-    vtkNew<vtkRenderWindow> renWin;
-    vtkNew<vtkRenderWindowInteractor> iren;
-
-    renWin->AddRenderer(ren);
-    iren->SetRenderWindow(renWin);
-
-    vtkNew<vtkTriangleFilter> tf;
-    tf->SetInputConnection(plane->GetOutputPort());
-    tf->Update();
-
-    vtkNew<vtkPolyData> pd;
-    pd->CopyStructure(tf->GetOutput());
-    vtkIdType numPts = pd->GetNumberOfPoints();
-    vtkPoints* oldPts = tf->GetOutput()->GetPoints();
-    vtkNew<vtkPoints> newPts;
-    newPts->SetNumberOfPoints(numPts);
-    for (vtkIdType i = 0; i < numPts; i++)
-    {
-      auto pt = oldPts->GetPoint(i);
-      auto r = sqrt(pow(pt[0],2) + pow(pt[1], 2));
-      auto z =  1.5 * cos (2* r);
-      newPts->SetPoint(i, pt[0], pt[1], z);
-    }
-    pd->SetPoints(newPts);
-
-    vtkNew<vtkmPointElevation> pe;
-    pe->SetInputData(pd);
-    pe->SetLowPoint(0, 0, -1.5);
-    pe->SetHighPoint(0, 0, 1.5);
-    pe->SetScalarRange(-1.5, 1.5);
-
-    vtkNew<vtkPolyDataMapper> mapper;
-    mapper->SetInputConnection(pe->GetOutputPort());
-    mapper->ScalarVisibilityOn();
-    mapper->SelectColorArray("elevation");
-
-    vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper);
-
-    // Add the actor to the renderer, set the background and size
-    ren->AddActor(actor);
-
-    ren->SetBackground(0, 0, 0);
-    vtkNew<vtkCamera> camera;
-    camera->SetPosition(1, 50, 50);
-    ren->SetActiveCamera(camera);
-    renWin->Render();
-
-    int retVal = vtkRegressionTestImage(renWin);
-    if(retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      retVal = vtkRegressionTester::PASSED;
-      }
-    return (!retVal);
+    auto pt = oldPts->GetPoint(i);
+    auto r = sqrt(pow(pt[0], 2) + pow(pt[1], 2));
+    auto z = 1.5 * cos(2 * r);
+    newPts->SetPoint(i, pt[0], pt[1], z);
   }
+  pd->SetPoints(newPts);
+
+  vtkNew<vtkmPointElevation> pe;
+  pe->SetInputData(pd);
+  pe->SetLowPoint(0, 0, -1.5);
+  pe->SetHighPoint(0, 0, 1.5);
+  pe->SetScalarRange(-1.5, 1.5);
+
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(pe->GetOutputPort());
+  mapper->ScalarVisibilityOn();
+  mapper->SelectColorArray("elevation");
+
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+
+  // Add the actor to the renderer, set the background and size
+  ren->AddActor(actor);
+
+  ren->SetBackground(0, 0, 0);
+  vtkNew<vtkCamera> camera;
+  camera->SetPosition(1, 50, 50);
+  ren->SetActiveCamera(camera);
+  renWin->Render();
+
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+    retVal = vtkRegressionTester::PASSED;
+  }
+  return (!retVal);
+}
 } //  Anonymous namespace
 
 int TestVTKMPointElevation(int argc, char* argv[])

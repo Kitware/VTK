@@ -25,8 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-
-int TestVTKMCleanGrid(int argc, char *argv[])
+int TestVTKMCleanGrid(int argc, char* argv[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);

@@ -19,7 +19,7 @@
  * vtkImageConvolve convolves the image with a 3D NxNxN kernel or a
  * 2D NxN kernel.  The output image is cropped to the same size as
  * the input.
-*/
+ */
 
 #ifndef vtkImageConvolve_h
 #define vtkImageConvolve_h
@@ -34,8 +34,8 @@ public:
   /**
    * Construct an instance of vtkImageConvolve filter.
    */
-  static vtkImageConvolve *New();
-  vtkTypeMacro(vtkImageConvolve,vtkThreadedImageAlgorithm);
+  static vtkImageConvolve* New();
+  vtkTypeMacro(vtkImageConvolve, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -94,26 +94,20 @@ protected:
   vtkImageConvolve();
   ~vtkImageConvolve() override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                           vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector,
-                           vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int outExt[6], int id) override;
 
-  void GetKernel(double *kernel);
+  void GetKernel(double* kernel);
   double* GetKernel();
-  void SetKernel(const double* kernel,
-                 int sizeX, int sizeY, int sizeZ);
-
+  void SetKernel(const double* kernel, int sizeX, int sizeY, int sizeZ);
 
   int KernelSize[3];
   double Kernel[343];
+
 private:
   vtkImageConvolve(const vtkImageConvolve&) = delete;
   void operator=(const vtkImageConvolve&) = delete;
 };
 
 #endif
-
-
-

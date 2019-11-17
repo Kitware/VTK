@@ -53,7 +53,7 @@
  *
  * @sa
  * vtkLinearExtrusionFilter
-*/
+ */
 
 #ifndef vtkRotationalExtrusionFilter_h
 #define vtkRotationalExtrusionFilter_h
@@ -64,7 +64,7 @@
 class VTKFILTERSMODELING_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkRotationalExtrusionFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRotationalExtrusionFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -72,60 +72,61 @@ public:
    * no translation along z-axis.
    * vector (0,0,1), and point (0,0,0).
    */
-  static vtkRotationalExtrusionFilter *New();
+  static vtkRotationalExtrusionFilter* New();
 
   //@{
   /**
    * Set/Get resolution of sweep operation. Resolution controls the number
    * of intermediate node points.
    */
-  vtkSetClampMacro(Resolution,int,1,VTK_INT_MAX);
-  vtkGetMacro(Resolution,int);
+  vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
+  vtkGetMacro(Resolution, int);
   //@}
 
   //@{
   /**
    * Turn on/off the capping of the skirt.
    */
-  vtkSetMacro(Capping,vtkTypeBool);
-  vtkGetMacro(Capping,vtkTypeBool);
-  vtkBooleanMacro(Capping,vtkTypeBool);
+  vtkSetMacro(Capping, vtkTypeBool);
+  vtkGetMacro(Capping, vtkTypeBool);
+  vtkBooleanMacro(Capping, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get angle of rotation.
    */
-  vtkSetMacro(Angle,double);
-  vtkGetMacro(Angle,double);
+  vtkSetMacro(Angle, double);
+  vtkGetMacro(Angle, double);
   //@}
 
   //@{
   /**
    * Set/Get total amount of translation along the z-axis.
    */
-  vtkSetMacro(Translation,double);
-  vtkGetMacro(Translation,double);
+  vtkSetMacro(Translation, double);
+  vtkGetMacro(Translation, double);
   //@}
 
   //@{
   /**
    * Set/Get change in radius during sweep process.
    */
-  vtkSetMacro(DeltaRadius,double);
-  vtkGetMacro(DeltaRadius,double);
+  vtkSetMacro(DeltaRadius, double);
+  vtkGetMacro(DeltaRadius, double);
   //@}
 
 protected:
   vtkRotationalExtrusionFilter();
   ~vtkRotationalExtrusionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int Resolution;
   vtkTypeBool Capping;
   double Angle;
   double Translation;
   double DeltaRadius;
+
 private:
   vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&) = delete;
   void operator=(const vtkRotationalExtrusionFilter&) = delete;

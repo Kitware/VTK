@@ -23,7 +23,7 @@
  *
  *
  *
-*/
+ */
 
 #ifndef vtkBlockDistribution_h
 #define vtkBlockDistribution_h
@@ -86,7 +86,8 @@ private:
 // ----------------------------------------------------------------------
 
 inline vtkBlockDistribution::vtkBlockDistribution(vtkIdType N, vtkIdType P)
-  : NumElements(N), NumProcessors(P)
+  : NumElements(N)
+  , NumProcessors(P)
 {
 }
 
@@ -94,14 +95,13 @@ inline vtkBlockDistribution::vtkBlockDistribution(vtkIdType N, vtkIdType P)
 
 inline vtkIdType vtkBlockDistribution::GetBlockSize(vtkIdType rank)
 {
-  return (this->NumElements / this->NumProcessors)
-       + (rank < this->NumElements % this->NumProcessors? 1 : 0);
+  return (this->NumElements / this->NumProcessors) +
+    (rank < this->NumElements % this->NumProcessors ? 1 : 0);
 }
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
+inline vtkIdType vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
 {
   vtkIdType smallBlockSize = this->NumElements / this->NumProcessors;
   vtkIdType cutoffProcessor = this->NumElements % this->NumProcessors;
@@ -119,8 +119,7 @@ vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetLocalIndexOfElement(vtkIdType globalIndex)
+inline vtkIdType vtkBlockDistribution::GetLocalIndexOfElement(vtkIdType globalIndex)
 {
   vtkIdType rank = this->GetProcessorOfElement(globalIndex);
   return globalIndex - this->GetFirstGlobalIndexOnProcessor(rank);
@@ -128,8 +127,7 @@ vtkBlockDistribution::GetLocalIndexOfElement(vtkIdType globalIndex)
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
+inline vtkIdType vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
 {
   vtkIdType estimate = rank * (this->NumElements / this->NumProcessors + 1);
   vtkIdType cutoffProcessor = this->NumElements % this->NumProcessors;
@@ -145,8 +143,7 @@ vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
 
 // ----------------------------------------------------------------------
 
-inline vtkIdType
-vtkBlockDistribution::GetGlobalIndex(vtkIdType localIndex, vtkIdType rank)
+inline vtkIdType vtkBlockDistribution::GetGlobalIndex(vtkIdType localIndex, vtkIdType rank)
 {
   return this->GetFirstGlobalIndexOnProcessor(rank) + localIndex;
 }

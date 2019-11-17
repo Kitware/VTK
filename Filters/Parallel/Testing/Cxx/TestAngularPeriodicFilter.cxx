@@ -33,7 +33,6 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-
 int TestAngularPeriodicFilter(int argc, char* argv[])
 {
   vtkNew<vtkXMLUnstructuredGridReader> reader;
@@ -123,7 +122,8 @@ int TestAngularPeriodicFilter(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(multiBlockActor);
   renderer->AddActor(actor);
-  renderer->GetActiveCamera()->SetPosition(3.97282457351685, -0.0373859405517578, -59.3025624847687);
+  renderer->GetActiveCamera()->SetPosition(
+    3.97282457351685, -0.0373859405517578, -59.3025624847687);
   renderer->ResetCamera();
   renderer->SetBackground(1., 1., 1.);
 

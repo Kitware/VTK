@@ -33,5 +33,5 @@ vtkUnsignedShortArray::~vtkUnsignedShortArray() = default;
 //----------------------------------------------------------------------------
 void vtkUnsignedShortArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->RealSuperclass::PrintSelf(os,indent);
+  this->RealSuperclass::PrintSelf(os, indent);
 }

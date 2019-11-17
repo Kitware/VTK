@@ -18,19 +18,20 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkSmartPointer.h"
 
-int TestPolygonBuilder5(int, char* [])
+int TestPolygonBuilder5(int, char*[])
 {
-  // this case comes from a real-world example (see https://gitlab.kitware.com/vtk/vtk/issues/17170 )
+  // this case comes from a real-world example (see https://gitlab.kitware.com/vtk/vtk/issues/17170
+  // )
 #define NTRIANGLES 7
 
-  vtkIdType tris[NTRIANGLES][3] =
-  { {0,1,2},{3,4,7},{7,4,5},{4,6,5},{3,7,4},{4,7,6},{7,5,6} };
+  vtkIdType tris[NTRIANGLES][3] = { { 0, 1, 2 }, { 3, 4, 7 }, { 7, 4, 5 }, { 4, 6, 5 }, { 3, 7, 4 },
+    { 4, 7, 6 }, { 7, 5, 6 } };
 
   vtkPolygonBuilder builder;
   vtkIdType p[3];
-  for(int i = 0; i < NTRIANGLES; ++i)
+  for (int i = 0; i < NTRIANGLES; ++i)
   {
-    for(int j = 0; j < 3; ++j)
+    for (int j = 0; j < 3; ++j)
     {
       p[j] = tris[i][j];
     }
@@ -47,7 +48,7 @@ int TestPolygonBuilder5(int, char* [])
   }
 
   // clean up after ourselves.
-  for(int i = 0; i< polys->GetNumberOfItems(); ++i)
+  for (int i = 0; i < polys->GetNumberOfItems(); ++i)
   {
     polys->GetItem(i)->Delete();
   }

@@ -20,10 +20,11 @@
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
-template<typename value_t>
-void TestValue(const value_t& Value, const value_t& ExpectedValue, const vtkStdString& ValueDescription, int& ErrorCount)
+template <typename value_t>
+void TestValue(const value_t& Value, const value_t& ExpectedValue,
+  const vtkStdString& ValueDescription, int& ErrorCount)
 {
-  if(Value == ExpectedValue)
+  if (Value == ExpectedValue)
     return;
 
   cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]" << endl;
@@ -60,12 +61,27 @@ int TestRISReader(int argc, char* argv[])
 
   // Test a sampling of the table values ...
   TestValue(table->GetValue(0, 0).ToString(), vtkStdString("JOUR"), "Value 0, 0", error_count);
-  TestValue(table->GetValue(0, 1).ToString(), vtkStdString("Laser frequency stabilization at 1.5 microns using ultranarrow inhomogeneous absorption profiles in Er3+:LiYF4"), "Value 0, 1", error_count);
-  TestValue(table->GetValue(0, 2).ToString(), vtkStdString("Journal of Luminescence"), "Value 0, 2", error_count);
+  TestValue(table->GetValue(0, 1).ToString(),
+    vtkStdString("Laser frequency stabilization at 1.5 microns using ultranarrow inhomogeneous "
+                 "absorption profiles in Er3+:LiYF4"),
+    "Value 0, 1", error_count);
+  TestValue(table->GetValue(0, 2).ToString(), vtkStdString("Journal of Luminescence"), "Value 0, 2",
+    error_count);
 
-  TestValue(table->GetValue(13, 10).ToString(), vtkStdString("Zhou, P.;Li, X.-H.;Liang, Y.-J.;Deng, F.-G.;Zhou, H.-Y."), "value 13, 10", error_count);
-  TestValue(table->GetValue(13, 11).ToString(), vtkStdString("Key Laboratory of Beam Technology and Material Modification, Ministry of Education, Beijing Normal University, Beijing, 100875, China;Institute of Low Energy Nuclear Physics, Department of Material Science and Engineering, Beijing Normal University, Beijing, 100875, China;Beijing Radiation Center, Beijing, 100875, China"), "value 13, 11", error_count);
-  TestValue(table->GetValue(13, 13).ToString(), vtkStdString("Decoy photons;Pure entangled states;Quantum communication;Quantum secret sharing"), "value 13, 13", error_count);
+  TestValue(table->GetValue(13, 10).ToString(),
+    vtkStdString("Zhou, P.;Li, X.-H.;Liang, Y.-J.;Deng, F.-G.;Zhou, H.-Y."), "value 13, 10",
+    error_count);
+  TestValue(table->GetValue(13, 11).ToString(),
+    vtkStdString(
+      "Key Laboratory of Beam Technology and Material Modification, Ministry of Education, Beijing "
+      "Normal University, Beijing, 100875, China;Institute of Low Energy Nuclear Physics, "
+      "Department of Material Science and Engineering, Beijing Normal University, Beijing, 100875, "
+      "China;Beijing Radiation Center, Beijing, 100875, China"),
+    "value 13, 11", error_count);
+  TestValue(table->GetValue(13, 13).ToString(),
+    vtkStdString(
+      "Decoy photons;Pure entangled states;Quantum communication;Quantum secret sharing"),
+    "value 13, 13", error_count);
 
   return error_count;
 }

@@ -19,7 +19,7 @@
  * vtkCharArray is an array of values of type char.  It provides
  * methods for insertion and retrieval of values and will
  * automatically resize itself to hold new data.
-*/
+ */
 
 #ifndef vtkCharArray_h
 #define vtkCharArray_h
@@ -45,14 +45,14 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(char);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkCharArray* FastDownCast(vtkAbstractArray *source)
+  static vtkCharArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkCharArray*>(Superclass::FastDownCast(source));
   }
@@ -72,7 +72,6 @@ protected:
   ~vtkCharArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<char> RealSuperclass;
 
   vtkCharArray(const vtkCharArray&) = delete;

@@ -26,9 +26,8 @@
 // It is specialized for a factor of 2.
 // It is engineered for no decimation.
 // (forward: fb = 1, backward: fb = -1)
-void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
-                                            vtkImageComplex *p_out,
-                                            int N, int bsize, int fb)
+void vtkImageFourierFilter::ExecuteFftStep2(
+  vtkImageComplex* p_in, vtkImageComplex* p_out, int N, int bsize, int fb)
 {
   int i1, i2;
   vtkImageComplex *p1, *p2, *p3;
@@ -37,19 +36,19 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
   /* Copy the links with no factors. */
   p1 = p_in;
   p3 = p_out;
-  for(i1 = 0; i1 < N / (bsize * 2); ++i1)   // loop 0->1
+  for (i1 = 0; i1 < N / (bsize * 2); ++i1) // loop 0->1
   {
     p2 = p1;
-    for(i2 = 0; i2 < bsize; ++i2)    // loop 0->2
+    for (i2 = 0; i2 < bsize; ++i2) // loop 0->2
     {
-      *p3 = *p2;         // out[0] = in[0];  out[1] = in[1];
+      *p3 = *p2; // out[0] = in[0];  out[1] = in[1];
       ++p2;
       ++p3;
     }
     p2 = p1;
-    for(i2 = 0; i2 < bsize; ++i2)
+    for (i2 = 0; i2 < bsize; ++i2)
     {
-      *p3 = *p2;         // out[2] = in[0];   out[3] = in[1];
+      *p3 = *p2; // out[2] = in[0];   out[3] = in[1];
       ++p2;
       ++p3;
     }
@@ -63,20 +62,20 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
   q.Imag = -(2.0 * vtkMath::Pi()) * fb / (bsize * 2.0);
   vtkImageComplexExponential(q, q);
   p3 = p_out;
-  for(i1 = 0; i1 < N / (bsize * 2); ++i1)
+  for (i1 = 0; i1 < N / (bsize * 2); ++i1)
   {
     fact = fact1;
     p2 = p1;
-    for(i2 = 0; i2 < bsize; ++i2)
+    for (i2 = 0; i2 < bsize; ++i2)
     {
       vtkImageComplexMultiply(fact, *p2, temp);
       vtkImageComplexAdd(temp, *p3, *p3);
       vtkImageComplexMultiply(q, fact, fact);
-      ++p2;    // out[0] += in[2];   out[1] += -i*in[3];
+      ++p2; // out[0] += in[2];   out[1] += -i*in[3];
       ++p3;
     }
     p2 = p1;
-    for(i2 = 0; i2 < bsize; ++i2)
+    for (i2 = 0; i2 < bsize; ++i2)
     {
       vtkImageComplexMultiply(fact, *p2, temp);
       vtkImageComplexAdd(temp, *p3, *p3);
@@ -95,16 +94,15 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
 //  bsize: Size of FFT so far (should be scaled by n after this step)
 //  n: size of this steps butterfly.
 //  fb: forward: fb = 1, backward: fb = -1
-void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
-                                            vtkImageComplex *p_out,
-                                            int N, int bsize, int n, int fb)
+void vtkImageFourierFilter::ExecuteFftStepN(
+  vtkImageComplex* p_in, vtkImageComplex* p_out, int N, int bsize, int n, int fb)
 {
   int i0, i1, i2, i3;
   vtkImageComplex *p1, *p2, *p3;
   vtkImageComplex q, fact, temp;
 
   p3 = p_out;
-  for(i0 = 0; i0 < N; ++i0)
+  for (i0 = 0; i0 < N; ++i0)
   {
     p3->Real = 0.0;
     p3->Imag = 0.0;
@@ -112,20 +110,20 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
   }
 
   p1 = p_in;
-  for(i0 = 0; i0 < n; ++i0)
+  for (i0 = 0; i0 < n; ++i0)
   {
     q.Real = 0.0;
-    q.Imag = -(2.0 * vtkMath::Pi()) * i0 * fb / (bsize*1.0*n);
+    q.Imag = -(2.0 * vtkMath::Pi()) * i0 * fb / (bsize * 1.0 * n);
     vtkImageComplexExponential(q, q);
     p3 = p_out;
-    for(i1 = 0; i1 < N / (bsize * n); ++i1)
+    for (i1 = 0; i1 < N / (bsize * n); ++i1)
     {
       fact.Real = 1.0;
       fact.Imag = 0.0;
-      for(i3 = 0; i3 < n; ++i3)
+      for (i3 = 0; i3 < n; ++i3)
       {
         p2 = p1;
-        for(i2 = 0; i2 < bsize; ++i2)
+        for (i2 = 0; i2 < bsize; ++i2)
         {
           vtkImageComplexMultiply(fact, *p2, temp);
           vtkImageComplexAdd(temp, *p3, *p3);
@@ -140,16 +138,13 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
   }
 }
 
-
-
 //----------------------------------------------------------------------------
 // This function calculates the whole fft (or rfft) of an array.
 // The contents of the input array are changed.
 // It is engineered for no decimation so input and output cannot be equal.
 // (fb = 1) => fft, (fb = -1) => rfft;
-void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
-                                                      vtkImageComplex *out,
-                                                      int N, int fb)
+void vtkImageFourierFilter::ExecuteFftForwardBackward(
+  vtkImageComplex* in, vtkImageComplex* out, int N, int fb)
 {
   vtkImageComplex *p1, *p2, *p3;
   int block_size = 1;
@@ -158,10 +153,10 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
   int idx;
 
   // If this is a reverse transform (scale accordingly).
-  if(fb == -1)
+  if (fb == -1)
   {
     p1 = in;
-    for(idx = 0; idx < N; ++idx)
+    for (idx = 0; idx < N; ++idx)
     {
       p1->Real = p1->Real / N;
       p1->Imag = p1->Imag / N;
@@ -170,12 +165,12 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
   }
   p1 = in;
   p2 = out;
-  while(block_size < N && n <= N)
+  while (block_size < N && n <= N)
   {
-    if((rest_size % n) == 0)
+    if ((rest_size % n) == 0)
     {
       // n is a prime factor, perform one "butterfly" stage of the fft.
-      if(n == 2)
+      if (n == 2)
       {
         this->ExecuteFftStep2(p1, p2, N, block_size, fb);
       }
@@ -197,23 +192,20 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
     }
   }
   // If the results ended up in the input, copy to output.
-  if(p1 != out)
+  if (p1 != out)
   {
-    for(n = 0; n < N; ++n)
+    for (n = 0; n < N; ++n)
     {
       *out++ = *p1++;
     }
   }
 }
 
-
-
 //----------------------------------------------------------------------------
 // This function calculates the whole fft of an array.
 // The contents of the input array are changed.
 // (It is engineered for no decimation)
-void vtkImageFourierFilter::ExecuteFft(vtkImageComplex *in,
-                                       vtkImageComplex *out, int N)
+void vtkImageFourierFilter::ExecuteFft(vtkImageComplex* in, vtkImageComplex* out, int N)
 {
   this->ExecuteFftForwardBackward(in, out, N, 1);
 }
@@ -222,17 +214,15 @@ void vtkImageFourierFilter::ExecuteFft(vtkImageComplex *in,
 // This function calculates the whole fft of an array.
 // The contents of the input array are changed.
 // (It is engineered for no decimation)
-void vtkImageFourierFilter::ExecuteRfft(vtkImageComplex *in,
-                                        vtkImageComplex *out, int N)
+void vtkImageFourierFilter::ExecuteRfft(vtkImageComplex* in, vtkImageComplex* out, int N)
 {
   this->ExecuteFftForwardBackward(in, out, N, -1);
 }
 
 //----------------------------------------------------------------------------
 // Called each axis over which the filter is executed.
-int vtkImageFourierFilter::RequestData(vtkInformation* request,
-                                       vtkInformationVector** inputVector,
-                                       vtkInformationVector* outputVector)
+int vtkImageFourierFilter::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // ensure that iteration axis is not split during threaded execution
   this->SplitPathLength = 0;
@@ -246,5 +236,3 @@ int vtkImageFourierFilter::RequestData(vtkInformation* request,
 
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
-
-

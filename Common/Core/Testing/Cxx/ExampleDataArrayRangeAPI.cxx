@@ -27,14 +27,14 @@
 #include "vtkSOADataArrayTemplate.h"
 
 #include <iterator> // for std::distance
-#include <numeric> // for std::iota
+#include <numeric>  // for std::iota
 #include <vector>
 
 namespace
 {
 
 template <typename ArrayT>
-void TestTupleRangeAPI(ArrayT *someArray)
+void TestTupleRangeAPI(ArrayT* someArray)
 {
   // TupleRanges have a two-step hierarchy of iterators and references. The
   // first layer encapsulates the concept of tuples, and the second layer
@@ -135,13 +135,13 @@ void TestTupleRangeAPI(ArrayT *someArray)
   // TupleRange methods: //
   /////////////////////////
 
-  range.GetArray(); // Returns someArray
-  range.GetTupleSize(); // Returns someArray->GetNumberOfComponents()
+  range.GetArray();        // Returns someArray
+  range.GetTupleSize();    // Returns someArray->GetNumberOfComponents()
   range.GetBeginTupleId(); // Returns start of tuple range
-  range.GetEndTupleId(); // Returns end of tuple range.
-  range.size(); // Returns the number of tuples in the range.
-  range[4]; // Returns a TupleReference of the range's 5th tuple.
-  range[4][2]; // Returns the 3rd component of the 5th tuple
+  range.GetEndTupleId();   // Returns end of tuple range.
+  range.size();            // Returns the number of tuples in the range.
+  range[4];                // Returns a TupleReference of the range's 5th tuple.
+  range[4][2];             // Returns the 3rd component of the 5th tuple
 
   // Returns an iterator pointing to the first tuple.
   TupleIteratorType iter = range.begin();
@@ -154,14 +154,23 @@ void TestTupleRangeAPI(ArrayT *someArray)
   ConstTupleIteratorType cend = range.cend();
 
   // For-loop syntax:
-  for (TupleReferenceType tupleReference : range) { (void)tupleReference; }
-  for (ConstTupleReferenceType tupleReference : range) { (void)tupleReference; }
+  for (TupleReferenceType tupleReference : range)
+  {
+    (void)tupleReference;
+  }
+  for (ConstTupleReferenceType tupleReference : range)
+  {
+    (void)tupleReference;
+  }
 
   // `auto` here will always be either TupleReferenceType or
   // ConstTupleReferenceType, depending on whether `range` is const-qualified.
   // For component references and value references, `auto`
   // should be used with care (see explanations in those sections).
-  for (auto tupleReference : range) { (void)tupleReference; }
+  for (auto tupleReference : range)
+  {
+    (void)tupleReference;
+  }
 
   /////////////////////////////////////
   // Tuple iterator supported usage: //
@@ -174,9 +183,11 @@ void TestTupleRangeAPI(ArrayT *someArray)
   ConstTupleReferenceType ctuple = citer[3];
 
   // Traversal:
-  ++iter; --iter; // prefix increment/decrement behavior
-  iter++; iter--; // postfix increment/decrement behavior
-  iter += 3; // increment
+  ++iter;
+  --iter; // prefix increment/decrement behavior
+  iter++;
+  iter--;          // postfix increment/decrement behavior
+  iter += 3;       // increment
   iter = iter - 3; // addition, assignment
 
   // Assignment:
@@ -185,12 +196,24 @@ void TestTupleRangeAPI(ArrayT *someArray)
   citer = iter;
 
   // Comparison:
-  if (iter == end) {} // All of these work as expected
-  if (iter != end) {}
-  if (iter < end) {}
-  if (iter <= end) {}
-  if (iter > end) {}
-  if (iter >= end) {}
+  if (iter == end)
+  {
+  } // All of these work as expected
+  if (iter != end)
+  {
+  }
+  if (iter < end)
+  {
+  }
+  if (iter <= end)
+  {
+  }
+  if (iter > end)
+  {
+  }
+  if (iter >= end)
+  {
+  }
 
   // Math
   assert((end - iter) == std::distance(iter, end)); // distance
@@ -200,21 +223,33 @@ void TestTupleRangeAPI(ArrayT *someArray)
   /////////////////////////////////////
 
   // Obtaining:
-  TupleReferenceType tuple1 = *iter; // tuple iterator dereference
+  TupleReferenceType tuple1 = *iter;         // tuple iterator dereference
   ConstTupleReferenceType tuple2 = citer[1]; // tuple iterator indexed access
-  TupleReferenceType tuple3 = range[3]; // range indexed access
+  TupleReferenceType tuple3 = range[3];      // range indexed access
 
   // For-loop syntax:
-  for (ComponentReferenceType component : tuple1) { (void)component; }
-  for (ConstComponentReferenceType component : tuple1) { (void)component; }
-  for (ComponentType component : tuple1) { (void)component; }
+  for (ComponentReferenceType component : tuple1)
+  {
+    (void)component;
+  }
+  for (ConstComponentReferenceType component : tuple1)
+  {
+    (void)component;
+  }
+  for (ComponentType component : tuple1)
+  {
+    (void)component;
+  }
 
   // Due to limitations of C++, auto should be used with care; depending on
   // the implementation of the array, `auto` may have either value or reference
   // semantics. The rule of thumb is: only read from auto variables in a
   // for-range loop. If writing to them, use RangeType::ComponentReferenceType
   // or RangeType::ComponentType explicitly.
-  for (auto component : range) { (void)component; }
+  for (auto component : range)
+  {
+    (void)component;
+  }
 
   // Assignment:
   tuple1 = tuple2; // Component-wise copy of values from tuple2 into tuple1
@@ -228,7 +263,7 @@ void TestTupleRangeAPI(ArrayT *someArray)
 
   // Misc:
   tuple3.fill(0); // Sets all components to 0
-  tuple1.size(); // Returns number of components in tuple.
+  tuple1.size();  // Returns number of components in tuple.
 
   // Copy to/from pointer:
   std::vector<typename decltype(range)::ComponentType> vec(tuple1.size());
@@ -246,9 +281,11 @@ void TestTupleRangeAPI(ArrayT *someArray)
   ////////////////////////////////////////
 
   // Traversal:
-  ++compIter; --compIter; // prefix increment/decrement behavior
-  compIter++; compIter--; // postfix increment/decrement behavior
-  compIter += 3; // increment
+  ++compIter;
+  --compIter; // prefix increment/decrement behavior
+  compIter++;
+  compIter--;              // postfix increment/decrement behavior
+  compIter += 3;           // increment
   compIter = compIter - 3; // addition, assignment
 
   // Dereference:
@@ -266,12 +303,24 @@ void TestTupleRangeAPI(ArrayT *someArray)
   constCompIter = compIter;
 
   // Comparison:
-  if (compIter == compEnd) {} // All of these work as expected
-  if (compIter != compEnd) {}
-  if (compIter < compEnd) {}
-  if (compIter <= compEnd) {}
-  if (compIter > compEnd) {}
-  if (compIter >= compEnd) {}
+  if (compIter == compEnd)
+  {
+  } // All of these work as expected
+  if (compIter != compEnd)
+  {
+  }
+  if (compIter < compEnd)
+  {
+  }
+  if (compIter <= compEnd)
+  {
+  }
+  if (compIter > compEnd)
+  {
+  }
+  if (compIter >= compEnd)
+  {
+  }
 
   // Math
   assert((compEnd - compIter) == std::distance(compIter, compEnd)); // distance
@@ -286,7 +335,7 @@ void TestTupleRangeAPI(ArrayT *someArray)
 }
 
 template <typename ArrayT>
-void TestValueRangeAPI(ArrayT *someArray)
+void TestValueRangeAPI(ArrayT* someArray)
 {
   // ValueRanges emulate walking a vtkDataArray object using
   // vtkAOSDataArrayTemplate<T>::GetPointer(). That is, ValueRange provides
@@ -384,12 +433,12 @@ void TestValueRangeAPI(ArrayT *someArray)
   // ValueRange methods: //
   /////////////////////////
 
-  range.GetArray(); // Returns someArray
-  range.GetTupleSize(); // Returns someArray->GetNumberOfComponents()
+  range.GetArray();        // Returns someArray
+  range.GetTupleSize();    // Returns someArray->GetNumberOfComponents()
   range.GetBeginValueId(); // Returns start of value range
-  range.GetEndValueId(); // Returns end of value range.
-  range.size(); // Returns the number of values in the range.
-  range[4]; // Returns a ValueReference of the range's 5th value.
+  range.GetEndValueId();   // Returns end of value range.
+  range.size();            // Returns the number of values in the range.
+  range[4];                // Returns a ValueReference of the range's 5th value.
 
   // Returns an iterator pointing to the first value.
   IteratorType iter = range.begin();
@@ -402,25 +451,39 @@ void TestValueRangeAPI(ArrayT *someArray)
   ConstIteratorType cend = range.cend();
 
   // For-loop syntax:
-  for (ReferenceType value : range) { (void)value; }
-  for (ConstReferenceType value : range) { (void)value; }
-  for (ValueType value : range) { (void)value; }
+  for (ReferenceType value : range)
+  {
+    (void)value;
+  }
+  for (ConstReferenceType value : range)
+  {
+    (void)value;
+  }
+  for (ValueType value : range)
+  {
+    (void)value;
+  }
 
   // Due to limitations of C++, auto should be used with care; depending on
   // the implementation of the array, `auto` may have either value or reference
   // semantics. The rule of thumb is: only read from auto variables in a
   // for-range loop. If writing to them, use RangeType::ReferenceType or
   // RangeType::ValueType explicitly.
-  for (auto value : range) { (void)value; }
+  for (auto value : range)
+  {
+    (void)value;
+  }
 
   ////////////////////////////////////
   // Value iterator supported usage //
   ////////////////////////////////////
 
   // Traversal:
-  ++iter; --iter; // prefix increment/decrement behavior
-  citer++; citer--; // postfix increment/decrement behavior
-  iter += 3; // increment
+  ++iter;
+  --iter; // prefix increment/decrement behavior
+  citer++;
+  citer--;         // postfix increment/decrement behavior
+  iter += 3;       // increment
   iter = iter - 3; // addition, assignment
 
   // Dereference:
@@ -438,12 +501,24 @@ void TestValueRangeAPI(ArrayT *someArray)
   citer = iter;
 
   // Comparison:
-  if (iter == end) {} // All of these work as expected
-  if (iter != end) {}
-  if (iter < end) {}
-  if (iter <= end) {}
-  if (iter > end) {}
-  if (iter >= end) {}
+  if (iter == end)
+  {
+  } // All of these work as expected
+  if (iter != end)
+  {
+  }
+  if (iter < end)
+  {
+  }
+  if (iter <= end)
+  {
+  }
+  if (iter > end)
+  {
+  }
+  if (iter >= end)
+  {
+  }
 
   // Math
   assert((end - iter) == std::distance(iter, end)); // distance
@@ -467,13 +542,13 @@ int ExampleDataArrayRangeAPI(int, char*[])
     std::iota(range.begin(), range.end(), 0.f);
   }
 
-  vtkNew<vtkSOADataArrayTemplate<float>> soaArray;
+  vtkNew<vtkSOADataArrayTemplate<float> > soaArray;
   soaArray->DeepCopy(aosArray);
 
   // Some vtkDataArray pointers to show that these ranges work with the generic
   // vtkDataArray API:
-  vtkDataArray *daAos = aosArray;
-  vtkDataArray *daSoa = soaArray;
+  vtkDataArray* daAos = aosArray;
+  vtkDataArray* daSoa = soaArray;
 
   TestTupleRangeAPI(aosArray.Get());
   TestTupleRangeAPI(soaArray.Get());

@@ -31,7 +31,7 @@
  * By default, one "step" of motion corresponds to 1/250th of the diagonal
  * of bounding box of visible actors, '+' and '-' keys allow user to
  * increase or decrease step size.
-*/
+ */
 
 #ifndef vtkInteractorStyleFlight_h
 #define vtkInteractorStyleFlight_h
@@ -46,8 +46,8 @@ class CPIDControl;
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleFlight *New();
-  vtkTypeMacro(vtkInteractorStyleFlight,vtkInteractorStyle);
+  static vtkInteractorStyleFlight* New();
+  vtkTypeMacro(vtkInteractorStyleFlight, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,41 +60,41 @@ public:
   /**
    * Set the basic unit step size : by default 1/250 of bounding diagonal
    */
-  vtkSetMacro(MotionStepSize,double);
-  vtkGetMacro(MotionStepSize,double);
+  vtkSetMacro(MotionStepSize, double);
+  vtkGetMacro(MotionStepSize, double);
   //@}
 
   //@{
   /**
    * Set acceleration factor when shift key is applied : default 10
    */
-  vtkSetMacro(MotionAccelerationFactor,double);
-  vtkGetMacro(MotionAccelerationFactor,double);
+  vtkSetMacro(MotionAccelerationFactor, double);
+  vtkGetMacro(MotionAccelerationFactor, double);
   //@}
 
   //@{
   /**
    * Set the basic angular unit for turning : default 1 degree
    */
-  vtkSetMacro(AngleStepSize,double);
-  vtkGetMacro(AngleStepSize,double);
+  vtkSetMacro(AngleStepSize, double);
+  vtkGetMacro(AngleStepSize, double);
   //@}
 
   //@{
   /**
    * Set angular acceleration when shift key is applied : default 5
    */
-  vtkSetMacro(AngleAccelerationFactor,double);
-  vtkGetMacro(AngleAccelerationFactor,double);
+  vtkSetMacro(AngleAccelerationFactor, double);
+  vtkGetMacro(AngleAccelerationFactor, double);
   //@}
 
   //@{
   /**
    * Disable motion (temporarily - for viewing etc)
    */
-  vtkSetMacro(DisableMotion,vtkTypeBool);
-  vtkGetMacro(DisableMotion,vtkTypeBool);
-  vtkBooleanMacro(DisableMotion,vtkTypeBool);
+  vtkSetMacro(DisableMotion, vtkTypeBool);
+  vtkGetMacro(DisableMotion, vtkTypeBool);
+  vtkBooleanMacro(DisableMotion, vtkTypeBool);
   //@}
 
   //@{
@@ -105,14 +105,14 @@ public:
    * when viewing from arbitrary angles, but keep the horizon level when
    * the user is flying over terrain.
    */
-  vtkSetMacro(RestoreUpVector,vtkTypeBool);
-  vtkGetMacro(RestoreUpVector,vtkTypeBool);
-  vtkBooleanMacro(RestoreUpVector,vtkTypeBool);
+  vtkSetMacro(RestoreUpVector, vtkTypeBool);
+  vtkGetMacro(RestoreUpVector, vtkTypeBool);
+  vtkBooleanMacro(RestoreUpVector, vtkTypeBool);
   //@}
 
   // Specify "up" (by default {0,0,1} but can be changed)
-  vtkGetVectorMacro(DefaultUpVector,double,3);
-  vtkSetVectorMacro(DefaultUpVector,double,3);
+  vtkGetVectorMacro(DefaultUpVector, double, 3);
+  vtkSetVectorMacro(DefaultUpVector, double, 3);
 
   //@{
   /**
@@ -146,44 +146,44 @@ public:
   //@}
 
 protected:
-   vtkInteractorStyleFlight();
+  vtkInteractorStyleFlight();
   ~vtkInteractorStyleFlight() override;
 
   //@{
   /**
    * Routines used internally for computing motion and steering
    */
-  void UpdateSteering(vtkCamera *cam);
-  void UpdateMouseSteering(vtkCamera *cam);
+  void UpdateSteering(vtkCamera* cam);
+  void UpdateMouseSteering(vtkCamera* cam);
   void FlyByMouse(vtkCamera* cam);
   void FlyByKey(vtkCamera* cam);
   void GetLRVector(double vector[3], vtkCamera* cam);
   void MotionAlongVector(double vector[3], double amount, vtkCamera* cam);
-  void SetupMotionVars(vtkCamera *cam);
+  void SetupMotionVars(vtkCamera* cam);
   void FinishCamera(vtkCamera* cam);
   //
   //
   unsigned char KeysDown;
-  vtkTypeBool           DisableMotion;
-  vtkTypeBool           RestoreUpVector;
-  double        DiagonalLength;
-  double        MotionStepSize;
-  double        MotionUserScale;
-  double        MotionAccelerationFactor;
-  double        AngleStepSize;
-  double        AngleAccelerationFactor;
-  double        DefaultUpVector[3];
-  double        AzimuthStepSize;
-  double        IdealFocalPoint[3];
-  vtkPerspectiveTransform *Transform;
-  double        DeltaYaw;
-  double        lYaw;
-  double        DeltaPitch;
-  double        lPitch;
+  vtkTypeBool DisableMotion;
+  vtkTypeBool RestoreUpVector;
+  double DiagonalLength;
+  double MotionStepSize;
+  double MotionUserScale;
+  double MotionAccelerationFactor;
+  double AngleStepSize;
+  double AngleAccelerationFactor;
+  double DefaultUpVector[3];
+  double AzimuthStepSize;
+  double IdealFocalPoint[3];
+  vtkPerspectiveTransform* Transform;
+  double DeltaYaw;
+  double lYaw;
+  double DeltaPitch;
+  double lPitch;
   //@}
 
-  CPIDControl  *PID_Yaw;
-  CPIDControl  *PID_Pitch;
+  CPIDControl* PID_Yaw;
+  CPIDControl* PID_Pitch;
 
 private:
   vtkInteractorStyleFlight(const vtkInteractorStyleFlight&) = delete;

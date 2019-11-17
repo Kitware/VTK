@@ -28,7 +28,7 @@
  * Also options to additionally compute the divergence, vorticity and
  * Q criterion of input vector fields.
  *
-*/
+ */
 
 #ifndef vtkmGradient_h
 #define vtkmGradient_h
@@ -47,9 +47,7 @@ protected:
   vtkmGradient();
   ~vtkmGradient();
 
-
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmGradient(const vtkmGradient&) = delete;

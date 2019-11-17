@@ -40,7 +40,7 @@
  * Thanks to Thomas Otahal from Sandia National Laboratories
  * for help developing this class.
  *
-*/
+ */
 
 #ifndef vtkCirclePackLayout_h
 #define vtkCirclePackLayout_h
@@ -56,71 +56,71 @@ class vtkTree;
 class VTKINFOVISLAYOUT_EXPORT vtkCirclePackLayout : public vtkTreeAlgorithm
 {
 public:
-    static vtkCirclePackLayout *New();
+  static vtkCirclePackLayout* New();
 
-    vtkTypeMacro(vtkCirclePackLayout,vtkTreeAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent) override;
+  vtkTypeMacro(vtkCirclePackLayout, vtkTreeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-    //@{
-    /**
-     * The field name to use for storing the circles for each vertex.
-     * The rectangles are stored in a triple float array
-     * (Xcenter, Ycenter, Radius).
-     * Default name is "circles"
-     */
-    vtkGetStringMacro(CirclesFieldName);
-    vtkSetStringMacro(CirclesFieldName);
-    //@}
+  //@{
+  /**
+   * The field name to use for storing the circles for each vertex.
+   * The rectangles are stored in a triple float array
+   * (Xcenter, Ycenter, Radius).
+   * Default name is "circles"
+   */
+  vtkGetStringMacro(CirclesFieldName);
+  vtkSetStringMacro(CirclesFieldName);
+  //@}
 
-    /**
-     * The array to use for the size of each vertex.
-     * Default name is "size".
-     */
-    virtual void SetSizeArrayName(const char* name)
-    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
+  /**
+   * The array to use for the size of each vertex.
+   * Default name is "size".
+   */
+  virtual void SetSizeArrayName(const char* name)
+  {
+    this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  }
 
-    //@{
-    /**
-     * The strategy to use when laying out the tree map.
-     */
-    vtkGetObjectMacro(LayoutStrategy, vtkCirclePackLayoutStrategy);
-    void SetLayoutStrategy(vtkCirclePackLayoutStrategy * strategy);
-    //@}
+  //@{
+  /**
+   * The strategy to use when laying out the tree map.
+   */
+  vtkGetObjectMacro(LayoutStrategy, vtkCirclePackLayoutStrategy);
+  void SetLayoutStrategy(vtkCirclePackLayoutStrategy* strategy);
+  //@}
 
-    /**
-     * Returns the vertex id that contains pnt (or -1 if no one contains it)
-     * pnt[0] is x, and pnt[1] is y.
-     * If cinfo[3] is provided, then (Xcenter, Ycenter, Radius) of the circle
-     * containing pnt[2] will be returned.
-     */
-    vtkIdType FindVertex(double pnt[2], double *cinfo=nullptr);
+  /**
+   * Returns the vertex id that contains pnt (or -1 if no one contains it)
+   * pnt[0] is x, and pnt[1] is y.
+   * If cinfo[3] is provided, then (Xcenter, Ycenter, Radius) of the circle
+   * containing pnt[2] will be returned.
+   */
+  vtkIdType FindVertex(double pnt[2], double* cinfo = nullptr);
 
-    /**
-     * Return the Xcenter, Ycenter, and Radius of the
-     * vertex's bounding circle
-     */
-    void GetBoundingCircle(vtkIdType id, double *cinfo);
+  /**
+   * Return the Xcenter, Ycenter, and Radius of the
+   * vertex's bounding circle
+   */
+  void GetBoundingCircle(vtkIdType id, double* cinfo);
 
-    /**
-     * Get the modification time of the layout algorithm.
-     */
-    vtkMTimeType GetMTime() override;
+  /**
+   * Get the modification time of the layout algorithm.
+   */
+  vtkMTimeType GetMTime() override;
 
 protected:
-    vtkCirclePackLayout();
-    ~vtkCirclePackLayout() override;
+  vtkCirclePackLayout();
+  ~vtkCirclePackLayout() override;
 
-    char * CirclesFieldName;
-    vtkCirclePackLayoutStrategy* LayoutStrategy;
+  char* CirclesFieldName;
+  vtkCirclePackLayoutStrategy* LayoutStrategy;
 
-    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
-    vtkCirclePackLayout(const vtkCirclePackLayout&) = delete;
-    void operator=(const vtkCirclePackLayout&) = delete;
-    void prepareSizeArray(vtkDoubleArray* mySizeArray,
-                          vtkTree* tree);
+  vtkCirclePackLayout(const vtkCirclePackLayout&) = delete;
+  void operator=(const vtkCirclePackLayout&) = delete;
+  void prepareSizeArray(vtkDoubleArray* mySizeArray, vtkTree* tree);
 };
 
 #endif

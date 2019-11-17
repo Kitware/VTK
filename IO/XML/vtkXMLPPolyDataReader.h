@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPolyDataReader
-*/
+ */
 
 #ifndef vtkXMLPPolyDataReader_h
 #define vtkXMLPPolyDataReader_h
@@ -37,16 +37,16 @@ class vtkPolyData;
 class VTKIOXML_EXPORT vtkXMLPPolyDataReader : public vtkXMLPUnstructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLPPolyDataReader,vtkXMLPUnstructuredDataReader);
+  vtkTypeMacro(vtkXMLPPolyDataReader, vtkXMLPUnstructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLPPolyDataReader *New();
+  static vtkXMLPPolyDataReader* New();
 
   //@{
   /**
    * Get the reader's output.
    */
-  vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx);
+  vtkPolyData* GetOutput();
+  vtkPolyData* GetOutput(int idx);
   //@}
 
 protected:

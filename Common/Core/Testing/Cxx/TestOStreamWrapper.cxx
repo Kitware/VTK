@@ -18,7 +18,7 @@
 #include <cstdio> // test covers NOT including <iostream>
 #include <string>
 
-int TestOStreamWrapper(int, char *[])
+int TestOStreamWrapper(int, char*[])
 {
   int failed = 0;
   std::string const expect = "hello, world: 1";
@@ -28,11 +28,10 @@ int TestOStreamWrapper(int, char *[])
   vtkmsg << s << ": " << 1;
   actual = vtkmsg.str();
   vtkmsg.rdbuf()->freeze(0);
-  if(actual != expect)
+  if (actual != expect)
   {
     failed = 1;
-    fprintf(stderr, "Expected '%s' but got '%s'\n",
-            expect.c_str(), actual.c_str());
+    fprintf(stderr, "Expected '%s' but got '%s'\n", expect.c_str(), actual.c_str());
   }
   return failed;
 }

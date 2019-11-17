@@ -43,7 +43,7 @@ vtkEarthSource::vtkEarthSource()
 
 void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "OnRatio: " << this->OnRatio << "\n";
@@ -52,29 +52,26 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 
 #include "vtkEarthSourceData.cxx"
 
-int vtkEarthSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkEarthSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int i;
   int maxPts;
   int maxPolys;
-  vtkPoints *newPoints;
-  vtkFloatArray *newNormals;
-  vtkCellArray *newPolys;
+  vtkPoints* newPoints;
+  vtkFloatArray* newNormals;
+  vtkCellArray* newPolys;
   double x[3], base[3];
   vtkIdType Pts[4000];
   int npts, land, offset;
   int actualpts, actualpolys;
-  double scale = 1.0/30000.0;
+  double scale = 1.0 / 30000.0;
 
   //
   // Set things up; allocate memory
@@ -87,9 +84,9 @@ int vtkEarthSource::RequestData(
   newPoints->Allocate(maxPts);
   newNormals = vtkFloatArray::New();
   newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3*maxPts);
+  newNormals->Allocate(3 * maxPts);
   newPolys = vtkCellArray::New();
-  newPolys->AllocateEstimate(maxPolys, 4000/this->OnRatio);
+  newPolys->AllocateEstimate(maxPolys, 4000 / this->OnRatio);
 
   //
   // Create points
@@ -104,13 +101,13 @@ int vtkEarthSource::RequestData(
       break;
     }
 
-    land  = vtkEarthData[offset++];
+    land = vtkEarthData[offset++];
 
     base[0] = 0;
     base[1] = 0;
     base[2] = 0;
 
-    for (i=1; i<=npts; i++)
+    for (i = 1; i <= npts; i++)
     {
       base[0] += vtkEarthData[offset++] * scale;
       base[1] += vtkEarthData[offset++] * scale;
@@ -139,19 +136,19 @@ int vtkEarthSource::RequestData(
       // Generate mesh connectivity for this polygon
       //
 
-      for (i = 0; i < (npts/this->OnRatio); i++)
+      for (i = 0; i < (npts / this->OnRatio); i++)
       {
-        Pts[i] = (actualpts - npts/this->OnRatio) + i;
+        Pts[i] = (actualpts - npts / this->OnRatio) + i;
       }
 
-      if ( this->Outline ) // close the loop in the line
+      if (this->Outline) // close the loop in the line
       {
-        Pts[i] = (actualpts - npts/this->OnRatio);
-        newPolys->InsertNextCell(i+1,Pts);
+        Pts[i] = (actualpts - npts / this->OnRatio);
+        newPolys->InsertNextCell(i + 1, Pts);
       }
       else
       {
-        newPolys->InsertNextCell(i,Pts);
+        newPolys->InsertNextCell(i, Pts);
       }
 
       actualpolys++;
@@ -167,7 +164,7 @@ int vtkEarthSource::RequestData(
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
-  if ( this->Outline ) //lines or polygons
+  if (this->Outline) // lines or polygons
   {
     output->SetLines(newPolys);
   }

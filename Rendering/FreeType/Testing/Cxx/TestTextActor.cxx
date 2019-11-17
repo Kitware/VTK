@@ -33,10 +33,11 @@
 
 #include <sstream>
 
-namespace vtkTestTextActor {
-void setupTextActor(vtkTextActor *actor, vtkPolyData *anchor)
+namespace vtkTestTextActor
 {
-  vtkTextProperty *p = actor->GetTextProperty();
+void setupTextActor(vtkTextActor* actor, vtkPolyData* anchor)
+{
+  vtkTextProperty* p = actor->GetTextProperty();
   std::ostringstream label;
   label << "TProp Angle: " << p->GetOrientation() << "\n"
         << "Actor Angle: " << actor->GetOrientation() << "\n"
@@ -45,26 +46,25 @@ void setupTextActor(vtkTextActor *actor, vtkPolyData *anchor)
   actor->SetInput(label.str().c_str());
 
   // Add the anchor point:
-  double *pos = actor->GetPosition();
-  double *col = p->GetColor();
+  double* pos = actor->GetPosition();
+  double* col = p->GetColor();
   vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], 0.);
   anchor->GetVerts()->InsertNextCell(1, &ptId);
-  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
-                                                        col[1] * 255,
-                                                        col[2] * 255, 255);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(
+    col[0] * 255, col[1] * 255, col[2] * 255, 255);
 }
 } // end namespace vtkTestTextActor
 
 //----------------------------------------------------------------------------
-int TestTextActor(int, char *[])
+int TestTextActor(int, char*[])
 {
   using namespace vtkTestTextActor;
   vtkNew<vtkRenderer> ren;
 
   int width = 600;
   int height = 600;
-  int x[3] = {100, 300, 500};
-  int y[4] = {100, 233, 366, 500};
+  int x[3] = { 100, 300, 500 };
+  int y[4] = { 100, 233, 366, 500 };
 
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
@@ -112,8 +112,7 @@ int TestTextActor(int, char *[])
           break;
       }
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
-      actor->GetTextProperty()->SetBackgroundColor(0.25, 0.4 - col * .13,
-                                                   .5 - row * .1);
+      actor->GetTextProperty()->SetBackgroundColor(0.25, 0.4 - col * .13, .5 - row * .1);
       actor->GetTextProperty()->SetBackgroundOpacity(1.0);
 
       actor->SetPosition(x[col], y[row]);

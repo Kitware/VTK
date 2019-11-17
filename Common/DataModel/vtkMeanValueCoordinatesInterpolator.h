@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @sa
  * vtkPolyhedralCell
-*/
+ */
 
 #ifndef vtkMeanValueCoordinatesInterpolator_h
 #define vtkMeanValueCoordinatesInterpolator_h
@@ -50,10 +50,9 @@ class vtkIdList;
 class vtkCellArray;
 class vtkDataArray;
 
-//Special internal class for iterating over data
+// Special internal class for iterating over data
 class vtkMVCTriIterator;
 class vtkMVCPolyIterator;
-
 
 class VTKCOMMONDATAMODEL_EXPORT vtkMeanValueCoordinatesInterpolator : public vtkObject
 {
@@ -62,8 +61,8 @@ public:
   /**
    * Standard instantiable class methods.
    */
-  static vtkMeanValueCoordinatesInterpolator *New();
-  vtkTypeMacro(vtkMeanValueCoordinatesInterpolator,vtkObject);
+  static vtkMeanValueCoordinatesInterpolator* New();
+  vtkTypeMacro(vtkMeanValueCoordinatesInterpolator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -74,8 +73,8 @@ public:
    * such that three ids in order define a triangle.  Note that number of weights
    * must equal the number of points.
    */
-  static void ComputeInterpolationWeights(const double x[3], vtkPoints *pts,
-                                          vtkIdList *tris, double *weights);
+  static void ComputeInterpolationWeights(
+    const double x[3], vtkPoints* pts, vtkIdList* tris, double* weights);
 
   /**
    * Method to generate interpolation weights for a point x[3] from a list of
@@ -84,8 +83,8 @@ public:
    * faces and is of format [nFace0Pts, pid1, pid2, pid3,..., nFace1Pts, pid1,
    * pid2, pid3,...].  Note: the number of weights must equal the number of points.
    */
-  static void ComputeInterpolationWeights(const double x[3], vtkPoints *pts,
-                                          vtkCellArray *tris, double *weights);
+  static void ComputeInterpolationWeights(
+    const double x[3], vtkPoints* pts, vtkCellArray* tris, double* weights);
 
 protected:
   vtkMeanValueCoordinatesInterpolator();
@@ -95,14 +94,13 @@ protected:
    * Internal method that sets up the processing of triangular meshes.
    */
   static void ComputeInterpolationWeightsForTriangleMesh(
-    const double x[3], vtkPoints *pts, vtkMVCTriIterator& iter, double *weights);
+    const double x[3], vtkPoints* pts, vtkMVCTriIterator& iter, double* weights);
 
   /**
    * Internal method that sets up the processing of general polyhedron meshes.
    */
   static void ComputeInterpolationWeightsForPolygonMesh(
-    const double x[3], vtkPoints *pts, vtkMVCPolyIterator& iter, double *weights);
-
+    const double x[3], vtkPoints* pts, vtkMVCPolyIterator& iter, double* weights);
 
 private:
   vtkMeanValueCoordinatesInterpolator(const vtkMeanValueCoordinatesInterpolator&) = delete;

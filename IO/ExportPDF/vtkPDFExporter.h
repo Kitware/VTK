@@ -31,12 +31,12 @@
 class vtkContextActor;
 class vtkRenderer;
 
-class VTKIOEXPORTPDF_EXPORT vtkPDFExporter: public vtkExporter
+class VTKIOEXPORTPDF_EXPORT vtkPDFExporter : public vtkExporter
 {
 public:
   static vtkPDFExporter* New();
   vtkTypeMacro(vtkPDFExporter, vtkExporter);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /** The title of the exported document. @{ */
   vtkSetStringMacro(Title);
@@ -57,18 +57,17 @@ protected:
   void WritePDF();
   void PrepareDocument();
   void RenderContextActors();
-  void RenderContextActor(vtkContextActor *actor,
-                          vtkRenderer *renderer);
+  void RenderContextActor(vtkContextActor* actor, vtkRenderer* renderer);
 
-  char *Title;
-  char *FileName;
+  char* Title;
+  char* FileName;
 
 private:
   vtkPDFExporter(const vtkPDFExporter&) = delete;
   void operator=(const vtkPDFExporter&) = delete;
 
   struct Details;
-  Details *Impl;
+  Details* Impl;
 };
 
 #endif // vtkPDFExporter_h

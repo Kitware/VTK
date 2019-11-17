@@ -33,43 +33,40 @@
 #include "vtkUnsignedCharArray.h"
 
 //----------------------------------------------------------------------------
-int TestButterflyScalars(int argc, char * argv[])
+int TestButterflyScalars(int argc, char* argv[])
 {
-  //Defining a cylinder source.
-  vtkSmartPointer<vtkCylinderSource> cylinderSource =
-    vtkSmartPointer<vtkCylinderSource>::New();
+  // Defining a cylinder source.
+  vtkSmartPointer<vtkCylinderSource> cylinderSource = vtkSmartPointer<vtkCylinderSource>::New();
   cylinderSource->Update();
 
-  vtkSmartPointer<vtkTriangleFilter> triangles =
-    vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkSmartPointer<vtkTriangleFilter> triangles = vtkSmartPointer<vtkTriangleFilter>::New();
   triangles->SetInputConnection(cylinderSource->GetOutputPort());
   triangles->Update();
 
   vtkSmartPointer<vtkPolyData> originalMesh;
   originalMesh = triangles->GetOutput();
 
-  vtkSmartPointer<vtkUnsignedCharArray> colors =
-    vtkSmartPointer<vtkUnsignedCharArray>::New();
+  vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
   colors->SetNumberOfComponents(3);
   colors->SetNumberOfTuples(originalMesh->GetNumberOfPoints());
   colors->SetName("Colors");
 
-  //Loop to select colors for each of the points in the polydata.
+  // Loop to select colors for each of the points in the polydata.
   for (int i = 0; i < originalMesh->GetNumberOfPoints(); i++)
   {
     if (i > 0 && i < 5)
     {
-      //Black
+      // Black
       colors->InsertTuple3(i, 255, 255, 0);
     }
     else if (i > 4 && i < 10)
     {
-      //Blue
+      // Blue
       colors->InsertTuple3(i, 0, 0, 255);
     }
     else if (i > 9 && i < 300)
     {
-      //Red
+      // Red
       colors->InsertTuple3(i, 255, 0, 0);
     }
     else
@@ -80,7 +77,7 @@ int TestButterflyScalars(int argc, char * argv[])
 
   originalMesh->GetPointData()->SetScalars(colors);
 
-  //Subdivision.
+  // Subdivision.
   int numberOfSubdivisions = 4;
   vtkSmartPointer<vtkButterflySubdivisionFilter> subdivisionFilter =
     vtkSmartPointer<vtkButterflySubdivisionFilter>::New();
@@ -89,20 +86,16 @@ int TestButterflyScalars(int argc, char * argv[])
   subdivisionFilter->SetInputData(originalMesh);
   subdivisionFilter->Update();
 
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  //Create a mapper and actor
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  // Create a mapper and actor
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputConnection(subdivisionFilter->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
   renderer->AddActor(actor);

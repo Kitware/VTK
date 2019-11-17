@@ -48,7 +48,7 @@
 #if PY_VERSION_HEX < 0x03030000
 #define PyUnicode_DecodeLocaleAndSize PyUnicode_DecodeFSDefaultAndSize
 #define PyUnicode_DecodeLocale PyUnicode_DecodeFSDefault
-#define PyUnicode_EncodeLocale(o,e) PyUnicode_EncodeFSDefault(o)
+#define PyUnicode_EncodeLocale(o, e) PyUnicode_EncodeFSDefault(o)
 #define PyString_AsString _PyUnicode_AsString
 #else
 #define PyString_AsString PyUnicode_AsUTF8
@@ -56,26 +56,26 @@
 
 // Buffer compatibility
 #if PY_VERSION_HEX < 0x03030000
-#define VTK_PYBUFFER_INITIALIZER \
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0 }
+#define VTK_PYBUFFER_INITIALIZER                                                                   \
+  {                                                                                                \
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0                                                      \
+  }
 #else
-#define VTK_PYBUFFER_INITIALIZER \
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+#define VTK_PYBUFFER_INITIALIZER                                                                   \
+  {                                                                                                \
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                                                                \
+  }
 #endif
 
 // PyTypeObject compatibility
 #if PY_VERSION_HEX >= 0x03090000
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED \
-  0, 0, 0, 0,
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0, 0,
 #elif PY_VERSION_HEX >= 0x03080000
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED \
-  0, 0, 0, 0, 0,
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0, 0, 0,
 #elif PY_VERSION_HEX >= 0x03040000
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED \
-  0, 0, 0,
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0, 0,
 #else
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED \
-  0, 0,
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0, 0,
 #endif
 
 #endif
@@ -89,8 +89,7 @@ typedef unsigned long Py_uhash_t;
 
 // Required for Python 2.5 compatibility
 #ifndef PyVarObject_HEAD_INIT
-#define PyVarObject_HEAD_INIT(type, size) \
-  PyObject_HEAD_INIT(type) size,
+#define PyVarObject_HEAD_INIT(type, size) PyObject_HEAD_INIT(type) size,
 #endif
 
 // Required for Python 2.5 compatibility
@@ -120,15 +119,24 @@ typedef unsigned long Py_uhash_t;
 
 // Buffer struct initialization is different for every version
 #if PY_VERSION_HEX < 0x02060000
-typedef struct bufferinfo { PyObject *obj; } Py_buffer;
-#define VTK_PYBUFFER_INITIALIZER \
-  { 0 }
+typedef struct bufferinfo
+{
+  PyObject* obj;
+} Py_buffer;
+#define VTK_PYBUFFER_INITIALIZER                                                                   \
+  {                                                                                                \
+    0                                                                                              \
+  }
 #elif PY_VERSION_HEX < 0x02070000
-#define VTK_PYBUFFER_INITIALIZER \
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+#define VTK_PYBUFFER_INITIALIZER                                                                   \
+  {                                                                                                \
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                                                                \
+  }
 #else
-#define VTK_PYBUFFER_INITIALIZER \
-  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0 }
+#define VTK_PYBUFFER_INITIALIZER                                                                   \
+  {                                                                                                \
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0                                                      \
+  }
 #endif
 
 // PyTypeObject compatibility

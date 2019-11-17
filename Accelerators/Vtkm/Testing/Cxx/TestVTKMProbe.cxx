@@ -27,8 +27,7 @@ namespace
 {
 static int inputDim = 9;
 static int sourceDim = 4;
-void populatePointAndCellArray(vtkFloatArray* pointArray,
-                               vtkFloatArray* cellArray)
+void populatePointAndCellArray(vtkFloatArray* pointArray, vtkFloatArray* cellArray)
 {
   pointArray->SetNumberOfValues(sourceDim * sourceDim);
   pointArray->SetName("pointdata");
@@ -38,11 +37,10 @@ void populatePointAndCellArray(vtkFloatArray* pointArray,
   }
   cellArray->SetName("celldata");
   cellArray->SetNumberOfValues((sourceDim - 1) * (sourceDim - 1));
-  for (vtkIdType i = 0; i < static_cast<vtkIdType>((sourceDim-1) * (sourceDim-1)); i++)
+  for (vtkIdType i = 0; i < static_cast<vtkIdType>((sourceDim - 1) * (sourceDim - 1)); i++)
   {
     cellArray->SetValue(i, 0.7f * i);
   }
-
 }
 
 const std::vector<float>& GetExpectedPointData()
@@ -108,10 +106,9 @@ void TestResultArray(vtkDataArray* result, const std::vector<T>& expected)
   {
     if ((result->GetComponent(0, i) - expected[static_cast<size_t>(i)]) > 1e-5)
     {
-      std::cout << "Array " << result->GetName() << " has wrong value" <<
-                " at index " << i << ". result value="<<
-                result->GetComponent(0, i) << " expected value=" <<
-                   expected[static_cast<size_t>(i)] << std::endl;
+      std::cout << "Array " << result->GetName() << " has wrong value"
+                << " at index " << i << ". result value=" << result->GetComponent(0, i)
+                << " expected value=" << expected[static_cast<size_t>(i)] << std::endl;
     }
     assert((result->GetComponent(0, i) - expected[static_cast<size_t>(i)]) < 1e-5);
   }
@@ -124,12 +121,12 @@ int TestVTKMProbe(int, char*[])
   vtkNew<vtkImageData> input;
   input->SetOrigin(0.7, 0.7, 0.0);
   input->SetSpacing(0.35, 0.35, 1.0);
-  input->SetExtent(0, inputDim -1, 0, inputDim -1, 0, 0);
+  input->SetExtent(0, inputDim - 1, 0, inputDim - 1, 0, 0);
 
   vtkNew<vtkImageData> source;
   source->SetOrigin(0.0, 0.0, 0.0);
   source->SetSpacing(1.0, 1.0, 1.0);
-  source->SetExtent(0, sourceDim -1, 0, sourceDim -1, 0, 0);
+  source->SetExtent(0, sourceDim - 1, 0, sourceDim - 1, 0, 0);
 
   vtkNew<vtkFloatArray> pointArray, cellArray;
   populatePointAndCellArray(pointArray, cellArray);
@@ -144,13 +141,9 @@ int TestVTKMProbe(int, char*[])
   probe->Update();
 
   vtkDataSet* result = probe->GetOutput();
-  TestResultArray(result->GetPointData()->GetArray(pointArray->GetName()),
-                  GetExpectedPointData());
-  TestResultArray(result->GetCellData()->GetArray(cellArray->GetName()),
-                  GetExpectedCellData());
-  TestResultArray(result->GetPointData()->GetArray("validPoint"),
-                  GetExpectedHiddenPoints());
-  TestResultArray(result->GetCellData()->GetArray("validCell"),
-                  GetExpectedHiddenCells());
+  TestResultArray(result->GetPointData()->GetArray(pointArray->GetName()), GetExpectedPointData());
+  TestResultArray(result->GetCellData()->GetArray(cellArray->GetName()), GetExpectedCellData());
+  TestResultArray(result->GetPointData()->GetArray("validPoint"), GetExpectedHiddenPoints());
+  TestResultArray(result->GetCellData()->GetArray("validCell"), GetExpectedHiddenCells());
   return 0;
 }

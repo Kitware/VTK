@@ -33,7 +33,7 @@
  * for details.  vtkRISReader will convert an RIS file into a vtkTable, with
  * the set of table columns determined dynamically from the contents of the
  * file.
-*/
+ */
 
 #ifndef vtkRISReader_h
 #define vtkRISReader_h
@@ -47,7 +47,7 @@ class VTKIOINFOVIS_EXPORT vtkRISReader : public vtkTableAlgorithm
 {
 public:
   static vtkRISReader* New();
-  vtkTypeMacro(vtkRISReader,vtkTableAlgorithm);
+  vtkTypeMacro(vtkRISReader, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -70,18 +70,15 @@ public:
   /**
    * Set/get the maximum number of records to read from the file (zero = unlimited)
    */
-  vtkGetMacro(MaxRecords,int);
-  vtkSetMacro(MaxRecords,int);
+  vtkGetMacro(MaxRecords, int);
+  vtkSetMacro(MaxRecords, int);
   //@}
 
- protected:
+protected:
   vtkRISReader();
   ~vtkRISReader() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
   char* Delimiter;

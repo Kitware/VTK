@@ -17,7 +17,7 @@
  * @brief   Forward-declare C++ iostreams as used by VTK.
  *
  * This header forward-declares the proper streams.
-*/
+ */
 
 #ifndef vtkIOStreamFwd_h
 #define vtkIOStreamFwd_h
@@ -25,20 +25,20 @@
 #include "vtkConfigure.h"
 
 #ifdef _MSC_VER
-#pragma warning (push, 3)
+#pragma warning(push, 3)
 #endif
 
 // Forward-declare ansi streams.
 #include <iosfwd>
-using std::ios;
-using std::streambuf;
-using std::istream;
-using std::ostream;
-using std::iostream;
 using std::filebuf;
-using std::ifstream;
-using std::ofstream;
 using std::fstream;
+using std::ifstream;
+using std::ios;
+using std::iostream;
+using std::istream;
+using std::ofstream;
+using std::ostream;
+using std::streambuf;
 
 #ifdef _MSC_VER
 #pragma warning(pop)

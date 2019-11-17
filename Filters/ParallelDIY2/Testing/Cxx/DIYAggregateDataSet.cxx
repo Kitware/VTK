@@ -129,7 +129,6 @@ int DIYAggregateDataSet(int argc, char* argv[])
   transform->Delete();
   wavelet2->Delete();
 
-
   contr->Finalize();
   contr->Delete();
 

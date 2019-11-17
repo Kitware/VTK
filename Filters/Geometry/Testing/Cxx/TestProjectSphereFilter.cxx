@@ -28,40 +28,40 @@
 
 namespace
 {
-  // returns true for success. type is Point or Cell to give
-  // feedback for errors in the passed in array.
-  bool CheckFieldData(const char* type, vtkDataArray* array, int component,
-                      double minValue, double maxValue)
+// returns true for success. type is Point or Cell to give
+// feedback for errors in the passed in array.
+bool CheckFieldData(
+  const char* type, vtkDataArray* array, int component, double minValue, double maxValue)
+{
+  double values[3];
+  for (vtkIdType i = 0; i < array->GetNumberOfTuples(); i++)
   {
-    double values[3];
-    for(vtkIdType i=0;i<array->GetNumberOfTuples();i++)
+    array->GetTuple(i, values);
+    for (int j = 0; j < 3; j++)
     {
-      array->GetTuple(i, values);
-      for(int j=0;j<3;j++)
+      if (j == component)
       {
-        if(j == component)
+        if (values[j] != 0.0 && (values[j] < minValue || values[j] > maxValue))
         {
-          if(values[j] != 0.0 && (values[j] < minValue || values[j] > maxValue))
-          {
-            vtkGenericWarningMacro("Array type " << type << " with name "
-                                   << array->GetName() << " has bad value of " << values[j]
-                                   << " but should be between " << minValue << " and " << maxValue);
-            return false;
-          }
-        }
-        else if(values[j] < -0.001 || values[j] > 0.001)
-        {
-          vtkGenericWarningMacro("Array type " << type << " with name " << array->GetName()
-                                 << " should be 0 but has value of " << values[j]);
+          vtkGenericWarningMacro("Array type "
+            << type << " with name " << array->GetName() << " has bad value of " << values[j]
+            << " but should be between " << minValue << " and " << maxValue);
           return false;
         }
       }
+      else if (values[j] < -0.001 || values[j] > 0.001)
+      {
+        vtkGenericWarningMacro("Array type " << type << " with name " << array->GetName()
+                                             << " should be 0 but has value of " << values[j]);
+        return false;
+      }
     }
-    return true;
   }
+  return true;
+}
 }
 
-int TestProjectSphereFilter(int vtkNotUsed(argc), char* [])
+int TestProjectSphereFilter(int vtkNotUsed(argc), char*[])
 {
   int numberOfErrors = 0;
 
@@ -74,7 +74,8 @@ int TestProjectSphereFilter(int vtkNotUsed(argc), char* [])
   vtkNew<vtkArrayCalculator> calculator;
   calculator->SetInputConnection(sphere->GetOutputPort());
   calculator->SetResultArrayName("result");
-  calculator->SetFunction("-coordsY*iHat/sqrt(coordsY^2+coordsX^2)+coordsX*jHat/sqrt(coordsY^2+coordsX^2)");
+  calculator->SetFunction(
+    "-coordsY*iHat/sqrt(coordsY^2+coordsX^2)+coordsX*jHat/sqrt(coordsY^2+coordsX^2)");
   calculator->SetAttributeTypeToPointData();
   calculator->AddCoordinateScalarVariable("coordsX", 0);
   calculator->AddCoordinateScalarVariable("coordsY", 1);
@@ -90,35 +91,30 @@ int TestProjectSphereFilter(int vtkNotUsed(argc), char* [])
   pointToCell->Update();
 
   vtkDataSet* grid = pointToCell->GetOutput();
-  if(grid->GetNumberOfPoints() != 2450)
+  if (grid->GetNumberOfPoints() != 2450)
   {
     vtkGenericWarningMacro(
-      "Wrong number of points. There are " << grid->GetNumberOfPoints() <<
-      " but should be 2450.");
+      "Wrong number of points. There are " << grid->GetNumberOfPoints() << " but should be 2450.");
     numberOfErrors++;
   }
-  if(grid->GetNumberOfCells() != 4700)
+  if (grid->GetNumberOfCells() != 4700)
   {
     vtkGenericWarningMacro(
-      "Wrong number of cells. There are " << grid->GetNumberOfCells() <<
-      " but should be 4700.");
+      "Wrong number of cells. There are " << grid->GetNumberOfCells() << " but should be 4700.");
     numberOfErrors++;
   }
 
-  if(CheckFieldData("Point", grid->GetPointData()->GetArray("result"), 0, .99, 1.01)
-     == false)
+  if (CheckFieldData("Point", grid->GetPointData()->GetArray("result"), 0, .99, 1.01) == false)
   {
     numberOfErrors++;
   }
 
-  if(CheckFieldData("Point", grid->GetPointData()->GetArray("Normals"), 2, .99, 1.01)
-     == false)
+  if (CheckFieldData("Point", grid->GetPointData()->GetArray("Normals"), 2, .99, 1.01) == false)
   {
     numberOfErrors++;
   }
 
-  if(CheckFieldData("Cell", grid->GetCellData()->GetArray("Normals"), 2, .99, 1.01)
-     == false)
+  if (CheckFieldData("Cell", grid->GetCellData()->GetArray("Normals"), 2, .99, 1.01) == false)
   {
     numberOfErrors++;
   }

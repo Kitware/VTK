@@ -21,7 +21,7 @@
  *
  * This class can be used to clip the rendering of an item inside a rectangular
  * area.
-*/
+ */
 
 #ifndef vtkContextClip_h
 #define vtkContextClip_h
@@ -34,12 +34,12 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextClip : public vtkAbstractContextIte
 {
 public:
   vtkTypeMacro(vtkContextClip, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkContextClip object.
    */
-  static vtkContextClip *New();
+  static vtkContextClip* New();
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -51,7 +51,7 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Set the origin, width and height of the clipping rectangle. These are in
@@ -75,9 +75,8 @@ protected:
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &) = delete;
-  void operator=(const vtkContextClip &) = delete;
-
+  vtkContextClip(const vtkContextClip&) = delete;
+  void operator=(const vtkContextClip&) = delete;
 };
 
 inline void vtkContextClip::GetRect(float rect[4])
@@ -88,4 +87,4 @@ inline void vtkContextClip::GetRect(float rect[4])
   rect[3] = this->Dims[3];
 }
 
-#endif //vtkContextClip_h
+#endif // vtkContextClip_h

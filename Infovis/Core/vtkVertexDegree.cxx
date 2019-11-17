@@ -41,21 +41,17 @@ vtkVertexDegree::~vtkVertexDegree()
   this->SetOutputArrayName(nullptr);
 }
 
-
-int vtkVertexDegree::RequestData(vtkInformation *vtkNotUsed(request),
-                            vtkInformationVector **inputVector,
-                            vtkInformationVector *outputVector)
+int vtkVertexDegree::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkGraph *input = vtkGraph::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkGraph *output = vtkGraph::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* input = vtkGraph::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkGraph* output = vtkGraph::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Do a shallow copy of the input to the output
   output->ShallowCopy(input);
@@ -73,11 +69,12 @@ int vtkVertexDegree::RequestData(vtkInformation *vtkNotUsed(request),
   DegreeArray->SetNumberOfTuples(output->GetNumberOfVertices());
 
   // Now loop through the vertices and set their degree in the array
-  for(int i=0;i< DegreeArray->GetNumberOfTuples(); ++i)
+  for (int i = 0; i < DegreeArray->GetNumberOfTuples(); ++i)
   {
-    DegreeArray->SetValue(i,output->GetDegree(i));
+    DegreeArray->SetValue(i, output->GetDegree(i));
 
-    double progress = static_cast<double>(i) / static_cast<double>(DegreeArray->GetNumberOfTuples());
+    double progress =
+      static_cast<double>(i) / static_cast<double>(DegreeArray->GetNumberOfTuples());
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
   }
 
@@ -90,9 +87,8 @@ int vtkVertexDegree::RequestData(vtkInformation *vtkNotUsed(request),
 
 void vtkVertexDegree::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "OutputArrayName: "
-     << (this->OutputArrayName ? this->OutputArrayName : "(none)") << endl;
-
+  os << indent << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(none)")
+     << endl;
 }

@@ -18,7 +18,6 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-
 /**
  * @class   vtkCompassWidget
  * @brief   set a value by manipulating something
@@ -60,7 +59,7 @@
  *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
  * </pre>
  *
-*/
+ */
 
 #ifndef vtkCompassWidget_h
 #define vtkCompassWidget_h
@@ -70,20 +69,19 @@
 
 class vtkCompassRepresentation;
 
-
 class VTKGEOVISCORE_EXPORT vtkCompassWidget : public vtkAbstractWidget
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkCompassWidget *New();
+  static vtkCompassWidget* New();
 
   //@{
   /**
    * Standard macros.
    */
-  vtkTypeMacro(vtkCompassWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkCompassWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -92,9 +90,10 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkCompassRepresentation *r)
-  {this->Superclass::SetWidgetRepresentation
-     (reinterpret_cast<vtkWidgetRepresentation*>(r));}
+  void SetRepresentation(vtkCompassRepresentation* r)
+  {
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -126,7 +125,7 @@ protected:
   int WidgetState;
   enum _WidgetState
   {
-    Start=0,
+    Start = 0,
     Highlighting,
     Adjusting,
     TiltAdjusting,

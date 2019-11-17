@@ -48,12 +48,12 @@ public:
   ~QVTKInteractorInternal() override;
 public Q_SLOTS:
   void TimerEvent(int id);
+
 public:
   QSignalMapper* SignalMapper;
   typedef std::map<int, QTimer*> TimerMap;
   TimerMap Timers;
   QVTKInteractor* Parent;
 };
-
 
 #endif

@@ -21,11 +21,11 @@
 #include "vtkParseHierarchy.h"
 
 /* if name has template args, convert to pythonic dict format */
-size_t vtkWrapPython_PyTemplateName(const char *name, char *pname);
+size_t vtkWrapPython_PyTemplateName(const char* name, char* pname);
 
 /* wrap a templated class */
 int vtkWrapPython_WrapTemplatedClass(
-  FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo);
+  FILE* fp, ClassInfo* data, FileInfo* file_info, HierarchyInfo* hinfo);
 
 #endif /* vtkWrapPythonTemplate_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonTemplate.h */

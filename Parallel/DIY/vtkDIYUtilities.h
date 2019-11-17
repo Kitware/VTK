@@ -123,7 +123,7 @@ private:
 
 namespace diy
 {
-template<>
+template <>
 struct Serialization<vtkDataSet*>
 {
   static void save(BinaryBuffer& bb, vtkDataSet* const& p) { vtkDIYUtilities::Save(bb, p); }

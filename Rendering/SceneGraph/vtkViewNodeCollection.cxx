@@ -28,36 +28,35 @@ void vtkViewNodeCollection::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkViewNodeCollection::AddItem(vtkViewNode *a)
+void vtkViewNodeCollection::AddItem(vtkViewNode* a)
 {
   this->vtkCollection::AddItem(a);
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNodeCollection::GetNextItem()
+vtkViewNode* vtkViewNodeCollection::GetNextItem()
 {
-  return static_cast<vtkViewNode *>(this->GetNextItemAsObject());
+  return static_cast<vtkViewNode*>(this->GetNextItemAsObject());
 }
 
 //----------------------------------------------------------------------------
-vtkViewNode *vtkViewNodeCollection::GetNextViewNode(
-  vtkCollectionSimpleIterator &cookie)
+vtkViewNode* vtkViewNodeCollection::GetNextViewNode(vtkCollectionSimpleIterator& cookie)
 {
-  return static_cast<vtkViewNode *>(this->GetNextItemAsObject(cookie));
+  return static_cast<vtkViewNode*>(this->GetNextItemAsObject(cookie));
 }
 
 //----------------------------------------------------------------------------
-bool vtkViewNodeCollection::IsRenderablePresent(vtkObject *obj)
+bool vtkViewNodeCollection::IsRenderablePresent(vtkObject* obj)
 {
-  vtkCollectionIterator *it = this->NewIterator();
+  vtkCollectionIterator* it = this->NewIterator();
   it->InitTraversal();
   bool found = false;
   while (!found && !it->IsDoneWithTraversal())
   {
-    vtkViewNode *vn = vtkViewNode::SafeDownCast(it->GetCurrentObject());
+    vtkViewNode* vn = vtkViewNode::SafeDownCast(it->GetCurrentObject());
     if (vn)
     {
-      vtkObject *nobj = vn->GetRenderable();
+      vtkObject* nobj = vn->GetRenderable();
       if (nobj == obj)
       {
         found = true;

@@ -17,14 +17,14 @@
  * @brief   Storage for FBO's
  *
  * Lightweight API to OpenGL Framebuffer Object EXT renderbuffers.
-*/
+ */
 
 #ifndef vtkRenderbuffer_h
 #define vtkRenderbuffer_h
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
-#include "vtkWeakPointer.h" // for render context
+#include "vtkWeakPointer.h"            // for render context
 
 class vtkRenderWindow;
 class vtkWindow;
@@ -40,7 +40,7 @@ public:
    * Returns if the context supports the required extensions.
    * Extension will be loaded when the context is set.
    */
-  static bool IsSupported(vtkRenderWindow *renWin);
+  static bool IsSupported(vtkRenderWindow* renWin);
 
   //@{
   /**
@@ -57,7 +57,7 @@ public:
    * to the passed in object is not incremented. Contex must be set
    * prior to other use.
    */
-  void SetContext(vtkRenderWindow *win);
+  void SetContext(vtkRenderWindow* win);
   vtkRenderWindow* GetContext();
   //@}
 
@@ -65,33 +65,22 @@ public:
    * Sets up an RGBAF renderbufffer for use as a color attachment. Use mode
    * to control READ or DRAW operation.
    */
-  int CreateColorAttachment(
-        unsigned int width,
-        unsigned int height);
+  int CreateColorAttachment(unsigned int width, unsigned int height);
 
   /**
    * Sets up an DEPTH renderbufffer for use as a color attachment. Use mode
    * to control READ or DRAW operation.
    */
-  int CreateDepthAttachment(
-        unsigned int width,
-        unsigned int height);
+  int CreateDepthAttachment(unsigned int width, unsigned int height);
 
   /**
    * Sets up an renderbufffer. Use mode to control READ or DRAW operation and
    * format to control the internal format. (see OpenGL doc for more info)
    */
-  int Create(
-        unsigned int format,
-        unsigned int width,
-        unsigned int height);
-  int Create(
-        unsigned int format,
-        unsigned int width,
-        unsigned int height,
-        unsigned int samples);
+  int Create(unsigned int format, unsigned int width, unsigned int height);
+  int Create(unsigned int format, unsigned int width, unsigned int height, unsigned int samples);
 
-  void ReleaseGraphicsResources(vtkWindow *win);
+  void ReleaseGraphicsResources(vtkWindow* win);
 
   // resizes an existing renderbuffer
   void Resize(unsigned int width, unsigned int height);
@@ -110,7 +99,7 @@ protected:
   vtkRenderbuffer();
   ~vtkRenderbuffer() override;
 
-  bool LoadRequiredExtensions(vtkRenderWindow *renWin);
+  bool LoadRequiredExtensions(vtkRenderWindow* renWin);
   void Alloc();
   void Free();
 

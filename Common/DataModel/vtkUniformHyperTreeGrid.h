@@ -25,7 +25,7 @@
  * JB modify for introduce Scales by Jacques-Bernard Lekien, CEA 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkUniformHyperTreeGrid_h
 #define vtkUniformHyperTreeGrid_h

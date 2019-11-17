@@ -52,10 +52,8 @@ public:
   vtkVolumeInputHelper() = default;
   vtkVolumeInputHelper(vtkSmartPointer<vtkVolumeTexture> tex, vtkVolume* vol);
 
-  void RefreshTransferFunction(vtkRenderer* ren,
-                               const int uniformIndex,
-                               const int blendMode,
-                               const float samplingDist);
+  void RefreshTransferFunction(
+    vtkRenderer* ren, const int uniformIndex, const int blendMode, const float samplingDist);
   void ForceTransferInit();
 
   void ActivateTransferFunction(vtkShaderProgram* prog, const int blendMode);
@@ -82,15 +80,11 @@ public:
   /**
    * Transfer function internal structures and helpers.
    */
-  vtkSmartPointer<
-    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable>>
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeGradientOpacityTable> >
     GradientOpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable>>
-    OpacityTables;
-  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable>>
-    RGBTables;
-  vtkSmartPointer<
-    vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D>>
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeOpacityTable> > OpacityTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeRGBTable> > RGBTables;
+  vtkSmartPointer<vtkOpenGLVolumeLookupTables<vtkOpenGLVolumeTransferFunction2D> >
     TransferFunctions2D;
 
   /**
@@ -122,21 +116,12 @@ protected:
   void CreateTransferFunction1D(vtkRenderer* ren, const int index);
   void CreateTransferFunction2D(vtkRenderer* ren, const int index);
 
-  void UpdateTransferFunctions(vtkRenderer* ren,
-                               const int blendMode,
-                               const float samplingDist);
-  int UpdateOpacityTransferFunction(vtkRenderer* ren,
-                                    vtkVolume* vol,
-                                    unsigned int component,
-                                    const int blendMode,
-                                    const float samplingDist);
-  int UpdateColorTransferFunction(vtkRenderer* ren,
-                                  vtkVolume* vol,
-                                  unsigned int component);
-  int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
-                                            vtkVolume* vol,
-                                            unsigned int component,
-                                            const float samplingDist);
+  void UpdateTransferFunctions(vtkRenderer* ren, const int blendMode, const float samplingDist);
+  int UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol, unsigned int component,
+    const int blendMode, const float samplingDist);
+  int UpdateColorTransferFunction(vtkRenderer* ren, vtkVolume* vol, unsigned int component);
+  int UpdateGradientOpacityTransferFunction(
+    vtkRenderer* ren, vtkVolume* vol, unsigned int component, const float samplingDist);
   void UpdateTransferFunction2D(vtkRenderer* ren, unsigned int component);
 
   void ReleaseGraphicsTransfer1D(vtkWindow* window);

@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkVectorText
-*/
+ */
 
 #ifndef vtkTextSource_h
 #define vtkTextSource_h
@@ -42,13 +42,13 @@
 class VTKFILTERSSOURCES_EXPORT vtkTextSource : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTextSource,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTextSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with no string set and backing enabled.
    */
-  static vtkTextSource *New();
+  static vtkTextSource* New();
 
   //@{
   /**
@@ -62,25 +62,25 @@ public:
   /**
    * Controls whether or not a background is drawn with the text.
    */
-  vtkSetMacro(Backing,vtkTypeBool);
-  vtkGetMacro(Backing,vtkTypeBool);
-  vtkBooleanMacro(Backing,vtkTypeBool);
+  vtkSetMacro(Backing, vtkTypeBool);
+  vtkGetMacro(Backing, vtkTypeBool);
+  vtkBooleanMacro(Backing, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the foreground color. Default is white (1,1,1). ALpha is always 1.
    */
-  vtkSetVector3Macro(ForegroundColor,double);
-  vtkGetVectorMacro(ForegroundColor,double,3);
+  vtkSetVector3Macro(ForegroundColor, double);
+  vtkGetVectorMacro(ForegroundColor, double, 3);
   //@}
 
   //@{
   /**
    * Set/Get the background color. Default is black (0,0,0). Alpha is always 1.
    */
-  vtkSetVector3Macro(BackgroundColor,double);
-  vtkGetVectorMacro(BackgroundColor,double,3);
+  vtkSetVector3Macro(BackgroundColor, double);
+  vtkGetVectorMacro(BackgroundColor, double, 3);
   //@}
 
   //@{
@@ -89,20 +89,21 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
   vtkTextSource();
   ~vtkTextSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  char *Text;
-  vtkTypeBool  Backing;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  char* Text;
+  vtkTypeBool Backing;
   double ForegroundColor[4];
   double BackgroundColor[4];
   int OutputPointsPrecision;
+
 private:
   vtkTextSource(const vtkTextSource&) = delete;
   void operator=(const vtkTextSource&) = delete;

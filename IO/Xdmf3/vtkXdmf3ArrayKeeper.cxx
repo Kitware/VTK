@@ -40,7 +40,7 @@ void vtkXdmf3ArrayKeeper::BumpGeneration()
 }
 
 //------------------------------------------------------------------------------
-void vtkXdmf3ArrayKeeper::Insert(XdmfArray *val)
+void vtkXdmf3ArrayKeeper::Insert(XdmfArray* val)
 {
   this->operator[](val) = this->generation;
 }
@@ -49,19 +49,19 @@ void vtkXdmf3ArrayKeeper::Insert(XdmfArray *val)
 void vtkXdmf3ArrayKeeper::Release(bool force)
 {
   vtkXdmf3ArrayKeeper::iterator it = this->begin();
-  //int cnt = 0;
-  //int total = 0;
+  // int cnt = 0;
+  // int total = 0;
   while (it != this->end())
   {
-    //total++;
+    // total++;
     vtkXdmf3ArrayKeeper::iterator current = it++;
     if (force || (current->second != this->generation))
     {
       XdmfArray* atCurrent = current->first;
       atCurrent->release();
       this->erase(current);
-      //cnt++;
+      // cnt++;
     }
   }
-  //cerr << "released " << cnt << "/" << total << " arrays" << endl;
+  // cerr << "released " << cnt << "/" << total << " arrays" << endl;
 }

@@ -161,25 +161,22 @@ vtkTextSource::vtkTextSource()
 
 vtkTextSource::~vtkTextSource()
 {
-  delete [] this->Text;
+  delete[] this->Text;
 }
 
-int vtkTextSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkTextSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int row, col;
-  vtkPoints *newPoints;
-  vtkCellArray *newPolys;
-  vtkUnsignedCharArray *newScalars;
+  vtkPoints* newPoints;
+  vtkCellArray* newPolys;
+  vtkUnsignedCharArray* newScalars;
   double x[3];
   int pos = 0;
   int pixelPos;
@@ -193,15 +190,15 @@ int vtkTextSource::RequestData(
 
   if (this->Text == nullptr)
   {
-    vtkErrorMacro (<< "Text is not set!");
+    vtkErrorMacro(<< "Text is not set!");
     return 1;
   }
 
   // convert colors to unsigned char
   for (int i = 0; i < 4; i++)
   {
-    white[i] = (unsigned char) (this->ForegroundColor[i] * 255.0);
-    black[i] = (unsigned char) (this->BackgroundColor[i] * 255.0);
+    white[i] = (unsigned char)(this->ForegroundColor[i] * 255.0);
+    black[i] = (unsigned char)(this->BackgroundColor[i] * 255.0);
   }
 
   // Set things up; allocate memory
@@ -210,7 +207,7 @@ int vtkTextSource::RequestData(
   newPoints = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
@@ -230,15 +227,15 @@ int vtkTextSource::RequestData(
     {
       for (col = 0; col < vtkfont_width; col++)
       {
-        acol = (this->Text[pos] - 32)*vtkfont_width + col - 1;
+        acol = (this->Text[pos] - 32) * vtkfont_width + col - 1;
         for (row = 0; row < vtkfont_height; row++)
         {
-          pixelPos = acol + row*vtkfont_row_width;
-          if (vtkfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
+          pixelPos = acol + row * vtkfont_row_width;
+          if (vtkfont_bits[pixelPos / 8] & (0x01 << pixelPos % 8))
           {
             if (drawingBlack)
             {
-              x[0] = pos*vtkfont_width + col + 1;
+              x[0] = pos * vtkfont_width + col + 1;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(black[0]);
@@ -246,7 +243,7 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(black[2]);
               newScalars->InsertNextValue(black[3]);
 
-              x[0] = pos*vtkfont_width + col;
+              x[0] = pos * vtkfont_width + col;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(black[0]);
@@ -254,17 +251,17 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(black[2]);
               newScalars->InsertNextValue(black[3]);
 
-              pts[0] = numPolys*4;
-              pts[1] = numPolys*4 + 1;
-              pts[2] = numPolys*4 + 2;
-              pts[3] = numPolys*4 + 3;
-              newPolys->InsertNextCell(4,pts);
+              pts[0] = numPolys * 4;
+              pts[1] = numPolys * 4 + 1;
+              pts[2] = numPolys * 4 + 2;
+              pts[3] = numPolys * 4 + 3;
+              newPolys->InsertNextCell(4, pts);
               numPolys++;
               drawingBlack = 0;
             }
             if (!drawingWhite)
             {
-              x[0] = pos*vtkfont_width + col;
+              x[0] = pos * vtkfont_width + col;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(white[0]);
@@ -272,7 +269,7 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(white[2]);
               newScalars->InsertNextValue(white[3]);
 
-              x[0] = pos*vtkfont_width + col + 1;
+              x[0] = pos * vtkfont_width + col + 1;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(white[0]);
@@ -287,7 +284,7 @@ int vtkTextSource::RequestData(
           {
             if (drawingWhite)
             {
-              x[0] = pos*vtkfont_width + col + 1;
+              x[0] = pos * vtkfont_width + col + 1;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(white[0]);
@@ -295,7 +292,7 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(white[2]);
               newScalars->InsertNextValue(white[3]);
 
-              x[0] = pos*vtkfont_width + col;
+              x[0] = pos * vtkfont_width + col;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(white[0]);
@@ -303,17 +300,17 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(white[2]);
               newScalars->InsertNextValue(white[3]);
 
-              pts[0] = numPolys*4;
-              pts[1] = numPolys*4 + 1;
-              pts[2] = numPolys*4 + 2;
-              pts[3] = numPolys*4 + 3;
-              newPolys->InsertNextCell(4,pts);
+              pts[0] = numPolys * 4;
+              pts[1] = numPolys * 4 + 1;
+              pts[2] = numPolys * 4 + 2;
+              pts[3] = numPolys * 4 + 3;
+              newPolys->InsertNextCell(4, pts);
               numPolys++;
               drawingWhite = 0;
             }
             if (!drawingBlack && this->Backing)
             {
-              x[0] = pos*vtkfont_width + col;
+              x[0] = pos * vtkfont_width + col;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(black[0]);
@@ -321,7 +318,7 @@ int vtkTextSource::RequestData(
               newScalars->InsertNextValue(black[2]);
               newScalars->InsertNextValue(black[3]);
 
-              x[0] = pos*vtkfont_width + col + 1;
+              x[0] = pos * vtkfont_width + col + 1;
               x[1] = vtkfont_height - row;
               newPoints->InsertNextPoint(x);
               newScalars->InsertNextValue(black[0]);
@@ -335,7 +332,7 @@ int vtkTextSource::RequestData(
         // if we finished up a row but are still drawing close it up
         if (drawingWhite)
         {
-          x[0] = pos*vtkfont_width + col + 1;
+          x[0] = pos * vtkfont_width + col + 1;
           x[1] = 0;
           newPoints->InsertNextPoint(x);
           newScalars->InsertNextValue(white[0]);
@@ -343,7 +340,7 @@ int vtkTextSource::RequestData(
           newScalars->InsertNextValue(white[2]);
           newScalars->InsertNextValue(white[3]);
 
-          x[0] = pos*vtkfont_width + col;
+          x[0] = pos * vtkfont_width + col;
           x[1] = 0;
           newPoints->InsertNextPoint(x);
           newScalars->InsertNextValue(white[0]);
@@ -351,17 +348,17 @@ int vtkTextSource::RequestData(
           newScalars->InsertNextValue(white[2]);
           newScalars->InsertNextValue(white[3]);
 
-          pts[0] = numPolys*4;
-          pts[1] = numPolys*4 + 1;
-          pts[2] = numPolys*4 + 2;
-          pts[3] = numPolys*4 + 3;
-          newPolys->InsertNextCell(4,pts);
+          pts[0] = numPolys * 4;
+          pts[1] = numPolys * 4 + 1;
+          pts[2] = numPolys * 4 + 2;
+          pts[3] = numPolys * 4 + 3;
+          newPolys->InsertNextCell(4, pts);
           numPolys++;
           drawingWhite = 0;
         }
         if (drawingBlack)
         {
-          x[0] = pos*vtkfont_width + col + 1;
+          x[0] = pos * vtkfont_width + col + 1;
           x[1] = 0;
           newPoints->InsertNextPoint(x);
           newScalars->InsertNextValue(black[0]);
@@ -369,7 +366,7 @@ int vtkTextSource::RequestData(
           newScalars->InsertNextValue(black[2]);
           newScalars->InsertNextValue(black[3]);
 
-          x[0] = pos*vtkfont_width + col;
+          x[0] = pos * vtkfont_width + col;
           x[1] = 0;
           newPoints->InsertNextPoint(x);
           newScalars->InsertNextValue(black[0]);
@@ -377,11 +374,11 @@ int vtkTextSource::RequestData(
           newScalars->InsertNextValue(black[2]);
           newScalars->InsertNextValue(black[3]);
 
-          pts[0] = numPolys*4;
-          pts[1] = numPolys*4 + 1;
-          pts[2] = numPolys*4 + 2;
-          pts[3] = numPolys*4 + 3;
-          newPolys->InsertNextCell(4,pts);
+          pts[0] = numPolys * 4;
+          pts[1] = numPolys * 4 + 1;
+          pts[2] = numPolys * 4 + 2;
+          pts[3] = numPolys * 4 + 3;
+          newPolys->InsertNextCell(4, pts);
           numPolys++;
           drawingBlack = 0;
         }
@@ -392,7 +389,7 @@ int vtkTextSource::RequestData(
       // draw a black square for a space
       if (this->Backing)
       {
-        x[0] = pos*vtkfont_width;
+        x[0] = pos * vtkfont_width;
         x[1] = vtkfont_height;
         newPoints->InsertNextPoint(x);
         newScalars->InsertNextValue(black[0]);
@@ -400,7 +397,7 @@ int vtkTextSource::RequestData(
         newScalars->InsertNextValue(black[2]);
         newScalars->InsertNextValue(black[3]);
 
-        x[0] = pos*vtkfont_width + vtkfont_width;
+        x[0] = pos * vtkfont_width + vtkfont_width;
         x[1] = vtkfont_height;
         newPoints->InsertNextPoint(x);
         newScalars->InsertNextValue(black[0]);
@@ -408,7 +405,7 @@ int vtkTextSource::RequestData(
         newScalars->InsertNextValue(black[2]);
         newScalars->InsertNextValue(black[3]);
 
-        x[0] = pos*vtkfont_width + vtkfont_width;
+        x[0] = pos * vtkfont_width + vtkfont_width;
         x[1] = 0;
         newPoints->InsertNextPoint(x);
         newScalars->InsertNextValue(black[0]);
@@ -416,7 +413,7 @@ int vtkTextSource::RequestData(
         newScalars->InsertNextValue(black[2]);
         newScalars->InsertNextValue(black[3]);
 
-        x[0] = pos*vtkfont_width;
+        x[0] = pos * vtkfont_width;
         x[1] = 0;
         newPoints->InsertNextPoint(x);
         newScalars->InsertNextValue(black[0]);
@@ -424,19 +421,19 @@ int vtkTextSource::RequestData(
         newScalars->InsertNextValue(black[2]);
         newScalars->InsertNextValue(black[3]);
 
-        pts[0] = numPolys*4;
-        pts[1] = numPolys*4 + 1;
-        pts[2] = numPolys*4 + 2;
-        pts[3] = numPolys*4 + 3;
-        newPolys->InsertNextCell(4,pts);
+        pts[0] = numPolys * 4;
+        pts[1] = numPolys * 4 + 1;
+        pts[2] = numPolys * 4 + 2;
+        pts[3] = numPolys * 4 + 3;
+        newPolys->InsertNextCell(4, pts);
         numPolys++;
       }
     }
     pos++;
   }
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -451,14 +448,13 @@ int vtkTextSource::RequestData(
 
 void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
   os << indent << "Background Drawn: " << (this->Backing ? "On\n" : "Off\n");
   os << indent << "ForegroundColor: (" << this->ForegroundColor[0] << ", "
-     << this->ForegroundColor[1] << ", " << this->ForegroundColor[2]  << ")\n";
+     << this->ForegroundColor[1] << ", " << this->ForegroundColor[2] << ")\n";
   os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", "
      << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ")\n";
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
-     << "\n";
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

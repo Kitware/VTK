@@ -21,13 +21,13 @@
  * Note that Borland C++ has floating-point exceptions by default, not
  * Visual studio nor gcc. It is mainly use to optionally enable floating
  * point exceptions in the C++ tests.
-*/
+ */
 
 #ifndef vtkFloatingPointExceptions_h
 #define vtkFloatingPointExceptions_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkSystemIncludes.h" // For VTKCOMMONCORE_EXPORT
+#include "vtkSystemIncludes.h"   // For VTKCOMMONCORE_EXPORT
 
 class VTKCOMMONCORE_EXPORT vtkFloatingPointExceptions
 {

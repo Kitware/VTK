@@ -24,7 +24,7 @@
  * sub-extents according to priority, availability, and amount of
  * overlap of the source extents.  This can be used by parallel data
  * readers to read as few piece files as possible.
-*/
+ */
 
 #ifndef vtkExtentSplitter_h
 #define vtkExtentSplitter_h
@@ -37,9 +37,9 @@ class vtkExtentSplitterInternals;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentSplitter : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkExtentSplitter,vtkObject);
+  vtkTypeMacro(vtkExtentSplitter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkExtentSplitter *New();
+  static vtkExtentSplitter* New();
 
   //@{
   /**
@@ -47,8 +47,7 @@ public:
    * higher priority numbers are favored.  Source id numbers and
    * priorities must be non-negative.
    */
-  void AddExtentSource(int id, int priority, int x0, int x1,
-                       int y0, int y1, int z0, int z1);
+  void AddExtentSource(int id, int priority, int x0, int x1, int y0, int y1, int z0, int z1);
   void AddExtentSource(int id, int priority, int* extent);
   void RemoveExtentSource(int id);
   void RemoveAllExtentSources();

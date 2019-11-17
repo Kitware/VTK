@@ -30,7 +30,7 @@
  *
  * @sa
  * vtkGlyph3D vtkLabeledDataMapper
-*/
+ */
 
 #ifndef vtkEdgeCenters_h
 #define vtkEdgeCenters_h
@@ -41,31 +41,32 @@
 class VTKINFOVISCORE_EXPORT vtkEdgeCenters : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkEdgeCenters,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkEdgeCenters, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with vertex cell generation turned off.
    */
-  static vtkEdgeCenters *New();
+  static vtkEdgeCenters* New();
 
   //@{
   /**
    * Enable/disable the generation of vertex cells.
    */
-  vtkSetMacro(VertexCells,vtkTypeBool);
-  vtkGetMacro(VertexCells,vtkTypeBool);
-  vtkBooleanMacro(VertexCells,vtkTypeBool);
+  vtkSetMacro(VertexCells, vtkTypeBool);
+  vtkGetMacro(VertexCells, vtkTypeBool);
+  vtkBooleanMacro(VertexCells, vtkTypeBool);
   //@}
 
 protected:
   vtkEdgeCenters();
   ~vtkEdgeCenters() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkTypeBool VertexCells;
+
 private:
   vtkEdgeCenters(const vtkEdgeCenters&) = delete;
   void operator=(const vtkEdgeCenters&) = delete;

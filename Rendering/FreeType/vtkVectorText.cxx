@@ -36,20 +36,17 @@ vtkVectorText::vtkVectorText()
   this->SetNumberOfInputPorts(0);
 }
 
-int vtkVectorText::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkVectorText::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *newPoints;
-  vtkCellArray *newPolys;
+  vtkPoints* newPoints;
+  vtkCellArray* newPolys;
   int ptOffset = 0;
   int aPoint, i;
   int pos = 0;
@@ -62,7 +59,7 @@ int vtkVectorText::RequestData(
 
   if (this->Text == nullptr)
   {
-    vtkErrorMacro (<< "Text is not set!");
+    vtkErrorMacro(<< "Text is not set!");
     return 0;
   }
 
@@ -87,10 +84,10 @@ int vtkVectorText::RequestData(
 
       default:
         // if we have a valid character
-        if ((this->Text[pos] > 32)&&(this->Text[pos] < 127))
+        if ((this->Text[pos] > 32) && (this->Text[pos] < 127))
         {
           // add the result to our output
-          aLetter = Letters[static_cast<int>(this->Text[pos])-33];
+          aLetter = Letters[static_cast<int>(this->Text[pos]) - 33];
           ptCount = aLetter.ptCount;
           width = aLetter.width;
           for (i = 0; i < ptCount; i++)
@@ -134,12 +131,12 @@ int vtkVectorText::RequestData(
 
 void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
 }
 
 vtkVectorText::~vtkVectorText()
 {
-  delete [] this->Text;
+  delete[] this->Text;
 }

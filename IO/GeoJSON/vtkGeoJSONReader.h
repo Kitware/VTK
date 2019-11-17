@@ -18,7 +18,7 @@
  *
  * Outputs a vtkPolyData from the input
  * Geo JSON Data (http://www.geojson.org)
-*/
+ */
 
 #ifndef vtkGeoJSONReader_h
 #define vtkGeoJSONReader_h
@@ -29,12 +29,12 @@
 
 class vtkPolyData;
 
-class VTKIOGEOJSON_EXPORT vtkGeoJSONReader: public vtkPolyDataAlgorithm
+class VTKIOGEOJSON_EXPORT vtkGeoJSONReader : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoJSONReader* New();
-  vtkTypeMacro(vtkGeoJSONReader,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkGeoJSONReader, vtkPolyDataAlgorithm);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -98,7 +98,7 @@ public:
    * Specify feature property to read in with geometry objects
    * Note that defaultValue specifies both type & value
    */
-  void AddFeatureProperty(const char *name, vtkVariant& typeAndDefaultValue);
+  void AddFeatureProperty(const char* name, vtkVariant& typeAndDefaultValue);
 
 protected:
   vtkGeoJSONReader();
@@ -109,18 +109,18 @@ protected:
    * Core implementation of the
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
-  char *FileName;
-  char *StringInput;
+    vtkInformationVector* outputVector) override;
+  char* FileName;
+  char* StringInput;
   bool StringInputMode;
   bool TriangulatePolygons;
   bool OutlinePolygons;
-  char *SerializedPropertiesArrayName;
+  char* SerializedPropertiesArrayName;
   //@}
 
 private:
   class GeoJSONReaderInternal;
-  GeoJSONReaderInternal *Internal;
+  GeoJSONReaderInternal* Internal;
 
   vtkGeoJSONReader(const vtkGeoJSONReader&) = delete;
   void operator=(const vtkGeoJSONReader&) = delete;

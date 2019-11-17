@@ -20,7 +20,7 @@
  * so that each byte stores eight bits. vtkBitArray provides methods
  * for insertion and retrieval of bits, and will automatically resize
  * itself to hold new data.
-*/
+ */
 
 #ifndef vtkBitArray_h
 #define vtkBitArray_h
@@ -35,21 +35,21 @@ class VTKCOMMONCORE_EXPORT vtkBitArray : public vtkDataArray
 public:
   enum DeleteMethod
   {
-    VTK_DATA_ARRAY_FREE=vtkAbstractArray::VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE=vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
-    VTK_DATA_ARRAY_ALIGNED_FREE=vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
-    VTK_DATA_ARRAY_USER_DEFINED=vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
+    VTK_DATA_ARRAY_FREE = vtkAbstractArray::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE = vtkAbstractArray::VTK_DATA_ARRAY_DELETE,
+    VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
+    VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
 
-  static vtkBitArray *New();
-  vtkTypeMacro(vtkBitArray,vtkDataArray);
+  static vtkBitArray* New();
+  vtkTypeMacro(vtkBitArray, vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
    * Note that ext is no longer used.
    */
-  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000) override;
 
   /**
    * Release storage and reset array to initial state.
@@ -57,7 +57,7 @@ public:
   void Initialize() override;
 
   // satisfy vtkDataArray API
-  int GetDataType() override {return VTK_BIT;}
+  int GetDataType() override { return VTK_BIT; }
   int GetDataTypeSize() override { return 0; }
 
   /**
@@ -71,57 +71,53 @@ public:
    * and structure. Note that range checking and memory allocation is not
    * performed; use in conjunction with SetNumberOfTuples() to allocate space.
    */
-  void SetTuple(vtkIdType i, vtkIdType j,
-                        vtkAbstractArray* source) override;
+  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Insert the jth tuple in the source array, at ith location in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertTuple(vtkIdType i, vtkIdType j,
-                           vtkAbstractArray* source) override;
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Copy the tuples indexed in srcIds from the source array to the tuple
    * locations indexed by dstIds in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source) override;
+  void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
 
   /**
    * Copy n consecutive tuples starting at srcStart from the source array to
    * this array, starting at the dstStart location.
    * Note that memory allocation is performed as necessary to hold the data.
    */
-  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source) override;
+  void InsertTuples(
+    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
 
   /**
    * Insert the jth tuple in the source array, at the end in this array.
    * Note that memory allocation is performed as necessary to hold the data.
    * Returns the location at which the data was inserted.
    */
-  vtkIdType InsertNextTuple(vtkIdType j,
-                                    vtkAbstractArray* source) override;
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Get a pointer to a tuple at the ith location. This is a dangerous method
    * (it is not thread safe since a pointer is returned).
    */
-  double *GetTuple(vtkIdType i) override;
+  double* GetTuple(vtkIdType i) override;
 
   /**
    * Copy the tuple value into a user-provided array.
    */
-  void GetTuple(vtkIdType i, double * tuple) override;
+  void GetTuple(vtkIdType i, double* tuple) override;
 
   //@{
   /**
    * Set the tuple value at the ith location in the array.
    */
-  void SetTuple(vtkIdType i, const float * tuple) override;
-  void SetTuple(vtkIdType i, const double * tuple) override;
+  void SetTuple(vtkIdType i, const float* tuple) override;
+  void SetTuple(vtkIdType i, const double* tuple) override;
   //@}
 
   //@{
@@ -129,16 +125,16 @@ public:
    * Insert (memory allocation performed) the tuple into the ith location
    * in the array.
    */
-  void InsertTuple(vtkIdType i, const float * tuple) override;
-  void InsertTuple(vtkIdType i, const double * tuple) override;
+  void InsertTuple(vtkIdType i, const float* tuple) override;
+  void InsertTuple(vtkIdType i, const double* tuple) override;
   //@}
 
   //@{
   /**
    * Insert (memory allocation performed) the tuple onto the end of the array.
    */
-  vtkIdType InsertNextTuple(const float * tuple) override;
-  vtkIdType InsertNextTuple(const double * tuple) override;
+  vtkIdType InsertNextTuple(const float* tuple) override;
+  vtkIdType InsertNextTuple(const double* tuple) override;
   //@}
 
   //@{
@@ -207,32 +203,27 @@ public:
   /**
    * Direct manipulation of the underlying data.
    */
-  unsigned char *GetPointer(vtkIdType id)
-    { return this->Array + id/8; }
+  unsigned char* GetPointer(vtkIdType id) { return this->Array + id / 8; }
 
   /**
    * Get the address of a particular data index. Make sure data is allocated
    * for the number of items requested. Set MaxId according to the number of
    * data values requested.
    */
-  unsigned char *WritePointer(vtkIdType id, vtkIdType number);
+  unsigned char* WritePointer(vtkIdType id, vtkIdType number);
 
   void* WriteVoidPointer(vtkIdType id, vtkIdType number) override
   {
     return this->WritePointer(id, number);
   }
 
-  void *GetVoidPointer(vtkIdType id) override
-  {
-      return static_cast<void *>(this->GetPointer(id));
-  }
+  void* GetVoidPointer(vtkIdType id) override { return static_cast<void*>(this->GetPointer(id)); }
 
   /**
    * Deep copy of another bit array.
    */
-  void DeepCopy(vtkDataArray *da) override;
-  void DeepCopy(vtkAbstractArray* aa) override
-    { this->Superclass::DeepCopy(aa); }
+  void DeepCopy(vtkDataArray* da) override;
+  void DeepCopy(vtkAbstractArray* aa) override { this->Superclass::DeepCopy(aa); }
 
   //@{
   /**
@@ -247,25 +238,26 @@ public:
    * if no custom function is assigned we will default to delete[].
    */
 #ifndef __VTK_WRAP__
-  void SetArray(unsigned char* array, vtkIdType size, int save, int deleteMethod=VTK_DATA_ARRAY_DELETE);
+  void SetArray(
+    unsigned char* array, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
 #endif
-  void SetVoidArray(void *array, vtkIdType size, int save) override
+  void SetVoidArray(void* array, vtkIdType size, int save) override
   {
-      this->SetArray(static_cast<unsigned char *>(array), size, save);
+    this->SetArray(static_cast<unsigned char*>(array), size, save);
   }
-  void SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod) override
+  void SetVoidArray(void* array, vtkIdType size, int save, int deleteMethod) override
   {
-      this->SetArray(static_cast<unsigned char *>(array), size, save, deleteMethod);
+    this->SetArray(static_cast<unsigned char*>(array), size, save, deleteMethod);
   }
   //@}
 
   /**
-    * This method allows the user to specify a custom free function to be
-    * called when the array is deallocated. Calling this method will implicitly
-    * mean that the given free function will be called when the class
-    * cleans up or reallocates memory.
-  **/
-  void SetArrayFreeFunction(void (*callback)(void *)) override;
+   * This method allows the user to specify a custom free function to be
+   * called when the array is deallocated. Calling this method will implicitly
+   * mean that the given free function will be called when the class
+   * cleans up or reallocates memory.
+   **/
+  void SetArrayFreeFunction(void (*callback)(void*)) override;
 
   /**
    * Returns a new vtkBitArrayIterator instance.
@@ -303,18 +295,18 @@ protected:
   vtkBitArray();
   ~vtkBitArray() override;
 
-  unsigned char *Array;   // pointer to data
-  unsigned char *ResizeAndExtend(vtkIdType sz);
-    // function to resize data
+  unsigned char* Array; // pointer to data
+  unsigned char* ResizeAndExtend(vtkIdType sz);
+  // function to resize data
 
-  int TupleSize; //used for data conversion
-  double *Tuple;
+  int TupleSize; // used for data conversion
+  double* Tuple;
 
   void (*DeleteFunction)(void*);
 
 private:
   // hide superclass' DeepCopy() from the user and the compiler
-  void DeepCopy(vtkDataArray &da) {this->vtkDataArray::DeepCopy(&da);}
+  void DeepCopy(vtkDataArray& da) { this->vtkDataArray::DeepCopy(&da); }
 
 private:
   vtkBitArray(const vtkBitArray&) = delete;
@@ -322,44 +314,39 @@ private:
 
   vtkBitArrayLookup* Lookup;
   void UpdateLookup();
-
 };
 
 inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {
   if (value)
   {
-    this->Array[id/8] = static_cast<unsigned char>(
-      this->Array[id/8] | (0x80 >> id%8));
+    this->Array[id / 8] = static_cast<unsigned char>(this->Array[id / 8] | (0x80 >> id % 8));
   }
   else
   {
-    this->Array[id/8] = static_cast<unsigned char>(
-      this->Array[id/8] & (~(0x80 >> id%8)));
+    this->Array[id / 8] = static_cast<unsigned char>(this->Array[id / 8] & (~(0x80 >> id % 8)));
   }
   this->DataChanged();
 }
 
 inline void vtkBitArray::InsertValue(vtkIdType id, int i)
 {
-  if ( id >= this->Size )
+  if (id >= this->Size)
   {
-    if (!this->ResizeAndExtend(id+1))
+    if (!this->ResizeAndExtend(id + 1))
     {
       return;
     }
   }
   if (i)
   {
-    this->Array[id/8] = static_cast<unsigned char>(
-      this->Array[id/8] | (0x80 >> id%8));
+    this->Array[id / 8] = static_cast<unsigned char>(this->Array[id / 8] | (0x80 >> id % 8));
   }
   else
   {
-    this->Array[id/8] = static_cast<unsigned char>(
-      this->Array[id/8] & (~(0x80 >> id%8)));
+    this->Array[id / 8] = static_cast<unsigned char>(this->Array[id / 8] & (~(0x80 >> id % 8)));
   }
-  if ( id > this->MaxId )
+  if (id > this->MaxId)
   {
     this->MaxId = id;
   }
@@ -378,11 +365,14 @@ inline void vtkBitArray::InsertVariantValue(vtkIdType id, vtkVariant value)
 
 inline vtkIdType vtkBitArray::InsertNextValue(int i)
 {
-  this->InsertValue (++this->MaxId,i);
+  this->InsertValue(++this->MaxId, i);
   this->DataChanged();
   return this->MaxId;
 }
 
-inline void vtkBitArray::Squeeze() {this->ResizeAndExtend (this->MaxId+1);}
+inline void vtkBitArray::Squeeze()
+{
+  this->ResizeAndExtend(this->MaxId + 1);
+}
 
 #endif

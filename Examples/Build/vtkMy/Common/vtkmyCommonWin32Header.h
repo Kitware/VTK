@@ -18,7 +18,7 @@
  *
  * The vtkmyCommonWin32Header captures some system differences between Unix
  * and Windows operating systems.
-*/
+ */
 
 #ifndef vtkmyCommonWin32Header_h
 #define vtkmyCommonWin32Header_h
@@ -27,9 +27,9 @@
 
 #if defined(_WIN32) && !defined(VTKMY_STATIC)
 #if defined(vtkmyCommon_EXPORTS)
-#define VTK_MY_COMMON_EXPORT __declspec( dllexport )
+#define VTK_MY_COMMON_EXPORT __declspec(dllexport)
 #else
-#define VTK_MY_COMMON_EXPORT __declspec( dllimport )
+#define VTK_MY_COMMON_EXPORT __declspec(dllimport)
 #endif
 #else
 #define VTK_MY_COMMON_EXPORT

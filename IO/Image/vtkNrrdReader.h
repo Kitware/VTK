@@ -31,7 +31,7 @@
  * like hex will result in errors.  When reading in detached headers, this only
  * supports reading one file that is detached.
  *
-*/
+ */
 
 #ifndef vtkNrrdReader_h
 #define vtkNrrdReader_h
@@ -45,32 +45,31 @@ class VTKIOIMAGE_EXPORT vtkNrrdReader : public vtkImageReader
 {
 public:
   vtkTypeMacro(vtkNrrdReader, vtkImageReader);
-  static vtkNrrdReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkNrrdReader* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int CanReadFile(const char *filename) override;
+  int CanReadFile(const char* filename) override;
 
 protected:
   vtkNrrdReader();
   ~vtkNrrdReader() override;
 
-  int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int ReadHeaderInternal(vtkCharArray *headerBuffer);
+  int ReadHeaderInternal(vtkCharArray* headerBuffer);
   virtual int ReadHeader();
-  virtual int ReadHeader(vtkCharArray *headerBuffer);
+  virtual int ReadHeader(vtkCharArray* headerBuffer);
 
-  virtual int ReadDataAscii(vtkImageData *output);
+  virtual int ReadDataAscii(vtkImageData* output);
 
-  vtkStringArray *DataFiles;
+  vtkStringArray* DataFiles;
 
-  enum {
+  enum
+  {
     ENCODING_RAW,
     ENCODING_ASCII
   };
@@ -78,8 +77,8 @@ protected:
   int Encoding;
 
 private:
-  vtkNrrdReader(const vtkNrrdReader &) = delete;
-  void operator=(const vtkNrrdReader &) = delete;
+  vtkNrrdReader(const vtkNrrdReader&) = delete;
+  void operator=(const vtkNrrdReader&) = delete;
 };
 
-#endif //vtkNrrdReader_h
+#endif // vtkNrrdReader_h

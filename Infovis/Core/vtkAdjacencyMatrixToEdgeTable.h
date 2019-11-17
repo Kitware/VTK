@@ -28,7 +28,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkAdjacencyMatrixToEdgeTable_h
 #define vtkAdjacencyMatrixToEdgeTable_h
@@ -86,10 +86,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkIdType SourceDimension;
   char* ValueArrayName;
@@ -102,4 +99,3 @@ private:
 };
 
 #endif
-

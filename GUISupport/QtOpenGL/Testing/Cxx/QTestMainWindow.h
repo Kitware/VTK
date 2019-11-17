@@ -20,16 +20,17 @@ class QTestMainWindow : public QMainWindow
 {
   Q_OBJECT
 
-  public:
-    QTestMainWindow(vtkRenderWindow* renWin, int ac, char** av);
+public:
+  QTestMainWindow(vtkRenderWindow* renWin, int ac, char** av);
 
-    bool regressionImageResult() const;
-  public slots:
-    void captureImage();
-  private:
-    bool             RegressionImageResult;
-    vtkRenderWindow* RenderWindow;
+  bool regressionImageResult() const;
+public slots:
+  void captureImage();
 
-    int    argc;
-    char** argv;
+private:
+  bool RegressionImageResult;
+  vtkRenderWindow* RenderWindow;
+
+  int argc;
+  char** argv;
 };

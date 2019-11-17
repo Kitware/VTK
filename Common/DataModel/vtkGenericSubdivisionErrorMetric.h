@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkGenericCellTessellator
-*/
+ */
 
 #ifndef vtkGenericSubdivisionErrorMetric_h
 #define vtkGenericSubdivisionErrorMetric_h
@@ -52,7 +52,7 @@ public:
   /**
    * Standard VTK type and error macros.
    */
-  vtkTypeMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
+  vtkTypeMacro(vtkGenericSubdivisionErrorMetric, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -74,8 +74,8 @@ public:
    * \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
-  virtual int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
-                                      double *rightPoint, double alpha)=0;
+  virtual int RequiresEdgeSubdivision(
+    double* leftPoint, double* midPoint, double* rightPoint, double alpha) = 0;
 
   /**
    * Return the error at the mid-point. The type of error depends on the state
@@ -90,31 +90,31 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    * \post positive_result: result>=0
    */
-  virtual double GetError(double *leftPoint, double *midPoint,
-                          double *rightPoint, double alpha)=0;
+  virtual double GetError(
+    double* leftPoint, double* midPoint, double* rightPoint, double alpha) = 0;
 
   //@{
   /**
    * The cell that the edge belongs to.
    */
-  void SetGenericCell(vtkGenericAdaptorCell *cell);
-  vtkGetObjectMacro(GenericCell,vtkGenericAdaptorCell);
+  void SetGenericCell(vtkGenericAdaptorCell* cell);
+  vtkGetObjectMacro(GenericCell, vtkGenericAdaptorCell);
   //@}
 
   //@{
   /**
    * Set/Get the dataset to be tessellated.
    */
-  void SetDataSet(vtkGenericDataSet *ds);
-  vtkGetObjectMacro(DataSet,vtkGenericDataSet);
+  void SetDataSet(vtkGenericDataSet* ds);
+  vtkGetObjectMacro(DataSet, vtkGenericDataSet);
   //@}
 
 protected:
   vtkGenericSubdivisionErrorMetric();
   ~vtkGenericSubdivisionErrorMetric() override;
 
-  vtkGenericAdaptorCell *GenericCell;
-  vtkGenericDataSet *DataSet;
+  vtkGenericAdaptorCell* GenericCell;
+  vtkGenericDataSet* DataSet;
 
 private:
   vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&) = delete;

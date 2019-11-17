@@ -20,7 +20,7 @@
  *
  *
  * This filter adds a cell data array containing the number of faces per cell.
-*/
+ */
 
 #ifndef vtkCountFaces_h
 #define vtkCountFaces_h
@@ -28,12 +28,12 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkCountFaces: public vtkPassInputTypeAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkCountFaces : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkCountFaces* New();
   vtkTypeMacro(vtkCountFaces, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -47,13 +47,13 @@ protected:
   vtkCountFaces();
   ~vtkCountFaces() override;
 
-  int RequestData(vtkInformation* request, vtkInformationVector **inInfoVec,
-                  vtkInformationVector *outInfoVec) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  char *OutputArrayName;
+  char* OutputArrayName;
 
 private:
   vtkCountFaces(const vtkCountFaces&) = delete;

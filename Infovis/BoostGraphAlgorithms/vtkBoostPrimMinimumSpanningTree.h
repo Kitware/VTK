@@ -41,21 +41,22 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @sa
  * vtkGraph vtkBoostGraphAdapter
-*/
+ */
 
 #ifndef vtkBoostPrimMinimumSpanningTree_h
 #define vtkBoostPrimMinimumSpanningTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
-#include "vtkStdString.h" // For string type
-#include "vtkVariant.h" // For variant type
+#include "vtkStdString.h"                         // For string type
+#include "vtkVariant.h"                           // For variant type
 
 #include "vtkTreeAlgorithm.h"
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree : public vtkTreeAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree
+  : public vtkTreeAlgorithm
 {
 public:
-  static vtkBoostPrimMinimumSpanningTree *New();
+  static vtkBoostPrimMinimumSpanningTree* New();
   vtkTypeMacro(vtkBoostPrimMinimumSpanningTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -112,13 +113,9 @@ protected:
   vtkBoostPrimMinimumSpanningTree();
   ~vtkBoostPrimMinimumSpanningTree();
 
-  int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   char* EdgeWeightArrayName;
@@ -141,8 +138,7 @@ private:
    * This method is basically a helper function to find
    * the index of a specific value within a specific array
    */
-  vtkIdType GetVertexIndex(
-    vtkAbstractArray *abstract,vtkVariant value);
+  vtkIdType GetVertexIndex(vtkAbstractArray* abstract, vtkVariant value);
 
   vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&) = delete;
   void operator=(const vtkBoostPrimMinimumSpanningTree&) = delete;

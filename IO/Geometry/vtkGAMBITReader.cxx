@@ -47,27 +47,25 @@ vtkGAMBITReader::vtkGAMBITReader()
 //----------------------------------------------------------------------------
 vtkGAMBITReader::~vtkGAMBITReader()
 {
-  delete [] this->FileName;
+  delete[] this->FileName;
 }
 
 //----------------------------------------------------------------------------
-int vtkGAMBITReader::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkGAMBITReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* output =
+    vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDebugMacro( << "Reading GAMBIT Neutral file");
+  vtkDebugMacro(<< "Reading GAMBIT Neutral file");
 
   // If ExecuteInformation() failed the FileStream will be nullptr and
   // ExecuteInformation() will have spit out an error.
-  if ( this->FileStream == nullptr )
+  if (this->FileStream == nullptr)
   {
     return 0;
   }
@@ -80,34 +78,31 @@ int vtkGAMBITReader::RequestData(
 //----------------------------------------------------------------------------
 void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "File Name: "
-     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Number Of Nodes: " << this->NumberOfNodes << endl;
-  os << indent << "Number Of Node Fields: "
-     << this->NumberOfNodeFields << endl;
+  os << indent << "Number Of Node Fields: " << this->NumberOfNodeFields << endl;
 
   os << indent << "Number Of Cells: " << this->NumberOfCells << endl;
-  os << indent << "Number Of Cell Fields: "
-     << this->NumberOfCellFields << endl;
+  os << indent << "Number Of Cell Fields: " << this->NumberOfCellFields << endl;
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid *output)
+void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid* output)
 {
   this->ReadGeometry(output);
 
   // yes, but, we cannot find any examples containing data.
   // GAMBIT users seem to say that they use the Fluent solver and do not
   // use Gambit as an output format, thus no data when used as input to solver
-  if(this->NumberOfNodeFields)
+  if (this->NumberOfNodeFields)
   {
     this->ReadNodeData(output);
   }
 
-  if(this->NumberOfCellFields)
+  if (this->NumberOfCellFields)
   {
     this->ReadCellData(output);
   }
@@ -117,24 +112,22 @@ void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadNodeData(vtkUnstructuredGrid *vtkNotUsed(output))
+void vtkGAMBITReader::ReadNodeData(vtkUnstructuredGrid* vtkNotUsed(output))
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadCellData(vtkUnstructuredGrid *vtkNotUsed(output))
+void vtkGAMBITReader::ReadCellData(vtkUnstructuredGrid* vtkNotUsed(output))
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
 //----------------------------------------------------------------------------
-int vtkGAMBITReader::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkGAMBITReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if ( !this->FileName )
+  if (!this->FileName)
   {
     this->NumberOfNodes = 0;
     this->NumberOfCells = 0;
@@ -156,14 +149,20 @@ int vtkGAMBITReader::RequestInformation(
     return 0;
   }
 
-  char c='\0', buf[128];
+  char c = '\0', buf[128];
 
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
 
   *(this->FileStream) >> this->NumberOfNodes;
   *(this->FileStream) >> this->NumberOfCells;
@@ -174,41 +173,40 @@ int vtkGAMBITReader::RequestInformation(
   this->FileStream->get(c);
 
   // read here the end of section
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  if(strncmp(buf, "ENDOFSECTION", 12))
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  if (strncmp(buf, "ENDOFSECTION", 12))
   {
-    vtkErrorMacro(<<"Error reading file");
+    vtkErrorMacro(<< "Error reading file");
   }
-  vtkDebugMacro(
-  << "\nNumberOfNodes " << this->NumberOfNodes
-  << "\nNumberOfCells " << this->NumberOfCells
-  << "\nNumberOfElementGroups " <<  this->NumberOfElementGroups
-  << "\nNumberOfBoundaryConditionSets " << this->NumberOfBoundaryConditionSets
-  << "\nNumberOfCoordinateDirections " << this->NumberOfCoordinateDirections
-  << "\nNumberOfVelocityComponents " << this->NumberOfVelocityComponents);
+  vtkDebugMacro(<< "\nNumberOfNodes " << this->NumberOfNodes << "\nNumberOfCells "
+                << this->NumberOfCells << "\nNumberOfElementGroups " << this->NumberOfElementGroups
+                << "\nNumberOfBoundaryConditionSets " << this->NumberOfBoundaryConditionSets
+                << "\nNumberOfCoordinateDirections " << this->NumberOfCoordinateDirections
+                << "\nNumberOfVelocityComponents " << this->NumberOfVelocityComponents);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid *output)
+void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid* output)
 {
-  vtkDoubleArray *coords = vtkDoubleArray::New();
+  vtkDoubleArray* coords = vtkDoubleArray::New();
   coords->SetNumberOfComponents(3);
   // allocate one more pt and store node id=0
   coords->SetNumberOfTuples(this->NumberOfNodes);
 
   this->ReadXYZCoords(coords);
   this->ReadCellConnectivity(output);
-  if(this->NumberOfElementGroups > 0)
+  if (this->NumberOfElementGroups > 0)
   {
     this->ReadMaterialTypes(output);
   }
-  if(this->NumberOfBoundaryConditionSets > 0)
+  if (this->NumberOfBoundaryConditionSets > 0)
   {
     this->ReadBoundaryConditionSets(output);
   }
-  vtkPoints *points = vtkPoints::New();
+  vtkPoints* points = vtkPoints::New();
   points->SetData(coords);
   coords->Delete();
 
@@ -217,74 +215,75 @@ void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid *output)
+void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
 {
   int bcs, f, itype, nentry, nvalues;
-  int isUsable=0;
+  int isUsable = 0;
   int node, elt, eltype, facenumber;
   char c, buf[128];
 
   // no idea about how to treat element/cell, so we allocate a single array
 
-  vtkIntArray *bcscalar = vtkIntArray::New();
+  vtkIntArray* bcscalar = vtkIntArray::New();
   bcscalar->SetNumberOfComponents(1);
   bcscalar->SetNumberOfTuples(this->NumberOfNodes);
   bcscalar->SetName("Boundary Condition");
-  int *ptr = bcscalar->GetPointer(0);
+  int* ptr = bcscalar->GetPointer(0);
   // initialise with null values. When set later, will set to 1
-  memset((void*)ptr,0,sizeof(int)*this->NumberOfNodes);
+  memset((void*)ptr, 0, sizeof(int) * this->NumberOfNodes);
 
-  for(bcs=1; bcs <= this->NumberOfBoundaryConditionSets; bcs++)
+  for (bcs = 1; bcs <= this->NumberOfBoundaryConditionSets; bcs++)
   {
-    this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-    this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-    sscanf(&buf[32],"%10d%10d%10d", &itype, &nentry, &nvalues);
-    vtkDebugMacro(
-      << "\nitype " << itype
-      << "\tnentry " << nentry
-      << "\tnvalues " <<  nvalues);
+    this->FileStream->get(buf, 128, '\n');
+    this->FileStream->get(c);
+    this->FileStream->get(buf, 128, '\n');
+    this->FileStream->get(c);
+    sscanf(&buf[32], "%10d%10d%10d", &itype, &nentry, &nvalues);
+    vtkDebugMacro(<< "\nitype " << itype << "\tnentry " << nentry << "\tnvalues " << nvalues);
     // I have no example o how nvalues is used....So no implementation.
-    if(itype == 0) // nodes
+    if (itype == 0) // nodes
     {
       isUsable = 1;
-      for(f=0; f < nentry; f++)
+      for (f = 0; f < nentry; f++)
       {
         *(this->FileStream) >> node;
         node--;
-        if( node >= 0 && node < this->NumberOfNodes)
+        if (node >= 0 && node < this->NumberOfNodes)
         {
           bcscalar->SetValue(node, 1);
         }
         else
         {
-          vtkErrorMacro(<<"Node value is outside of range");
+          vtkErrorMacro(<< "Node value is outside of range");
         }
       }
       this->FileStream->get(c);
       // read here the end of section
-      this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-      if(strncmp(buf, "ENDOFSECTION", 12))
+      this->FileStream->get(buf, 128, '\n');
+      this->FileStream->get(c);
+      if (strncmp(buf, "ENDOFSECTION", 12))
       {
-        vtkErrorMacro(<<"Error reading ENDOFSECTION tag at end of group");
+        vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of group");
       }
     }
     else // element/cell are parsed but nothing is done with the info read
     {
-      for(f=0; f < nentry; f++)
+      for (f = 0; f < nentry; f++)
       {
         *(this->FileStream) >> elt >> eltype >> facenumber;
       }
       this->FileStream->get(c);
       // read here the end of section
-      this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-      if(strncmp(buf, "ENDOFSECTION", 12))
+      this->FileStream->get(buf, 128, '\n');
+      this->FileStream->get(c);
+      if (strncmp(buf, "ENDOFSECTION", 12))
       {
-        vtkErrorMacro(<<"Error reading ENDOFSECTION tag at end of group");
+        vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of group");
       }
     }
   }
   vtkDebugMacro(<< "All BCS read successfully");
-  if(isUsable)
+  if (isUsable)
   {
     output->GetPointData()->AddArray(bcscalar);
     if (!output->GetPointData()->GetScalars())
@@ -296,48 +295,50 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid *output)
+void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid* output)
 {
   int grp, f, flag, id, nbelts, elt, mat, nbflags;
   char c, buf[128];
 
-  vtkIntArray *materials = vtkIntArray::New();
+  vtkIntArray* materials = vtkIntArray::New();
   materials->SetNumberOfComponents(1);
   materials->SetNumberOfTuples(this->NumberOfCells);
   materials->SetName("Material Type");
 
-  for(grp=1; grp <= this->NumberOfElementGroups; grp++)
+  for (grp = 1; grp <= this->NumberOfElementGroups; grp++)
   {
-    this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-    this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-    sscanf(buf,"GROUP:%10d ELEMENTS: %10d MATERIAL: %10d NFLAGS:%10d", &id, &nbelts, &mat, &nbflags);
+    this->FileStream->get(buf, 128, '\n');
+    this->FileStream->get(c);
+    this->FileStream->get(buf, 128, '\n');
+    this->FileStream->get(c);
+    sscanf(
+      buf, "GROUP:%10d ELEMENTS: %10d MATERIAL: %10d NFLAGS:%10d", &id, &nbelts, &mat, &nbflags);
 
-    vtkDebugMacro(
-      << "\nid " << id
-      << "\tnbelts " << nbelts
-      << "\tmat " <<  mat
-      << "\tnbflags " << nbflags);
+    vtkDebugMacro(<< "\nid " << id << "\tnbelts " << nbelts << "\tmat " << mat << "\tnbflags "
+                  << nbflags);
 
-    this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-    for(f=0; f < nbflags; f++)
+    this->FileStream->get(buf, 128, '\n');
+    this->FileStream->get(c);
+    for (f = 0; f < nbflags; f++)
     {
       *(this->FileStream) >> flag;
     }
     this->FileStream->get(c);
-    for(f=0; f < nbelts; f++)
+    for (f = 0; f < nbelts; f++)
     {
       *(this->FileStream) >> elt;
-      materials->SetValue(elt-1, mat);
+      materials->SetValue(elt - 1, mat);
     }
     this->FileStream->get(c);
     // read here the end of section
-    this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-    if(strncmp(buf, "ENDOFSECTION", 12))
+    this->FileStream->get(buf, 128, '\n');
+    this->FileStream->get(c);
+    if (strncmp(buf, "ENDOFSECTION", 12))
     {
-      vtkErrorMacro(<<"Error reading ENDOFSECTION tag at end of group");
+      vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of group");
     }
   }
-    vtkDebugMacro(<< "All groups read successfully");
+  vtkDebugMacro(<< "All groups read successfully");
 
   output->GetCellData()->AddArray(materials);
   if (!output->GetCellData()->GetScalars())
@@ -348,7 +349,7 @@ void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid *output)
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid *output)
+void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid* output)
 {
   int i, k;
   vtkIdType list[27];
@@ -356,129 +357,136 @@ void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid *output)
 
   output->Allocate();
 
-  this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
 
-  for(i=1; i <= this->NumberOfCells; i++)
+  for (i = 1; i <= this->NumberOfCells; i++)
   {
-    int id;  // no check is done to see that they are monotonously increasing
+    int id; // no check is done to see that they are monotonously increasing
     int ntype, ndp;
     *(this->FileStream) >> id >> ntype >> ndp;
 
-    switch(ntype){
-    case EDGE:
+    switch (ntype)
     {
-      for(k=0; k < 2; k++)
+      case EDGE:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 2; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_LINE, 2, list);
       }
-      output->InsertNextCell(VTK_LINE, 2, list);
-    }
-    break;
-    case TRI:
-    {
-      for(k=0; k < 3; k++)
+      break;
+      case TRI:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 3; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_TRIANGLE, 3, list);
       }
-      output->InsertNextCell(VTK_TRIANGLE, 3, list);
-    }
-    break;
-    case QUAD:
-    {
-      for(k=0; k < 4; k++)
+      break;
+      case QUAD:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 4; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_QUAD, 4, list);
       }
-      output->InsertNextCell(VTK_QUAD, 4, list);
-    }
-    break;
-    case TETRA:
-    {
-      for(k=0; k < 4; k++)
+      break;
+      case TETRA:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 4; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_TETRA, 4, list);
       }
-      output->InsertNextCell(VTK_TETRA, 4, list);
-    }
-    break;
-    case PYRAMID:
-    {
-      for(k=0; k < 5; k++)
+      break;
+      case PYRAMID:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 5; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_PYRAMID, 5, list);
       }
-      output->InsertNextCell(VTK_PYRAMID, 5, list);
-    }
-    break;
-    case PRISM:
-    {
-      for(k=0; k < 6; k++)
+      break;
+      case PRISM:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 6; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_WEDGE, 6, list);
       }
-      output->InsertNextCell(VTK_WEDGE, 6, list);
-    }
-    break;
-    case BRICK:
-    {
-      for(k=0; k < 8; k++)
+      break;
+      case BRICK:
       {
-        *(this->FileStream) >> list[k];
-        list[k]--;
+        for (k = 0; k < 8; k++)
+        {
+          *(this->FileStream) >> list[k];
+          list[k]--;
+        }
+        output->InsertNextCell(VTK_HEXAHEDRON, 8, list);
       }
-      output->InsertNextCell(VTK_HEXAHEDRON, 8, list);
-    }
-    break;
-    default:
-    {
-      vtkErrorMacro( << "cell type: " << ntype << " is not supported\n");
-      return;
-    }
-    }  // for all cell, read the indices
+      break;
+      default:
+      {
+        vtkErrorMacro(<< "cell type: " << ntype << " is not supported\n");
+        return;
+      }
+    } // for all cell, read the indices
   }
   // read here the end of section
-  this->FileStream->get(c); this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  if(strncmp(buf, "ENDOFSECTION", 12))
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  if (strncmp(buf, "ENDOFSECTION", 12))
   {
-    vtkErrorMacro(<<"Error reading ENDOFSECTION tag at end of connectivity");
+    vtkErrorMacro(<< "Error reading ENDOFSECTION tag at end of connectivity");
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray *coords)
+void vtkGAMBITReader::ReadXYZCoords(vtkDoubleArray* coords)
 {
   int i;
-  double *ptr = coords->GetPointer(0);
+  double* ptr = coords->GetPointer(0);
   char c, buf[64];
 
-  int id;  // no check is done to see that they are monotonously increasing
-  this->FileStream->get(buf, 64, '\n'); this->FileStream->get(c);
+  int id; // no check is done to see that they are monotonously increasing
+  this->FileStream->get(buf, 64, '\n');
+  this->FileStream->get(c);
 
-  if(this->NumberOfCoordinateDirections == 3)
+  if (this->NumberOfCoordinateDirections == 3)
   {
-    for(i=0; i < this->NumberOfNodes; i++)
+    for (i = 0; i < this->NumberOfNodes; i++)
     {
       *(this->FileStream) >> id;
-      *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
+      *(this->FileStream) >> ptr[3 * i] >> ptr[3 * i + 1] >> ptr[3 * i + 2];
     }
   }
   else
   {
-    for(i=0; i < this->NumberOfNodes; i++)
+    for (i = 0; i < this->NumberOfNodes; i++)
     {
       *(this->FileStream) >> id;
-      *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1];
-      ptr[3*i+2] = 0.0;
+      *(this->FileStream) >> ptr[3 * i] >> ptr[3 * i + 1];
+      ptr[3 * i + 2] = 0.0;
     }
   }
-  this->FileStream->get(c); this->FileStream->get(buf, 128, '\n'); this->FileStream->get(c);
-  if(strncmp(buf, "ENDOFSECTION", 12))
+  this->FileStream->get(c);
+  this->FileStream->get(buf, 128, '\n');
+  this->FileStream->get(c);
+  if (strncmp(buf, "ENDOFSECTION", 12))
   {
     vtkErrorMacro("Error reading ENDOFSECTION tag at end of coordinates section");
   }

@@ -50,8 +50,7 @@ vtkExecutionTimer::~vtkExecutionTimer()
 
 // ----------------------------------------------------------------------
 
-void
-vtkExecutionTimer::PrintSelf(ostream& os, vtkIndent indent)
+void vtkExecutionTimer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Observed Filter: ";
@@ -75,8 +74,7 @@ vtkExecutionTimer::PrintSelf(ostream& os, vtkIndent indent)
 
 // ----------------------------------------------------------------------
 
-void
-vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
+void vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
 {
   if (this->Filter)
   {
@@ -97,11 +95,8 @@ vtkExecutionTimer::SetFilter(vtkAlgorithm* filter)
 
 // ----------------------------------------------------------------------
 
-void
-vtkExecutionTimer::EventRelay(vtkObject* vtkNotUsed(caller),
-                              unsigned long eventType,
-                              void* clientData,
-                              void* vtkNotUsed(callData))
+void vtkExecutionTimer::EventRelay(vtkObject* vtkNotUsed(caller), unsigned long eventType,
+  void* clientData, void* vtkNotUsed(callData))
 {
   vtkExecutionTimer* receiver = static_cast<vtkExecutionTimer*>(clientData);
 
@@ -116,15 +111,13 @@ vtkExecutionTimer::EventRelay(vtkObject* vtkNotUsed(caller),
   else
   {
     vtkGenericWarningMacro("WARNING: Unknown event type "
-                           << eventType
-                           << " in vtkExecutionTimer::EventRelay.  This shouldn't happen.");
+      << eventType << " in vtkExecutionTimer::EventRelay.  This shouldn't happen.");
   }
 }
 
 // ----------------------------------------------------------------------
 
-void
-vtkExecutionTimer::StartTimer()
+void vtkExecutionTimer::StartTimer()
 {
   this->CPUEndTime = 0;
   this->ElapsedCPUTime = 0;
@@ -133,13 +126,11 @@ vtkExecutionTimer::StartTimer()
 
   this->WallClockStartTime = vtkTimerLog::GetUniversalTime();
   this->CPUStartTime = vtkTimerLog::GetCPUTime();
-
 }
 
 // ----------------------------------------------------------------------
 
-void
-vtkExecutionTimer::StopTimer()
+void vtkExecutionTimer::StopTimer()
 {
   this->WallClockEndTime = vtkTimerLog::GetUniversalTime();
   this->CPUEndTime = vtkTimerLog::GetCPUTime();
@@ -152,8 +143,7 @@ vtkExecutionTimer::StopTimer()
 
 // ----------------------------------------------------------------------
 
-void
-vtkExecutionTimer::TimerFinished()
+void vtkExecutionTimer::TimerFinished()
 {
   // Nothing to do here
 }

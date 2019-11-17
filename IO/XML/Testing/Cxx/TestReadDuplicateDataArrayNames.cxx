@@ -29,48 +29,41 @@
 
 void generateDataSetWithTimesteps(const std::string& filename)
 {
-  int i,j;
+  int i, j;
   {
-  vtkXMLWriterC* writer = vtkXMLWriterC_New();
-  float points[3*NPOINTS] = {0, 0, 0,
-                       1, 0, 0,
-                       1, 1, 0,
-                       0, 1, 0,
-                       0, 0, 1,
-                       1, 0, 1,
-                       1, 1, 1,
-                       0, 1, 1 };
-  vtkIdType cellarray[] = {8, 0, 1, 2, 3, 4, 5, 6, 7};
-  float pointdata[NTIMESTEPS][NPOINTS];
-  /* Give different values for the pointdata: */
-  for(i=0;i<NTIMESTEPS;i++)
-  {
-    for(j=0; j<NPOINTS;j++)
+    vtkXMLWriterC* writer = vtkXMLWriterC_New();
+    float points[3 * NPOINTS] = { 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0,
+      1, 1 };
+    vtkIdType cellarray[] = { 8, 0, 1, 2, 3, 4, 5, 6, 7 };
+    float pointdata[NTIMESTEPS][NPOINTS];
+    /* Give different values for the pointdata: */
+    for (i = 0; i < NTIMESTEPS; i++)
     {
-      pointdata[i][j] = (float)i;
+      for (j = 0; j < NPOINTS; j++)
+      {
+        pointdata[i][j] = (float)i;
+      }
     }
-  }
 
-  /* #define VTK_UNSTRUCTURED_GRID               4 */
-  vtkXMLWriterC_SetDataObjectType(writer, 4);
-  vtkXMLWriterC_SetFileName(writer, filename.c_str() );
-  /* #define VTK_FLOAT          10 */
-  vtkXMLWriterC_SetPoints(writer, 10, points, NPOINTS);
-  /* #define VTK_HEXAHEDRON    12 */
-  vtkXMLWriterC_SetCellsWithType(writer, 12, 1, cellarray, 1+NPOINTS);
-
-  /* for all timesteps: */
-  vtkXMLWriterC_SetNumberOfTimeSteps(writer, NTIMESTEPS);
-  vtkXMLWriterC_Start(writer);
-  for(i=0; i<NTIMESTEPS; i++)
-  {
+    /* #define VTK_UNSTRUCTURED_GRID               4 */
+    vtkXMLWriterC_SetDataObjectType(writer, 4);
+    vtkXMLWriterC_SetFileName(writer, filename.c_str());
     /* #define VTK_FLOAT          10 */
-    vtkXMLWriterC_SetPointData(writer, "example data", 10, pointdata[i],
-                               NPOINTS, 1, "SCALARS");
-    vtkXMLWriterC_WriteNextTimeStep(writer, i);
-  }
-  vtkXMLWriterC_Stop(writer);
-  vtkXMLWriterC_Delete(writer);
+    vtkXMLWriterC_SetPoints(writer, 10, points, NPOINTS);
+    /* #define VTK_HEXAHEDRON    12 */
+    vtkXMLWriterC_SetCellsWithType(writer, 12, 1, cellarray, 1 + NPOINTS);
+
+    /* for all timesteps: */
+    vtkXMLWriterC_SetNumberOfTimeSteps(writer, NTIMESTEPS);
+    vtkXMLWriterC_Start(writer);
+    for (i = 0; i < NTIMESTEPS; i++)
+    {
+      /* #define VTK_FLOAT          10 */
+      vtkXMLWriterC_SetPointData(writer, "example data", 10, pointdata[i], NPOINTS, 1, "SCALARS");
+      vtkXMLWriterC_WriteNextTimeStep(writer, i);
+    }
+    vtkXMLWriterC_Stop(writer);
+    vtkXMLWriterC_Delete(writer);
   }
 }
 
@@ -109,7 +102,7 @@ void generateDataSetWithDuplicateArrayNames(const std::string& filename)
     "</VTKFile>";
 
   ofstream myfile;
-  myfile.open (filename.c_str());
+  myfile.open(filename.c_str());
   myfile << dataSet;
   myfile.close();
 }
@@ -125,62 +118,60 @@ int TestReadDuplicateDataArrayNames(int argc, char* argv[])
   // array without crashing.
 
   char* temp_dir_c =
-    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv,
-                                           "VTK_TEMP_DIR",
-                                           "Testing/Temporary");
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string temp_dir = std::string(temp_dir_c);
-  delete [] temp_dir_c;
+  delete[] temp_dir_c;
 
   if (temp_dir.empty())
-    {
+  {
     std::cerr << "Could not determine temporary directory." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   std::string filename = temp_dir + "/duplicateArrayNames.vtu";
 
   // Test 1
   {
-  generateDataSetWithTimesteps(filename);
+    generateDataSetWithTimesteps(filename);
 
-  vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
-    vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-  reader->SetFileName(filename.c_str());
+    vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
+      vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    reader->SetFileName(filename.c_str());
 
-  for ( int i = 0; i < NTIMESTEPS; i++ )
+    for (int i = 0; i < NTIMESTEPS; i++)
     {
-    reader->SetTimeStep(i);
-    reader->Update();
+      reader->SetTimeStep(i);
+      reader->Update();
 
-    vtkUnstructuredGrid* ugrid = reader->GetOutput();
-    double d = ugrid->GetPointData()->GetScalars()->GetTuple1(0);
+      vtkUnstructuredGrid* ugrid = reader->GetOutput();
+      double d = ugrid->GetPointData()->GetScalars()->GetTuple1(0);
 
-    if (std::abs(static_cast<double>((d-static_cast<double>(i)))) > VTK_EPSILON)
+      if (std::abs(static_cast<double>((d - static_cast<double>(i)))) > VTK_EPSILON)
       {
-      std::cerr << "Different timesteps were not correctly read." << std::endl;
-      return EXIT_FAILURE;
+        std::cerr << "Different timesteps were not correctly read." << std::endl;
+        return EXIT_FAILURE;
       }
     }
   }
 
   // Test 2
   {
-  generateDataSetWithDuplicateArrayNames(filename);
+    generateDataSetWithDuplicateArrayNames(filename);
 
-  vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
-    vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-  reader->SetFileName(filename.c_str());
-  reader->Update();
+    vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
+      vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+    reader->SetFileName(filename.c_str());
+    reader->Update();
 
-  vtkUnstructuredGrid* ugrid = reader->GetOutput();
-  for (int i = 0; i < 4; i++)
+    vtkUnstructuredGrid* ugrid = reader->GetOutput();
+    for (int i = 0; i < 4; i++)
     {
-    double d = ugrid->GetPointData()->GetScalars("test123")->GetTuple1(i);
-    std::cout<<d<<std::endl;
+      double d = ugrid->GetPointData()->GetScalars("test123")->GetTuple1(i);
+      std::cout << d << std::endl;
 
-    if (std::abs(static_cast<double>((d-static_cast<double>(i)))) > VTK_EPSILON)
+      if (std::abs(static_cast<double>((d - static_cast<double>(i)))) > VTK_EPSILON)
       {
-      std::cerr << "The first array with degenerate naming was not correctly read." << std::endl;
-      return EXIT_FAILURE;
+        std::cerr << "The first array with degenerate naming was not correctly read." << std::endl;
+        return EXIT_FAILURE;
       }
     }
   }

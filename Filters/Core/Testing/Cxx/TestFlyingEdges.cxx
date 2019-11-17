@@ -28,13 +28,11 @@
 #include "vtkRenderer.h"
 #include "vtkTesting.h"
 
-int TestFlyingEdges(int argc, char *argv[])
+int TestFlyingEdges(int argc, char* argv[])
 {
   // Create the sample dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-63, 64,
-                          -63, 64,
-                          -63, 64);
+  wavelet->SetWholeExtent(-63, 64, -63, 64, -63, 64);
   wavelet->SetCenter(0.0, 0.0, 0.0);
   wavelet->Update();
 
@@ -48,7 +46,7 @@ int TestFlyingEdges(int argc, char *argv[])
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(flyingEdges->GetOutputPort());
-  mapper->SetScalarRange(128,225);
+  mapper->SetScalarRange(128, 225);
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
   vtkNew<vtkRenderer> ren;

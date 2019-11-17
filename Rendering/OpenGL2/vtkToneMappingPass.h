@@ -27,7 +27,7 @@
  *
  * @sa
  * vtkRenderPass
-*/
+ */
 
 #ifndef vtkToneMappingPass_h
 #define vtkToneMappingPass_h

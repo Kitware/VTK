@@ -24,7 +24,7 @@
  * to 0.
  * @warning
  * This filter assumes that cells don't share points.
-*/
+ */
 
 #ifndef vtkAppendArcLength_h
 #define vtkAppendArcLength_h

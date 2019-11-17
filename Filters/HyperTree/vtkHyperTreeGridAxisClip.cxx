@@ -211,9 +211,11 @@ bool vtkHyperTreeGridAxisClip::IsClipped(vtkHyperTreeGridNonOrientedGeometryCurs
       cMax[1] = cMin[1] + size[1];
       cMax[2] = cMin[2] + size[2];
 
-      if (((cMin[0] >= bMin[0] && cMin[0] <= bMax[0]) || (cMax[0] >= bMin[0] && cMax[0] <= bMax[0]))
-          && ((cMin[1] >= bMin[1] && cMin[1] <= bMax[1]) || (cMax[1] >= bMin[1] && cMax[1] <= bMax[1]))
-          && ((cMin[2] >= bMin[2] && cMin[2] <= bMax[2]) || (cMax[2] >= bMin[2] && cMax[2] <= bMax[2])))
+      if (((cMin[0] >= bMin[0] && cMin[0] <= bMax[0]) ||
+            (cMax[0] >= bMin[0] && cMax[0] <= bMax[0])) &&
+        ((cMin[1] >= bMin[1] && cMin[1] <= bMax[1]) ||
+          (cMax[1] >= bMin[1] && cMax[1] <= bMax[1])) &&
+        ((cMin[2] >= bMin[2] && cMin[2] <= bMax[2]) || (cMax[2] >= bMin[2] && cMax[2] <= bMax[2])))
       {
         return this->InsideOut;
       }
@@ -356,7 +358,6 @@ int vtkHyperTreeGridAxisClip::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
   outSize[0] = maxId[0] - minId[0] + 1;
   outSize[1] = maxId[1] - minId[1] + 1;
   outSize[2] = maxId[2] - minId[2] + 1;
-
 
   // Compute or copy output coordinates depending on output grid sizes
   vtkUniformHyperTreeGrid* inputUHTG = vtkUniformHyperTreeGrid::SafeDownCast(input);

@@ -27,8 +27,8 @@
 
 vtkStandardNewMacro(vtkDuplicatePolyData);
 
-vtkCxxSetObjectMacro(vtkDuplicatePolyData,Controller, vtkMultiProcessController);
-vtkCxxSetObjectMacro(vtkDuplicatePolyData,SocketController, vtkSocketController);
+vtkCxxSetObjectMacro(vtkDuplicatePolyData, Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkDuplicatePolyData, SocketController, vtkSocketController);
 
 //----------------------------------------------------------------------------
 vtkDuplicatePolyData::vtkDuplicatePolyData()
@@ -55,29 +55,28 @@ vtkDuplicatePolyData::~vtkDuplicatePolyData()
   this->InitializeSchedule(0);
 }
 
-
 #define vtkDPDPow2(j) (1 << (j))
 static inline int vtkDPDLog2(int j, int& exact)
 {
-  int counter=0;
+  int counter = 0;
   exact = 1;
-  while(j)
+  while (j)
   {
-    if ( ( j & 1 ) && (j >> 1) )
+    if ((j & 1) && (j >> 1))
     {
       exact = 0;
     }
     j = j >> 1;
     counter++;
   }
-  return counter-1;
+  return counter - 1;
 }
 
 //----------------------------------------------------------------------------
 void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
 {
   int i, j, k, exact;
-  int *procFlags = nullptr;
+  int* procFlags = nullptr;
 
   if (this->NumberOfProcesses == numProcs)
   {
@@ -87,10 +86,10 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
   // Free old schedule.
   for (i = 0; i < this->NumberOfProcesses; ++i)
   {
-    delete [] this->Schedule[i];
+    delete[] this->Schedule[i];
     this->Schedule[i] = nullptr;
   }
-  delete [] this->Schedule;
+  delete[] this->Schedule;
   this->Schedule = nullptr;
 
   this->NumberOfProcesses = numProcs;
@@ -163,45 +162,39 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
     }
   }
 
-  delete [] procFlags;
+  delete[] procFlags;
   procFlags = nullptr;
 }
 
 //--------------------------------------------------------------------------
-int vtkDuplicatePolyData::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDuplicatePolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkDuplicatePolyData::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDuplicatePolyData::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int myId, partner;
   int idx;
@@ -217,7 +210,7 @@ int vtkDuplicatePolyData::RequestData(
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-    if (this->SocketController && ! this->ClientFlag)
+    if (this->SocketController && !this->ClientFlag)
     {
       this->SocketController->Send(output, 1, 18732);
     }
@@ -228,9 +221,9 @@ int vtkDuplicatePolyData::RequestData(
 
   // Collect.
 
-  vtkAppendPolyData *append = vtkAppendPolyData::New();
+  vtkAppendPolyData* append = vtkAppendPolyData::New();
   // First append the input from this process.
-  vtkPolyData *pd = vtkPolyData::New();
+  vtkPolyData* pd = vtkPolyData::New();
   pd->CopyStructure(input);
   pd->GetPointData()->PassData(input->GetPointData());
   pd->GetCellData()->PassData(input->GetCellData());
@@ -244,7 +237,7 @@ int vtkDuplicatePolyData::RequestData(
     {
       // Matching the order may not be necessary and may slow things down,
       // but it is a reasonable precaution.
-      if (partner > myId || ! this->Synchronous)
+      if (partner > myId || !this->Synchronous)
       {
         this->Controller->Send(input, partner, 131767);
 
@@ -276,7 +269,7 @@ int vtkDuplicatePolyData::RequestData(
   append->Delete();
   append = nullptr;
 
-  if (this->SocketController && ! this->ClientFlag)
+  if (this->SocketController && !this->ClientFlag)
   {
     this->SocketController->Send(output, 1, 18732);
   }
@@ -287,9 +280,9 @@ int vtkDuplicatePolyData::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkDuplicatePolyData::ClientExecute(vtkPolyData *output)
+void vtkDuplicatePolyData::ClientExecute(vtkPolyData* output)
 {
-  vtkPolyData *tmp = vtkPolyData::New();
+  vtkPolyData* tmp = vtkPolyData::New();
 
   // No data is on the client, so we just have to get the data
   // from node 0 of the server.
@@ -302,7 +295,7 @@ void vtkDuplicatePolyData::ClientExecute(vtkPolyData *output)
 //----------------------------------------------------------------------------
 void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   int i, j;
 
   os << indent << "Controller: (" << this->Controller << ")\n";

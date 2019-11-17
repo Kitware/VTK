@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkRIBExporter vtkRIBLight
-*/
+ */
 
 #ifndef vtkRIBProperty_h
 #define vtkRIBProperty_h
@@ -36,8 +36,8 @@ class vtkRIBRenderer;
 class VTKIOEXPORT_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
-  static vtkRIBProperty *New();
-  vtkTypeMacro(vtkRIBProperty,vtkProperty);
+  static vtkRIBProperty* New();
+  vtkTypeMacro(vtkRIBProperty, vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -77,60 +77,60 @@ public:
   /**
    * Specify declarations for variables..
    */
-  void SetVariable (const char *variable, const char *declaration);
-  void AddVariable (const char *variable, const char *declaration);
+  void SetVariable(const char* variable, const char* declaration);
+  void AddVariable(const char* variable, const char* declaration);
   //@}
 
   /**
    * Get variable declarations
    */
-  char *GetDeclarations ();
+  char* GetDeclarations();
 
   //@{
   /**
    * Specify parameter values for variables.
    * DEPRECATED: use (Set/Add)SurfaceShaderParameter instead.
    */
-  void SetParameter (const char *parameter, const char *value);
-  void AddParameter (const char *parameter, const char *value);
+  void SetParameter(const char* parameter, const char* value);
+  void AddParameter(const char* parameter, const char* value);
   //@}
 
   //@{
   /**
    * Specify parameter values for surface shader parameters
    */
-  void SetSurfaceShaderParameter (const char *parameter, const char *value);
-  void AddSurfaceShaderParameter (const char *parameter, const char *value);
+  void SetSurfaceShaderParameter(const char* parameter, const char* value);
+  void AddSurfaceShaderParameter(const char* parameter, const char* value);
   //@}
 
   //@{
   /**
    * Specify parameter values for displacement shader parameters
    */
-  void SetDisplacementShaderParameter (const char *parameter, const char *value);
-  void AddDisplacementShaderParameter (const char *parameter, const char *value);
+  void SetDisplacementShaderParameter(const char* parameter, const char* value);
+  void AddDisplacementShaderParameter(const char* parameter, const char* value);
   //@}
 
   //@{
   /**
    * Get parameters.
    */
-  char *GetParameters (); // DEPRECATED: use GetSurfaceShaderParameters instead.
-  char *GetSurfaceShaderParameters ();
-  char *GetDisplacementShaderParameters ();
+  char* GetParameters(); // DEPRECATED: use GetSurfaceShaderParameters instead.
+  char* GetSurfaceShaderParameters();
+  char* GetDisplacementShaderParameters();
   //@}
 
 protected:
   vtkRIBProperty();
   ~vtkRIBProperty() override;
 
-  void Render(vtkActor *a, vtkRenderer *ren) override;
-  vtkProperty *Property;
-  char *SurfaceShader;
-  char *DisplacementShader;
-  char *Declarations;
-  char *SurfaceShaderParameters;
-  char *DisplacementShaderParameters;
+  void Render(vtkActor* a, vtkRenderer* ren) override;
+  vtkProperty* Property;
+  char* SurfaceShader;
+  char* DisplacementShader;
+  char* Declarations;
+  char* SurfaceShaderParameters;
+  char* DisplacementShaderParameters;
   bool SurfaceShaderUsesDefaultParameters;
 
 private:

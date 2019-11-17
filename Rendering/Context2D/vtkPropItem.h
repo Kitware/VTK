@@ -21,7 +21,7 @@
  * This class allows vtkProp objects to be drawn inside a vtkContextScene.
  * This is especially useful for constructing layered scenes that need to ignore
  * depth testing.
-*/
+ */
 
 #ifndef vtkPropItem_h
 #define vtkPropItem_h
@@ -31,20 +31,20 @@
 
 class vtkProp;
 
-class VTKRENDERINGCONTEXT2D_EXPORT vtkPropItem: public vtkAbstractContextItem
+class VTKRENDERINGCONTEXT2D_EXPORT vtkPropItem : public vtkAbstractContextItem
 {
 public:
-  static vtkPropItem *New();
+  static vtkPropItem* New();
   vtkTypeMacro(vtkPropItem, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
   void ReleaseGraphicsResources() override;
 
   /**
    * The actor to render.
    */
-  virtual void SetPropObject(vtkProp *PropObject);
+  virtual void SetPropObject(vtkProp* PropObject);
   vtkGetObjectMacro(PropObject, vtkProp);
 
 protected:
@@ -58,10 +58,10 @@ protected:
   virtual void ResetTransforms();
 
 private:
-  vtkProp *PropObject;
+  vtkProp* PropObject;
 
-  vtkPropItem(const vtkPropItem &) = delete;
-  void operator=(const vtkPropItem &) = delete;
+  vtkPropItem(const vtkPropItem&) = delete;
+  void operator=(const vtkPropItem&) = delete;
 };
 
-#endif //vtkPropItem_h
+#endif // vtkPropItem_h

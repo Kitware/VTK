@@ -23,7 +23,7 @@
  * vtkPExtractDataArraysOverTime.
  *
  * @sa vtkExtractDataArraysOverTime, vtkPExtractDataArraysOverTime
-*/
+ */
 
 #ifndef vtkPExtractSelectedArraysOverTime_h
 #define vtkPExtractSelectedArraysOverTime_h

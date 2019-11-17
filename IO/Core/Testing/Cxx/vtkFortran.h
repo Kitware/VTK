@@ -40,56 +40,38 @@
 #ifndef vtkFortran_h
 #define vtkFortran_h
 
-#define VTK_FORTRAN_NAME(name, NAME) \
-  name##__
+#define VTK_FORTRAN_NAME(name, NAME) name##__
 
-#define VTK_FORTRAN_ARG_STRING(__arg) \
-  const char *__arg##_string, unsigned int __arg##_length
+#define VTK_FORTRAN_ARG_STRING(__arg) const char *__arg##_string, unsigned int __arg##_length
 
-#define VTK_FORTRAN_REF_STRING_POINTER(__arg) \
-  __arg##_string
+#define VTK_FORTRAN_REF_STRING_POINTER(__arg) __arg##_string
 
-#define VTK_FORTRAN_REF_STRING_LENGTH(__arg) \
-  __arg##_length
+#define VTK_FORTRAN_REF_STRING_LENGTH(__arg) __arg##_length
 
-#define VTK_FORTRAN_ARG_INTEGER4(data) \
-  int *data
+#define VTK_FORTRAN_ARG_INTEGER4(data) int* data
 
-#define VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array) \
-  float *array
+#define VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array) float* array
 
-#define VTK_FORTRAN_ARG_INTEGER8(size) \
-  vtkIdType *size
+#define VTK_FORTRAN_ARG_INTEGER8(size) vtkIdType* size
 
-#define VTK_FORTRAN_REF_REAL4_ARRAY_1D(array) \
-  array
+#define VTK_FORTRAN_REF_REAL4_ARRAY_1D(array) array
 
-#define VTK_FORTRAN_ARG_INTEGER8_ARRAY_1D(array) \
-  vtkIdType *array
+#define VTK_FORTRAN_ARG_INTEGER8_ARRAY_1D(array) vtkIdType* array
 
-#define VTK_FORTRAN_REF_INTEGER8_ARRAY_1D(array) \
-  array
+#define VTK_FORTRAN_REF_INTEGER8_ARRAY_1D(array) array
 
-#define VTK_FORTRAN_REF_INTEGER4(data) \
-  *data
+#define VTK_FORTRAN_REF_INTEGER4(data) *data
 
-#define VTK_FORTRAN_REF_INTEGER8(data) \
-  *data
+#define VTK_FORTRAN_REF_INTEGER8(data) *data
 
-#define VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array) \
-  int *array
+#define VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array) int* array
 
-#define VTK_FORTRAN_ARG_REAL8(t) \
-  double *t
+#define VTK_FORTRAN_ARG_REAL8(t) double* t
 
-#define VTK_FORTRAN_REF_REAL8(t) \
-  *t
+#define VTK_FORTRAN_REF_REAL8(t) *t
 
-#define VTK_FORTRAN_ARG_INT4(n) \
-  int *n
+#define VTK_FORTRAN_ARG_INT4(n) int* n
 
-#define VTK_FORTRAN_REF_INT4(n) \
-  *n
+#define VTK_FORTRAN_REF_INT4(n) *n
 
 #endif
-

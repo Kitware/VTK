@@ -21,7 +21,7 @@
  * profiles or mechanical deformation.
  *
  * The filter passes both its point data and cell data to its output.
-*/
+ */
 
 #ifndef vtkWarpVector_h
 #define vtkWarpVector_h
@@ -32,30 +32,27 @@
 class VTKFILTERSGENERAL_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
 {
 public:
-  static vtkWarpVector *New();
-  vtkTypeMacro(vtkWarpVector,vtkPointSetAlgorithm);
+  static vtkWarpVector* New();
+  vtkTypeMacro(vtkWarpVector, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Specify value to scale displacement.
    */
-  vtkSetMacro(ScaleFactor,double);
-  vtkGetMacro(ScaleFactor,double);
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
   vtkWarpVector();
   ~vtkWarpVector() override;
 
-  int RequestDataObject(vtkInformation *request,
-                        vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) override;
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double ScaleFactor;
 
 private:

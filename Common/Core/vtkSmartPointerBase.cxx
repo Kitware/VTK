@@ -17,30 +17,27 @@
 #include "vtkGarbageCollector.h"
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase::vtkSmartPointerBase() noexcept
-  : Object(nullptr)
-{
-}
+vtkSmartPointerBase::vtkSmartPointerBase() noexcept : Object(nullptr) {}
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r):
-  Object(r)
+vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r)
+  : Object(r)
 {
   // Add a reference to the object.
   this->Register();
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r, const NoReference&):
-  Object(r)
+vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r, const NoReference&)
+  : Object(r)
 {
   // Do not add a reference to the object because we received the
   // NoReference argument.
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase::vtkSmartPointerBase(const vtkSmartPointerBase& r):
-  Object(r.Object)
+vtkSmartPointerBase::vtkSmartPointerBase(const vtkSmartPointerBase& r)
+  : Object(r.Object)
 {
   // Add a reference to the object.
   this->Register();
@@ -54,7 +51,7 @@ vtkSmartPointerBase::~vtkSmartPointerBase()
   // garbage collection reference graph traversal may make it back to
   // this smart pointer, and we do not want to include this reference.
   vtkObjectBase* object = this->Object;
-  if(object)
+  if (object)
   {
     this->Object = nullptr;
     object->UnRegister(nullptr);
@@ -62,8 +59,7 @@ vtkSmartPointerBase::~vtkSmartPointerBase()
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase&
-vtkSmartPointerBase::operator=(vtkObjectBase* r)
+vtkSmartPointerBase& vtkSmartPointerBase::operator=(vtkObjectBase* r)
 {
   if (r != this->Object)
   {
@@ -78,8 +74,7 @@ vtkSmartPointerBase::operator=(vtkObjectBase* r)
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointerBase&
-vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
+vtkSmartPointerBase& vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
 {
   if (&r != this && r.Object != this->Object)
   {
@@ -94,8 +89,7 @@ vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
 }
 
 //----------------------------------------------------------------------------
-void vtkSmartPointerBase::Report(vtkGarbageCollector* collector,
-                                 const char* desc)
+void vtkSmartPointerBase::Report(vtkGarbageCollector* collector, const char* desc)
 {
   vtkGarbageCollectorReport(collector, this->Object, desc);
 }
@@ -114,14 +108,14 @@ void vtkSmartPointerBase::Swap(vtkSmartPointerBase& r) noexcept
 void vtkSmartPointerBase::Register()
 {
   // Add a reference only if the object is not nullptr.
-  if(this->Object)
+  if (this->Object)
   {
     this->Object->Register(nullptr);
   }
 }
 
 //----------------------------------------------------------------------------
-ostream& operator << (ostream& os, const vtkSmartPointerBase& p)
+ostream& operator<<(ostream& os, const vtkSmartPointerBase& p)
 {
   // Just print the pointer value into the stream.
   return os << static_cast<void*>(p.GetPointer());

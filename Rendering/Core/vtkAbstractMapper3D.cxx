@@ -18,7 +18,6 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPlaneCollection.h"
 
-
 // Construct with initial range (0,1).
 vtkAbstractMapper3D::vtkAbstractMapper3D()
 {
@@ -30,31 +29,31 @@ vtkAbstractMapper3D::vtkAbstractMapper3D()
 void vtkAbstractMapper3D::GetBounds(double bounds[6])
 {
   this->GetBounds();
-  for (int i=0; i<6; i++)
+  for (int i = 0; i < 6; i++)
   {
     bounds[i] = this->Bounds[i];
   }
 }
 
-double *vtkAbstractMapper3D::GetCenter()
+double* vtkAbstractMapper3D::GetCenter()
 {
   this->GetBounds();
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
+    this->Center[i] = (this->Bounds[2 * i + 1] + this->Bounds[2 * i]) / 2.0;
   }
   return this->Center;
 }
 
 double vtkAbstractMapper3D::GetLength()
 {
-  double diff, l=0.0;
+  double diff, l = 0.0;
   int i;
 
   this->GetBounds();
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
+    diff = this->Bounds[2 * i + 1] - this->Bounds[2 * i];
     l += diff * diff;
   }
 
@@ -62,10 +61,10 @@ double vtkAbstractMapper3D::GetLength()
 }
 
 void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
-  vtkMatrix4x4 *propMatrix, int i, double hnormal[4])
+  vtkMatrix4x4* propMatrix, int i, double hnormal[4])
 {
-  vtkPlaneCollection *clipPlanes = this->ClippingPlanes;
-  const double *mat = *propMatrix->Element;
+  vtkPlaneCollection* clipPlanes = this->ClippingPlanes;
+  const double* mat = *propMatrix->Element;
 
   if (clipPlanes)
   {
@@ -73,21 +72,21 @@ void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
     if (i >= 0 && i < n)
     {
       // Get the plane
-      vtkPlane *plane = clipPlanes->GetItem(i);
-      double *normal = plane->GetNormal();
-      double *origin = plane->GetOrigin();
+      vtkPlane* plane = clipPlanes->GetItem(i);
+      double* normal = plane->GetNormal();
+      double* origin = plane->GetOrigin();
 
       // Compute the plane equation
       double v1 = normal[0];
       double v2 = normal[1];
       double v3 = normal[2];
-      double v4 = -(v1*origin[0] + v2*origin[1] + v3*origin[2]);
+      double v4 = -(v1 * origin[0] + v2 * origin[1] + v3 * origin[2]);
 
       // Transform normal from world to data coords
-      hnormal[0] = v1*mat[0] + v2*mat[4] + v3*mat[8]  + v4*mat[12];
-      hnormal[1] = v1*mat[1] + v2*mat[5] + v3*mat[9]  + v4*mat[13];
-      hnormal[2] = v1*mat[2] + v2*mat[6] + v3*mat[10] + v4*mat[14];
-      hnormal[3] = v1*mat[3] + v2*mat[7] + v3*mat[11] + v4*mat[15];
+      hnormal[0] = v1 * mat[0] + v2 * mat[4] + v3 * mat[8] + v4 * mat[12];
+      hnormal[1] = v1 * mat[1] + v2 * mat[5] + v3 * mat[9] + v4 * mat[13];
+      hnormal[2] = v1 * mat[2] + v2 * mat[6] + v3 * mat[10] + v4 * mat[14];
+      hnormal[3] = v1 * mat[3] + v2 * mat[7] + v3 * mat[11] + v4 * mat[15];
 
       return;
     }
@@ -98,5 +97,5 @@ void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
 
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

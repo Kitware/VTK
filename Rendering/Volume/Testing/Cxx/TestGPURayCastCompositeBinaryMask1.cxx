@@ -28,7 +28,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
+int TestGPURayCastCompositeBinaryMask1(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -50,34 +50,32 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
   imageMask->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 
   // Get pointers to the image and mask data's scalar arrays
-  unsigned short *image =
-    static_cast<unsigned short*>(imageData->GetScalarPointer());
-  unsigned char *mask =
-    static_cast<unsigned char*>(imageMask->GetScalarPointer());
+  unsigned short* image = static_cast<unsigned short*>(imageData->GetScalarPointer());
+  unsigned char* mask = static_cast<unsigned char*>(imageMask->GetScalarPointer());
 
   // Initialize image and mask with data
   int index = 0;
   for (int z = 0; z < cz; ++z)
+  {
+    for (int y = 0; y < cy; ++y)
     {
-    for( int y=0; y < cy; ++y)
+      for (int x = 0; x < cx; ++x)
       {
-      for( int x=0; x < cx; ++x)
-        {
         // Data will increase from 0 to full scale in the z direction
-        image[index] = static_cast<unsigned short>( fullScale * z / cz);
+        image[index] = static_cast<unsigned short>(fullScale * z / cz);
 
         // Inside the mask? Radius of cylinder mask is 1/2 cx which should
         // equal cy
         const double radius = cx / 2.0;
         const double xCenter = cx / 2.0;
         const double yCenter = cy / 2.0;
-        const double distance = sqrt(pow(x-xCenter, 2.0) + pow(y-yCenter, 2.0));
+        const double distance = sqrt(pow(x - xCenter, 2.0) + pow(y - yCenter, 2.0));
         const bool inside = distance < radius;
         mask[index] = (inside) ? 255 : 0;
         index++;
-        }
       }
     }
+  }
 
   // Create a volume mapper and add image data and mask
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
@@ -87,12 +85,12 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
 
   // Create color and opacity nodes (red and blue)
   vtkNew<vtkColorTransferFunction> colors;
-  colors->AddHSVPoint(0.0*fullScale, 0.0, 0.5, 0.5);
-  colors->AddHSVPoint(1.0*fullScale, 2.0/3.0, 0.5, 0.5);
+  colors->AddHSVPoint(0.0 * fullScale, 0.0, 0.5, 0.5);
+  colors->AddHSVPoint(1.0 * fullScale, 2.0 / 3.0, 0.5, 0.5);
 
   vtkNew<vtkPiecewiseFunction> opacities;
-  opacities->AddPoint(0.0*fullScale, 0.6);
-  opacities->AddPoint(1.0*fullScale, 0.6);
+  opacities->AddPoint(0.0 * fullScale, 0.6);
+  opacities->AddPoint(1.0 * fullScale, 0.6);
 
   // Create color property
   vtkNew<vtkVolumeProperty> colorProperty;
@@ -116,8 +114,7 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
   iren->SetRenderWindow(renWin);
 
   renWin->Render();
-  int valid = mapper->IsRenderSupported(renWin,
-                                        colorProperty);
+  int valid = mapper->IsRenderSupported(renWin, colorProperty);
   if (!valid)
   {
     cout << "Required extensions not supported." << endl;
@@ -128,9 +125,10 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
   renWin->Render();
   double values[6];
   colors->GetNodeValue(0, values);
-  values[2] = 0.5; values[3] = 0.5;
+  values[2] = 0.5;
+  values[3] = 0.5;
   colors->SetNodeValue(0, values);
   ren->ResetCamera();
   renWin->Render();
-  return vtkTesting::InteractorEventLoop( argc, argv, iren );
+  return vtkTesting::InteractorEventLoop(argc, argv, iren);
 }

@@ -18,7 +18,7 @@
  *
  * vtkRTXMLPolyDataReader reads the VTK XML PolyData file format in real time.
  *
-*/
+ */
 
 #ifndef vtkRTXMLPolyDataReader_h
 #define vtkRTXMLPolyDataReader_h
@@ -31,7 +31,7 @@ class vtkRTXMLPolyDataReaderInternals;
 class VTKIOXML_EXPORT vtkRTXMLPolyDataReader : public vtkXMLPolyDataReader
 {
 public:
-  vtkTypeMacro(vtkRTXMLPolyDataReader,vtkXMLPolyDataReader);
+  vtkTypeMacro(vtkRTXMLPolyDataReader, vtkXMLPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkRTXMLPolyDataReader* New();
 

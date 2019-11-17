@@ -16,7 +16,7 @@
  * @brief
  * Set of utilities for OpenTURNS<->VTK conversions
  *
-*/
+ */
 
 #ifndef vtkOTUtilities_h
 #define vtkOTUtilities_h

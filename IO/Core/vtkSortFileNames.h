@@ -26,7 +26,7 @@
  * stored in the files themselves (e.g DICOM).
  * @sa
  * vtkImageReader2
-*/
+ */
 
 #ifndef vtkSortFileNames_h
 #define vtkSortFileNames_h
@@ -42,10 +42,9 @@ class vtkStringArrayVector;
 class VTKIOCORE_EXPORT vtkSortFileNames : public vtkObject
 {
 public:
-
-  vtkTypeMacro(vtkSortFileNames,vtkObject);
+  vtkTypeMacro(vtkSortFileNames, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkSortFileNames *New();
+  static vtkSortFileNames* New();
 
   //@{
   /**
@@ -99,14 +98,14 @@ public:
   /**
    * Set a list of file names to group and sort.
    */
-  void SetInputFileNames(vtkStringArray *input);
+  void SetInputFileNames(vtkStringArray* input);
   vtkGetObjectMacro(InputFileNames, vtkStringArray);
   //@}
 
   /**
    * Get the full list of sorted filenames.
    */
-  virtual vtkStringArray *GetFileNames();
+  virtual vtkStringArray* GetFileNames();
 
   /**
    * Get the number of groups that the names were split into, if
@@ -122,7 +121,7 @@ public:
    * be used if grouping is on.  If grouping is off, it will always
    * return null.
    */
-  virtual vtkStringArray *GetNthGroup(int i);
+  virtual vtkStringArray* GetNthGroup(int i);
 
   /**
    * Update the output filenames from the input filenames.
@@ -142,9 +141,9 @@ protected:
 
   vtkTimeStamp UpdateTime;
 
-  vtkStringArray *InputFileNames;
-  vtkStringArray *FileNames;
-  vtkStringArrayVector *Groups;
+  vtkStringArray* InputFileNames;
+  vtkStringArray* FileNames;
+  vtkStringArrayVector* Groups;
 
   /**
    * Fill the output.
@@ -154,14 +153,12 @@ protected:
   /**
    * Sort the input string array, and append the results to the output.
    */
-  virtual void SortFileNames(vtkStringArray *input, vtkStringArray *output);
+  virtual void SortFileNames(vtkStringArray* input, vtkStringArray* output);
 
   /**
    * Separate a string array into groups and append them to the output.
    */
-  virtual void GroupFileNames(vtkStringArray *input,
-                              vtkStringArrayVector *output);
-
+  virtual void GroupFileNames(vtkStringArray* input, vtkStringArrayVector* output);
 
 private:
   vtkSortFileNames(const vtkSortFileNames&) = delete;

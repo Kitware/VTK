@@ -39,9 +39,10 @@
 
 vtkStandardNewMacro(vtkApplyIcons);
 
-class vtkApplyIcons::Internals {
-  public:
-    std::map<vtkVariant, int> LookupTable;
+class vtkApplyIcons::Internals
+{
+public:
+  std::map<vtkVariant, int> LookupTable;
 };
 
 vtkApplyIcons::vtkApplyIcons()
@@ -50,9 +51,8 @@ vtkApplyIcons::vtkApplyIcons()
   this->DefaultIcon = -1;
   this->SelectedIcon = 0;
   this->SetNumberOfInputPorts(2);
-  this->SetInputArrayToProcess(0, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_VERTICES,
-    vtkDataSetAttributes::SCALARS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, vtkDataSetAttributes::SCALARS);
   this->UseLookupTable = false;
   this->IconOutputArrayName = nullptr;
   this->SetIconOutputArrayName("vtkApplyIcons icon");
@@ -93,10 +93,8 @@ int vtkApplyIcons::FillInputPortInformation(int port, vtkInformation* info)
   return 1;
 }
 
-int vtkApplyIcons::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkApplyIcons::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the info objects.
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -114,8 +112,7 @@ int vtkApplyIcons::RequestData(
   vtkAnnotationLayers* layers = nullptr;
   if (layersInfo)
   {
-    layers = vtkAnnotationLayers::SafeDownCast(
-      layersInfo->Get(vtkDataObject::DATA_OBJECT()));
+    layers = vtkAnnotationLayers::SafeDownCast(layersInfo->Get(vtkDataObject::DATA_OBJECT()));
   }
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
@@ -123,8 +120,7 @@ int vtkApplyIcons::RequestData(
 
   // Initialize icon array.
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
-  vtkSmartPointer<vtkIntArray> iconArr =
-    vtkSmartPointer<vtkIntArray>::New();
+  vtkSmartPointer<vtkIntArray> iconArr = vtkSmartPointer<vtkIntArray>::New();
   iconArr->SetName(this->IconOutputArrayName);
 
   // If we have an input array, use its attribute type, otherwise use the
@@ -138,7 +134,8 @@ int vtkApplyIcons::RequestData(
   // Error if the attribute type is not defined on the data.
   if (!output->GetAttributes(attribType))
   {
-    vtkErrorMacro("The input array is not found, and the AttributeType parameter is not valid for this data object.");
+    vtkErrorMacro("The input array is not found, and the AttributeType parameter is not valid for "
+                  "this data object.");
     return 1;
   }
 
@@ -207,14 +204,13 @@ int vtkApplyIcons::RequestData(
   if (layers)
   {
     // Set annotated icons.
-    vtkSmartPointer<vtkIdTypeArray> list1 =
-      vtkSmartPointer<vtkIdTypeArray>::New();
+    vtkSmartPointer<vtkIdTypeArray> list1 = vtkSmartPointer<vtkIdTypeArray>::New();
     unsigned int numAnnotations = layers->GetNumberOfAnnotations();
     for (unsigned int a = 0; a < numAnnotations; ++a)
     {
       vtkAnnotation* ann = layers->GetAnnotation(a);
       if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
-          ann->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
+        ann->GetInformation()->Get(vtkAnnotation::ENABLE()) == 0)
       {
         continue;
       }
@@ -282,21 +278,19 @@ int vtkApplyIcons::RequestData(
         }
       }
     } // if changeSelected
-  } // if current ann not nullptr
+  }   // if current ann not nullptr
 
   return 1;
 }
 
 void vtkApplyIcons::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "DefaultIcon: " << this->DefaultIcon << endl;
   os << indent << "SelectedIcon: " << this->SelectedIcon << endl;
-  os << indent << "UseLookupTable: "
-    << (this->UseLookupTable ? "on" : "off") << endl;
+  os << indent << "UseLookupTable: " << (this->UseLookupTable ? "on" : "off") << endl;
   os << indent << "IconOutputArrayName: "
-    << (this->IconOutputArrayName ? this->IconOutputArrayName : "(none)") << endl;
+     << (this->IconOutputArrayName ? this->IconOutputArrayName : "(none)") << endl;
   os << indent << "SelectionMode: " << this->SelectionMode << endl;
   os << indent << "AttributeType: " << this->AttributeType << endl;
 }
-

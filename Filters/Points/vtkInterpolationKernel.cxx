@@ -34,22 +34,21 @@ vtkInterpolationKernel::~vtkInterpolationKernel()
 }
 
 //----------------------------------------------------------------------------
-void vtkInterpolationKernel::
-FreeStructures()
+void vtkInterpolationKernel::FreeStructures()
 {
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->Delete();
     this->Locator = nullptr;
   }
 
-  if ( this->DataSet )
+  if (this->DataSet)
   {
     this->DataSet->Delete();
     this->DataSet = nullptr;
   }
 
-  if ( this->PointData )
+  if (this->PointData)
   {
     this->PointData->Delete();
     this->PointData = nullptr;
@@ -57,24 +56,24 @@ FreeStructures()
 }
 
 //----------------------------------------------------------------------------
-void vtkInterpolationKernel::
-Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
+void vtkInterpolationKernel::Initialize(
+  vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* attr)
 {
   this->FreeStructures();
 
-  if ( loc )
+  if (loc)
   {
     this->Locator = loc;
     this->Locator->Register(this);
   }
 
-  if ( ds )
+  if (ds)
   {
     this->DataSet = ds;
     this->DataSet->Register(this);
   }
 
-  if ( attr )
+  if (attr)
   {
     this->PointData = attr;
     this->PointData->Register(this);
@@ -84,35 +83,35 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
 //----------------------------------------------------------------------------
 void vtkInterpolationKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Requires Initialization: "
-     << (this->GetRequiresInitialization() ? "On\n" : "Off\n");
+  os << indent
+     << "Requires Initialization: " << (this->GetRequiresInitialization() ? "On\n" : "Off\n");
 
-  if ( this->Locator )
+  if (this->Locator)
   {
     os << indent << "Locator:\n";
-    this->Locator->PrintSelf(os,indent.GetNextIndent());
+    this->Locator->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "Locator: (None)\n";
   }
 
-  if ( this->DataSet )
+  if (this->DataSet)
   {
     os << indent << "DataSet:\n";
-    this->DataSet->PrintSelf(os,indent.GetNextIndent());
+    this->DataSet->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "DataSet: (None)\n";
   }
 
-  if ( this->PointData )
+  if (this->PointData)
   {
     os << indent << "PointData:\n";
-    this->PointData->PrintSelf(os,indent.GetNextIndent());
+    this->PointData->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

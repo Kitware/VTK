@@ -30,12 +30,10 @@
 #include "vtkStdString.h"
 #include "vtkTestUtilities.h"
 
-int TestNrrdReader(int argc, char *argv[])
+int TestNrrdReader(int argc, char* argv[])
 {
-  char *filename1 =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.nrrd");
-  char *filename2 =
-      vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.ascii.nhdr");
+  char* filename1 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.nrrd");
+  char* filename2 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.ascii.nhdr");
   if ((filename1 == nullptr) || (filename2 == nullptr))
   {
     cerr << "Could not get file names.";
@@ -106,5 +104,4 @@ int TestNrrdReader(int argc, char *argv[])
   delete[] filename2;
 
   return (retVal != vtkRegressionTester::PASSED);
-
 }

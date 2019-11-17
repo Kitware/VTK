@@ -27,7 +27,6 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 
-
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSMPWarpVector);
 
@@ -37,12 +36,10 @@ vtkSMPWarpVector::vtkSMPWarpVector()
   this->ScaleFactor = 1.0;
 
   // by default process active point vectors
-  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                               vtkDataSetAttributes::VECTORS);
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
 
-  VTK_LEGACY_BODY(
-    vtkSMPWarpVector::vtkSMPWarpVector,
-    "VTK 8.1");
+  VTK_LEGACY_BODY(vtkSMPWarpVector::vtkSMPWarpVector, "VTK 8.1");
 }
 
 //----------------------------------------------------------------------------
@@ -53,13 +50,14 @@ template <class PointArrayType, class VecArrayType>
 class vtkSMPWarpVectorOp
 {
   using ScaleT = vtk::GetAPIType<PointArrayType>;
+
 public:
   PointArrayType* InPoints;
   PointArrayType* OutPoints;
   VecArrayType* InVector;
   double scaleFactor;
 
-  void  operator()(vtkIdType begin, vtkIdType end) const
+  void operator()(vtkIdType begin, vtkIdType end) const
   {
     auto inPts = vtk::DataArrayTupleRange<3>(this->InPoints, begin, end);
     auto inVec = vtk::DataArrayTupleRange<3>(this->InVector, begin, end);
@@ -80,44 +78,39 @@ public:
 struct vtkSMPWarpVectorExecute
 {
   template <class T1, class T2>
-  void operator()(T1 *inPtsArray, T2 *inVecArray, vtkDataArray *outDataArray,
-                  double scaleFactor) const
+  void operator()(
+    T1* inPtsArray, T2* inVecArray, vtkDataArray* outDataArray, double scaleFactor) const
   {
 
-    T1 *outArray = vtkArrayDownCast<T1>(outDataArray); // known to be same as
+    T1* outArray = vtkArrayDownCast<T1>(outDataArray); // known to be same as
                                                        // input
-    vtkSMPWarpVectorOp<T1, T2> op{inPtsArray, outArray, inVecArray,
-                                  scaleFactor};
+    vtkSMPWarpVectorOp<T1, T2> op{ inPtsArray, outArray, inVecArray, scaleFactor };
     vtkSMPTools::For(0, inPtsArray->GetNumberOfTuples(), op);
   }
 };
 
 //----------------------------------------------------------------------------
 int vtkSMPWarpVector::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
   {
     // Let the superclass handle vtkImageData and vtkRectilinearGrid
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
-  vtkPointSet *output = vtkPointSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *points;
+  vtkPoints* points;
   vtkIdType numPts;
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  output->CopyStructure(input);
 
   if (input == nullptr || input->GetPoints() == nullptr)
   {
@@ -125,11 +118,11 @@ int vtkSMPWarpVector::RequestData(
   }
   numPts = input->GetPoints()->GetNumberOfPoints();
 
-  vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
+  vtkDataArray* vectors = this->GetInputArrayToProcess(0, inputVector);
 
-  if ( !vectors || !numPts)
+  if (!vectors || !numPts)
   {
-    vtkDebugMacro(<<"No input data");
+    vtkDebugMacro(<< "No input data");
     return 1;
   }
 
@@ -145,7 +138,8 @@ int vtkSMPWarpVector::RequestData(
   vtkDataArray* inpts = input->GetPoints()->GetData();
   vtkDataArray* outpts = output->GetPoints()->GetData();
 
-  if(!vtkArrayDispatch::Dispatch2::Execute(inpts, vectors, vtkSMPWarpVectorExecute{}, outpts, this->ScaleFactor))
+  if (!vtkArrayDispatch::Dispatch2::Execute(
+        inpts, vectors, vtkSMPWarpVectorExecute{}, outpts, this->ScaleFactor))
   {
     vtkSMPWarpVectorExecute{}(inpts, vectors, outpts, this->ScaleFactor);
   }
@@ -161,6 +155,6 @@ int vtkSMPWarpVector::RequestData(
 //----------------------------------------------------------------------------
 void vtkSMPWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

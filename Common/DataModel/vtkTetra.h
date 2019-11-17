@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkConvexPointSet vtkHexahedron vtkPyramid vtkVoxel vtkWedge
-*/
+ */
 
 #ifndef vtkTetra_h
 #define vtkTetra_h
@@ -41,48 +41,42 @@ class vtkIncrementalPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkTetra : public vtkCell3D
 {
 public:
-  static vtkTetra *New();
-  vtkTypeMacro(vtkTetra,vtkCell3D);
+  static vtkTetra* New();
+  vtkTypeMacro(vtkTetra, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int* &pts) override;
-  void GetFacePoints(int faceId, int* &pts) override;
+  void GetEdgePoints(int edgeId, int*& pts) override;
+  void GetFacePoints(int faceId, int*& pts) override;
   //@}
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_TETRA;}
-  int GetNumberOfEdges() override {return 6;}
-  int GetNumberOfFaces() override {return 4;}
-  vtkCell *GetEdge(int edgeId) override;
-  vtkCell *GetFace(int faceId) override;
-  void Contour(double value, vtkDataArray *cellScalars,
-               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
-  void Clip(double value, vtkDataArray *cellScalars,
-            vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-                       int& subId, double pcoords[3],
-                       double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
-                        double *weights) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void Derivatives(int subId, const double pcoords[3], const double *values,
-                   int dim, double *derivs) override;
-  double *GetParametricCoords() override;
+  int GetCellType() override { return VTK_TETRA; }
+  int GetNumberOfEdges() override { return 6; }
+  int GetNumberOfFaces() override { return 4; }
+  vtkCell* GetEdge(int edgeId) override;
+  vtkCell* GetFace(int faceId) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
+    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
+    double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  void Derivatives(
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
+  double* GetParametricCoords() override;
   //@}
 
   /**
@@ -99,7 +93,7 @@ public:
    * are closest parametrically to the point specified. This may include faces,
    * edges, or vertices.
    */
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
 
   /**
    * Return the center of the tetrahedron in parametric coordinates.
@@ -115,24 +109,22 @@ public:
   /**
    * Compute the center of the tetrahedron,
    */
-  static void TetraCenter(double p1[3], double p2[3], double p3[3], double p4[3],
-                          double center[3]);
+  static void TetraCenter(double p1[3], double p2[3], double p3[3], double p4[3], double center[3]);
 
   /**
    * Compute the circumcenter (center[3]) and radius squared (method
    * return value) of a tetrahedron defined by the four points x1, x2,
    * x3, and x4.
    */
-  static double Circumsphere(double  p1[3], double p2[3], double p3[3],
-                             double p4[3], double center[3]);
+  static double Circumsphere(
+    double p1[3], double p2[3], double p3[3], double p4[3], double center[3]);
 
   /**
    * Compute the center (center[3]) and radius (method return value) of
    * a sphere that just fits inside the faces of a tetrahedron defined
    * by the four points x1, x2, x3, and x4.
    */
-  static double Insphere(double  p1[3], double p2[3], double p3[3],
-                         double p4[3], double center[3]);
+  static double Insphere(double p1[3], double p2[3], double p3[3], double p4[3], double center[3]);
 
   /**
    * Given a 3D point x[3], determine the barycentric coordinates of the point.
@@ -146,22 +138,21 @@ public:
    * edge (and so on). In this method, you must specify the vertex coordinates
    * x1->x4. Returns 0 if tetrahedron is degenerate.
    */
-  static int BarycentricCoords(double x[3], double  x1[3], double x2[3],
-                               double x3[3], double x4[3], double bcoords[4]);
+  static int BarycentricCoords(
+    double x[3], double x1[3], double x2[3], double x3[3], double x4[3], double bcoords[4]);
 
   /**
    * Compute the volume of a tetrahedron defined by the four points
    * p1, p2, p3, and p4.
    */
-  static double ComputeVolume(double  p1[3], double p2[3], double p3[3],
-                              double p4[3]);
+  static double ComputeVolume(double p1[3], double p2[3], double p3[3], double p4[3]);
 
   /**
    * Given parametric coordinates compute inverse Jacobian transformation
    * matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
    * function derivatives. Returns 0 if no inverse exists.
    */
-  int JacobianInverse(double **inverse, double derivs[12]);
+  int JacobianInverse(double** inverse, double derivs[12]);
 
   /**
    * @deprecated Replaced by vtkTetra::InterpolateFunctions as of VTK 5.2
@@ -178,11 +169,11 @@ public:
    */
   void InterpolateFunctions(const double pcoords[3], double weights[4]) override
   {
-    vtkTetra::InterpolationFunctions(pcoords,weights);
+    vtkTetra::InterpolationFunctions(pcoords, weights);
   }
   void InterpolateDerivs(const double pcoords[3], double derivs[12]) override
   {
-    vtkTetra::InterpolationDerivs(pcoords,derivs);
+    vtkTetra::InterpolationDerivs(pcoords, derivs);
   }
   //@}
 
@@ -191,16 +182,16 @@ public:
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int *GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
-  static int *GetFaceArray(int faceId) VTK_SIZEHINT(3);
+  static int* GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
+  static int* GetFaceArray(int faceId) VTK_SIZEHINT(3);
   //@}
 
 protected:
   vtkTetra();
   ~vtkTetra() override;
 
-  vtkLine *Line;
-  vtkTriangle *Triangle;
+  vtkLine* Line;
+  vtkTriangle* Triangle;
 
 private:
   vtkTetra(const vtkTetra&) = delete;

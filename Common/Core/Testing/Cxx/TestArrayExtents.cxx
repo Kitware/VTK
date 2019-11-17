@@ -27,17 +27,17 @@
 #include <sstream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-  { \
-    std::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw std::runtime_error(buffer.str()); \
-  } \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+    {                                                                                              \
+      std::ostringstream buffer;                                                                   \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
+      throw std::runtime_error(buffer.str());                                                      \
+    }                                                                                              \
+  }
 
-int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayExtents(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
@@ -49,7 +49,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(slice.GetSize() == 6);
 
     vtkArrayCoordinates coordinates;
-    for(vtkArrayExtents::SizeT n = 0; n != slice.GetSize(); ++n)
+    for (vtkArrayExtents::SizeT n = 0; n != slice.GetSize(); ++n)
     {
       slice.GetLeftToRightCoordinatesN(n, coordinates);
       cerr << coordinates << endl;
@@ -73,7 +73,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;

@@ -89,9 +89,9 @@ public:
         ptId = dataset->FindPoint(location);
         if (ptId >= 0)
         {
-          double *x = dataset->GetPoint(ptId);
+          double* x = dataset->GetPoint(ptId);
           double distance = vtkMath::Distance2BetweenPoints(x, location);
-          if (distance > radius*radius)
+          if (distance > radius * radius)
           {
             ptId = -1;
           }
@@ -153,9 +153,7 @@ vtkLocationSelector::vtkLocationSelector()
 }
 
 //----------------------------------------------------------------------------
-vtkLocationSelector::~vtkLocationSelector()
-{
-}
+vtkLocationSelector::~vtkLocationSelector() {}
 
 //----------------------------------------------------------------------------
 void vtkLocationSelector::Initialize(vtkSelectionNode* node)
@@ -219,8 +217,9 @@ bool vtkLocationSelector::ComputeSelectedElements(
 {
   assert(input != nullptr && insidednessArray != nullptr);
   vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-  return (this->Internals != nullptr && ds != nullptr) ? this->Internals->Execute(ds, insidednessArray)
-                                                       : false;
+  return (this->Internals != nullptr && ds != nullptr)
+    ? this->Internals->Execute(ds, insidednessArray)
+    : false;
 }
 
 //----------------------------------------------------------------------------

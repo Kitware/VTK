@@ -39,23 +39,23 @@
  * order to change the default symbol visibility when using GCC.
  * Currently hidden is not used, but it can be used to explicitly hide
  * symbols from external linkage.
-*/
+ */
 
 #ifndef vtkABI_h
 #define vtkABI_h
 
 #if defined(_WIN32)
-# define VTK_ABI_IMPORT __declspec(dllimport)
-# define VTK_ABI_EXPORT __declspec(dllexport)
-# define VTK_ABI_HIDDEN
+#define VTK_ABI_IMPORT __declspec(dllimport)
+#define VTK_ABI_EXPORT __declspec(dllexport)
+#define VTK_ABI_HIDDEN
 #elif __GNUC__ >= 4
-# define VTK_ABI_IMPORT __attribute__ ((visibility("default")))
-# define VTK_ABI_EXPORT __attribute__ ((visibility("default")))
-# define VTK_ABI_HIDDEN __attribute__ ((visibility("hidden")))
+#define VTK_ABI_IMPORT __attribute__((visibility("default")))
+#define VTK_ABI_EXPORT __attribute__((visibility("default")))
+#define VTK_ABI_HIDDEN __attribute__((visibility("hidden")))
 #else
-# define VTK_ABI_IMPORT
-# define VTK_ABI_EXPORT
-# define VTK_ABI_HIDDEN
+#define VTK_ABI_IMPORT
+#define VTK_ABI_EXPORT
+#define VTK_ABI_HIDDEN
 #endif
 
 /*--------------------------------------------------------------------------*/
@@ -64,14 +64,14 @@
 /* or more rarely unsigned int, where it should have used bool.             */
 /* Eventually vtkTypeBool will switch to real bool.                         */
 #ifndef VTK_TYPE_BOOL_TYPEDEFED
-# define VTK_TYPE_BOOL_TYPEDEFED
-# if 1
-   typedef int vtkTypeBool;
-   typedef unsigned int vtkTypeUBool;
-# else
-   typedef bool vtkTypeBool;
-   typedef bool vtkTypeUBool;
-# endif
+#define VTK_TYPE_BOOL_TYPEDEFED
+#if 1
+typedef int vtkTypeBool;
+typedef unsigned int vtkTypeUBool;
+#else
+typedef bool vtkTypeBool;
+typedef bool vtkTypeUBool;
+#endif
 #endif
 
 #endif // vtkABI_h

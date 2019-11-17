@@ -21,7 +21,7 @@
  * determines whether to perform a 2d or 3d gradient. The default is
  * two dimensional XY gradient.  OutputScalarType is always
  * double. Gradient is computed using central differences.
-*/
+ */
 
 #ifndef vtkImageGradient_h
 #define vtkImageGradient_h
@@ -32,16 +32,16 @@
 class VTKIMAGINGGENERAL_EXPORT vtkImageGradient : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageGradient *New();
-  vtkTypeMacro(vtkImageGradient,vtkThreadedImageAlgorithm);
+  static vtkImageGradient* New();
+  vtkTypeMacro(vtkImageGradient, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Determines how the input is interpreted (set of 2d slices ...)
    */
-  vtkSetClampMacro(Dimensionality,int,2,3);
-  vtkGetMacro(Dimensionality,int);
+  vtkSetClampMacro(Dimensionality, int, 2, 3);
+  vtkGetMacro(Dimensionality, int);
   //@}
 
   //@{
@@ -63,29 +63,16 @@ protected:
   vtkTypeBool HandleBoundaries;
   int Dimensionality;
 
-  int RequestInformation (vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
-  int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*) override;
-  int RequestData(vtkInformation*,
-                          vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData(vtkInformation*,
-                           vtkInformationVector**,
-                           vtkInformationVector*,
-                           vtkImageData*** inData,
-                           vtkImageData** outData,
-                           int outExt[6],
-                           int threadId) override;
+  void ThreadedRequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*,
+    vtkImageData*** inData, vtkImageData** outData, int outExt[6], int threadId) override;
+
 private:
   vtkImageGradient(const vtkImageGradient&) = delete;
   void operator=(const vtkImageGradient&) = delete;
 };
 
 #endif
-
-
-

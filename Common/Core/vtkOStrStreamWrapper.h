@@ -22,7 +22,7 @@
  * up compilation.  Experimentation has revealed between 10% and 60%
  * less time for compilation depending on the platform.  This wrapper
  * is used by the macros in vtkSetGet.h.
-*/
+ */
 
 #ifndef vtkOStrStreamWrapper_h
 #define vtkOStrStreamWrapper_h
@@ -31,7 +31,7 @@
 Do_not_include_vtkOStrStreamWrapper_directly_vtkSystemIncludes_includes_it;
 #endif
 
-class VTKCOMMONCORE_EXPORT vtkOStrStreamWrapper: public vtkOStreamWrapper
+class VTKCOMMONCORE_EXPORT vtkOStrStreamWrapper : public vtkOStreamWrapper
 {
 public:
   /**
@@ -72,6 +72,7 @@ protected:
 
   // Whether the caller of str() owns the memory.
   int Frozen;
+
 private:
   vtkOStrStreamWrapper(const vtkOStrStreamWrapper& r) = delete;
   vtkOStrStreamWrapper& operator=(const vtkOStrStreamWrapper&) = delete;

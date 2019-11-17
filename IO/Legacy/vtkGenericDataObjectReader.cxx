@@ -49,7 +49,7 @@
 
 vtkStandardNewMacro(vtkGenericDataObjectReader);
 
-template<typename ReaderT, typename DataT>
+template <typename ReaderT, typename DataT>
 void vtkGenericDataObjectReader::ReadData(
   const char* fname, const char* DataClass, vtkDataObject* Output)
 {
@@ -57,8 +57,7 @@ void vtkGenericDataObjectReader::ReadData(
 
   reader->SetFileName(fname);
   reader->SetInputArray(this->GetInputArray());
-  reader->SetInputString(this->GetInputString(),
-                          this->GetInputStringLength());
+  reader->SetInputString(this->GetInputString(), this->GetInputStringLength());
   reader->SetReadFromInputString(this->GetReadFromInputString());
   reader->SetScalarsName(this->GetScalarsName());
   reader->SetVectorsName(this->GetVectorsName());
@@ -80,7 +79,7 @@ void vtkGenericDataObjectReader::ReadData(
   this->SetHeader(reader->GetHeader());
 
   // Can we use the old output?
-  if(!(Output && strcmp(Output->GetClassName(), DataClass) == 0))
+  if (!(Output && strcmp(Output->GetClassName(), DataClass) == 0))
   {
     // Hack to make sure that the object is not modified
     // with SetNthOutput. Otherwise, extra executions occur.
@@ -97,12 +96,11 @@ void vtkGenericDataObjectReader::ReadData(
 vtkGenericDataObjectReader::vtkGenericDataObjectReader() = default;
 vtkGenericDataObjectReader::~vtkGenericDataObjectReader() = default;
 
-vtkDataObject* vtkGenericDataObjectReader::CreateOutput(
-  vtkDataObject* currentOutput)
+vtkDataObject* vtkGenericDataObjectReader::CreateOutput(vtkDataObject* currentOutput)
 {
   if (this->GetFileName() == nullptr &&
-      (this->GetReadFromInputString() == 0 ||
-       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
+    (this->GetReadFromInputString() == 0 ||
+      (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
     vtkWarningMacro(<< "FileName must be set");
     return nullptr;
@@ -175,18 +173,18 @@ vtkDataObject* vtkGenericDataObjectReader::CreateOutput(
   return output;
 }
 
-int vtkGenericDataObjectReader::ReadMetaDataSimple(const std::string& fname,
-                                                   vtkInformation* metadata)
+int vtkGenericDataObjectReader::ReadMetaDataSimple(
+  const std::string& fname, vtkInformation* metadata)
 {
   if (fname.empty() &&
-      (this->GetReadFromInputString() == 0 ||
-       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
+    (this->GetReadFromInputString() == 0 ||
+      (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
     vtkWarningMacro(<< "FileName must be set");
     return 0;
   }
 
-  vtkDataReader *reader = nullptr;
+  vtkDataReader* reader = nullptr;
   int retVal;
   switch (this->ReadOutputType())
   {
@@ -232,7 +230,7 @@ int vtkGenericDataObjectReader::ReadMetaDataSimple(const std::string& fname,
       reader = nullptr;
   }
 
-  if(reader)
+  if (reader)
   {
     reader->SetReadFromInputString(this->GetReadFromInputString());
     reader->SetInputArray(this->GetInputArray());
@@ -244,24 +242,21 @@ int vtkGenericDataObjectReader::ReadMetaDataSimple(const std::string& fname,
   return 1;
 }
 
-int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname,
-                                               vtkDataObject* output)
+int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname, vtkDataObject* output)
 {
 
-  vtkDebugMacro(<<"Reading vtk dataset...");
+  vtkDebugMacro(<< "Reading vtk dataset...");
 
   switch (this->ReadOutputType())
   {
     case VTK_MOLECULE:
     {
-      this->ReadData<vtkGraphReader, vtkMolecule>(
-        fname.c_str(), "vtkMolecule", output);
+      this->ReadData<vtkGraphReader, vtkMolecule>(fname.c_str(), "vtkMolecule", output);
       return 1;
     }
     case VTK_DIRECTED_GRAPH:
     {
-      this->ReadData<vtkGraphReader, vtkDirectedGraph>(
-        fname.c_str(), "vtkDirectedGraph", output);
+      this->ReadData<vtkGraphReader, vtkDirectedGraph>(fname.c_str(), "vtkDirectedGraph", output);
       return 1;
     }
     case VTK_UNDIRECTED_GRAPH:
@@ -278,8 +273,7 @@ int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname,
     }
     case VTK_POLY_DATA:
     {
-      this->ReadData<vtkPolyDataReader, vtkPolyData>(
-        fname.c_str(), "vtkPolyData", output);
+      this->ReadData<vtkPolyDataReader, vtkPolyData>(fname.c_str(), "vtkPolyData", output);
       return 1;
     }
     case VTK_RECTILINEAR_GRID:
@@ -302,14 +296,12 @@ int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname,
     }
     case VTK_TABLE:
     {
-      this->ReadData<vtkTableReader, vtkTable>(
-        fname.c_str(), "vtkTable", output);
+      this->ReadData<vtkTableReader, vtkTable>(fname.c_str(), "vtkTable", output);
       return 1;
     }
     case VTK_TREE:
     {
-      this->ReadData<vtkTreeReader, vtkTree>(
-        fname.c_str(), "vtkTree", output);
+      this->ReadData<vtkTreeReader, vtkTree>(fname.c_str(), "vtkTree", output);
       return 1;
     }
     case VTK_UNSTRUCTURED_GRID:
@@ -361,7 +353,7 @@ int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname,
       return 1;
     }
     default:
-        vtkErrorMacro("Could not read file " << this->GetFileName());
+      vtkErrorMacro("Could not read file " << this->GetFileName());
   }
   return 0;
 }
@@ -370,84 +362,83 @@ int vtkGenericDataObjectReader::ReadOutputType()
 {
   char line[256];
 
-  vtkDebugMacro(<<"Reading vtk data object...");
+  vtkDebugMacro(<< "Reading vtk data object...");
 
-  if(!this->OpenVTKFile() || !this->ReadHeader())
+  if (!this->OpenVTKFile() || !this->ReadHeader())
   {
     return -1;
   }
 
   // Determine dataset type
   //
-  if(!this->ReadString(line))
+  if (!this->ReadString(line))
   {
     vtkDebugMacro(<< "Premature EOF reading dataset keyword");
     return -1;
   }
 
-  if(!strncmp(this->LowerCase(line),"dataset",static_cast<unsigned long>(7)))
+  if (!strncmp(this->LowerCase(line), "dataset", static_cast<unsigned long>(7)))
   {
     // See iftype is recognized.
     //
-    if(!this->ReadString(line))
+    if (!this->ReadString(line))
     {
       vtkDebugMacro(<< "Premature EOF reading type");
-      this->CloseVTKFile ();
+      this->CloseVTKFile();
       return -1;
     }
 
     this->CloseVTKFile();
 
-    if(!strncmp(this->LowerCase(line), "molecule", 8))
+    if (!strncmp(this->LowerCase(line), "molecule", 8))
     {
       return VTK_MOLECULE;
     }
-    if(!strncmp(this->LowerCase(line), "directed_graph", 14))
+    if (!strncmp(this->LowerCase(line), "directed_graph", 14))
     {
       return VTK_DIRECTED_GRAPH;
     }
-    if(!strncmp(this->LowerCase(line), "undirected_graph", 16))
+    if (!strncmp(this->LowerCase(line), "undirected_graph", 16))
     {
       return VTK_UNDIRECTED_GRAPH;
     }
-    if(!strncmp(this->LowerCase(line), "polydata",8))
+    if (!strncmp(this->LowerCase(line), "polydata", 8))
     {
       return VTK_POLY_DATA;
     }
-    if(!strncmp(this->LowerCase(line), "rectilinear_grid",16))
+    if (!strncmp(this->LowerCase(line), "rectilinear_grid", 16))
     {
       return VTK_RECTILINEAR_GRID;
     }
-    if(!strncmp(this->LowerCase(line), "structured_grid",15))
+    if (!strncmp(this->LowerCase(line), "structured_grid", 15))
     {
       return VTK_STRUCTURED_GRID;
     }
-    if(!strncmp(this->LowerCase(line), "structured_points",17))
+    if (!strncmp(this->LowerCase(line), "structured_points", 17))
     {
       return VTK_STRUCTURED_POINTS;
     }
-    if(!strncmp(this->LowerCase(line), "table", 5))
+    if (!strncmp(this->LowerCase(line), "table", 5))
     {
       return VTK_TABLE;
     }
-    if(!strncmp(this->LowerCase(line), "tree", 4))
+    if (!strncmp(this->LowerCase(line), "tree", 4))
     {
       return VTK_TREE;
     }
-    if(!strncmp(this->LowerCase(line), "unstructured_grid",17))
+    if (!strncmp(this->LowerCase(line), "unstructured_grid", 17))
     {
       return VTK_UNSTRUCTURED_GRID;
     }
-    if(!strncmp(this->LowerCase(line), "multiblock", strlen("multiblock")))
+    if (!strncmp(this->LowerCase(line), "multiblock", strlen("multiblock")))
     {
       return VTK_MULTIBLOCK_DATA_SET;
     }
-    if(!strncmp(this->LowerCase(line), "multipiece", strlen("multipiece")))
+    if (!strncmp(this->LowerCase(line), "multipiece", strlen("multipiece")))
     {
       return VTK_MULTIPIECE_DATA_SET;
     }
-    if(!strncmp(this->LowerCase(line), "hierarchical_box",
-        strlen("hierarchical_box")))
+    if (!strncmp(this->LowerCase(line), "hierarchical_box", strlen("hierarchical_box")))
     {
       return VTK_HIERARCHICAL_BOX_DATA_SET;
     }
@@ -463,7 +454,8 @@ int vtkGenericDataObjectReader::ReadOutputType()
     {
       return VTK_PARTITIONED_DATA_SET;
     }
-    if (strncmp(this->LowerCase(line), "partitioned_collection", strlen("partitioned_collection")) == 0)
+    if (strncmp(
+          this->LowerCase(line), "partitioned_collection", strlen("partitioned_collection")) == 0)
     {
       return VTK_PARTITIONED_DATA_SET_COLLECTION;
     }
@@ -471,79 +463,79 @@ int vtkGenericDataObjectReader::ReadOutputType()
     vtkDebugMacro(<< "Cannot read dataset type: " << line);
     return -1;
   }
-  else if(!strncmp(this->LowerCase(line),"field",static_cast<unsigned long>(5)))
+  else if (!strncmp(this->LowerCase(line), "field", static_cast<unsigned long>(5)))
   {
-    vtkDebugMacro(<<"This object can only read data objects, not fields");
+    vtkDebugMacro(<< "This object can only read data objects, not fields");
   }
   else
   {
-    vtkDebugMacro(<<"Expecting DATASET keyword, got " << line << " instead");
+    vtkDebugMacro(<< "Expecting DATASET keyword, got " << line << " instead");
   }
 
   return -1;
 }
 
-vtkGraph *vtkGenericDataObjectReader::GetGraphOutput()
+vtkGraph* vtkGenericDataObjectReader::GetGraphOutput()
 {
   return vtkGraph::SafeDownCast(this->GetOutput());
 }
 
-vtkMolecule *vtkGenericDataObjectReader::GetMoleculeOutput()
+vtkMolecule* vtkGenericDataObjectReader::GetMoleculeOutput()
 {
   return vtkMolecule::SafeDownCast(this->GetOutput());
 }
 
-vtkPolyData *vtkGenericDataObjectReader::GetPolyDataOutput()
+vtkPolyData* vtkGenericDataObjectReader::GetPolyDataOutput()
 {
   return vtkPolyData::SafeDownCast(this->GetOutput());
 }
 
-vtkRectilinearGrid *vtkGenericDataObjectReader::GetRectilinearGridOutput()
+vtkRectilinearGrid* vtkGenericDataObjectReader::GetRectilinearGridOutput()
 {
   return vtkRectilinearGrid::SafeDownCast(this->GetOutput());
 }
 
-vtkStructuredGrid *vtkGenericDataObjectReader::GetStructuredGridOutput()
+vtkStructuredGrid* vtkGenericDataObjectReader::GetStructuredGridOutput()
 {
   return vtkStructuredGrid::SafeDownCast(this->GetOutput());
 }
 
-vtkStructuredPoints *vtkGenericDataObjectReader::GetStructuredPointsOutput()
+vtkStructuredPoints* vtkGenericDataObjectReader::GetStructuredPointsOutput()
 {
   return vtkStructuredPoints::SafeDownCast(this->GetOutput());
 }
 
-vtkTable *vtkGenericDataObjectReader::GetTableOutput()
+vtkTable* vtkGenericDataObjectReader::GetTableOutput()
 {
   return vtkTable::SafeDownCast(this->GetOutput());
 }
 
-vtkTree *vtkGenericDataObjectReader::GetTreeOutput()
+vtkTree* vtkGenericDataObjectReader::GetTreeOutput()
 {
   return vtkTree::SafeDownCast(this->GetOutput());
 }
 
-vtkUnstructuredGrid *vtkGenericDataObjectReader::GetUnstructuredGridOutput()
+vtkUnstructuredGrid* vtkGenericDataObjectReader::GetUnstructuredGridOutput()
 {
   return vtkUnstructuredGrid::SafeDownCast(this->GetOutput());
 }
 
 void vtkGenericDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-vtkDataObject *vtkGenericDataObjectReader::GetOutput()
+vtkDataObject* vtkGenericDataObjectReader::GetOutput()
 {
   return this->GetOutputDataObject(0);
 }
 
-vtkDataObject *vtkGenericDataObjectReader::GetOutput(int idx)
+vtkDataObject* vtkGenericDataObjectReader::GetOutput(int idx)
 {
   return this->GetOutputDataObject(idx);
 }
 
-int vtkGenericDataObjectReader::FillOutputPortInformation(int, vtkInformation *info)
+int vtkGenericDataObjectReader::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;

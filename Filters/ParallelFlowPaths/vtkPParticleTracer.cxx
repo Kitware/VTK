@@ -30,5 +30,5 @@ int vtkPParticleTracer::OutputParticles(vtkPolyData* poly)
 
 void vtkPParticleTracer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 }

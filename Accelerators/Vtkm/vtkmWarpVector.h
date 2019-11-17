@@ -22,7 +22,7 @@
  * profiles or mechanical deformation.
  *
  * The filter passes both its point data and cell data to its output.
-*/
+ */
 
 #ifndef vtkmWarpVector_h
 #define vtkmWarpVector_h
@@ -42,8 +42,7 @@ protected:
   vtkmWarpVector();
   ~vtkmWarpVector();
 
-  int RequestData(vtkInformation* , vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmWarpVector(const vtkmWarpVector&) = delete;

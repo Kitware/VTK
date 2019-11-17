@@ -29,7 +29,7 @@
  *
  * @par Thanks:
  * This class was written by Kitware SAS and supported by EDF - www.edf.fr
-*/
+ */
 
 #ifndef vtkComputeQuartiles_h
 #define vtkComputeQuartiles_h
@@ -42,7 +42,6 @@ class vtkDoubleArray;
 class vtkFieldData;
 class vtkTable;
 
-
 class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuartiles : public vtkTableAlgorithm
 {
 public:
@@ -54,11 +53,10 @@ protected:
   vtkComputeQuartiles();
   ~vtkComputeQuartiles() override;
 
-  int FillInputPortInformation (int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *request,
-                  vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   void ComputeTable(vtkDataObject*, vtkTable*, vtkIdType);
 

@@ -23,7 +23,7 @@
  * vtkAlgorithm::ProcessRequest calls.  The information and
  * data referenced by the instance on a particular input or output
  * define the request made to the vtkAlgorithm instance.
-*/
+ */
 
 #ifndef vtkInformation_h
 #define vtkInformation_h
@@ -64,8 +64,8 @@ class vtkVariant;
 class VTKCOMMONCORE_EXPORT vtkInformation : public vtkObject
 {
 public:
-  static vtkInformation *New();
-  vtkTypeMacro(vtkInformation,vtkObject);
+  static vtkInformation* New();
+  vtkTypeMacro(vtkInformation, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintKeys(ostream& os, vtkIndent indent);
 
@@ -100,7 +100,7 @@ public:
    * instances of any contained vtkInformation and vtkInformationVector
    * objects are created).
    */
-  void Copy(vtkInformation* from, int deep=0);
+  void Copy(vtkInformation* from, int deep = 0);
 
   /**
    * Append all information entries from the given vtkInformation
@@ -108,7 +108,7 @@ public:
    * (new instances of any contained vtkInformation and vtkInformationVector
    * objects are created).
    */
-  void Append(vtkInformation* from, int deep=0);
+  void Append(vtkInformation* from, int deep = 0);
 
   //@{
   /**
@@ -117,20 +117,20 @@ public:
    * structure is performed (new instances of any contained vtkInformation and
    * vtkInformationVector objects are created).
    */
-  void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationVariantKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationVariantVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationObjectBaseVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep=0);
-  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationVariantKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationVariantVectorKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationObjectBaseVectorKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep = 0);
+  void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep = 0);
   //@}
 
   /**
@@ -139,7 +139,7 @@ public:
    * other keys will be copied.  If deep==1, a deep copy of the
    * information structure is performed.
    */
-  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep=0);
+  void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep = 0);
 
   /**
    * Check whether the given key appears in this information object.
@@ -206,13 +206,11 @@ public:
    */
   void Append(vtkInformationIntegerVectorKey* key, int value);
   void Set(vtkInformationIntegerVectorKey* key, const int* value, int length);
-  void Set(vtkInformationIntegerVectorKey* key, int value1,
-           int value2, int value3);
-  void Set(vtkInformationIntegerVectorKey* key,
-           int value1, int value2, int value3,
-           int value4, int value5, int value6);
+  void Set(vtkInformationIntegerVectorKey* key, int value1, int value2, int value3);
+  void Set(vtkInformationIntegerVectorKey* key, int value1, int value2, int value3, int value4,
+    int value5, int value6);
   int* Get(vtkInformationIntegerVectorKey* key);
-  int  Get(vtkInformationIntegerVectorKey* key, int idx);
+  int Get(vtkInformationIntegerVectorKey* key, int idx);
   void Get(vtkInformationIntegerVectorKey* key, int* value);
   int Length(vtkInformationIntegerVectorKey* key);
   void Remove(vtkInformationIntegerVectorKey* key);
@@ -225,9 +223,9 @@ public:
    */
   void Append(vtkInformationStringVectorKey* key, const char* value);
   void Set(vtkInformationStringVectorKey* key, const char* value, int idx = 0);
-  void Append(vtkInformationStringVectorKey* key, const std::string &value);
-  void Set(vtkInformationStringVectorKey* key, const std::string &value, int idx = 0);
-  const char*  Get(vtkInformationStringVectorKey* key, int idx = 0);
+  void Append(vtkInformationStringVectorKey* key, const std::string& value);
+  void Set(vtkInformationStringVectorKey* key, const std::string& value, int idx = 0);
+  const char* Get(vtkInformationStringVectorKey* key, int idx = 0);
   int Length(vtkInformationStringVectorKey* key);
   void Remove(vtkInformationStringVectorKey* key);
   int Has(vtkInformationStringVectorKey* key);
@@ -261,13 +259,11 @@ public:
    */
   void Append(vtkInformationDoubleVectorKey* key, double value);
   void Set(vtkInformationDoubleVectorKey* key, const double* value, int length);
-  void Set(vtkInformationDoubleVectorKey* key, double value1,
-           double value2, double value3);
-  void Set(vtkInformationDoubleVectorKey* key,
-           double value1, double value2, double value3,
-           double value4, double value5, double value6);
+  void Set(vtkInformationDoubleVectorKey* key, double value1, double value2, double value3);
+  void Set(vtkInformationDoubleVectorKey* key, double value1, double value2, double value3,
+    double value4, double value5, double value6);
   double* Get(vtkInformationDoubleVectorKey* key);
-  double  Get(vtkInformationDoubleVectorKey* key, int idx);
+  double Get(vtkInformationDoubleVectorKey* key, int idx);
   void Get(vtkInformationDoubleVectorKey* key, double* value);
   int Length(vtkInformationDoubleVectorKey* key);
   void Remove(vtkInformationDoubleVectorKey* key);
@@ -280,11 +276,11 @@ public:
    */
   void Append(vtkInformationVariantVectorKey* key, const vtkVariant& value);
   void Set(vtkInformationVariantVectorKey* key, const vtkVariant* value, int length);
-  void Set(vtkInformationVariantVectorKey* key, const vtkVariant& value1,
-           const vtkVariant& value2, const vtkVariant& value3);
-  void Set(vtkInformationVariantVectorKey* key,
-           const vtkVariant& value1, const vtkVariant& value2, const vtkVariant& value3,
-           const vtkVariant& value4, const vtkVariant& value5, const vtkVariant& value6);
+  void Set(vtkInformationVariantVectorKey* key, const vtkVariant& value1, const vtkVariant& value2,
+    const vtkVariant& value3);
+  void Set(vtkInformationVariantVectorKey* key, const vtkVariant& value1, const vtkVariant& value2,
+    const vtkVariant& value3, const vtkVariant& value4, const vtkVariant& value5,
+    const vtkVariant& value6);
   const vtkVariant* Get(vtkInformationVariantVectorKey* key);
   const vtkVariant& Get(vtkInformationVariantVectorKey* key, int idx);
   void Get(vtkInformationVariantVectorKey* key, vtkVariant* value);
@@ -299,10 +295,10 @@ public:
    */
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
-  void Set(vtkInformationKeyVectorKey* key, vtkInformationKey*const * value, int length);
+  void Set(vtkInformationKeyVectorKey* key, vtkInformationKey* const* value, int length);
   void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
-  vtkInformationKey*  Get(vtkInformationKeyVectorKey* key, int idx);
+  vtkInformationKey* Get(vtkInformationKeyVectorKey* key, int idx);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
   int Length(vtkInformationKeyVectorKey* key);
   void Remove(vtkInformationKeyVectorKey* key);
@@ -314,49 +310,29 @@ public:
   // them because the original method can be called from the wrappers
   // anyway and this causes a python help string to be too long.
 
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationDataObjectKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationDataObjectKey* value);
   void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationDoubleVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationInformationKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationInformationVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationIntegerKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationIntegerVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationInformationKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationInformationVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationIntegerKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationIntegerVectorKey* value);
   void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationStringVectorKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationObjectBaseKey* value);
-  void Append(vtkInformationKeyVectorKey* key,
-              vtkInformationUnsignedLongKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationStringVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationObjectBaseKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationUnsignedLongKey* value);
 
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationDataObjectKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationDoubleKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationDoubleVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationInformationKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationInformationVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationIntegerKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationIntegerVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationStringKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationStringVectorKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationObjectBaseKey* value);
-  void AppendUnique(vtkInformationKeyVectorKey* key,
-                    vtkInformationUnsignedLongKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationDataObjectKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationDoubleVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationInformationKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationInformationVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationIntegerKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationIntegerVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationStringVectorKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationObjectBaseKey* value);
+  void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationUnsignedLongKey* value);
 
   //@{
   /**
@@ -403,27 +379,21 @@ public:
   /**
    * Manipulate a ObjectBaseVector entry.
    */
-  void Append(vtkInformationObjectBaseVectorKey* key,
-                                   vtkObjectBase *data);
-  void Set(vtkInformationObjectBaseVectorKey *key,
-                                vtkObjectBase* value, int idx = 0);
-  vtkObjectBase* Get(vtkInformationObjectBaseVectorKey *key,
-                                          int idx = 0);
-  int Length(vtkInformationObjectBaseVectorKey *key);
-  void Remove(vtkInformationObjectBaseVectorKey *key);
-  void Remove(vtkInformationObjectBaseVectorKey *key,
-                                   vtkObjectBase *objectToRemove);
-  void Remove(vtkInformationObjectBaseVectorKey *key,
-                                   int indexToRemove);
-  int Has(vtkInformationObjectBaseVectorKey *key);
+  void Append(vtkInformationObjectBaseVectorKey* key, vtkObjectBase* data);
+  void Set(vtkInformationObjectBaseVectorKey* key, vtkObjectBase* value, int idx = 0);
+  vtkObjectBase* Get(vtkInformationObjectBaseVectorKey* key, int idx = 0);
+  int Length(vtkInformationObjectBaseVectorKey* key);
+  void Remove(vtkInformationObjectBaseVectorKey* key);
+  void Remove(vtkInformationObjectBaseVectorKey* key, vtkObjectBase* objectToRemove);
+  void Remove(vtkInformationObjectBaseVectorKey* key, int indexToRemove);
+  int Has(vtkInformationObjectBaseVectorKey* key);
   //@}
 
   //@{
   /**
    * Get/Set an entry storing a vtkDataObject instance.
    */
-  void Set(vtkInformationDataObjectKey* key,
-    vtkDataObject VTK_WRAP_EXTERN *);
+  void Set(vtkInformationDataObjectKey* key, vtkDataObject VTK_WRAP_EXTERN*);
   vtkDataObject VTK_WRAP_EXTERN* Get(vtkInformationDataObjectKey* key);
   void Remove(vtkInformationDataObjectKey* key);
   int Has(vtkInformationDataObjectKey* key);
@@ -471,10 +441,8 @@ protected:
 
   // Get/Set a map entry directly through the vtkObjectBase instance
   // representing the value.  Used internally to manage the map.
-  void SetAsObjectBase(
-    vtkInformationKey* key, vtkObjectBase* value);
-  const vtkObjectBase* GetAsObjectBase(
-    const vtkInformationKey* key) const;
+  void SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* value);
+  const vtkObjectBase* GetAsObjectBase(const vtkInformationKey* key) const;
   vtkObjectBase* GetAsObjectBase(vtkInformationKey* key);
 
   // Internal implementation details.
@@ -484,18 +452,16 @@ protected:
   void ReportReferences(vtkGarbageCollector*) override;
 
   // Report the object associated with the given key to the collector.
-  void ReportAsObjectBase(vtkInformationKey* key,
-                          vtkGarbageCollector* collector);
+  void ReportAsObjectBase(vtkInformationKey* key, vtkGarbageCollector* collector);
 
 private:
-
   friend class vtkInformationKeyToInformationFriendship;
   friend class vtkInformationIterator;
 
 private:
   vtkInformation(const vtkInformation&) = delete;
   void operator=(const vtkInformation&) = delete;
-  vtkInformationRequestKey *Request;
+  vtkInformationRequestKey* Request;
 };
 
 #endif

@@ -32,16 +32,15 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
-int TestGPURayCastFourComponentsDependentGradient(int argc, char *argv[])
+int TestGPURayCastFourComponentsDependentGradient(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  char *cfname=
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
 
   vtkNew<vtkXMLImageDataReader> reader;
   reader->SetFileName(cfname);
-  delete [] cfname;
+  delete[] cfname;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size
@@ -87,8 +86,8 @@ int TestGPURayCastFourComponentsDependentGradient(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

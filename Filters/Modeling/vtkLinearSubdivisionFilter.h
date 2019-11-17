@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkInterpolatingSubdivisionFilter vtkButterflySubdivisionFilter
-*/
+ */
 
 #ifndef vtkLinearSubdivisionFilter_h
 #define vtkLinearSubdivisionFilter_h
@@ -39,25 +39,24 @@ class vtkPointData;
 class vtkPoints;
 class vtkPolyData;
 
-class VTKFILTERSMODELING_EXPORT vtkLinearSubdivisionFilter : public vtkInterpolatingSubdivisionFilter
+class VTKFILTERSMODELING_EXPORT vtkLinearSubdivisionFilter
+  : public vtkInterpolatingSubdivisionFilter
 {
 public:
   //@{
   /**
    * Construct object with NumberOfSubdivisions set to 1.
    */
-  static vtkLinearSubdivisionFilter *New();
-  vtkTypeMacro(vtkLinearSubdivisionFilter,vtkInterpolatingSubdivisionFilter);
+  static vtkLinearSubdivisionFilter* New();
+  vtkTypeMacro(vtkLinearSubdivisionFilter, vtkInterpolatingSubdivisionFilter);
   //@}
 
 protected:
-  vtkLinearSubdivisionFilter () {}
-  ~vtkLinearSubdivisionFilter () override {}
+  vtkLinearSubdivisionFilter() {}
+  ~vtkLinearSubdivisionFilter() override {}
 
-  int GenerateSubdivisionPoints (vtkPolyData *inputDS,
-                                 vtkIntArray *edgeData,
-                                 vtkPoints *outputPts,
-                                 vtkPointData *outputPD) override;
+  int GenerateSubdivisionPoints(vtkPolyData* inputDS, vtkIntArray* edgeData, vtkPoints* outputPts,
+    vtkPointData* outputPD) override;
 
 private:
   vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&) = delete;
@@ -65,6 +64,5 @@ private:
 };
 
 #endif
-
 
 // VTK-HeaderTest-Exclude: vtkLinearSubdivisionFilter.h

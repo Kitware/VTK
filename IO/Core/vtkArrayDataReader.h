@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkArrayDataWriter
-*/
+ */
 
 #ifndef vtkArrayDataReader_h
 #define vtkArrayDataReader_h
@@ -39,8 +39,7 @@
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkIOCoreModule.h" // For export macro
 
-class VTKIOCORE_EXPORT vtkArrayDataReader :
-  public vtkArrayDataAlgorithm
+class VTKIOCORE_EXPORT vtkArrayDataReader : public vtkArrayDataAlgorithm
 {
 public:
   static vtkArrayDataReader* New();
@@ -89,10 +88,7 @@ protected:
   vtkArrayDataReader();
   ~vtkArrayDataReader() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
   vtkStdString InputString;

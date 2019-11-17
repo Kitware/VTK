@@ -31,13 +31,13 @@
  * @par Implementation:
  * This function is in Common, not in Parallel because it does not depend on
  * MPI and you may want to call vtkBreakPoint::Break() in any class of VTK.
-*/
+ */
 
 #ifndef vtkBreakPoint_h
 #define vtkBreakPoint_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkObject.h" // to get VTKCOMMONCORE_EXPORT
+#include "vtkObject.h"           // to get VTKCOMMONCORE_EXPORT
 
 class VTKCOMMONCORE_EXPORT vtkBreakPoint
 {

@@ -25,11 +25,11 @@
 /* Check for known compilers.  */
 
 #if defined(__HP_aCC)
-# define VTK_CXX_ACC
+#define VTK_CXX_ACC
 #endif
 
 #if defined(__SUNPRO_CC)
-# define VTK_CXX_SUNPRO
+#define VTK_CXX_SUNPRO
 #endif
 
 //----------------------------------------------------------------------------
@@ -38,12 +38,12 @@
 
 // Assume standard behavior if symbol is not already defined.
 #if !defined(VTK_TYPENAME)
-# define VTK_TYPENAME typename
+#define VTK_TYPENAME typename
 #endif
 
 // Assume standard behavior if symbol is not already defined.
 #if !defined(VTK_CLASS_TEMPLATE_SPECIALIZATION)
-# define VTK_CLASS_TEMPLATE_SPECIALIZATION template <>
+#define VTK_CLASS_TEMPLATE_SPECIALIZATION template <>
 #endif
 
 //----------------------------------------------------------------------------
@@ -65,6 +65,7 @@ class NestedTestOuter
 public:
   NestedTestOuter();
   ~NestedTestOuter();
+
 private:
   class NestedTestInner;
   NestedTestInner* Inner;
@@ -106,17 +107,15 @@ int TestFullySpecializedFunction()
 {
   int result = 1;
   int should_be_0 = FullySpecializedFunction(static_cast<float*>(0));
-  if(should_be_0 != 0)
+  if (should_be_0 != 0)
   {
-    cerr << "FullySpecializedFunction<float*>() returned "
-         << should_be_0 << ", not 0.\n";
+    cerr << "FullySpecializedFunction<float*>() returned " << should_be_0 << ", not 0.\n";
     result = 0;
   }
   int should_be_1 = FullySpecializedFunction(static_cast<int*>(0));
-  if(should_be_1 != 1)
+  if (should_be_1 != 1)
   {
-    cerr << "FullySpecializedFunction(int*) returned "
-         << should_be_1 << ", not 1.\n";
+    cerr << "FullySpecializedFunction(int*) returned " << should_be_1 << ", not 1.\n";
     result = 0;
   }
   return result;
@@ -129,9 +128,18 @@ int TestFullySpecializedFunction()
 class NonTemplate
 {
   void* Pointer;
+
 public:
-  template <class T> void Set(T* t) { this->Pointer = t; }
-  template <class T> void Get(T*& t) { t = static_cast<T*>(this->Pointer); }
+  template <class T>
+  void Set(T* t)
+  {
+    this->Pointer = t;
+  }
+  template <class T>
+  void Get(T*& t)
+  {
+    t = static_cast<T*>(this->Pointer);
+  }
 };
 
 int TestNonTemplateMemberTemplate()
@@ -152,9 +160,18 @@ template <class T>
 class OuterTemplate
 {
   T* Pointer;
+
 public:
-  template <class U> void Set(U* u) { this->Pointer = u; }
-  template <class U> void Get(U*& u) { u = static_cast<U*>(this->Pointer); }
+  template <class U>
+  void Set(U* u)
+  {
+    this->Pointer = u;
+  }
+  template <class U>
+  void Get(U*& u)
+  {
+    u = static_cast<U*>(this->Pointer);
+  }
 };
 
 int TestTemplateMemberTemplate()
@@ -189,7 +206,7 @@ template <class T>
 int TestFullySpecializedClassTrait(T*)
 {
   typedef VTK_TYPENAME FullySpecializedClass<T>::Type Type;
-  if(static_cast<Type>(3.1) == 3.1)
+  if (static_cast<Type>(3.1) == 3.1)
   {
     return 0;
   }
@@ -200,20 +217,18 @@ int TestFullySpecializedClass()
 {
   int result = 1;
   int should_be_0 = FullySpecializedClass<int>::Method();
-  if(should_be_0 != 0)
+  if (should_be_0 != 0)
   {
-    cerr << "FullySpecializedClass<int>::Method() returned "
-         << should_be_0 << ", not 0.\n";
+    cerr << "FullySpecializedClass<int>::Method() returned " << should_be_0 << ", not 0.\n";
     result = 0;
   }
   int should_be_1 = FullySpecializedClass<float>::Method();
-  if(should_be_1 != 1)
+  if (should_be_1 != 1)
   {
-    cerr << "FullySpecializedClass<float>::Method() returned "
-         << should_be_1 << ", not 1.\n";
+    cerr << "FullySpecializedClass<float>::Method() returned " << should_be_1 << ", not 1.\n";
     result = 0;
   }
-  if(!TestFullySpecializedClassTrait(static_cast<float*>(0)))
+  if (!TestFullySpecializedClassTrait(static_cast<float*>(0)))
   {
     cerr << "Trait lookup of float didn't produce int.";
     result = 0;
@@ -228,9 +243,9 @@ int TestFullySpecializedClass()
 int TestIfScopeHelper(int i)
 {
   int result = 1;
-  if(int x = i)
+  if (int x = i)
   {
-    if(x != i)
+    if (x != i)
     {
       cerr << "TestIfScope: x != " << i << "\n";
       result = 0;
@@ -238,7 +253,7 @@ int TestIfScopeHelper(int i)
   }
   else
   {
-    if(x != i)
+    if (x != i)
     {
       cerr << "TestIfScope: x != " << i << "\n";
       result = 0;
@@ -251,11 +266,11 @@ int TestIfScopeHelper(int i)
 int TestIfScope()
 {
   int result = 1;
-  if(!TestIfScopeHelper(1))
+  if (!TestIfScopeHelper(1))
   {
     result = 0;
   }
-  if(!TestIfScopeHelper(0))
+  if (!TestIfScopeHelper(0))
   {
     result = 0;
   }
@@ -275,17 +290,17 @@ struct NonTypeTemplate
 int TestNonTypeTemplate()
 {
   int result = 1;
-  if(NonTypeTemplate<0>::GetValue() != 0)
+  if (NonTypeTemplate<0>::GetValue() != 0)
   {
     cerr << "NonTypeTemplate<0>::GetValue() != 0\n";
     result = 0;
   }
-  if(NonTypeTemplate<1>::GetValue() != 1)
+  if (NonTypeTemplate<1>::GetValue() != 1)
   {
     cerr << "NonTypeTemplate<1>::GetValue() != 1\n";
     result = 0;
   }
-  if(NonTypeTemplate<2>::GetValue() != 2)
+  if (NonTypeTemplate<2>::GetValue() != 2)
   {
     cerr << "NonTypeTemplate<2>::GetValue() != 2\n";
     result = 0;
@@ -307,12 +322,12 @@ int TestMixedTypeTemplate()
   int x2[2];
   float x3[3];
   int result = 1;
-  if(TestMixedTypeTemplateFunction(&x2) != 2)
+  if (TestMixedTypeTemplateFunction(&x2) != 2)
   {
     cerr << "TestMixedTypeTemplateFunction(&x2) != 2\n";
     result = 0;
   }
-  if(TestMixedTypeTemplateFunction(&x3) != 3)
+  if (TestMixedTypeTemplateFunction(&x3) != 3)
   {
     cerr << "TestMixedTypeTemplateFunction(&x3) != 3\n";
     result = 0;
@@ -325,18 +340,20 @@ int TestMixedTypeTemplate()
 class SafeBoolIdiomClass
 {
 private:
-  struct SafeBoolDummy { void Dummy() {} };
-  typedef void (SafeBoolDummy::* SafeBool)();
+  struct SafeBoolDummy
+  {
+    void Dummy() {}
+  };
+  typedef void (SafeBoolDummy::*SafeBool)();
+
 public:
-  SafeBoolIdiomClass(int x): Value(x) {}
-  operator SafeBool()
+  SafeBoolIdiomClass(int x)
+    : Value(x)
   {
-    return this->Value? &SafeBoolDummy::Dummy : 0;
   }
-  SafeBool operator !()
-  {
-    return this->Value? 0 : &SafeBoolDummy::Dummy;
-  }
+  operator SafeBool() { return this->Value ? &SafeBoolDummy::Dummy : 0; }
+  SafeBool operator!() { return this->Value ? 0 : &SafeBoolDummy::Dummy; }
+
 protected:
   int Value;
 };
@@ -346,23 +363,27 @@ int TestSafeBoolIdiom()
   int result = 1;
   SafeBoolIdiomClass cTrue(1);
   SafeBoolIdiomClass cFalse(0);
-  if(cTrue) {}
+  if (cTrue)
+  {
+  }
   else
   {
     cerr << "if(cTrue) evaluates to false.\n";
     result = 0;
   }
-  if(!cTrue)
+  if (!cTrue)
   {
     cerr << "if(!cTrue) evaluates to true.\n";
     result = 0;
   }
-  if(cFalse)
+  if (cFalse)
   {
     cerr << "if(cFalse) evaluates to true.\n";
     result = 0;
   }
-  if(!cFalse) {}
+  if (!cFalse)
+  {
+  }
   else
   {
     cerr << "if(!cFalse) evaluates to false.\n";
@@ -376,20 +397,26 @@ int TestSafeBoolIdiom()
 /* Test use of exceptions.  */
 
 #if defined(_MSC_VER)
-# pragma warning (push)
-# pragma warning (disable: 4702) /* Unreachable code. */
+#pragma warning(push)
+#pragma warning(disable : 4702) /* Unreachable code. */
 #endif
 
 class TestExceptionUnwind
 {
   int* pvalue;
+
 public:
-  TestExceptionUnwind(int* p): pvalue(p) {}
+  TestExceptionUnwind(int* p)
+    : pvalue(p)
+  {
+  }
   ~TestExceptionUnwind() { *pvalue = 1; }
   void Use() {}
 };
 
-class ExceptionClass {};
+class ExceptionClass
+{
+};
 
 void TestThrowException(int* p)
 {
@@ -405,9 +432,9 @@ int TestException()
   {
     TestThrowException(&value);
   }
-  catch(ExceptionClass&)
+  catch (ExceptionClass&)
   {
-    if(value)
+    if (value)
     {
       return 1;
     }
@@ -417,7 +444,7 @@ int TestException()
       return 0;
     }
   }
-  catch(...)
+  catch (...)
   {
     cerr << "ExceptionClass not caught!" << endl;
     return 0;
@@ -427,22 +454,22 @@ int TestException()
 }
 
 #if defined(_MSC_VER)
-# pragma warning (pop)
+#pragma warning(pop)
 #endif
 
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
 #if defined(_MSC_VER) && defined(_DEBUG)
 /* MSVC debug hook to prevent dialogs when running from DART.  */
-# include <crtdbg.h>
+#include <crtdbg.h>
 static int TestDriverDebugReport(int type, char* message, int* retVal)
 {
-  (void)type; (void)retVal;
+  (void)type;
+  (void)retVal;
   fprintf(stderr, message);
   exit(1);
 }
 #endif
-
 
 //----------------------------------------------------------------------------
 
@@ -450,13 +477,13 @@ static int TestDriverDebugReport(int type, char* message, int* retVal)
 #include <locale.h>
 int TestSetLocale()
 {
-  char *oldLocale = strdup(setlocale(LC_NUMERIC,nullptr));
-  setlocale(LC_NUMERIC,"English");
+  char* oldLocale = strdup(setlocale(LC_NUMERIC, nullptr));
+  setlocale(LC_NUMERIC, "English");
 
   // restore the local
   if (oldLocale)
   {
-    setlocale(LC_NUMERIC,oldLocale);
+    setlocale(LC_NUMERIC, oldLocale);
     free(oldLocale);
     return 1;
   }
@@ -465,9 +492,16 @@ int TestSetLocale()
 
 //----------------------------------------------------------------------------
 
-#define DO_TEST(x) \
-  if(x()) { cout << "Passed: " #x "\n"; } \
-  else { cout << "Failed: " #x "\n"; result = 1; }
+#define DO_TEST(x)                                                                                 \
+  if (x())                                                                                         \
+  {                                                                                                \
+    cout << "Passed: " #x "\n";                                                                    \
+  }                                                                                                \
+  else                                                                                             \
+  {                                                                                                \
+    cout << "Failed: " #x "\n";                                                                    \
+    result = 1;                                                                                    \
+  }
 
 int main()
 {

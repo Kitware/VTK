@@ -23,42 +23,39 @@ bool MoleculeExampleCode1()
 {
   vtkNew<vtkMolecule> mol;
   vtkAtom h1 = mol->AppendAtom(1, 0.0, 0.0, -0.5);
-  vtkAtom h2 = mol->AppendAtom(1, 0.0, 0.0,  0.5);
-  vtkBond b  = mol->AppendBond(h1, h2, 1);
+  vtkAtom h2 = mol->AppendAtom(1, 0.0, 0.0, 0.5);
+  vtkBond b = mol->AppendBond(h1, h2, 1);
   int errors(0);
 
   if (fabs(b.GetLength() - 1.0) > 1e-8)
   {
-    cout << "Error bond length incorrect. Expected 1.0, but got "
-         << b.GetLength() << endl;
+    cout << "Error bond length incorrect. Expected 1.0, but got " << b.GetLength() << endl;
     ++errors;
   }
 
   if (!h1.GetPosition().Compare(vtkVector3f(0.0, 0.0, -0.5), 1e-8))
   {
-    cout << "Error atom position incorrect. Expected 0.0, 0.0, -0.5 but got "
-         << h1.GetPosition() << endl;
+    cout << "Error atom position incorrect. Expected 0.0, 0.0, -0.5 but got " << h1.GetPosition()
+         << endl;
     ++errors;
   }
 
   if (!h2.GetPosition().Compare(vtkVector3f(0.0, 0.0, 0.5), 1e-8))
   {
-    cout << "Error atom position incorrect. Expected 0.0, 0.0, 0.5 but got "
-         << h2.GetPosition() << endl;
+    cout << "Error atom position incorrect. Expected 0.0, 0.0, 0.5 but got " << h2.GetPosition()
+         << endl;
     ++errors;
   }
 
   if (h1.GetAtomicNumber() != 1)
   {
-    cout << "Error atomic number incorrect. Expected 1 but got "
-         << h1.GetAtomicNumber() << endl;
+    cout << "Error atomic number incorrect. Expected 1 but got " << h1.GetAtomicNumber() << endl;
     ++errors;
   }
 
   if (h2.GetAtomicNumber() != 1)
   {
-    cout << "Error atomic number incorrect. Expected 1 but got "
-         << h2.GetAtomicNumber() << endl;
+    cout << "Error atomic number incorrect. Expected 1 but got " << h2.GetAtomicNumber() << endl;
     ++errors;
   }
 
@@ -86,43 +83,40 @@ bool MoleculeExampleCode2()
 
   if (fabs(b.GetLength() - 1.0) > 1e-8)
   {
-    cout << "Error bond length incorrect. Expected 1.0, but got "
-         << b.GetLength() << endl;
+    cout << "Error bond length incorrect. Expected 1.0, but got " << b.GetLength() << endl;
     ++errors;
   }
 
   if (!h1.GetPosition().Compare(vtkVector3f(0.0, 0.0, -0.5), 1e-8))
   {
-    cout << "Error atom position incorrect. Expected 0.0, 0.0, -0.5 but got "
-         << h1.GetPosition() << endl;
+    cout << "Error atom position incorrect. Expected 0.0, 0.0, -0.5 but got " << h1.GetPosition()
+         << endl;
     ++errors;
   }
 
   if (!h2.GetPosition().Compare(vtkVector3f(0.0, 0.0, 0.5), 1e-8))
   {
-    cout << "Error atom position incorrect. Expected 0.0, 0.0, 0.5 but got "
-         << h2.GetPosition() << endl;
+    cout << "Error atom position incorrect. Expected 0.0, 0.0, 0.5 but got " << h2.GetPosition()
+         << endl;
     ++errors;
   }
 
   if (h1.GetAtomicNumber() != 1)
   {
-    cout << "Error atomic number incorrect. Expected 1 but got "
-         << h1.GetAtomicNumber() << endl;
+    cout << "Error atomic number incorrect. Expected 1 but got " << h1.GetAtomicNumber() << endl;
     ++errors;
   }
 
   if (h2.GetAtomicNumber() != 1)
   {
-    cout << "Error atomic number incorrect. Expected 1 but got "
-         << h2.GetAtomicNumber() << endl;
+    cout << "Error atomic number incorrect. Expected 1 but got " << h2.GetAtomicNumber() << endl;
     ++errors;
   }
 
   return errors == 0;
 }
 
-int TestMolecule(int, char * [])
+int TestMolecule(int, char*[])
 {
   // Check that the example code given in the molecule docs compiles:
   bool test1 = MoleculeExampleCode1();

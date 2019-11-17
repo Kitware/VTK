@@ -16,10 +16,9 @@
 
 #include "vtkInformation.h"
 
-
 //----------------------------------------------------------------------------
-vtkInformationInformationKey::vtkInformationInformationKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationInformationKey::vtkInformationInformationKey(const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
@@ -34,8 +33,7 @@ void vtkInformationInformationKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationKey::Set(vtkInformation* info,
-                                      vtkInformation* value)
+void vtkInformationInformationKey::Set(vtkInformation* info, vtkInformation* value)
 {
   this->SetAsObjectBase(info, value);
 }
@@ -43,21 +41,19 @@ void vtkInformationInformationKey::Set(vtkInformation* info,
 //----------------------------------------------------------------------------
 vtkInformation* vtkInformationInformationKey::Get(vtkInformation* info)
 {
-  return static_cast<vtkInformation *>(this->GetAsObjectBase(info));
+  return static_cast<vtkInformation*>(this->GetAsObjectBase(info));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationKey::ShallowCopy(vtkInformation* from,
-                                        vtkInformation* to)
+void vtkInformationInformationKey::ShallowCopy(vtkInformation* from, vtkInformation* to)
 {
   this->Set(to, this->Get(from));
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationInformationKey::DeepCopy(vtkInformation* from,
-                                        vtkInformation* to)
+void vtkInformationInformationKey::DeepCopy(vtkInformation* from, vtkInformation* to)
 {
-  vtkInformation *toInfo = vtkInformation::New();
+  vtkInformation* toInfo = vtkInformation::New();
   toInfo->Copy(this->Get(from), 1);
   this->Set(to, toInfo);
   toInfo->Delete();

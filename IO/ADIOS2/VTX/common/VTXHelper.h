@@ -131,7 +131,7 @@ std::string SetToCSV(const std::set<std::string>& input) noexcept;
  * @param input
  * @return
  */
-template<class T>
+template <class T>
 std::vector<T> StringToVector(const std::string& input) noexcept;
 
 /**
@@ -156,7 +156,7 @@ types::DataSet XMLInitDataSet(
  * Return a derived class of vtkDataArray specialized for supported types
  * @return specialized vtkDataArray
  */
-template<class T>
+template <class T>
 vtkSmartPointer<vtkDataArray> NewDataArray();
 
 /**
@@ -177,7 +177,7 @@ adios2::Box<adios2::Dims> PartitionCart1D(const adios2::Dims& shape);
  * @param input map
  * @return vector with keys only
  */
-template<class T, class U>
+template <class T, class U>
 std::vector<T> MapKeysToVector(const std::map<T, U>& input) noexcept;
 
 /**
@@ -185,7 +185,7 @@ std::vector<T> MapKeysToVector(const std::map<T, U>& input) noexcept;
  * @param input vector data
  * @param name input name
  */
-template<class T>
+template <class T>
 void Print(const std::vector<T>& input, const std::string& name);
 
 /**

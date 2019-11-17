@@ -54,13 +54,13 @@
 #include <cmath>
 
 vtkStandardNewMacro(vtkCutter);
-vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkCutter,Locator,vtkIncrementalPointLocator);
+vtkCxxSetObjectMacro(vtkCutter, CutFunction, vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkCutter, Locator, vtkIncrementalPointLocator);
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.
-vtkCutter::vtkCutter(vtkImplicitFunction *cf)
+vtkCutter::vtkCutter(vtkImplicitFunction* cf)
 {
   this->ContourValues = vtkContourValues::New();
   this->SortBy = VTK_SORT_BY_VALUE;
@@ -94,30 +94,27 @@ vtkCutter::~vtkCutter()
 // or contour values modified, then this object is modified as well.
 vtkMTimeType vtkCutter::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
-  vtkMTimeType contourValuesMTime=this->ContourValues->GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType contourValuesMTime = this->ContourValues->GetMTime();
   vtkMTimeType time;
 
-  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
+  mTime = (contourValuesMTime > mTime ? contourValuesMTime : mTime);
 
-  if ( this->CutFunction != nullptr )
+  if (this->CutFunction != nullptr)
   {
     time = this->CutFunction->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
+    mTime = (time > mTime ? time : mTime);
   }
 
   return mTime;
 }
 
 //----------------------------------------------------------------------------
-void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
-                                       vtkPolyData *thisOutput,
-                                       vtkInformation *request,
-                                       vtkInformationVector **inputVector,
-                                       vtkInformationVector *outputVector)
+void vtkCutter::StructuredPointsCutter(vtkDataSet* dataSetInput, vtkPolyData* thisOutput,
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkImageData *input = vtkImageData::SafeDownCast(dataSetInput);
-  vtkPolyData *output;
+  vtkImageData* input = vtkImageData::SafeDownCast(dataSetInput);
+  vtkPolyData* output;
   vtkIdType numPts = input->GetNumberOfPoints();
 
   if (numPts < 1)
@@ -134,16 +131,16 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
     this->SynchronizedTemplatesCutter3D->SetCutFunction(this->CutFunction);
     this->SynchronizedTemplatesCutter3D->SetValue(0, this->GetValue(0));
     this->SynchronizedTemplatesCutter3D->SetGenerateTriangles(this->GetGenerateTriangles());
-    this->SynchronizedTemplatesCutter3D->ProcessRequest(request,inputVector,outputVector);
+    this->SynchronizedTemplatesCutter3D->ProcessRequest(request, inputVector, outputVector);
     return;
   }
 
   // otherwise compute scalar data then contour
-  vtkFloatArray *cutScalars = vtkFloatArray::New();
+  vtkFloatArray* cutScalars = vtkFloatArray::New();
   cutScalars->SetNumberOfTuples(numPts);
   cutScalars->SetName("cutScalars");
 
-  vtkImageData *contourData = vtkImageData::New();
+  vtkImageData* contourData = vtkImageData::New();
   contourData->ShallowCopy(input);
   if (this->GenerateCutScalars)
   {
@@ -164,8 +161,8 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   }
 
   this->SynchronizedTemplates3D->SetInputData(contourData);
-  this->SynchronizedTemplates3D->
-    SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  this->SynchronizedTemplates3D->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "cutScalars");
   this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
   for (int i = 0; i < numContours; i++)
   {
@@ -188,11 +185,10 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
 }
 
 //----------------------------------------------------------------------------
-void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
-                                     vtkPolyData *thisOutput)
+void vtkCutter::StructuredGridCutter(vtkDataSet* dataSetInput, vtkPolyData* thisOutput)
 {
-  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(dataSetInput);
-  vtkPolyData *output;
+  vtkStructuredGrid* input = vtkStructuredGrid::SafeDownCast(dataSetInput);
+  vtkPolyData* output;
   vtkIdType numPts = input->GetNumberOfPoints();
 
   if (numPts < 1)
@@ -200,11 +196,11 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     return;
   }
 
-  vtkFloatArray *cutScalars = vtkFloatArray::New();
+  vtkFloatArray* cutScalars = vtkFloatArray::New();
   cutScalars->SetName("cutScalars");
   cutScalars->SetNumberOfTuples(numPts);
 
-  vtkStructuredGrid *contourData = vtkStructuredGrid::New();
+  vtkStructuredGrid* contourData = vtkStructuredGrid::New();
   contourData->ShallowCopy(input);
   if (this->GenerateCutScalars)
   {
@@ -220,11 +216,10 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   vtkIdType numContours = this->GetNumberOfContours();
 
   this->GridSynchronizedTemplates->SetDebug(this->GetDebug());
-  this->GridSynchronizedTemplates->
-    SetOutputPointsPrecision(this->OutputPointsPrecision);
+  this->GridSynchronizedTemplates->SetOutputPointsPrecision(this->OutputPointsPrecision);
   this->GridSynchronizedTemplates->SetInputData(contourData);
-  this->GridSynchronizedTemplates->
-    SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  this->GridSynchronizedTemplates->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "cutScalars");
   this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
   for (int i = 0; i < numContours; i++)
   {
@@ -245,11 +240,10 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
 }
 
 //----------------------------------------------------------------------------
-void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
-                                      vtkPolyData *thisOutput)
+void vtkCutter::RectilinearGridCutter(vtkDataSet* dataSetInput, vtkPolyData* thisOutput)
 {
-  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(dataSetInput);
-  vtkPolyData *output;
+  vtkRectilinearGrid* input = vtkRectilinearGrid::SafeDownCast(dataSetInput);
+  vtkPolyData* output;
   vtkIdType numPts = input->GetNumberOfPoints();
 
   if (numPts < 1)
@@ -257,11 +251,11 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
     return;
   }
 
-  vtkFloatArray *cutScalars = vtkFloatArray::New();
+  vtkFloatArray* cutScalars = vtkFloatArray::New();
   cutScalars->SetNumberOfTuples(numPts);
   cutScalars->SetName("cutScalars");
 
-  vtkRectilinearGrid *contourData = vtkRectilinearGrid::New();
+  vtkRectilinearGrid* contourData = vtkRectilinearGrid::New();
   contourData->ShallowCopy(input);
   if (this->GenerateCutScalars)
   {
@@ -282,8 +276,8 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   vtkIdType numContours = this->GetNumberOfContours();
 
   this->RectilinearSynchronizedTemplates->SetInputData(contourData);
-  this->RectilinearSynchronizedTemplates->
-    SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  this->RectilinearSynchronizedTemplates->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "cutScalars");
   this->RectilinearSynchronizedTemplates->SetNumberOfContours(numContours);
   for (int i = 0; i < numContours; i++)
   {
@@ -303,21 +297,22 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
-namespace{
+namespace
+{
 //----------------------------------------------------------------------------
 // Find the first visible cell in a vtkStructuredGrid.
 //
-vtkIdType GetFirstVisibleCell(vtkDataSet *DataSetInput)
+vtkIdType GetFirstVisibleCell(vtkDataSet* DataSetInput)
 {
-  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(DataSetInput);
-  if(input)
+  vtkStructuredGrid* input = vtkStructuredGrid::SafeDownCast(DataSetInput);
+  if (input)
   {
-    if(input->HasAnyBlankCells())
+    if (input->HasAnyBlankCells())
     {
       vtkIdType size = input->GetNumberOfElements(vtkDataSet::CELL);
-      for(vtkIdType i = 0; i < size; ++i)
+      for (vtkIdType i = 0; i < size; ++i)
       {
-        if(input->IsCellVisible(i) != 0)
+        if (input->IsCellVisible(i) != 0)
         {
           return i;
         }
@@ -332,19 +327,15 @@ vtkIdType GetFirstVisibleCell(vtkDataSet *DataSetInput)
 // Cut through data generating surface.
 //
 int vtkCutter::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<< "Executing cutter");
   if (!this->CutFunction)
@@ -359,7 +350,7 @@ int vtkCutter::RequestData(
     return 0;
   }
 
-  if ( input->GetNumberOfPoints() < 1 || this->GetNumberOfContours() < 1 )
+  if (input->GetNumberOfPoints() < 1 || this->GetNumberOfContours() < 1)
   {
     return 1;
   }
@@ -370,31 +361,29 @@ int vtkCutter::RequestData(
 #endif
 
   if ((input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
-       input->GetDataObjectType() == VTK_IMAGE_DATA) &&
-       input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
+        input->GetDataObjectType() == VTK_IMAGE_DATA) &&
+    input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3)
   {
     this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
   }
-  else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID &&
-           input->GetCell(0) &&
-           input->GetCell(GetFirstVisibleCell(input))->GetCellDimension() >= 3)
+  else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID && input->GetCell(0) &&
+    input->GetCell(GetFirstVisibleCell(input))->GetCellDimension() >= 3)
   {
     this->StructuredGridCutter(input, output);
   }
   else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID &&
-           static_cast<vtkRectilinearGrid *>(input)->GetDataDimension() == 3 )
+    static_cast<vtkRectilinearGrid*>(input)->GetDataDimension() == 3)
   {
     this->RectilinearGridCutter(input, output);
   }
   else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID_BASE ||
-           input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
   {
     // See if the input can be fully processed by the fast vtk3DLinearGridPlaneCutter.
     // This algorithm can provide a substantial speed improvement over the more general
     // algorithm for vtkUnstructuredGrids.
     if (this->GetGenerateTriangles() && this->GetCutFunction() &&
-      this->GetCutFunction()->IsA("vtkPlane") &&
-      this->GetNumberOfContours() == 1 &&
+      this->GetCutFunction()->IsA("vtkPlane") && this->GetNumberOfContours() == 1 &&
       this->GetGenerateCutScalars() == 0 &&
       (input->GetCellData() && input->GetCellData()->GetNumberOfArrays() == 0) &&
       vtk3DLinearGridPlaneCutter::CanFullyProcessDataObject(input))
@@ -439,7 +428,8 @@ int vtkCutter::RequestData(
 
 #ifdef TIMEME
   timer->StopTimer();
-  cout << "Sliced "<<output->GetNumberOfCells()<<" cells in "<< timer->GetElapsedTime() <<" secs "<<endl;
+  cout << "Sliced " << output->GetNumberOfCells() << " cells in " << timer->GetElapsedTime()
+       << " secs " << endl;
 #endif
   return 1;
 }
@@ -453,7 +443,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_VERTEX] = 0;
   cellTypeDimensions[VTK_POLY_VERTEX] = 0;
   cellTypeDimensions[VTK_LINE] = 1;
-  cellTypeDimensions[VTK_CUBIC_LINE]=1;
+  cellTypeDimensions[VTK_CUBIC_LINE] = 1;
   cellTypeDimensions[VTK_POLY_LINE] = 1;
   cellTypeDimensions[VTK_QUADRATIC_EDGE] = 1;
   cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
@@ -480,32 +470,31 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
 }
 
 //----------------------------------------------------------------------------
-void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
+void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
 {
   vtkIdType cellId;
   int iter;
-  vtkPoints *cellPts;
-  vtkDoubleArray *cellScalars;
-  vtkGenericCell *cell;
+  vtkPoints* cellPts;
+  vtkDoubleArray* cellScalars;
+  vtkGenericCell* cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPoints;
-  vtkDoubleArray *cutScalars;
+  vtkPoints* newPoints;
+  vtkDoubleArray* cutScalars;
   double value;
   vtkIdType estimatedSize, numCells = input->GetNumberOfCells();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkPointData *inPD, *outPD;
   vtkCellData *inCD = input->GetCellData(), *outCD = output->GetCellData();
-  vtkIdList *cellIds;
+  vtkIdList* cellIds;
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
   int abortExecute = 0;
 
-  cellScalars=vtkDoubleArray::New();
+  cellScalars = vtkDoubleArray::New();
 
   // Create objects to hold output of contour operation
   //
-  estimatedSize = static_cast<vtkIdType>(
-    pow(static_cast<double>(numCells), .75)) * numContours;
-  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75)) * numContours;
+  estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
   if (estimatedSize < 1024)
   {
     estimatedSize = 1024;
@@ -513,10 +502,10 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 
   newPoints = vtkPoints::New();
   // set precision for the points in the output
-  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
-    vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
-    if(inputPointSet)
+    vtkPointSet* inputPointSet = vtkPointSet::SafeDownCast(input);
+    if (inputPointSet)
     {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
     }
@@ -525,15 +514,15 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
       newPoints->SetDataType(VTK_FLOAT);
     }
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
-  newPoints->Allocate(estimatedSize,estimatedSize/2);
+  newPoints->Allocate(estimatedSize, estimatedSize / 2);
   newVerts = vtkCellArray::New();
   newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
@@ -544,10 +533,10 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   cutScalars->SetNumberOfTuples(numPts);
 
   // Interpolate data along edge. If generating cut scalars, do necessary setup
-  if ( this->GenerateCutScalars )
+  if (this->GenerateCutScalars)
   {
     inPD = vtkPointData::New();
-    inPD->ShallowCopy(input->GetPointData());//copies original attributes
+    inPD->ShallowCopy(input->GetPointData()); // copies original attributes
     inPD->SetScalars(cutScalars);
   }
   else
@@ -555,15 +544,15 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     inPD = input->GetPointData();
   }
   outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
-  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+  outPD->InterpolateAllocate(inPD, estimatedSize, estimatedSize / 2);
+  outCD->CopyAllocate(inCD, estimatedSize, estimatedSize / 2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == nullptr )
+  if (this->Locator == nullptr)
   {
     this->CreateDefaultLocator();
   }
-  this->Locator->InitPointInsertion (newPoints, input->GetBounds());
+  this->Locator->InitPointInsertion(newPoints, input->GetBounds());
 
   // Loop over all points evaluating scalar function at each point
   //
@@ -578,12 +567,13 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   // Compute some information for progress methods
   //
   cell = vtkGenericCell::New();
-  vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
-  if ( this->SortBy == VTK_SORT_BY_CELL )
+  vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCD, outPD, outCD,
+    estimatedSize, this->GenerateTriangles != 0);
+  if (this->SortBy == VTK_SORT_BY_CELL)
   {
-    vtkIdType numCuts = numContours*numCells;
-    vtkIdType progressInterval = numCuts/20 + 1;
-    int cut=0;
+    vtkIdType numCuts = numContours * numCells;
+    vtkIdType progressInterval = numCuts / 20 + 1;
+    int cut = 0;
 
     // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
@@ -591,21 +581,21 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     // This is going to have a problem if the input has 2D and 3D cells.
     // I am fixing a bug where cell data is scrambled because with
     // vtkPolyData output, verts and lines have lower cell ids than triangles.
-    for (iter=0; iter < numContours && !abortExecute; iter++)
+    for (iter = 0; iter < numContours && !abortExecute; iter++)
     {
       // Loop over all cells; get scalar values for all cell points
       // and process each cell.
       //
-      for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+      for (cellId = 0; cellId < numCells && !abortExecute; cellId++)
       {
-        if ( !(++cut % progressInterval) )
+        if (!(++cut % progressInterval))
         {
-          vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress (static_cast<double>(cut)/numCuts);
+          vtkDebugMacro(<< "Cutting #" << cut);
+          this->UpdateProgress(static_cast<double>(cut) / numCuts);
           abortExecute = this->GetAbortExecute();
         }
 
-        input->GetCell(cellId,cell);
+        input->GetCell(cellId, cell);
         cellPts = cell->GetPoints();
         cellIds = cell->GetPointIds();
 
@@ -619,10 +609,10 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 
         value = this->ContourValues->GetValue(iter);
 
-        helper.Contour(cell,value, cellScalars, cellId);
+        helper.Contour(cell, value, cellScalars, cellId);
       } // for all cells
-    } // for all contour values
-  } // sort by cell
+    }   // for all contour values
+  }     // sort by cell
 
   else // VTK_SORT_BY_VALUE:
   {
@@ -644,7 +634,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
     int dimensionality;
 
-    vtkIdType progressInterval = numCells/20 + 1;
+    vtkIdType progressInterval = numCells / 20 + 1;
 
     // We skip 0d cells (points), because they cannot be cut (generate no data).
     for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
@@ -652,12 +642,12 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
       // Loop over all cells; get scalar values for all cell points
       // and process each cell.
       //
-      for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+      for (cellId = 0; cellId < numCells && !abortExecute; cellId++)
       {
-        if (!(cellId % progressInterval) )
+        if (!(cellId % progressInterval))
         {
-          vtkDebugMacro(<<"Cutting #" << cellId);
-          this->UpdateProgress (static_cast<double>(cellId)/numCells);
+          vtkDebugMacro(<< "Cutting #" << cellId);
+          this->UpdateProgress(static_cast<double>(cellId) / numCells);
           abortExecute = this->GetAbortExecute();
         }
 
@@ -672,7 +662,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
         {
           continue;
         }
-        input->GetCell(cellId,cell);
+        input->GetCell(cellId, cell);
         cellPts = cell->GetPoints();
         cellIds = cell->GetPointIds();
 
@@ -680,19 +670,19 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
         cellScalars->SetNumberOfTuples(numCellPts);
         for (vtkIdType i = 0; i < numCellPts; i++)
         {
-          double s = cutScalars->GetComponent(cellIds->GetId(i),0);
-          cellScalars->SetTuple(i,&s);
+          double s = cutScalars->GetComponent(cellIds->GetId(i), 0);
+          cellScalars->SetTuple(i, &s);
         }
 
         // Loop over all contour values.
-        for (iter=0; iter < numContours && !abortExecute; iter++)
+        for (iter = 0; iter < numContours && !abortExecute; iter++)
         {
           value = this->ContourValues->GetValue(iter);
-          helper.Contour(cell,value, cellScalars, cellId);
+          helper.Contour(cell, value, cellScalars, cellId);
         } // for all contour values
-      } // for all cells
-    } // for all dimensions.
-  } // sort by value
+      }   // for all cells
+    }     // for all dimensions.
+  }       // sort by value
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory.
@@ -701,7 +691,7 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   cellScalars->Delete();
   cutScalars->Delete();
 
-  if ( this->GenerateCutScalars )
+  if (this->GenerateCutScalars)
   {
     inPD->Delete();
   }
@@ -727,31 +717,31 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
   }
   newPolys->Delete();
 
-  this->Locator->Initialize();//release any extra memory
+  this->Locator->Initialize(); // release any extra memory
   output->Squeeze();
 }
 
 //----------------------------------------------------------------------------
-void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
+void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
 {
   vtkIdType i;
   int iter;
-  vtkDoubleArray *cellScalars;
+  vtkDoubleArray* cellScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPoints;
-  vtkDoubleArray *cutScalars;
+  vtkPoints* newPoints;
+  vtkDoubleArray* cutScalars;
   double value;
-  vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
-  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkIdType estimatedSize, numCells = input->GetNumberOfCells();
+  vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCellPts;
-  vtkIdType *ptIds;
+  vtkIdType* ptIds;
   vtkPointData *inPD, *outPD;
-  vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
-  vtkIdList *cellIds;
+  vtkCellData *inCD = input->GetCellData(), *outCD = output->GetCellData();
+  vtkIdList* cellIds;
   vtkIdType numContours = this->ContourValues->GetNumberOfContours();
-  double *contourValues = this->ContourValues->GetValues();
-  double *contourValuesEnd = contourValues + numContours;
-  double *contourIter;
+  double* contourValues = this->ContourValues->GetValues();
+  double* contourValuesEnd = contourValues + numContours;
+  double* contourIter;
 
   int abortExecute = 0;
 
@@ -759,20 +749,19 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 
   // Create objects to hold output of contour operation
   //
-  estimatedSize = static_cast<vtkIdType>(
-    pow(static_cast<double>(numCells),.75)) * numContours;
-  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75)) * numContours;
+  estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
   if (estimatedSize < 1024)
   {
     estimatedSize = 1024;
   }
 
   newPoints = vtkPoints::New();
-  vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
+  vtkPointSet* inputPointSet = vtkPointSet::SafeDownCast(input);
   // set precision for the points in the output
-  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
-    if(inputPointSet)
+    if (inputPointSet)
     {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
     }
@@ -781,15 +770,15 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
       newPoints->SetDataType(VTK_FLOAT);
     }
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
     newPoints->SetDataType(VTK_FLOAT);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPoints->SetDataType(VTK_DOUBLE);
   }
-  newPoints->Allocate(estimatedSize,estimatedSize/2);
+  newPoints->Allocate(estimatedSize, estimatedSize / 2);
   newVerts = vtkCellArray::New();
   newVerts->AllocateEstimate(estimatedSize, 1);
   newLines = vtkCellArray::New();
@@ -800,10 +789,10 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   cutScalars->SetNumberOfTuples(numPts);
 
   // Interpolate data along edge. If generating cut scalars, do necessary setup
-  if ( this->GenerateCutScalars )
+  if (this->GenerateCutScalars)
   {
     inPD = vtkPointData::New();
-    inPD->ShallowCopy(input->GetPointData());//copies original attributes
+    inPD->ShallowCopy(input->GetPointData()); // copies original attributes
     inPD->SetScalars(cutScalars);
   }
   else
@@ -811,57 +800,57 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     inPD = input->GetPointData();
   }
   outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
-  outCD->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
+  outPD->InterpolateAllocate(inPD, estimatedSize, estimatedSize / 2);
+  outCD->CopyAllocate(inCD, estimatedSize, estimatedSize / 2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == nullptr )
+  if (this->Locator == nullptr)
   {
     this->CreateDefaultLocator();
   }
-  this->Locator->InitPointInsertion (newPoints, input->GetBounds());
+  this->Locator->InitPointInsertion(newPoints, input->GetBounds());
 
   // Loop over all points evaluating scalar function at each point
-  if(inputPointSet)
+  if (inputPointSet)
   {
-    vtkDataArray *dataArrayInput = inputPointSet->GetPoints()->GetData();
+    vtkDataArray* dataArrayInput = inputPointSet->GetPoints()->GetData();
     this->CutFunction->FunctionValue(dataArrayInput, cutScalars);
   }
   vtkSmartPointer<vtkCellIterator> cellIter =
-      vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
+    vtkSmartPointer<vtkCellIterator>::Take(input->NewCellIterator());
   vtkNew<vtkGenericCell> cell;
-  vtkIdList *pointIdList;
-  double *scalarArrayPtr = cutScalars->GetPointer(0);
+  vtkIdList* pointIdList;
+  double* scalarArrayPtr = cutScalars->GetPointer(0);
   double tempScalar;
   cellScalars = cutScalars->NewInstance();
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
-  cellScalars->Allocate(VTK_CELL_SIZE*cutScalars->GetNumberOfComponents());
+  cellScalars->Allocate(VTK_CELL_SIZE * cutScalars->GetNumberOfComponents());
 
-  vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPD, inCD, outPD,outCD, estimatedSize,this->GenerateTriangles!=0);
-  if ( this->SortBy == VTK_SORT_BY_CELL )
+  vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPD, inCD, outPD, outCD,
+    estimatedSize, this->GenerateTriangles != 0);
+  if (this->SortBy == VTK_SORT_BY_CELL)
   {
     // Compute some information for progress methods
     //
-    vtkIdType numCuts = numContours*numCells;
-    vtkIdType progressInterval = numCuts/20 + 1;
-    int cut=0;
+    vtkIdType numCuts = numContours * numCells;
+    vtkIdType progressInterval = numCuts / 20 + 1;
+    int cut = 0;
 
     // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
     //
-    for (iter=0; iter < numContours && !abortExecute; iter++)
+    for (iter = 0; iter < numContours && !abortExecute; iter++)
     {
       // Loop over all cells; get scalar values for all cell points
       // and process each cell.
       //
-      for (cellIter->InitTraversal();
-           !cellIter->IsDoneWithTraversal() && !abortExecute;
+      for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal() && !abortExecute;
            cellIter->GoToNextCell())
       {
-        if ( !(++cut % progressInterval) )
+        if (!(++cut % progressInterval))
         {
-          vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress (static_cast<double>(cut)/numCuts);
+          vtkDebugMacro(<< "Cutting #" << cut);
+          this->UpdateProgress(static_cast<double>(cut) / numCuts);
           abortExecute = this->GetAbortExecute();
         }
 
@@ -869,7 +858,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         numCellPts = pointIdList->GetNumberOfIds();
         ptIds = pointIdList->GetPointer(0);
 
-        //find min and max values in scalar data
+        // find min and max values in scalar data
         range[0] = range[1] = scalarArrayPtr[ptIds[0]];
 
         for (i = 1; i < numCellPts; i++)
@@ -890,19 +879,18 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         {
           cellIter->GetCell(cell);
           cellIds = cell->GetPointIds();
-          cutScalars->GetTuples(cellIds,cellScalars);
+          cutScalars->GetTuples(cellIds, cellScalars);
           // Loop over all contour values.
-          for (iter=0; iter < numContours && !abortExecute; iter++)
+          for (iter = 0; iter < numContours && !abortExecute; iter++)
           {
             value = this->ContourValues->GetValue(iter);
-            helper.Contour(cell, value, cellScalars,
-                           cellIter->GetCellId());
+            helper.Contour(cell, value, cellScalars, cellIter->GetCellId());
           }
         }
 
       } // for all cells
-    } // for all contour values
-  } // sort by cell
+    }   // for all contour values
+  }     // sort by cell
 
   else // SORT_BY_VALUE:
   {
@@ -925,9 +913,9 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
     int dimensionality;
 
     // Compute some information for progress methods
-    vtkIdType numCuts = 3*numCells;
-    vtkIdType progressInterval = numCuts/20 + 1;
-    int cellId=0;
+    vtkIdType numCuts = 3 * numCells;
+    vtkIdType progressInterval = numCuts / 20 + 1;
+    int cellId = 0;
 
     // We skip 0d cells (points), because they cannot be cut (generate no data).
     for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
@@ -935,14 +923,13 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
       // Loop over all cells; get scalar values for all cell points
       // and process each cell.
       //
-      for (cellIter->InitTraversal();
-           !cellIter->IsDoneWithTraversal() && !abortExecute;
+      for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal() && !abortExecute;
            cellIter->GoToNextCell())
       {
-        if (!(++cellId % progressInterval) )
+        if (!(++cellId % progressInterval))
         {
-          vtkDebugMacro(<<"Cutting #" << cellId);
-          this->UpdateProgress (static_cast<double>(cellId)/numCuts);
+          vtkDebugMacro(<< "Cutting #" << cellId);
+          this->UpdateProgress(static_cast<double>(cellId) / numCuts);
           abortExecute = this->GetAbortExecute();
         }
 
@@ -967,7 +954,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         numCellPts = pointIdList->GetNumberOfIds();
         ptIds = pointIdList->GetPointer(0);
 
-        //find min and max values in scalar data
+        // find min and max values in scalar data
         range[0] = range[1] = scalarArrayPtr[ptIds[0]];
 
         for (i = 1; i < numCellPts; ++i)
@@ -979,8 +966,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 
         // Check if the full cell is needed
         int needCell = 0;
-        for (contourIter = contourValues; contourIter != contourValuesEnd;
-             ++contourIter)
+        for (contourIter = contourValues; contourIter != contourValuesEnd; ++contourIter)
         {
           if (*contourIter >= range[0] && *contourIter <= range[1])
           {
@@ -995,16 +981,14 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
           cellIter->GetCell(cell);
           cutScalars->GetTuples(pointIdList, cellScalars);
           // Loop over all contour values.
-          for (contourIter = contourValues; contourIter != contourValuesEnd;
-               ++contourIter)
+          for (contourIter = contourValues; contourIter != contourValuesEnd; ++contourIter)
           {
-            helper.Contour(cell, *contourIter, cellScalars,
-                           cellIter->GetCellId());
+            helper.Contour(cell, *contourIter, cellScalars, cellIter->GetCellId());
           } // for all contour values
-        } // if need cell
-      } // for all cells
-    } // for all dimensions (1,2,3).
-  } // sort by value
+        }   // if need cell
+      }     // for all cells
+    }       // for all dimensions (1,2,3).
+  }         // sort by value
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
   // polys we've created, take care to reclaim memory.
@@ -1012,7 +996,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   cellScalars->Delete();
   cutScalars->Delete();
 
-  if ( this->GenerateCutScalars )
+  if (this->GenerateCutScalars)
   {
     inPD->Delete();
   }
@@ -1038,7 +1022,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
   }
   newPolys->Delete();
 
-  this->Locator->Initialize();//release any extra memory
+  this->Locator->Initialize(); // release any extra memory
   output->Squeeze();
 }
 
@@ -1047,7 +1031,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 // an instance of vtkMergePoints is used.
 void vtkCutter::CreateDefaultLocator()
 {
-  if ( this->Locator == nullptr )
+  if (this->Locator == nullptr)
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
@@ -1057,17 +1041,15 @@ void vtkCutter::CreateDefaultLocator()
 
 //----------------------------------------------------------------------------
 int vtkCutter::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkCutter::FillInputPortInformation(int, vtkInformation *info)
+int vtkCutter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
@@ -1076,12 +1058,12 @@ int vtkCutter::FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Cut Function: " << this->CutFunction << "\n";
   os << indent << "Sort By: " << this->GetSortByAsString() << "\n";
 
-  if ( this->Locator )
+  if (this->Locator)
   {
     os << indent << "Locator: " << this->Locator << "\n";
   }
@@ -1090,11 +1072,9 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 
-  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
+  this->ContourValues->PrintSelf(os, indent.GetNextIndent());
 
-  os << indent << "Generate Cut Scalars: "
-     << (this->GenerateCutScalars ? "On\n" : "Off\n");
+  os << indent << "Generate Cut Scalars: " << (this->GenerateCutScalars ? "On\n" : "Off\n");
 
-  os << indent << "Precision of the output points: "
-     << this->OutputPointsPrecision << "\n";
+  os << indent << "Precision of the output points: " << this->OutputPointsPrecision << "\n";
 }

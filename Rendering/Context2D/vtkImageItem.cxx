@@ -39,7 +39,7 @@ vtkImageItem::~vtkImageItem()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkImageItem::Paint(vtkContext2D *painter)
+bool vtkImageItem::Paint(vtkContext2D* painter)
 {
   if (this->Image)
   {
@@ -50,7 +50,7 @@ bool vtkImageItem::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
-void vtkImageItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkImageItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

@@ -584,7 +584,7 @@ private:
 
   struct SparseAccessorLoadingWorker;
 
-  template<typename Type>
+  template <typename Type>
   struct BufferDataExtractionWorker;
 
   vtkGLTFDocumentLoader(const vtkGLTFDocumentLoader&) = delete;

@@ -17,7 +17,7 @@
  * @brief   links vtkLights to OSPRay
  *
  * Translates vtkLight state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayLightNode_h
 #define vtkOSPRayLightNode_h
@@ -34,8 +34,7 @@ class vtkInformationIntegerKey;
 class vtkLight;
 class vtkOSPRayRendererNode;
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayLightNode :
-  public vtkLightNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayLightNode : public vtkLightNode
 {
 public:
   static vtkOSPRayLightNode* New();
@@ -56,7 +55,7 @@ public:
   static double GetLightScale();
   //@}
 
-  //state beyond rendering core...
+  // state beyond rendering core...
 
   /**
    * When present on light, the light acts as an ambient source.
@@ -69,8 +68,8 @@ public:
   /**
    * Convenience method to set/get IS_AMBIENT on a vtkLight.
    */
-  static void SetIsAmbient(int, vtkLight *);
-  static int GetIsAmbient(vtkLight *);
+  static void SetIsAmbient(int, vtkLight*);
+  static int GetIsAmbient(vtkLight*);
   //@}
 
   /**
@@ -83,8 +82,8 @@ public:
   /**
    * Convenience method to set/get RADIUS on a vtkLight.
    */
-  static void SetRadius(double, vtkLight *);
-  static double GetRadius(vtkLight *);
+  static void SetRadius(double, vtkLight*);
+  static double GetRadius(vtkLight*);
   //@}
 
 protected:
@@ -96,7 +95,7 @@ private:
   void operator=(const vtkOSPRayLightNode&) = delete;
 
   static double LightScale;
-  void *OLight;
+  void* OLight;
 };
 
 #endif

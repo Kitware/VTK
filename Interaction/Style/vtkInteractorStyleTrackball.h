@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkInteractorStyleSwitch vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
-*/
+ */
 
 #ifndef vtkInteractorStyleTrackball_h
 #define vtkInteractorStyleTrackball_h
@@ -34,8 +34,8 @@
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyleSwitch
 {
 public:
-  static vtkInteractorStyleTrackball *New();
-  vtkTypeMacro(vtkInteractorStyleTrackball,vtkInteractorStyleSwitch);
+  static vtkInteractorStyleTrackball* New();
+  vtkTypeMacro(vtkInteractorStyleTrackball, vtkInteractorStyleSwitch);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:

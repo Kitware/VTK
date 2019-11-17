@@ -44,9 +44,7 @@ vtkImageDataToHyperTreeGrid::vtkImageDataToHyperTreeGrid()
 }
 
 //-----------------------------------------------------------------------------
-vtkImageDataToHyperTreeGrid::~vtkImageDataToHyperTreeGrid()
-{
-}
+vtkImageDataToHyperTreeGrid::~vtkImageDataToHyperTreeGrid() {}
 
 //----------------------------------------------------------------------------
 void vtkImageDataToHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)

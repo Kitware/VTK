@@ -23,9 +23,8 @@
 vtkStandardNewMacro(vtkMoleculeToLinesFilter);
 
 //----------------------------------------------------------------------------
-int vtkMoleculeToLinesFilter::RequestData(vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkMoleculeToLinesFilter::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkMolecule* input = vtkMolecule::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
   vtkPolyData* output = vtkPolyData::SafeDownCast(vtkDataObject::GetData(outputVector));

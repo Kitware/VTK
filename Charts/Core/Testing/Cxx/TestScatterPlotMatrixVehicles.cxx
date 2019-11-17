@@ -25,16 +25,15 @@
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestScatterPlotMatrixVehicles(int argc, char *argv[])
+int TestScatterPlotMatrixVehicles(int argc, char* argv[])
 {
   // Get the file name, and read the CSV file.
-  char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                     "Data/vehicle_data.csv");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vehicle_data.csv");
   vtkNew<vtkDelimitedTextReader> reader;
   reader->SetFileName(fname);
   reader->SetHaveHeaders(true);
   reader->SetDetectNumericColumns(true);
-  delete [] fname;
+  delete[] fname;
   reader->Update();
 
   // Set up a 2D scene, add a chart to it
@@ -54,7 +53,7 @@ int TestScatterPlotMatrixVehicles(int argc, char *argv[])
   prop->SetFontSize(15);
   prop->BoldOn();
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
   view->GetInteractor()->Start();

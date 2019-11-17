@@ -36,8 +36,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTreeLayoutStrategy.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestPruneTreeFilter(int argc, char* argv[])
 {
@@ -70,7 +69,7 @@ int TestPruneTreeFilter(int argc, char* argv[])
 
   VTK_CREATE(vtkTreeLayoutStrategy, strategy);
   VTK_CREATE(vtkGraphLayout, layout);
-  //layout->SetInput(tree);
+  // layout->SetInput(tree);
   layout->SetInputConnection(prune->GetOutputPort());
   layout->SetLayoutStrategy(strategy);
 

@@ -103,7 +103,8 @@
  * - The reader doesn't handle printer files (d3hsp)
  * - The reader doesn't handle modal neutral files (d3mnf)
  * - The reader doesn't handle packed connectivity.
- * - The reader doesn't handle adapted element parent lists (but the 2002 specification says LSDyna doesn't implement it).
+ * - The reader doesn't handle adapted element parent lists (but the 2002 specification says LSDyna
+ * doesn't implement it).
  * - All the sample datasets have MATTYP = 0. Need something to test MATTYP = 1.
  * - I have no test datasets with rigid body and/or road surfaces, so the
  * implementation is half-baked.
@@ -118,7 +119,7 @@
  * so we shouldn't eliminate the ability to get at the raw simulation data.
  * Perhaps a filter could be applied to "fancify" the geometry.
  *
-*/
+ */
 
 #ifndef vtkPLSDynaReader_h
 #define vtkPLSDynaReader_h
@@ -130,20 +131,20 @@ class vtkMultiProcessController;
 class VTKIOPARALLELLSDYNA_EXPORT vtkPLSDynaReader : public vtkLSDynaReader
 {
 public:
-  vtkTypeMacro(vtkPLSDynaReader,vtkLSDynaReader);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkPLSDynaReader *New();
+  vtkTypeMacro(vtkPLSDynaReader, vtkLSDynaReader);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkPLSDynaReader* New();
 
   /**
    * Determine if the file can be read with this reader.
    */
-  int CanReadFile( const char* fname ) override;
+  int CanReadFile(const char* fname) override;
 
   //@{
   /**
    * Set/Get the communicator object. By default we use the world controller
    */
-  void SetController(vtkMultiProcessController *c);
+  void SetController(vtkMultiProcessController* c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   //@}
 
@@ -151,22 +152,21 @@ protected:
   vtkPLSDynaReader();
   ~vtkPLSDynaReader() override;
 
-  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int ReadTopology() override;
 
 private:
+  vtkPLSDynaReader(const vtkPLSDynaReader&) = delete;
+  void operator=(const vtkPLSDynaReader&) = delete;
 
-  vtkPLSDynaReader( const vtkPLSDynaReader& ) = delete;
-  void operator = ( const vtkPLSDynaReader& ) = delete;
+  void GetPartRanges(vtkIdType* mins, vtkIdType* maxs);
 
-  void GetPartRanges(vtkIdType* mins,vtkIdType* maxs);
-
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
 
   struct vtkPLSDynaReaderInternal;
-  vtkPLSDynaReaderInternal *Internal;
+  vtkPLSDynaReaderInternal* Internal;
 };
 
 #endif // vtkPLSDynaReader_h

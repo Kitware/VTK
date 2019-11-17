@@ -50,7 +50,7 @@
  *
  * @sa
  * vtkPCACurvatureEstimation
-*/
+ */
 
 #ifndef vtkPCANormalEstimation_h
 #define vtkPCANormalEstimation_h
@@ -61,7 +61,6 @@
 class vtkAbstractPointLocator;
 class vtkIdList;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkPCANormalEstimation : public vtkPolyDataAlgorithm
 {
 public:
@@ -70,8 +69,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkPCANormalEstimation *New();
-  vtkTypeMacro(vtkPCANormalEstimation,vtkPolyDataAlgorithm);
+  static vtkPCANormalEstimation* New();
+  vtkTypeMacro(vtkPCANormalEstimation, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -82,8 +81,8 @@ public:
    * default 25 points are used. Smaller numbers may speed performance at the
    * cost of accuracy.
    */
-  vtkSetClampMacro(SampleSize,int,1,VTK_INT_MAX);
-  vtkGetMacro(SampleSize,int);
+  vtkSetClampMacro(SampleSize, int, 1, VTK_INT_MAX);
+  vtkGetMacro(SampleSize, int);
   //@}
 
   /**
@@ -91,9 +90,9 @@ public:
    */
   enum Style
   {
-    AS_COMPUTED=0,
-    POINT=1,
-    GRAPH_TRAVERSAL=3
+    AS_COMPUTED = 0,
+    POINT = 1,
+    GRAPH_TRAVERSAL = 3
   };
 
   //@{
@@ -109,14 +108,11 @@ public:
    * across the graph of neighboring, connected points produces the best
    * results but is computationally expensive.
    */
-  vtkSetMacro(NormalOrientation,int);
-  vtkGetMacro(NormalOrientation,int);
-  void SetNormalOrientationToAsComputed()
-    { this->SetNormalOrientation(AS_COMPUTED); }
-  void SetNormalOrientationToPoint()
-    { this->SetNormalOrientation(POINT); }
-  void SetNormalOrientationToGraphTraversal()
-    { this->SetNormalOrientation(GRAPH_TRAVERSAL); }
+  vtkSetMacro(NormalOrientation, int);
+  vtkGetMacro(NormalOrientation, int);
+  void SetNormalOrientationToAsComputed() { this->SetNormalOrientation(AS_COMPUTED); }
+  void SetNormalOrientationToPoint() { this->SetNormalOrientation(POINT); }
+  void SetNormalOrientationToGraphTraversal() { this->SetNormalOrientation(GRAPH_TRAVERSAL); }
   //@}
 
   //@{
@@ -126,17 +122,17 @@ public:
    * normals will be modified so that they point towards this point. By
    * default, the specified orientation point is (0,0,0).
    */
-  vtkSetVector3Macro(OrientationPoint,double);
-  vtkGetVectorMacro(OrientationPoint,double,3);
+  vtkSetVector3Macro(OrientationPoint, double);
+  vtkGetVectorMacro(OrientationPoint, double, 3);
   //@}
 
   //@{
   /**
    * The normal orientation can be flipped by enabling this flag.
    */
-  vtkSetMacro(FlipNormals,bool);
-  vtkGetMacro(FlipNormals,bool);
-  vtkBooleanMacro(FlipNormals,bool);
+  vtkSetMacro(FlipNormals, bool);
+  vtkGetMacro(FlipNormals, bool);
+  vtkBooleanMacro(FlipNormals, bool);
   //@}
 
   //@{
@@ -145,8 +141,8 @@ public:
    * used. The locator performs efficient searches to locate points
    * around a sample point.
    */
-  void SetLocator(vtkAbstractPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
+  void SetLocator(vtkAbstractPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
   //@}
 
 protected:
@@ -155,24 +151,22 @@ protected:
 
   // IVars
   int SampleSize;
-  vtkAbstractPointLocator *Locator;
+  vtkAbstractPointLocator* Locator;
   int NormalOrientation;
   double OrientationPoint[3];
   bool FlipNormals;
 
   // Methods used to produce consistent normal orientations
-  void TraverseAndFlip (vtkPoints *inPts, float *normals, char *pointMap,
-                        vtkIdList *wave, vtkIdList *wave2);
+  void TraverseAndFlip(
+    vtkPoints* inPts, float* normals, char* pointMap, vtkIdList* wave, vtkIdList* wave2);
 
   // Pipeline management
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPCANormalEstimation(const vtkPCANormalEstimation&) = delete;
   void operator=(const vtkPCANormalEstimation&) = delete;
-
 };
 
 #endif

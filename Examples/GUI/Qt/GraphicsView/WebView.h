@@ -9,23 +9,21 @@
 class WebView : public QFrame
 {
   Q_OBJECT
-  public:
-    WebView(QWidget* p=0);
-    ~WebView();
+public:
+  WebView(QWidget* p = 0);
+  ~WebView();
 
-    QWebView* webview();
+  QWebView* webview();
 
-  public Q_SLOTS:
-    void go();
+public Q_SLOTS:
+  void go();
 
-  protected Q_SLOTS:
-    void updateUrl(const QUrl& str);
+protected Q_SLOTS:
+  void updateUrl(const QUrl& str);
 
-  protected:
-    QWebView* mWebView;
-    QLineEdit* mAddress;
-
-
+protected:
+  QWebView* mWebView;
+  QLineEdit* mAddress;
 };
 
 #endif

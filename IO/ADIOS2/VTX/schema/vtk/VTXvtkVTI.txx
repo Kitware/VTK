@@ -32,7 +32,7 @@ namespace vtx
 namespace schema
 {
 
-template<class T>
+template <class T>
 void VTXvtkVTI::SetDimensionsCommon(
   adios2::Variable<T> variable, const types::DataArray& dataArray, const size_t step)
 {

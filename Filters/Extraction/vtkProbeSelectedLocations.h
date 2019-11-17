@@ -23,7 +23,7 @@
  * by a vtkSelection. The FieldType of the input vtkSelection is immaterial and
  * is ignored. The ContentType of the input vtkSelection must be
  * vtkSelection::LOCATIONS.
-*/
+ */
 
 #ifndef vtkProbeSelectedLocations_h
 #define vtkProbeSelectedLocations_h
@@ -45,19 +45,14 @@ protected:
   /**
    * Sets up empty output dataset
    */
-  int RequestDataObject(vtkInformation* request,
-                                vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkProbeSelectedLocations(const vtkProbeSelectedLocations&) = delete;
   void operator=(const vtkProbeSelectedLocations&) = delete;
-
 };
 
 #endif
-
-

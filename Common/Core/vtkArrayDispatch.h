@@ -190,7 +190,7 @@
  *
  * @sa
  * vtkDataArrayAccessor
-*/
+ */
 
 #ifndef vtkArrayDispatch_h
 #define vtkArrayDispatch_h
@@ -200,7 +200,8 @@
 #include "vtkType.h"
 #include "vtkTypeList.h"
 
-namespace vtkArrayDispatch {
+namespace vtkArrayDispatch
+{
 
 /**
  * A TypeList containing all real ValueTypes.
@@ -211,10 +212,8 @@ typedef vtkTypeList::Create<double, float> Reals;
  * A Typelist containing all integral ValueTypes.
  */
 typedef vtkTypeList::Unique<
-  vtkTypeList::Create<char, int, long, long long, short, signed char,
-                      unsigned char, unsigned int, unsigned long,
-                      unsigned long long, unsigned short, vtkIdType>
-  >::Result Integrals;
+  vtkTypeList::Create<char, int, long, long long, short, signed char, unsigned char, unsigned int,
+    unsigned long, unsigned long long, unsigned short, vtkIdType> >::Result Integrals;
 
 /**
  * A Typelist containing all standard VTK array ValueTypes.
@@ -282,10 +281,7 @@ struct Dispatch2SameValueType;
  * bool Dispatch2ByArray<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
  * Worker &worker).
  */
-template <
-    typename ArrayList1,
-    typename ArrayList2
-    >
+template <typename ArrayList1, typename ArrayList2>
 struct Dispatch2ByArray;
 
 //------------------------------------------------------------------------------
@@ -300,10 +296,7 @@ struct Dispatch2ByArray;
  * bool Dispatch2ByValueType<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
  * Worker &worker).
  */
-template <
-    typename ValueTypeList1,
-    typename ValueTypeList2
-    >
+template <typename ValueTypeList1, typename ValueTypeList2>
 struct Dispatch2ByValueType;
 
 //------------------------------------------------------------------------------
@@ -317,10 +310,7 @@ struct Dispatch2ByValueType;
  * bool Dispatch2ByArrayWithSameValueType<...>::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, Worker &worker).
  */
-template <
-    typename ArrayList1,
-    typename ArrayList2
-    >
+template <typename ArrayList1, typename ArrayList2>
 struct Dispatch2ByArrayWithSameValueType;
 
 //------------------------------------------------------------------------------
@@ -370,11 +360,7 @@ struct Dispatch3SameValueType;
  * bool Dispatch3ByArray::Execute<...>(vtkDataArray *a1, vtkDataArray *a2,
  * vtkDataArray *a3, Worker &worker).
  */
-template <
-    typename ArrayList1,
-    typename ArrayList2,
-    typename ArrayList3
-    >
+template <typename ArrayList1, typename ArrayList2, typename ArrayList3>
 struct Dispatch3ByArray;
 
 //------------------------------------------------------------------------------
@@ -390,11 +376,7 @@ struct Dispatch3ByArray;
  * bool Dispatch3ByValueType<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
  * vtkDataArray *a3, Worker &worker).
  */
-template <
-    typename ValueTypeList1,
-    typename ValueTypeList2,
-    typename ValueTypeList3
-    >
+template <typename ValueTypeList1, typename ValueTypeList2, typename ValueTypeList3>
 struct Dispatch3ByValueType;
 
 //------------------------------------------------------------------------------
@@ -408,11 +390,7 @@ struct Dispatch3ByValueType;
  * bool Dispatch3ByArrayWithSameValueType<...>::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, vtkDataArray *a3, Worker &worker).
  */
-template <
-    typename ArrayList1,
-    typename ArrayList2,
-    typename ArrayList3
-    >
+template <typename ArrayList1, typename ArrayList2, typename ArrayList3>
 struct Dispatch3ByArrayWithSameValueType;
 
 //------------------------------------------------------------------------------

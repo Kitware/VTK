@@ -26,7 +26,7 @@
  * This class was optimized by Jacques-Bernard Lekien, 2019.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridOutlineFilter_h
 #define vtkHyperTreeGridOutlineFilter_h
@@ -39,8 +39,8 @@ class vtkOutlineSource;
 class VTKFILTERSMODELING_EXPORT vtkHyperTreeGridOutlineFilter : public vtkHyperTreeGridAlgorithm
 {
 public:
-  static vtkHyperTreeGridOutlineFilter *New();
-  vtkTypeMacro(vtkHyperTreeGridOutlineFilter,vtkHyperTreeGridAlgorithm);
+  static vtkHyperTreeGridOutlineFilter* New();
+  vtkTypeMacro(vtkHyperTreeGridOutlineFilter, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -57,13 +57,13 @@ protected:
   ~vtkHyperTreeGridOutlineFilter() override;
 
   vtkTypeBool GenerateFaces;
-  vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  vtkOutlineSource* OutlineSource;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   // JBL Pour moi, c'est un defaut de design de vtkHyperTreeGridAlgorithm
-  int ProcessTrees( vtkHyperTreeGrid* input, vtkDataObject* outputDO) override;
+  int ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject* outputDO) override;
 
 private:
   vtkHyperTreeGridOutlineFilter(const vtkHyperTreeGridOutlineFilter&) = delete;

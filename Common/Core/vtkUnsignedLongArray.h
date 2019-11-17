@@ -25,7 +25,7 @@
  * unsigned integers is needed, prefer vtkTypeUInt32Array to this class.
  * If an array of 64 bit unsigned integers is needed, prefer
  * vtkUTypeInt64Array to this class.
-*/
+ */
 
 #ifndef vtkUnsignedLongArray_h
 #define vtkUnsignedLongArray_h
@@ -51,14 +51,14 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned long);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkUnsignedLongArray* FastDownCast(vtkAbstractArray *source)
+  static vtkUnsignedLongArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkUnsignedLongArray*>(Superclass::FastDownCast(source));
   }
@@ -78,7 +78,6 @@ protected:
   ~vtkUnsignedLongArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<unsigned long> RealSuperclass;
 
   vtkUnsignedLongArray(const vtkUnsignedLongArray&) = delete;

@@ -44,14 +44,14 @@
 
 namespace
 {
-  // since certain compilers don't support std::to_string yet
-  template <typename T>
-  std::string convert_to_string(const T& val)
-  {
-    std::ostringstream str;
-    str << val;
-    return str.str();
-  }
+// since certain compilers don't support std::to_string yet
+template <typename T>
+std::string convert_to_string(const T& val)
+{
+  std::ostringstream str;
+  str << val;
+  return str.str();
+}
 }
 
 //============================================================================
@@ -288,8 +288,7 @@ public:
       else if (term[0] == ')')
       {
         // apply operators till we encounter the opening paren.
-        while (
-          !op_stack.empty() && op_stack.back() != '(' && this->ApplyBack(op_stack, var_stack))
+        while (!op_stack.empty() && op_stack.back() != '(' && this->ApplyBack(op_stack, var_stack))
         {
         }
         if (op_stack.empty())
@@ -567,8 +566,7 @@ void vtkSelection::Union(vtkSelectionNode* node)
   }
   if (!merged)
   {
-    vtkSmartPointer<vtkSelectionNode> clone =
-      vtkSmartPointer<vtkSelectionNode>::New();
+    vtkSmartPointer<vtkSelectionNode> clone = vtkSmartPointer<vtkSelectionNode>::New();
     clone->DeepCopy(node);
     this->AddNode(clone);
   }
@@ -577,7 +575,7 @@ void vtkSelection::Union(vtkSelectionNode* node)
 //----------------------------------------------------------------------------
 void vtkSelection::Subtract(vtkSelection* s)
 {
-  for(unsigned int n=0; n<s->GetNumberOfNodes(); ++n)
+  for (unsigned int n = 0; n < s->GetNumberOfNodes(); ++n)
   {
     this->Subtract(s->GetNode(n));
   }
@@ -587,17 +585,17 @@ void vtkSelection::Subtract(vtkSelection* s)
 void vtkSelection::Subtract(vtkSelectionNode* node)
 {
   bool subtracted = false;
-  for( unsigned int tn = 0; tn<this->GetNumberOfNodes(); ++tn)
+  for (unsigned int tn = 0; tn < this->GetNumberOfNodes(); ++tn)
   {
     vtkSelectionNode* tnode = this->GetNode(tn);
 
-    if(tnode->EqualProperties(node))
+    if (tnode->EqualProperties(node))
     {
       tnode->SubtractSelectionList(node);
       subtracted = true;
     }
   }
-  if( !subtracted )
+  if (!subtracted)
   {
     vtkErrorMacro("Could not subtract selections");
   }
@@ -618,7 +616,7 @@ vtkMTimeType vtkSelection::GetMTime()
 //----------------------------------------------------------------------------
 vtkSelection* vtkSelection::GetData(vtkInformation* info)
 {
-  return info? vtkSelection::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkSelection::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

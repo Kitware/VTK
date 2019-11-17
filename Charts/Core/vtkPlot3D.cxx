@@ -28,8 +28,8 @@ namespace
 {
 // FIXME: Put this in a central header, as it is used across several classes.
 // Copy the two arrays into the points array
-template<class A>
-void CopyToPoints(float *data, A *input, size_t offset, size_t n)
+template <class A>
+void CopyToPoints(float* data, A* input, size_t offset, size_t n)
 {
   for (size_t i = 0; i < n; ++i)
   {
@@ -55,13 +55,13 @@ vtkPlot3D::vtkPlot3D()
 vtkPlot3D::~vtkPlot3D() = default;
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPlot3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetPen(vtkPen *pen)
+void vtkPlot3D::SetPen(vtkPen* pen)
 {
   if (this->Pen != pen)
   {
@@ -77,7 +77,7 @@ vtkPen* vtkPlot3D::GetSelectionPen()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetSelectionPen(vtkPen *pen)
+void vtkPlot3D::SetSelectionPen(vtkPen* pen)
 {
   if (this->SelectionPen != pen)
   {
@@ -93,79 +93,62 @@ vtkPen* vtkPlot3D::GetPen()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetInputData(vtkTable *input)
+void vtkPlot3D::SetInputData(vtkTable* input)
 {
   assert(input->GetNumberOfColumns() >= 3);
 
   // assume the 4th column is color info if available
   if (input->GetNumberOfColumns() > 3)
   {
-    this->SetInputData(input,
-                       input->GetColumnName(0),
-                       input->GetColumnName(1),
-                       input->GetColumnName(2),
-                       input->GetColumnName(3));
+    this->SetInputData(input, input->GetColumnName(0), input->GetColumnName(1),
+      input->GetColumnName(2), input->GetColumnName(3));
   }
   else
   {
-    this->SetInputData(input,
-                       input->GetColumnName(0),
-                       input->GetColumnName(1),
-                       input->GetColumnName(2));
+    this->SetInputData(
+      input, input->GetColumnName(0), input->GetColumnName(1), input->GetColumnName(2));
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetInputData(vtkTable *input, vtkIdType xColumn,
-                             vtkIdType yColumn, vtkIdType zColumn)
+void vtkPlot3D::SetInputData(
+  vtkTable* input, vtkIdType xColumn, vtkIdType yColumn, vtkIdType zColumn)
 {
-  this->SetInputData(input,
-                     input->GetColumnName(xColumn),
-                     input->GetColumnName(yColumn),
-                     input->GetColumnName(zColumn));
+  this->SetInputData(input, input->GetColumnName(xColumn), input->GetColumnName(yColumn),
+    input->GetColumnName(zColumn));
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
-                                   const vtkStdString &yName,
-                                   const vtkStdString &zName)
+void vtkPlot3D::SetInputData(
+  vtkTable* input, const vtkStdString& xName, const vtkStdString& yName, const vtkStdString& zName)
 {
   // Copy the points into our data structure for rendering - pack x, y, z...
-  vtkDataArray *xArr =
-      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(xName.c_str()));
-  vtkDataArray *yArr =
-      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(yName.c_str()));
-  vtkDataArray *zArr =
-      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(zName.c_str()));
+  vtkDataArray* xArr = vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(xName.c_str()));
+  vtkDataArray* yArr = vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(yName.c_str()));
+  vtkDataArray* zArr = vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(zName.c_str()));
 
   // Ensure that we have valid data arrays, and that they are of the same length.
   assert(xArr);
   assert(yArr);
   assert(zArr);
   assert(xArr->GetNumberOfTuples() == yArr->GetNumberOfTuples() &&
-         xArr->GetNumberOfTuples() == zArr->GetNumberOfTuples());
+    xArr->GetNumberOfTuples() == zArr->GetNumberOfTuples());
 
   size_t n = xArr->GetNumberOfTuples();
   this->Points.resize(n);
-  float *data = this->Points[0].GetData();
+  float* data = this->Points[0].GetData();
 
-  switch(xArr->GetDataType())
+  switch (xArr->GetDataType())
   {
-    vtkTemplateMacro(CopyToPoints(data,
-                                  static_cast<VTK_TT*>(xArr->GetVoidPointer(0)),
-                                  0, n));
+    vtkTemplateMacro(CopyToPoints(data, static_cast<VTK_TT*>(xArr->GetVoidPointer(0)), 0, n));
   }
-  switch(yArr->GetDataType())
+  switch (yArr->GetDataType())
   {
-    vtkTemplateMacro(CopyToPoints(data,
-                                  static_cast<VTK_TT*>(yArr->GetVoidPointer(0)),
-                                  1, n));
+    vtkTemplateMacro(CopyToPoints(data, static_cast<VTK_TT*>(yArr->GetVoidPointer(0)), 1, n));
   }
-  switch(zArr->GetDataType())
+  switch (zArr->GetDataType())
   {
-    vtkTemplateMacro(CopyToPoints(data,
-                                  static_cast<VTK_TT*>(zArr->GetVoidPointer(0)),
-                                  2, n));
+    vtkTemplateMacro(CopyToPoints(data, static_cast<VTK_TT*>(zArr->GetVoidPointer(0)), 2, n));
   }
   this->PointsBuildTime.Modified();
 
@@ -180,27 +163,25 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
-                                   const vtkStdString &yName,
-                                   const vtkStdString &zName,
-                                   const vtkStdString &colorName)
+void vtkPlot3D::SetInputData(vtkTable* input, const vtkStdString& xName, const vtkStdString& yName,
+  const vtkStdString& zName, const vtkStdString& colorName)
 {
   this->SetInputData(input, xName, yName, zName);
 
-  vtkDataArray *colorArr =
-      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(colorName.c_str()));
+  vtkDataArray* colorArr =
+    vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(colorName.c_str()));
   this->SetColors(colorArr);
 }
 
 //-----------------------------------------------------------------------------
-void vtkPlot3D::SetColors(vtkDataArray *colorArr)
+void vtkPlot3D::SetColors(vtkDataArray* colorArr)
 {
   assert(colorArr);
   assert((unsigned int)colorArr->GetNumberOfTuples() == this->Points.size());
 
   this->NumberOfComponents = 3;
 
-  //generate a color lookup table
+  // generate a color lookup table
   vtkNew<vtkLookupTable> lookupTable;
   double min = VTK_DOUBLE_MAX;
   double max = VTK_DOUBLE_MIN;
@@ -226,7 +207,7 @@ void vtkPlot3D::SetColors(vtkDataArray *colorArr)
   for (unsigned int i = 0; i < this->Points.size(); ++i)
   {
     double value = colorArr->GetComponent(i, 0);
-    const unsigned char *rgb = lookupTable->MapValue(value);
+    const unsigned char* rgb = lookupTable->MapValue(value);
     this->Colors->InsertNextTypedTuple(&rgb[0]);
     this->Colors->InsertNextTypedTuple(&rgb[1]);
     this->Colors->InsertNextTypedTuple(&rgb[2]);
@@ -247,7 +228,7 @@ void vtkPlot3D::ComputeDataBounds()
 
   for (unsigned int i = 0; i < this->Points.size(); ++i)
   {
-    float *point = this->Points[i].GetData();
+    float* point = this->Points[i].GetData();
     if (point[0] < xMin)
     {
       xMin = point[0];
@@ -276,7 +257,7 @@ void vtkPlot3D::ComputeDataBounds()
 
   this->DataBounds.clear();
   this->DataBounds.resize(8);
-  float *data = this->DataBounds[0].GetData();
+  float* data = this->DataBounds[0].GetData();
 
   // point 1: xMin, yMin, zMin
   data[0] = xMin;
@@ -344,7 +325,7 @@ std::string vtkPlot3D::GetZAxisLabel()
 }
 
 // ----------------------------------------------------------------------------
-void vtkPlot3D::SetSelection(vtkIdTypeArray *id)
+void vtkPlot3D::SetSelection(vtkIdTypeArray* id)
 {
   if (id == this->Selection)
   {

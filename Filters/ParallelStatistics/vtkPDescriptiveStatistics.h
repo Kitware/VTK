@@ -27,7 +27,7 @@
  *
  * @par Thanks:
  * Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
-*/
+ */
 
 #ifndef vtkPDescriptiveStatistics_h
 #define vtkPDescriptiveStatistics_h
@@ -38,7 +38,8 @@
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPDescriptiveStatistics : public vtkDescriptiveStatistics
+class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPDescriptiveStatistics
+  : public vtkDescriptiveStatistics
 {
 public:
   static vtkPDescriptiveStatistics* New();
@@ -57,15 +58,14 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn( vtkTable* inData,
-              vtkTable* inParameters,
-              vtkMultiBlockDataSet* outMeta ) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
 
 protected:
   vtkPDescriptiveStatistics();
   ~vtkPDescriptiveStatistics() override;
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) = delete;
   void operator=(const vtkPDescriptiveStatistics&) = delete;

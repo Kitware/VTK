@@ -29,8 +29,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestVtkQtTableView(int argc, char* argv[])
 {
@@ -55,4 +54,3 @@ int TestVtkQtTableView(int argc, char* argv[])
   QTimer::singleShot(500, &app, SLOT(quit()));
   return app.exec();
 }
-

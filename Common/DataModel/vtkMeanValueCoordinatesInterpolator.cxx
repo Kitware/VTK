@@ -36,25 +36,25 @@ class vtkMVCTriIterator
 {
 public:
   vtkIdType Offset;
-  vtkIdType *Tris;
-  vtkIdType *Current;
+  vtkIdType* Tris;
+  vtkIdType* Current;
   vtkIdType NumberOfTriangles;
   vtkIdType Id;
 
-  vtkMVCTriIterator(vtkIdType numIds,vtkIdType offset,vtkIdType *t)
+  vtkMVCTriIterator(vtkIdType numIds, vtkIdType offset, vtkIdType* t)
   {
-      this->Offset = offset;
-      this->Tris = t;
-      this->Current = t+(this->Offset-3); //leave room for three indices
-      this->NumberOfTriangles = numIds / offset;
-      this->Id = 0;
+    this->Offset = offset;
+    this->Tris = t;
+    this->Current = t + (this->Offset - 3); // leave room for three indices
+    this->NumberOfTriangles = numIds / offset;
+    this->Id = 0;
   }
 
   const vtkIdType* operator++()
   {
-      this->Current += this->Offset;
-      this->Id++;
-      return this->Current;
+    this->Current += this->Offset;
+    this->Id++;
+    return this->Current;
   }
 };
 
@@ -64,12 +64,12 @@ class vtkMVCPolyIterator
 public:
   vtkSmartPointer<vtkCellArrayIterator> Iter;
   vtkIdType CurrentPolygonSize;
-  const vtkIdType *Current;
+  const vtkIdType* Current;
   vtkIdType Id;
   vtkIdType MaxPolygonSize;
   vtkIdType NumberOfPolygons;
 
-  vtkMVCPolyIterator(vtkCellArray *cells)
+  vtkMVCPolyIterator(vtkCellArray* cells)
   {
     this->NumberOfPolygons = cells->GetNumberOfCells();
     this->MaxPolygonSize = cells->GetMaxCellSize();
@@ -106,12 +106,10 @@ public:
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
-vtkMeanValueCoordinatesInterpolator::
-vtkMeanValueCoordinatesInterpolator() = default;
+vtkMeanValueCoordinatesInterpolator::vtkMeanValueCoordinatesInterpolator() = default;
 
 //----------------------------------------------------------------------------
-vtkMeanValueCoordinatesInterpolator::
-~vtkMeanValueCoordinatesInterpolator() = default;
+vtkMeanValueCoordinatesInterpolator::~vtkMeanValueCoordinatesInterpolator() = default;
 
 //----------------------------------------------------------------------------
 // Templated function to generate weights of a general polygonal mesh.
@@ -119,8 +117,8 @@ vtkMeanValueCoordinatesInterpolator::
 // (Note: the input point type should be float or double, but this is
 // not enfored.)
 template <class T>
-void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npts,
-                                  vtkMVCPolyIterator& iter, double *weights)
+void vtkComputeMVCWeightsForPolygonMesh(
+  const double x[3], T* pts, vtkIdType npts, vtkMVCPolyIterator& iter, double* weights)
 {
   if (!npts)
   {
@@ -128,52 +126,52 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
   }
 
   // Begin by initializing weights.
-  for (vtkIdType pid=0; pid < npts; ++pid)
+  for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     weights[pid] = static_cast<double>(0.0);
   }
 
   // create local array for storing point-to-vertex vectors and distances
-  double *dist = new double [npts];
-  double *uVec = new double [3*npts];
+  double* dist = new double[npts];
+  double* uVec = new double[3 * npts];
   static const double eps = 0.00000001;
   for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     // point-to-vertex vector
-    uVec[3*pid]   = pts[3*pid  ] - x[0];
-    uVec[3*pid+1] = pts[3*pid+1] - x[1];
-    uVec[3*pid+2] = pts[3*pid+2] - x[2];
+    uVec[3 * pid] = pts[3 * pid] - x[0];
+    uVec[3 * pid + 1] = pts[3 * pid + 1] - x[1];
+    uVec[3 * pid + 2] = pts[3 * pid + 2] - x[2];
 
     // distance
-    dist[pid] = vtkMath::Norm(uVec+3*pid);
+    dist[pid] = vtkMath::Norm(uVec + 3 * pid);
 
     // handle special case when the point is really close to a vertex
     if (dist[pid] < eps)
     {
       weights[pid] = 1.0;
-      delete [] dist;
-      delete [] uVec;
+      delete[] dist;
+      delete[] uVec;
       return;
     }
 
     // project onto unit sphere
-    uVec[3*pid]   /= dist[pid];
-    uVec[3*pid+1] /= dist[pid];
-    uVec[3*pid+2] /= dist[pid];
+    uVec[3 * pid] /= dist[pid];
+    uVec[3 * pid + 1] /= dist[pid];
+    uVec[3 * pid + 2] /= dist[pid];
   }
 
   // Now loop over all triangle to compute weights
-  double **u =  new double* [iter.MaxPolygonSize];
-  double *alpha = new double [iter.MaxPolygonSize];
-  double *theta =  new double [iter.MaxPolygonSize];
-  const vtkIdType *poly = iter.Current;
-  while ( iter.Id < iter.NumberOfPolygons)
+  double** u = new double*[iter.MaxPolygonSize];
+  double* alpha = new double[iter.MaxPolygonSize];
+  double* theta = new double[iter.MaxPolygonSize];
+  const vtkIdType* poly = iter.Current;
+  while (iter.Id < iter.NumberOfPolygons)
   {
     int nPolyPts = iter.CurrentPolygonSize;
 
     for (int j = 0; j < nPolyPts; j++)
     {
-      u[j] = uVec + 3*poly[j];
+      u[j] = uVec + 3 * poly[j];
     }
 
     // unit vector v.
@@ -182,19 +180,19 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
     v[0] = v[1] = v[2] = 0.0;
     for (int j = 0; j < nPolyPts - 1; j++)
     {
-      vtkMath::Cross(u[j], u[j+1], temp);
+      vtkMath::Cross(u[j], u[j + 1], temp);
       vtkMath::Normalize(temp);
 
-      l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j+1]));
-      angle = 2.0*asin(l/2.0);
+      l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j + 1]));
+      angle = 2.0 * asin(l / 2.0);
 
       v[0] += 0.5 * angle * temp[0];
       v[1] += 0.5 * angle * temp[1];
       v[2] += 0.5 * angle * temp[2];
     }
-    l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], u[0]));
-    angle = 2.0*asin(l/2.0);
-    vtkMath::Cross(u[nPolyPts-1], u[0], temp);
+    l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts - 1], u[0]));
+    angle = 2.0 * asin(l / 2.0);
+    vtkMath::Cross(u[nPolyPts - 1], u[0], temp);
     vtkMath::Normalize(temp);
     v[0] += 0.5 * angle * temp[0];
     v[1] += 0.5 * angle * temp[1];
@@ -215,17 +213,17 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
 
     // angles between edges
     double n0[3], n1[3];
-    for (int j = 0; j < nPolyPts-1; j++)
+    for (int j = 0; j < nPolyPts - 1; j++)
     {
       // alpha
       vtkMath::Cross(u[j], v, n0);
       vtkMath::Normalize(n0);
-      vtkMath::Cross(u[j+1], v, n1);
+      vtkMath::Cross(u[j + 1], v, n1);
       vtkMath::Normalize(n1);
 
-      //alpha[j] = acos(vtkMath::Dot(n0, n1));
+      // alpha[j] = acos(vtkMath::Dot(n0, n1));
       l = sqrt(vtkMath::Distance2BetweenPoints(n0, n1));
-      alpha[j] = 2.0*asin(l/2.0);
+      alpha[j] = 2.0 * asin(l / 2.0);
       vtkMath::Cross(n0, n1, temp);
       if (vtkMath::Dot(temp, v) < 0)
       {
@@ -233,27 +231,27 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
       }
 
       // theta_j
-      //theta[j] = acos(vtkMath::Dot(u[j], v));
+      // theta[j] = acos(vtkMath::Dot(u[j], v));
       l = sqrt(vtkMath::Distance2BetweenPoints(u[j], v));
-      theta[j] = 2.0*asin(l/2.0);
+      theta[j] = 2.0 * asin(l / 2.0);
     }
 
-    vtkMath::Cross(u[nPolyPts-1], v, n0);
+    vtkMath::Cross(u[nPolyPts - 1], v, n0);
     vtkMath::Normalize(n0);
     vtkMath::Cross(u[0], v, n1);
     vtkMath::Normalize(n1);
-    //alpha[nPolyPts-1] = acos(vtkMath::Dot(n0, n1));
+    // alpha[nPolyPts-1] = acos(vtkMath::Dot(n0, n1));
     l = sqrt(vtkMath::Distance2BetweenPoints(n0, n1));
-    alpha[nPolyPts-1] = 2.0*asin(l/2.0);
+    alpha[nPolyPts - 1] = 2.0 * asin(l / 2.0);
     vtkMath::Cross(n0, n1, temp);
     if (vtkMath::Dot(temp, v) < 0)
     {
-      alpha[nPolyPts-1] = -alpha[nPolyPts-1];
+      alpha[nPolyPts - 1] = -alpha[nPolyPts - 1];
     }
 
-    //theta[nPolyPts-1] = acos(vtkMath::Dot(u[nPolyPts-1], v));
-    l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], v));
-    theta[nPolyPts-1] = 2.0*asin(l/2.0);
+    // theta[nPolyPts-1] = acos(vtkMath::Dot(u[nPolyPts-1], v));
+    l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts - 1], v));
+    theta[nPolyPts - 1] = 2.0 * asin(l / 2.0);
 
     bool outlierFlag = false;
     for (int j = 0; j < nPolyPts; j++)
@@ -273,46 +271,45 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
     }
 
     double sum = 0.0;
-    sum += 1.0 / tan(theta[0]) * (tan(alpha[0]/2.0) + tan(alpha[nPolyPts-1]/2.0));
+    sum += 1.0 / tan(theta[0]) * (tan(alpha[0] / 2.0) + tan(alpha[nPolyPts - 1] / 2.0));
     for (int j = 1; j < nPolyPts; j++)
     {
-      sum += 1.0 / tan(theta[j]) * (tan(alpha[j]/2.0) + tan(alpha[j-1]/2.0));
+      sum += 1.0 / tan(theta[j]) * (tan(alpha[j] / 2.0) + tan(alpha[j - 1] / 2.0));
     }
 
     // the special case when x lies on the polygon, handle it using 2D mvc.
     // in the 2D case, alpha = theta
     if (fabs(sum) < eps)
     {
-      for (vtkIdType pid=0; pid < npts; ++pid)
+      for (vtkIdType pid = 0; pid < npts; ++pid)
       {
         weights[pid] = 0.0;
       }
 
       // recompute theta, the theta computed previously are not robust
-      for (int j = 0; j < nPolyPts-1; j++)
+      for (int j = 0; j < nPolyPts - 1; j++)
       {
-        l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j+1]));
-        theta[j] = 2.0*asin(l/2.0);
+        l = sqrt(vtkMath::Distance2BetweenPoints(u[j], u[j + 1]));
+        theta[j] = 2.0 * asin(l / 2.0);
       }
-      l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts-1], u[0]));
-      theta[nPolyPts-1] = 2.0*asin(l/2.0);
+      l = sqrt(vtkMath::Distance2BetweenPoints(u[nPolyPts - 1], u[0]));
+      theta[nPolyPts - 1] = 2.0 * asin(l / 2.0);
 
       double sumWeight;
-      weights[poly[0]] = 1.0 / dist[poly[0]] *
-        (tan(theta[nPolyPts-1]/2.0) + tan(theta[0]/2.0));
+      weights[poly[0]] =
+        1.0 / dist[poly[0]] * (tan(theta[nPolyPts - 1] / 2.0) + tan(theta[0] / 2.0));
       sumWeight = weights[poly[0]];
       for (int j = 1; j < nPolyPts; j++)
       {
-        weights[poly[j]] = 1.0 / dist[poly[j]] *
-          (tan(theta[j-1]/2.0) + tan(theta[j]/2.0));
+        weights[poly[j]] = 1.0 / dist[poly[j]] * (tan(theta[j - 1] / 2.0) + tan(theta[j] / 2.0));
         sumWeight = sumWeight + weights[poly[j]];
       }
 
-      delete [] dist;
-      delete [] uVec;
-      delete [] u;
-      delete [] alpha;
-      delete [] theta;
+      delete[] dist;
+      delete[] uVec;
+      delete[] u;
+      delete[] alpha;
+      delete[] theta;
 
       if (sumWeight < eps)
       {
@@ -328,13 +325,12 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
     }
 
     // weight
-    weights[poly[0]] += vNorm / sum / dist[poly[0]] / sin(theta[0])
-                     * (tan(alpha[0]/2.0) + tan(alpha[nPolyPts-1]/2.0));
+    weights[poly[0]] += vNorm / sum / dist[poly[0]] / sin(theta[0]) *
+      (tan(alpha[0] / 2.0) + tan(alpha[nPolyPts - 1] / 2.0));
     for (int j = 1; j < nPolyPts; j++)
     {
-      weights[poly[j]] += vNorm / sum / dist[poly[j]] / sin(theta[j])
-                       * (tan(alpha[j]/2.0) + tan(alpha[j-1]/2.0));
-
+      weights[poly[j]] += vNorm / sum / dist[poly[j]] / sin(theta[j]) *
+        (tan(alpha[j] / 2.0) + tan(alpha[j - 1] / 2.0));
     }
 
     // next iteration
@@ -342,15 +338,15 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
   }
 
   // clear memory
-  delete [] dist;
-  delete [] uVec;
-  delete [] u;
-  delete [] alpha;
-  delete [] theta;
+  delete[] dist;
+  delete[] uVec;
+  delete[] u;
+  delete[] alpha;
+  delete[] theta;
 
   // normalize weight
   double sumWeight = 0.0;
-  for (vtkIdType pid=0; pid < npts; ++pid)
+  for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     sumWeight += weights[pid];
   }
@@ -360,7 +356,7 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
     return;
   }
 
-  for (vtkIdType pid=0; pid < npts; ++pid)
+  for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     weights[pid] /= sumWeight;
   }
@@ -372,54 +368,54 @@ void vtkComputeMVCWeightsForPolygonMesh(const double x[3], T *pts, vtkIdType npt
 // (Note: the input point type should be float or double, but this is
 // not enfored.)
 template <class T>
-void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType npts,
-                                    vtkMVCTriIterator& iter, double *weights)
+void vtkComputeMVCWeightsForTriangleMesh(
+  const double x[3], T* pts, vtkIdType npts, vtkMVCTriIterator& iter, double* weights)
 {
-  //Points are organized {(x,y,z), (x,y,z), ....}
-  //Tris are organized {(i,j,k), (i,j,k), ....}
-  //Weights per point are computed
+  // Points are organized {(x,y,z), (x,y,z), ....}
+  // Tris are organized {(i,j,k), (i,j,k), ....}
+  // Weights per point are computed
   if (!npts)
   {
     return;
   }
 
   // Begin by initializing weights.
-  for (vtkIdType pid=0; pid < npts; ++pid)
+  for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     weights[pid] = static_cast<double>(0.0);
   }
 
   // create local array for storing point-to-vertex vectors and distances
-  double *dist = new double [npts];
-  double *uVec = new double [3*npts];
+  double* dist = new double[npts];
+  double* uVec = new double[3 * npts];
   static const double eps = 0.000000001;
   for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     // point-to-vertex vector
-    uVec[3*pid]   = pts[3*pid  ] - x[0];
-    uVec[3*pid+1] = pts[3*pid+1] - x[1];
-    uVec[3*pid+2] = pts[3*pid+2] - x[2];
+    uVec[3 * pid] = pts[3 * pid] - x[0];
+    uVec[3 * pid + 1] = pts[3 * pid + 1] - x[1];
+    uVec[3 * pid + 2] = pts[3 * pid + 2] - x[2];
 
     // distance
-    dist[pid] = vtkMath::Norm(uVec+3*pid);
+    dist[pid] = vtkMath::Norm(uVec + 3 * pid);
 
     // handle special case when the point is really close to a vertex
     if (dist[pid] < eps)
     {
       weights[pid] = 1.0;
-      delete [] dist;
-      delete [] uVec;
+      delete[] dist;
+      delete[] uVec;
       return;
     }
 
     // project onto unit sphere
-    uVec[3*pid]   /= dist[pid];
-    uVec[3*pid+1] /= dist[pid];
-    uVec[3*pid+2] /= dist[pid];
+    uVec[3 * pid] /= dist[pid];
+    uVec[3 * pid + 1] /= dist[pid];
+    uVec[3 * pid + 2] /= dist[pid];
   }
 
   // Now loop over all triangle to compute weights
-  while ( iter.Id < iter.NumberOfTriangles)
+  while (iter.Id < iter.NumberOfTriangles)
   {
     // vertex id
     vtkIdType pid0 = iter.Current[0];
@@ -427,9 +423,9 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
     vtkIdType pid2 = iter.Current[2];
 
     // unit vector
-    double *u0 = uVec + 3*pid0;
-    double *u1 = uVec + 3*pid1;
-    double *u2 = uVec + 3*pid2;
+    double* u0 = uVec + 3 * pid0;
+    double* u1 = uVec + 3 * pid1;
+    double* u2 = uVec + 3 * pid2;
 
     // edge length
     double l0 = sqrt(vtkMath::Distance2BetweenPoints(u1, u2));
@@ -437,22 +433,22 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
     double l2 = sqrt(vtkMath::Distance2BetweenPoints(u0, u1));
 
     // angle
-    double theta0 = 2.0*asin(l0/2.0);
-    double theta1 = 2.0*asin(l1/2.0);
-    double theta2 = 2.0*asin(l2/2.0);
-    double halfSum = (theta0 + theta1 + theta2)/2.0;
+    double theta0 = 2.0 * asin(l0 / 2.0);
+    double theta1 = 2.0 * asin(l1 / 2.0);
+    double theta2 = 2.0 * asin(l2 / 2.0);
+    double halfSum = (theta0 + theta1 + theta2) / 2.0;
 
     // special case when the point lies on the triangle
     if (vtkMath::Pi() - halfSum < eps)
     {
-      for (vtkIdType pid=0; pid < npts; ++pid)
+      for (vtkIdType pid = 0; pid < npts; ++pid)
       {
         weights[pid] = 0.0;
       }
 
-      weights[pid0] = sin(theta0)* dist[pid1]* dist[pid2];
-      weights[pid1] = sin(theta1)* dist[pid2]* dist[pid0];
-      weights[pid2] = sin(theta2)* dist[pid0]* dist[pid1];
+      weights[pid0] = sin(theta0) * dist[pid1] * dist[pid2];
+      weights[pid1] = sin(theta1) * dist[pid2] * dist[pid0];
+      weights[pid2] = sin(theta2) * dist[pid0] * dist[pid1];
 
       double sumWeight = weights[pid0] + weights[pid1] + weights[pid2];
 
@@ -460,16 +456,16 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
       weights[pid1] /= sumWeight;
       weights[pid2] /= sumWeight;
 
-      delete [] dist;
-      delete [] uVec;
+      delete[] dist;
+      delete[] uVec;
       return;
     }
 
     // coefficient
     double sinHalfSum = sin(halfSum);
-    double sinHalfSumSubTheta0 = sin(halfSum-theta0);
-    double sinHalfSumSubTheta1 = sin(halfSum-theta1);
-    double sinHalfSumSubTheta2 = sin(halfSum-theta2);
+    double sinHalfSumSubTheta0 = sin(halfSum - theta0);
+    double sinHalfSumSubTheta1 = sin(halfSum - theta1);
+    double sinHalfSumSubTheta2 = sin(halfSum - theta2);
     double sinTheta0 = sin(theta0);
     double sinTheta1 = sin(theta1);
     double sinTheta2 = sin(theta2);
@@ -501,9 +497,9 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
     }
 
     double detSign = det > 0 ? 1 : -1;
-    double sign0 = detSign * sqrt(1 - c0*c0);
-    double sign1 = detSign * sqrt(1 - c1*c1);
-    double sign2 = detSign * sqrt(1 - c2*c2);
+    double sign0 = detSign * sqrt(1 - c0 * c0);
+    double sign1 = detSign * sqrt(1 - c1 * c1);
+    double sign2 = detSign * sqrt(1 - c2 * c2);
 
     // if x lies on the plane of current triangle but outside it, ignore
     // the current triangle.
@@ -514,22 +510,22 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
     }
 
     // weight
-    weights[pid0] += (theta0-c1*theta2-c2*theta1) / (dist[pid0]*sinTheta1*sign2);
-    weights[pid1] += (theta1-c2*theta0-c0*theta2) / (dist[pid1]*sinTheta2*sign0);
-    weights[pid2] += (theta2-c0*theta1-c1*theta0) / (dist[pid2]*sinTheta0*sign1);
+    weights[pid0] += (theta0 - c1 * theta2 - c2 * theta1) / (dist[pid0] * sinTheta1 * sign2);
+    weights[pid1] += (theta1 - c2 * theta0 - c0 * theta2) / (dist[pid1] * sinTheta2 * sign0);
+    weights[pid2] += (theta2 - c0 * theta1 - c1 * theta0) / (dist[pid2] * sinTheta0 * sign1);
 
     //
-    //increment id and next triangle
+    // increment id and next triangle
     ++iter;
   }
 
   // clear memory
-  delete [] dist;
-  delete [] uVec;
+  delete[] dist;
+  delete[] uVec;
 
   // normalize weight
   double sumWeight = 0.0;
-  for (vtkIdType pid=0; pid < npts; ++pid)
+  for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     sumWeight += weights[pid];
   }
@@ -539,7 +535,7 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
     return;
   }
 
-  for (vtkIdType pid=0; pid < npts; ++pid)
+  for (vtkIdType pid = 0; pid < npts; ++pid)
   {
     weights[pid] /= sumWeight;
   }
@@ -549,31 +545,31 @@ void vtkComputeMVCWeightsForTriangleMesh(const double x[3], T *pts, vtkIdType np
 // Static function to compute weights for triangle mesh (with vtkIdList)
 // Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
-  const double x[3], vtkPoints *pts, vtkIdList *tris, double *weights)
+  const double x[3], vtkPoints* pts, vtkIdList* tris, double* weights)
 {
   // Check the input
-  if ( !tris )
+  if (!tris)
   {
     vtkGenericWarningMacro("Did not provide triangles");
     return;
   }
 
-  vtkIdType *t = tris->GetPointer(0);
+  vtkIdType* t = tris->GetPointer(0);
   // Below the vtkCellArray has three entries per triangle {(i,j,k), (i,j,k), ....}
-  vtkMVCTriIterator iter(tris->GetNumberOfIds(),3,t);
+  vtkMVCTriIterator iter(tris->GetNumberOfIds(), 3, t);
 
-  vtkMeanValueCoordinatesInterpolator::
-    ComputeInterpolationWeightsForTriangleMesh(x,pts,iter,weights);
+  vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForTriangleMesh(
+    x, pts, iter, weights);
 }
 
 //----------------------------------------------------------------------------
 // Static function to compute weights for triangle or polygonal mesh
 // (with vtkCellArray). Satisfy classes' public API.
 void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
-  const double x[3], vtkPoints *pts, vtkCellArray *cells, double *weights)
+  const double x[3], vtkPoints* pts, vtkCellArray* cells, double* weights)
 {
   // Check the input
-  if ( !cells )
+  if (!cells)
   {
     vtkGenericWarningMacro("Did not provide cells");
     return;
@@ -584,9 +580,9 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
   // 2) `cells` is using vtkIdType for storage.
   bool canFastPath =
 #ifdef VTK_USE_64BIT_IDS
-      cells->IsStorage64Bit();
-#else // VTK_USE_64BIT_IDS
-      !cells->IsStorage64Bit();
+    cells->IsStorage64Bit();
+#else  // VTK_USE_64BIT_IDS
+    !cells->IsStorage64Bit();
 #endif // VTK_USE_64BIT_IDS
 
   // check if input is a triangle mesh
@@ -597,29 +593,28 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
 
   if (canFastPath)
   {
-    vtkIdType *t = static_cast<vtkIdType*>(cells->GetConnectivityArray()->GetVoidPointer(0));
+    vtkIdType* t = static_cast<vtkIdType*>(cells->GetConnectivityArray()->GetVoidPointer(0));
 
     vtkMVCTriIterator iter(cells->GetNumberOfConnectivityIds(), 3, t);
 
-    vtkMeanValueCoordinatesInterpolator::
-      ComputeInterpolationWeightsForTriangleMesh(x,pts,iter,weights);
+    vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForTriangleMesh(
+      x, pts, iter, weights);
   }
   else
   {
     vtkMVCPolyIterator iter(cells);
 
-    vtkMeanValueCoordinatesInterpolator::
-      ComputeInterpolationWeightsForPolygonMesh(x,pts,iter,weights);
+    vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForPolygonMesh(
+      x, pts, iter, weights);
   }
 }
 
 //----------------------------------------------------------------------------
-void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeightsForTriangleMesh(const double x[3], vtkPoints *pts,
-                              vtkMVCTriIterator& iter, double *weights)
+void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForTriangleMesh(
+  const double x[3], vtkPoints* pts, vtkMVCTriIterator& iter, double* weights)
 {
   // Check the input
-  if ( !pts || !weights)
+  if (!pts || !weights)
   {
     vtkGenericWarningMacro("Did not provide proper input");
     return;
@@ -627,19 +622,18 @@ ComputeInterpolationWeightsForTriangleMesh(const double x[3], vtkPoints *pts,
 
   // Prepare the arrays
   vtkIdType numPts = pts->GetNumberOfPoints();
-  if ( numPts <= 0 )
+  if (numPts <= 0)
   {
     return;
   }
 
-  void *p = pts->GetVoidPointer(0);
+  void* p = pts->GetVoidPointer(0);
 
   // call templated function to compute the weights. Note that we do not
   // use VTK's template macro because we are limiting usage to floats and doubles.
   switch (pts->GetDataType())
   {
-    vtkTemplateMacro(
-      vtkComputeMVCWeightsForTriangleMesh(x, (VTK_TT *)(p), numPts, iter, weights));
+    vtkTemplateMacro(vtkComputeMVCWeightsForTriangleMesh(x, (VTK_TT*)(p), numPts, iter, weights));
 
     default:
       break;
@@ -647,12 +641,11 @@ ComputeInterpolationWeightsForTriangleMesh(const double x[3], vtkPoints *pts,
 }
 
 //----------------------------------------------------------------------------
-void vtkMeanValueCoordinatesInterpolator::
-ComputeInterpolationWeightsForPolygonMesh(const double x[3], vtkPoints *pts,
-                            vtkMVCPolyIterator& iter, double *weights)
+void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForPolygonMesh(
+  const double x[3], vtkPoints* pts, vtkMVCPolyIterator& iter, double* weights)
 {
   // Check the input
-  if ( !pts || !weights)
+  if (!pts || !weights)
   {
     vtkGenericWarningMacro("Did not provide proper input");
     return;
@@ -660,19 +653,18 @@ ComputeInterpolationWeightsForPolygonMesh(const double x[3], vtkPoints *pts,
 
   // Prepare the arrays
   vtkIdType numPts = pts->GetNumberOfPoints();
-  if ( numPts <= 0 )
+  if (numPts <= 0)
   {
     return;
   }
 
-  void *p = pts->GetVoidPointer(0);
+  void* p = pts->GetVoidPointer(0);
 
   // call templated function to compute the weights. Note that we do not
   // use VTK's template macro because we are limiting usage to floats and doubles.
   switch (pts->GetDataType())
   {
-    vtkTemplateMacro(
-      vtkComputeMVCWeightsForPolygonMesh(x, (VTK_TT *)(p), numPts, iter, weights));
+    vtkTemplateMacro(vtkComputeMVCWeightsForPolygonMesh(x, (VTK_TT*)(p), numPts, iter, weights));
 
     default:
       break;
@@ -680,9 +672,7 @@ ComputeInterpolationWeightsForPolygonMesh(const double x[3], vtkPoints *pts,
 }
 
 //----------------------------------------------------------------------------
-void vtkMeanValueCoordinatesInterpolator::
-PrintSelf(ostream& os, vtkIndent indent)
+void vtkMeanValueCoordinatesInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }

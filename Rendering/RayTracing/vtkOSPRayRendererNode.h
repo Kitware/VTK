@@ -17,7 +17,7 @@
  * @brief   links vtkRenderers to OSPRay
  *
  * Translates vtkRenderer state into OSPRay rendering calls
-*/
+ */
 
 #ifndef vtkOSPRayRendererNode_h
 #define vtkOSPRayRendererNode_h
@@ -42,9 +42,7 @@ class vtkOSPRayRendererNodeInternals;
 class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
 
-
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayRendererNode :
-  public vtkRendererNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayRendererNode : public vtkRendererNode
 {
 public:
   static vtkOSPRayRendererNode* New();
@@ -69,10 +67,9 @@ public:
   /**
    * Put my results into the correct place in the provided pixel buffer.
    */
-  virtual void WriteLayer(unsigned char *buffer, float *zbuffer,
-                          int buffx, int buffy, int layer);
+  virtual void WriteLayer(unsigned char* buffer, float* zbuffer, int buffx, int buffy, int layer);
 
-  //state beyond rendering core...
+  // state beyond rendering core...
 
   /**
    * When present on renderer, controls the number of primary rays
@@ -85,8 +82,8 @@ public:
   /**
    * Convenience method to set/get SAMPLES_PER_PIXEL on a vtkRenderer.
    */
-  static void SetSamplesPerPixel(int, vtkRenderer *renderer);
-  static int GetSamplesPerPixel(vtkRenderer *renderer);
+  static void SetSamplesPerPixel(int, vtkRenderer* renderer);
+  static int GetSamplesPerPixel(vtkRenderer* renderer);
   //@}
 
   /**
@@ -100,8 +97,8 @@ public:
   /**
    * Convenience method to set/get MAX_CONTRIBUTION on a vtkRenderer.
    */
-  static void SetMaxContribution(double, vtkRenderer *renderer);
-  static double GetMaxContribution(vtkRenderer *renderer);
+  static void SetMaxContribution(double, vtkRenderer* renderer);
+  static double GetMaxContribution(vtkRenderer* renderer);
   //@}
 
   /**
@@ -114,8 +111,8 @@ public:
   /**
    * Convenience method to set/get MAX_DEPTH on a vtkRenderer.
    */
-  static void SetMaxDepth(int, vtkRenderer *renderer);
-  static int GetMaxDepth(vtkRenderer *renderer);
+  static void SetMaxDepth(int, vtkRenderer* renderer);
+  static int GetMaxDepth(vtkRenderer* renderer);
   //@}
 
   /**
@@ -129,8 +126,8 @@ public:
   /**
    * Convenience method to set/get MIN_CONTRIBUTION on a vtkRenderer.
    */
-  static void SetMinContribution(double, vtkRenderer *renderer);
-  static double GetMinContribution(vtkRenderer *renderer);
+  static void SetMinContribution(double, vtkRenderer* renderer);
+  static double GetMinContribution(vtkRenderer* renderer);
   //@}
 
   /**
@@ -144,8 +141,8 @@ public:
   /**
    * Convenience method to set/get ROULETTE_DEPTH on a vtkRenderer.
    */
-  static void SetRouletteDepth(int, vtkRenderer *renderer);
-  static int GetRouletteDepth(vtkRenderer *renderer);
+  static void SetRouletteDepth(int, vtkRenderer* renderer);
+  static int GetRouletteDepth(vtkRenderer* renderer);
   //@}
 
   /**
@@ -158,8 +155,8 @@ public:
   /**
    * Convenience method to set/get VARIANCE_THRESHOLD on a vtkRenderer.
    */
-  static void SetVarianceThreshold(double, vtkRenderer *renderer);
-  static double GetVarianceThreshold(vtkRenderer *renderer);
+  static void SetVarianceThreshold(double, vtkRenderer* renderer);
+  static double GetVarianceThreshold(vtkRenderer* renderer);
   //@}
 
   //@{
@@ -169,8 +166,8 @@ public:
    * default is 1
    */
   static vtkInformationIntegerKey* MAX_FRAMES();
-  static void SetMaxFrames(int, vtkRenderer *renderer);
-  static int GetMaxFrames(vtkRenderer *renderer);
+  static void SetMaxFrames(int, vtkRenderer* renderer);
+  static int GetMaxFrames(vtkRenderer* renderer);
   //@}
 
   //@{
@@ -179,8 +176,8 @@ public:
    * default is scivis
    */
   static vtkInformationStringKey* RENDERER_TYPE();
-  static void SetRendererType(std::string name, vtkRenderer *renderer);
-  static std::string GetRendererType(vtkRenderer *renderer);
+  static void SetRendererType(std::string name, vtkRenderer* renderer);
+  static std::string GetRendererType(vtkRenderer* renderer);
   //@}
 
   /**
@@ -193,8 +190,8 @@ public:
   /**
    * Convenience method to set/get AMBIENT_SAMPLES on a vtkRenderer.
    */
-  static void SetAmbientSamples(int, vtkRenderer *renderer);
-  static int GetAmbientSamples(vtkRenderer *renderer);
+  static void SetAmbientSamples(int, vtkRenderer* renderer);
+  static int GetAmbientSamples(vtkRenderer* renderer);
   //@}
 
   /**
@@ -206,8 +203,8 @@ public:
   /**
    * Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
    */
-  static void SetCompositeOnGL(int, vtkRenderer *renderer);
-  static int GetCompositeOnGL(vtkRenderer *renderer);
+  static void SetCompositeOnGL(int, vtkRenderer* renderer);
+  static int GetCompositeOnGL(vtkRenderer* renderer);
   //@}
 
   /**
@@ -218,8 +215,8 @@ public:
   /**
    * Convenience method to set/get NORTH_POLE on a vtkRenderer.
    */
-  static void SetNorthPole(double *, vtkRenderer *renderer);
-  static double * GetNorthPole(vtkRenderer *renderer);
+  static void SetNorthPole(double*, vtkRenderer* renderer);
+  static double* GetNorthPole(vtkRenderer* renderer);
   //@}
 
   /**
@@ -230,8 +227,8 @@ public:
   /**
    * Convenience method to set/get EAST_POLE on a vtkRenderer.
    */
-  static void SetEastPole(double *, vtkRenderer *renderer);
-  static double * GetEastPole(vtkRenderer *renderer);
+  static void SetEastPole(double*, vtkRenderer* renderer);
+  static double* GetEastPole(vtkRenderer* renderer);
   //@}
 
   /**
@@ -243,8 +240,8 @@ public:
   /**
    * Convenience method to set/get Material library on a renderer.
    */
-  static void SetMaterialLibrary(vtkOSPRayMaterialLibrary *, vtkRenderer *renderer);
-  static vtkOSPRayMaterialLibrary* GetMaterialLibrary(vtkRenderer *renderer);
+  static void SetMaterialLibrary(vtkOSPRayMaterialLibrary*, vtkRenderer* renderer);
+  static vtkOSPRayMaterialLibrary* GetMaterialLibrary(vtkRenderer* renderer);
   //@}
 
   /**
@@ -255,8 +252,8 @@ public:
   /**
    * Convenience method to set/get VIEW_TIME on a vtkRenderer.
    */
-  static void SetViewTime(double , vtkRenderer *renderer);
-  static double GetViewTime(vtkRenderer *renderer);
+  static void SetViewTime(double, vtkRenderer* renderer);
+  static double GetViewTime(vtkRenderer* renderer);
   //@}
 
   /**
@@ -267,8 +264,8 @@ public:
   /**
    * Convenience method to set/get TIME_CACHE_SIZE on a vtkRenderer.
    */
-  static void SetTimeCacheSize(int , vtkRenderer *renderer);
-  static int GetTimeCacheSize(vtkRenderer *renderer);
+  static void SetTimeCacheSize(int, vtkRenderer* renderer);
+  static int GetTimeCacheSize(vtkRenderer* renderer);
   //@}
 
   /**
@@ -276,20 +273,17 @@ public:
    */
   OSPModel GetOModel() { return this->OModel; }
   OSPRenderer GetORenderer() { return this->ORenderer; }
-  void AddLight(OSPLight light) {
-    this->Lights.push_back(light); }
+  void AddLight(OSPLight light) { this->Lights.push_back(light); }
 
   /**
    * Get the last rendered ColorBuffer
    */
-  virtual unsigned char *GetBuffer() {
-    return this->Buffer; }
+  virtual unsigned char* GetBuffer() { return this->Buffer; }
 
   /**
    * Get the last rendered ZBuffer
    */
-  virtual float *GetZBuffer() {
-    return this->ZBuffer; }
+  virtual float* GetZBuffer() { return this->ZBuffer; }
 
   // Get the last renderer color buffer as an OpenGL texture.
   virtual int GetColorBufferTextureGL() { return this->ColorBufferTex; }
@@ -304,9 +298,9 @@ public:
   /**
    * Convenience method to get and downcast renderable.
    */
-  static vtkOSPRayRendererNode *GetRendererNode(vtkViewNode *);
-  vtkRenderer *GetRenderer();
-  RTW::Backend *GetBackend();
+  static vtkOSPRayRendererNode* GetRendererNode(vtkViewNode*);
+  vtkRenderer* GetRenderer();
+  RTW::Backend* GetBackend();
 
   /**
    * Accumulation threshold when above which denoising kicks in.
@@ -316,8 +310,8 @@ public:
   /**
    * Convenience method to set/get DENOISER_THRESHOLD on a vtkRenderer.
    */
-  static void SetDenoiserThreshold(int , vtkRenderer *renderer);
-  static int GetDenoiserThreshold(vtkRenderer *renderer);
+  static void SetDenoiserThreshold(int, vtkRenderer* renderer);
+  static int GetDenoiserThreshold(vtkRenderer* renderer);
   //@}
 
   /**
@@ -327,8 +321,8 @@ public:
   /**
    * Convenience method to set/get ENABLE_DENOISER on a vtkRenderer.
    */
-  static void SetEnableDenoiser(int , vtkRenderer *renderer);
-  static int GetEnableDenoiser(vtkRenderer *renderer);
+  static void SetEnableDenoiser(int, vtkRenderer* renderer);
+  static int GetEnableDenoiser(vtkRenderer* renderer);
   //@}
 
 protected:
@@ -340,9 +334,9 @@ protected:
    */
   void Denoise();
 
-  //internal structures
-  unsigned char *Buffer;
-  float *ZBuffer;
+  // internal structures
+  unsigned char* Buffer;
+  float* ZBuffer;
 
   int ColorBufferTex;
   int DepthBufferTex;
@@ -361,15 +355,15 @@ protected:
   int AccumulateCount;
   int ActorCount;
   vtkMTimeType AccumulateTime;
-  vtkMatrix4x4 *AccumulateMatrix;
-  vtkOSPRayRendererNodeInternals *Internal;
+  vtkMatrix4x4* AccumulateMatrix;
+  vtkOSPRayRendererNodeInternals* Internal;
   std::string PreviousType;
 
 #ifdef VTKOSPRAY_ENABLE_DENOISER
   oidn::DeviceRef DenoiserDevice;
   oidn::FilterRef DenoiserFilter;
 #endif
-  bool DenoiserDirty{true};
+  bool DenoiserDirty{ true };
   std::vector<osp::vec4f> ColorBuffer;
   std::vector<osp::vec3f> NormalBuffer;
   std::vector<osp::vec3f> AlbedoBuffer;

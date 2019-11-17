@@ -38,7 +38,7 @@
  * @sa
  * vtkScalarBarWidget vtkWidgetRepresentation vtkScalarBarActor
  *
-*/
+ */
 
 #ifndef vtkScalarBarRepresentation_h
 #define vtkScalarBarRepresentation_h
@@ -52,15 +52,15 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorder
 {
 public:
   vtkTypeMacro(vtkScalarBarRepresentation, vtkBorderRepresentation);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkScalarBarRepresentation *New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkScalarBarRepresentation* New();
 
   //@{
   /**
    * The prop that is placed in the renderer.
    */
   vtkGetObjectMacro(ScalarBarActor, vtkScalarBarActor);
-  virtual void SetScalarBarActor(vtkScalarBarActor *);
+  virtual void SetScalarBarActor(vtkScalarBarActor*);
   //@}
 
   //@{
@@ -70,7 +70,10 @@ public:
   void BuildRepresentation() override;
   void WidgetInteraction(double eventPos[2]) override;
   void GetSize(double size[2]) override
-    {size[0]=2.0; size[1]=2.0;}
+  {
+    size[0] = 2.0;
+    size[1] = 2.0;
+  }
   //@}
 
   //@{
@@ -80,8 +83,8 @@ public:
    */
   vtkTypeBool GetVisibility() override;
   void SetVisibility(vtkTypeBool) override;
-  void GetActors2D(vtkPropCollection *collection) override;
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void GetActors2D(vtkPropCollection* collection) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
   int RenderOverlay(vtkViewport*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
@@ -115,12 +118,12 @@ protected:
    */
   void SwapOrientation();
 
-  vtkScalarBarActor *ScalarBarActor;
+  vtkScalarBarActor* ScalarBarActor;
   bool AutoOrient;
 
 private:
-  vtkScalarBarRepresentation(const vtkScalarBarRepresentation &) = delete;
-  void operator=(const vtkScalarBarRepresentation &) = delete;
+  vtkScalarBarRepresentation(const vtkScalarBarRepresentation&) = delete;
+  void operator=(const vtkScalarBarRepresentation&) = delete;
 };
 
-#endif //vtkScalarBarRepresentation_h
+#endif // vtkScalarBarRepresentation_h

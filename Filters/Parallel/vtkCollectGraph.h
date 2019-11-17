@@ -22,7 +22,7 @@
  *
  * This filter has code to collect a graph from across processes onto vertex 0.
  * Collection can be turned on or off using the "PassThrough" flag.
-*/
+ */
 
 #ifndef vtkCollectGraph_h
 #define vtkCollectGraph_h
@@ -36,7 +36,7 @@ class vtkSocketController;
 class VTKFILTERSPARALLEL_EXPORT vtkCollectGraph : public vtkGraphAlgorithm
 {
 public:
-  static vtkCollectGraph *New();
+  static vtkCollectGraph* New();
   vtkTypeMacro(vtkCollectGraph, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -68,7 +68,8 @@ public:
   vtkBooleanMacro(PassThrough, vtkTypeBool);
   //@}
 
-  enum {
+  enum
+  {
     DIRECTED_OUTPUT,
     UNDIRECTED_OUTPUT,
     USE_INPUT_TYPE
@@ -95,12 +96,12 @@ protected:
   int OutputType;
 
   // Data generation method
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkMultiProcessController *Controller;
-  vtkSocketController *SocketController;
+  vtkMultiProcessController* Controller;
+  vtkSocketController* SocketController;
 
 private:
   vtkCollectGraph(const vtkCollectGraph&) = delete;

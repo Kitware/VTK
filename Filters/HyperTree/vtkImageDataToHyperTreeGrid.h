@@ -24,7 +24,7 @@
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkImageDataToHyperTreeGrid_h
 #define vtkImageDataToHyperTreeGrid_h
@@ -43,8 +43,8 @@ class VTKFILTERSHYPERTREE_EXPORT vtkImageDataToHyperTreeGrid : public vtkHyperTr
 {
 public:
   static vtkImageDataToHyperTreeGrid* New();
-  vtkTypeMacro( vtkImageDataToHyperTreeGrid, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkImageDataToHyperTreeGrid, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
   vtkSetMacro(DepthMax, int);
   vtkGetMacro(DepthMax, int);
@@ -56,17 +56,14 @@ protected:
   vtkImageDataToHyperTreeGrid();
   ~vtkImageDataToHyperTreeGrid() override;
 
-  virtual int RequestData( vtkInformation*,
-                           vtkInformationVector**,
-                           vtkInformationVector* ) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  virtual int ProcessTrees( vtkHyperTreeGrid*,
-                            vtkDataObject* ) override;
+  virtual int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
-  void ProcessPixels( vtkIntArray *,vtkHyperTreeGridNonOrientedCursor *);
+  void ProcessPixels(vtkIntArray*, vtkHyperTreeGridNonOrientedCursor*);
 
-  int FillInputPortInformation( int, vtkInformation* ) override;
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkImageDataToHyperTreeGrid(const vtkImageDataToHyperTreeGrid&) = delete;
@@ -77,11 +74,10 @@ private:
 
   vtkDataArray* InScalars;
 
-  vtkUnsignedCharArray *Color;
-  vtkDoubleArray *Depth;
-  vtkBitArray *Mask;
+  vtkUnsignedCharArray* Color;
+  vtkDoubleArray* Depth;
+  vtkBitArray* Mask;
   int GlobalId;
-
 };
 
 #endif // vtkImageDataToHyperTreeGrid_h

@@ -25,10 +25,7 @@
 
 vtkStandardNewMacro(vtkMergeFields);
 
-char vtkMergeFields::FieldLocationNames[3][12]
-= { "DATA_OBJECT",
-    "POINT_DATA",
-    "CELL_DATA" };
+char vtkMergeFields::FieldLocationNames[3][12] = { "DATA_OBJECT", "POINT_DATA", "CELL_DATA" };
 
 typedef vtkMergeFields::Component Component;
 
@@ -56,9 +53,8 @@ void vtkMergeFields::SetOutputField(const char* name, int fieldLoc)
     return;
   }
 
-  if ( (fieldLoc !=  vtkMergeFields::DATA_OBJECT) &&
-       (fieldLoc !=  vtkMergeFields::POINT_DATA) &&
-       (fieldLoc !=  vtkMergeFields::CELL_DATA) )
+  if ((fieldLoc != vtkMergeFields::DATA_OBJECT) && (fieldLoc != vtkMergeFields::POINT_DATA) &&
+    (fieldLoc != vtkMergeFields::CELL_DATA))
   {
     vtkErrorMacro("The source for the field is wrong.");
     return;
@@ -68,14 +64,13 @@ void vtkMergeFields::SetOutputField(const char* name, int fieldLoc)
   this->FieldLocation = fieldLoc;
 
   delete[] this->FieldName;
-  this->FieldName = new char[strlen(name)+1];
+  this->FieldName = new char[strlen(name) + 1];
   strcpy(this->FieldName, name);
 }
 
-
 void vtkMergeFields::SetOutputField(const char* name, const char* fieldLoc)
 {
-  if ( !name || !fieldLoc)
+  if (!name || !fieldLoc)
   {
     return;
   }
@@ -84,8 +79,8 @@ void vtkMergeFields::SetOutputField(const char* name, const char* fieldLoc)
   int i;
 
   // Convert fieldLoc to int an call the other SetOutputField()
-  int loc=-1;
-  for(i=0; i<numFieldLocs; i++)
+  int loc = -1;
+  for (i = 0; i < numFieldLocs; i++)
   {
     if (!strcmp(fieldLoc, FieldLocationNames[i]))
     {
@@ -100,11 +95,9 @@ void vtkMergeFields::SetOutputField(const char* name, const char* fieldLoc)
   }
 
   this->SetOutputField(name, loc);
-
 }
 
-void vtkMergeFields::Merge(int component, const char* arrayName,
-                           int sourceComp)
+void vtkMergeFields::Merge(int component, const char* arrayName, int sourceComp)
 {
   if (!arrayName)
   {
@@ -113,7 +106,7 @@ void vtkMergeFields::Merge(int component, const char* arrayName,
 
   this->Modified();
   Component* comp = this->FindComponent(component);
-  if ( comp )
+  if (comp)
   {
     // If component already exists, replace information
     comp->SetName(arrayName);
@@ -130,28 +123,24 @@ void vtkMergeFields::Merge(int component, const char* arrayName,
   }
 }
 
-int vtkMergeFields::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // This has to be here because it initialized all field datas.
-  output->CopyStructure( input );
+  output->CopyStructure(input);
 
   // Pass all. (data object's field data is passed by the
   // superclass after this method)
-  output->GetPointData()->PassData( input->GetPointData() );
-  output->GetCellData()->PassData( input->GetCellData() );
+  output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   vtkFieldData* fd = nullptr;
   vtkFieldData* outputFD = nullptr;
@@ -164,17 +153,17 @@ int vtkMergeFields::RequestData(
   }
 
   // Get the input and output field data
-  if ( this->FieldLocation == vtkMergeFields::DATA_OBJECT)
+  if (this->FieldLocation == vtkMergeFields::DATA_OBJECT)
   {
     fd = input->GetFieldData();
     outputFD = output->GetFieldData();
   }
-  else if ( this->FieldLocation == vtkMergeFields::POINT_DATA )
+  else if (this->FieldLocation == vtkMergeFields::POINT_DATA)
   {
     fd = input->GetPointData();
     outputFD = output->GetPointData();
   }
-  else if ( this->FieldLocation == vtkMergeFields::CELL_DATA )
+  else if (this->FieldLocation == vtkMergeFields::CELL_DATA)
   {
     fd = input->GetCellData();
     outputFD = output->GetCellData();
@@ -190,10 +179,10 @@ int vtkMergeFields::RequestData(
   // Otherwise warn the user.
   // Check if the number of tuples are the same for all arrays.
   vtkDataArray* inputArray;
-  int dataType=-1;
-  int sameDataType=1;
-  int numTuples=-1;
-  int sameNumTuples=1;
+  int dataType = -1;
+  int sameDataType = 1;
+  int numTuples = -1;
+  int sameNumTuples = 1;
   do
   {
     before = cur;
@@ -211,7 +200,7 @@ int vtkMergeFields::RequestData(
       }
       else
       {
-        if ( inputArray->GetDataType() != dataType )
+        if (inputArray->GetDataType() != dataType)
         {
           sameDataType = 0;
         }
@@ -222,20 +211,19 @@ int vtkMergeFields::RequestData(
       }
       else
       {
-        if ( inputArray->GetNumberOfTuples() != numTuples )
+        if (inputArray->GetNumberOfTuples() != numTuples)
         {
           sameNumTuples = 0;
         }
       }
     }
-  }
-  while (cur);
+  } while (cur);
   if (!sameNumTuples)
   {
     vtkErrorMacro("The number of tuples in the input arrays do not match.");
     return 1;
   }
-  if ( dataType == -1 )
+  if (dataType == -1)
   {
     vtkErrorMacro("No input array(s) were found.");
     return 1;
@@ -243,8 +231,8 @@ int vtkMergeFields::RequestData(
   vtkDataArray* outputArray;
   if (!sameDataType)
   {
-    vtkWarningMacro("The input data types do not match. The output will be "<<
-                    "float. This will potentially cause accuracy and speed.");
+    vtkWarningMacro("The input data types do not match. The output will be "
+      << "float. This will potentially cause accuracy and speed.");
     outputArray = vtkFloatArray::New();
   }
   else
@@ -271,8 +259,7 @@ int vtkMergeFields::RequestData(
     inputArray = fd->GetArray(before->FieldName);
     if (inputArray)
     {
-      if (!this->MergeArray(inputArray, outputArray,
-                            before->SourceIndex, before->Index))
+      if (!this->MergeArray(inputArray, outputArray, before->SourceIndex, before->Index))
       {
         outputArray->Delete();
         return 1;
@@ -282,13 +269,11 @@ int vtkMergeFields::RequestData(
     {
       if (before->FieldName)
       {
-        vtkWarningMacro("Input array " << before->FieldName
-                        << " does not exist.");
+        vtkWarningMacro("Input array " << before->FieldName << " does not exist.");
       }
       continue;
     }
-  }
-  while (cur);
+  } while (cur);
   outputFD->AddArray(outputArray);
   outputArray->Delete();
 
@@ -297,20 +282,19 @@ int vtkMergeFields::RequestData(
 
 // fast pointer copy
 template <class T>
-void vtkMergeFieldsCopyTuples(T* input, T* output, vtkIdType numTuples,
-                int numInComp, int numOutComp, int inComp, int outComp)
+void vtkMergeFieldsCopyTuples(
+  T* input, T* output, vtkIdType numTuples, int numInComp, int numOutComp, int inComp, int outComp)
 {
-  for (int i=0; i<numTuples; i++)
+  for (int i = 0; i < numTuples; i++)
   {
-    output[numOutComp*i+outComp] = input[numInComp*i+inComp];
+    output[numOutComp * i + outComp] = input[numInComp * i + inComp];
   }
 }
 
-int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
-                               int inComp, int outComp)
+int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out, int inComp, int outComp)
 {
-  if ( (inComp < 0) || (inComp > in->GetNumberOfComponents()) ||
-       (outComp < 0) || (outComp > out->GetNumberOfComponents()) )
+  if ((inComp < 0) || (inComp > in->GetNumberOfComponents()) || (outComp < 0) ||
+    (outComp > out->GetNumberOfComponents()))
   {
     vtkErrorMacro("Invalid component. Can not merge.");
     return 0;
@@ -319,38 +303,35 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
   int numTuples = in->GetNumberOfTuples();
   int i;
 
-  if ( numTuples > 0 )
+  if (numTuples > 0)
   {
     // If data types match, use templated, fast method
-    if ( in->GetDataType() == out->GetDataType() )
+    if (in->GetDataType() == out->GetDataType())
     {
       switch (out->GetDataType())
       {
         vtkTemplateMacro(
-          vtkMergeFieldsCopyTuples((VTK_TT *)in->GetVoidPointer(0),
-                                   (VTK_TT *)out->GetVoidPointer(0), numTuples,
-                                   in->GetNumberOfComponents(),
-                                   out->GetNumberOfComponents(),
-                                   inComp, outComp ));
+          vtkMergeFieldsCopyTuples((VTK_TT*)in->GetVoidPointer(0), (VTK_TT*)out->GetVoidPointer(0),
+            numTuples, in->GetNumberOfComponents(), out->GetNumberOfComponents(), inComp, outComp));
         // This is not supported by the template macro.
         // Switch to using the float interface.
         case VTK_BIT:
         {
-        for(i=0; i<numTuples; i++)
-        {
-          out->SetComponent(i, outComp, in->GetComponent(i, inComp));
-        }
+          for (i = 0; i < numTuples; i++)
+          {
+            out->SetComponent(i, outComp, in->GetComponent(i, inComp));
+          }
         }
         break;
         default:
-          vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
+          vtkErrorMacro(<< "Sanity check failed: Unsupported data type.");
           return 0;
       }
     }
     // otherwise use slow float copy
     else
     {
-      for(i=0; i<numTuples; i++)
+      for (i = 0; i < numTuples; i++)
       {
         out->SetComponent(i, outComp, in->GetComponent(i, inComp));
       }
@@ -358,7 +339,6 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
   }
 
   return 1;
-
 }
 
 // linked list methods
@@ -379,9 +359,15 @@ void vtkMergeFields::AddComponent(Component* op)
 Component* vtkMergeFields::FindComponent(int index)
 {
   Component* cur = this->GetFirst();
-  if (!cur) { return nullptr; }
+  if (!cur)
+  {
+    return nullptr;
+  }
 
-  if (cur->Index == index) { return cur; }
+  if (cur->Index == index)
+  {
+    return cur;
+  }
   while (cur->Next)
   {
     if (cur->Next->Index == index)
@@ -396,22 +382,24 @@ Component* vtkMergeFields::FindComponent(int index)
 void vtkMergeFields::DeleteAllComponents()
 {
   Component* cur = this->GetFirst();
-  if (!cur) {return;}
+  if (!cur)
+  {
+    return;
+  }
   Component* before;
   do
   {
     before = cur;
     cur = cur->Next;
     delete before;
-  }
-  while (cur);
+  } while (cur);
   this->Head = nullptr;
   this->Tail = nullptr;
 }
 
 void vtkMergeFields::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Field name: ";
   if (this->FieldName)
   {
@@ -439,7 +427,10 @@ void vtkMergeFields::PrintComponent(Component* op, ostream& os, vtkIndent indent
 void vtkMergeFields::PrintAllComponents(ostream& os, vtkIndent indent)
 {
   Component* cur = this->GetFirst();
-  if (!cur) { return; }
+  if (!cur)
+  {
+    return;
+  }
   Component* before;
   do
   {
@@ -447,6 +438,5 @@ void vtkMergeFields::PrintAllComponents(ostream& os, vtkIndent indent)
     cur = cur->Next;
     os << endl;
     this->PrintComponent(before, os, indent);
-  }
-  while (cur);
+  } while (cur);
 }

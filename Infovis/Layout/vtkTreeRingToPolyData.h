@@ -27,7 +27,7 @@
  * been applied to the data in order to create the quadruple array
  * (start angle, end angle, inner radius, outer radius) of bounds
  * for each vertex of the tree.
-*/
+ */
 
 #ifndef vtkTreeRingToPolyData_h
 #define vtkTreeRingToPolyData_h
@@ -38,9 +38,9 @@
 class VTKINFOVISLAYOUT_EXPORT vtkTreeRingToPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkTreeRingToPolyData *New();
+  static vtkTreeRingToPolyData* New();
 
-  vtkTypeMacro(vtkTreeRingToPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkTreeRingToPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -51,7 +51,9 @@ public:
    * This array must be set.
    */
   virtual void SetSectorsArrayName(const char* name)
-    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
+  {
+    this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  }
 
   //@{
   /**
@@ -69,7 +71,8 @@ protected:
 
   double ShrinkPercentage;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkTreeRingToPolyData(const vtkTreeRingToPolyData&) = delete;
   void operator=(const vtkTreeRingToPolyData&) = delete;

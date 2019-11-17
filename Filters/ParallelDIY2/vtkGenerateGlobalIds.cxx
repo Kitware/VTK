@@ -130,7 +130,7 @@ public:
  * - communicate back the assigned unique id to the source block where the point
  *   (or cell) came from.
  */
-template<typename ElementBlockT>
+template <typename ElementBlockT>
 static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool cell_centers)
 {
   self->UpdateProgress(0.0);
@@ -154,7 +154,8 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
   const int local_num_blocks = static_cast<int>(points.size());
   vtkDIYExplicitAssigner assigner(comm, local_num_blocks, /*pow-of-2*/ true);
 
-  diy::Master master(comm, 1, -1, []() { return static_cast<void*>(new ElementBlockT); },
+  diy::Master master(
+    comm, 1, -1, []() { return static_cast<void*>(new ElementBlockT); },
     [](void* b) { delete static_cast<ElementBlockT*>(b); });
 
   vtkLogStartScope(TRACE, "populate master");
@@ -433,7 +434,7 @@ struct MessageItemTT
   vtkIdType index;
 };
 
-template<typename ElementT>
+template <typename ElementT>
 struct BlockT
 {
 private:
@@ -655,7 +656,7 @@ public:
 
 namespace diy
 {
-template<>
+template <>
 struct Serialization< ::CellTT>
 {
   static void save(BinaryBuffer& bb, const CellTT& c)

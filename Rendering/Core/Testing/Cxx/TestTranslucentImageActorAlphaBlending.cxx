@@ -32,35 +32,34 @@
 
 int TestTranslucentImageActorAlphaBlending(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderer* renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
-  vtkImageActor *ia=vtkImageActor::New();
+  vtkImageActor* ia = vtkImageActor::New();
   renderer->AddActor(ia);
   ia->Delete();
 
-  vtkPNGReader *pnmReader=vtkPNGReader::New();
+  vtkPNGReader* pnmReader = vtkPNGReader::New();
   ia->GetMapper()->SetInputConnection(pnmReader->GetOutputPort());
   pnmReader->Delete();
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/alphachannel.png");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/alphachannel.png");
 
   pnmReader->SetFileName(fname);
   delete[] fname;
 
-  renderer->SetBackground(0.1,0.2,0.4);
-  renWin->SetSize(400,400);
+  renderer->SetBackground(0.1, 0.2, 0.4);
+  renWin->SetSize(400, 400);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -28,7 +28,7 @@
  * @par Thanks:
  * This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
  * Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkImageDataToPointSet_h
 #define vtkImageDataToPointSet_h
@@ -43,24 +43,22 @@ class VTKFILTERSGENERAL_EXPORT vtkImageDataToPointSet : public vtkStructuredGrid
 {
 public:
   vtkTypeMacro(vtkImageDataToPointSet, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkImageDataToPointSet *New();
+  static vtkImageDataToPointSet* New();
 
 protected:
   vtkImageDataToPointSet();
   ~vtkImageDataToPointSet() override;
 
-  int RequestData(vtkInformation *request,
-                  vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkImageDataToPointSet(const vtkImageDataToPointSet &) = delete;
-  void operator=(const vtkImageDataToPointSet &) = delete;
+  vtkImageDataToPointSet(const vtkImageDataToPointSet&) = delete;
+  void operator=(const vtkImageDataToPointSet&) = delete;
 };
 
-
-#endif //vtkImageDataToPointSet_h
+#endif // vtkImageDataToPointSet_h

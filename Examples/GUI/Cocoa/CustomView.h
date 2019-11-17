@@ -21,8 +21,8 @@
 - (void)initializeLayerSupport;
 
 // Accessors.
-@property(readwrite, nonatomic, nullable) vtkRenderer* renderer;
-@property(readwrite, nonatomic, nullable) vtkCocoaRenderWindow* renderWindow;
-@property(readwrite, nonatomic, nullable) vtkRenderWindowInteractor* renderWindowInteractor;
+@property (readwrite, nonatomic, nullable) vtkRenderer* renderer;
+@property (readwrite, nonatomic, nullable) vtkCocoaRenderWindow* renderWindow;
+@property (readwrite, nonatomic, nullable) vtkRenderWindowInteractor* renderWindowInteractor;
 
 @end

@@ -44,13 +44,14 @@
  *    exLight->SetLightIndex(GL_LIGHT0); // GL_LIGHT0 identifies the external light
  *    exLight->SetDiffuseColor(1.0, 0.0, 0.0); // Changing diffuse color
  *    vtkNew<ExternalVTKWidget> exWidget;
- *    vtkExternalOpenGLRenderer* ren = vtkExternalOpenGLRenderer::SafeDownCast(exWidget->AddRenderer());
+ *    vtkExternalOpenGLRenderer* ren =
+ * vtkExternalOpenGLRenderer::SafeDownCast(exWidget->AddRenderer());
  *    ren->AddExternalLight(exLight.GetPointer());
  * \endcode
  *
  * @sa
  * vtkExternalOpenGLRenderer \ref ExternalVTKWidget
-*/
+ */
 
 #ifndef vtkExternalLight_h
 #define vtkExternalLight_h
@@ -73,12 +74,12 @@ public:
    * TransformMatrix is NULL. The light index is GL_LIGHT0, which means the
    * existing light with index GL_LIGHT0 will be affected by this light.
    */
-  static vtkExternalLight *New();
+  static vtkExternalLight* New();
 
   enum ReplaceModes
   {
-    INDIVIDUAL_PARAMS   = 0, // default
-    ALL_PARAMS          = 1
+    INDIVIDUAL_PARAMS = 0, // default
+    ALL_PARAMS = 1
   };
 
   //@{

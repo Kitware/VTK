@@ -256,7 +256,7 @@ void vtkExplicitStructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList* cellIds
 vtkIdType* vtkExplicitStructuredGrid::GetCellPoints(vtkIdType cellId)
 {
   vtkIdType unused;
-  const vtkIdType *result;
+  const vtkIdType* result;
   this->Cells->GetCellAtId(cellId, unused, result);
   return const_cast<vtkIdType*>(result);
 }
@@ -1100,61 +1100,61 @@ void vtkExplicitStructuredGrid::CheckConnectedFaces(int& nFoundFaces, int foundF
   // Check foundFaces coherence and extrapolate to find a missing faces if any
   switch (nFoundFaces)
   {
-  case 1:
-    // Only one face have been found, we will probably draw incorrect interior faces
-    for (int axis = 0; axis < 3; axis++)
-    {
-      int foundFace = foundFaces[axis];
-      // Check if the foundFace point to antoher axis
-      if (foundFace != -1 && !(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
-      {
-        // A single foundFace which changes face on multiple axis is incoherent and can't be
-        // extrapolated from so we remove it. This means that incorrect interior faces will be
-        // drawn.
-        foundFaces[axis] = -1;
-        nFoundFaces--;
-      }
-    }
-    break;
-  case 2:
-  {
-    // Two faces have been found, we can try to extapolate the last one
-    int missingFaceAxis = -1;
-    for (int axis = 0; axis < 3; axis++)
-    {
-      if (foundFaces[axis] == -1)
-      {
-        // Identify the axis missing a face
-        missingFaceAxis = axis;
-        break;
-      }
-    }
-    int foundFaceAxisSum = 0;
-    int faceSwitch = 1;
-    for (int axis = 0; axis < 3; axis++)
-    {
-      if (axis != missingFaceAxis)
+    case 1:
+      // Only one face have been found, we will probably draw incorrect interior faces
+      for (int axis = 0; axis < 3; axis++)
       {
         int foundFace = foundFaces[axis];
-        int foundFaceAxis = static_cast<int>(std::floor((static_cast<double>(foundFace)) / 2.0));
-
-        // The sum of the found face axis will always be 3, so compute the sum
-        foundFaceAxisSum += foundFaceAxis;
-        if (!(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
+        // Check if the foundFace point to antoher axis
+        if (foundFace != -1 && !(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
         {
-          // when switching axis, we still need to know if there is some mirroring
-          // this identify mirroring
-          faceSwitch = foundFace - foundFaceAxis * 2;
+          // A single foundFace which changes face on multiple axis is incoherent and can't be
+          // extrapolated from so we remove it. This means that incorrect interior faces will be
+          // drawn.
+          foundFaces[axis] = -1;
+          nFoundFaces--;
         }
       }
+      break;
+    case 2:
+    {
+      // Two faces have been found, we can try to extapolate the last one
+      int missingFaceAxis = -1;
+      for (int axis = 0; axis < 3; axis++)
+      {
+        if (foundFaces[axis] == -1)
+        {
+          // Identify the axis missing a face
+          missingFaceAxis = axis;
+          break;
+        }
+      }
+      int foundFaceAxisSum = 0;
+      int faceSwitch = 1;
+      for (int axis = 0; axis < 3; axis++)
+      {
+        if (axis != missingFaceAxis)
+        {
+          int foundFace = foundFaces[axis];
+          int foundFaceAxis = static_cast<int>(std::floor((static_cast<double>(foundFace)) / 2.0));
+
+          // The sum of the found face axis will always be 3, so compute the sum
+          foundFaceAxisSum += foundFaceAxis;
+          if (!(foundFace == 2 * axis) && !(foundFace == 2 * axis + 1))
+          {
+            // when switching axis, we still need to know if there is some mirroring
+            // this identify mirroring
+            faceSwitch = foundFace - foundFaceAxis * 2;
+          }
+        }
+      }
+      // Compute the actual missing face
+      foundFaces[missingFaceAxis] = (3 - foundFaceAxisSum) * 2 + faceSwitch;
+      nFoundFaces++;
     }
-    // Compute the actual missing face
-    foundFaces[missingFaceAxis] = (3 - foundFaceAxisSum) * 2 + faceSwitch;
-    nFoundFaces++;
-  }
-  break;
-  default:
     break;
+    default:
+      break;
   }
 }
 

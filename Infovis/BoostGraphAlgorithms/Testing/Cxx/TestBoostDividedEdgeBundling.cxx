@@ -82,15 +82,15 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
   reader->SetFileName(file.c_str());
   reader->ReadCharDataOn();
   reader->Update();
-  vtkTree *tree = reader->GetOutput();
-  vtkStringArray *keyArr = vtkArrayDownCast<vtkStringArray>(
-    tree->GetVertexData()->GetAbstractArray("key"));
-  vtkStringArray *sourceArr = vtkArrayDownCast<vtkStringArray>(
-    tree->GetVertexData()->GetAbstractArray("source"));
-  vtkStringArray *targetArr = vtkArrayDownCast<vtkStringArray>(
-    tree->GetVertexData()->GetAbstractArray("target"));
-  vtkStringArray *contentArr = vtkArrayDownCast<vtkStringArray>(
-    tree->GetVertexData()->GetAbstractArray(".chardata"));
+  vtkTree* tree = reader->GetOutput();
+  vtkStringArray* keyArr =
+    vtkArrayDownCast<vtkStringArray>(tree->GetVertexData()->GetAbstractArray("key"));
+  vtkStringArray* sourceArr =
+    vtkArrayDownCast<vtkStringArray>(tree->GetVertexData()->GetAbstractArray("source"));
+  vtkStringArray* targetArr =
+    vtkArrayDownCast<vtkStringArray>(tree->GetVertexData()->GetAbstractArray("target"));
+  vtkStringArray* contentArr =
+    vtkArrayDownCast<vtkStringArray>(tree->GetVertexData()->GetAbstractArray(".chardata"));
   double x = 0.0;
   double y = 0.0;
   vtkIdType source = 0;
@@ -128,12 +128,12 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
 class vtkBundledGraphItem : public vtkGraphItem
 {
 public:
-  static vtkBundledGraphItem *New();
+  static vtkBundledGraphItem* New();
   vtkTypeMacro(vtkBundledGraphItem, vtkGraphItem);
 
 protected:
-  vtkBundledGraphItem() { }
-  ~vtkBundledGraphItem() { }
+  vtkBundledGraphItem() {}
+  ~vtkBundledGraphItem() {}
 
   virtual vtkColor4ub EdgeColor(vtkIdType line, vtkIdType point) override;
   virtual float EdgeWidth(vtkIdType line, vtkIdType point) override;
@@ -146,12 +146,11 @@ vtkStandardNewMacro(vtkBundledGraphItem);
 vtkColor4ub vtkBundledGraphItem::EdgeColor(vtkIdType edgeIdx, vtkIdType pointIdx)
 {
   float fraction = static_cast<float>(pointIdx) / (this->NumberOfEdgePoints(edgeIdx) - 1);
-  return vtkColor4ub(fraction*255, 0, 255 - fraction*255, 255);
+  return vtkColor4ub(fraction * 255, 0, 255 - fraction * 255, 255);
 }
 
 //----------------------------------------------------------------------------
-float vtkBundledGraphItem::EdgeWidth(vtkIdType vtkNotUsed(lineIdx),
-                                     vtkIdType vtkNotUsed(pointIdx))
+float vtkBundledGraphItem::EdgeWidth(vtkIdType vtkNotUsed(lineIdx), vtkIdType vtkNotUsed(pointIdx))
 {
   return 4.0f;
 }
@@ -163,12 +162,12 @@ int TestBoostDividedEdgeBundling(int argc, char* argv[])
   vtkNew<vtkBoostDividedEdgeBundling> bundle;
 
   BuildSampleGraph(graph);
-  //BuildGraphMLGraph(graph, "airlines_flipped.graphml");
+  // BuildGraphMLGraph(graph, "airlines_flipped.graphml");
 
   bundle->SetInputData(graph);
   bundle->Update();
 
-  vtkDirectedGraph *output = bundle->GetOutput();
+  vtkDirectedGraph* output = bundle->GetOutput();
 
   vtkNew<vtkContextActor> actor;
 
@@ -206,4 +205,3 @@ int TestBoostDividedEdgeBundling(int argc, char* argv[])
   }
   return !retVal;
 }
-

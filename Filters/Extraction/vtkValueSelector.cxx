@@ -36,6 +36,7 @@ struct ThresholdSelectionListReshaper
 {
 protected:
   vtkDataArray* FixedArray;
+
 public:
   ThresholdSelectionListReshaper(vtkDataArray* toFill)
     : FixedArray(toFill)
@@ -44,7 +45,7 @@ public:
   // If the input selection list for a threshold has one component we need
   // to reshape it into an array with two component tuples (ranges) so it
   // is interpreted correctly later.
-  template<typename SelectionListArrayType>
+  template <typename SelectionListArrayType>
   void operator()(SelectionListArrayType* originalList)
   {
     // created with NewInstance from the originalList, we know it is the same type
@@ -263,14 +264,15 @@ class vtkValueSelector::vtkInternals
 
 public:
   // use this constructor when selection is specified as (assoc, name)
-  vtkInternals(vtkAbstractArray* selectionList, int fieldAssociation, const std::string& fieldName, int component)
+  vtkInternals(vtkAbstractArray* selectionList, int fieldAssociation, const std::string& fieldName,
+    int component)
     : vtkInternals(selectionList, fieldName, fieldAssociation, -1, component)
   {
-
   }
 
   // use this constructor when selection is specified as (assoc, attribute type)
-  vtkInternals(vtkAbstractArray* selectionList, int fieldAssociation, int attributeType, int component)
+  vtkInternals(
+    vtkAbstractArray* selectionList, int fieldAssociation, int attributeType, int component)
     : vtkInternals(selectionList, "", fieldAssociation, attributeType, component)
   {
     if (attributeType < 0 || attributeType >= vtkDataSetAttributes::NUM_ATTRIBUTES)
@@ -289,11 +291,8 @@ public:
   bool Execute(vtkDataObject* dobj, vtkSignedCharArray* darray);
 
 private:
-  vtkInternals(vtkAbstractArray* selectionList,
-    const std::string& fieldName,
-    int fieldAssociation,
-    int attributeType,
-    int component)
+  vtkInternals(vtkAbstractArray* selectionList, const std::string& fieldName, int fieldAssociation,
+    int attributeType, int component)
     : SelectionList(selectionList)
     , FieldName(fieldName)
     , FieldAssociation(fieldAssociation)
@@ -363,8 +362,8 @@ private:
       {
         // should we use slow data array API?
         vtkGenericWarningMacro("Type mismatch in selection list ("
-          << this->SelectionList->GetClassName() << ") and field array ("
-          << darray->GetClassName() << ").");
+          << this->SelectionList->GetClassName() << ") and field array (" << darray->GetClassName()
+          << ").");
         return false;
       }
     }
@@ -390,8 +389,7 @@ private:
               bool match = false;
               for (vtkIdType r = 0; r < numRanges && !match; ++r)
               {
-                match = (val >= selList->GetComponent(r, 0) &&
-                  val <= selList->GetComponent(r, 1));
+                match = (val >= selList->GetComponent(r, 0) && val <= selList->GetComponent(r, 1));
               }
               insidednessArray->SetValue(cc, match ? 1 : 0);
             }
@@ -441,8 +439,8 @@ private:
             vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
-        vtkGenericWarningMacro("Unsupported selection list array type ("
-          << this->SelectionList->GetClassName() << ").");
+        vtkGenericWarningMacro(
+          "Unsupported selection list array type (" << this->SelectionList->GetClassName() << ").");
         return false;
       }
     }
@@ -453,8 +451,8 @@ private:
             vtkDataArray::SafeDownCast(this->SelectionList), worker))
       {
         // should we use slow data array API?
-        vtkGenericWarningMacro("Unsupported selection list array type ("
-          << this->SelectionList->GetClassName() << ").");
+        vtkGenericWarningMacro(
+          "Unsupported selection list array type (" << this->SelectionList->GetClassName() << ").");
         return false;
       }
     }
@@ -476,8 +474,9 @@ bool vtkValueSelector::vtkInternals::Execute(
   else if (this->FieldAssociation != -1 && this->FieldAttributeType != -1)
   {
     auto* dsa = dobj->GetAttributes(this->FieldAssociation);
-    return dsa ? this->Execute(dsa->GetAbstractAttribute(this->FieldAttributeType), insidednessArray)
-               : false;
+    return dsa
+      ? this->Execute(dsa->GetAbstractAttribute(this->FieldAttributeType), insidednessArray)
+      : false;
   }
   else if (this->FieldAssociation != -1)
   {
@@ -495,9 +494,7 @@ vtkValueSelector::vtkValueSelector()
 }
 
 //----------------------------------------------------------------------------
-vtkValueSelector::~vtkValueSelector()
-{
-}
+vtkValueSelector::~vtkValueSelector() {}
 
 //----------------------------------------------------------------------------
 void vtkValueSelector::Initialize(vtkSelectionNode* node)
@@ -539,43 +536,45 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
         break;
 
       case vtkSelectionNode::THRESHOLDS:
-          if (selectionList->GetNumberOfComponents() == 1)
-          {
+        if (selectionList->GetNumberOfComponents() == 1)
+        {
 #ifndef VTK_LEGACY_SILENT
-            vtkWarningMacro("Warning: range selections should use two-component arrays to specify the"
-                " range.  Using single component arrays with a tuple for the low and high ends of the"
-                " range is legacy behavior and may be removed in future releases.");
+          vtkWarningMacro(
+            "Warning: range selections should use two-component arrays to specify the"
+            " range.  Using single component arrays with a tuple for the low and high ends of the"
+            " range is legacy behavior and may be removed in future releases.");
 #endif
-            auto selList = vtkDataArray::SafeDownCast(selectionList.GetPointer());
-            if (selList)
+          auto selList = vtkDataArray::SafeDownCast(selectionList.GetPointer());
+          if (selList)
+          {
+            selectionList = vtkSmartPointer<vtkAbstractArray>::NewInstance(selList);
+            selectionList->SetNumberOfComponents(2);
+            selectionList->SetNumberOfTuples(selList->GetNumberOfTuples() / 2);
+            selectionList->SetName(selList->GetName());
+
+            ThresholdSelectionListReshaper reshaper(vtkDataArray::SafeDownCast(selectionList));
+
+            if (!vtkArrayDispatch::Dispatch::Execute(selList, reshaper))
             {
-              selectionList = vtkSmartPointer<vtkAbstractArray>::NewInstance(selList);
-              selectionList->SetNumberOfComponents(2);
-              selectionList->SetNumberOfTuples(selList->GetNumberOfTuples()/2);
-              selectionList->SetName(selList->GetName());
-
-              ThresholdSelectionListReshaper reshaper(vtkDataArray::SafeDownCast(selectionList));
-
-              if (!vtkArrayDispatch::Dispatch::Execute(
-                    selList, reshaper))
-              {
-                // should never happen, we create an array with the same type
-                vtkErrorMacro("Mismatch in selection list fixup code");
-                break;
-              }
+              // should never happen, we create an array with the same type
+              vtkErrorMacro("Mismatch in selection list fixup code");
+              break;
             }
           }
-          VTK_FALLTHROUGH;
+        }
+        VTK_FALLTHROUGH;
       case vtkSelectionNode::VALUES:
         if (selectionList->GetName() == nullptr || selectionList->GetName()[0] == '\0')
         {
           // if selectionList has no name, we're selected scalars (this is old
           // behavior, and we're preserving it).
-          this->Internals.reset(new vtkInternals(selectionList, assoc, vtkDataSetAttributes::SCALARS, component_no));
+          this->Internals.reset(
+            new vtkInternals(selectionList, assoc, vtkDataSetAttributes::SCALARS, component_no));
         }
         else
         {
-          this->Internals.reset(new vtkInternals(selectionList, assoc, selectionList->GetName(), component_no));
+          this->Internals.reset(
+            new vtkInternals(selectionList, assoc, selectionList->GetName(), component_no));
         }
         break;
 

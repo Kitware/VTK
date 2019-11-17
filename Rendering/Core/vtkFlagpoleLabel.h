@@ -26,9 +26,9 @@
 #define vtkFlagpoleLabel_h
 
 #include "vtkActor.h"
-#include "vtkNew.h" // For.... vtkNew!
+#include "vtkNew.h"                 // For.... vtkNew!
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkSmartPointer.h" // For.... vtkSmartPointer!
+#include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
 
 class vtkActor;
 class vtkImageData;
@@ -39,18 +39,18 @@ class vtkRenderer;
 class vtkTextProperty;
 class vtkTextRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel: public vtkActor
+class VTKRENDERINGCORE_EXPORT vtkFlagpoleLabel : public vtkActor
 {
 public:
   static vtkFlagpoleLabel* New();
   vtkTypeMacro(vtkFlagpoleLabel, vtkActor);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The UTF-8 encoded string to display.
    * @{
    */
-  void SetInput(const char *in);
+  void SetInput(const char* in);
   vtkGetStringMacro(Input);
   /** @} */
 
@@ -58,7 +58,7 @@ public:
    * The vtkTextProperty object that controls the rendered text.
    * @{
    */
-  void SetTextProperty(vtkTextProperty *tprop);
+  void SetTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
   /** @} */
 
@@ -84,16 +84,16 @@ public:
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
-  int RenderOpaqueGeometry(vtkViewport *vp) override;
+  int RenderOpaqueGeometry(vtkViewport* vp) override;
 
   /**
    * Just render in translucent pass, since it can execute multiple times
    * (depth peeling, for instance).
    */
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* vp) override;
 
-  void ReleaseGraphicsResources(vtkWindow *win) override;
-  double *GetBounds() override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
+  double* GetBounds() override;
   using Superclass::GetBounds;
 
   /**
@@ -122,13 +122,13 @@ protected:
 
   bool InputIsValid();
 
-  void UpdateInternals(vtkRenderer *ren);
+  void UpdateInternals(vtkRenderer* ren);
 
-  bool TextureIsStale(vtkRenderer *ren);
-  void GenerateTexture(vtkRenderer *ren);
+  bool TextureIsStale(vtkRenderer* ren);
+  void GenerateTexture(vtkRenderer* ren);
 
-  bool QuadIsStale(vtkRenderer *ren);
-  void GenerateQuad(vtkRenderer *ren);
+  bool QuadIsStale(vtkRenderer* ren);
+  void GenerateQuad(vtkRenderer* ren);
 
   // Used by the opaque pass to tell the translucent pass not to render.
   void Invalidate();
@@ -138,8 +138,8 @@ protected:
   void PreRender();
 
   // Text specification:
-  char *Input;
-  vtkTextProperty *TextProperty;
+  char* Input;
+  vtkTextProperty* TextProperty;
 
   // Cached metadata to determine if things need rebuildin'
   int RenderedDPI;

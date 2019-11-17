@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkGeometryFilter vtkExtractGrid
-*/
+ */
 
 #ifndef vtkRectilinearGridGeometryFilter_h
 #define vtkRectilinearGridGeometryFilter_h
@@ -44,20 +44,20 @@
 class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkRectilinearGridGeometryFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkRectilinearGridGeometryFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
    */
-  static vtkRectilinearGridGeometryFilter *New();
+  static vtkRectilinearGridGeometryFilter* New();
 
   //@{
   /**
    * Get the extent in topological coordinate range (imin,imax, jmin,jmax,
    * kmin,kmax).
    */
-  vtkGetVectorMacro(Extent,int,6);
+  vtkGetVectorMacro(Extent, int, 6);
   //@}
 
   /**
@@ -74,10 +74,11 @@ protected:
   vtkRectilinearGridGeometryFilter();
   ~vtkRectilinearGridGeometryFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int Extent[6];
+
 private:
   vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) = delete;
   void operator=(const vtkRectilinearGridGeometryFilter&) = delete;

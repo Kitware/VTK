@@ -19,17 +19,17 @@
 
 vtkStandardNewMacro(vtkPointData);
 
-void vtkPointData::NullPoint (vtkIdType ptId)
+void vtkPointData::NullPoint(vtkIdType ptId)
 {
   vtkFieldData::Iterator it(this);
   vtkDataArray* da;
-  for(da=it.Begin(); !it.End(); da=it.Next())
+  for (da = it.Begin(); !it.End(); da = it.Next())
   {
     if (da)
     {
       int length = da->GetNumberOfComponents();
       float* tuple = new float[length];
-      for(int j=0; j<length; j++)
+      for (int j = 0; j < length; j++)
       {
         tuple[j] = 0;
       }
@@ -41,5 +41,5 @@ void vtkPointData::NullPoint (vtkIdType ptId)
 
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

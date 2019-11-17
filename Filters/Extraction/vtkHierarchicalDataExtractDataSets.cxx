@@ -26,5 +26,5 @@ vtkHierarchicalDataExtractDataSets::~vtkHierarchicalDataExtractDataSets() = defa
 //----------------------------------------------------------------------------
 void vtkHierarchicalDataExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

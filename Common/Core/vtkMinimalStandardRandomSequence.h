@@ -30,7 +30,7 @@
  *
  * Correctness test is described in first column, page 1195:
  * A seed of 1 at step 1 should give a seed of 1043618065 at step 10001.
-*/
+ */
 
 #ifndef vtkMinimalStandardRandomSequence_h
 #define vtkMinimalStandardRandomSequence_h
@@ -38,8 +38,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
 
-class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence
-  : public vtkRandomSequence
+class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence : public vtkRandomSequence
 {
 public:
   //@{
@@ -47,7 +46,7 @@ public:
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkMinimalStandardRandomSequence* New();
-  vtkTypeMacro(vtkMinimalStandardRandomSequence,vtkRandomSequence);
+  vtkTypeMacro(vtkMinimalStandardRandomSequence, vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -55,8 +54,7 @@ public:
    * Satisfy general API of vtkRandomSequence superclass. Initialize the
    * sequence with a seed.
    */
-  void Initialize(vtkTypeUInt32 seed) override
-  {this->SetSeed(seed);}
+  void Initialize(vtkTypeUInt32 seed) override { this->SetSeed(seed); }
 
   /**
    * Set the seed of the random sequence.
@@ -116,8 +114,7 @@ public:
    * (rangeMin<=rangeMax && result>=rangeMin && result<=rangeMax)
    * || (rangeMax<=rangeMin && result>=rangeMax && result<=rangeMin)
    */
-  virtual double GetRangeValue(double rangeMin,
-                               double rangeMax);
+  virtual double GetRangeValue(double rangeMin, double rangeMax);
 
 protected:
   vtkMinimalStandardRandomSequence();

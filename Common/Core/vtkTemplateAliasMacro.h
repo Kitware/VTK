@@ -34,7 +34,7 @@
  *     {
  *     vtkTemplateAliasMacro(vtkMyTemplateFunction(static_cast<VTK_TT*>(p)));
  *     }
-*/
+ */
 
 #ifndef vtkTemplateAliasMacro_h
 #define vtkTemplateAliasMacro_h
@@ -57,43 +57,46 @@
 //--------------------------------------------------------------------------
 
 // Define helper macros to switch types on and off.
-#define vtkTemplateAliasMacroCase(typeN, call)                                \
+#define vtkTemplateAliasMacroCase(typeN, call)                                                     \
   vtkTemplateAliasMacroCase0(typeN, call, VTK_TYPE_SIZED_##typeN)
-#define vtkTemplateAliasMacroCase0(typeN, call, sized)                        \
+#define vtkTemplateAliasMacroCase0(typeN, call, sized)                                             \
   vtkTemplateAliasMacroCase1(typeN, call, sized)
-#define vtkTemplateAliasMacroCase1(typeN, call, sized)                        \
+#define vtkTemplateAliasMacroCase1(typeN, call, sized)                                             \
   vtkTemplateAliasMacroCase2(typeN, call, VTK_USE_##sized)
-#define vtkTemplateAliasMacroCase2(typeN, call, value)                        \
+#define vtkTemplateAliasMacroCase2(typeN, call, value)                                             \
   vtkTemplateAliasMacroCase3(typeN, call, value)
-#define vtkTemplateAliasMacroCase3(typeN, call, value)                        \
+#define vtkTemplateAliasMacroCase3(typeN, call, value)                                             \
   vtkTemplateAliasMacroCase_##value(typeN, call)
-#define vtkTemplateAliasMacroCase_0(typeN, call)                              \
-  case VTK_##typeN:                                                           \
-  {                                                                         \
-    vtkGenericWarningMacro("Support for VTK_" #typeN " not compiled.");       \
-  }; break
-#define vtkTemplateAliasMacroCase_1(typeN, call)                              \
-  case VTK_##typeN:                                                           \
-  {                                                                         \
-    typedef vtkTypeTraits<VTK_TYPE_NAME_##typeN>::SizedType VTK_TT; call;     \
-  }; break
+#define vtkTemplateAliasMacroCase_0(typeN, call)                                                   \
+  case VTK_##typeN:                                                                                \
+  {                                                                                                \
+    vtkGenericWarningMacro("Support for VTK_" #typeN " not compiled.");                            \
+  };                                                                                               \
+  break
+#define vtkTemplateAliasMacroCase_1(typeN, call)                                                   \
+  case VTK_##typeN:                                                                                \
+  {                                                                                                \
+    typedef vtkTypeTraits<VTK_TYPE_NAME_##typeN>::SizedType VTK_TT;                                \
+    call;                                                                                          \
+  };                                                                                               \
+  break
 
 // Define a macro to dispatch calls to a template instantiated over
 // the aliased scalar types.
-#define vtkTemplateAliasMacro(call)                                           \
-  vtkTemplateAliasMacroCase(DOUBLE, call);                                    \
-  vtkTemplateAliasMacroCase(FLOAT, call);                                     \
-  vtkTemplateAliasMacroCase(LONG_LONG, call);                                 \
-  vtkTemplateAliasMacroCase(UNSIGNED_LONG_LONG, call);                        \
-  vtkTemplateAliasMacroCase(ID_TYPE, call);                                   \
-  vtkTemplateAliasMacroCase(LONG, call);                                      \
-  vtkTemplateAliasMacroCase(UNSIGNED_LONG, call);                             \
-  vtkTemplateAliasMacroCase(INT, call);                                       \
-  vtkTemplateAliasMacroCase(UNSIGNED_INT, call);                              \
-  vtkTemplateAliasMacroCase(SHORT, call);                                     \
-  vtkTemplateAliasMacroCase(UNSIGNED_SHORT, call);                            \
-  vtkTemplateAliasMacroCase(CHAR, call);                                      \
-  vtkTemplateAliasMacroCase(SIGNED_CHAR, call);                               \
+#define vtkTemplateAliasMacro(call)                                                                \
+  vtkTemplateAliasMacroCase(DOUBLE, call);                                                         \
+  vtkTemplateAliasMacroCase(FLOAT, call);                                                          \
+  vtkTemplateAliasMacroCase(LONG_LONG, call);                                                      \
+  vtkTemplateAliasMacroCase(UNSIGNED_LONG_LONG, call);                                             \
+  vtkTemplateAliasMacroCase(ID_TYPE, call);                                                        \
+  vtkTemplateAliasMacroCase(LONG, call);                                                           \
+  vtkTemplateAliasMacroCase(UNSIGNED_LONG, call);                                                  \
+  vtkTemplateAliasMacroCase(INT, call);                                                            \
+  vtkTemplateAliasMacroCase(UNSIGNED_INT, call);                                                   \
+  vtkTemplateAliasMacroCase(SHORT, call);                                                          \
+  vtkTemplateAliasMacroCase(UNSIGNED_SHORT, call);                                                 \
+  vtkTemplateAliasMacroCase(CHAR, call);                                                           \
+  vtkTemplateAliasMacroCase(SIGNED_CHAR, call);                                                    \
   vtkTemplateAliasMacroCase(UNSIGNED_CHAR, call)
 
 #endif

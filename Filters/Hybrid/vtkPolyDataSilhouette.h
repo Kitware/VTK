@@ -33,14 +33,13 @@
  * Contribution by Thierry Carrard <br>
  * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
  * BP12, F-91297 Arpajon, France. <br>
-*/
+ */
 
 #ifndef vtkPolyDataSilhouette_h
 #define vtkPolyDataSilhouette_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-
 
 class vtkCamera;
 class vtkProp3D;
@@ -53,25 +52,25 @@ public:
   /**
    * Instantiate object.
    */
-  static vtkPolyDataSilhouette *New();
+  static vtkPolyDataSilhouette* New();
 
-  vtkTypeMacro(vtkPolyDataSilhouette,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataSilhouette, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Enables or Disables generation of silhouette edges along sharp edges
    */
-  vtkSetMacro(EnableFeatureAngle,int);
-  vtkGetMacro(EnableFeatureAngle,int);
+  vtkSetMacro(EnableFeatureAngle, int);
+  vtkGetMacro(EnableFeatureAngle, int);
   //@}
 
   //@{
   /**
    * Sets/Gets minimal angle for sharp edges detection. Default is 60
    */
-  vtkSetMacro(FeatureAngle,double);
-  vtkGetMacro(FeatureAngle,double);
+  vtkSetMacro(FeatureAngle, double);
+  vtkGetMacro(FeatureAngle, double);
   //@}
 
   //@{
@@ -79,9 +78,9 @@ public:
    * Enables or Disables generation of border edges. Note: borders exist only
    * in case of non closed surface
    */
-  vtkSetMacro(BorderEdges,vtkTypeBool);
-  vtkGetMacro(BorderEdges,vtkTypeBool);
-  vtkBooleanMacro(BorderEdges,vtkTypeBool);
+  vtkSetMacro(BorderEdges, vtkTypeBool);
+  vtkGetMacro(BorderEdges, vtkTypeBool);
+  vtkBooleanMacro(BorderEdges, vtkTypeBool);
   //@}
 
   //@{
@@ -89,9 +88,9 @@ public:
    * Enables or Disables piece invariance. This is useful when dealing with
    * multi-block data sets. Note: requires one level of ghost cells
    */
-  vtkSetMacro(PieceInvariant,vtkTypeBool);
-  vtkGetMacro(PieceInvariant,vtkTypeBool);
-  vtkBooleanMacro(PieceInvariant,vtkTypeBool);
+  vtkSetMacro(PieceInvariant, vtkTypeBool);
+  vtkGetMacro(PieceInvariant, vtkTypeBool);
+  vtkBooleanMacro(PieceInvariant, vtkTypeBool);
   //@}
 
   enum Directions
@@ -107,16 +106,12 @@ public:
    * Specify how view direction is computed. By default, the
    * camera origin (eye) is used.
    */
-  vtkSetMacro(Direction,int);
-  vtkGetMacro(Direction,int);
-  void SetDirectionToSpecifiedVector()
-      {this->SetDirection( VTK_DIRECTION_SPECIFIED_VECTOR ); }
-  void SetDirectionToSpecifiedOrigin()
-      {this->SetDirection( VTK_DIRECTION_SPECIFIED_ORIGIN ); }
-  void SetDirectionToCameraVector()
-      {this->SetDirection( VTK_DIRECTION_CAMERA_VECTOR ); }
-  void SetDirectionToCameraOrigin()
-      {this->SetDirection( VTK_DIRECTION_CAMERA_ORIGIN ); }
+  vtkSetMacro(Direction, int);
+  vtkGetMacro(Direction, int);
+  void SetDirectionToSpecifiedVector() { this->SetDirection(VTK_DIRECTION_SPECIFIED_VECTOR); }
+  void SetDirectionToSpecifiedOrigin() { this->SetDirection(VTK_DIRECTION_SPECIFIED_ORIGIN); }
+  void SetDirectionToCameraVector() { this->SetDirection(VTK_DIRECTION_CAMERA_VECTOR); }
+  void SetDirectionToCameraOrigin() { this->SetDirection(VTK_DIRECTION_CAMERA_ORIGIN); }
   //@}
 
   //@{
@@ -126,7 +121,7 @@ public:
    * VTK_DIRECTION_CAMERA_VECTOR, and a camera is specified.
    */
   virtual void SetCamera(vtkCamera VTK_WRAP_EXTERN*);
-  vtkGetObjectMacro(Camera,vtkCamera VTK_WRAP_EXTERN);
+  vtkGetObjectMacro(Camera, vtkCamera VTK_WRAP_EXTERN);
   //@}
 
   //@{
@@ -138,7 +133,7 @@ public:
    * vtkProp3D is optional.
    */
   void SetProp3D(vtkProp3D VTK_WRAP_EXTERN*);
-  vtkProp3D VTK_WRAP_EXTERN*GetProp3D();
+  vtkProp3D VTK_WRAP_EXTERN* GetProp3D();
   //@}
 
   //@{
@@ -147,8 +142,8 @@ public:
    * direction is set to SetDirectionToSpecifiedVector(). The edge detection
    * occurs in the direction of the vector.
    */
-  vtkSetVector3Macro(Vector,double);
-  vtkGetVectorMacro(Vector,double,3);
+  vtkSetVector3Macro(Vector, double);
+  vtkGetVectorMacro(Vector, double, 3);
   //@}
 
   //@{
@@ -157,8 +152,8 @@ public:
    * is set to SetDirectionToSpecifiedOrigin(). The edge detection occurs in
    * the direction of the origin to each edge's center.
    */
-  vtkSetVector3Macro(Origin,double);
-  vtkGetVectorMacro(Origin,double,3);
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVectorMacro(Origin, double, 3);
   //@}
 
   /**
@@ -171,13 +166,13 @@ protected:
   vtkPolyDataSilhouette();
   ~vtkPolyDataSilhouette() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   void ComputeProjectionVector(double vector[3], double origin[3]);
 
   int Direction;
-  vtkCamera *Camera;
-  vtkProp3D *Prop3D;
-  vtkTransform *Transform;
+  vtkCamera* Camera;
+  vtkProp3D* Prop3D;
+  vtkTransform* Transform;
   double Vector[3];
   double Origin[3];
 

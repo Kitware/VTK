@@ -51,7 +51,7 @@
  * @sa
  * vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
  * vtkSphereWidget vtkImplicitPlaneWidget
-*/
+ */
 
 #ifndef vtk3DWidget_h
 #define vtk3DWidget_h
@@ -67,7 +67,7 @@ class vtkProp3D;
 class VTKINTERACTIONWIDGETS_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
-  vtkTypeMacro(vtk3DWidget,vtkInteractorObserver);
+  vtkTypeMacro(vtk3DWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -82,8 +82,8 @@ public:
    */
   virtual void PlaceWidget(double bounds[6]) = 0;
   virtual void PlaceWidget();
-  virtual void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                           double zmin, double zmax);
+  virtual void PlaceWidget(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   //@}
 
   //@{
@@ -93,7 +93,7 @@ public:
    * position the widget.
    */
   virtual void SetProp3D(vtkProp3D*);
-  vtkGetObjectMacro(Prop3D,vtkProp3D);
+  vtkGetObjectMacro(Prop3D, vtkProp3D);
   //@}
 
   //@{
@@ -104,7 +104,7 @@ public:
    */
   virtual void SetInputData(vtkDataSet*);
   virtual void SetInputConnection(vtkAlgorithmOutput*);
-  virtual vtkDataSet *GetInput();
+  virtual vtkDataSet* GetInput();
   //@}
 
   //@{
@@ -115,8 +115,8 @@ public:
    * The PlaceFactor will make the widget larger (PlaceFactor > 1) or smaller
    * (PlaceFactor < 1). By default, PlaceFactor is set to 0.5.
    */
-  vtkSetClampMacro(PlaceFactor,double,0.01,VTK_DOUBLE_MAX);
-  vtkGetMacro(PlaceFactor,double);
+  vtkSetClampMacro(PlaceFactor, double, 0.01, VTK_DOUBLE_MAX);
+  vtkGetMacro(PlaceFactor, double);
   //@}
 
   //@{
@@ -126,8 +126,8 @@ public:
    * are used to manipulate the widget, and are sized as a fraction of
    * the screen diagonal.
    */
-  vtkSetClampMacro(HandleSize,double,0.001,0.5);
-  vtkGetMacro(HandleSize,double);
+  vtkSetClampMacro(HandleSize, double, 0.001, 0.5);
+  vtkGetMacro(HandleSize, double);
   //@}
 
 protected:
@@ -135,24 +135,24 @@ protected:
   ~vtk3DWidget() override;
 
   // Used to position and scale the widget initially
-  vtkProp3D *Prop3D;
+  vtkProp3D* Prop3D;
 
-  vtk3DWidgetConnection *ConnectionHolder;
+  vtk3DWidgetConnection* ConnectionHolder;
 
-  //has the widget ever been placed
+  // has the widget ever been placed
   double PlaceFactor;
   int Placed;
   void AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
 
-  //control the size of handles (if there are any)
+  // control the size of handles (if there are any)
   double InitialBounds[6];
   double InitialLength;
   double HandleSize;
   double SizeHandles(double factor);
-  virtual void SizeHandles() {}//subclass in turn invokes parent's SizeHandles()
+  virtual void SizeHandles() {} // subclass in turn invokes parent's SizeHandles()
 
-  //used to track the depth of the last pick; also interacts with handle sizing
-  int   ValidPick;
+  // used to track the depth of the last pick; also interacts with handle sizing
+  int ValidPick;
   double LastPickPosition[3];
 
   void UpdateInput();
@@ -160,7 +160,6 @@ protected:
 private:
   vtk3DWidget(const vtk3DWidget&) = delete;
   void operator=(const vtk3DWidget&) = delete;
-
 };
 
 #endif

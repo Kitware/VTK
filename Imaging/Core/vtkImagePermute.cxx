@@ -26,7 +26,7 @@ vtkImagePermute::vtkImagePermute()
 
 void vtkImagePermute::SetFilteredAxes(int newx, int newy, int newz)
 {
-  static double axes[3][3] = { {1, 0, 0}, {0, 1, 0}, {0, 0, 1} };
+  static double axes[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
   this->SetResliceAxesDirectionCosines(axes[newx], axes[newy], axes[newz]);
 
@@ -37,11 +37,8 @@ void vtkImagePermute::SetFilteredAxes(int newx, int newy, int newz)
 
 void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FilteredAxes: ( "
-     << this->FilteredAxes[0] << ", "
-     << this->FilteredAxes[1] << ", "
-     << this->FilteredAxes[2] << " )\n";
+  os << indent << "FilteredAxes: ( " << this->FilteredAxes[0] << ", " << this->FilteredAxes[1]
+     << ", " << this->FilteredAxes[2] << " )\n";
 }
-

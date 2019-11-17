@@ -22,7 +22,7 @@
  *
  * @sa
  *  vtkOverlappingAMR
-*/
+ */
 
 #ifndef vtkAMRGaussianPulseSource_h
 #define vtkAMRGaussianPulseSource_h
@@ -37,8 +37,7 @@ class vtkUniformGrid;
 class vtkInformation;
 class vtkInformationVector;
 
-class VTKFILTERSAMR_EXPORT vtkAMRGaussianPulseSource :
-  public vtkOverlappingAMRAlgorithm
+class VTKFILTERSAMR_EXPORT vtkAMRGaussianPulseSource : public vtkOverlappingAMRAlgorithm
 {
 public:
   static vtkAMRGaussianPulseSource* New();
@@ -49,21 +48,24 @@ public:
   /**
    * Sets the dimension of the AMR dataset to generate
    */
-  vtkSetMacro(Dimension,int);
+  vtkSetMacro(Dimension, int);
   //@}
 
   //@{
   /**
    * Sets the number of levels to generate
    */
-  vtkSetMacro(NumberOfLevels,int);
+  vtkSetMacro(NumberOfLevels, int);
   //@}
 
   /**
    * Set the refinement ratio
    */
   void SetRefinementRatio(int r)
-   {this->RefinmentRatio=r;this->Modified();}
+  {
+    this->RefinmentRatio = r;
+    this->Modified();
+  }
 
   //@{
   /**
@@ -71,7 +73,7 @@ public:
    */
   void SetRootSpacing(double h0)
   {
-    this->RootSpacing[0]=this->RootSpacing[1]=this->RootSpacing[2]=h0;
+    this->RootSpacing[0] = this->RootSpacing[1] = this->RootSpacing[2] = h0;
     this->Modified();
   }
   //@}
@@ -80,36 +82,54 @@ public:
   /**
    * Set & Get macro for the pulse origin
    */
-  vtkSetVector3Macro(PulseOrigin,double);
-  vtkGetVector3Macro(PulseOrigin,double);
+  vtkSetVector3Macro(PulseOrigin, double);
+  vtkGetVector3Macro(PulseOrigin, double);
   void SetXPulseOrigin(double f)
-   {this->PulseOrigin[0]=f;this->Modified();}
+  {
+    this->PulseOrigin[0] = f;
+    this->Modified();
+  }
   void SetYPulseOrigin(double f)
-   {this->PulseOrigin[1]=f;this->Modified();}
+  {
+    this->PulseOrigin[1] = f;
+    this->Modified();
+  }
   void SetZPulseOrigin(double f)
-   {this->PulseOrigin[2]=f;this->Modified();}
+  {
+    this->PulseOrigin[2] = f;
+    this->Modified();
+  }
   //@}
 
   //@{
   /**
    * Set & Get macro for the pulse width
    */
-  vtkSetVector3Macro(PulseWidth,double);
-  vtkGetVector3Macro(PulseWidth,double);
+  vtkSetVector3Macro(PulseWidth, double);
+  vtkGetVector3Macro(PulseWidth, double);
   void SetXPulseWidth(double f)
-    {this->PulseWidth[0]=f;this->Modified();}
+  {
+    this->PulseWidth[0] = f;
+    this->Modified();
+  }
   void SetYPulseWidth(double f)
-    {this->PulseWidth[1]=f;this->Modified();}
+  {
+    this->PulseWidth[1] = f;
+    this->Modified();
+  }
   void SetZPulseWidth(double f)
-    {this->PulseWidth[2]=f;this->Modified();}
+  {
+    this->PulseWidth[2] = f;
+    this->Modified();
+  }
   //@}
 
   //@{
   /**
    * Set & Get macro for the pulse amplitude
    */
-  vtkSetMacro(PulseAmplitude,double);
-  vtkGetMacro(PulseAmplitude,double);
+  vtkSetMacro(PulseAmplitude, double);
+  vtkGetMacro(PulseAmplitude, double);
   //@}
 
 protected:
@@ -120,9 +140,8 @@ protected:
    * This is called by the superclass.
    * This is the method you should override.
    */
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   //@{
   /**
@@ -131,22 +150,25 @@ protected:
    */
   double ComputePulseAt(const double x, const double y, const double z)
   {
-    double xyz[3]; xyz[0]=x; xyz[1]=y; xyz[2]=z;
-    return( this->ComputePulseAt(xyz) );
+    double xyz[3];
+    xyz[0] = x;
+    xyz[1] = y;
+    xyz[2] = z;
+    return (this->ComputePulseAt(xyz));
   }
-  double ComputePulseAt( double pt[3] )
+  double ComputePulseAt(double pt[3])
   {
     double pulse = 0.0;
-    double r  = 0.0;
-    for( int i=0; i < this->Dimension; ++i )
+    double r = 0.0;
+    for (int i = 0; i < this->Dimension; ++i)
     {
-      double d  = pt[i]-this->PulseOrigin[i];
-      double d2 = d*d;
-      double L2 = this->PulseWidth[i]*this->PulseWidth[i];
-      r += d2/L2;
+      double d = pt[i] - this->PulseOrigin[i];
+      double d2 = d * d;
+      double L2 = this->PulseWidth[i] * this->PulseWidth[i];
+      r += d2 / L2;
     }
-    pulse = this->PulseAmplitude*std::exp( -r );
-    return( pulse );
+    pulse = this->PulseAmplitude * std::exp(-r);
+    return (pulse);
   }
   //@}
 
@@ -154,20 +176,18 @@ protected:
    * Given the cell index w.r.t. to a uniform grid, this method computes the
    * cartesian coordinates of the centroid of the cell.
    */
-  void ComputeCellCenter(vtkUniformGrid *grid,
-                         vtkIdType cellIdx,
-                         double centroid[3] );
+  void ComputeCellCenter(vtkUniformGrid* grid, vtkIdType cellIdx, double centroid[3]);
 
   /**
    * Generates a pulse field for the given uniform grid
    */
-  void GeneratePulseField(vtkUniformGrid *grid);
+  void GeneratePulseField(vtkUniformGrid* grid);
 
   /**
    * Constructs a uniform grid path with the given origin/spacing and node
    * dimensions. The return grid serves as the root grid for the domain.
    */
-  vtkUniformGrid* GetGrid( double origin[3], double h[3], int ndim[3] );
+  vtkUniformGrid* GetGrid(double origin[3], double h[3], int ndim[3]);
 
   /**
    * Constructs a refined patch from the given parent grid.
@@ -186,9 +206,9 @@ protected:
   double PulseOrigin[3];
   double PulseWidth[3];
   double PulseAmplitude;
-  int    RefinmentRatio;
-  int    Dimension;
-  int    NumberOfLevels;
+  int RefinmentRatio;
+  int Dimension;
+  int NumberOfLevels;
 
 private:
   vtkAMRGaussianPulseSource(const vtkAMRGaussianPulseSource&) = delete;

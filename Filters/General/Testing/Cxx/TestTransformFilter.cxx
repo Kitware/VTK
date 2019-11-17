@@ -23,10 +23,10 @@
 
 namespace
 {
-void InitializePointSet(vtkPointSet *pointSet, int dataType)
+void InitializePointSet(vtkPointSet* pointSet, int dataType)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -36,10 +36,10 @@ void InitializePointSet(vtkPointSet *pointSet, int dataType)
   if (dataType == VTK_DOUBLE)
   {
     points->SetDataType(VTK_DOUBLE);
-    for(unsigned int i = 0; i < numPoints; ++i)
+    for (unsigned int i = 0; i < numPoints; ++i)
     {
       double point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = randomSequence->GetValue();
@@ -50,10 +50,10 @@ void InitializePointSet(vtkPointSet *pointSet, int dataType)
   else
   {
     points->SetDataType(VTK_FLOAT);
-    for(unsigned int i = 0; i < numPoints; ++i)
+    for (unsigned int i = 0; i < numPoints; ++i)
     {
       float point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = static_cast<float>(randomSequence->GetValue());
@@ -75,14 +75,14 @@ void InitializePointSet(vtkPointSet *pointSet, int dataType)
   pointSet->SetPoints(points);
 }
 
-void InitializeTransform(vtkTransform *transform)
+void InitializeTransform(vtkTransform* transform)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   double elements[16];
-  for(unsigned int i = 0; i < 16; ++i)
+  for (unsigned int i = 0; i < 16; ++i)
   {
     randomSequence->Next();
     elements[i] = randomSequence->GetValue();
@@ -93,16 +93,13 @@ void InitializeTransform(vtkTransform *transform)
 
 vtkSmartPointer<vtkPointSet> TransformPointSet(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkPointSet> inputPointSet
-    = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPointSet> inputPointSet = vtkSmartPointer<vtkPolyData>::New();
   InitializePointSet(inputPointSet, dataType);
 
-  vtkSmartPointer<vtkTransform> transform
-    = vtkSmartPointer<vtkTransform>::New();
+  vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
   InitializeTransform(transform);
 
-  vtkSmartPointer<vtkTransformFilter> transformFilter
-    = vtkSmartPointer<vtkTransformFilter>::New();
+  vtkSmartPointer<vtkTransformFilter> transformFilter = vtkSmartPointer<vtkTransformFilter>::New();
   transformFilter->SetTransformAllInputVectors(true);
   transformFilter->SetOutputPointsPrecision(outputPointsPrecision);
 
@@ -117,9 +114,10 @@ vtkSmartPointer<vtkPointSet> TransformPointSet(int dataType, int outputPointsPre
   return outputPointSet;
 }
 
-int TestTransformFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestTransformFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkPointSet> pointSet = TransformPointSet(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
+  vtkSmartPointer<vtkPointSet> pointSet =
+    TransformPointSet(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
   if (pointSet->GetPoints()->GetDataType() != VTK_FLOAT)
   {

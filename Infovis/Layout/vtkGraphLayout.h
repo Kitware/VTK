@@ -29,7 +29,7 @@
  * .SECTION Thanks
  * Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
  * layout capabilities.
-*/
+ */
 
 #ifndef vtkGraphLayout_h
 #define vtkGraphLayout_h
@@ -44,7 +44,7 @@ class vtkGraphLayoutStrategy;
 class VTKINFOVISLAYOUT_EXPORT vtkGraphLayout : public vtkGraphAlgorithm
 {
 public:
-  static vtkGraphLayout *New();
+  static vtkGraphLayout* New();
   vtkTypeMacro(vtkGraphLayout, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -52,7 +52,7 @@ public:
   /**
    * The layout strategy to use during graph layout.
    */
-  void SetLayoutStrategy(vtkGraphLayoutStrategy *strategy);
+  void SetLayoutStrategy(vtkGraphLayoutStrategy* strategy);
   vtkGetObjectMacro(LayoutStrategy, vtkGraphLayoutStrategy);
   //@}
 
@@ -104,12 +104,11 @@ protected:
    * This intercepts events from the strategy object and re-emits them
    * as if they came from the layout engine itself.
    */
-  vtkEventForwarderCommand *EventForwarder;
+  vtkEventForwarderCommand* EventForwarder;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-
   vtkGraph* LastInput;
   vtkGraph* InternalGraph;
   vtkMTimeType LastInputMTime;

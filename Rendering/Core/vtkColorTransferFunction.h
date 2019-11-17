@@ -88,22 +88,10 @@ public:
    * Add two points to the function and remove all the points
    * between them
    */
-  void AddRGBSegment(double x1,
-    double r1,
-    double g1,
-    double b1,
-    double x2,
-    double r2,
-    double g2,
-    double b2);
-  void AddHSVSegment(double x1,
-    double h1,
-    double s1,
-    double v1,
-    double x2,
-    double h2,
-    double s2,
-    double v2);
+  void AddRGBSegment(
+    double x1, double r1, double g1, double b1, double x2, double r2, double g2, double b2);
+  void AddHSVSegment(
+    double x1, double h1, double s1, double v1, double x2, double h2, double s2, double v2);
   //@}
 
   /**
@@ -328,12 +316,8 @@ public:
   /**
    * Map a set of scalars through the lookup table.
    */
-  void MapScalarsThroughTable2(void* input,
-    unsigned char* output,
-    int inputDataType,
-    int numberOfValues,
-    int inputIncrement,
-    int outputIncrement) override;
+  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int inputIncrement, int outputIncrement) override;
 
   //@{
   /**

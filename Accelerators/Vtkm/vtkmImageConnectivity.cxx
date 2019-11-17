@@ -15,11 +15,11 @@
 //=============================================================================
 #include "vtkmImageConnectivity.h"
 
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkImageData.h"
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
@@ -32,14 +32,10 @@
 vtkStandardNewMacro(vtkmImageConnectivity);
 
 //------------------------------------------------------------------------------
-vtkmImageConnectivity::vtkmImageConnectivity()
-{
-}
+vtkmImageConnectivity::vtkmImageConnectivity() {}
 
 //------------------------------------------------------------------------------
-vtkmImageConnectivity::~vtkmImageConnectivity()
-{
-}
+vtkmImageConnectivity::~vtkmImageConnectivity() {}
 
 //------------------------------------------------------------------------------
 void vtkmImageConnectivity::PrintSelf(ostream& os, vtkIndent indent)
@@ -48,25 +44,20 @@ void vtkmImageConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkmImageConnectivity::RequestData(vtkInformation *,
-                                       vtkInformationVector **inputVector,
-                                       vtkInformationVector *outputVector)
+int vtkmImageConnectivity::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
-  vtkImageData* output = static_cast<vtkImageData *>(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData* input = static_cast<vtkImageData *>(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
+  vtkImageData* output = static_cast<vtkImageData*>(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* input = static_cast<vtkImageData*>(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Find the scalar array:
   int association = this->GetInputArrayAssociation(0, inputVector);
-  vtkDataArray *inputArray = this->GetInputArrayToProcess(0, inputVector);
-  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS ||
-      inputArray == nullptr || inputArray->GetName() == nullptr ||
-      inputArray->GetName()[0] == '\0')
+  vtkDataArray* inputArray = this->GetInputArrayToProcess(0, inputVector);
+  if (association != vtkDataObject::FIELD_ASSOCIATION_POINTS || inputArray == nullptr ||
+    inputArray->GetName() == nullptr || inputArray->GetName()[0] == '\0')
   {
     vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
     return 0;
@@ -76,7 +67,7 @@ int vtkmImageConnectivity::RequestData(vtkInformation *,
   {
     vtkm::filter::ImageConnectivity filter;
     filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::POINTS);
-    //the field should be named 'RegionId'
+    // the field should be named 'RegionId'
     filter.SetOutputFieldName("RegionId");
 
     // explicitly convert just the field we need
@@ -85,14 +76,13 @@ int vtkmImageConnectivity::RequestData(vtkInformation *,
     inData.AddField(inField);
 
     // don't pass this field
-    filter.SetFieldsToPass(
-      vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
+    filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::MODE_NONE));
 
     vtkm::cont::DataSet result;
     vtkmInputFilterPolicy policy;
     result = filter.Execute(inData, policy);
 
-    //Make sure the output has all the fields / etc that the input has
+    // Make sure the output has all the fields / etc that the input has
     output->ShallowCopy(input);
 
     // convert back the regionId field to VTK
@@ -109,5 +99,4 @@ int vtkmImageConnectivity::RequestData(vtkInformation *,
     return 0;
   }
   return 1;
-
 }

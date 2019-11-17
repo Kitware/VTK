@@ -31,12 +31,12 @@ vtkIdType vtkTestNewVar::GetPointsRefCount()
   return this->Points->GetReferenceCount();
 }
 
-vtkObject * vtkTestNewVar::GetPoints()
+vtkObject* vtkTestNewVar::GetPoints()
 {
   return this->Points.GetPointer();
 }
 
-vtkObject * vtkTestNewVar::GetPoints2()
+vtkObject* vtkTestNewVar::GetPoints2()
 {
   return this->Points;
 }

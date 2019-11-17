@@ -83,7 +83,7 @@
  * 1             0                 0              0
  * 1             0                 0              1
  * </pre>
-*/
+ */
 
 #ifndef vtkXMLTreeReader_h
 #define vtkXMLTreeReader_h
@@ -95,7 +95,7 @@ class VTKIOINFOVIS_EXPORT vtkXMLTreeReader : public vtkTreeAlgorithm
 {
 public:
   static vtkXMLTreeReader* New();
-  vtkTypeMacro(vtkXMLTreeReader,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkXMLTreeReader, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -176,9 +176,8 @@ public:
   vtkBooleanMacro(ReadTagName, bool);
   //@}
 
-
-  static const char * TagNameField;
-  static const char * CharDataField;
+  static const char* TagNameField;
+  static const char* CharDataField;
 
 protected:
   vtkXMLTreeReader();
@@ -193,10 +192,7 @@ protected:
   bool GenerateEdgePedigreeIds;
   bool GenerateVertexPedigreeIds;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkXMLTreeReader(const vtkXMLTreeReader&) = delete;
@@ -204,4 +200,3 @@ private:
 };
 
 #endif
-

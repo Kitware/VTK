@@ -25,7 +25,8 @@ namespace vtk
 namespace detail
 {
 
-template <typename CollectionType> struct CollectionRange;
+template <typename CollectionType>
+struct CollectionRange;
 
 struct CompositeDataSetRange;
 struct DataObjectTreeRange;
@@ -41,9 +42,7 @@ struct DataObjectTreeRange;
 
 // vtkCollection subclasses --> CollectionRange
 template <typename CollectionType,
-          typename = typename std::enable_if<
-            std::is_base_of<vtkCollection, CollectionType>::value
-            >::type>
+  typename = typename std::enable_if<std::is_base_of<vtkCollection, CollectionType>::value>::type>
 CollectionRange<CollectionType>& DeduceRangeType(const CollectionType&);
 
 // vtkCompositeDataSet --> CompositeDataSetRange
@@ -58,8 +57,8 @@ template <typename Iterable>
 struct IterableTraits
 {
 private:
-  using RangeTypeInternal =
-  decltype(vtk::detail::DeduceRangeType(std::declval<Iterable>()));
+  using RangeTypeInternal = decltype(vtk::detail::DeduceRangeType(std::declval<Iterable>()));
+
 public:
   using RangeType = typename std::decay<RangeTypeInternal>::type;
 };

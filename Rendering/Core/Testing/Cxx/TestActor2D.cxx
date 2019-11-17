@@ -16,7 +16,6 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
-
 int TestActor2D(int argc, char* argv[])
 {
   vtkNew<vtkLookupTable> lut;
@@ -75,9 +74,9 @@ int TestActor2D(int argc, char* argv[])
   renWin->Render();
   renderer->ResetCamera();
   renderer->SetBackground(1.0, 0.0, 0.0);
-  renWin->SetSize(300,300);
+  renWin->SetSize(300, 300);
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

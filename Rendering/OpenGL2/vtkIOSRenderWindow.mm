@@ -28,7 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkIOSRenderWindow);
 
-
 //----------------------------------------------------------------------------
 vtkIOSRenderWindow::vtkIOSRenderWindow()
 {
@@ -56,10 +55,10 @@ vtkIOSRenderWindow::~vtkIOSRenderWindow()
   }
   this->Finalize();
 
-  vtkRenderer *ren;
+  vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
-  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
+  while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
     ren->SetRenderWindow(NULL);
   }
@@ -74,12 +73,12 @@ vtkIOSRenderWindow::~vtkIOSRenderWindow()
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::Finalize()
 {
-  if(this->OffScreenInitialized)
+  if (this->OffScreenInitialized)
   {
     this->OffScreenInitialized = 0;
     this->DestroyOffScreenWindow();
   }
-  if(this->OnScreenInitialized)
+  if (this->OnScreenInitialized)
   {
     this->OnScreenInitialized = 0;
     this->DestroyWindow();
@@ -104,13 +103,11 @@ void vtkIOSRenderWindow::DestroyWindow()
 }
 
 int vtkIOSRenderWindow::ReadPixels(
-  const vtkRecti& rect, int front, int glFormat, int glType, void* data,
-  int right)
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right)
 {
   if (glFormat != GL_RGB || glType != GL_UNSIGNED_BYTE)
   {
-    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data,
-                                        right);
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data, right);
   }
 
   // iOS has issues with getting RGB so we get RGBA
@@ -133,9 +130,8 @@ int vtkIOSRenderWindow::ReadPixels(
   return retVal;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetWindowName( const char * _arg )
+void vtkIOSRenderWindow::SetWindowName(const char* _arg)
 {
   vtkWindow::SetWindowName(_arg);
 }
@@ -205,25 +201,22 @@ bool vtkIOSRenderWindow::IsDrawable()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::UpdateContext()
-{
-}
+void vtkIOSRenderWindow::UpdateContext() {}
 
 //----------------------------------------------------------------------------
 const char* vtkIOSRenderWindow::ReportCapabilities()
 {
   this->MakeCurrent();
 
-  const char* glVendor = (const char*) glGetString(GL_VENDOR);
-  const char* glRenderer = (const char*) glGetString(GL_RENDERER);
-  const char* glVersion = (const char*) glGetString(GL_VERSION);
-  const char* glExtensions = (const char*) glGetString(GL_EXTENSIONS);
+  const char* glVendor = (const char*)glGetString(GL_VENDOR);
+  const char* glRenderer = (const char*)glGetString(GL_RENDERER);
+  const char* glVersion = (const char*)glGetString(GL_VERSION);
+  const char* glExtensions = (const char*)glGetString(GL_EXTENSIONS);
 
   std::ostringstream strm;
-  strm << "OpenGL vendor string:  " << glVendor
-       << "\nOpenGL renderer string:  " << glRenderer
-       << "\nOpenGL version string:  " << glVersion
-       << "\nOpenGL extensions:  " << glExtensions << endl;
+  strm << "OpenGL vendor string:  " << glVendor << "\nOpenGL renderer string:  " << glRenderer
+       << "\nOpenGL version string:  " << glVersion << "\nOpenGL extensions:  " << glExtensions
+       << endl;
 
   delete[] this->Capabilities;
 
@@ -259,7 +252,7 @@ int vtkIOSRenderWindow::IsDirect()
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetSize(int* a)
 {
-  this->SetSize( a[0], a[1] );
+  this->SetSize(a[0], a[1]);
 }
 
 //----------------------------------------------------------------------------
@@ -284,7 +277,7 @@ void vtkIOSRenderWindow::SetForceMakeCurrent()
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetPosition(int* a)
 {
-  this->SetPosition( a[0], a[1] );
+  this->SetPosition(a[0], a[1]);
 }
 
 //----------------------------------------------------------------------------
@@ -292,8 +285,7 @@ void vtkIOSRenderWindow::SetPosition(int x, int y)
 {
   static int resizing = 0;
 
-  if ((this->Position[0] != x) || (this->Position[1] != y)
-      || (this->GetParentId()))
+  if ((this->Position[0] != x) || (this->Position[1] != y) || (this->GetParentId()))
   {
     this->Modified();
     this->Position[0] = x;
@@ -310,7 +302,7 @@ void vtkIOSRenderWindow::Frame()
 
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
-//    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
+    //    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
   }
 }
 
@@ -344,11 +336,10 @@ void vtkIOSRenderWindow::CreateAWindow()
   this->MakeCurrent();
 
   // wipe out any existing display lists
-  vtkRenderer *renderer = NULL;
+  vtkRenderer* renderer = NULL;
   vtkCollectionSimpleIterator rsit;
 
-  for ( this->Renderers->InitTraversal(rsit);
-        (renderer = this->Renderers->GetNextRenderer(rsit));)
+  for (this->Renderers->InitTraversal(rsit); (renderer = this->Renderers->GetNextRenderer(rsit));)
   {
     renderer->SetRenderWindow(0);
     renderer->SetRenderWindow(this);
@@ -358,26 +349,22 @@ void vtkIOSRenderWindow::CreateAWindow()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::CreateGLContext()
-{
-}
+void vtkIOSRenderWindow::CreateGLContext() {}
 
 //----------------------------------------------------------------------------
 // Initialize the rendering window.
-void vtkIOSRenderWindow::Initialize ()
+void vtkIOSRenderWindow::Initialize()
 {
   this->OpenGLInit();
   this->Mapped = 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkIOSRenderWindow::DestroyOffScreenWindow()
-{
-}
+void vtkIOSRenderWindow::DestroyOffScreenWindow() {}
 
 //----------------------------------------------------------------------------
 // Get the current size of the window.
-int *vtkIOSRenderWindow::GetSize()
+int* vtkIOSRenderWindow::GetSize()
 {
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
@@ -390,23 +377,21 @@ int *vtkIOSRenderWindow::GetSize()
 
 //----------------------------------------------------------------------------
 // Get the current size of the screen in pixels.
-int *vtkIOSRenderWindow::GetScreenSize()
+int* vtkIOSRenderWindow::GetScreenSize()
 {
   return this->Size;
 }
 
 //----------------------------------------------------------------------------
 // Get the position in screen coordinates of the window.
-int *vtkIOSRenderWindow::GetPosition()
+int* vtkIOSRenderWindow::GetPosition()
 {
   return this->Position;
 }
 
 //----------------------------------------------------------------------------
 // Change the window to fill the entire screen.
-void vtkIOSRenderWindow::SetFullScreen(vtkTypeBool arg)
-{
-}
+void vtkIOSRenderWindow::SetFullScreen(vtkTypeBool arg) {}
 
 //----------------------------------------------------------------------------
 //
@@ -430,9 +415,9 @@ void vtkIOSRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 // Set the preferred window size to full screen.
 void vtkIOSRenderWindow::PrefFullScreen()
 {
-  int *size = this->GetScreenSize();
-  vtkWarningMacro(<< "Can only set FullScreen before showing window: "
-                  << size[0] << 'x' << size[1] << ".");
+  int* size = this->GetScreenSize();
+  vtkWarningMacro(<< "Can only set FullScreen before showing window: " << size[0] << 'x' << size[1]
+                  << ".");
 }
 
 //----------------------------------------------------------------------------
@@ -448,7 +433,7 @@ void vtkIOSRenderWindow::WindowRemap()
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "MultiSamples: " << this->MultiSamples << endl;
   os << indent << "RootWindow (UIWindow): " << this->GetRootWindow() << endl;
@@ -463,87 +448,76 @@ void vtkIOSRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkIOSRenderWindow::GetDepthBufferSize()
 {
-  if ( this->Mapped )
+  if (this->Mapped)
   {
     GLint size = 0;
-    glGetIntegerv( GL_DEPTH_BITS, &size );
-    return (int) size;
+    glGetIntegerv(GL_DEPTH_BITS, &size);
+    return (int)size;
   }
   else
   {
-    vtkDebugMacro(<< "Window is not mapped yet!" );
+    vtkDebugMacro(<< "Window is not mapped yet!");
     return 24;
   }
 }
 
 //----------------------------------------------------------------------------
 // Returns the UIWindow* associated with this vtkRenderWindow.
-void *vtkIOSRenderWindow::GetRootWindow()
+void* vtkIOSRenderWindow::GetRootWindow()
 {
   return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the UIWindow* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetRootWindow(void *vtkNotUsed(arg))
-{
-}
+void vtkIOSRenderWindow::SetRootWindow(void* vtkNotUsed(arg)) {}
 
 //----------------------------------------------------------------------------
 // Returns the UIView* associated with this vtkRenderWindow.
-void *vtkIOSRenderWindow::GetWindowId()
+void* vtkIOSRenderWindow::GetWindowId()
 {
   return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the UIView* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetWindowId(void *vtkNotUsed(arg))
-{
-}
+void vtkIOSRenderWindow::SetWindowId(void* vtkNotUsed(arg)) {}
 
 //----------------------------------------------------------------------------
 // Returns the UIView* that is the parent of this vtkRenderWindow.
-void *vtkIOSRenderWindow::GetParentId()
+void* vtkIOSRenderWindow::GetParentId()
 {
   return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the UIView* that this vtkRenderWindow should use as a parent.
-void vtkIOSRenderWindow::SetParentId(void *vtkNotUsed(arg))
-{
-}
+void vtkIOSRenderWindow::SetParentId(void* vtkNotUsed(arg)) {}
 
 //----------------------------------------------------------------------------
 // Sets the NSOpenGLContext* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetContextId(void *vtkNotUsed(contextId))
-{
-}
+void vtkIOSRenderWindow::SetContextId(void* vtkNotUsed(contextId)) {}
 
 //----------------------------------------------------------------------------
 // Returns the NSOpenGLContext* associated with this vtkRenderWindow.
-void *vtkIOSRenderWindow::GetContextId()
+void* vtkIOSRenderWindow::GetContextId()
 {
   return NULL;
 }
 
 //----------------------------------------------------------------------------
 // Sets the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
-void vtkIOSRenderWindow::SetPixelFormat(void *vtkNotUsed(pixelFormat))
-{
-}
+void vtkIOSRenderWindow::SetPixelFormat(void* vtkNotUsed(pixelFormat)) {}
 
 //----------------------------------------------------------------------------
 // Returns the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
-void *vtkIOSRenderWindow::GetPixelFormat()
+void* vtkIOSRenderWindow::GetPixelFormat()
 {
   return NULL;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetWindowInfo(const char *info)
+void vtkIOSRenderWindow::SetWindowInfo(const char* info)
 {
   // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
@@ -553,11 +527,11 @@ void vtkIOSRenderWindow::SetWindowInfo(const char *info)
     (void)sscanf(info, "%tu", &tmp);
   }
 
-  this->SetWindowId (reinterpret_cast<void *>(tmp));
+  this->SetWindowId(reinterpret_cast<void*>(tmp));
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetParentInfo(const char *info)
+void vtkIOSRenderWindow::SetParentInfo(const char* info)
 {
   // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
@@ -567,7 +541,7 @@ void vtkIOSRenderWindow::SetParentInfo(const char *info)
     (void)sscanf(info, "%tu", &tmp);
   }
 
-  this->SetParentId (reinterpret_cast<void *>(tmp));
+  this->SetParentId(reinterpret_cast<void*>(tmp));
 }
 
 //----------------------------------------------------------------------------
@@ -597,9 +571,7 @@ int vtkIOSRenderWindow::GetWindowCreated()
 }
 
 //----------------------------------------------------------------------------
-void vtkIOSRenderWindow::SetCursorPosition(int x, int y)
-{
-}
+void vtkIOSRenderWindow::SetCursorPosition(int x, int y) {}
 
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetCurrentCursor(int shape)

@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace std;
 
-int TestPolyhedronCutter(int argc, char *argv[])
+int TestPolyhedronCutter(int argc, char* argv[])
 {
   vtkObject::GlobalWarningDisplayOff();
   vtkNew<vtkXMLUnstructuredGridReader> r;
@@ -38,7 +38,7 @@ int TestPolyhedronCutter(int argc, char *argv[])
   r->SetFileName(fname);
   r->Update();
 
-  vtkUnstructuredGrid *grid = r->GetOutput();
+  vtkUnstructuredGrid* grid = r->GetOutput();
   if (grid->GetNumberOfCells() != 1)
   {
     return EXIT_FAILURE;
@@ -75,7 +75,8 @@ int TestPolyhedronCutter(int argc, char *argv[])
 
   if (cell->GetNumberOfEdges() != 5)
   {
-    cerr << "The resulting polygon consists of " << cell->GetNumberOfEdges() << " edges instead of the expected 5 edges." << endl;
+    cerr << "The resulting polygon consists of " << cell->GetNumberOfEdges()
+         << " edges instead of the expected 5 edges." << endl;
     return EXIT_FAILURE;
   }
 

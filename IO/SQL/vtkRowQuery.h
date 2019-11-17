@@ -48,7 +48,7 @@
  *
  * @sa
  * vtkRowQueryToTable
-*/
+ */
 
 #ifndef vtkRowQuery_h
 #define vtkRowQuery_h
@@ -145,10 +145,10 @@ protected:
   vtkRowQuery();
   ~vtkRowQuery() override;
   bool CaseSensitiveFieldNames;
+
 private:
-  vtkRowQuery(const vtkRowQuery &) = delete;
-  void operator=(const vtkRowQuery &) = delete;
+  vtkRowQuery(const vtkRowQuery&) = delete;
+  void operator=(const vtkRowQuery&) = delete;
 };
 
 #endif // vtkRowQuery_h
-

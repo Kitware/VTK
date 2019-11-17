@@ -28,7 +28,7 @@
  *  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
  *  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
  *  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
-*/
+ */
 
 #ifndef vtkCompositeInterpolatedVelocityField_h
 #define vtkCompositeInterpolatedVelocityField_h
@@ -44,11 +44,12 @@ class vtkPointData;
 class vtkGenericCell;
 class vtkCompositeInterpolatedVelocityFieldDataSetsType;
 
-class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField : public vtkAbstractInterpolatedVelocityField
+class VTKFILTERSFLOWPATHS_EXPORT vtkCompositeInterpolatedVelocityField
+  : public vtkAbstractInterpolatedVelocityField
 {
 public:
-  vtkTypeMacro( vtkCompositeInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkCompositeInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a dataset for implicit velocity function evaluation. If more than
@@ -56,7 +57,7 @@ public:
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
    * dataset FOR THREAD SAFETY REASONS.
    */
-  virtual void AddDataSet( vtkDataSet * dataset ) = 0;
+  virtual void AddDataSet(vtkDataSet* dataset) = 0;
 
   //@{
   /**
@@ -66,23 +67,24 @@ public:
    * no reference counting or checks are performed. This feature is intended
    * for custom interpolators only that cache datasets independently.
    */
-  vtkGetMacro( LastDataSetIndex, int );
+  vtkGetMacro(LastDataSetIndex, int);
   //@}
 
 protected:
   vtkCompositeInterpolatedVelocityField();
   ~vtkCompositeInterpolatedVelocityField() override;
 
-  int       LastDataSetIndex;
-  vtkCompositeInterpolatedVelocityFieldDataSetsType * DataSets;
+  int LastDataSetIndex;
+  vtkCompositeInterpolatedVelocityFieldDataSetsType* DataSets;
 
 private:
-  vtkCompositeInterpolatedVelocityField
-    ( const vtkCompositeInterpolatedVelocityField & ) = delete;
-  void operator = ( const vtkCompositeInterpolatedVelocityField & ) = delete;
+  vtkCompositeInterpolatedVelocityField(const vtkCompositeInterpolatedVelocityField&) = delete;
+  void operator=(const vtkCompositeInterpolatedVelocityField&) = delete;
 };
 
-typedef std::vector< vtkDataSet * > DataSetsTypeBase;
-class   vtkCompositeInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase { };
+typedef std::vector<vtkDataSet*> DataSetsTypeBase;
+class vtkCompositeInterpolatedVelocityFieldDataSetsType : public DataSetsTypeBase
+{
+};
 
 #endif

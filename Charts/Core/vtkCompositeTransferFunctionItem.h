@@ -23,12 +23,12 @@ class vtkPiecewiseFunction;
 
 // Description:
 // vtkPlot::Color and vtkPlot::Brush have no effect here.
-class VTKCHARTSCORE_EXPORT vtkCompositeTransferFunctionItem: public vtkColorTransferFunctionItem
+class VTKCHARTSCORE_EXPORT vtkCompositeTransferFunctionItem : public vtkColorTransferFunctionItem
 {
 public:
   static vtkCompositeTransferFunctionItem* New();
   vtkTypeMacro(vtkCompositeTransferFunctionItem, vtkColorTransferFunctionItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetOpacityFunction(vtkPiecewiseFunction* opacity);
   vtkGetObjectMacro(OpacityFunction, vtkPiecewiseFunction);

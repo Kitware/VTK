@@ -59,7 +59,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *DateFormat;
+  char* DateFormat;
 
 private:
   vtkDateToNumeric(const vtkDateToNumeric&) = delete;

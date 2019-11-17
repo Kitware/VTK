@@ -220,7 +220,7 @@
  * @sa
  * vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
  * vtkInteractorObserver vtk3DWidget
-*/
+ */
 
 #ifndef vtkCommand_h
 #define vtkCommand_h
@@ -364,19 +364,18 @@
     _vtk_add_event(RightButtonDoubleClickEvent)
 // clang-format on
 
-#define vtkEventDeclarationMacro(_enum_name)\
-  enum _enum_name{\
-    NoEvent = 0,\
-    vtkAllEventsMacro() \
-    UserEvent = 1000\
+#define vtkEventDeclarationMacro(_enum_name)                                                       \
+  enum _enum_name                                                                                  \
+  {                                                                                                \
+    NoEvent = 0,                                                                                   \
+    vtkAllEventsMacro() UserEvent = 1000                                                           \
   }
-
 
 // The superclass that all commands should be subclasses of
 class VTKCOMMONCORE_EXPORT vtkCommand : public vtkObjectBase
 {
 public:
-  vtkBaseTypeMacro(vtkCommand,vtkObjectBase);
+  vtkBaseTypeMacro(vtkCommand, vtkObjectBase);
 
   /**
    * Decrease the reference count (release by another object). This has
@@ -384,8 +383,7 @@ public:
    * count by 1).
    */
   void UnRegister();
-  void UnRegister(vtkObjectBase *) override
-    { this->UnRegister(); }
+  void UnRegister(vtkObjectBase*) override { this->UnRegister(); }
 
   /**
    * All derived classes of vtkCommand must implement this
@@ -399,16 +397,15 @@ public:
    * way. Alternatively, a derived class of vtkCommand can be used to
    * pass data.)
    */
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData) = 0;
+  virtual void Execute(vtkObject* caller, unsigned long eventId, void* callData) = 0;
 
   //@{
   /**
    * Convenience methods for translating between event names and event
    * ids.
    */
-  static const char *GetStringFromEventId(unsigned long event);
-  static unsigned long GetEventIdFromString(const char *event);
+  static const char* GetStringFromEventId(unsigned long event);
+  static unsigned long GetEventIdFromString(const char* event);
   //@}
 
   /**
@@ -420,14 +417,10 @@ public:
    * Set/Get the abort flag. If this is set to true no further
    * commands are executed.
    */
-  void SetAbortFlag(int f)
-    { this->AbortFlag = f; }
-  int GetAbortFlag()
-    { return this->AbortFlag; }
-  void AbortFlagOn()
-    { this->SetAbortFlag(1); }
-  void AbortFlagOff()
-    { this->SetAbortFlag(0); }
+  void SetAbortFlag(int f) { this->AbortFlag = f; }
+  int GetAbortFlag() { return this->AbortFlag; }
+  void AbortFlagOn() { this->SetAbortFlag(1); }
+  void AbortFlagOff() { this->SetAbortFlag(0); }
 
   /**
    * Set/Get the passive observer flag. If this is set to true, this
@@ -435,14 +428,10 @@ public:
    * system in any way. Passive observers are processed first, and
    * are not called even when another command has focus.
    */
-  void SetPassiveObserver(int f)
-    { this->PassiveObserver = f; }
-  int GetPassiveObserver()
-    { return this->PassiveObserver; }
-  void PassiveObserverOn()
-    { this->SetPassiveObserver(1); }
-  void PassiveObserverOff()
-    { this->SetPassiveObserver(0); }
+  void SetPassiveObserver(int f) { this->PassiveObserver = f; }
+  int GetPassiveObserver() { return this->PassiveObserver; }
+  void PassiveObserverOn() { this->SetPassiveObserver(1); }
+  void PassiveObserverOff() { this->SetPassiveObserver(0); }
 
   /**
    * All the currently defined events are listed here.  Developers can
@@ -450,7 +439,7 @@ public:
    * ids.
    * Add new events by updating vtkAllEventsMacro.
    */
-#define _vtk_add_event(Enum)  Enum,
+#define _vtk_add_event(Enum) Enum,
   vtkEventDeclarationMacro(EventIds);
 #undef _vtk_add_event
 
@@ -463,9 +452,11 @@ protected:
 
   friend class vtkSubjectHelper;
 
-  vtkCommand(const vtkCommand& c) : vtkObjectBase(c) {}
+  vtkCommand(const vtkCommand& c)
+    : vtkObjectBase(c)
+  {
+  }
   void operator=(const vtkCommand&) {}
-
 };
 
 #endif /* vtkCommand_h */

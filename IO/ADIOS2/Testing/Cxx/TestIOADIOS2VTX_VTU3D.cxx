@@ -82,7 +82,7 @@ int MPIGetRank()
   return rank;
 }
 
-template<class T>
+template <class T>
 void ExpectEqual(const T& one, const T& two, const std::string& message)
 {
   if (one != two)
@@ -95,14 +95,14 @@ void ExpectEqual(const T& one, const T& two, const std::string& message)
   }
 }
 
-template<class T>
+template <class T>
 void TStep(std::vector<T>& data, const size_t step, const int rank)
 {
   const T initialValue = static_cast<T>(step + rank);
   std::iota(data.begin(), data.end(), initialValue);
 }
 
-template<class T>
+template <class T>
 bool CompareData(T* data, const size_t size, const size_t step, const int rank)
 {
   // expected

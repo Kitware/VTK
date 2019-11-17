@@ -21,7 +21,7 @@
  *
  * @warning
  * vtkDirectory works with windows and unix only.
-*/
+ */
 
 #ifndef vtkDirectory_h
 #define vtkDirectory_h
@@ -38,13 +38,13 @@ public:
   /**
    * Return the class name as a string.
    */
-  vtkTypeMacro(vtkDirectory,vtkObject);
+  vtkTypeMacro(vtkDirectory, vtkObject);
   //@}
 
   /**
    * Create a new vtkDirectory object.
    */
-  static vtkDirectory *New();
+  static vtkDirectory* New();
 
   /**
    * Print directory to stream.
@@ -74,7 +74,7 @@ public:
    * directory. If no directory has been opened, it is assumed to
    * be relative to the current working directory.
    */
-  int FileIsDirectory(const char *name);
+  int FileIsDirectory(const char* name);
 
   //@{
   /**
@@ -111,8 +111,8 @@ protected:
   ~vtkDirectory() override;
 
 private:
-  char* Path;           // Path to Open'ed directory
-  vtkStringArray *Files;    // VTK array of files
+  char* Path;            // Path to Open'ed directory
+  vtkStringArray* Files; // VTK array of files
 
   static int CreateDirectoryInternal(const char* dir);
 

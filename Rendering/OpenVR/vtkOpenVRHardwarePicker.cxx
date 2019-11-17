@@ -48,8 +48,7 @@ void vtkOpenVRHardwarePicker::Initialize()
 
 // Pick from the given collection
 int vtkOpenVRHardwarePicker::PickProp(
-  double p0[3], double wxyz[4],
-  vtkRenderer *renderer, vtkPropCollection*)
+  double p0[3], double wxyz[4], vtkRenderer* renderer, vtkPropCollection*)
 {
   //  Initialize picking process
   this->Initialize();
@@ -58,8 +57,7 @@ int vtkOpenVRHardwarePicker::PickProp(
   // Invoke start pick method if defined
   this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
-  vtkOpenVRRenderWindow* renWin =
-    vtkOpenVRRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  vtkOpenVRRenderWindow* renWin = vtkOpenVRRenderWindow::SafeDownCast(renderer->GetRenderWindow());
   if (!renWin)
   {
     return 0;
@@ -68,24 +66,23 @@ int vtkOpenVRHardwarePicker::PickProp(
   vtkNew<vtkHardwareSelector> sel;
   sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   sel->SetRenderer(renderer);
-  vtkCamera *oldcam = renderer->GetActiveCamera();
+  vtkCamera* oldcam = renderer->GetActiveCamera();
   renWin->SetTrackHMD(false);
 
-  vtkNew<vtkTransform > tran;
+  vtkNew<vtkTransform> tran;
   tran->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-  double pin[4] = {0.0, 0.0, -1.0, 1.0};
+  double pin[4] = { 0.0, 0.0, -1.0, 1.0 };
   double dop[4];
   tran->MultiplyPoint(pin, dop);
   double distance = oldcam->GetDistance();
   oldcam->SetPosition(p0);
-  oldcam->SetFocalPoint(p0[0] + dop[0]*distance,
-   p0[1] + dop[1]*distance,
-   p0[2] + dop[2]*distance);
+  oldcam->SetFocalPoint(
+    p0[0] + dop[0] * distance, p0[1] + dop[1] * distance, p0[2] + dop[2] * distance);
   oldcam->OrthogonalizeViewUp();
 
-  int *size = renderer->GetSize();
+  int* size = renderer->GetSize();
 
-  sel->SetArea(size[0]/2 - 5, size[1]/2 - 5, size[0]/2 + 5, size[1]/2 + 5);
+  sel->SetArea(size[0] / 2 - 5, size[1] / 2 - 5, size[0] / 2 + 5, size[1] / 2 + 5);
 
   if (this->Selection)
   {
@@ -96,14 +93,10 @@ int vtkOpenVRHardwarePicker::PickProp(
   if (sel->CaptureBuffers())
   {
     unsigned int outPos[2];
-    unsigned int inPos[2] =
-    {
-      static_cast<unsigned int>(size[0]/2),
-      static_cast<unsigned int>(size[1]/2)
-    };
+    unsigned int inPos[2] = { static_cast<unsigned int>(size[0] / 2),
+      static_cast<unsigned int>(size[1] / 2) };
     // find the data closest to the center
-    vtkHardwareSelector::PixelInformation pinfo =
-      sel->GetPixelInformation(inPos, 5, outPos);
+    vtkHardwareSelector::PixelInformation pinfo = sel->GetPixelInformation(inPos, 5, outPos);
     if (pinfo.Valid)
     {
       this->Selection = sel->GenerateSelection(outPos[0], outPos[1], outPos[0], outPos[1]);

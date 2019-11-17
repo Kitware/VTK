@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkAppendPolyData
-*/
+ */
 
 #ifndef vtkAppendFilter_h
 #define vtkAppendFilter_h
@@ -39,15 +39,15 @@ class vtkDataSetCollection;
 class VTKFILTERSCORE_EXPORT vtkAppendFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkAppendFilter *New();
-  vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
+  static vtkAppendFilter* New();
+  vtkTypeMacro(vtkAppendFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get any input of this filter.
    */
-  vtkDataSet *GetInput(int idx);
+  vtkDataSet* GetInput(int idx);
   vtkDataSet* GetInput() { return this->GetInput(0); }
   //@}
 
@@ -88,13 +88,13 @@ public:
   /**
    * Remove a dataset from the list of data to append.
    */
-  void RemoveInputData(vtkDataSet *in);
+  void RemoveInputData(vtkDataSet* in);
 
   /**
    * Returns a copy of the input array.  Modifications to this list
    * will not be reflected in the actual inputs.
    */
-  vtkDataSetCollection *GetInputList();
+  vtkDataSetCollection* GetInputList();
 
   //@{
   /**
@@ -111,17 +111,16 @@ protected:
   ~vtkAppendFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *,
-                          vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
-  vtkDataSetCollection *InputList;
+  vtkDataSetCollection* InputList;
 
-  //If true we will attempt to merge points. Must also not have
-  //ghost cells defined.
+  // If true we will attempt to merge points. Must also not have
+  // ghost cells defined.
   vtkTypeBool MergePoints;
 
   int OutputPointsPrecision;
@@ -137,14 +136,10 @@ private:
 
   // Get all input data sets that have points, cells, or both.
   // Caller must delete the returned vtkDataSetCollection.
-  vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector ** inputVector);
+  vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector** inputVector);
 
-  void AppendArrays(int attributesType,
-                    vtkInformationVector **inputVector,
-                    vtkIdType* globalIds,
-                    vtkUnstructuredGrid* output,
-                    vtkIdType totalNumberOfElements);
+  void AppendArrays(int attributesType, vtkInformationVector** inputVector, vtkIdType* globalIds,
+    vtkUnstructuredGrid* output, vtkIdType totalNumberOfElements);
 };
-
 
 #endif

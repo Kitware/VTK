@@ -52,7 +52,7 @@ class vtkOTDensityMap::OTDensityCache
 {
 public:
   OTDensityCache(Sample* cache)
-    :Cache(cache)
+    : Cache(cache)
   {
   }
 
@@ -118,8 +118,7 @@ int vtkOTDensityMap::FillInputPortInformation(int vtkNotUsed(port), vtkInformati
 
 //-----------------------------------------------------------------------------
 int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Recover output
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
@@ -163,8 +162,8 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
       new Sample(this->DistributionCache->Cache.getImplementation()->computePDF(
         pointMin, pointMax, pointNumber, gridX));
     delete ks;
-    // this->DensityPDFCache->Cache is now a this->GridSubdivisions*this->GridSubdivisions serialized grid,
-    // containing density value for each point of the grid
+    // this->DensityPDFCache->Cache is now a this->GridSubdivisions*this->GridSubdivisions
+    // serialized grid, containing density value for each point of the grid
   }
 
   // Check Density Log PDF sample cache time
@@ -172,8 +171,8 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (this->DensityLogPDFSampleCache->Cache == nullptr)
     {
-      const Sample xSample(this->DistributionCache->Cache.getSample(
-        this->ContourApproximationNumberOfPoints));
+      const Sample xSample(
+        this->DistributionCache->Cache.getSample(this->ContourApproximationNumberOfPoints));
       this->DensityLogPDFSampleCache->Cache =
         new Sample(this->DistributionCache->Cache.computeLogPDF(xSample));
     }
@@ -185,8 +184,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
       // Test if we are asking for more points
       if (newSize > oldSize)
       {
-        const Sample xSample(
-          this->DistributionCache->Cache.getSample(newSize - oldSize));
+        const Sample xSample(this->DistributionCache->Cache.getSample(newSize - oldSize));
         this->DensityLogPDFSampleCache->Cache->add(
           Sample(this->DistributionCache->Cache.computeLogPDF(xSample)));
       }
@@ -204,8 +202,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   image->SetDimensions(this->GridSubdivisions, this->GridSubdivisions, 1);
   image->SetOrigin(pointMin[0], pointMin[1], 0);
   image->SetSpacing((pointMax[0] - pointMin[0]) / this->GridSubdivisions,
-    (pointMax[1] - pointMin[1]) / this->GridSubdivisions,
-    0);
+    (pointMax[1] - pointMin[1]) / this->GridSubdivisions, 0);
 
   vtkDataArray* density = vtkOTUtilities::SampleToArray(this->DensityPDFCache->Cache);
   density->SetName("Density");
@@ -236,13 +233,8 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   std::multimap<double, vtkSmartPointer<vtkTable> > contoursMap;
 
   // Build contours tables
-  this->BuildContours(contourPd,
-    numContours,
-    contourValues,
-    densityPDFContourValues,
-    xArrayName,
-    yArrayName,
-    contoursMap);
+  this->BuildContours(contourPd, numContours, contourValues, densityPDFContourValues, xArrayName,
+    yArrayName, contoursMap);
 
   // Recover iterator to cache by creating the multiblock tree output
   // Initialize to maximum number of blocks
@@ -250,8 +242,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   int nBlock = 0;
   for (std::multimap<double, vtkSmartPointer<vtkTable> >::iterator it =
          contoursMap.begin(); // Iterate over multimap keys
-       it != contoursMap.end();
-       it = contoursMap.upper_bound(it->first))
+       it != contoursMap.end(); it = contoursMap.upper_bound(it->first))
   {
     // For each key recover range of tables
     std::pair<std::multimap<double, vtkSmartPointer<vtkTable> >::iterator,
@@ -263,8 +254,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
     int nChildBlock = 0;
     // Put table for the same density in the some block
     for (std::multimap<double, vtkSmartPointer<vtkTable> >::iterator it2 = range.first;
-         it2 != range.second;
-         ++it2)
+         it2 != range.second; ++it2)
     {
       block->SetBlock(nChildBlock, it2->second);
       block->GetMetaData(nChildBlock)->Set(vtkOTDensityMap::DENSITY(), it2->first);
@@ -296,8 +286,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-int vtkOTDensityMap::FillOutputPortInformation(
-  int port, vtkInformation* info)
+int vtkOTDensityMap::FillOutputPortInformation(int port, vtkInformation* info)
 {
   if (port == 1)
   {
@@ -308,13 +297,9 @@ int vtkOTDensityMap::FillOutputPortInformation(
 }
 
 //----------------------------------------------------------------------------
-void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
-  int numContours,
-  const double* contourValues,
-  const double* densityPDFContourValues,
-  const char* xArrayName,
-  const char* yArrayName,
-  std::multimap<double, vtkSmartPointer<vtkTable> >& contoursMap)
+void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd, int numContours,
+  const double* contourValues, const double* densityPDFContourValues, const char* xArrayName,
+  const char* yArrayName, std::multimap<double, vtkSmartPointer<vtkTable> >& contoursMap)
 {
   std::set<vtkIdType> treatedCells;
   vtkNew<vtkIdList> pointIndices;
@@ -357,8 +342,8 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
     {
       // Find the next cell and recover current cell point indices
       pointIndices->Reset();
-      nextCellId = this->FindNextCellId(
-        contourPd, alongCellId, previousCellId, inverted, false, pointIndices);
+      nextCellId =
+        this->FindNextCellId(contourPd, alongCellId, previousCellId, inverted, false, pointIndices);
       vtkIdType nPoints = pointIndices->GetNumberOfIds();
 
       // If this is the first or final cell, store all points
@@ -424,12 +409,8 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd,
-  vtkIdType cellId,
-  vtkIdType previousCellId,
-  bool& invertedPoints,
-  bool up,
-  vtkIdList* currentCellPoints)
+vtkIdType vtkOTDensityMap::FindNextCellId(vtkPolyData* pd, vtkIdType cellId,
+  vtkIdType previousCellId, bool& invertedPoints, bool up, vtkIdList* currentCellPoints)
 {
   // Initialize
   invertedPoints = false;

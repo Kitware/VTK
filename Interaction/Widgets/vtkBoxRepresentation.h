@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkBoxWidget2 vtkBoxWidget
-*/
+ */
 
 #ifndef vtkBoxRepresentation_h
 #define vtkBoxRepresentation_h
@@ -56,20 +56,19 @@ class vtkBox;
 class vtkDoubleArray;
 class vtkMatrix4x4;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkBoxRepresentation : public vtkWidgetRepresentation
 {
 public:
   /**
    * Instantiate the class.
    */
-  static vtkBoxRepresentation *New();
+  static vtkBoxRepresentation* New();
 
   //@{
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkBoxRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkBoxRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -81,12 +80,11 @@ public:
    * selection of data.  (The direction of the normals of the planes can be
    * reversed enabling the InsideOut flag.)
    */
-  void GetPlanes(vtkPlanes *planes);
+  void GetPlanes(vtkPlanes* planes);
 
   // Get the underlying planes used by this rep
   // this can be used as a cropping planes in vtkMapper
-  vtkPlane *GetUnderlyingPlane(int i) {
-    return this->Planes[i]; }
+  vtkPlane* GetUnderlyingPlane(int i) { return this->Planes[i]; }
 
   //@{
   /**
@@ -95,9 +93,9 @@ public:
    * box. When on, the normals point into the hexahedron.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
   //@}
 
   /**
@@ -107,7 +105,7 @@ public:
    * transform can be used to control the position of vtkProp3D's, as well as
    * other transformation operations (e.g., vtkTransformPolyData).
    */
-  virtual void GetTransform(vtkTransform *t);
+  virtual void GetTransform(vtkTransform* t);
 
   /**
    * Set the position, scale and orientation of the box widget using the
@@ -127,7 +125,7 @@ public:
    * or EndInteractionEvent events are invoked. The user provides the
    * vtkPolyData and the points and cells are added to it.
    */
-  void GetPolyData(vtkPolyData *pd);
+  void GetPolyData(vtkPolyData* pd);
 
   //@{
   /**
@@ -135,8 +133,8 @@ public:
    * properties of the handles, when selected or normal, can be
    * specified.
    */
-  vtkGetObjectMacro(HandleProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
+  vtkGetObjectMacro(HandleProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
   //@}
 
   //@{
@@ -145,8 +143,8 @@ public:
    * properties of the face when selected and normal can be
    * set.
    */
-  vtkGetObjectMacro(FaceProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedFaceProperty,vtkProperty);
+  vtkGetObjectMacro(FaceProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedFaceProperty, vtkProperty);
   //@}
 
   //@{
@@ -155,8 +153,8 @@ public:
    * properties of the outline when selected and normal can be
    * set.
    */
-  vtkGetObjectMacro(OutlineProperty,vtkProperty);
-  vtkGetObjectMacro(SelectedOutlineProperty,vtkProperty);
+  vtkGetObjectMacro(OutlineProperty, vtkProperty);
+  vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
   //@}
 
   //@{
@@ -165,9 +163,9 @@ public:
    * face wires. By default face wires are off.
    */
   void SetOutlineFaceWires(int);
-  vtkGetMacro(OutlineFaceWires,int);
-  void OutlineFaceWiresOn() {this->SetOutlineFaceWires(1);}
-  void OutlineFaceWiresOff() {this->SetOutlineFaceWires(0);}
+  vtkGetMacro(OutlineFaceWires, int);
+  void OutlineFaceWiresOn() { this->SetOutlineFaceWires(1); }
+  void OutlineFaceWiresOff() { this->SetOutlineFaceWires(0); }
   //@}
 
   //@{
@@ -177,9 +175,9 @@ public:
    * wires are on.
    */
   void SetOutlineCursorWires(int);
-  vtkGetMacro(OutlineCursorWires,int);
-  void OutlineCursorWiresOn() {this->SetOutlineCursorWires(1);}
-  void OutlineCursorWiresOff() {this->SetOutlineCursorWires(0);}
+  vtkGetMacro(OutlineCursorWires, int);
+  void OutlineCursorWiresOn() { this->SetOutlineCursorWires(1); }
+  void OutlineCursorWiresOff() { this->SetOutlineCursorWires(0); }
   //@}
 
   //@{
@@ -197,26 +195,18 @@ public:
    */
   void PlaceWidget(double bounds[6]) override;
   void BuildRepresentation() override;
-  int  ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  double *GetBounds() VTK_SIZEHINT(6) override;
-  void StartComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  void ComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  int ComputeComplexInteractionState(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) override;
-  void EndComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
+  double* GetBounds() VTK_SIZEHINT(6) override;
+  void StartComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  void ComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata, int modify = 0) override;
+  void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
   //@}
 
   //@{
@@ -224,13 +214,25 @@ public:
    * Methods supporting, and required by, the rendering process.
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
-  int  RenderOpaqueGeometry(vtkViewport*) override;
-  int  RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   //@}
 
   // Used to manage the state of the widget
-  enum {Outside=0,MoveF0,MoveF1,MoveF2,MoveF3,MoveF4,MoveF5,Translating,Rotating,Scaling};
+  enum
+  {
+    Outside = 0,
+    MoveF0,
+    MoveF1,
+    MoveF2,
+    MoveF3,
+    MoveF4,
+    MoveF5,
+    Translating,
+    Rotating,
+    Scaling
+  };
 
   /**
    * The interaction state may be set from a widget (e.g., vtkBoxWidget2) or
@@ -271,8 +273,8 @@ public:
   //@}
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
   //@{
@@ -319,54 +321,54 @@ protected:
   int TranslationAxis;
 
   // the hexahedron (6 faces)
-  vtkActor          *HexActor;
-  vtkPolyDataMapper *HexMapper;
-  vtkPolyData       *HexPolyData;
-  vtkPoints         *Points;  //used by others as well
-  double             N[6][3]; //the normals of the faces
+  vtkActor* HexActor;
+  vtkPolyDataMapper* HexMapper;
+  vtkPolyData* HexPolyData;
+  vtkPoints* Points; // used by others as well
+  double N[6][3];    // the normals of the faces
 
   // A face of the hexahedron
-  vtkActor          *HexFace;
-  vtkPolyDataMapper *HexFaceMapper;
-  vtkPolyData       *HexFacePolyData;
+  vtkActor* HexFace;
+  vtkPolyDataMapper* HexFaceMapper;
+  vtkPolyData* HexFacePolyData;
 
   // glyphs representing hot spots (e.g., handles)
-  vtkActor          **Handle;
-  vtkPolyDataMapper **HandleMapper;
-  vtkSphereSource   **HandleGeometry;
+  vtkActor** Handle;
+  vtkPolyDataMapper** HandleMapper;
+  vtkSphereSource** HandleGeometry;
   virtual void PositionHandles();
-  int HighlightHandle(vtkProp *prop); //returns cell id
+  int HighlightHandle(vtkProp* prop); // returns cell id
   void HighlightFace(int cellId);
   void HighlightOutline(int highlight);
   virtual void ComputeNormals();
   virtual void SizeHandles();
 
   // wireframe outline
-  vtkActor          *HexOutline;
-  vtkPolyDataMapper *OutlineMapper;
-  vtkPolyData       *OutlinePolyData;
+  vtkActor* HexOutline;
+  vtkPolyDataMapper* OutlineMapper;
+  vtkPolyData* OutlinePolyData;
 
   // Do the picking
-  vtkCellPicker *HandlePicker;
-  vtkCellPicker *HexPicker;
-  vtkActor *CurrentHandle;
-  int      CurrentHexFace;
-  vtkCellPicker *LastPicker;
+  vtkCellPicker* HandlePicker;
+  vtkCellPicker* HexPicker;
+  vtkActor* CurrentHandle;
+  int CurrentHexFace;
+  vtkCellPicker* LastPicker;
 
   // Transform the hexahedral points (used for rotations)
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // Support GetBounds() method
-  vtkBox *BoundingBox;
+  vtkBox* BoundingBox;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *HandleProperty;
-  vtkProperty *SelectedHandleProperty;
-  vtkProperty *FaceProperty;
-  vtkProperty *SelectedFaceProperty;
-  vtkProperty *OutlineProperty;
-  vtkProperty *SelectedOutlineProperty;
+  vtkProperty* HandleProperty;
+  vtkProperty* SelectedHandleProperty;
+  vtkProperty* FaceProperty;
+  vtkProperty* SelectedFaceProperty;
+  vtkProperty* OutlineProperty;
+  vtkProperty* SelectedOutlineProperty;
   virtual void CreateDefaultProperties();
 
   // Control the orientation of the normals
@@ -388,22 +390,20 @@ protected:
   void UpdatePose(const double* p1, const double* d1, const double* p2, const double* d2);
 
   // Internal ivars for performance
-  vtkPoints      *PlanePoints;
-  vtkDoubleArray *PlaneNormals;
-  vtkMatrix4x4   *Matrix;
+  vtkPoints* PlanePoints;
+  vtkDoubleArray* PlaneNormals;
+  vtkMatrix4x4* Matrix;
 
   // The actual planes which are being manipulated
-  vtkPlane *Planes[6];
+  vtkPlane* Planes[6];
 
   //"dir" is the direction in which the face can be moved i.e. the axis passing
-  //through the center
+  // through the center
   void MoveFace(const double* p1, const double* p2, const double* dir, double* x1, double* x2,
     double* x3, double* x4, double* x5);
-  //Helper method to obtain the direction in which the face is to be moved.
-  //Handles special cases where some of the scale factors are 0.
-  void GetDirection(const double Nx[3],const double Ny[3],
-                    const double Nz[3], double dir[3]);
-
+  // Helper method to obtain the direction in which the face is to be moved.
+  // Handles special cases where some of the scale factors are 0.
+  void GetDirection(const double Nx[3], const double Ny[3], const double Nz[3], double dir[3]);
 
 private:
   vtkBoxRepresentation(const vtkBoxRepresentation&) = delete;

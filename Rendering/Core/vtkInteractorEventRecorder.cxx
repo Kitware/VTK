@@ -30,18 +30,15 @@ float vtkInteractorEventRecorder::StreamVersion = 1.1f;
 //----------------------------------------------------------------------------
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 {
-  //take over the processing of keypress events from the superclass
-  this->KeyPressCallbackCommand->SetCallback(
-    vtkInteractorEventRecorder::ProcessCharEvent);
+  // take over the processing of keypress events from the superclass
+  this->KeyPressCallbackCommand->SetCallback(vtkInteractorEventRecorder::ProcessCharEvent);
   this->KeyPressCallbackCommand->SetPassiveObserver(1); // get events first
-  //processes delete events
+  // processes delete events
   this->DeleteEventCallbackCommand = vtkCallbackCommand::New();
   this->DeleteEventCallbackCommand->SetClientData(this);
-  this->DeleteEventCallbackCommand->SetCallback(
-    vtkInteractorEventRecorder::ProcessDeleteEvent);
+  this->DeleteEventCallbackCommand->SetCallback(vtkInteractorEventRecorder::ProcessDeleteEvent);
 
-  this->EventCallbackCommand->SetCallback(
-    vtkInteractorEventRecorder::ProcessEvents);
+  this->EventCallbackCommand->SetCallback(vtkInteractorEventRecorder::ProcessEvents);
   this->EventCallbackCommand->SetPassiveObserver(1); // get events first
 
   this->FileName = nullptr;
@@ -59,9 +56,9 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 {
   this->SetInteractor(nullptr);
 
-  delete [] this->FileName;
+  delete[] this->FileName;
 
-  if ( this->InputStream )
+  if (this->InputStream)
   {
     this->InputStream->clear();
     delete this->InputStream;
@@ -71,7 +68,7 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
   delete this->OutputStream;
   this->OutputStream = nullptr;
 
-  delete [] this->InputString;
+  delete[] this->InputString;
   this->InputString = nullptr;
   this->DeleteEventCallbackCommand->Delete();
 }
@@ -79,17 +76,17 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 //----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::SetEnabled(int enabling)
 {
-  if ( ! this->Interactor )
+  if (!this->Interactor)
   {
-    vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
+    vtkErrorMacro(<< "The interactor must be set prior to enabling/disabling widget");
     return;
   }
 
-  if ( enabling ) //----------------------------------------------------------
+  if (enabling) //----------------------------------------------------------
   {
-    vtkDebugMacro(<<"Enabling widget");
+    vtkDebugMacro(<< "Enabling widget");
 
-    if ( this->Enabled ) //already enabled, just return
+    if (this->Enabled) // already enabled, just return
     {
       return;
     }
@@ -97,23 +94,22 @@ void vtkInteractorEventRecorder::SetEnabled(int enabling)
     this->Enabled = 1;
 
     // listen to any event
-    vtkRenderWindowInteractor *i = this->Interactor;
-    i->AddObserver(vtkCommand::AnyEvent, this->EventCallbackCommand,
-                   this->Priority);
+    vtkRenderWindowInteractor* i = this->Interactor;
+    i->AddObserver(vtkCommand::AnyEvent, this->EventCallbackCommand, this->Priority);
 
     // Make sure that the interactor does not exit in response
     // to a StartEvent. The Interactor has code to allow others to handle
     // the event look of they want to
     i->HandleEventLoop = 1;
 
-    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
+    this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
   }
 
-  else //disabling-----------------------------------------------------------
+  else // disabling-----------------------------------------------------------
   {
-    vtkDebugMacro(<<"Disabling widget");
+    vtkDebugMacro(<< "Disabling widget");
 
-    if ( ! this->Enabled ) //already disabled, just return
+    if (!this->Enabled) // already disabled, just return
     {
       return;
     }
@@ -124,21 +120,21 @@ void vtkInteractorEventRecorder::SetEnabled(int enabling)
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
     this->Interactor->HandleEventLoop = 0;
 
-    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::Record()
 {
-  if ( this->State == vtkInteractorEventRecorder::Start )
+  if (this->State == vtkInteractorEventRecorder::Start)
   {
-    if ( ! this->OutputStream ) //need to open file
+    if (!this->OutputStream) // need to open file
     {
       this->OutputStream = new ofstream(this->FileName, ios::out);
       if (this->OutputStream->fail())
       {
-        vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+        vtkErrorMacro(<< "Unable to open file: " << this->FileName);
         delete this->OutputStream;
         return;
       }
@@ -147,11 +143,11 @@ void vtkInteractorEventRecorder::Record()
       // float values.
       (*this->OutputStream).imbue(std::locale::classic());
 
-      *this->OutputStream << "# StreamVersion "
-                          << vtkInteractorEventRecorder::StreamVersion << "\n";
+      *this->OutputStream << "# StreamVersion " << vtkInteractorEventRecorder::StreamVersion
+                          << "\n";
     }
 
-    vtkDebugMacro(<<"Recording");
+    vtkDebugMacro(<< "Recording");
     this->State = vtkInteractorEventRecorder::Recording;
   }
 }
@@ -159,17 +155,17 @@ void vtkInteractorEventRecorder::Record()
 //----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::Play()
 {
-  if ( this->State == vtkInteractorEventRecorder::Start )
+  if (this->State == vtkInteractorEventRecorder::Start)
   {
-    if ( this->ReadFromInputString )
+    if (this->ReadFromInputString)
     {
       vtkDebugMacro(<< "Reading from InputString");
       size_t len = 0;
-      if ( this->InputString != nullptr )
+      if (this->InputString != nullptr)
       {
         len = strlen(this->InputString);
       }
-      if ( len == 0 )
+      if (len == 0)
       {
         vtkErrorMacro(<< "No input string specified");
         return;
@@ -186,19 +182,19 @@ void vtkInteractorEventRecorder::Play()
     }
     else
     {
-      if ( ! this->InputStream ) //need to open file
+      if (!this->InputStream) // need to open file
       {
         this->InputStream = new ifstream(this->FileName, ios::in);
         if (this->InputStream->fail())
         {
-          vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+          vtkErrorMacro(<< "Unable to open file: " << this->FileName);
           delete this->InputStream;
           return;
         }
       }
     }
 
-    vtkDebugMacro(<<"Playing");
+    vtkDebugMacro(<< "Playing");
     this->State = vtkInteractorEventRecorder::Playing;
 
     // Read events and invoke them on the object in question
@@ -207,7 +203,7 @@ void vtkInteractorEventRecorder::Play()
     float stream_version = 0.0f, tempf;
     std::string line;
 
-    while ( vtksys::SystemTools::GetLineFromStream(*this->InputStream, line) )
+    while (vtksys::SystemTools::GetLineFromStream(*this->InputStream, line))
     {
       std::istringstream iss(line);
 
@@ -224,8 +220,7 @@ void vtkInteractorEventRecorder::Play()
         // Parse the StreamVersion (not using >> since comment could be empty)
         // Expecting: # StreamVersion x.y
 
-        if (strlen(line.c_str()) > 16 &&
-          !strncmp(line.c_str(), "# StreamVersion ", 16))
+        if (strlen(line.c_str()) > 16 && !strncmp(line.c_str(), "# StreamVersion ", 16))
         {
           int res = sscanf(line.c_str() + 16, "%f", &tempf);
           if (res && res != EOF)
@@ -286,13 +281,13 @@ void vtkInteractorEventRecorder::Stop()
 
 void vtkInteractorEventRecorder::Rewind()
 {
- if ( ! this->InputStream ) //need to already have an open file
- {
-   vtkGenericWarningMacro(<<"No input file opened to rewind...");
-   return;
- }
- this->InputStream->clear();
- this->InputStream->seekg(0);
+  if (!this->InputStream) // need to already have an open file
+  {
+    vtkGenericWarningMacro(<< "No input file opened to rewind...");
+    return;
+  }
+  this->InputStream->clear();
+  this->InputStream->seekg(0);
 }
 
 //----------------------------------------------------------------------------
@@ -307,7 +302,7 @@ void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
   // if we already have an Interactor then stop observing it
   if (this->Interactor)
   {
-    this->SetEnabled(0); //disable the old interactor
+    this->SetEnabled(0); // disable the old interactor
     this->Interactor->RemoveObserver(this->KeyPressCallbackCommand);
     this->Interactor->RemoveObserver(this->DeleteEventCallbackCommand);
   }
@@ -317,46 +312,37 @@ void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
   // add observers for each of the events handled in ProcessEvents
   if (i)
   {
-    i->AddObserver(vtkCommand::CharEvent,
-                   this->KeyPressCallbackCommand, this->Priority);
-    i->AddObserver(vtkCommand::DeleteEvent,
-                   this->DeleteEventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::CharEvent, this->KeyPressCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::DeleteEvent, this->DeleteEventCallbackCommand, this->Priority);
   }
 
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::ProcessDeleteEvent(vtkObject* vtkNotUsed(object),
-                                                    unsigned long event,
-                                                    void* clientData,
-                                                    void* vtkNotUsed(callData))
+void vtkInteractorEventRecorder::ProcessDeleteEvent(
+  vtkObject* vtkNotUsed(object), unsigned long event, void* clientData, void* vtkNotUsed(callData))
 {
-  assert (event == vtkCommand::DeleteEvent);
+  assert(event == vtkCommand::DeleteEvent);
   (void)event;
-  vtkInteractorEventRecorder* self =
-    reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
+  vtkInteractorEventRecorder* self = reinterpret_cast<vtkInteractorEventRecorder*>(clientData);
   // if the interactor is being deleted then remove the event handlers
   self->SetInteractor(nullptr);
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
-                                                  unsigned long event,
-                                                  void* clientData,
-                                                  void* vtkNotUsed(callData))
+void vtkInteractorEventRecorder::ProcessCharEvent(
+  vtkObject* object, unsigned long event, void* clientData, void* vtkNotUsed(callData))
 {
-  assert (event == vtkCommand::CharEvent);
+  assert(event == vtkCommand::CharEvent);
   (void)event;
-  vtkInteractorEventRecorder* self =
-    reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
-  vtkRenderWindowInteractor* rwi =
-    static_cast<vtkRenderWindowInteractor *>( object );
-  if ( self->KeyPressActivation )
+  vtkInteractorEventRecorder* self = reinterpret_cast<vtkInteractorEventRecorder*>(clientData);
+  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor*>(object);
+  if (self->KeyPressActivation)
   {
-    if (rwi->GetKeyCode() == self->KeyPressActivationValue )
+    if (rwi->GetKeyCode() == self->KeyPressActivationValue)
     {
-      if ( !self->Enabled )
+      if (!self->Enabled)
       {
         self->On();
       }
@@ -364,34 +350,29 @@ void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
       {
         self->Off();
       }
-    }//event not aborted
-  }//if activation enabled
+    } // event not aborted
+  }   // if activation enabled
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
-                                               unsigned long event,
-                                               void* clientData,
-                                               void* vtkNotUsed(callData))
+void vtkInteractorEventRecorder::ProcessEvents(
+  vtkObject* object, unsigned long event, void* clientData, void* vtkNotUsed(callData))
 {
-  vtkInteractorEventRecorder* self =
-    reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
-  vtkRenderWindowInteractor* rwi =
-    static_cast<vtkRenderWindowInteractor *>( object );
+  vtkInteractorEventRecorder* self = reinterpret_cast<vtkInteractorEventRecorder*>(clientData);
+  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor*>(object);
 
   // all events are processed
-  if ( self->State == vtkInteractorEventRecorder::Recording )
+  if (self->State == vtkInteractorEventRecorder::Recording)
   {
-    switch(event)
+    switch (event)
     {
-      case vtkCommand::ModifiedEvent: //don't want these
+      case vtkCommand::ModifiedEvent: // don't want these
         break;
 
       default:
         // A 'e' or a 'q' will stop the recording
         if (rwi->GetKeySym() &&
-            (rwi->GetKeySym() == std::string("e") ||
-             rwi->GetKeySym() == std::string("q")))
+          (rwi->GetKeySym() == std::string("e") || rwi->GetKeySym() == std::string("q")))
         {
           self->Off();
         }
@@ -410,9 +391,8 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
           {
             m |= ModifierKey::AltKey;
           }
-          self->WriteEvent(vtkCommand::GetStringFromEventId(event),
-                           rwi->GetEventPosition(), m, rwi->GetKeyCode(),
-                           rwi->GetRepeatCount(), rwi->GetKeySym());
+          self->WriteEvent(vtkCommand::GetStringFromEventId(event), rwi->GetEventPosition(), m,
+            rwi->GetKeyCode(), rwi->GetRepeatCount(), rwi->GetKeySym());
         }
     }
     self->OutputStream->flush();
@@ -420,12 +400,12 @@ void vtkInteractorEventRecorder::ProcessEvents(vtkObject* object,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], int modifiers,
-                                            int keyCode, int repeatCount, char* keySym)
+void vtkInteractorEventRecorder::WriteEvent(
+  const char* event, int pos[2], int modifiers, int keyCode, int repeatCount, char* keySym)
 {
-  *this->OutputStream << event << " " << pos[0] << " " << pos[1] << " "
-                      << modifiers << " " << keyCode << " " << repeatCount << " ";
-  if ( keySym )
+  *this->OutputStream << event << " " << pos[0] << " " << pos[1] << " " << modifiers << " "
+                      << keyCode << " " << repeatCount << " ";
+  if (keySym)
   {
     *this->OutputStream << keySym << "\n";
   }
@@ -436,24 +416,21 @@ void vtkInteractorEventRecorder::WriteEvent(const char* event, int pos[2], int m
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorEventRecorder::ReadEvent()
-{
-}
+void vtkInteractorEventRecorder::ReadEvent() {}
 
 //----------------------------------------------------------------------------
 void vtkInteractorEventRecorder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if (this->FileName)
   {
     os << indent << "File Name: " << this->FileName << "\n";
   }
 
-  os << indent << "ReadFromInputString: "
-     << (this->ReadFromInputString ? "On\n" : "Off\n");
+  os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");
 
-  if ( this->InputString )
+  if (this->InputString)
   {
     os << indent << "Input String: " << this->InputString << "\n";
   }

@@ -21,7 +21,7 @@
  * objects corresponding to the input or output information for a
  * vtkAlgorithm.  An instance of this class is passed to
  * vtkAlgorithm::ProcessRequest calls.
-*/
+ */
 
 #ifndef vtkInformationVector_h
 #define vtkInformationVector_h
@@ -35,8 +35,8 @@ class vtkInformationVectorInternals;
 class VTKCOMMONCORE_EXPORT vtkInformationVector : public vtkObject
 {
 public:
-  static vtkInformationVector *New();
-  vtkTypeMacro(vtkInformationVector,vtkObject);
+  static vtkInformationVector* New();
+  vtkTypeMacro(vtkInformationVector, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -85,7 +85,7 @@ public:
    * instances of any contained vtkInformation and vtkInformationVector
    * objects are created).
    */
-  void Copy(vtkInformationVector* from, int deep=0);
+  void Copy(vtkInformationVector* from, int deep = 0);
 
 protected:
   vtkInformationVector();
@@ -98,6 +98,7 @@ protected:
 
   // Garbage collection support.
   void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkInformationVector(const vtkInformationVector&) = delete;
   void operator=(const vtkInformationVector&) = delete;

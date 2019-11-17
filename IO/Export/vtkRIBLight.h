@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkRIBExporter vtkRIBProperty
-*/
+ */
 
 #ifndef vtkRIBLight_h
 #define vtkRIBLight_h
@@ -35,21 +35,23 @@ class vtkRIBRenderer;
 class VTKIOEXPORT_EXPORT vtkRIBLight : public vtkLight
 {
 public:
-  static vtkRIBLight *New();
-  vtkTypeMacro(vtkRIBLight,vtkLight);
+  static vtkRIBLight* New();
+  vtkTypeMacro(vtkRIBLight, vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkBooleanMacro(Shadows,vtkTypeBool);
-  vtkSetMacro(Shadows,vtkTypeBool);
-  vtkGetMacro(Shadows,vtkTypeBool);
+  vtkBooleanMacro(Shadows, vtkTypeBool);
+  vtkSetMacro(Shadows, vtkTypeBool);
+  vtkGetMacro(Shadows, vtkTypeBool);
 
-  void Render(vtkRenderer *ren, int index) override;
+  void Render(vtkRenderer* ren, int index) override;
+
 protected:
   vtkRIBLight();
   ~vtkRIBLight() override;
 
-  vtkLight *Light;
+  vtkLight* Light;
   vtkTypeBool Shadows;
+
 private:
   vtkRIBLight(const vtkRIBLight&) = delete;
   void operator=(const vtkRIBLight&) = delete;

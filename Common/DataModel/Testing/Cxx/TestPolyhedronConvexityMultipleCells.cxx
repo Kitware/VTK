@@ -9,7 +9,7 @@
 
 #include <array>
 
-int TestPolyhedronConvexityMultipleCells(int, char *[])
+int TestPolyhedronConvexityMultipleCells(int, char*[])
 {
   // create hexahedron cells
   vtkNew<vtkCellTypeSource> source;
@@ -25,12 +25,8 @@ int TestPolyhedronConvexityMultipleCells(int, char *[])
 
   // explicit definition of the 6 hexahedron faces based on the local point ids
   // order within hexahedron cell arrays
-  std::array<std::array<vtkIdType, 4>, 6> baseFaces = {{ {{0, 3, 2, 1}},
-                                                         {{0, 4, 7, 3}},
-                                                         {{4, 5, 6, 7}},
-                                                         {{5, 1, 2, 6}},
-                                                         {{0, 1, 5, 4}},
-                                                         {{2, 3, 7, 6}} }};
+  std::array<std::array<vtkIdType, 4>, 6> baseFaces = { { { { 0, 3, 2, 1 } }, { { 0, 4, 7, 3 } },
+    { { 4, 5, 6, 7 } }, { { 5, 1, 2, 6 } }, { { 0, 1, 5, 4 } }, { { 2, 3, 7, 6 } } } };
 
   vtkIdType nCells = output->GetNumberOfCells();
   vtkNew<vtkIdTypeArray> cells;
@@ -48,10 +44,10 @@ int TestPolyhedronConvexityMultipleCells(int, char *[])
     auto cell = cells->GetPointer(z + 1);
 
     faces->InsertNextId(static_cast<vtkIdType>(baseFaces.size()));
-    for (auto &baseFace : baseFaces)
+    for (auto& baseFace : baseFaces)
     {
       faces->InsertNextId(static_cast<vtkIdType>(baseFace.size()));
-      for (auto &f : baseFace)
+      for (auto& f : baseFace)
       {
         faces->InsertNextId(cell[f]);
       }

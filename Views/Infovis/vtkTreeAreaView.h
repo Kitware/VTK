@@ -35,7 +35,7 @@
  *
  * @par Thanks:
  * Thanks to Jason Shepherd for implementing this class
-*/
+ */
 
 #ifndef vtkTreeAreaView_h
 #define vtkTreeAreaView_h
@@ -53,7 +53,7 @@ class vtkTree;
 class VTKVIEWSINFOVIS_EXPORT vtkTreeAreaView : public vtkRenderView
 {
 public:
-  static vtkTreeAreaView *New();
+  static vtkTreeAreaView* New();
   vtkTypeMacro(vtkTreeAreaView, vtkRenderView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

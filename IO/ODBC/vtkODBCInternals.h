@@ -26,20 +26,22 @@
  * @sa
  * vtkODBCDatabase vtkODBCQuery
  *
-*/
+ */
 
 #ifndef vtkODBCInternals_h
 #define vtkODBCInternals_h
 
 #include <sql.h>
 
-class vtkODBCInternals {
+class vtkODBCInternals
+{
   friend class vtkODBCDatabase;
   friend class vtkODBCQuery;
 
 public:
   vtkODBCInternals()
-    : Environment(0), Connection(0)
+    : Environment(0)
+    , Connection(0)
   {
   }
 

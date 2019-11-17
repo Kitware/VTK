@@ -29,7 +29,6 @@
 #include <vtkStdString.h>
 #include <vtkStringArray.h>
 
-
 int TestColorByPointDataStringArray(int argc, char* argv[])
 {
   vtkNew<vtkSphereSource> sphere;

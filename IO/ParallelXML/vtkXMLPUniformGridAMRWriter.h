@@ -24,7 +24,7 @@
  * vtkXMLUniformGridAMRWriter to communicate information about data blocks
  * to the root node so that the root node can write the XML file describing the
  * structure correctly.
-*/
+ */
 
 #ifndef vtkXMLPUniformGridAMRWriter_h
 #define vtkXMLPUniformGridAMRWriter_h
@@ -70,10 +70,10 @@ protected:
   void FillDataTypes(vtkCompositeDataSet*) override;
 
   vtkMultiProcessController* Controller;
+
 private:
   vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&) = delete;
   void operator=(const vtkXMLPUniformGridAMRWriter&) = delete;
-
 };
 
 #endif

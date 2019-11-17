@@ -36,13 +36,9 @@ vtkImageCheckerboard::vtkImageCheckerboard()
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
-                                  vtkImageData *in1Data, T *in1Ptr,
-                                  vtkImageData *in2Data, T *in2Ptr,
-                                  vtkImageData *outData,
-                                  T *outPtr,
-                                  int outExt[6], int id,
-                                  int wholeExt[6])
+void vtkImageCheckerboardExecute2(vtkImageCheckerboard* self, vtkImageData* in1Data, T* in1Ptr,
+  vtkImageData* in2Data, T* in2Ptr, vtkImageData* outData, T* outPtr, int outExt[6], int id,
+  int wholeExt[6])
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -62,7 +58,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 
   // find the region to loop over
   nComp = in1Data->GetNumberOfScalarComponents();
-  rowLength = (outExt[1] - outExt[0]+1)*nComp;
+  rowLength = (outExt[1] - outExt[0] + 1) * nComp;
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
 
@@ -74,7 +70,7 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   threadOffsetY = outExt[2] - wholeExt[2];
   threadOffsetZ = outExt[4] - wholeExt[4];
 
-  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
   target++;
 
   // Get increments to march through data
@@ -99,9 +95,9 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -152,21 +148,15 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   }
 }
 
-
-
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
-void vtkImageCheckerboard::ThreadedRequestData(
-  vtkInformation * vtkNotUsed( request ),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector * outputVector,
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageCheckerboard::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector,
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
   void *in1Ptr, *in2Ptr;
-  void *outPtr;
+  void* outPtr;
 
   if (inData[0][0] == nullptr)
   {
@@ -195,8 +185,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
   }
 
   // this filter expects that inputs that have the same number of components
-  if (inData[0][0]->GetNumberOfScalarComponents() !=
-      inData[1][0]->GetNumberOfScalarComponents())
+  if (inData[0][0]->GetNumberOfScalarComponents() != inData[1][0]->GetNumberOfScalarComponents())
   {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
                   << inData[0][0]->GetNumberOfScalarComponents()
@@ -210,14 +199,9 @@ void vtkImageCheckerboard::ThreadedRequestData(
   outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   switch (inData[0][0]->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageCheckerboardExecute2(this, inData[0][0],
-                                   static_cast<VTK_TT *>(in1Ptr),
-                                   inData[1][0],
-                                   static_cast<VTK_TT *>(in2Ptr),
-                                   outData[0],
-                                   static_cast<VTK_TT *>(outPtr),
-                                   outExt, id, wholeExtent));
+    vtkTemplateMacro(vtkImageCheckerboardExecute2(this, inData[0][0], static_cast<VTK_TT*>(in1Ptr),
+      inData[1][0], static_cast<VTK_TT*>(in2Ptr), outData[0], static_cast<VTK_TT*>(outPtr), outExt,
+      id, wholeExtent));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
@@ -226,9 +210,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
 
 void vtkImageCheckerboard::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "NumberOfDivisions: (" << this->NumberOfDivisions[0] << ", "
-     << this->NumberOfDivisions[1] << ", "
-     << this->NumberOfDivisions[2] << ")\n";
+     << this->NumberOfDivisions[1] << ", " << this->NumberOfDivisions[2] << ")\n";
 }
-

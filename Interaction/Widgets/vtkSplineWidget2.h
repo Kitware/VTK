@@ -21,7 +21,7 @@
  * vtkSplineRepresentation. This is based on vtkSplineWidget.
  * @sa
  * vtkSplineRepresentation, vtkSplineWidget2
-*/
+ */
 
 #ifndef vtkSplineWidget2_h
 #define vtkSplineWidget2_h
@@ -43,10 +43,9 @@ public:
    * widget in the scene. Note that the representation is a subclass of
    * vtkProp so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation(vtkSplineRepresentation *r)
+  void SetRepresentation(vtkSplineRepresentation* r)
   {
-    this->Superclass::SetWidgetRepresentation(
-      reinterpret_cast<vtkWidgetRepresentation*>(r));
+    this->Superclass::SetWidgetRepresentation(reinterpret_cast<vtkWidgetRepresentation*>(r));
   }
 
   /**
@@ -66,7 +65,11 @@ protected:
   ~vtkSplineWidget2() override;
 
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active
+  };
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
@@ -75,16 +78,12 @@ protected:
   static void ScaleAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
 
-
-  vtkCallbackCommand *KeyEventCallbackCommand;
-  static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
+  vtkCallbackCommand* KeyEventCallbackCommand;
+  static void ProcessKeyEvents(vtkObject*, unsigned long, void*, void*);
 
 private:
   vtkSplineWidget2(const vtkSplineWidget2&) = delete;
   void operator=(const vtkSplineWidget2&) = delete;
-
 };
 
 #endif
-
-

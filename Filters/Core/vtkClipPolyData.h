@@ -54,7 +54,7 @@
  *
  * @sa
  * vtkImplicitFunction vtkCutter vtkClipVolume vtkExtractGeometry
-*/
+ */
 
 #ifndef vtkClipPolyData_h
 #define vtkClipPolyData_h
@@ -68,7 +68,7 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSCORE_EXPORT vtkClipPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkClipPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkClipPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -76,7 +76,7 @@ public:
    * value set to 0.0; GenerateClipScalars turned off; GenerateClippedOutput
    * turned off.
    */
-  static vtkClipPolyData *New();
+  static vtkClipPolyData* New();
 
   //@{
   /**
@@ -84,8 +84,8 @@ public:
    * implicit function) or scalar value (if clipping with
    * scalars). The default value is 0.0.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
   //@}
 
   //@{
@@ -97,9 +97,9 @@ public:
    * value is less than or equal to the Value ivar.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,vtkTypeBool);
-  vtkGetMacro(InsideOut,vtkTypeBool);
-  vtkBooleanMacro(InsideOut,vtkTypeBool);
+  vtkSetMacro(InsideOut, vtkTypeBool);
+  vtkGetMacro(InsideOut, vtkTypeBool);
+  vtkBooleanMacro(InsideOut, vtkTypeBool);
   //@}
 
   //@{
@@ -109,7 +109,7 @@ public:
    * scalar data will be used for clipping.
    */
   virtual void SetClipFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(ClipFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -120,9 +120,9 @@ public:
    * implicit function an error will be reported.
    * GenerateClipScalars is off by default.
    */
-  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
+  vtkSetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -131,31 +131,28 @@ public:
    * contains the polygonal data that's been clipped away.
    * GenerateClippedOutput is off by default.
    */
-  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
-  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkSetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput, vtkTypeBool);
   //@}
 
   /**
    * Return the Clipped output.
    */
-  vtkPolyData *GetClippedOutput();
+  vtkPolyData* GetClippedOutput();
 
   /**
    * Return the output port (a vtkAlgorithmOutput) of the clipped output.
    */
-  vtkAlgorithmOutput* GetClippedOutputPort()
-  {
-      return this->GetOutputPort(1);
-  }
+  vtkAlgorithmOutput* GetClippedOutputPort() { return this->GetOutputPort(1); }
 
   //@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
@@ -176,18 +173,18 @@ public:
    * the available precision settings. OutputPointsPrecision is DEFAULT_PRECISION
    * by default.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
-  vtkClipPolyData(vtkImplicitFunction *cf=nullptr);
+  vtkClipPolyData(vtkImplicitFunction* cf = nullptr);
   ~vtkClipPolyData() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  vtkImplicitFunction *ClipFunction;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  vtkImplicitFunction* ClipFunction;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
   vtkTypeBool InsideOut;
   double Value;
   vtkTypeBool GenerateClipScalars;

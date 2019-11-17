@@ -23,7 +23,7 @@
  * The C++ standard does not define the exact size of the short type,
  * so use of this type directly is discouraged.  If an array of 16 bit
  * integers is needed, prefer vtkTypeInt16Array to this class.
-*/
+ */
 
 #ifndef vtkShortArray_h
 #define vtkShortArray_h
@@ -49,14 +49,14 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined(__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(short);
 #endif
 
   /**
    * A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
    */
-  static vtkShortArray* FastDownCast(vtkAbstractArray *source)
+  static vtkShortArray* FastDownCast(vtkAbstractArray* source)
   {
     return static_cast<vtkShortArray*>(Superclass::FastDownCast(source));
   }
@@ -76,7 +76,6 @@ protected:
   ~vtkShortArray() override;
 
 private:
-
   typedef vtkAOSDataArrayTemplate<short> RealSuperclass;
 
   vtkShortArray(const vtkShortArray&) = delete;

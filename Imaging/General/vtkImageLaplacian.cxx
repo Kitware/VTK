@@ -40,14 +40,12 @@ void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-int vtkImageLaplacian::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageLaplacian::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
 
   int idx;
   int wholeExtent[6], inUExt[6];
@@ -58,23 +56,23 @@ int vtkImageLaplacian::RequestUpdateExtent (
   // update and Clip
   for (idx = 0; idx < 3; ++idx)
   {
-    --inUExt[idx*2];
-    ++inUExt[idx*2+1];
-    if (inUExt[idx*2] < wholeExtent[idx*2])
+    --inUExt[idx * 2];
+    ++inUExt[idx * 2 + 1];
+    if (inUExt[idx * 2] < wholeExtent[idx * 2])
     {
-      inUExt[idx*2] = wholeExtent[idx*2];
+      inUExt[idx * 2] = wholeExtent[idx * 2];
     }
-    if (inUExt[idx*2] > wholeExtent[idx*2 + 1])
+    if (inUExt[idx * 2] > wholeExtent[idx * 2 + 1])
     {
-      inUExt[idx*2] = wholeExtent[idx*2 + 1];
+      inUExt[idx * 2] = wholeExtent[idx * 2 + 1];
     }
-    if (inUExt[idx*2+1] < wholeExtent[idx*2])
+    if (inUExt[idx * 2 + 1] < wholeExtent[idx * 2])
     {
-      inUExt[idx*2+1] = wholeExtent[idx*2];
+      inUExt[idx * 2 + 1] = wholeExtent[idx * 2];
     }
-    if (inUExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    if (inUExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
     {
-      inUExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+      inUExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
     }
   }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);
@@ -87,10 +85,8 @@ int vtkImageLaplacian::RequestUpdateExtent (
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageLaplacianExecute(vtkImageLaplacian *self,
-                              vtkImageData *inData, T *inPtr,
-                              vtkImageData *outData, T *outPtr,
-                              int outExt[6], int id)
+void vtkImageLaplacianExecute(vtkImageLaplacian* self, vtkImageData* inData, T* inPtr,
+  vtkImageData* outData, T* outPtr, int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -99,7 +95,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   unsigned long count = 0;
   unsigned long target;
   int axesNum;
-  int *wholeExtent;
+  int* wholeExtent;
   vtkIdType inIncs[3];
   double r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
@@ -109,7 +105,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2];
   maxZ = outExt[5] - outExt[4];
-  target = static_cast<unsigned long>((maxZ+1)*(maxY+1)/50.0);
+  target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
   target++;
 
   // Get the dimensionality of the gradient.
@@ -139,9 +135,9 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
     {
       if (!id)
       {
-        if (!(count%target))
+        if (!(count % target))
         {
-          self->UpdateProgress(count/(50.0*target));
+          self->UpdateProgress(count / (50.0 * target));
         }
         count++;
       }
@@ -154,20 +150,20 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
         for (idxC = 0; idxC < maxC; idxC++)
         {
           // do X axis
-          d = -2.0*(*inPtr);
+          d = -2.0 * (*inPtr);
           d += static_cast<double>(inPtr[useXMin]);
           d += static_cast<double>(inPtr[useXMax]);
           sum = d * r[0];
 
           // do y axis
-          d = -2.0*(*inPtr);
+          d = -2.0 * (*inPtr);
           d += static_cast<double>(inPtr[useYMin]);
           d += static_cast<double>(inPtr[useYMax]);
           sum = sum + d * r[1];
           if (axesNum == 3)
           {
             // do z axis
-            d = -2.0*(*inPtr);
+            d = -2.0 * (*inPtr);
             d += static_cast<double>(inPtr[useZMin]);
             d += static_cast<double>(inPtr[useZMax]);
             sum = sum + d * r[2];
@@ -189,37 +185,27 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageLaplacian::ThreadedRequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector),
-  vtkImageData ***inData,
-  vtkImageData **outData,
-  int outExt[6], int id)
+void vtkImageLaplacian::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
+  vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() !=
-      outData[0]->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
   {
-    vtkErrorMacro(<< "Execute: input ScalarType, "
-      << inData[0][0]->GetScalarType() << ", must match out ScalarType "
-      << outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType " << outData[0]->GetScalarType());
     return;
   }
 
   switch (inData[0][0]->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageLaplacianExecute( this, inData[0][0],
-                                static_cast<VTK_TT *>(inPtr), outData[0],
-                                static_cast<VTK_TT *>(outPtr),
-                                outExt, id));
+    vtkTemplateMacro(vtkImageLaplacianExecute(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
+      outData[0], static_cast<VTK_TT*>(outPtr), outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
   }
 }
-

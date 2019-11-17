@@ -17,5 +17,5 @@ vtkLocalExample::~vtkLocalExample() = default;
 //----------------------------------------------------------------------------
 void vtkLocalExample::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

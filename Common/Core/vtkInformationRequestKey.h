@@ -18,7 +18,7 @@
  *
  * vtkInformationRequestKey is used to represent keys for pointer
  * to pointer values in vtkInformation.h
-*/
+ */
 
 #ifndef vtkInformationRequestKey_h
 #define vtkInformationRequestKey_h
@@ -31,7 +31,7 @@
 class VTKCOMMONCORE_EXPORT vtkInformationRequestKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationRequestKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationRequestKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationRequestKey(const char* name, const char* location);

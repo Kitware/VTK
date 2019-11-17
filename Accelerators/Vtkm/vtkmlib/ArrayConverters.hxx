@@ -30,24 +30,24 @@ vtkm::cont::VariantArrayHandle vtkDataArrayToVariantArrayHandle(DataArrayType* i
   int numComps = input->GetNumberOfComponents();
   switch (numComps)
   {
-  case 1:
-    return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 1>::Wrap(input));
-  case 2:
-    return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 2>::Wrap(input));
-  case 3:
-    return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 3>::Wrap(input));
-  case 4:
-    return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 4>::Wrap(input));
-  case 6:
-    return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 6>::Wrap(input));
-  case 9:
-    return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 9>::Wrap(input));
-  default:
+    case 1:
+      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 1>::Wrap(input));
+    case 2:
+      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 2>::Wrap(input));
+    case 3:
+      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 3>::Wrap(input));
+    case 4:
+      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 4>::Wrap(input));
+    case 6:
+      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 6>::Wrap(input));
+    case 9:
+      return vtkm::cont::VariantArrayHandle(DataArrayToArrayHandle<DataArrayType, 9>::Wrap(input));
+    default:
     {
       vtkm::Id numTuples = input->GetNumberOfTuples();
       auto subHandle = DataArrayToArrayHandle<DataArrayType, 1>::Wrap(input);
       auto offsets = vtkm::cont::ArrayHandleCounting<vtkm::IdComponent>(0, numComps, numTuples);
-      auto handle =  vtkm::cont::make_ArrayHandleGroupVecVariable(subHandle, offsets);
+      auto handle = vtkm::cont::make_ArrayHandleGroupVecVariable(subHandle, offsets);
       return vtkm::cont::VariantArrayHandle(handle);
     }
   }
@@ -86,36 +86,38 @@ vtkm::cont::Field Convert(DataArrayType* input, int association)
 }
 
 #if !defined(vtkmlib_ArrayConverterExport_cxx)
-#define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)      \
-  extern template vtkm::cont::Field Convert<ArrayType<ValueType>>(ArrayType<ValueType>* input, int association);
+#define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)                           \
+  extern template vtkm::cont::Field Convert<ArrayType<ValueType> >(                                \
+    ArrayType<ValueType> * input, int association);
 #else
-#define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)      \
-  template vtkm::cont::Field Convert<ArrayType<ValueType>>(ArrayType<ValueType>* input, int association);
+#define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)                           \
+  template vtkm::cont::Field Convert<ArrayType<ValueType> >(                                       \
+    ArrayType<ValueType> * input, int association);
 #endif
 
-#define VTK_EXPORT_SIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                 \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, char)                 \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, int)                  \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, long)                 \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, long long)            \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, short)                \
+#define VTK_EXPORT_SIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                                      \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, char)                                      \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, int)                                       \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, long)                                      \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, long long)                                 \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, short)                                     \
   VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, signed char)
 
-#define VTK_EXPORT_UNSIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)               \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned char)        \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned int)         \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned long)        \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned long long)   \
+#define VTK_EXPORT_UNSIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                                    \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned char)                             \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned int)                              \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned long)                             \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned long long)                        \
   VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, unsigned short)
 
-#define VTK_EXPORT_REAL_ARRAY_CONVERSION_TO_VTKM(ArrayType)                   \
-  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, double)               \
+#define VTK_EXPORT_REAL_ARRAY_CONVERSION_TO_VTKM(ArrayType)                                        \
+  VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, double)                                    \
   VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, float)
 
 #if !defined(vtkmlib_ArrayConverterExport_cxx)
-#define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM(ArrayType)                        \
-  VTK_EXPORT_SIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                       \
-  VTK_EXPORT_UNSIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                     \
+#define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM(ArrayType)                                             \
+  VTK_EXPORT_SIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                                            \
+  VTK_EXPORT_UNSIGNED_ARRAY_CONVERSION_TO_VTKM(ArrayType)                                          \
   VTK_EXPORT_REAL_ARRAY_CONVERSION_TO_VTKM(ArrayType)
 
 VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM(vtkAOSDataArrayTemplate)

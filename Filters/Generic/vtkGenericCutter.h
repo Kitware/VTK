@@ -41,7 +41,7 @@
  *
  * @sa
  * vtkCutter vtkImplicitFunction vtkClipPolyData vtkGenericDataSet
-*/
+ */
 
 #ifndef vtkGenericCutter_h
 #define vtkGenericCutter_h
@@ -59,14 +59,14 @@ class vtkCellData;
 class VTKFILTERSGENERIC_EXPORT vtkGenericCutter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkGenericCutter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkGenericCutter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; initial value of 0.0; and
    * generating cut scalars turned off.
    */
-  static vtkGenericCutter *New();
+  static vtkGenericCutter* New();
 
   /**
    * Set a particular contour value at contour number i. The index i ranges
@@ -83,14 +83,14 @@ public:
    * Get a pointer to an array of contour values. There will be
    * GetNumberOfContours() values in the list.
    */
-  double *GetValues();
+  double* GetValues();
 
   /**
    * Fill a supplied list with contour values. There will be
    * GetNumberOfContours() values in the list. Make sure you allocate
    * enough memory to hold the list.
    */
-  void GetValues(double *contourValues);
+  void GetValues(double* contourValues);
 
   /**
    * Set the number of contours to place into the list. You only really
@@ -127,7 +127,7 @@ public:
    * Specify the implicit function to perform the cutting.
    */
   virtual void SetCutFunction(vtkImplicitFunction*);
-  vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
+  vtkGetObjectMacro(CutFunction, vtkImplicitFunction);
   //@}
 
   //@{
@@ -136,9 +136,9 @@ public:
    * interpolated from the implicit function values, and not the input scalar
    * data.
    */
-  vtkSetMacro(GenerateCutScalars,vtkTypeBool);
-  vtkGetMacro(GenerateCutScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateCutScalars,vtkTypeBool);
+  vtkSetMacro(GenerateCutScalars, vtkTypeBool);
+  vtkGetMacro(GenerateCutScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateCutScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -146,8 +146,8 @@ public:
    * Specify a spatial locator for merging points. By default,
    * an instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
@@ -157,26 +157,26 @@ public:
   void CreateDefaultLocator();
 
 protected:
-  vtkGenericCutter(vtkImplicitFunction *cf=nullptr);
+  vtkGenericCutter(vtkImplicitFunction* cf = nullptr);
   ~vtkGenericCutter() override;
 
   //@{
   /**
    * Actual implementation of the cutter operation.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int, vtkInformation*) override;
   //@}
 
-  vtkImplicitFunction *CutFunction;
-  vtkIncrementalPointLocator *Locator;
-  vtkContourValues    *ContourValues;
-  vtkTypeBool                 GenerateCutScalars;
+  vtkImplicitFunction* CutFunction;
+  vtkIncrementalPointLocator* Locator;
+  vtkContourValues* ContourValues;
+  vtkTypeBool GenerateCutScalars;
 
   // Used internal by vtkGenericAdaptorCell::Contour()
-  vtkPointData *InternalPD;
-  vtkPointData *SecondaryPD;
-  vtkCellData  *SecondaryCD;
+  vtkPointData* InternalPD;
+  vtkPointData* SecondaryPD;
+  vtkCellData* SecondaryCD;
 
 private:
   vtkGenericCutter(const vtkGenericCutter&) = delete;
@@ -184,5 +184,3 @@ private:
 };
 
 #endif
-
-

@@ -24,7 +24,7 @@
  * This class is also the parent class for any more specialized view which uses
  * a renderer.
  *
-*/
+ */
 
 #ifndef vtkRenderViewBase_h
 #define vtkRenderViewBase_h
@@ -63,7 +63,7 @@ public:
    * handling in order to do correctly - see the notes in the detailed
    * description of vtkRenderViewBase.
    */
-  virtual void SetRenderWindow(vtkRenderWindow *win);
+  virtual void SetRenderWindow(vtkRenderWindow* win);
 
   //@{
   /**

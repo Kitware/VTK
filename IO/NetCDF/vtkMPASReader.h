@@ -72,7 +72,7 @@ version available from Los Alamos National Laboratory.
  *
  * Christine Ahrens (cahrens@lanl.gov)
  * Version 1.3
-*/
+ */
 
 #ifndef vtkMPASReader_h
 #define vtkMPASReader_h
@@ -90,9 +90,9 @@ class vtkStringArray;
 
 class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {
- public:
-  static vtkMPASReader *New();
-  vtkTypeMacro(vtkMPASReader,vtkUnstructuredGridAlgorithm);
+public:
+  static vtkMPASReader* New();
+  vtkTypeMacro(vtkMPASReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -129,8 +129,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   /**
    * Get the reader's output
    */
-  vtkUnstructuredGrid *GetOutput();
-  vtkUnstructuredGrid *GetOutput(int index);
+  vtkUnstructuredGrid* GetOutput();
+  vtkUnstructuredGrid* GetOutput(int index);
   //@}
 
   //@{
@@ -178,9 +178,9 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkIdType GetNumberOfDimensions();
   std::string GetDimensionName(int idx);
   vtkStringArray* GetAllDimensions();
-  int GetDimensionCurrentIndex(const std::string &dim);
-  void SetDimensionCurrentIndex(const std::string &dim, int idx);
-  int GetDimensionSize(const std::string &dim);
+  int GetDimensionCurrentIndex(const std::string& dim);
+  void SetDimensionCurrentIndex(const std::string& dim, int idx);
+  int GetDimensionSize(const std::string& dim);
   //@}
 
   //@{
@@ -225,32 +225,29 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   /**
    * Returns true if the given file can be read.
    */
-  static int CanReadFile(const char *filename);
+  static int CanReadFile(const char* filename);
 
   vtkMTimeType GetMTime() override;
 
- protected:
+protected:
   vtkMPASReader();
   ~vtkMPASReader() override;
   void ReleaseNcData();
   void DestroyData();
 
-  char *FileName;         // First field part file giving path
+  char* FileName; // First field part file giving path
 
-  size_t NumberOfTimeSteps;   // Temporal domain
-  double DTime;               // The current time
+  size_t NumberOfTimeSteps; // Temporal domain
+  double DTime;             // The current time
 
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-
-  static void SelectionCallback(vtkObject* caller, unsigned long eid,
-                                void* clientdata, void* calldata);
+  static void SelectionCallback(
+    vtkObject* caller, unsigned long eid, void* clientdata, void* calldata);
 
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
@@ -281,7 +278,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   GeometryType Geometry;
 
   bool ProjectLatLon; // User option
-  bool OnASphere; // Data file attribute
+  bool OnASphere;     // Data file attribute
   bool IsAtmosphere;
   bool IsZeroCentered;
   bool ShowMultilayerView;
@@ -299,20 +296,20 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int CellOffset;
   size_t PointOffset;
   size_t PointsPerCell;
-  size_t CurrentExtraPoint;  // current extra point
-  size_t CurrentExtraCell;   // current extra cell
-  double* PointX;      // x coord of point
-  double* PointY;      // y coord of point
-  double* PointZ;      // z coord of point
+  size_t CurrentExtraPoint; // current extra point
+  size_t CurrentExtraCell;  // current extra cell
+  double* PointX;           // x coord of point
+  double* PointY;           // y coord of point
+  double* PointZ;           // z coord of point
   size_t ModNumPoints;
   size_t ModNumCells;
   int* OrigConnections;   // original connections
   int* ModConnections;    // modified connections
   size_t* CellMap;        // maps from added cell to original cell #
   size_t* PointMap;       // maps from added point to original point #
-  int* MaximumLevelPoint;      //
-  int MaximumCells;           // max cells
-  int MaximumPoints;          // max points
+  int* MaximumLevelPoint; //
+  int MaximumCells;       // max cells
+  int MaximumPoints;      // max points
 
   void SetDefaults();
   int GetNcDims();
@@ -345,14 +342,14 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    * If a non-string array named Time already exists in the FieldData, dataset
    * is not modified in any way.
    */
-  void LoadTimeFieldData(vtkUnstructuredGrid *dataset);
+  void LoadTimeFieldData(vtkUnstructuredGrid* dataset);
 
- private:
+private:
   vtkMPASReader(const vtkMPASReader&) = delete;
   void operator=(const vtkMPASReader&) = delete;
 
   class Internal;
-  Internal *Internals;
+  Internal* Internals;
 };
 
 #endif

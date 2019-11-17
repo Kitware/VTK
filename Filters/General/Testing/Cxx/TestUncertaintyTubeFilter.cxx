@@ -32,42 +32,38 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangleFilter.h"
 
-int TestUncertaintyTubeFilter( int, char*[] )
+int TestUncertaintyTubeFilter(int, char*[])
 {
-  vtkSmartPointer<vtkPoints> newPts =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> newPts = vtkSmartPointer<vtkPoints>::New();
   newPts->SetNumberOfPoints(10);
-  newPts->SetPoint( 0, 10,10,0);
-  newPts->SetPoint( 1, 10,10,2);
-  newPts->SetPoint( 2, 10,10,4);
-  newPts->SetPoint( 3, 10,10,8);
-  newPts->SetPoint( 4, 10,10,12);
-  newPts->SetPoint( 5, 1,1,2);
-  newPts->SetPoint( 6, 1,2,3);
-  newPts->SetPoint( 7, 1,4,3);
-  newPts->SetPoint( 8, 1,8,4);
-  newPts->SetPoint( 9, 1,16,5);
+  newPts->SetPoint(0, 10, 10, 0);
+  newPts->SetPoint(1, 10, 10, 2);
+  newPts->SetPoint(2, 10, 10, 4);
+  newPts->SetPoint(3, 10, 10, 8);
+  newPts->SetPoint(4, 10, 10, 12);
+  newPts->SetPoint(5, 1, 1, 2);
+  newPts->SetPoint(6, 1, 2, 3);
+  newPts->SetPoint(7, 1, 4, 3);
+  newPts->SetPoint(8, 1, 8, 4);
+  newPts->SetPoint(9, 1, 16, 5);
 
   vtkMath::RandomSeed(1177);
-  vtkSmartPointer<vtkDoubleArray> s =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> s = vtkSmartPointer<vtkDoubleArray>::New();
   s->SetNumberOfComponents(1);
   s->SetNumberOfTuples(10);
-  vtkSmartPointer<vtkDoubleArray> v =
-    vtkSmartPointer<vtkDoubleArray>::New();
+  vtkSmartPointer<vtkDoubleArray> v = vtkSmartPointer<vtkDoubleArray>::New();
   v->SetNumberOfComponents(3);
   v->SetNumberOfTuples(10);
-  for (int i=0; i<10; i++)
+  for (int i = 0; i < 10; i++)
   {
-    s->SetTuple1(i, vtkMath::Random(0,1));
-    double x=vtkMath::Random(0.0,2);
-    double y=vtkMath::Random(0.0,2);
-    double z=vtkMath::Random(0.0,2);
-    v->SetTuple3(i,x,y,z);
+    s->SetTuple1(i, vtkMath::Random(0, 1));
+    double x = vtkMath::Random(0.0, 2);
+    double y = vtkMath::Random(0.0, 2);
+    double z = vtkMath::Random(0.0, 2);
+    v->SetTuple3(i, x, y, z);
   }
 
-  vtkSmartPointer<vtkCellArray> lines =
-    vtkSmartPointer<vtkCellArray>::New();
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
   lines->AllocateEstimate(2, 5);
   lines->InsertNextCell(5);
   lines->InsertCellPoint(0);
@@ -82,45 +78,38 @@ int TestUncertaintyTubeFilter( int, char*[] )
   lines->InsertCellPoint(8);
   lines->InsertCellPoint(9);
 
-  vtkSmartPointer<vtkPolyData> pd =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
   pd->SetPoints(newPts);
   pd->SetLines(lines);
   pd->GetPointData()->SetScalars(s);
   pd->GetPointData()->SetVectors(v);
 
-  vtkSmartPointer<vtkUncertaintyTubeFilter> utf =
-    vtkSmartPointer<vtkUncertaintyTubeFilter>::New();
+  vtkSmartPointer<vtkUncertaintyTubeFilter> utf = vtkSmartPointer<vtkUncertaintyTubeFilter>::New();
   utf->SetInputData(pd);
   utf->SetNumberOfSides(8);
 
-  vtkSmartPointer<vtkTriangleFilter> tf =
-    vtkSmartPointer<vtkTriangleFilter>::New();
+  vtkSmartPointer<vtkTriangleFilter> tf = vtkSmartPointer<vtkTriangleFilter>::New();
   tf->SetInputConnection(utf->GetOutputPort());
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  //mapper->SetInputConnection( utf->GetOutputPort() );
-  mapper->SetInputConnection( tf->GetOutputPort() );
+  vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  // mapper->SetInputConnection( utf->GetOutputPort() );
+  mapper->SetInputConnection(tf->GetOutputPort());
 
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
+  vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
 
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> ren = vtkSmartPointer<vtkRenderer>::New();
   ren->AddActor(actor);
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
-  ren->GetActiveCamera()->SetPosition(1,1,1);
-  ren->GetActiveCamera()->SetFocalPoint(0,0,0);
+  ren->GetActiveCamera()->SetPosition(1, 1, 1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
   ren->ResetCamera();
 
   iren->Initialize();

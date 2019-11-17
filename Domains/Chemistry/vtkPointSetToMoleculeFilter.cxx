@@ -37,17 +37,16 @@ vtkPointSetToMoleculeFilter::vtkPointSetToMoleculeFilter()
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetToMoleculeFilter::FillInputPortInformation(int vtkNotUsed(port),
-  vtkInformation* info)
+int vtkPointSetToMoleculeFilter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetToMoleculeFilter::RequestData(vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkPointSetToMoleculeFilter::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkPointSet* input = vtkPointSet::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
   vtkMolecule* output = vtkMolecule::SafeDownCast(vtkDataObject::GetData(outputVector));

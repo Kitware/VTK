@@ -28,7 +28,7 @@
 #include "vtkSphereSource.h"
 #include "vtkX3DExporter.h"
 
-int X3DTest( int argc, char *argv[] )
+int X3DTest(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renWin;
@@ -63,8 +63,8 @@ int X3DTest( int argc, char *argv[] )
 
   renderer->AddActor(sphereActor);
   renderer->AddActor(spikeActor);
-  renderer->SetBackground(1,1,1);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(1, 1, 1);
+  renWin->SetSize(300, 300);
 
   renWin->Render();
 
@@ -98,7 +98,7 @@ int X3DTest( int argc, char *argv[] )
   exporter->Write();
 
   int retVal = vtkRegressionTestImage(renWin);
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

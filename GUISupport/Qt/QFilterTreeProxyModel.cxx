@@ -20,48 +20,45 @@
 
 #include "QFilterTreeProxyModel.h"
 
-
 QFilterTreeProxyModel::QFilterTreeProxyModel(QObject* p)
   : QSortFilterProxyModel(p)
 {
   this->TreeLevel = 0;
 }
 
-QFilterTreeProxyModel::~QFilterTreeProxyModel()
-{
-}
+QFilterTreeProxyModel::~QFilterTreeProxyModel() {}
 
 void QFilterTreeProxyModel::setFilterTreeLevel(int level)
 {
   this->TreeLevel = level;
 }
 
-bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
   int level = 0;
   QModelIndex pidx = sourceParent;
-  while(pidx != QModelIndex())
+  while (pidx != QModelIndex())
   {
     pidx = pidx.parent();
     level++;
   }
 
-  if(level < this->TreeLevel)
+  if (level < this->TreeLevel)
   {
     return true;
   }
 
-  if(level > this->TreeLevel)
+  if (level > this->TreeLevel)
   {
     return filterAcceptsRow(sourceRow, sourceParent.parent());
   }
 
- QModelIndex idx = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
+  QModelIndex idx = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
 
- return (sourceModel()->data(idx).toString().contains(filterRegExp()));
+  return (sourceModel()->data(idx).toString().contains(filterRegExp()));
 }
 
-bool QFilterTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool QFilterTreeProxyModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
 {
   QVariant leftData = this->sourceModel()->data(left);
   QVariant rightData = this->sourceModel()->data(right);
@@ -71,4 +68,3 @@ bool QFilterTreeProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 
   return QString::localeAwareCompare(leftString, rightString) < 0;
 }
-

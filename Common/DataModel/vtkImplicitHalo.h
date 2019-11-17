@@ -27,7 +27,7 @@
  * vtkShadowMapPass.
  * @warning
  * It does not implement the gradient.
-*/
+ */
 
 #ifndef vtkImplicitHalo_h
 #define vtkImplicitHalo_h
@@ -41,9 +41,9 @@ public:
   /**
    * Center=(0.0,0.0,0.0), Radius=1.0, FadeOut=0.01
    */
-  static vtkImplicitHalo *New();
+  static vtkImplicitHalo* New();
 
-  vtkTypeMacro(vtkImplicitHalo,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitHalo, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -63,24 +63,24 @@ public:
   /**
    * Radius of the sphere.
    */
-  vtkSetMacro(Radius,double);
-  vtkGetMacro(Radius,double);
+  vtkSetMacro(Radius, double);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
   /**
    * Center of the sphere.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVector3Macro(Center,double);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
   //@}
 
   //@{
   /**
    * FadeOut ratio. Valid values are between 0.0 and 1.0.
    */
-  vtkSetMacro(FadeOut,double);
-  vtkGetMacro(FadeOut,double);
+  vtkSetMacro(FadeOut, double);
+  vtkGetMacro(FadeOut, double);
   //@}
 
 protected:

@@ -26,8 +26,9 @@
  * individual data points on the node that owns it.
  *
  * @par Thanks:
- * Thanks to Janine Bennett, Philippe Pebay and David Thompson from Sandia National Laboratories for implementing this class.
-*/
+ * Thanks to Janine Bennett, Philippe Pebay and David Thompson from Sandia National Laboratories for
+ * implementing this class.
+ */
 
 #ifndef vtkPKMeansStatistics_h
 #define vtkPKMeansStatistics_h
@@ -57,36 +58,27 @@ public:
   /**
    * Subroutine to update new cluster centers from the old centers.
    */
-  void UpdateClusterCenters( vtkTable* newClusterElements,
-                             vtkTable* curClusterElements,
-                             vtkIdTypeArray* numMembershipChanges,
-                             vtkIdTypeArray* numElementsInCluster,
-                             vtkDoubleArray* error,
-                             vtkIdTypeArray* startRunID,
-                             vtkIdTypeArray* endRunID,
-                             vtkIntArray *computeRun ) override;
+  void UpdateClusterCenters(vtkTable* newClusterElements, vtkTable* curClusterElements,
+    vtkIdTypeArray* numMembershipChanges, vtkIdTypeArray* numElementsInCluster,
+    vtkDoubleArray* error, vtkIdTypeArray* startRunID, vtkIdTypeArray* endRunID,
+    vtkIntArray* computeRun) override;
 
   /**
    * Subroutine to get the total number of data objects.
    */
-  vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations ) override;
+  vtkIdType GetTotalNumberOfObservations(vtkIdType numObservations) override;
 
   /**
    * Subroutine to initialize cluster centerss if not provided by the user.
    */
-  void CreateInitialClusterCenters(vtkIdType numToAllocate,
-                                   vtkIdTypeArray* numberOfClusters,
-                                   vtkTable* inData,
-                                   vtkTable* curClusterElements,
-                                   vtkTable* newClusterElements) override;
-
+  void CreateInitialClusterCenters(vtkIdType numToAllocate, vtkIdTypeArray* numberOfClusters,
+    vtkTable* inData, vtkTable* curClusterElements, vtkTable* newClusterElements) override;
 
 protected:
   vtkPKMeansStatistics();
   ~vtkPKMeansStatistics() override;
 
   vtkMultiProcessController* Controller;
-
 
 private:
   vtkPKMeansStatistics(const vtkPKMeansStatistics&) = delete;

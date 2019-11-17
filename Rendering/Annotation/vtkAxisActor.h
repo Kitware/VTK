@@ -45,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @sa
  * vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
-*/
+ */
 
 #ifndef vtkAxisActor_h
 #define vtkAxisActor_h

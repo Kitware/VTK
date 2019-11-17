@@ -22,7 +22,7 @@
  * This is a vtkContextItem that can be placed into a vtkContextScene. It draws
  * handles around a given point of a piecewise function so that the curve can
  * be adjusted using these handles.
-*/
+ */
 
 #ifndef vtkPiecewisePointHandleItem_h
 #define vtkPiecewisePointHandleItem_h
@@ -40,20 +40,20 @@ class VTKCHARTSCORE_EXPORT vtkPiecewisePointHandleItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPiecewisePointHandleItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPiecewisePointHandleItem *New();
+  static vtkPiecewisePointHandleItem* New();
   static void CallRedraw(vtkObject* sender, unsigned long event, void* receiver, void* params);
 
   /**
    * Set the parent item, which should be a vtkControlPointItem
    */
-  void SetParent(vtkAbstractContextItem *parent) override;
+  void SetParent(vtkAbstractContextItem* parent) override;
 
   /**
    * Paint event for the item.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   //@{
   /**
@@ -80,22 +80,22 @@ public:
   /**
    * Returns true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event.
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
 protected:
   vtkPiecewisePointHandleItem();
@@ -114,12 +114,11 @@ protected:
   vtkCallbackCommand* Callback;
 
 private:
-  vtkPiecewisePointHandleItem(const vtkPiecewisePointHandleItem &) = delete;
-  void operator=(const vtkPiecewisePointHandleItem &) = delete;
+  vtkPiecewisePointHandleItem(const vtkPiecewisePointHandleItem&) = delete;
+  void operator=(const vtkPiecewisePointHandleItem&) = delete;
 
   class InternalPiecewisePointHandleInfo;
   InternalPiecewisePointHandleInfo* Internal;
-
 };
 
-#endif //vtkPiecewisePointHandleItem_h
+#endif // vtkPiecewisePointHandleItem_h

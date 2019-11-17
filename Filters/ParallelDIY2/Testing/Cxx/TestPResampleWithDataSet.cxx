@@ -35,11 +35,11 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
+namespace
+{
 
-namespace {
-
-void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfProcs,
-                        int blocksPerProc)
+void CreateInputDataSet(
+  vtkMultiBlockDataSet* dataset, int rank, int numberOfProcs, int blocksPerProc)
 {
   int numPieces = blocksPerProc * numberOfProcs;
   dataset->SetNumberOfBlocks(numPieces);
@@ -87,15 +87,15 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPro
     clipCyl->SetInputData(wavelet->GetOutputDataObject(0));
     transFilter->Update();
 
-    vtkDataObject *block = transFilter->GetOutputDataObject(0)->NewInstance();
+    vtkDataObject* block = transFilter->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(transFilter->GetOutputDataObject(0));
     dataset->SetBlock(piece, block);
     block->Delete();
   }
 }
 
-void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfProcs,
-                        int blocksPerProc)
+void CreateSourceDataSet(
+  vtkMultiBlockDataSet* dataset, int rank, int numberOfProcs, int blocksPerProc)
 {
   int numPieces = blocksPerProc * numberOfProcs;
   dataset->SetNumberOfBlocks(numPieces);
@@ -120,7 +120,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPr
 
     wavelet->UpdateExtent(blockExtent);
 
-    vtkDataObject *block = wavelet->GetOutputDataObject(0)->NewInstance();
+    vtkDataObject* block = wavelet->GetOutputDataObject(0)->NewInstance();
     block->DeepCopy(wavelet->GetOutputDataObject(0));
     dataset->SetBlock(piece, block);
     block->Delete();
@@ -129,8 +129,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPr
 
 } // anonymous namespace
 
-
-int TestPResampleWithDataSet(int argc, char *argv[])
+int TestPResampleWithDataSet(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv);
@@ -163,11 +162,9 @@ int TestPResampleWithDataSet(int argc, char *argv[])
   mapper->SetInputConnection(toPoly->GetOutputPort());
   mapper->SetScalarRange(range);
 
-
   // Setup parallel rendering
   vtkNew<vtkCompositeRenderManager> prm;
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
   renWin->AddRenderer(renderer);

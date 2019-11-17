@@ -29,9 +29,8 @@
 vtkStandardNewMacro(vtkImageDataToExplicitStructuredGrid);
 
 //----------------------------------------------------------------------------
-int vtkImageDataToExplicitStructuredGrid::RequestInformation(vtkInformation*,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+int vtkImageDataToExplicitStructuredGrid::RequestInformation(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -43,9 +42,8 @@ int vtkImageDataToExplicitStructuredGrid::RequestInformation(vtkInformation*,
 }
 
 //----------------------------------------------------------------------------
-int vtkImageDataToExplicitStructuredGrid::RequestData(vtkInformation*,
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+int vtkImageDataToExplicitStructuredGrid::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Retrieve input and output
   vtkImageData* input = vtkImageData::GetData(inputVector[0], 0);

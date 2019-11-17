@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int TestMultipleViewports( int , char *[] )
+int TestMultipleViewports(int, char*[])
 {
   // Create the RenderWindow, Renderers
   //
@@ -37,9 +37,9 @@ int TestMultipleViewports( int , char *[] )
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
 
-  ren0->SetBackground(0,0,0);
+  ren0->SetBackground(0, 0, 0);
   ren0->SetViewport(0, 0, 0.5, 1);
-  ren1->SetBackground(0.1,0.1,0.1);
+  ren1->SetBackground(0.1, 0.1, 0.1);
   ren1->SetViewport(0.5, 0, 1, 1);
 
   renWin->AddRenderer(ren0);
@@ -56,7 +56,7 @@ int TestMultipleViewports( int , char *[] )
   ren1->AddActor(planeActor);
 
   iren->Initialize();
-  renWin->SetSize(300,150);
+  renWin->SetSize(300, 150);
   renWin->Render();
 
   // Create widgets in different viewports. Note that SetCurrentRenderer()
@@ -85,5 +85,4 @@ int TestMultipleViewports( int , char *[] )
   iren->Start();
 
   return EXIT_SUCCESS;
-
 }

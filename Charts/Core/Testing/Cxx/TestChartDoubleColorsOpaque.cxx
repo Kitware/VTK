@@ -30,7 +30,7 @@
 #include "vtkTable.h"
 
 //----------------------------------------------------------------------------
-int TestChartDoubleColorsOpaque(int, char *[])
+int TestChartDoubleColorsOpaque(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;

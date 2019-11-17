@@ -30,11 +30,10 @@
  *
  * @sa
  * vtkImageReader2
-*/
+ */
 
 #ifndef vtkImageReader2Factory_h
 #define vtkImageReader2Factory_h
-
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"
@@ -46,8 +45,8 @@ class vtkImageReader2FactoryCleanup;
 class VTKIOIMAGE_EXPORT vtkImageReader2Factory : public vtkObject
 {
 public:
-  static vtkImageReader2Factory *New();
-  vtkTypeMacro(vtkImageReader2Factory,vtkObject);
+  static vtkImageReader2Factory* New();
+  vtkTypeMacro(vtkImageReader2Factory, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -68,7 +67,7 @@ public:
    * The caller must allocate the vtkImageReader2Collection and pass in the
    * pointer to this method.
    */
-  static void GetRegisteredReaders(vtkImageReader2Collection* );
+  static void GetRegisteredReaders(vtkImageReader2Collection*);
 
 protected:
   vtkImageReader2Factory();
@@ -82,7 +81,6 @@ private:
   void operator=(const vtkImageReader2Factory&) = delete;
 
   friend class vtkImageReader2FactoryCleanup;
-
 };
 
 #endif

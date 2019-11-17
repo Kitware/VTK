@@ -19,14 +19,15 @@ class Quad
 {
 public:
   Quad();
-  Quad(float *points, int n, float x1, float y1, float x2, float y2);
+  Quad(float* points, int n, float x1, float y1, float x2, float y2);
   ~Quad();
 
-  void Insert(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2);
-  void InsertChild(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2);
+  void Insert(vtkVector2f& p, vtkIdType vert, float x1, float y1, float x2, float y2);
+  void InsertChild(vtkVector2f& p, vtkIdType vert, float x1, float y1, float x2, float y2);
   void ForceAccumulate(float alpha, float charge);
-  bool Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float x2, float theta);
-  void Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta);
+  bool Repulse(vtkVector2f& prev, vtkVector2f& p, vtkIdType vert, float x1, float x2, float theta);
+  void Visit(vtkVector2f& prev, vtkVector2f& p, vtkIdType vert, float x1, float y1, float x2,
+    float y2, float theta);
 
   bool Leaf;
   bool ValidPoint;
@@ -35,7 +36,7 @@ public:
   float PointCharge;
   vtkVector2f Center;
   float Charge;
-  Quad *Nodes[4];
+  Quad* Nodes[4];
 };
 
 Quad::Quad()
@@ -48,7 +49,7 @@ Quad::Quad()
   this->Nodes[0] = this->Nodes[1] = this->Nodes[2] = this->Nodes[3] = nullptr;
 }
 
-Quad::Quad(float *points, int n, float x1, float y1, float x2, float y2)
+Quad::Quad(float* points, int n, float x1, float y1, float x2, float y2)
 {
   this->Leaf = true;
   this->ValidPoint = false;
@@ -59,7 +60,7 @@ Quad::Quad(float *points, int n, float x1, float y1, float x2, float y2)
   // Insert points
   for (int i = 0; i < n; ++i)
   {
-    vtkVector2f p = *reinterpret_cast<vtkVector2f*>(points + 3*i);
+    vtkVector2f p = *reinterpret_cast<vtkVector2f*>(points + 3 * i);
     this->Insert(p, i, x1, y1, x2, y2);
   }
 }
@@ -73,32 +74,41 @@ Quad::~Quad()
   }
 }
 
-void Quad::Insert(vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2) {
+void Quad::Insert(vtkVector2f& p, vtkIdType vert, float x1, float y1, float x2, float y2)
+{
   if (vtkMath::IsNan(p.GetX()) || vtkMath::IsNan(p.GetY()))
   {
     return;
   }
   if (this->Leaf)
   {
-    if (this->ValidPoint) {
+    if (this->ValidPoint)
+    {
       vtkVector2f v = this->Point;
       // If the point at this leaf node is at the same position as the new
       // point we are adding, we leave the point associated with the
       // internal node while adding the new point to a child node. This
       // avoids infinite recursion.
-      if ((fabs(v.GetX() - p.GetX()) + fabs(v.GetY() - p.GetY())) < .01) {
+      if ((fabs(v.GetX() - p.GetX()) + fabs(v.GetY() - p.GetY())) < .01)
+      {
         this->InsertChild(p, vert, x1, y1, x2, y2);
-      } else {
+      }
+      else
+      {
         this->ValidPoint = false;
         this->InsertChild(v, this->Vertex, x1, y1, x2, y2);
         this->InsertChild(p, vert, x1, y1, x2, y2);
       }
-    } else {
+    }
+    else
+    {
       this->Point = p;
       this->ValidPoint = true;
       this->Vertex = vert;
     }
-  } else {
+  }
+  else
+  {
     this->InsertChild(p, vert, x1, y1, x2, y2);
   }
 }
@@ -120,11 +130,17 @@ void Quad::InsertChild(vtkVector2f& p, vtkIdType vert, float x1, float y1, float
   {
     this->Nodes[i] = new Quad();
   }
-  Quad *n = this->Nodes[i];
+  Quad* n = this->Nodes[i];
 
   // Update the bounds as we recurse.
-  if (right) x1 = sx; else x2 = sx;
-  if (bottom) y1 = sy; else y2 = sy;
+  if (right)
+    x1 = sx;
+  else
+    x2 = sx;
+  if (bottom)
+    y1 = sy;
+  else
+    y2 = sy;
   n->Insert(p, vert, x1, y1, x2, y2);
 }
 
@@ -137,7 +153,7 @@ void Quad::ForceAccumulate(float alpha, float charge)
   {
     for (int i = 0; i < 4; ++i)
     {
-      Quad *c = this->Nodes[i];
+      Quad* c = this->Nodes[i];
       if (!c)
       {
         continue;
@@ -165,7 +181,8 @@ void Quad::ForceAccumulate(float alpha, float charge)
   this->Center = vtkVector2f(cx / this->Charge, cy / this->Charge);
 }
 
-bool Quad::Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float x2, float theta)
+bool Quad::Repulse(
+  vtkVector2f& prev, vtkVector2f& p, vtkIdType vert, float x1, float x2, float theta)
 {
   if (this->Vertex != vert)
   {
@@ -191,16 +208,21 @@ bool Quad::Repulse(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, 
   return !this->Charge;
 }
 
-void Quad::Visit(vtkVector2f &prev, vtkVector2f &p, vtkIdType vert, float x1, float y1, float x2, float y2, float theta)
+void Quad::Visit(vtkVector2f& prev, vtkVector2f& p, vtkIdType vert, float x1, float y1, float x2,
+  float y2, float theta)
 {
   if (!this->Repulse(prev, p, vert, x1, x2, theta))
   {
     float sx = (x1 + x2) * .5;
     float sy = (y1 + y2) * .5;
-    if (this->Nodes[0]) this->Nodes[0]->Visit(prev, p, vert, x1, y1, sx, sy, theta);
-    if (this->Nodes[1]) this->Nodes[1]->Visit(prev, p, vert, sx, y1, x2, sy, theta);
-    if (this->Nodes[2]) this->Nodes[2]->Visit(prev, p, vert, x1, sy, sx, y2, theta);
-    if (this->Nodes[3]) this->Nodes[3]->Visit(prev, p, vert, sx, sy, x2, y2, theta);
+    if (this->Nodes[0])
+      this->Nodes[0]->Visit(prev, p, vert, x1, y1, sx, sy, theta);
+    if (this->Nodes[1])
+      this->Nodes[1]->Visit(prev, p, vert, sx, y1, x2, sy, theta);
+    if (this->Nodes[2])
+      this->Nodes[2]->Visit(prev, p, vert, x1, sy, sx, y2, theta);
+    if (this->Nodes[3])
+      this->Nodes[3]->Visit(prev, p, vert, sx, sy, x2, y2, theta);
   }
 }
 
@@ -211,10 +233,10 @@ public:
 
   vtkVector2f& GetPosition(vtkIdType i)
   {
-    return *(reinterpret_cast<vtkVector2f*>(this->Position + 3*i));
+    return *(reinterpret_cast<vtkVector2f*>(this->Position + 3 * i));
   }
 
-  float *Position;
+  float* Position;
   std::vector<vtkVector2f> LastPosition;
 };
 
@@ -251,7 +273,8 @@ void vtkIncrementalForceLayout::UpdatePositions()
 
   vtkIdType numVerts = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
-  this->Impl->Position = vtkArrayDownCast<vtkFloatArray>(this->Graph->GetPoints()->GetData())->GetPointer(0);
+  this->Impl->Position =
+    vtkArrayDownCast<vtkFloatArray>(this->Graph->GetPoints()->GetData())->GetPointer(0);
   while (numVerts >= static_cast<vtkIdType>(this->Impl->LastPosition.size()))
   {
     this->Impl->LastPosition.push_back(vtkVector2f(0.0f, 0.0f));
@@ -260,7 +283,7 @@ void vtkIncrementalForceLayout::UpdatePositions()
   // Swap pos and lastpos for fixed node
   if (this->Fixed >= 0 && this->Fixed < numVerts)
   {
-    vtkVector2f &pos = this->Impl->GetPosition(this->Fixed);
+    vtkVector2f& pos = this->Impl->GetPosition(this->Fixed);
     vtkVector2f temp = pos;
     pos = this->Impl->LastPosition[this->Fixed];
     this->Impl->LastPosition[this->Fixed] = temp;
@@ -355,13 +378,14 @@ void vtkIncrementalForceLayout::UpdatePositions()
   }
 
   // Charge force
-  Quad *tree = new Quad(this->Impl->Position, numVerts, x1, y1, x2, y2);
+  Quad* tree = new Quad(this->Impl->Position, numVerts, x1, y1, x2, y2);
   tree->ForceAccumulate(this->Alpha, this->Charge);
   for (vtkIdType v = 0; v < numVerts; ++v)
   {
     if (v != this->Fixed)
     {
-      tree->Visit(this->Impl->LastPosition[v], this->Impl->GetPosition(v), v, x1, y1, x2, y2, this->Theta);
+      tree->Visit(
+        this->Impl->LastPosition[v], this->Impl->GetPosition(v), v, x1, y1, x2, y2, this->Theta);
     }
   }
   delete tree;
@@ -386,15 +410,14 @@ void vtkIncrementalForceLayout::UpdatePositions()
 
 void vtkIncrementalForceLayout::SetFixed(vtkIdType v)
 {
-  if (this->Fixed >= 0 &&
-      this->Fixed < static_cast<vtkIdType>(this->Impl->LastPosition.size()))
+  if (this->Fixed >= 0 && this->Fixed < static_cast<vtkIdType>(this->Impl->LastPosition.size()))
   {
     this->Impl->LastPosition[this->Fixed] = this->Impl->GetPosition(this->Fixed);
   }
   this->Fixed = v;
 }
 
-void vtkIncrementalForceLayout::PrintSelf(ostream &os, vtkIndent indent)
+void vtkIncrementalForceLayout::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

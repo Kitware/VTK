@@ -49,13 +49,11 @@ static const int VERBOSE_MODE = CDash;
 class vtkSimpleCommand : public vtkCommand
 {
 public:
-  static vtkSimpleCommand* New() { return new vtkSimpleCommand();}
+  static vtkSimpleCommand* New() { return new vtkSimpleCommand(); }
   vtkTypeMacro(vtkSimpleCommand, vtkCommand);
 
-  void Execute(vtkObject*, unsigned long, void*) override
-  {
-      this->MTime.Modified();
-  }
+  void Execute(vtkObject*, unsigned long, void*) override { this->MTime.Modified(); }
+
 protected:
   static vtkTimeStamp MTime;
 };
@@ -76,7 +74,9 @@ int TestObserversPerformance(int, char*[])
   {
     if (VERBOSE_MODE & Csv)
     {
-      std::cout << eventCount << " events:" << "\n" << ",";
+      std::cout << eventCount << " events:"
+                << "\n"
+                << ",";
       for (int observerCount = 1; observerCount <= maxObserverCount; observerCount *= 10)
       {
         std::cout << observerCount << ",";
@@ -112,8 +112,8 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
   if (VERBOSE_MODE & Details)
   {
     std::cout << "StressInvoke " << invokeCount << " invokes "
-              << "on " << eventCount << " events observed by "
-              << observerCount / eventCount << " observers each." << std::endl;
+              << "on " << eventCount << " events observed by " << observerCount / eventCount
+              << " observers each." << std::endl;
   }
   vtkObject* volcano = vtkObject::New();
   std::vector<vtkSmartPointer<vtkSimpleCommand> > observers;
@@ -149,10 +149,14 @@ double StressInvoke(const int observerCount, const int eventCount, const int inv
   totalTimer->StopTimer();
   if (VERBOSE_MODE & Details)
   {
-    std::cout << "     Add: " << addTimer->GetElapsedTime() << " seconds" << "\n"
-              << "     Invoke: " << invokeTimer->GetElapsedTime() << " seconds" << "\n"
-              << "     Remove: " << removeTimer->GetElapsedTime() << " seconds" << "\n"
-              << ">>>> Total: " << totalTimer->GetElapsedTime() << " seconds" << "\n";
+    std::cout << "     Add: " << addTimer->GetElapsedTime() << " seconds"
+              << "\n"
+              << "     Invoke: " << invokeTimer->GetElapsedTime() << " seconds"
+              << "\n"
+              << "     Remove: " << removeTimer->GetElapsedTime() << " seconds"
+              << "\n"
+              << ">>>> Total: " << totalTimer->GetElapsedTime() << " seconds"
+              << "\n";
   }
   return totalTimer->GetElapsedTime();
 }
@@ -168,10 +172,9 @@ double TestStressInvoke(int observerCount, int eventCount, int invokeCount)
   meanDuration /= STRESS_COUNT;
   if (VERBOSE_MODE == CDash)
   {
-    std::cout << "<DartMeasurement name=\"StressInvoke-"
-              << observerCount << "-" << eventCount << "-" << invokeCount
-              << "\" type=\"numeric/double\">"
-              << meanDuration << "</DartMeasurement>" << std::endl;
+    std::cout << "<DartMeasurement name=\"StressInvoke-" << observerCount << "-" << eventCount
+              << "-" << invokeCount << "\" type=\"numeric/double\">" << meanDuration
+              << "</DartMeasurement>" << std::endl;
   }
   return meanDuration;
 }

@@ -16,7 +16,7 @@
 
 @interface SettingsTableViewController ()
 
-@property (weak, nonatomic) IBOutlet UISwitch *enableprobeSwitch;
+@property (weak, nonatomic) IBOutlet UISwitch* enableprobeSwitch;
 
 @end
 
@@ -25,8 +25,8 @@
 - (IBAction)EnableProbeChanged:(id)sender
 {
   // Inside another ViewController
-  VTKViewController *vtkVC = (VTKViewController *)
-      [self.navigationController.viewControllers firstObject];
+  VTKViewController* vtkVC =
+    (VTKViewController*)[self.navigationController.viewControllers firstObject];
   [vtkVC setProbeEnabled:[sender isOn]];
 }
 
@@ -34,15 +34,15 @@
 {
   [super viewDidLoad];
 
-  VTKViewController *vtkVC = (VTKViewController *)
-      [self.navigationController.viewControllers firstObject];
+  VTKViewController* vtkVC =
+    (VTKViewController*)[self.navigationController.viewControllers firstObject];
   [self.enableprobeSwitch setOn:[vtkVC getProbeEnabled]];
 
   // Uncomment the following line to preserve selection between presentations.
   // self.clearsSelectionOnViewWillAppear = NO;
 
-  // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-  // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+  // Uncomment the following line to display an Edit button in the navigation bar for this view
+  // controller. self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
 - (void)didReceiveMemoryWarning
@@ -51,16 +51,17 @@
   // Dispose of any resources that can be recreated.
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
 {
   [tableView deselectRowAtIndexPath:indexPath animated:NO];
 
   if (indexPath.row == 1)
   {
-    UIDocumentPickerViewController *documentPicker =
-      [[UIDocumentPickerViewController alloc]
-        initWithDocumentTypes:@[@"com.kitware.vtu",@"com.kitware.vts",@"com.kitware.vtr",@"com.kitware.vti"]
-        inMode:UIDocumentPickerModeImport];
+    UIDocumentPickerViewController* documentPicker =
+      [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[
+        @"com.kitware.vtu", @"com.kitware.vts", @"com.kitware.vtr", @"com.kitware.vti"
+      ]
+                                                             inMode:UIDocumentPickerModeImport];
     documentPicker.delegate = self;
     documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
     [self presentViewController:documentPicker animated:NO completion:nil];
@@ -75,41 +76,44 @@
   }
 }
 
-- (void)documentMenu:(UIDocumentMenuViewController *)documentMenu
-  didPickDocumentPicker:(UIDocumentPickerViewController *)documentPicker
+- (void)documentMenu:(UIDocumentMenuViewController*)documentMenu
+  didPickDocumentPicker:(UIDocumentPickerViewController*)documentPicker
 {
   // documentPicker.delegate = self;
   // documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
   // [self presentViewController:documentPicker animated:YES completion:nil];
 }
 
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url
+- (void)documentPicker:(UIDocumentPickerViewController*)controller didPickDocumentAtURL:(NSURL*)url
 {
   if (controller.documentPickerMode == UIDocumentPickerModeImport)
   {
-    NSString *alertMessage = [NSString stringWithFormat:@"Successfully imported %@", [url lastPathComponent]];
+    NSString* alertMessage =
+      [NSString stringWithFormat:@"Successfully imported %@", [url lastPathComponent]];
     dispatch_async(dispatch_get_main_queue(), ^{
-      UIAlertController *alertController = [UIAlertController
-      alertControllerWithTitle:@"Import"
-      message:alertMessage
-      preferredStyle:UIAlertControllerStyleAlert];
-      [alertController addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil]];
+      UIAlertController* alertController =
+        [UIAlertController alertControllerWithTitle:@"Import"
+                                            message:alertMessage
+                                     preferredStyle:UIAlertControllerStyleAlert];
+      [alertController addAction:[UIAlertAction actionWithTitle:@"Ok"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:nil]];
       [self presentViewController:alertController animated:YES completion:nil];
     });
 
     // pass the data to the mapper
-    VTKViewController *vtkVC = (VTKViewController *)
-        [self.navigationController.viewControllers firstObject];
+    VTKViewController* vtkVC =
+      (VTKViewController*)[self.navigationController.viewControllers firstObject];
     [vtkVC setNewDataFile:url];
   }
 }
 
-
 #pragma mark - Table view data source
 
 /*
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath
+*)indexPath { UITableViewCell *cell = [tableView
+dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
 
     // Configure the cell...
 
@@ -127,19 +131,23 @@
 
 /*
 // Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
+- (void)tableView:(UITableView *)tableView
+commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath
+*)indexPath { if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+        [tableView deleteRowsAtIndexPaths:@[indexPath]
+withRowAnimation:UITableViewRowAnimationFade]; } else if (editingStyle ==
+UITableViewCellEditingStyleInsert) {
+        // Create a new instance of the appropriate class, insert it into the array, and add a new
+row to the table view
     }
 }
 */
 
 /*
 // Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath
+toIndexPath:(NSIndexPath *)toIndexPath {
 }
 */
 
@@ -154,7 +162,8 @@
 /*
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
+// In a storyboard-based application, you will often want to do a little preparation before
+navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.

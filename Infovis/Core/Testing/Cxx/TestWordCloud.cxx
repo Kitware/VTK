@@ -30,7 +30,7 @@
 
 #include <iostream>
 
-int TestWordCloud(int argc, char *argv[])
+int TestWordCloud(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -49,7 +49,7 @@ int TestWordCloud(int argc, char *argv[])
   wordCloud->Update();
   std::cout << "File" << argv[1] << std::endl;
   std::cout << "Font" << argv[2] << std::endl;
-  std::cout << "Kept Words: "    << wordCloud->GetKeptWords().size() << std::endl;
+  std::cout << "Kept Words: " << wordCloud->GetKeptWords().size() << std::endl;
   std::cout << "Stopped Words: " << wordCloud->GetStoppedWords().size() << std::endl;
   std::cout << "Skipped Words: " << wordCloud->GetSkippedWords().size() << std::endl;
 

@@ -2,7 +2,7 @@
 #include <vtkDenseArray.h>
 #include <vtkSparseArray.h>
 
-int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int main(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   ////////////////////////////////////////////////////////
   // Creating N-Way Arrays

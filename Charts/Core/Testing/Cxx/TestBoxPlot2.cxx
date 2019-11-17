@@ -35,32 +35,28 @@
 #include "vtkTestErrorObserver.h"
 
 //----------------------------------------------------------------------------
-int TestBoxPlot2(int , char* [])
+int TestBoxPlot2(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
-  vtkSmartPointer<vtkContextView> view =
-    vtkSmartPointer<vtkContextView>::New();
+  vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderWindow()->SetSize(400, 400);
   view->GetRenderWindow()->SetMultiSamples(0);
 
-  vtkSmartPointer<vtkChartBox> chart =
-    vtkSmartPointer<vtkChartBox>::New();
+  vtkSmartPointer<vtkChartBox> chart = vtkSmartPointer<vtkChartBox>::New();
   view->GetScene()->AddItem(chart);
 
   // Creates a vtkPlotBox input table
   int numberOfColumns = 5;
-  vtkSmartPointer<vtkTable> inputBoxPlotTable =
-    vtkSmartPointer<vtkTable>::New();
+  vtkSmartPointer<vtkTable> inputBoxPlotTable = vtkSmartPointer<vtkTable>::New();
 
   for (int i = 0; i < numberOfColumns; ++i)
-    {
+  {
     char num[10];
     snprintf(num, sizeof(num), "Run %d", i + 1);
-    vtkSmartPointer<vtkIntArray> arrIndex =
-      vtkSmartPointer<vtkIntArray>::New();
+    vtkSmartPointer<vtkIntArray> arrIndex = vtkSmartPointer<vtkIntArray>::New();
     arrIndex->SetName(num);
     inputBoxPlotTable->AddColumn(arrIndex);
-    }
+  }
 
   // Data from the Michelson Morley experiment
   inputBoxPlotTable->SetNumberOfRows(20);
@@ -87,20 +83,18 @@ int TestBoxPlot2(int , char* [])
     { 960, 800, 840, 780, 870 },
   };
   for (int j = 0; j < 20; ++j)
-    {
+  {
     for (int i = 0; i < 5; ++i)
-      {
+    {
       inputBoxPlotTable->SetValue(j, i, values[j][i]);
-      }
     }
+  }
   // Compute the min, q1, median, q3 qnd max.
-  vtkSmartPointer<vtkComputeQuartiles> quartiles =
-    vtkSmartPointer<vtkComputeQuartiles>::New();
+  vtkSmartPointer<vtkComputeQuartiles> quartiles = vtkSmartPointer<vtkComputeQuartiles>::New();
   quartiles->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inputBoxPlotTable);
   quartiles->Update();
 
-  vtkSmartPointer<vtkLookupTable> lookup =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lookup = vtkSmartPointer<vtkLookupTable>::New();
   lookup->SetNumberOfColors(5);
   lookup->SetRange(0, 4);
   lookup->Build();
@@ -115,12 +109,10 @@ int TestBoxPlot2(int , char* [])
   chart->GetYAxis()->SetTitle("Speed of Light (km/s - 299000)");
   vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  chart->GetPlot(0)->AddObserver(vtkCommand::ErrorEvent,errorObserver);
-
+  chart->GetPlot(0)->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   // Set the labels
-  vtkSmartPointer<vtkStringArray> labels =
-    vtkSmartPointer<vtkStringArray>::New();
+  vtkSmartPointer<vtkStringArray> labels = vtkSmartPointer<vtkStringArray>::New();
   labels->SetNumberOfValues(5);
   labels->SetValue(0, "Run 1");
   labels->SetValue(1, "Run 2");
@@ -139,7 +131,7 @@ int TestBoxPlot2(int , char* [])
   int status = errorObserver->CheckErrorMessage("Input table must contain 5 rows per column");
 
   // Now render a valid plot
-  vtkTable *outTable = quartiles->GetOutput();
+  vtkTable* outTable = quartiles->GetOutput();
   chart->GetPlot(0)->SetInputData(outTable);
   view->Render();
 

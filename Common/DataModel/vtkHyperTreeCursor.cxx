@@ -23,5 +23,5 @@ vtkHyperTreeCursor::~vtkHyperTreeCursor() = default;
 //-----------------------------------------------------------------------------
 void vtkHyperTreeCursor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

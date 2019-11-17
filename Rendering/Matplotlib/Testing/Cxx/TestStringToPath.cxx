@@ -34,19 +34,19 @@
 class StringToPathContextTest : public vtkContextItem
 {
 public:
-  static StringToPathContextTest *New();
+  static StringToPathContextTest* New();
   vtkTypeMacro(StringToPathContextTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter) override;
+  virtual bool Paint(vtkContext2D* painter) override;
 
-  void SetPath(vtkPath *path) { this->Path = path; }
+  void SetPath(vtkPath* path) { this->Path = path; }
 
 protected:
-  vtkPath *Path;
+  vtkPath* Path;
 };
 
 //----------------------------------------------------------------------------
-int TestStringToPath(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestStringToPath(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -59,8 +59,7 @@ int TestStringToPath(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkNew<vtkTextProperty> tprop;
 
   vtkMathTextUtilities::GetInstance()->StringToPath(
-        "$\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$", path,
-        tprop, view->GetRenderWindow()->GetDPI());
+    "$\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$", path, tprop, view->GetRenderWindow()->GetDPI());
 
   test->SetPath(path);
 
@@ -75,10 +74,10 @@ int TestStringToPath(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 vtkStandardNewMacro(StringToPathContextTest);
 
 // This function aims to test the primitives provided by the 2D API.
-bool StringToPathContextTest::Paint(vtkContext2D *painter)
+bool StringToPathContextTest::Paint(vtkContext2D* painter)
 {
   // RGB color lookup table by path point code:
-  double color [4][3];
+  double color[4][3];
   color[vtkPath::MOVE_TO][0] = 1.0;
   color[vtkPath::MOVE_TO][1] = 0.0;
   color[vtkPath::MOVE_TO][2] = 0.0;
@@ -92,8 +91,8 @@ bool StringToPathContextTest::Paint(vtkContext2D *painter)
   color[vtkPath::CUBIC_CURVE][1] = 0.0;
   color[vtkPath::CUBIC_CURVE][2] = 1.0;
 
-  vtkPoints *points = this->Path->GetPoints();
-  vtkIntArray *codes = this->Path->GetCodes();
+  vtkPoints* points = this->Path->GetPoints();
+  vtkIntArray* codes = this->Path->GetCodes();
 
   if (points->GetNumberOfPoints() != codes->GetNumberOfTuples())
   {
@@ -113,7 +112,7 @@ bool StringToPathContextTest::Paint(vtkContext2D *painter)
     int code = codes->GetValue(i);
 
     painter->GetPen()->SetColorF(color[code]);
-    painter->DrawPoint(point[0]*scale + offset, point[1]*scale + offset);
+    painter->DrawPoint(point[0] * scale + offset, point[1] * scale + offset);
   }
 
   return true;

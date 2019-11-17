@@ -33,7 +33,8 @@
 #include "vtkScaledSOADataArrayTemplate.h"
 #endif
 
-namespace vtkDataArrayPrivate {
+namespace vtkDataArrayPrivate
+{
 VTK_INSTANTIATE_VALUERANGE_VALUETYPE(long)
 VTK_INSTANTIATE_VALUERANGE_VALUETYPE(unsigned long)
 VTK_INSTANTIATE_VALUERANGE_VALUETYPE(long long)

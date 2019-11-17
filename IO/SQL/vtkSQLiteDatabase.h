@@ -41,7 +41,7 @@
  *
  * @sa
  * vtkSQLiteQuery
-*/
+ */
 
 #ifndef vtkSQLiteDatabase_h
 #define vtkSQLiteDatabase_h
@@ -62,9 +62,10 @@ class VTKIOSQL_EXPORT vtkSQLiteDatabase : public vtkSQLDatabase
 public:
   vtkTypeMacro(vtkSQLiteDatabase, vtkSQLDatabase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkSQLiteDatabase *New();
+  static vtkSQLiteDatabase* New();
 
-  enum {
+  enum
+  {
     USE_EXISTING,
     USE_EXISTING_OR_CREATE,
     CREATE_OR_CLEAR,
@@ -108,7 +109,7 @@ public:
   /**
    * Get the list of fields for a particular table
    */
-  vtkStringArray* GetRecord(const char *table) override;
+  vtkStringArray* GetRecord(const char* table) override;
 
   /**
    * Return whether a feature is supported by the database.
@@ -129,10 +130,7 @@ public:
   /**
    * String representing database type (e.g. "sqlite").
    */
-  const char* GetDatabaseType() override
-  {
-    return this->DatabaseType;
-  }
+  const char* GetDatabaseType() override { return this->DatabaseType; }
   //@}
 
   //@{
@@ -154,9 +152,8 @@ public:
    * NB: this method implements the SQLite-specific syntax:
    * <column name> <column type> <column attributes>
    */
-  vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                               int tblHandle,
-                                               int colHandle ) override;
+  vtkStdString GetColumnSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle) override;
 
 protected:
   vtkSQLiteDatabase();
@@ -170,22 +167,21 @@ protected:
   bool ParseURL(const char* url) override;
 
 private:
-  vtkSQLiteDatabaseInternals *Internal;
+  vtkSQLiteDatabaseInternals* Internal;
 
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);
 
-  vtkStringArray *Tables;
+  vtkStringArray* Tables;
 
   char* DatabaseType;
   char* DatabaseFileName;
 
   vtkStdString TempURL;
 
-  vtkSQLiteDatabase(const vtkSQLiteDatabase &) = delete;
-  void operator=(const vtkSQLiteDatabase &) = delete;
+  vtkSQLiteDatabase(const vtkSQLiteDatabase&) = delete;
+  void operator=(const vtkSQLiteDatabase&) = delete;
 };
 
 #endif // vtkSQLiteDatabase_h
-

@@ -124,6 +124,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLNativeWidget : public QOpenGLWidget
 {
   Q_OBJECT
   typedef QOpenGLWidget Superclass;
+
 public:
   QVTKOpenGLNativeWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
   QVTKOpenGLNativeWidget(vtkGenericOpenGLRenderWindow* window, QWidget* parent = nullptr,

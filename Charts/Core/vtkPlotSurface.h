@@ -20,7 +20,7 @@
  *
  * 3D surface plot.
  *
-*/
+ */
 
 #ifndef vtkPlotSurface_h
 #define vtkPlotSurface_h
@@ -37,18 +37,18 @@ class VTKCHARTSCORE_EXPORT vtkPlotSurface : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotSurface, vtkPlot3D);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkPlotSurface * New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkPlotSurface* New();
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Set the input to the surface plot.
    */
-  void SetInputData(vtkTable *input) override;
+  void SetInputData(vtkTable* input) override;
 
   //@{
   /**
@@ -56,15 +56,12 @@ public:
    * Do not use these versions of SetInputData, as all the parameters
    * beyond the vtkTable are ignored.
    */
-  void SetInputData(vtkTable *input, const vtkStdString &xName,
-                            const vtkStdString &yName,
-                            const vtkStdString &zName) override;
-  void SetInputData(vtkTable *input, const vtkStdString &xName,
-                            const vtkStdString &yName,
-                            const vtkStdString &zName,
-                            const vtkStdString &colorName) override;
-  void SetInputData(vtkTable *input, vtkIdType xColumn,
-                            vtkIdType yColumn, vtkIdType zColumn) override;
+  void SetInputData(vtkTable* input, const vtkStdString& xName, const vtkStdString& yName,
+    const vtkStdString& zName) override;
+  void SetInputData(vtkTable* input, const vtkStdString& xName, const vtkStdString& yName,
+    const vtkStdString& zName, const vtkStdString& colorName) override;
+  void SetInputData(
+    vtkTable* input, vtkIdType xColumn, vtkIdType yColumn, vtkIdType zColumn) override;
   //@}
 
   /**
@@ -95,7 +92,7 @@ protected:
   /**
    * Helper function used to setup a colored surface.
    */
-  void InsertSurfaceVertex(float *data, float value, int i, int j, int &pos);
+  void InsertSurfaceVertex(float* data, float value, int i, int j, int& pos);
 
   /**
    * Change data values if SetXRange() or SetYRange() were called.
@@ -140,7 +137,7 @@ protected:
   /**
    * The input table used to generate the surface.
    */
-  vtkTable *InputTable;
+  vtkTable* InputTable;
 
   /**
    * The lookup table used to color the surface by height (Z dimension).
@@ -164,9 +161,8 @@ protected:
   bool DataHasBeenRescaled;
 
 private:
-  vtkPlotSurface(const vtkPlotSurface &) = delete;
-  void operator=(const vtkPlotSurface &) = delete;
-
+  vtkPlotSurface(const vtkPlotSurface&) = delete;
+  void operator=(const vtkPlotSurface&) = delete;
 };
 
-#endif //vtkPlotSurface_h
+#endif // vtkPlotSurface_h

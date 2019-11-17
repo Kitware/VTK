@@ -26,7 +26,7 @@ int vtkSMPNumberOfSpecifiedThreads = 0;
 
 void vtkSMPTools::Initialize(int numThreads)
 {
-# pragma omp single
+#pragma omp single
   if (numThreads)
   {
     vtkSMPNumberOfSpecifiedThreads = numThreads;
@@ -41,21 +41,19 @@ int vtkSMPTools::GetEstimatedNumberOfThreads()
 
 int vtk::detail::smp::GetNumberOfThreads()
 {
-  return vtkSMPNumberOfSpecifiedThreads ? vtkSMPNumberOfSpecifiedThreads :
-         omp_get_max_threads();
+  return vtkSMPNumberOfSpecifiedThreads ? vtkSMPNumberOfSpecifiedThreads : omp_get_max_threads();
 }
 
-void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first,
-  vtkIdType last, vtkIdType grain, ExecuteFunctorPtrType functorExecuter,
-  void *functor)
+void vtk::detail::smp::vtkSMPTools_Impl_For_OpenMP(vtkIdType first, vtkIdType last, vtkIdType grain,
+  ExecuteFunctorPtrType functorExecuter, void* functor)
 {
   if (grain <= 0)
   {
-    vtkIdType estimateGrain = (last - first)/(omp_get_max_threads() * 4);
+    vtkIdType estimateGrain = (last - first) / (omp_get_max_threads() * 4);
     grain = (estimateGrain > 0) ? estimateGrain : 1;
   }
 
-# pragma omp parallel for schedule(runtime)
+#pragma omp parallel for schedule(runtime)
   for (vtkIdType from = first; from < last; from += grain)
   {
     functorExecuter(functor, from, grain, last);

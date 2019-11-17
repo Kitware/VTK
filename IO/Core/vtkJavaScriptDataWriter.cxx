@@ -42,26 +42,25 @@ vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
   this->FileName = nullptr;
   this->IncludeFieldNames = true; // Default is to include field names
   this->OutputStream = nullptr;
-  this->SetVariableName( "data" ); // prepare the default.
+  this->SetVariableName("data"); // prepare the default.
 }
 
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
-  this->SetFileName( nullptr );
-  this->SetVariableName( nullptr );
+  this->SetFileName(nullptr);
+  this->SetVariableName(nullptr);
 }
 
 //-----------------------------------------------------------------------------
-int vtkJavaScriptDataWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkJavaScriptDataWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-void vtkJavaScriptDataWriter::SetOutputStream(ostream *output_stream)
+void vtkJavaScriptDataWriter::SetOutputStream(ostream* output_stream)
 {
   this->OutputStream = output_stream;
 }
@@ -75,20 +74,20 @@ ostream* vtkJavaScriptDataWriter::GetOutputStream()
 //-----------------------------------------------------------------------------
 ofstream* vtkJavaScriptDataWriter::OpenFile()
 {
-  if ( !this->FileName )
+  if (!this->FileName)
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return nullptr;
   }
 
-  vtkDebugMacro(<<"Opening file for writing...");
+  vtkDebugMacro(<< "Opening file for writing...");
 
-  ofstream *fptr = new ofstream(this->FileName, ios::out);
+  ofstream* fptr = new ofstream(this->FileName, ios::out);
 
   if (fptr->fail())
   {
-    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    vtkErrorMacro(<< "Unable to open file: " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
     return nullptr;
@@ -112,22 +111,22 @@ void vtkJavaScriptDataWriter::WriteData()
   // Check for filename
   if (this->FileName)
   {
-    ofstream *file_stream = this->OpenFile();
+    ofstream* file_stream = this->OpenFile();
     if (file_stream)
     {
-      this->WriteTable(input_table,file_stream);
+      this->WriteTable(input_table, file_stream);
     }
     file_stream->close();
   }
 
   else if (this->OutputStream)
   {
-    this->WriteTable(input_table,this->OutputStream);
+    this->WriteTable(input_table, this->OutputStream);
   }
 }
 
 //-----------------------------------------------------------------------------
-void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
+void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream* stream_ptr)
 {
   vtkIdType numRows = table->GetNumberOfRows();
   vtkIdType numCols = table->GetNumberOfColumns();
@@ -146,7 +145,7 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
   }
 
   // Header stuff
-  if ( this->VariableName )
+  if (this->VariableName)
   {
     (*stream_ptr) << "var " << this->VariableName << " = [\n";
   }
@@ -156,14 +155,14 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
   }
 
   // For each row
-  for ( vtkIdType r = 0; r < numRows; ++ r )
+  for (vtkIdType r = 0; r < numRows; ++r)
   {
     // row header
     (*stream_ptr) << rowHeader;
 
     // Now for each column put out in the form
     // colname1: data1, colname2: data2, etc
-    for ( int c = 0; c < numCols; ++ c )
+    for (int c = 0; c < numCols; ++c)
     {
       if (this->IncludeFieldNames)
       {
@@ -173,11 +172,11 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
       // If the array is a string array put "" around it
       if (vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray(c)))
       {
-        (*stream_ptr) << "\"" << table->GetValue( r, c ).ToString() << "\",";
+        (*stream_ptr) << "\"" << table->GetValue(r, c).ToString() << "\",";
       }
       else
       {
-        (*stream_ptr) << table->GetValue( r, c ).ToString() << ",";
+        (*stream_ptr) << table->GetValue(r, c).ToString() << ",";
       }
     }
 
@@ -186,7 +185,7 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
   }
 
   // Footer
-  (*stream_ptr) << ( this->VariableName ? "];\n" : "]" );
+  (*stream_ptr) << (this->VariableName ? "];\n" : "]");
 }
 
 //-----------------------------------------------------------------------------
@@ -194,8 +193,6 @@ void vtkJavaScriptDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "VariableName: " << this->VariableName << endl;
-  os << indent << "FileName: " << (this->FileName? this->FileName : "none")
-    << endl;
-  os << indent << "IncludeFieldNames: " <<
-    (this->IncludeFieldNames ? "true" : "false") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "none") << endl;
+  os << indent << "IncludeFieldNames: " << (this->IncludeFieldNames ? "true" : "false") << endl;
 }

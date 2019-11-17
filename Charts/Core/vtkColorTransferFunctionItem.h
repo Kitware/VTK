@@ -25,12 +25,12 @@ class vtkImageData;
 // Description:
 // vtkPlot::Color, vtkPlot::Brush, vtkScalarsToColors::DrawPolyLine,
 // vtkScalarsToColors::MaskAboveCurve have no effect here.
-class VTKCHARTSCORE_EXPORT vtkColorTransferFunctionItem: public vtkScalarsToColorsItem
+class VTKCHARTSCORE_EXPORT vtkColorTransferFunctionItem : public vtkScalarsToColorsItem
 {
 public:
   static vtkColorTransferFunctionItem* New();
   vtkTypeMacro(vtkColorTransferFunctionItem, vtkScalarsToColorsItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetColorTransferFunction(vtkColorTransferFunction* t);
   vtkGetObjectMacro(ColorTransferFunction, vtkColorTransferFunction);

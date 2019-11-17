@@ -35,7 +35,7 @@
  * Note that the filter passes both its point data and cell data to
  * its output, except for normals, since these are distorted by the
  * warping.
-*/
+ */
 
 #ifndef vtkmWarpScalar_h
 #define vtkmWarpScalar_h
@@ -55,8 +55,7 @@ protected:
   vtkmWarpScalar();
   ~vtkmWarpScalar();
 
-  int RequestData(vtkInformation* , vtkInformationVector**,
-                          vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmWarpScalar(const vtkmWarpScalar&) = delete;

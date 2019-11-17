@@ -65,7 +65,7 @@ namespace
 {
 //----------------------------------------------------------------------------
 // Replacement for std::to_string as it is not supported by certain compilers
-template<typename T>
+template <typename T>
 std::string value_to_string(const T& val)
 {
   std::ostringstream ss;
@@ -181,7 +181,7 @@ bool vtkGLTFDocumentLoader::LoadModelMetaDataFromFile(std::string fileName)
 
 /** Data loading **/
 //----------------------------------------------------------------------------
-template<typename Type>
+template <typename Type>
 struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
 {
   int ByteOffset;
@@ -198,7 +198,7 @@ struct vtkGLTFDocumentLoader::BufferDataExtractionWorker
    * If NormalizeTuples is set to true, tuples will be normalized between 0 and 1
    * If normalized is set to true, normalized integers will be converted to float
    */
-  template<typename ArrayType>
+  template <typename ArrayType>
   void operator()(ArrayType* output)
   {
     if (output == nullptr)
@@ -297,7 +297,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * Maps ComponentType value to actual component type, then calls
    * ExecuteBufferDataExtractionWorker, forwarding template types and parameters.
    */
-  template<typename ArrayType, typename vtkArrayDispatchType>
+  template <typename ArrayType, typename vtkArrayDispatchType>
   void DispatchWorkerExecutionByComponentType(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -336,7 +336,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
    * Determines vtkArrayDispatch type, then calls DispatchWorkerExecutionByComponentType,
    * forwarding template types and parameters.
    */
-  template<typename ArrayType>
+  template <typename ArrayType>
   void DispatchWorkerExecution(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -355,7 +355,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
   /**
    * Creates a new BufferDataExtractionWorker, initializes it and starts its execution
    */
-  template<typename ComponentType, typename ArrayType, typename vtkArrayDispatchType>
+  template <typename ComponentType, typename ArrayType, typename vtkArrayDispatchType>
   void ExecuteBufferDataExtractionWorker(
     ArrayType* output, const Accessor& accessor, const BufferView& bufferView)
   {
@@ -381,7 +381,7 @@ struct vtkGLTFDocumentLoader::AccessorLoadingWorker
     this->ExpectedType = expectedType;
   }
 
-  template<typename ArrayType>
+  template <typename ArrayType>
   void operator()(ArrayType* output)
   {
     this->Result = false;
@@ -475,7 +475,7 @@ namespace
  * Extracts a primitive's connectivity indices, and stores the corresponding cells into a
  * vtkCellArray.
  */
-template<typename Type>
+template <typename Type>
 void ExtractAndCastCellBufferData(const std::vector<char>& inbuf,
   vtkSmartPointer<vtkCellArray> output, int byteOffset, int byteStride, int count,
   int numberOfComponents, int mode = vtkGLTFDocumentLoaderInternals::GL_TRIANGLES)

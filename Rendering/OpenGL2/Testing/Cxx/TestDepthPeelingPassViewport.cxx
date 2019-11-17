@@ -24,15 +24,16 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
-namespace {
+namespace
+{
 
 void InitRenderer(vtkRenderer* renderer)
 {
-   renderer->SetUseDepthPeeling(1);
-   renderer->SetMaximumNumberOfPeels(8);
-   renderer->LightFollowCameraOn();
-   renderer->TwoSidedLightingOn();
-   renderer->SetOcclusionRatio(0.0);
+  renderer->SetUseDepthPeeling(1);
+  renderer->SetMaximumNumberOfPeels(8);
+  renderer->LightFollowCameraOn();
+  renderer->TwoSidedLightingOn();
+  renderer->SetOcclusionRatio(0.0);
 }
 
 } // end anon namespace

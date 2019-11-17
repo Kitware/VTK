@@ -29,19 +29,21 @@
 #include "vtkSparseArray.h"
 #include "vtkTable.h"
 
-namespace {
-static const std::vector<std::string> arrayNames = {"temperature0", "temperature1",
-                                              "temperature2", "temperature3"};
-static const std::vector<std::vector<size_t>> resultBins =
-                                  {{0, 0, 1, 1, 2, 2, 3, 3},
-                                   {0, 1, 1, 2, 2, 3, 3, 4},
-                                   {0, 1, 2, 2, 3, 4, 4, 5},
-                                   {0, 1, 2, 3, 3, 4, 5, 6},};
-static const std::vector<size_t> resultFrequency = {2, 1, 1, 1, 1, 1, 1, 2};
+namespace
+{
+static const std::vector<std::string> arrayNames = { "temperature0", "temperature1", "temperature2",
+  "temperature3" };
+static const std::vector<std::vector<size_t> > resultBins = {
+  { 0, 0, 1, 1, 2, 2, 3, 3 },
+  { 0, 1, 1, 2, 2, 3, 3, 4 },
+  { 0, 1, 2, 2, 3, 4, 4, 5 },
+  { 0, 1, 2, 3, 3, 4, 5, 6 },
+};
+static const std::vector<size_t> resultFrequency = { 2, 1, 1, 1, 1, 1, 1, 2 };
 static const int nData = 10;
-static const std::vector<size_t> bins = {4,5,6,7};
-void AddArrayToVTKData(std::string scalarName, vtkDataSetAttributes* pd,
-                          double* data, vtkIdType size)
+static const std::vector<size_t> bins = { 4, 5, 6, 7 };
+void AddArrayToVTKData(
+  std::string scalarName, vtkDataSetAttributes* pd, double* data, vtkIdType size)
 {
   vtkNew<vtkDoubleArray> scalars;
   scalars->SetArray(data, size, 1);
@@ -76,7 +78,7 @@ int TestVTKMNDHistogram(int, char*[])
   vtkNew<vtkmNDHistogram> filter;
   filter->SetInputData(ds);
   size_t index = 0;
-  for (const auto& an: arrayNames)
+  for (const auto& an : arrayNames)
   {
     filter->AddFieldAndBin(an, bins[index++]);
   }
@@ -90,33 +92,31 @@ int TestVTKMNDHistogram(int, char*[])
     // Validate the delta and range
     auto range = filter->GetDataRange(i);
     double delta = filter->GetBinDelta(i);
-    if (range.first != 0.0  || range.second != (i+1)* 9)
+    if (range.first != 0.0 || range.second != (i + 1) * 9)
     {
-      std::cout << "array index=" << i << " does not have right range" <<std::endl;
+      std::cout << "array index=" << i << " does not have right range" << std::endl;
       return 1;
     }
     if (delta != ((range.second - range.first) / bins[i]))
     {
-      std::cout << "array index" << i << " does not have right delta" <<std::endl;
+      std::cout << "array index" << i << " does not have right delta" << std::endl;
       return 1;
     }
   }
-  vtkSparseArray<double>* sa =  static_cast<vtkSparseArray<double>*>(arrayData->GetArray(0));
+  vtkSparseArray<double>* sa = static_cast<vtkSparseArray<double>*>(arrayData->GetArray(0));
   vtkArrayCoordinates coordinates;
-  const vtkIdType dimensions = sa->GetDimensions(); // 4
+  const vtkIdType dimensions = sa->GetDimensions();     // 4
   const vtkIdType non_null_size = sa->GetNonNullSize(); // 8
-  for(vtkIdType n = 0; n != non_null_size; ++n)
+  for (vtkIdType n = 0; n != non_null_size; ++n)
   {
     sa->GetCoordinatesN(n, coordinates);
-    for(vtkIdType d = 0; d != dimensions; ++d)
+    for (vtkIdType d = 0; d != dimensions; ++d)
     {
       assert(coordinates[d] == static_cast<vtkIdType>(resultBins[d][n]));
       if (coordinates[d] != static_cast<vtkIdType>(resultBins[d][n]))
       {
-        std::cout << "value does not match at index " << n <<
-                     " dimension " << d <<std::endl;
+        std::cout << "value does not match at index " << n << " dimension " << d << std::endl;
       }
-
     }
     assert(resultFrequency[n] == sa->GetValue(coordinates));
   }

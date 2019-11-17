@@ -30,22 +30,17 @@
 vtkStandardNewMacro(vtkVolumeNode);
 
 //----------------------------------------------------------------------------
-vtkVolumeNode::vtkVolumeNode()
-{
-}
+vtkVolumeNode::vtkVolumeNode() {}
 
 //----------------------------------------------------------------------------
-vtkVolumeNode::~vtkVolumeNode()
-{
-}
+vtkVolumeNode::~vtkVolumeNode() {}
 
 //----------------------------------------------------------------------------
 void vtkVolumeNode::Build(bool prepass)
 {
   if (prepass)
   {
-    vtkVolume *mine = vtkVolume::SafeDownCast
-      (this->GetRenderable());
+    vtkVolume* mine = vtkVolume::SafeDownCast(this->GetRenderable());
     if (!mine)
     {
       return;

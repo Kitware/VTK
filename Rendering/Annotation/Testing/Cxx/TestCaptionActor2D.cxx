@@ -21,7 +21,7 @@
 #include <vtkTextActor.h>
 #include <vtkTextProperty.h>
 
-int TestCaptionActor2D(int, char *[])
+int TestCaptionActor2D(int, char*[])
 {
   // Draw text with diameter measure
   vtkNew<vtkCaptionActor2D> captionActor;
@@ -34,11 +34,11 @@ int TestCaptionActor2D(int, char *[])
   captionActor->GetCaptionTextProperty()->ShadowOff();
   captionActor->GetCaptionTextProperty()->ItalicOff();
   captionActor->GetCaptionTextProperty()->SetFontFamilyToCourier();
-  captionActor->GetCaptionTextProperty()->SetFontSize( 24 );
+  captionActor->GetCaptionTextProperty()->SetFontSize(24);
   captionActor->GetTextActor()->SetTextScaleModeToNone();
 
   vtkNew<vtkRenderer> renderer;
-  renderer->SetBackground(0,0,0);
+  renderer->SetBackground(0, 0, 0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;

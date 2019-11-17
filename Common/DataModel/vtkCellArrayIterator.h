@@ -16,7 +16,7 @@
 /**
  * @class   vtkCellArrayIterator
  * @brief   Encapsulate traversal logic for vtkCellArray.
-*/
+ */
 
 #ifndef vtkCellArrayIterator_h
 #define vtkCellArrayIterator_h
@@ -24,11 +24,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-#include "vtkCellArray.h" // Needed for inline methods
-#include "vtkIdList.h" // Needed for inline methods
+#include "vtkCellArray.h"    // Needed for inline methods
+#include "vtkIdList.h"       // Needed for inline methods
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <cassert> // for assert
+#include <cassert>     // for assert
 #include <type_traits> // for std::enable_if
 
 /**
@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellArrayIterator : public vtkObject
 public:
   vtkTypeMacro(vtkCellArrayIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkCellArrayIterator *New();
+  static vtkCellArrayIterator* New();
 
   /** The vtkCellArray object being iterated. */
   vtkCellArray* GetCellArray() { return this->CellArray; }
@@ -58,10 +58,7 @@ public:
   }
 
   /** Advance the iterator to the next cell. */
-  void GoToNextCell()
-  {
-    ++this->CurrentCellId;
-  }
+  void GoToNextCell() { ++this->CurrentCellId; }
 
   /**
    * Intialize the iterator to a specific cell. This will revalidate the
@@ -77,16 +74,10 @@ public:
   /**
    * Returns true if the iterator has completed the traversal.
    */
-  bool IsDoneWithTraversal()
-  {
-    return this->CurrentCellId >= this->NumberOfCells;
-  }
+  bool IsDoneWithTraversal() { return this->CurrentCellId >= this->NumberOfCells; }
 
   /** Returns the id of the current cell. */
-  vtkIdType GetCurrentCellId() const
-  {
-    return this->CurrentCellId;
-  }
+  vtkIdType GetCurrentCellId() const { return this->CurrentCellId; }
 
   /**
    * Returns the definition of the current cell. Note that cellPoints is a
@@ -101,7 +92,7 @@ public:
    * @warning Subsequent calls to this method may invalidate previous call
    * results.
    */
-  void GetCurrentCell(vtkIdType &cellSize, vtkIdType const *&cellPoints)
+  void GetCurrentCell(vtkIdType& cellSize, vtkIdType const*& cellPoints)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     // The vtkCellArray::GetCellAtId that returns a pointer is not thread-safe,
@@ -113,7 +104,7 @@ public:
   }
 
   /** Returns the definition of the current cell. */
-  void GetCurrentCell(vtkIdList *ids)
+  void GetCurrentCell(vtkIdList* ids)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->GetCellAtId(this->CurrentCellId, ids);
@@ -133,7 +124,7 @@ public:
    * ids (e.g. `list` must contain the same number of entries as the current
    * cell's points).
    */
-  void ReplaceCurrentCell(vtkIdList *list)
+  void ReplaceCurrentCell(vtkIdList* list)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->ReplaceCellAtId(this->CurrentCellId, list);
@@ -144,7 +135,7 @@ public:
    * CANNOT change the number of points in the cell, it can only redefine the
    * ids (e.g. `npts` must equal the current cell's number of points).
    */
-  void ReplaceCurrentCell(vtkIdType npts, const vtkIdType *pts)
+  void ReplaceCurrentCell(vtkIdType npts, const vtkIdType* pts)
   {
     assert(this->CurrentCellId < this->NumberOfCells);
     this->CellArray->ReplaceCellAtId(this->CurrentCellId, npts, pts);

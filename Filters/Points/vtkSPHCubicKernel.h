@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkSPHKernel vtkSPHInterpolator
-*/
+ */
 
 #ifndef vtkSPHCubicKernel_h
 #define vtkSPHCubicKernel_h
@@ -44,7 +44,6 @@
 class vtkIdList;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkSPHCubicKernel : public vtkSPHKernel
 {
 public:
@@ -52,8 +51,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkSPHCubicKernel *New();
-  vtkTypeMacro(vtkSPHCubicKernel,vtkSPHKernel);
+  static vtkSPHCubicKernel* New();
+  vtkTypeMacro(vtkSPHCubicKernel, vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -61,8 +60,7 @@ public:
    * Produce the computational parameters for the kernel. Invoke this method
    * after setting initial values like SpatialStep.
    */
-  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) override;
+  void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
   //@{
   /**
@@ -70,9 +68,9 @@ public:
    */
   double ComputeFunctionWeight(const double d) override
   {
-    double tmp1 = 2.0 - std::min(d,2.0);
-    double tmp2 = 1.0 - std::min(d,1.0);
-    return (0.25*tmp1*tmp1*tmp1 - tmp2*tmp2*tmp2);
+    double tmp1 = 2.0 - std::min(d, 2.0);
+    double tmp2 = 1.0 - std::min(d, 1.0);
+    return (0.25 * tmp1 * tmp1 * tmp1 - tmp2 * tmp2 * tmp2);
   }
   //@}
 
@@ -83,9 +81,9 @@ public:
    */
   double ComputeDerivWeight(const double d) override
   {
-    double tmp1 = 2.0 - std::min(d,2.0);
-    double tmp2 = 1.0 - std::min(d,1.0);
-    return (-0.75*tmp1*tmp1 + 3.0*tmp2*tmp2);
+    double tmp1 = 2.0 - std::min(d, 2.0);
+    double tmp2 = 1.0 - std::min(d, 1.0);
+    return (-0.75 * tmp1 * tmp1 + 3.0 * tmp2 * tmp2);
   }
   //@}
 

@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkExtractEdges
-*/
+ */
 
 #ifndef vtkFeatureEdges_h
 #define vtkFeatureEdges_h
@@ -46,66 +46,66 @@ class vtkIncrementalPointLocator;
 class VTKFILTERSCORE_EXPORT vtkFeatureEdges : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkFeatureEdges,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkFeatureEdges, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with feature angle = 30; all types of edges extracted
    * and colored.
    */
-  static vtkFeatureEdges *New();
+  static vtkFeatureEdges* New();
 
   //@{
   /**
    * Turn on/off the extraction of boundary edges.
    */
-  vtkSetMacro(BoundaryEdges,vtkTypeBool);
-  vtkGetMacro(BoundaryEdges,vtkTypeBool);
-  vtkBooleanMacro(BoundaryEdges,vtkTypeBool);
+  vtkSetMacro(BoundaryEdges, vtkTypeBool);
+  vtkGetMacro(BoundaryEdges, vtkTypeBool);
+  vtkBooleanMacro(BoundaryEdges, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the extraction of feature edges.
    */
-  vtkSetMacro(FeatureEdges,vtkTypeBool);
-  vtkGetMacro(FeatureEdges,vtkTypeBool);
-  vtkBooleanMacro(FeatureEdges,vtkTypeBool);
+  vtkSetMacro(FeatureEdges, vtkTypeBool);
+  vtkGetMacro(FeatureEdges, vtkTypeBool);
+  vtkBooleanMacro(FeatureEdges, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Specify the feature angle for extracting feature edges.
    */
-  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
-  vtkGetMacro(FeatureAngle,double);
+  vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
+  vtkGetMacro(FeatureAngle, double);
   //@}
 
   //@{
   /**
    * Turn on/off the extraction of non-manifold edges.
    */
-  vtkSetMacro(NonManifoldEdges,vtkTypeBool);
-  vtkGetMacro(NonManifoldEdges,vtkTypeBool);
-  vtkBooleanMacro(NonManifoldEdges,vtkTypeBool);
+  vtkSetMacro(NonManifoldEdges, vtkTypeBool);
+  vtkGetMacro(NonManifoldEdges, vtkTypeBool);
+  vtkBooleanMacro(NonManifoldEdges, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the extraction of manifold edges.
    */
-  vtkSetMacro(ManifoldEdges,vtkTypeBool);
-  vtkGetMacro(ManifoldEdges,vtkTypeBool);
-  vtkBooleanMacro(ManifoldEdges,vtkTypeBool);
+  vtkSetMacro(ManifoldEdges, vtkTypeBool);
+  vtkGetMacro(ManifoldEdges, vtkTypeBool);
+  vtkBooleanMacro(ManifoldEdges, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the coloring of edges by type.
    */
-  vtkSetMacro(Coloring,vtkTypeBool);
-  vtkGetMacro(Coloring,vtkTypeBool);
-  vtkBooleanMacro(Coloring,vtkTypeBool);
+  vtkSetMacro(Coloring, vtkTypeBool);
+  vtkGetMacro(Coloring, vtkTypeBool);
+  vtkBooleanMacro(Coloring, vtkTypeBool);
   //@}
 
   //@{
@@ -113,8 +113,8 @@ public:
    * Set / get a spatial locator for merging points. By
    * default an instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
@@ -133,8 +133,8 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
@@ -142,8 +142,8 @@ protected:
   ~vtkFeatureEdges() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double FeatureAngle;
   vtkTypeBool BoundaryEdges;
@@ -152,12 +152,11 @@ protected:
   vtkTypeBool ManifoldEdges;
   vtkTypeBool Coloring;
   int OutputPointsPrecision;
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
+
 private:
   vtkFeatureEdges(const vtkFeatureEdges&) = delete;
   void operator=(const vtkFeatureEdges&) = delete;
 };
 
 #endif
-
-

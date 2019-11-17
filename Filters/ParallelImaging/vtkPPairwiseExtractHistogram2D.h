@@ -39,7 +39,7 @@
  * @par Thanks:
  *  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
  *------------------------------------------------------------------------------
-*/
+ */
 
 #ifndef vtkPPairwiseExtractHistogram2D_h
 #define vtkPPairwiseExtractHistogram2D_h
@@ -50,7 +50,8 @@
 class vtkExtractHistogram2D;
 class vtkMultiProcessController;
 
-class VTKFILTERSPARALLELIMAGING_EXPORT vtkPPairwiseExtractHistogram2D : public vtkPairwiseExtractHistogram2D
+class VTKFILTERSPARALLELIMAGING_EXPORT vtkPPairwiseExtractHistogram2D
+  : public vtkPairwiseExtractHistogram2D
 {
 public:
   static vtkPPairwiseExtractHistogram2D* New();
@@ -58,7 +59,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 protected:
   vtkPPairwiseExtractHistogram2D();

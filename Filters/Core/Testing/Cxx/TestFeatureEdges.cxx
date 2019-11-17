@@ -19,7 +19,7 @@
 
 namespace
 {
-void InitializePolyData(vtkPolyData *polyData, int dataType)
+void InitializePolyData(vtkPolyData* polyData, int dataType)
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataType(dataType);
@@ -37,7 +37,7 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
 
   vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
   verts->InsertNextCell(8);
-  for(unsigned int i = 0; i < 8; ++i)
+  for (unsigned int i = 0; i < 8; ++i)
   {
     verts->InsertCellPoint(i);
   }
@@ -102,12 +102,10 @@ void InitializePolyData(vtkPolyData *polyData, int dataType)
 
 int FeatureEdges(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkPolyData> inputPolyData
-    = vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> inputPolyData = vtkSmartPointer<vtkPolyData>::New();
   InitializePolyData(inputPolyData, dataType);
 
-  vtkSmartPointer<vtkFeatureEdges> featureEdges
-    = vtkSmartPointer<vtkFeatureEdges>::New();
+  vtkSmartPointer<vtkFeatureEdges> featureEdges = vtkSmartPointer<vtkFeatureEdges>::New();
   featureEdges->SetOutputPointsPrecision(outputPointsPrecision);
   featureEdges->SetInputData(inputPolyData);
 
@@ -120,46 +118,46 @@ int FeatureEdges(int dataType, int outputPointsPrecision)
 }
 }
 
-int TestFeatureEdges(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestFeatureEdges(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int dataType = FeatureEdges(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FeatureEdges(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FeatureEdges(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FeatureEdges(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FeatureEdges(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FeatureEdges(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

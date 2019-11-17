@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[])
 {
-  if(argc != 2)
+  if (argc != 2)
   {
     cerr << "usage: " << argv[0] << " matrix-size\n";
     return 1;
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
   std::istringstream buffer(argv[1]);
   buffer >> size;
 
-  if(size < 1)
+  if (size < 1)
   {
     cerr << "matrix size must be an integer greater-than zero\n";
     return 2;
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
   // Create a sparse identity matrix:
   vtkSparseArray<double>* matrix = vtkSparseArray<double>::New();
   matrix->Resize(0, 0); // To set the number of dimensions
-  for(int n = 0; n != size; ++n)
+  for (int n = 0; n != size; ++n)
   {
     matrix->AddValue(vtkArrayCoordinates(n, n), 1);
   }
@@ -38,4 +38,3 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-

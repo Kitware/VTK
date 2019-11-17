@@ -133,11 +133,10 @@
  *
  * @sa
  * vtkSmoothPolyDataFilter vtkDecimate vtkDecimatePro
-*/
+ */
 
 #ifndef vtkWindowedSincPolyDataFilter_h
 #define vtkWindowedSincPolyDataFilter_h
-
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -145,7 +144,7 @@
 class VTKFILTERSCORE_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkWindowedSincPolyDataFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -155,23 +154,23 @@ public:
    * on. Error scalars and vectors are not generated (by default). The
    * convergence criterion is 0.0 of the bounding box diagonal.
    */
-  static vtkWindowedSincPolyDataFilter *New();
+  static vtkWindowedSincPolyDataFilter* New();
 
   //@{
   /**
    * Specify the number of iterations (or degree of the polynomial
    * approximating the windowed sinc function).
    */
-  vtkSetClampMacro(NumberOfIterations,int,0,VTK_INT_MAX);
-  vtkGetMacro(NumberOfIterations,int);
+  vtkSetClampMacro(NumberOfIterations, int, 0, VTK_INT_MAX);
+  vtkGetMacro(NumberOfIterations, int);
   //@}
 
   //@{
   /**
    * Set the passband value for the windowed sinc filter
    */
-  vtkSetClampMacro(PassBand,double, 0.0, 2.0);
-  vtkGetMacro(PassBand,double);
+  vtkSetClampMacro(PassBand, double, 0.0, 2.0);
+  vtkGetMacro(PassBand, double);
   //@}
 
   //@{
@@ -193,17 +192,17 @@ public:
   /**
    * Turn on/off smoothing along sharp interior edges.
    */
-  vtkSetMacro(FeatureEdgeSmoothing,vtkTypeBool);
-  vtkGetMacro(FeatureEdgeSmoothing,vtkTypeBool);
-  vtkBooleanMacro(FeatureEdgeSmoothing,vtkTypeBool);
+  vtkSetMacro(FeatureEdgeSmoothing, vtkTypeBool);
+  vtkGetMacro(FeatureEdgeSmoothing, vtkTypeBool);
+  vtkBooleanMacro(FeatureEdgeSmoothing, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Specify the feature angle for sharp edge identification.
    */
-  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
-  vtkGetMacro(FeatureAngle,double);
+  vtkSetClampMacro(FeatureAngle, double, 0.0, 180.0);
+  vtkGetMacro(FeatureAngle, double);
   //@}
 
   //@{
@@ -211,51 +210,51 @@ public:
    * Specify the edge angle to control smoothing along edges (either interior
    * or boundary).
    */
-  vtkSetClampMacro(EdgeAngle,double,0.0,180.0);
-  vtkGetMacro(EdgeAngle,double);
+  vtkSetClampMacro(EdgeAngle, double, 0.0, 180.0);
+  vtkGetMacro(EdgeAngle, double);
   //@}
 
   //@{
   /**
    * Turn on/off the smoothing of vertices on the boundary of the mesh.
    */
-  vtkSetMacro(BoundarySmoothing,vtkTypeBool);
-  vtkGetMacro(BoundarySmoothing,vtkTypeBool);
-  vtkBooleanMacro(BoundarySmoothing,vtkTypeBool);
+  vtkSetMacro(BoundarySmoothing, vtkTypeBool);
+  vtkGetMacro(BoundarySmoothing, vtkTypeBool);
+  vtkBooleanMacro(BoundarySmoothing, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Smooth non-manifold vertices.
    */
-  vtkSetMacro(NonManifoldSmoothing,vtkTypeBool);
-  vtkGetMacro(NonManifoldSmoothing,vtkTypeBool);
-  vtkBooleanMacro(NonManifoldSmoothing,vtkTypeBool);
+  vtkSetMacro(NonManifoldSmoothing, vtkTypeBool);
+  vtkGetMacro(NonManifoldSmoothing, vtkTypeBool);
+  vtkBooleanMacro(NonManifoldSmoothing, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the generation of scalar distance values.
    */
-  vtkSetMacro(GenerateErrorScalars,vtkTypeBool);
-  vtkGetMacro(GenerateErrorScalars,vtkTypeBool);
-  vtkBooleanMacro(GenerateErrorScalars,vtkTypeBool);
+  vtkSetMacro(GenerateErrorScalars, vtkTypeBool);
+  vtkGetMacro(GenerateErrorScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateErrorScalars, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the generation of error vectors.
    */
-  vtkSetMacro(GenerateErrorVectors,vtkTypeBool);
-  vtkGetMacro(GenerateErrorVectors,vtkTypeBool);
-  vtkBooleanMacro(GenerateErrorVectors,vtkTypeBool);
+  vtkSetMacro(GenerateErrorVectors, vtkTypeBool);
+  vtkGetMacro(GenerateErrorVectors, vtkTypeBool);
+  vtkBooleanMacro(GenerateErrorVectors, vtkTypeBool);
   //@}
 
- protected:
+protected:
   vtkWindowedSincPolyDataFilter();
   ~vtkWindowedSincPolyDataFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int NumberOfIterations;
   double PassBand;
@@ -267,6 +266,7 @@ public:
   vtkTypeBool GenerateErrorScalars;
   vtkTypeBool GenerateErrorVectors;
   vtkTypeBool NormalizeCoordinates;
+
 private:
   vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) = delete;
   void operator=(const vtkWindowedSincPolyDataFilter&) = delete;

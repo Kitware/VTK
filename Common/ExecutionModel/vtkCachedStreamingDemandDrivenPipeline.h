@@ -16,7 +16,7 @@
  * @class   vtkCachedStreamingDemandDrivenPipeline
  *
  * vtkCachedStreamingDemandDrivenPipeline
-*/
+ */
 
 #ifndef vtkCachedStreamingDemandDrivenPipeline_h
 #define vtkCachedStreamingDemandDrivenPipeline_h
@@ -27,13 +27,12 @@
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCachedStreamingDemandDrivenPipeline :
-  public vtkStreamingDemandDrivenPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCachedStreamingDemandDrivenPipeline
+  : public vtkStreamingDemandDrivenPipeline
 {
 public:
   static vtkCachedStreamingDemandDrivenPipeline* New();
-  vtkTypeMacro(vtkCachedStreamingDemandDrivenPipeline,
-                       vtkStreamingDemandDrivenPipeline);
+  vtkTypeMacro(vtkCachedStreamingDemandDrivenPipeline, vtkStreamingDemandDrivenPipeline);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -49,17 +48,15 @@ protected:
   vtkCachedStreamingDemandDrivenPipeline();
   ~vtkCachedStreamingDemandDrivenPipeline() override;
 
-  int NeedToExecuteData(int outputPort,
-                                vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) override;
-  int ExecuteData(vtkInformation* request,
-                          vtkInformationVector** inInfoVec,
-                          vtkInformationVector* outInfoVec) override;
+  int NeedToExecuteData(
+    int outputPort, vtkInformationVector** inInfoVec, vtkInformationVector* outInfoVec) override;
+  int ExecuteData(vtkInformation* request, vtkInformationVector** inInfoVec,
+    vtkInformationVector* outInfoVec) override;
 
   int CacheSize;
 
-  vtkDataObject **Data;
-  vtkMTimeType *Times;
+  vtkDataObject** Data;
+  vtkMTimeType* Times;
 
 private:
   vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) = delete;

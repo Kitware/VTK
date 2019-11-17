@@ -27,96 +27,91 @@
 #include "vtkRenderer.h"
 #include "vtkVolumeMapper.h"
 
-
 namespace vtkBlockSortHelper
 {
 
+/**
+ *  operator() for back-to-front sorting.
+ *
+ *  \note Use as the 'comp' parameter of std::sort.
+ *
+ */
+template <typename T>
+struct BackToFront
+{
+  double CameraPosition[4];
+
+  //----------------------------------------------------------------------------
+  BackToFront(vtkRenderer* ren, vtkMatrix4x4* volMatrix)
+  {
+    vtkCamera* cam = ren->GetActiveCamera();
+    double camWorldPos[4];
+
+    cam->GetPosition(camWorldPos);
+    camWorldPos[3] = 1.0;
+
+    // Transform the camera position to the volume (dataset) coordinate system.
+    vtkNew<vtkMatrix4x4> InverseVolumeMatrix;
+    InverseVolumeMatrix->DeepCopy(volMatrix);
+    InverseVolumeMatrix->Invert();
+    InverseVolumeMatrix->MultiplyPoint(camWorldPos, this->CameraPosition);
+  };
+
+  //----------------------------------------------------------------------------
+  bool operator()(T* first, T* second);
+
   /**
-   *  operator() for back-to-front sorting.
+   * Compares distances from images (first, second) to the camera position.
+   * Returns true if the distance of first is greater than the distance of
+   * second (descending order according to the std::sort convention).
    *
-   *  \note Use as the 'comp' parameter of std::sort.
-   *
+   * Note this does not provide the correct rendering order all the time.
+   * To get the correct rendering order (if there is one) you need a more
+   * complex algorithm.
    */
-  template<typename T>
-  struct BackToFront
+  //----------------------------------------------------------------------------
+  inline bool CompareByDistanceDescending(vtkImageData* first, vtkImageData* second)
   {
-    double CameraPosition[4];
+    double center[3];
+    double bounds[6];
 
-    //----------------------------------------------------------------------------
-    BackToFront(vtkRenderer* ren, vtkMatrix4x4* volMatrix)
-    {
-      vtkCamera* cam = ren->GetActiveCamera();
-      double camWorldPos[4];
+    first->GetBounds(bounds);
+    this->ComputeCenter(bounds, center);
+    double const dist1 = vtkMath::Distance2BetweenPoints(center, this->CameraPosition);
 
-      cam->GetPosition(camWorldPos);
-      camWorldPos[3] = 1.0;
+    second->GetBounds(bounds);
+    this->ComputeCenter(bounds, center);
+    double const dist2 = vtkMath::Distance2BetweenPoints(center, this->CameraPosition);
 
-      // Transform the camera position to the volume (dataset) coordinate system.
-      vtkNew<vtkMatrix4x4> InverseVolumeMatrix;
-      InverseVolumeMatrix->DeepCopy(volMatrix);
-      InverseVolumeMatrix->Invert();
-      InverseVolumeMatrix->MultiplyPoint(camWorldPos, this->CameraPosition);
-    };
-
-    //----------------------------------------------------------------------------
-    bool operator()(T* first, T* second);
-
-    /**
-     * Compares distances from images (first, second) to the camera position.
-     * Returns true if the distance of first is greater than the distance of
-     * second (descending order according to the std::sort convention).
-     *
-     * Note this does not provide the correct rendering order all the time.
-     * To get the correct rendering order (if there is one) you need a more
-     * complex algorithm.
-     */
-    //----------------------------------------------------------------------------
-    inline bool CompareByDistanceDescending(vtkImageData* first,
-      vtkImageData* second)
-    {
-      double center[3];
-      double bounds[6];
-
-      first->GetBounds(bounds);
-      this->ComputeCenter(bounds, center);
-      double const dist1 = vtkMath::Distance2BetweenPoints(center,
-        this->CameraPosition);
-
-      second->GetBounds(bounds);
-      this->ComputeCenter(bounds, center);
-      double const dist2 = vtkMath::Distance2BetweenPoints(center,
-        this->CameraPosition);
-
-      return dist2 < dist1;
-    };
-
-    //----------------------------------------------------------------------------
-    inline void ComputeCenter(double const* bounds, double* center)
-    {
-      center[0] = bounds[0] + std::abs(bounds[1] - bounds[0]) / 2.0;
-      center[1] = bounds[2] + std::abs(bounds[3] - bounds[2]) / 2.0;
-      center[2] = bounds[4] + std::abs(bounds[5] - bounds[4]) / 2.0;
-    };
+    return dist2 < dist1;
   };
 
   //----------------------------------------------------------------------------
-  template <>
-  inline bool BackToFront<vtkImageData>::operator() (vtkImageData* first,
-    vtkImageData* second)
+  inline void ComputeCenter(double const* bounds, double* center)
   {
-    return CompareByDistanceDescending(first, second);
+    center[0] = bounds[0] + std::abs(bounds[1] - bounds[0]) / 2.0;
+    center[1] = bounds[2] + std::abs(bounds[3] - bounds[2]) / 2.0;
+    center[2] = bounds[4] + std::abs(bounds[5] - bounds[4]) / 2.0;
   };
+};
 
-  //----------------------------------------------------------------------------
-  template <>
-  inline bool BackToFront<vtkVolumeMapper>::operator() (vtkVolumeMapper* first,
-    vtkVolumeMapper* second)
-  {
-    vtkImageData* firstIm = first->GetInput();
-    vtkImageData* secondIm = second->GetInput();
+//----------------------------------------------------------------------------
+template <>
+inline bool BackToFront<vtkImageData>::operator()(vtkImageData* first, vtkImageData* second)
+{
+  return CompareByDistanceDescending(first, second);
+};
 
-    return CompareByDistanceDescending(firstIm, secondIm);
-  };
+//----------------------------------------------------------------------------
+template <>
+inline bool BackToFront<vtkVolumeMapper>::operator()(
+  vtkVolumeMapper* first, vtkVolumeMapper* second)
+{
+  vtkImageData* firstIm = first->GetInput();
+  vtkImageData* secondIm = second->GetInput();
+
+  return CompareByDistanceDescending(firstIm, secondIm);
+};
 }
 
 #endif // vtkBlockSortHelper_h

@@ -28,7 +28,7 @@
  * ghost cells properly (i.e. you might see seames between the pieces).
  * @sa
  * vtkAppendFilter
-*/
+ */
 
 #ifndef vtkPolyDataStreamer_h
 #define vtkPolyDataStreamer_h
@@ -41,9 +41,9 @@ class vtkAppendPolyData;
 class VTKFILTERSGENERAL_EXPORT vtkPolyDataStreamer : public vtkStreamerBase
 {
 public:
-  static vtkPolyDataStreamer *New();
+  static vtkPolyDataStreamer* New();
 
-  vtkTypeMacro(vtkPolyDataStreamer,vtkStreamerBase);
+  vtkTypeMacro(vtkPolyDataStreamer, vtkStreamerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -51,10 +51,7 @@ public:
    * Set the number of pieces to divide the problem into.
    */
   void SetNumberOfStreamDivisions(int num);
-  int GetNumberOfStreamDivisions()
-  {
-    return this->NumberOfPasses;
-  }
+  int GetNumberOfStreamDivisions() { return this->NumberOfPasses; }
   //@}
 
   //@{
@@ -67,7 +64,6 @@ public:
   vtkBooleanMacro(ColorByPiece, vtkTypeBool);
   //@}
 
-
 protected:
   vtkPolyDataStreamer();
   ~vtkPolyDataStreamer() override;
@@ -76,15 +72,14 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int ExecutePass(vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int ExecutePass(vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
 
-  int PostExecute(vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) override;
+  int PostExecute(vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
 
   vtkTypeBool ColorByPiece;
+
 private:
   vtkPolyDataStreamer(const vtkPolyDataStreamer&) = delete;
   void operator=(const vtkPolyDataStreamer&) = delete;

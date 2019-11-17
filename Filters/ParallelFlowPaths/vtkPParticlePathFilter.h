@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkPParticlePathFilterBase has the details of the algorithms
-*/
+ */
 
 #ifndef vtkPParticlePathFilter_h
 #define vtkPParticlePathFilter_h
@@ -30,13 +30,13 @@
 #include "vtkParticlePathFilter.h" //for utility
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
-class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticlePathFilter: public vtkPParticleTracerBase
+class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticlePathFilter : public vtkPParticleTracerBase
 {
 public:
-  vtkTypeMacro(vtkPParticlePathFilter,vtkPParticleTracerBase);
+  vtkTypeMacro(vtkPParticlePathFilter, vtkPParticleTracerBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPParticlePathFilter *New();
+  static vtkPParticlePathFilter* New();
 
 protected:
   vtkPParticlePathFilter();
@@ -45,16 +45,16 @@ protected:
   virtual void ResetCache() override;
   virtual int OutputParticles(vtkPolyData* poly) override;
   virtual void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
-  virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) override;
+  virtual void AppendToExtraPointDataArrays(
+    vtkParticleTracerBaseNamespace::ParticleInformation&) override;
   void Finalize() override;
 
   //
   // Store any information we need in the output and fetch what we can
   // from the input
   //
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   ParticlePathFilterInternal It;
   vtkDoubleArray* SimulationTime;

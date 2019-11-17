@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-int main(int , char* /* argv */[])
+int main(int, char* /* argv */[])
 {
   int result = 0;
 

@@ -51,40 +51,37 @@ vtkDataSetToDataObjectFilter::~vtkDataSetToDataObjectFilter() = default;
 
 //----------------------------------------------------------------------------
 int vtkDataSetToDataObjectFilter::RequestData(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkFieldData *fd=vtkFieldData::New();
-  vtkPoints *pts;
-  vtkDataArray *da;
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkFieldData* fd = vtkFieldData::New();
+  vtkPoints* pts;
+  vtkDataArray* da;
   int i;
 
-  vtkDebugMacro(<<"Generating field data from data set");
+  vtkDebugMacro(<< "Generating field data from data set");
 
-  if ( this->Geometry)
+  if (this->Geometry)
   {
-    if ( input->GetDataObjectType() == VTK_POLY_DATA )
+    if (input->GetDataObjectType() == VTK_POLY_DATA)
     {
-      pts = static_cast<vtkPolyData *>(input)->GetPoints();
+      pts = static_cast<vtkPolyData*>(input)->GetPoints();
       if (pts)
       {
         da = pts->GetData();
         da->SetName("Points");
-        fd->AddArray( da );
+        fd->AddArray(da);
       }
     }
 
-    else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
+    else if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS)
     {
-      vtkStructuredPoints *spts=static_cast<vtkStructuredPoints *>(input);
+      vtkStructuredPoints* spts = static_cast<vtkStructuredPoints*>(input);
 
-      vtkFloatArray *origin=vtkFloatArray::New();
+      vtkFloatArray* origin = vtkFloatArray::New();
       origin->SetNumberOfValues(3);
       double org[3];
       spts->GetOrigin(org);
@@ -95,7 +92,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
       fd->AddArray(origin);
       origin->Delete();
 
-      vtkFloatArray *spacing=vtkFloatArray::New();
+      vtkFloatArray* spacing = vtkFloatArray::New();
       spacing->SetNumberOfValues(3);
       double sp[3];
       spts->GetSpacing(sp);
@@ -107,54 +104,54 @@ int vtkDataSetToDataObjectFilter::RequestData(
       spacing->Delete();
     }
 
-    else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
+    else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
     {
-      pts = static_cast<vtkStructuredGrid *>(input)->GetPoints();
+      pts = static_cast<vtkStructuredGrid*>(input)->GetPoints();
       if (pts)
       {
         da = pts->GetData();
         da->SetName("Points");
-        fd->AddArray( da );
+        fd->AddArray(da);
       }
     }
 
-    else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
+    else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
     {
-      vtkRectilinearGrid *rgrid=static_cast<vtkRectilinearGrid *>(input);
+      vtkRectilinearGrid* rgrid = static_cast<vtkRectilinearGrid*>(input);
       da = rgrid->GetXCoordinates();
       if (da != nullptr)
       {
         da->SetName("XCoordinates");
-        fd->AddArray( da );
+        fd->AddArray(da);
       }
       da = rgrid->GetYCoordinates();
       if (da != nullptr)
       {
         da->SetName("YCoordinates");
-        fd->AddArray( da );
+        fd->AddArray(da);
       }
       da = rgrid->GetZCoordinates();
       if (da != nullptr)
       {
         da->SetName("ZCoordinates");
-        fd->AddArray( da );
+        fd->AddArray(da);
       }
     }
 
-    else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
+    else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
-      pts = static_cast<vtkUnstructuredGrid *>(input)->GetPoints();
+      pts = static_cast<vtkUnstructuredGrid*>(input)->GetPoints();
       if (pts)
       {
         da = pts->GetData();
         da->SetName("Points");
-        fd->AddArray( da );
+        fd->AddArray(da);
       }
     }
 
     else
     {
-      vtkErrorMacro(<<"Unsupported dataset type!");
+      vtkErrorMacro(<< "Unsupported dataset type!");
       fd->Delete();
       return 1;
     }
@@ -163,13 +160,11 @@ int vtkDataSetToDataObjectFilter::RequestData(
   if (this->Topology)
   {
     // Helper lambda to add cell arrays to the field data:
-    auto addCellConnArrays = [&](vtkCellArray *ca, const std::string& name)
-    {
+    auto addCellConnArrays = [&](vtkCellArray* ca, const std::string& name) {
       if (!ca || ca->GetNumberOfCells() == 0)
       {
         return;
       }
-
 
       // For backwards compatibility:
       if (this->LegacyTopology)
@@ -201,9 +196,9 @@ int vtkDataSetToDataObjectFilter::RequestData(
       }
     };
 
-    if ( input->GetDataObjectType() == VTK_POLY_DATA )
+    if (input->GetDataObjectType() == VTK_POLY_DATA)
     {
-      vtkPolyData *pd=static_cast<vtkPolyData *>(input);
+      vtkPolyData* pd = static_cast<vtkPolyData*>(input);
 
       addCellConnArrays(pd->GetVerts(), "Verts");
       addCellConnArrays(pd->GetLines(), "Lines");
@@ -211,71 +206,71 @@ int vtkDataSetToDataObjectFilter::RequestData(
       addCellConnArrays(pd->GetStrips(), "Strips");
     }
 
-    else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
+    else if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS)
     {
-      vtkIntArray *dimensions=vtkIntArray::New();
+      vtkIntArray* dimensions = vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
       int dims[3];
-      static_cast<vtkStructuredPoints *>(input)->GetDimensions(dims);
+      static_cast<vtkStructuredPoints*>(input)->GetDimensions(dims);
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
       dimensions->SetName("Dimensions");
-      fd->AddArray( dimensions );
+      fd->AddArray(dimensions);
       dimensions->Delete();
     }
 
-    else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
+    else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
     {
-      vtkIntArray *dimensions=vtkIntArray::New();
+      vtkIntArray* dimensions = vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
       int dims[3];
-      static_cast<vtkStructuredGrid *>(input)->GetDimensions(dims);
+      static_cast<vtkStructuredGrid*>(input)->GetDimensions(dims);
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
       dimensions->SetName("Dimensions");
-      fd->AddArray( dimensions );
+      fd->AddArray(dimensions);
       dimensions->Delete();
     }
 
-    else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
+    else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
     {
-      vtkIntArray *dimensions=vtkIntArray::New();
+      vtkIntArray* dimensions = vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
       int dims[3];
-      static_cast<vtkRectilinearGrid *>(input)->GetDimensions(dims);
+      static_cast<vtkRectilinearGrid*>(input)->GetDimensions(dims);
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
       dimensions->SetName("Dimensions");
-      fd->AddArray( dimensions );
+      fd->AddArray(dimensions);
       dimensions->Delete();
     }
 
-    else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
+    else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
-      vtkCellArray *ca=static_cast<vtkUnstructuredGrid *>(input)->GetCells();
-      if ( ca != nullptr && ca->GetNumberOfCells() > 0 )
+      vtkCellArray* ca = static_cast<vtkUnstructuredGrid*>(input)->GetCells();
+      if (ca != nullptr && ca->GetNumberOfCells() > 0)
       {
         addCellConnArrays(ca, "Cells");
 
-        vtkIdType numCells=input->GetNumberOfCells();
-        vtkIntArray *types=vtkIntArray::New();
+        vtkIdType numCells = input->GetNumberOfCells();
+        vtkIntArray* types = vtkIntArray::New();
         types->SetNumberOfValues(numCells);
-        for (vtkIdType cellId=0; cellId<numCells; ++cellId)
+        for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
         {
           types->SetValue(cellId, input->GetCellType(cellId));
         }
         types->SetName("CellTypes");
-        fd->AddArray( types );
+        fd->AddArray(types);
         types->Delete();
       }
     }
 
     else
     {
-      vtkErrorMacro(<<"Unsupported dataset type!");
+      vtkErrorMacro(<< "Unsupported dataset type!");
       fd->Delete();
       return 1;
     }
@@ -287,7 +282,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   {
     fieldData = input->GetFieldData();
 
-    for (i=0; i<fieldData->GetNumberOfArrays(); i++)
+    for (i = 0; i < fieldData->GetNumberOfArrays(); i++)
     {
       fd->AddArray(fieldData->GetArray(i));
     }
@@ -297,7 +292,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   {
     fieldData = input->GetPointData();
 
-    for (i=0; i<fieldData->GetNumberOfArrays(); i++)
+    for (i = 0; i < fieldData->GetNumberOfArrays(); i++)
     {
       fd->AddArray(fieldData->GetArray(i));
     }
@@ -307,7 +302,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   {
     fieldData = input->GetCellData();
 
-    for (i=0; i<fieldData->GetNumberOfArrays(); i++)
+    for (i = 0; i < fieldData->GetNumberOfArrays(); i++)
     {
       fd->AddArray(fieldData->GetArray(i));
     }
@@ -320,25 +315,21 @@ int vtkDataSetToDataObjectFilter::RequestData(
 
 //----------------------------------------------------------------------------
 int vtkDataSetToDataObjectFilter::RequestUpdateExtent(
-  vtkInformation *,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkDataSetToDataObjectFilter::FillInputPortInformation(int port,
-                                                           vtkInformation* info)
+int vtkDataSetToDataObjectFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
+  if (!this->Superclass::FillInputPortInformation(port, info))
   {
     return 0;
   }
@@ -349,7 +340,7 @@ int vtkDataSetToDataObjectFilter::FillInputPortInformation(int port,
 //----------------------------------------------------------------------------
 void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Geometry: " << (this->Geometry ? "On\n" : "Off\n");
   os << indent << "Topology: " << (this->Topology ? "On\n" : "Off\n");

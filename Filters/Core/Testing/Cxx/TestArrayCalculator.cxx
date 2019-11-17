@@ -23,7 +23,7 @@
 #include <vtkXMLImageDataReader.h>
 #include <vtkXMLPolyDataReader.h>
 
-int TestArrayCalculator(int argc, char *argv[])
+int TestArrayCalculator(int argc, char* argv[])
 {
   char* filename =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref_surface.vtp");
@@ -33,10 +33,10 @@ int TestArrayCalculator(int argc, char *argv[])
   delete[] filename;
   reader->Update();
 
-  //first calculators job is to create a property whose name could clash
-  //with a function
+  // first calculators job is to create a property whose name could clash
+  // with a function
   vtkNew<vtkArrayCalculator> calc;
-  calc->SetInputConnection( reader->GetOutputPort() );
+  calc->SetInputConnection(reader->GetOutputPort());
   calc->SetAttributeTypeToPointData();
   calc->AddScalarArrayName("Pres");
   calc->AddScalarArrayName("Temp");
@@ -44,9 +44,9 @@ int TestArrayCalculator(int argc, char *argv[])
   calc->SetResultArrayName("norm");
   calc->Update();
 
-  //now generate a vector with the second calculator
+  // now generate a vector with the second calculator
   vtkNew<vtkArrayCalculator> calc2;
-  calc2->SetInputConnection( calc->GetOutputPort() );
+  calc2->SetInputConnection(calc->GetOutputPort());
   calc2->SetAttributeTypeToPointData();
   calc2->AddScalarArrayName("Pres");
   calc2->AddScalarArrayName("Temp");
@@ -55,10 +55,10 @@ int TestArrayCalculator(int argc, char *argv[])
   calc2->SetResultArrayName("PresVector");
   calc2->Update();
 
-  //now make sure the calculator can use the vector
-  //confirm that we don't use "Pres" array, but the "PresVector"
+  // now make sure the calculator can use the vector
+  // confirm that we don't use "Pres" array, but the "PresVector"
   vtkNew<vtkArrayCalculator> calc3;
-  calc3->SetInputConnection( calc2->GetOutputPort() );
+  calc3->SetInputConnection(calc2->GetOutputPort());
   calc3->SetAttributeTypeToPointData();
   calc3->AddScalarArrayName("Pres");
   calc3->AddVectorArrayName("PresVector");
@@ -66,8 +66,8 @@ int TestArrayCalculator(int argc, char *argv[])
   calc3->SetResultArrayName("Result");
   calc3->Update();
 
-  //verify the output is correct
-  vtkPolyData *result = vtkPolyData::SafeDownCast( calc3->GetOutput() );
+  // verify the output is correct
+  vtkPolyData* result = vtkPolyData::SafeDownCast(calc3->GetOutput());
   if (!result->GetPointData()->HasArray("Result"))
   {
     std::cerr << "Output from calc3 does not have an array named 'Result'" << std::endl;
@@ -123,17 +123,16 @@ int TestArrayCalculator(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  char* filename2 =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wavelet300Arrays.vti");
+  char* filename2 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wavelet300Arrays.vti");
 
   vtkNew<vtkXMLImageDataReader> reader2;
   reader2->SetFileName(filename2);
   delete[] filename2;
   reader2->Update();
 
-  //finally, check that a dataset with a lot of arrays is supported
+  // finally, check that a dataset with a lot of arrays is supported
   vtkNew<vtkArrayCalculator> calc6;
-  calc6->SetInputConnection( reader2->GetOutputPort() );
+  calc6->SetInputConnection(reader2->GetOutputPort());
   calc6->SetAttributeTypeToPointData();
   for (int i = 0; i < reader2->GetNumberOfPointArrays(); i++)
   {

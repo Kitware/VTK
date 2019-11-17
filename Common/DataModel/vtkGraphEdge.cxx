@@ -37,7 +37,7 @@ vtkGraphEdge::~vtkGraphEdge() = default;
 //----------------------------------------------------------------------------
 void vtkGraphEdge::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Source: " << this->Source << endl;
   os << indent << "Target: " << this->Target << endl;
   os << indent << "Id: " << this->Id << endl;

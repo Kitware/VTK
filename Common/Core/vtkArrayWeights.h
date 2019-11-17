@@ -39,7 +39,7 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayWeights_h
 #define vtkArrayWeights_h
@@ -115,7 +115,7 @@ public:
   vtkArrayWeights& operator=(const vtkArrayWeights& other);
 
 protected:
-  vtkArrayWeightsStorage *Storage;
+  vtkArrayWeightsStorage* Storage;
 };
 
 #endif

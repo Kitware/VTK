@@ -25,8 +25,9 @@
  * its own dictionary.
  *
  * @sa
- * vtkQuadraturePointInterpolator, vtkQuadratureSchemeDefinition, vtkInformationQuadratureSchemeDefinitionVectorKey
-*/
+ * vtkQuadraturePointInterpolator, vtkQuadratureSchemeDefinition,
+ * vtkInformationQuadratureSchemeDefinitionVectorKey
+ */
 
 #ifndef vtkQuadraturePointsGenerator_h
 #define vtkQuadraturePointsGenerator_h
@@ -42,32 +43,30 @@ class vtkInformationVector;
 class VTKFILTERSGENERAL_EXPORT vtkQuadraturePointsGenerator : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkQuadraturePointsGenerator,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkQuadraturePointsGenerator, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkQuadraturePointsGenerator *New();
+  static vtkQuadraturePointsGenerator* New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** input, vtkInformationVector* output) override;
 
   /**
    * Generate the point set .
    */
-  int Generate(vtkUnstructuredGrid *usgIn,
-                vtkDataArray* offsets,
-                vtkPolyData *pdOut);
+  int Generate(vtkUnstructuredGrid* usgIn, vtkDataArray* offsets, vtkPolyData* pdOut);
 
-  int GenerateField(vtkUnstructuredGrid *usgIn,
-                vtkDataArray* data,
-                vtkDataArray* offsets,
-                vtkPolyData* pdOut);
+  int GenerateField(
+    vtkUnstructuredGrid* usgIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut);
 
   vtkQuadraturePointsGenerator();
   ~vtkQuadraturePointsGenerator() override;
+
 private:
-  vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator &) = delete;
-  void operator=(const vtkQuadraturePointsGenerator &) = delete;
+  vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator&) = delete;
+  void operator=(const vtkQuadraturePointsGenerator&) = delete;
 };
 
 #endif

@@ -37,7 +37,7 @@
  * if you know that you have a triangle mesh which does not require splitting
  * nor consistency check on the cell orientations.
  *
-*/
+ */
 
 #ifndef vtkmPolyDataNormals_h
 #define vtkmPolyDataNormals_h
@@ -56,8 +56,7 @@ protected:
   vtkmPolyDataNormals();
   ~vtkmPolyDataNormals();
 
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmPolyDataNormals(const vtkmPolyDataNormals&) = delete;

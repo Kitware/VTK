@@ -35,30 +35,30 @@
  * - FixedAspect: Aspect ratio to enforce for FixedAspect resize behavior.
  * - FixedRect: Rect used to enforce for FixedRect resize behavior.
  * - FixedMargins: Margins to enforce for FixedMargins resize behavior.
-*/
+ */
 
 #ifndef vtkContextArea_h
 #define vtkContextArea_h
 
 #include "vtkAbstractContextItem.h"
 
-#include "vtkAxis.h" // For enums
+#include "vtkAxis.h"             // For enums
 #include "vtkChartsCoreModule.h" // For export macro
-#include "vtkNew.h" // For vtkNew
-#include "vtkRect.h" // For vtkRect/vtkVector/vtkTuple
+#include "vtkNew.h"              // For vtkNew
+#include "vtkRect.h"             // For vtkRect/vtkVector/vtkTuple
 
 class vtkContextClip;
 class vtkContextTransform;
 class vtkPlotGrid;
 
-class VTKCHARTSCORE_EXPORT vtkContextArea: public vtkAbstractContextItem
+class VTKCHARTSCORE_EXPORT vtkContextArea : public vtkAbstractContextItem
 {
 public:
   typedef vtkTuple<int, 4> Margins;
   vtkTypeMacro(vtkContextArea, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkContextArea *New();
+  static vtkContextArea* New();
 
   /**
    * Get the vtkAxis associated with the specified location.
@@ -74,7 +74,7 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   //@{
   /**
@@ -95,7 +95,8 @@ public:
   vtkSetMacro(DrawAreaBounds, vtkRectd);
   //@}
 
-  enum DrawAreaResizeBehaviorType {
+  enum DrawAreaResizeBehaviorType
+  {
     DARB_Expand,
     DARB_FixedAspect,
     DARB_FixedRect,
@@ -127,8 +128,7 @@ public:
    * Setting the aspect ratio will also set DrawAreaResizeBehavior to
    * FixedAspect.
    */
-  vtkGetMacro(FixedAspect, float)
-  virtual void SetFixedAspect(float aspect);
+  vtkGetMacro(FixedAspect, float) virtual void SetFixedAspect(float aspect);
   //@}
 
   //@{
@@ -189,23 +189,23 @@ protected:
    * to account for Axes size (margins). Must be called while the painter
    * is active.
    */
-  void LayoutAxes(vtkContext2D *painter);
+  void LayoutAxes(vtkContext2D* painter);
   virtual void SetAxisRange(vtkRectd const& data);
   virtual void ComputeViewTransform();
 
   /**
    * Return the draw area's geometry.
    */
-  vtkRecti ComputeDrawAreaGeometry(vtkContext2D *painter);
+  vtkRecti ComputeDrawAreaGeometry(vtkContext2D* painter);
 
   //@{
   /**
    * Working implementations for ComputeDrawAreaGeometry.
    */
-  vtkRecti ComputeExpandedDrawAreaGeometry(vtkContext2D *painter);
-  vtkRecti ComputeFixedAspectDrawAreaGeometry(vtkContext2D *painter);
-  vtkRecti ComputeFixedRectDrawAreaGeometry(vtkContext2D *painter);
-  vtkRecti ComputeFixedMarginsDrawAreaGeometry(vtkContext2D *painter);
+  vtkRecti ComputeExpandedDrawAreaGeometry(vtkContext2D* painter);
+  vtkRecti ComputeFixedAspectDrawAreaGeometry(vtkContext2D* painter);
+  vtkRecti ComputeFixedRectDrawAreaGeometry(vtkContext2D* painter);
+  vtkRecti ComputeFixedMarginsDrawAreaGeometry(vtkContext2D* painter);
   //@}
 
   /**
@@ -295,8 +295,8 @@ protected:
   vtkNew<vtkAxis> RightAxis;
 
 private:
-  vtkContextArea(const vtkContextArea &) = delete;
-  void operator=(const vtkContextArea &) = delete;
+  vtkContextArea(const vtkContextArea&) = delete;
+  void operator=(const vtkContextArea&) = delete;
 };
 
-#endif //vtkContextArea_h
+#endif // vtkContextArea_h

@@ -32,7 +32,7 @@
  * integration.  This is a good method to use when volume rendering scalars
  * that are defined on cells.
  *
-*/
+ */
 
 #ifndef vtkUnstructuredGridHomogeneousRayIntegrator_h
 #define vtkUnstructuredGridHomogeneousRayIntegrator_h
@@ -42,20 +42,18 @@
 
 class vtkVolumeProperty;
 
-class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridHomogeneousRayIntegrator : public vtkUnstructuredGridVolumeRayIntegrator
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridHomogeneousRayIntegrator
+  : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridHomogeneousRayIntegrator,
-                       vtkUnstructuredGridVolumeRayIntegrator);
-  static vtkUnstructuredGridHomogeneousRayIntegrator *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkUnstructuredGridHomogeneousRayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
+  static vtkUnstructuredGridHomogeneousRayIntegrator* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkVolume *volume, vtkDataArray *scalars) override;
+  void Initialize(vtkVolume* volume, vtkDataArray* scalars) override;
 
-  void Integrate(vtkDoubleArray *intersectionLengths,
-                         vtkDataArray *nearIntersections,
-                         vtkDataArray *farIntersections,
-                         float color[4]) override;
+  void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
+    vtkDataArray* farIntersections, float color[4]) override;
 
   //@{
   /**
@@ -71,24 +69,25 @@ protected:
   vtkUnstructuredGridHomogeneousRayIntegrator();
   ~vtkUnstructuredGridHomogeneousRayIntegrator() override;
 
-  vtkVolume *Volume;
-  vtkVolumeProperty *Property;
+  vtkVolume* Volume;
+  vtkVolumeProperty* Property;
 
-  int      NumComponents;
-  float  **ColorTable;
-  float  **AttenuationTable;
-  double  *TableShift;
-  double  *TableScale;
+  int NumComponents;
+  float** ColorTable;
+  float** AttenuationTable;
+  double* TableShift;
+  double* TableScale;
   vtkTimeStamp TablesBuilt;
 
   int UseAverageColor;
   int TransferFunctionTableSize;
 
-  virtual void GetTransferFunctionTables(vtkDataArray *scalars);
+  virtual void GetTransferFunctionTables(vtkDataArray* scalars);
 
 private:
-  vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
+  vtkUnstructuredGridHomogeneousRayIntegrator(
+    const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
   void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
 };
 
-#endif //vtkUnstructuredGridHomogeneousRayIntegrator_h
+#endif // vtkUnstructuredGridHomogeneousRayIntegrator_h

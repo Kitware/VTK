@@ -42,7 +42,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkTypedArray_h
 #define vtkTypedArray_h
@@ -51,7 +51,7 @@
 
 class vtkArrayCoordinates;
 
-template<typename T>
+template <typename T>
 class vtkTypedArray : public vtkArray
 {
 public:
@@ -62,16 +62,19 @@ public:
   using vtkArray::GetVariantValue;
   using vtkArray::SetVariantValue;
 
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // vtkArray API
   vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) override;
   vtkVariant GetVariantValueN(const SizeT n) override;
   void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value) override;
   void SetVariantValueN(const SizeT n, const vtkVariant& value) override;
-  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) override;
-  void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) override;
-  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) override;
+  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates,
+    const vtkArrayCoordinates& target_coordinates) override;
+  void CopyValue(vtkArray* source, const SizeT source_index,
+    const vtkArrayCoordinates& target_coordinates) override;
+  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates,
+    const SizeT target_index) override;
 
   //@{
   /**

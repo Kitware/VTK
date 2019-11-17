@@ -34,9 +34,10 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
-namespace {
+namespace
+{
 
-void BuildRenderer(vtkRenderer *renderer, int widthBias)
+void BuildRenderer(vtkRenderer* renderer, int widthBias)
 {
   const size_t NUM_LINES = 10;
 
@@ -45,10 +46,9 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
   vtkNew<vtkActor> actors[NUM_LINES];
   for (size_t i = 0; i < NUM_LINES; ++i)
   {
-    double c = static_cast<double>(2 * i) /
-               static_cast<double>(NUM_LINES - 1) - 1.;
-    lines[i]->SetPoint1(-1,  c, 0.);
-    lines[i]->SetPoint2( 1, -c, 0.);
+    double c = static_cast<double>(2 * i) / static_cast<double>(NUM_LINES - 1) - 1.;
+    lines[i]->SetPoint1(-1, c, 0.);
+    lines[i]->SetPoint2(1, -c, 0.);
 
     mappers[i]->SetInputConnection(lines[i]->GetOutputPort());
 
@@ -127,7 +127,7 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
 
 } // end anon namespace
 
-int TestFXAAFilter(int argc, char *argv[])
+int TestFXAAFilter(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;

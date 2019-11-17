@@ -27,7 +27,8 @@
 vtkStandardNewMacro(vtkContextTransform);
 
 //-----------------------------------------------------------------------------
-vtkContextTransform::vtkContextTransform() : ZoomAnchor(0.0f, 0.0f)
+vtkContextTransform::vtkContextTransform()
+  : ZoomAnchor(0.0f, 0.0f)
 {
   this->Transform = vtkSmartPointer<vtkTransform2D>::New();
   this->PanMouseButton = vtkContextMouseEvent::LEFT_BUTTON;
@@ -49,7 +50,7 @@ vtkContextTransform::vtkContextTransform() : ZoomAnchor(0.0f, 0.0f)
 vtkContextTransform::~vtkContextTransform() = default;
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::Paint(vtkContext2D *painter)
+bool vtkContextTransform::Paint(vtkContext2D* painter)
 {
   painter->PushMatrix();
   painter->AppendTransform(this->Transform);
@@ -65,9 +66,7 @@ void vtkContextTransform::Identity()
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextTransform::Update()
-{
-}
+void vtkContextTransform::Update() {}
 
 //-----------------------------------------------------------------------------
 void vtkContextTransform::Translate(float dx, float dy)
@@ -112,7 +111,7 @@ vtkVector2f vtkContextTransform::MapFromParent(const vtkVector2f& point)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
+bool vtkContextTransform::Hit(const vtkContextMouseEvent& vtkNotUsed(mouse))
 {
   // If we are interactive, we want to catch anything that propagates to the
   // background, otherwise we do not want any mouse events.
@@ -120,23 +119,22 @@ bool vtkContextTransform::Hit(const vtkContextMouseEvent &vtkNotUsed(mouse))
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   if (!this->Interactive)
   {
     return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
   }
   if ((this->ZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
-        mouse.GetButton() == this->ZoomMouseButton &&
-        mouse.GetModifiers() == this->ZoomModifier) ||
-      (this->SecondaryZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
-        mouse.GetButton() == this->SecondaryZoomMouseButton &&
-        mouse.GetModifiers() == this->SecondaryZoomModifier) )
+        mouse.GetButton() == this->ZoomMouseButton && mouse.GetModifiers() == this->ZoomModifier) ||
+    (this->SecondaryZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
+      mouse.GetButton() == this->SecondaryZoomMouseButton &&
+      mouse.GetModifiers() == this->SecondaryZoomModifier))
   {
     // Determine anchor to zoom in on
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
-    vtkTransform2D *transform = this->GetTransform();
+    vtkTransform2D* transform = this->GetTransform();
     transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
     this->ZoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
     return true;
@@ -145,18 +143,17 @@ bool vtkContextTransform::MouseButtonPressEvent(const vtkContextMouseEvent &mous
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
+bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent& mouse)
 {
   if (!this->Interactive)
   {
     return vtkAbstractContextItem::MouseButtonPressEvent(mouse);
   }
   if ((this->PanMouseButton != vtkContextMouseEvent::NO_BUTTON &&
-        mouse.GetButton() == this->PanMouseButton &&
-        mouse.GetModifiers() == this->PanModifier) ||
-      (this->SecondaryPanMouseButton != vtkContextMouseEvent::NO_BUTTON &&
-        mouse.GetButton() == this->SecondaryPanMouseButton &&
-        mouse.GetModifiers() == this->SecondaryPanModifier) )
+        mouse.GetButton() == this->PanMouseButton && mouse.GetModifiers() == this->PanModifier) ||
+    (this->SecondaryPanMouseButton != vtkContextMouseEvent::NO_BUTTON &&
+      mouse.GetButton() == this->SecondaryPanMouseButton &&
+      mouse.GetModifiers() == this->SecondaryPanModifier))
   {
     // Figure out how much the mouse has moved by in plot coordinates - pan
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
@@ -165,7 +162,7 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     vtkVector2d last(0.0, 0.0);
 
     // Go from screen to scene coordinates to work out the delta
-    vtkTransform2D *transform = this->GetTransform();
+    vtkTransform2D* transform = this->GetTransform();
     transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
     transform->InverseTransformPoints(lastScreenPos.GetData(), last.GetData(), 1);
     vtkVector2f delta((last - pos).Cast<float>().GetData());
@@ -178,17 +175,17 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
     return true;
   }
   if ((this->ZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
-        mouse.GetButton() == this->ZoomMouseButton &&
-        mouse.GetModifiers() == this->ZoomModifier) ||
-      (this->SecondaryZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
-        mouse.GetButton() == this->SecondaryZoomMouseButton &&
-        mouse.GetModifiers() == this->SecondaryZoomModifier) )
+        mouse.GetButton() == this->ZoomMouseButton && mouse.GetModifiers() == this->ZoomModifier) ||
+    (this->SecondaryZoomMouseButton != vtkContextMouseEvent::NO_BUTTON &&
+      mouse.GetButton() == this->SecondaryZoomMouseButton &&
+      mouse.GetModifiers() == this->SecondaryZoomModifier))
   {
     // Figure out how much the mouse has moved and scale accordingly
     float delta = 0.0f;
     if (this->Scene->GetSceneHeight() > 0)
     {
-      delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1])/this->Scene->GetSceneHeight();
+      delta = static_cast<float>(mouse.GetLastScreenPos()[1] - mouse.GetScreenPos()[1]) /
+        this->Scene->GetSceneHeight();
     }
 
     // Dragging full screen height zooms 4x.
@@ -209,7 +206,7 @@ bool vtkContextTransform::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta)
+bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta)
 {
   if (!this->Interactive)
   {
@@ -220,12 +217,12 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
     // Determine current position to zoom in on
     vtkVector2d screenPos(mouse.GetScreenPos().Cast<double>().GetData());
     vtkVector2d pos(0.0, 0.0);
-    vtkTransform2D *transform = this->GetTransform();
+    vtkTransform2D* transform = this->GetTransform();
     transform->InverseTransformPoints(screenPos.GetData(), pos.GetData(), 1);
     vtkVector2f zoomAnchor = vtkVector2f(pos.Cast<float>().GetData());
 
     // Ten "wheels" to double/halve zoom level
-    float scaling = pow(2.0f, delta/10.0f);
+    float scaling = pow(2.0f, delta / 10.0f);
 
     // Zoom in on current position
     this->Translate(zoomAnchor[0], zoomAnchor[1]);
@@ -241,7 +238,7 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
   if (this->PanYOnMouseWheel)
   {
     // Ten "wheels" to scroll a screen
-    this->Translate(0.0f, delta/10.0f*this->Scene->GetSceneHeight());
+    this->Translate(0.0f, delta / 10.0f * this->Scene->GetSceneHeight());
 
     // Mark the scene as dirty
     this->Scene->SetDirty(true);
@@ -253,7 +250,7 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextTransform::PrintSelf(ostream &os, vtkIndent indent)
+void vtkContextTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Transform:\n";

@@ -213,7 +213,7 @@ vtkRedistributeDataSetFilter::vtkRedistributeDataSetFilter()
   , UseExplicitCuts(false)
   , ExpandExplicitCuts(true)
   , EnableDebugging(false)
-  , ValidDim{true, true, true}
+  , ValidDim{ true, true, true }
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
@@ -227,7 +227,8 @@ vtkRedistributeDataSetFilter::~vtkRedistributeDataSetFilter()
 }
 
 //----------------------------------------------------------------------------
-int vtkRedistributeDataSetFilter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+int vtkRedistributeDataSetFilter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
@@ -425,9 +426,9 @@ std::vector<vtkBoundingBox> vtkRedistributeDataSetFilter::GenerateCuts(vtkDataOb
 }
 
 //----------------------------------------------------------------------------
-bool vtkRedistributeDataSetFilter::Redistribute(
-  vtkDataObject* inputDO, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts,
-  vtkIdType* mb_offset/*=nullptr*/)
+bool vtkRedistributeDataSetFilter::Redistribute(vtkDataObject* inputDO,
+  vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts,
+  vtkIdType* mb_offset /*=nullptr*/)
 {
   assert(outputPDS != nullptr);
   this->UpdateProgress(0.0);
@@ -596,7 +597,7 @@ bool vtkRedistributeDataSetFilter::Redistribute(
 
 //----------------------------------------------------------------------------
 int vtkRedistributeDataSetFilter::RedistributeMultiBlockDataSet(
-        vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output, vtkIdType* mb_offset/*=nullptr*/)
+  vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output, vtkIdType* mb_offset /*=nullptr*/)
 {
   if (!input || !output)
   {
@@ -660,7 +661,7 @@ int vtkRedistributeDataSetFilter::RedistributeMultiBlockDataSet(
 //----------------------------------------------------------------------------
 // only for vtkMultiPieceDataSets that are part of a vtkMultiBlockDataSet
 int vtkRedistributeDataSetFilter::RedistributeMultiPieceDataSet(
-        vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output, vtkIdType* mb_offset/*=nullptr*/)
+  vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output, vtkIdType* mb_offset /*=nullptr*/)
 {
   if (!input || !output)
   {
@@ -876,7 +877,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::SplitDataSe
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataSet> vtkRedistributeDataSetFilter::AssignGlobalCellIds(
-  vtkDataSet* input, vtkIdType* mb_offset/*=nullptr*/)
+  vtkDataSet* input, vtkIdType* mb_offset /*=nullptr*/)
 {
   vtkNew<vtkPartitionedDataSet> pds;
   pds->SetNumberOfPartitions(1);
@@ -888,7 +889,7 @@ vtkSmartPointer<vtkDataSet> vtkRedistributeDataSetFilter::AssignGlobalCellIds(
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkPartitionedDataSet> vtkRedistributeDataSetFilter::AssignGlobalCellIds(
-  vtkPartitionedDataSet* pieces, vtkIdType* mb_offset/*=nullptr*/)
+  vtkPartitionedDataSet* pieces, vtkIdType* mb_offset /*=nullptr*/)
 {
   // if global cell ids are present everywhere, there's nothing to do!
   int missing_gids = 0;

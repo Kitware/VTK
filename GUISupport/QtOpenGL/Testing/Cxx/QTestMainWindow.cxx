@@ -16,12 +16,12 @@
 
 #include "vtkRegressionTestImage.h"
 
-QTestMainWindow::QTestMainWindow(vtkRenderWindow* renWin, int ac, char** av) :
-  QMainWindow(),
-  RegressionImageResult(false),
-  RenderWindow(renWin),
-  argc(ac),
-  argv(av)
+QTestMainWindow::QTestMainWindow(vtkRenderWindow* renWin, int ac, char** av)
+  : QMainWindow()
+  , RegressionImageResult(false)
+  , RenderWindow(renWin)
+  , argc(ac)
+  , argv(av)
 {
 }
 

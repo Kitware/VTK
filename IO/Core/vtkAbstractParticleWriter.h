@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkParticleTracerBase
-*/
+ */
 
 #ifndef vtkAbstractParticleWriter_h
 #define vtkAbstractParticleWriter_h
@@ -37,7 +37,7 @@
 class VTKIOCORE_EXPORT vtkAbstractParticleWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkAbstractParticleWriter,vtkWriter);
+  vtkTypeMacro(vtkAbstractParticleWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -55,8 +55,8 @@ public:
    * time of the data, it may not be regular, whereas the TimeSteps
    * are simple increments.
    */
-  vtkSetMacro(TimeValue,double);
-  vtkGetMacro(TimeValue,double);
+  vtkSetMacro(TimeValue, double);
+  vtkGetMacro(TimeValue, double);
   //@}
 
   //@{
@@ -72,8 +72,8 @@ public:
    * When running in parallel, this writer may be capable of
    * Collective IO operations (HDF5). By default, this is off.
    */
-  vtkSetMacro(CollectiveIO,int);
-  vtkGetMacro(CollectiveIO,int);
+  vtkSetMacro(CollectiveIO, int);
+  vtkGetMacro(CollectiveIO, int);
   void SetWriteModeToCollective();
   void SetWriteModeToIndependent();
   //@}
@@ -85,14 +85,14 @@ public:
   virtual void CloseFile() = 0;
 
 protected:
-   vtkAbstractParticleWriter();
+  vtkAbstractParticleWriter();
   ~vtkAbstractParticleWriter() override;
 
-  void WriteData() override = 0; //internal method subclasses must respond to
-  int          CollectiveIO;
-  int          TimeStep;
-  double       TimeValue;
-  char        *FileName;
+  void WriteData() override = 0; // internal method subclasses must respond to
+  int CollectiveIO;
+  int TimeStep;
+  double TimeValue;
+  char* FileName;
 
 private:
   vtkAbstractParticleWriter(const vtkAbstractParticleWriter&) = delete;

@@ -43,7 +43,7 @@ vtkCGMWriter::vtkCGMWriter()
 
 vtkCGMWriter::~vtkCGMWriter()
 {
-  if ( this->Viewport != nullptr )
+  if (this->Viewport != nullptr)
   {
     this->Viewport->Delete();
     this->Viewport = nullptr;
@@ -125,9 +125,10 @@ vtkCGMWriter::~vtkCGMWriter()
 // access sx, sy, the color table, and colorsTotal for
 // read-only purposes.
 
-typedef struct cgmImageStruct {
+typedef struct cgmImageStruct
+{
   // Don't mess with these
-  unsigned char * elemlist;
+  unsigned char* elemlist;
   short int state;
   int red[cgmMaxColors];
   int green[cgmMaxColors];
@@ -139,10 +140,10 @@ typedef struct cgmImageStruct {
   int picnum;
   // these take effect only when the first picture is created.
   // subsequent changes have no effect
-  unsigned char *desc;
-  unsigned char *fontlist;
+  unsigned char* desc;
+  unsigned char* fontlist;
   short int numfonts;
-  FILE *outfile;
+  FILE* outfile;
   // these take effect when a new picture is opened.  Subsequent
   // changes are for the next picture
   int linespec;
@@ -182,16 +183,17 @@ typedef struct cgmImageStruct {
   int msize;
   int mcolor;
   // the next three are used for maintaining the element list
-  long int bytestoend; // number of bytes to end of the element list
-  long int listlen; // the total length of the element list
-  unsigned char * curelemlist; // where we currently are in the list
+  long int bytestoend;        // number of bytes to end of the element list
+  long int listlen;           // the total length of the element list
+  unsigned char* curelemlist; // where we currently are in the list
 } cgmImage;
 
 typedef cgmImage* cgmImagePtr;
 
 // Point type for use in polygon drawing.
-typedef struct cgmPointStruct{
-        int x, y, e;
+typedef struct cgmPointStruct
+{
+  int x, y, e;
 } cgmPoint, *cgmPointPtr;
 
 // Functions to manipulate images.
@@ -199,7 +201,7 @@ static cgmImagePtr cgmImageCreate(int sx, int sy);
 #ifdef VTK_NOT_DEFINED
 static int cgmCgmNewPic(cgmImagePtr im, int sticky);
 #endif
-static int cgmImageCgm(cgmImagePtr im, FILE *);
+static int cgmImageCgm(cgmImagePtr im, FILE*);
 static int cgmImageDestroy(cgmImagePtr im);
 
 #ifdef VTK_NOT_DEFINED
@@ -210,10 +212,10 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2);
 // center x, then center y, then radius of circle
 static int cgmCircle(cgmImagePtr im, int cx, int cy, int r);
 // start, middle and end of arc
-static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey);
+static int cgmArc3Pt(cgmImagePtr im, int sx, int sy, int ix, int iy, int ex, int ey);
 // cl is 0 for pie closure, 1 for cord closure
-static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl);
-static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,int d2y );
+static int cgmArc3PtClose(cgmImagePtr im, int sx, int sy, int ix, int iy, int ex, int ey, int cl);
+static int cgmEllipse(cgmImagePtr im, int cx, int cy, int d1x, int d1y, int d2x, int d2y);
 static int cgmMarker(cgmImagePtr im, int x, int y);
 #endif
 // polyshapes
@@ -234,7 +236,7 @@ static int cgmImageRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2, int
 static int cgmImageBoundsSafe(cgmImagePtr im, int x, int y);
 // These put characters in the picture.  CGM can handle fonts
 // (x,y) is the lower left corner of where the text goes
-static int cgmText(cgmImagePtr im, int x, int y, const char *);
+static int cgmText(cgmImagePtr im, int x, int y, const char*);
 #endif
 
 // Functions for allocating colors
@@ -244,8 +246,7 @@ static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b);
 static int cgmImageColorExact(cgmImagePtr im, int r, int g, int b);
 static int cgmImageColorDeallocate(cgmImagePtr im, int color);
 #endif
-static int cgmImageColorGet(cgmImagePtr im, int cgmIndex,
-                            int& r, int& g, int& b);
+static int cgmImageColorGet(cgmImagePtr im, int cgmIndex, int& r, int& g, int& b);
 #ifdef VTK_NOT_DEFINED
 // wogl: the parameter names are commented to avoid compiler warnings
 static int cgmImageColor16(cgmImagePtr im);
@@ -287,9 +288,9 @@ static int cgmImageSetLineSpec(cgmImagePtr im, int specmode);
 static int cgmImageSetMarkerSpec(cgmImagePtr im, int specmode);
 static int cgmImageSetEdgeSpec(cgmImagePtr im, int specmode);
 #endif
-static int cgmImageSetOutput(cgmImagePtr im, FILE *output);
+static int cgmImageSetOutput(cgmImagePtr im, FILE* output);
 #ifdef VTK_NOT_DEFINED
-static int cgmImageAddFont(cgmImagePtr im, const char *fontname);
+static int cgmImageAddFont(cgmImagePtr im, const char* fontname);
 static int cgmImageClearFonts(cgmImagePtr im);
 #endif
 static cgmImagePtr cgmImageStartCgm();
@@ -297,7 +298,7 @@ static int cgmCgmHeader(cgmImagePtr);
 static int cgmCgmPic(cgmImagePtr, int);
 static int cgmImageSetDefaults(cgmImagePtr im);
 static int cgmImageEndPic(cgmImagePtr im);
-static int cgmImageEndCgm (cgmImagePtr im);
+static int cgmImageEndCgm(cgmImagePtr im);
 
 // Macros to access information about images. READ ONLY. Changing
 // these values will NOT have the desired result.
@@ -316,7 +317,7 @@ static int cgmImageEndCgm (cgmImagePtr im);
 // we always use this SIZEOF() macro in place of using sizeof() directly.
 //
 
-#define SIZEOF(object)  (static_cast<size_t>(sizeof(object)))
+#define SIZEOF(object) (static_cast<size_t>(sizeof(object)))
 
 // GeJ: these are helper functions I use in cgm.  That means DON'T call
 // them from your program.  Yes, that means you.
@@ -326,7 +327,8 @@ static int cgmImageColorClear(cgmImagePtr im);
 //
 
 // Define class for looking up colors
-class vtkColorHash {
+class vtkColorHash
+{
 public:
   vtkColorHash();
   ~vtkColorHash();
@@ -335,15 +337,15 @@ public:
   int GetColorIndex(cgmImagePtr im, int r, int g, int b);
 
 protected:
-  vtkIdList **Table;
+  vtkIdList** Table;
 };
 
 #define VTK_HASH_INDEX 737
 vtkColorHash::vtkColorHash()
 {
   int i;
-  this->Table = new vtkIdList * [VTK_HASH_INDEX];
-  for (i=0; i<VTK_HASH_INDEX; i++)
+  this->Table = new vtkIdList*[VTK_HASH_INDEX];
+  for (i = 0; i < VTK_HASH_INDEX; i++)
   {
     this->Table[i] = nullptr;
   }
@@ -352,26 +354,26 @@ vtkColorHash::vtkColorHash()
 vtkColorHash::~vtkColorHash()
 {
   int i;
-  for (i=0; i<VTK_HASH_INDEX; i++)
+  for (i = 0; i < VTK_HASH_INDEX; i++)
   {
-    if ( this->Table[i] != nullptr )
+    if (this->Table[i] != nullptr)
     {
       this->Table[i]->Delete();
     }
   }
-  delete [] this->Table;
+  delete[] this->Table;
 }
 
 int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
 {
-  int index = (65536*r + 256*g * b) % VTK_HASH_INDEX;
-  int cgmIndex=0; //remove warning
+  int index = (65536 * r + 256 * g * b) % VTK_HASH_INDEX;
+  int cgmIndex = 0; // remove warning
 
   // If no list, just insert the color
-  if ( this->Table[index] == nullptr )
+  if (this->Table[index] == nullptr)
   {
     this->Table[index] = vtkIdList::New();
-    this->Table[index]->Allocate(3,3);
+    this->Table[index]->Allocate(3, 3);
     cgmIndex = cgmImageColorAllocate(im, r, g, b);
     this->Table[index]->InsertNextId(cgmIndex);
   }
@@ -379,21 +381,21 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
   // otherwise, check to see if color exists
   else
   {
-    vtkIdType numIds=this->Table[index]->GetNumberOfIds();
+    vtkIdType numIds = this->Table[index]->GetNumberOfIds();
     int red, green, blue;
 
     vtkIdType i;
-    for (i=0; i<numIds; i++)
+    for (i = 0; i < numIds; i++)
     {
       cgmIndex = this->Table[index]->GetId(i);
       cgmImageColorGet(im, cgmIndex, red, green, blue);
-      if ( r == red && g == green && b == blue )
+      if (r == red && g == green && b == blue)
       {
         break;
       }
     }
 
-    if ( i >= numIds ) //means didn't find one
+    if (i >= numIds) // means didn't find one
     {
       cgmIndex = cgmImageColorAllocate(im, r, g, b);
       this->Table[index]->InsertNextId(cgmIndex);
@@ -405,17 +407,17 @@ int vtkColorHash::InsertUniqueColor(cgmImagePtr im, int r, int g, int b)
 
 int vtkColorHash::GetColorIndex(cgmImagePtr im, int r, int g, int b)
 {
-  int index = (65536*r + 256*g * b) % VTK_HASH_INDEX;
+  int index = (65536 * r + 256 * g * b) % VTK_HASH_INDEX;
   vtkIdType cgmIndex;
-  vtkIdType numIds=this->Table[index]->GetNumberOfIds();
+  vtkIdType numIds = this->Table[index]->GetNumberOfIds();
   int red, green, blue;
   int i;
 
-  for (i=0; i<numIds; i++)
+  for (i = 0; i < numIds; i++)
   {
     cgmIndex = this->Table[index]->GetId(i);
     cgmImageColorGet(im, cgmIndex, red, green, blue);
-    if ( r == red && g == green && b == blue )
+    if (r == red && g == green && b == blue)
     {
       return cgmIndex;
     }
@@ -432,14 +434,14 @@ int vtkColorHash::GetColorIndex(cgmImagePtr im, int r, int g, int b)
 //
 static void DefineColors(cgmImagePtr im, int CGMcolors[256])
 {
-  int red, green, blue, idx=0;
+  int red, green, blue, idx = 0;
 
   // use 3-3-2 bits for rgb
-  for (blue=0; blue<256; blue+=64)
+  for (blue = 0; blue < 256; blue += 64)
   {
-    for (green=0; green<256; green+=32)
+    for (green = 0; green < 256; green += 32)
     {
-      for (red=0; red<256; red+=32)
+      for (red = 0; red < 256; red += 32)
       {
         CGMcolors[idx++] = cgmImageColorAllocate(im, red, green, blue);
       }
@@ -449,23 +451,24 @@ static void DefineColors(cgmImagePtr im, int CGMcolors[256])
 
 // Define CGM colors from the lookup table provided
 //
-static vtkColorHash *DefineLUTColors(cgmImagePtr im, unsigned char *colors,
-                                     int numColors, int bpp)
+static vtkColorHash* DefineLUTColors(cgmImagePtr im, unsigned char* colors, int numColors, int bpp)
 {
-  vtkColorHash *colorHash = new vtkColorHash;
-  unsigned char *ptr;
-  int r=0, g=0, b=0; //warnings
+  vtkColorHash* colorHash = new vtkColorHash;
+  unsigned char* ptr;
+  int r = 0, g = 0, b = 0; // warnings
   int id;
 
-  for (id=0; id < numColors; id++)
+  for (id = 0; id < numColors; id++)
   {
-    ptr = colors + bpp*id;
+    ptr = colors + bpp * id;
     switch (bpp)
     {
-      case 1: case 2:
+      case 1:
+      case 2:
         r = g = b = *ptr;
         break;
-      case 3: case 4:
+      case 3:
+      case 4:
         r = ptr[0];
         g = ptr[1];
         b = ptr[2];
@@ -485,12 +488,12 @@ static int GetColor(int red, int green, int blue, int CGMColors[256])
   // round to nearest value
   red = (red + 16) / 32;
   red = (red > 7 ? 7 : red);
-  green =(green + 16) / 32;
+  green = (green + 16) / 32;
   green = (green > 7 ? 7 : green);
   blue = (blue + 32) / 64;
   blue = (blue > 3 ? 3 : blue);
 
-  return CGMColors[red + green*8 + blue*64];
+  return CGMColors[red + green * 8 + blue * 64];
 }
 
 #ifdef VTK_NOT_DEFINED
@@ -500,78 +503,79 @@ static int GetLUTColor(int vtkNotUsed(red), int vtkNotUsed(green), int vtkNotUse
 }
 #endif
 
-typedef struct _vtkSortValues {
+typedef struct _vtkSortValues
+{
   float z;
-  int   cellId;
+  int cellId;
 } vtkSortValues;
 
 extern "C"
 {
-int vtkCGMqsortCompare(const void *val1, const void *val2)
-{
-  if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
+  int vtkCGMqsortCompare(const void* val1, const void* val2)
   {
-    return (-1);
+    if (((vtkSortValues*)val1)->z > ((vtkSortValues*)val2)->z)
+    {
+      return (-1);
+    }
+    else if (((vtkSortValues*)val1)->z < ((vtkSortValues*)val2)->z)
+    {
+      return (1);
+    }
+    else
+    {
+      return (0);
+    }
   }
-  else if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
-  {
-    return (1);
-  }
-  else
-  {
-    return (0);
-  }
-}
 }
 
 void vtkCGMWriter::WriteData()
 {
-  FILE *outf;
-  vtkPolyData *input=this->GetInput();
+  FILE* outf;
+  vtkPolyData* input = this->GetInput();
 
-  vtkIdType numCells=input->GetNumberOfCells(), cellId;
-  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkIdType numCells = input->GetNumberOfCells(), cellId;
+  vtkIdType numPts = input->GetNumberOfPoints();
 
   // Check that there is something to write
-  if ( numPts < 1 || numCells < 1 )
+  if (numPts < 1 || numCells < 1)
   {
-    vtkErrorMacro(<<"No data to write");
+    vtkErrorMacro(<< "No data to write");
     return;
   }
 
   // Try opening the file
-  if ( (outf = fopen(this->FileName, "wb")) == nullptr )
+  if ((outf = fopen(this->FileName, "wb")) == nullptr)
   {
-    vtkErrorMacro(<<"Cannot open CGM file");
+    vtkErrorMacro(<< "Cannot open CGM file");
     return;
   }
 
   cgmImagePtr im;
-  vtkPoints *inPts=input->GetPoints(), *pts;
-  vtkGenericCell *cell=vtkGenericCell::New();
-  vtkDataArray *inScalars=input->GetCellData()->GetScalars();
+  vtkPoints *inPts = input->GetPoints(), *pts;
+  vtkGenericCell* cell = vtkGenericCell::New();
+  vtkDataArray* inScalars = input->GetCellData()->GetScalars();
   int i, id, type, npts, size[2];
-  vtkIdType *p;
+  vtkIdType* p;
   double bounds[6], xRange, yRange, x[3], factor[2];
-  int color, bpp=1, colorMode;
-  unsigned char *ptr, *colors=nullptr;
+  int color, bpp = 1, colorMode;
+  unsigned char *ptr, *colors = nullptr;
   int rgbColor[3], maxCellSize;
-  cgmPoint *points;
-  vtkSortValues *depth=nullptr; //warnings
+  cgmPoint* points;
+  vtkSortValues* depth = nullptr; // warnings
 
   // Figure out the coordinate range of the data.
   // Generate the points that will be used for output.
   //
-  if ( this->Viewport == nullptr ) //zero-out z values
+  if (this->Viewport == nullptr) // zero-out z values
   {
     input->GetBounds(bounds);
     pts = inPts;
   }
-  else //transform into view coordinates
+  else // transform into view coordinates
   {
-    vtkPoints *displayPts = vtkPoints::New();
+    vtkPoints* displayPts = vtkPoints::New();
     displayPts->SetNumberOfPoints(numPts);
-    for ( i=0; i < numPts; i++ )
+    for (i = 0; i < numPts; i++)
     {
       inPts->GetPoint(i, x);
       this->Viewport->SetWorldPoint(x[0], x[1], x[2], 1.0);
@@ -587,16 +591,16 @@ void vtkCGMWriter::WriteData()
   //
   xRange = bounds[1] - bounds[0];
   yRange = bounds[3] - bounds[2];
-  if ( xRange > yRange )
+  if (xRange > yRange)
   {
     factor[0] = 1.0;
-    factor[1] = yRange/xRange;
+    factor[1] = yRange / xRange;
     size[0] = this->Resolution;
     size[1] = static_cast<int>(factor[1] * this->Resolution);
   }
   else
   {
-    factor[0] = yRange/xRange;
+    factor[0] = yRange / xRange;
     factor[1] = 1.0;
     size[0] = static_cast<int>(factor[0] * this->Resolution);
     size[1] = this->Resolution;
@@ -604,31 +608,31 @@ void vtkCGMWriter::WriteData()
 
   // Loop over the points again, transforming them into resolution specified
   //
-  vtkPoints *scaledPts = vtkPoints::New();
+  vtkPoints* scaledPts = vtkPoints::New();
   scaledPts->SetDataTypeToInt();
   scaledPts->SetNumberOfPoints(numPts);
   x[2] = 0.0;
-  for (i=0; i<numPts; i++)
+  for (i = 0; i < numPts; i++)
   {
-    pts->GetPoint(i,x);
+    pts->GetPoint(i, x);
     x[0] = (x[0] - bounds[0]) / xRange * this->Resolution * factor[0];
     x[1] = (x[1] - bounds[2]) / yRange * this->Resolution * factor[1];
-    scaledPts->SetPoint(i,x);
+    scaledPts->SetPoint(i, x);
   }
 
   // Generate the colors according to specified method
   //
   int CGMColors[256];
   im = cgmImageCreate(size[0], size[1]);
-  vtkColorHash *colorHash=nullptr;
+  vtkColorHash* colorHash = nullptr;
 
-  if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
+  if (this->ColorMode == VTK_COLOR_MODE_DEFAULT)
   {
-    if ( inScalars && inScalars->GetDataType() == VTK_UNSIGNED_CHAR )
+    if (inScalars && inScalars->GetDataType() == VTK_UNSIGNED_CHAR)
     {
       colorMode = VTK_COLOR_MODE_DEFAULT;
       bpp = inScalars->GetNumberOfComponents();
-      colors = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
+      colors = static_cast<vtkUnsignedCharArray*>(inScalars)->GetPointer(0);
     }
     else
     {
@@ -640,11 +644,11 @@ void vtkCGMWriter::WriteData()
     colorMode = this->ColorMode;
   }
 
-  if ( colorMode == VTK_COLOR_MODE_DEFAULT )
+  if (colorMode == VTK_COLOR_MODE_DEFAULT)
   {
     colorHash = DefineLUTColors(im, colors, numCells, bpp);
   }
-  else //random or specified color
+  else // random or specified color
   {
     DefineColors(im, CGMColors);
   }
@@ -652,25 +656,28 @@ void vtkCGMWriter::WriteData()
   // Setup creation of the CGM file
   //
   maxCellSize = input->GetVerts()->GetMaxCellSize();
-  maxCellSize = (input->GetLines()->GetMaxCellSize() > maxCellSize ?
-                 input->GetLines()->GetMaxCellSize() : maxCellSize );
-  maxCellSize = (input->GetPolys()->GetMaxCellSize() > maxCellSize ?
-                 input->GetPolys()->GetMaxCellSize() : maxCellSize );
-  maxCellSize = (input->GetStrips()->GetMaxCellSize() > maxCellSize ?
-                 input->GetStrips()->GetMaxCellSize() : maxCellSize );
-  points = new cgmPoint [maxCellSize];
+  maxCellSize =
+    (input->GetLines()->GetMaxCellSize() > maxCellSize ? input->GetLines()->GetMaxCellSize()
+                                                       : maxCellSize);
+  maxCellSize =
+    (input->GetPolys()->GetMaxCellSize() > maxCellSize ? input->GetPolys()->GetMaxCellSize()
+                                                       : maxCellSize);
+  maxCellSize =
+    (input->GetStrips()->GetMaxCellSize() > maxCellSize ? input->GetStrips()->GetMaxCellSize()
+                                                        : maxCellSize);
+  points = new cgmPoint[maxCellSize];
 
   // If sorting is turned on, then traverse the cells, generating a depth
   // value which is used for sorting.
   //
-  if ( this->Sort )
+  if (this->Sort)
   {
-    depth = new vtkSortValues [numCells];
-    for ( cellId=0; cellId < numCells; cellId++ )
+    depth = new vtkSortValues[numCells];
+    for (cellId = 0; cellId < numCells; cellId++)
     {
       input->GetCell(cellId, cell);
       id = cell->PointIds->GetId(0);
-      pts->GetPoint(id,x);
+      pts->GetPoint(id, x);
 
       depth[cellId].z = x[2];
       depth[cellId].cellId = cellId;
@@ -679,12 +686,11 @@ void vtkCGMWriter::WriteData()
     qsort(depth, numCells, sizeof(vtkSortValues), vtkCGMqsortCompare);
   }
 
-
   // Traverse the cells and spit out the appropriate primitives.
   cgmSetShapeEdgeAttrib(im, 1, 0, 0, 0);
-  for ( cellId=0; cellId < numCells; cellId++ )
+  for (cellId = 0; cellId < numCells; cellId++)
   {
-    if ( this->Sort )
+    if (this->Sort)
     {
       id = depth[cellId].cellId;
     }
@@ -698,23 +704,25 @@ void vtkCGMWriter::WriteData()
     npts = cell->GetNumberOfPoints();
     p = cell->GetPointIds()->GetPointer(0);
 
-    if ( colorMode == VTK_COLOR_MODE_DEFAULT )
+    if (colorMode == VTK_COLOR_MODE_DEFAULT)
     {
-      ptr = colors + bpp*id;
+      ptr = colors + bpp * id;
       switch (bpp)
       {
-        case 1: case 2:
+        case 1:
+        case 2:
           rgbColor[0] = *ptr;
           rgbColor[1] = *ptr;
           rgbColor[2] = *ptr;
           break;
-        case 3: case 4:
+        case 3:
+        case 4:
           rgbColor[0] = ptr[0];
           rgbColor[1] = ptr[1];
           rgbColor[2] = ptr[2];
           break;
         default:
-          vtkErrorMacro( << "Unsupported bpp in vtkCGMWriter::WriteData" );
+          vtkErrorMacro(<< "Unsupported bpp in vtkCGMWriter::WriteData");
           rgbColor[0] = 0;
           rgbColor[1] = 0;
           rgbColor[2] = 0;
@@ -723,24 +731,24 @@ void vtkCGMWriter::WriteData()
 
       color = colorHash->GetColorIndex(im, rgbColor[0], rgbColor[1], rgbColor[2]);
     }
-    else if ( colorMode == VTK_COLOR_MODE_SPECIFIED_COLOR )
+    else if (colorMode == VTK_COLOR_MODE_SPECIFIED_COLOR)
     {
       color = GetColor(static_cast<int>(this->SpecifiedColor[0] * 255.0),
-                       static_cast<int>(this->SpecifiedColor[1] * 255.0),
-                       static_cast<int>(this->SpecifiedColor[2] * 255.0),
-                       CGMColors);
+        static_cast<int>(this->SpecifiedColor[1] * 255.0),
+        static_cast<int>(this->SpecifiedColor[2] * 255.0), CGMColors);
     }
-    else //if ( colorMode == VTK_COLOR_MODE_RANDOM_COLORS )
+    else // if ( colorMode == VTK_COLOR_MODE_RANDOM_COLORS )
     {
-      color = GetColor(static_cast<int>(vtkMath::Random(0,255)),
-                       static_cast<int>(vtkMath::Random(0,255)),
-                       static_cast<int>(vtkMath::Random(0,255)), CGMColors);
+      color = GetColor(static_cast<int>(vtkMath::Random(0, 255)),
+        static_cast<int>(vtkMath::Random(0, 255)), static_cast<int>(vtkMath::Random(0, 255)),
+        CGMColors);
     }
 
     switch (type)
     {
-      case VTK_VERTEX: case VTK_POLY_VERTEX:
-        for (i=0; i<npts; i++)
+      case VTK_VERTEX:
+      case VTK_POLY_VERTEX:
+        for (i = 0; i < npts; i++)
         {
           scaledPts->GetPoint(p[i], x);
           points[0].x = static_cast<int>(x[0]);
@@ -748,8 +756,9 @@ void vtkCGMWriter::WriteData()
         }
         cgmPolyMarker(im, points, 1);
         break;
-      case VTK_LINE: case VTK_POLY_LINE:
-        for (i=0; i<npts; i++)
+      case VTK_LINE:
+      case VTK_POLY_LINE:
+        for (i = 0; i < npts; i++)
         {
           scaledPts->GetPoint(p[i], x);
           points[i].x = static_cast<int>(x[0]);
@@ -758,8 +767,10 @@ void vtkCGMWriter::WriteData()
         cgmSetLineColor(im, color);
         cgmPolyLine(im, points, npts);
         break;
-      case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
-        for (i=0; i<npts; i++)
+      case VTK_TRIANGLE:
+      case VTK_QUAD:
+      case VTK_POLYGON:
+        for (i = 0; i < npts; i++)
         {
           scaledPts->GetPoint(p[i], x);
           points[i].x = static_cast<int>(x[0]);
@@ -769,15 +780,15 @@ void vtkCGMWriter::WriteData()
         cgmPolygon(im, points, npts);
         break;
       case VTK_TRIANGLE_STRIP:
-        for (i=0; i<(npts-2); i++)
+        for (i = 0; i < (npts - 2); i++)
         {
           scaledPts->GetPoint(p[i], x);
           points[0].x = static_cast<int>(x[0]);
           points[0].y = static_cast<int>(x[1]);
-          scaledPts->GetPoint(p[i+1], x);
+          scaledPts->GetPoint(p[i + 1], x);
           points[1].x = static_cast<int>(x[0]);
           points[1].y = static_cast<int>(x[1]);
-          scaledPts->GetPoint(p[i+2], x);
+          scaledPts->GetPoint(p[i + 2], x);
           points[2].x = static_cast<int>(x[0]);
           points[2].y = static_cast<int>(x[1]);
         }
@@ -785,20 +796,20 @@ void vtkCGMWriter::WriteData()
         cgmPolygon(im, points, 3);
         break;
       default:
-        vtkErrorMacro(<<"Unsupported CGM type");
+        vtkErrorMacro(<< "Unsupported CGM type");
     }
   }
-  if ( colorMode == VTK_COLOR_MODE_DEFAULT )
+  if (colorMode == VTK_COLOR_MODE_DEFAULT)
   {
     delete colorHash;
   }
 
   cell->Delete();
   scaledPts->Delete();
-  delete [] points;
-  if ( this->Sort )
+  delete[] points;
+  if (this->Sort)
   {
-    delete [] depth;
+    delete[] depth;
   }
 
   // Write out the CGM file
@@ -806,17 +817,16 @@ void vtkCGMWriter::WriteData()
 
   // Clean up and get out
   fclose(outf);
-  cgmImageDestroy(im); //destroys image
+  cgmImageDestroy(im); // destroys image
 }
 
 void vtkCGMWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->Viewport )
+  if (this->Viewport)
   {
-    os << indent << "Viewport: "
-       << this->Viewport << "\n";
+    os << indent << "Viewport: " << this->Viewport << "\n";
     this->Viewport->PrintSelf(os, indent.GetNextIndent());
   }
   else
@@ -827,14 +837,14 @@ void vtkCGMWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Sort: " << (this->Sort ? "On\n" : "Off\n");
 
   os << indent << "Color Mode: ";
-  if ( this->ColorMode == VTK_COLOR_MODE_DEFAULT )
+  if (this->ColorMode == VTK_COLOR_MODE_DEFAULT)
   {
     os << "Default" << endl;
   }
-  else if ( this->ColorMode == VTK_COLOR_MODE_SPECIFIED_COLOR )
+  else if (this->ColorMode == VTK_COLOR_MODE_SPECIFIED_COLOR)
   {
-    os << "Specified Color: (" << this->SpecifiedColor[0] << ", "
-       << this->SpecifiedColor[1] << ", " << this->SpecifiedColor[2] << ")\n";
+    os << "Specified Color: (" << this->SpecifiedColor[0] << ", " << this->SpecifiedColor[1] << ", "
+       << this->SpecifiedColor[2] << ")\n";
   }
   else
   {
@@ -860,15 +870,15 @@ static cgmImagePtr cgmImageCreate(int sx, int sy)
   {
     return 0; /* memory allocation failed */
   }
-  if (!cgmImageSetSize(im, sx,sy))
+  if (!cgmImageSetSize(im, sx, sy))
   {
-    free (im);
+    free(im);
     return 0;
   }
 
   if (!cgmCgmHeader(im))
   {
-    free (im);
+    free(im);
     return 0;
   }
 
@@ -883,13 +893,13 @@ static cgmImagePtr cgmImageCreate(int sx, int sy)
   }
 }
 
-static int cgmAppNull(unsigned char *es, int x)
+static int cgmAppNull(unsigned char* es, int x)
 {
-/* put x  nulls in the string.
- * return value is number of octets added (1) */
+  /* put x  nulls in the string.
+   * return value is number of octets added (1) */
   int y;
 
-  for(y=0; y<x; y++)
+  for (y = 0; y < x; y++)
   {
     *es = '\0';
     es++;
@@ -897,22 +907,22 @@ static int cgmAppNull(unsigned char *es, int x)
   return x;
 }
 
-static int cgmAppByte(unsigned char *es, short int addme)
+static int cgmAppByte(unsigned char* es, short int addme)
 {
-/* Append an octet to the end of es
- * Return value is number of octets added
- * for internal cgm functions only, do not call
- */
+  /* Append an octet to the end of es
+   * Return value is number of octets added
+   * for internal cgm functions only, do not call
+   */
   *es = static_cast<unsigned char>(addme) & 0377;
   return 1;
 }
 
-static int cgmAppShort(unsigned char *es, short int addme)
+static int cgmAppShort(unsigned char* es, short int addme)
 {
-/* Append a short to the end of es
- * return value is number of octets added
- * For internal cgm functions only, do not call!
- */
+  /* Append a short to the end of es
+   * return value is number of octets added
+   * For internal cgm functions only, do not call!
+   */
   short int temp;
 
   temp = addme >> 8;
@@ -922,13 +932,13 @@ static int cgmAppShort(unsigned char *es, short int addme)
   return 2;
 }
 
-static int cgmcomhead(unsigned char *es, int elemclass, int id, int len)
+static int cgmcomhead(unsigned char* es, int elemclass, int id, int len)
 {
-/* sets the command header in the first two bytes of string es
- * element class is in bits 15-12
- * element id is in bits 11-5
- * parameter list length is in bits 4-0
- */
+  /* sets the command header in the first two bytes of string es
+   * element class is in bits 15-12
+   * element id is in bits 11-5
+   * parameter list length is in bits 4-0
+   */
   int temp;
 
   if (!es)
@@ -939,28 +949,28 @@ static int cgmcomhead(unsigned char *es, int elemclass, int id, int len)
   /* set the element class */
   *es = static_cast<unsigned char>(elemclass) << 4;
   /* set the element id */
-  temp = 0177 & id ;
+  temp = 0177 & id;
   temp = temp >> 3;
   *es = *es | temp;
   es++;
   id = id << 5;
   *es = static_cast<unsigned char>(id);
-  *es = *es | static_cast<unsigned char>( 037 & len );
+  *es = *es | static_cast<unsigned char>(037 & len);
 
   return 1;
 }
 
-static int cgmcomheadlong(unsigned char *es, int elemclass, int id, int len)
+static int cgmcomheadlong(unsigned char* es, int elemclass, int id, int len)
 {
-/* sets the command header for the long form.
- * first 16 bits:
- *  element class is in bits 15-12
- *  element id is in bits 11-5
- *  parameter list length is in bits 4-0 = 31
- * second 16 bits:
- *  bit 15 = 0  (for last partition)
- *  bit 14-0 param list len
- */
+  /* sets the command header for the long form.
+   * first 16 bits:
+   *  element class is in bits 15-12
+   *  element id is in bits 11-5
+   *  parameter list length is in bits 4-0 = 31
+   * second 16 bits:
+   *  bit 15 = 0  (for last partition)
+   *  bit 14-0 param list len
+   */
 
   /* I'm lazy, call cgmcomhead to set the first two bytes */
   if (!cgmcomhead(es, elemclass, id, 31))
@@ -977,22 +987,22 @@ static int cgmcomheadlong(unsigned char *es, int elemclass, int id, int len)
   return 1;
 }
 
-static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
+static int cgmAddElem(cgmImagePtr im, unsigned char* es, int octet_count)
 /* adds a string, which is a CGM element to the elemlist.
  * This function is called by other functions in this library and
  * should NOT be called by users of the library
  * For internal cgm functions only, do not call!
  */
 {
-  unsigned char *newlist; /* in case memory allocation fails */
-  int x; /* counter */
+  unsigned char* newlist; /* in case memory allocation fails */
+  int x;                  /* counter */
 
   while ((octet_count + 1) >= im->bytestoend)
   {
     /* not enough space, must grow elemlist */
     im->listlen = im->listlen + CGMGROWLISTSIZE;
-    newlist = static_cast<unsigned char *>(
-      realloc(im->elemlist,SIZEOF(unsigned char ) * im->listlen));
+    newlist =
+      static_cast<unsigned char*>(realloc(im->elemlist, SIZEOF(unsigned char) * im->listlen));
     if (newlist)
     {
       /* successfully allocated memory */
@@ -1009,7 +1019,7 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
   }
 
   /* ok, if we get to here, there is enough space, so add it. */
-  for (x=0; x < octet_count; x++)
+  for (x = 0; x < octet_count; x++)
   {
     *im->curelemlist = static_cast<unsigned char>(*es);
     im->curelemlist++;
@@ -1021,14 +1031,14 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
 
 static int cgmCgmHeader(cgmImagePtr im)
 {
-/* add the cgm header to the imagepointer's element list
- * do it all in a string than call cgmAddElem on it
- * For internal cgm functions only, do not call!
- */
-  unsigned char *headerp;
-  unsigned char *head;
+  /* add the cgm header to the imagepointer's element list
+   * do it all in a string than call cgmAddElem on it
+   * For internal cgm functions only, do not call!
+   */
+  unsigned char* headerp;
+  unsigned char* head;
   const unsigned char *buf, *buf2;
-  int octet_count=0;
+  int octet_count = 0;
   int blen; /* length of buf */
   int curly;
   int fontlistlen; /* each font in the font list is stored as a string,
@@ -1042,17 +1052,17 @@ static int cgmCgmHeader(cgmImagePtr im)
     return 0;
   }
 
-  headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
+  headerp = static_cast<unsigned char*>(calloc(1024, SIZEOF(unsigned char)));
   if (!headerp)
   {
     return 0; /* memory allocation failed */
   }
-  head=headerp;
+  head = headerp;
 
   /*** Attribute: BegMF; Elem Class 0; Elem ID 1 */
-  buf = reinterpret_cast<const unsigned char *>("vtk: Visualization Toolkit");
-  blen = static_cast<int>(strlen(reinterpret_cast<const char *>(buf)));
-  cgmcomhead(head, 0, 1, blen+1);
+  buf = reinterpret_cast<const unsigned char*>("vtk: Visualization Toolkit");
+  blen = static_cast<int>(strlen(reinterpret_cast<const char*>(buf)));
+  cgmcomhead(head, 0, 1, blen + 1);
   head += 2;
   head += cgmAppByte(head, static_cast<short int>(blen));
   buf2 = buf;
@@ -1075,8 +1085,8 @@ static int cgmCgmHeader(cgmImagePtr im)
   octet_count += 4;
 
   /*** Attribute: MFDesc; Elem Class 1; Elem ID 2 */
-  blen = static_cast<int>(strlen(reinterpret_cast<char *>(im->desc)));
-  cgmcomheadlong(head, 1, 2, blen+1);
+  blen = static_cast<int>(strlen(reinterpret_cast<char*>(im->desc)));
+  cgmcomheadlong(head, 1, 2, blen + 1);
   head += 4;
   head += cgmAppByte(head, static_cast<short int>(blen));
   buf2 = im->desc;
@@ -1108,7 +1118,8 @@ static int cgmCgmHeader(cgmImagePtr im)
   cgmcomhead(head, 1, 9, 1);
   head += 2;
   head += cgmAppByte(head, static_cast<short int>(255));
-  octet_count += 4; head++;
+  octet_count += 4;
+  head++;
 
   /*** Attribute: MFElemList; Elem Class 1; Elem ID 11 */
   /* shorthand here.  1 means 1 element specified, (-1,1)
@@ -1130,9 +1141,9 @@ static int cgmCgmHeader(cgmImagePtr im)
   if (0)
   { /* don't do this if there aren't any fonts */
     //      if (buf)  /* don't do this if there aren't any fonts */
-    fontlistlen = static_cast<int>(strlen(reinterpret_cast<const char *>(buf))) + 1;
+    fontlistlen = static_cast<int>(strlen(reinterpret_cast<const char*>(buf))) + 1;
     cgmcomheadlong(head, 1, 13, fontlistlen);
-    head +=4;
+    head += 4;
 
     while (*buf)
     {
@@ -1174,21 +1185,20 @@ static int cgmCgmHeader(cgmImagePtr im)
   }
 }
 
-
 static int cgmCgmPic(cgmImagePtr im, int sticky)
 {
-/* Start the picture.  if the sticky bit is set, set and use the defaults
- * of the previous picture.  Otherwise, reset all defaults.
- * Gej: sticky = 0 reset defaults, 1 don't reset anything, 2 only
- * reset the color table
- */
-  unsigned char *headerp;
-  unsigned char *head;
+  /* Start the picture.  if the sticky bit is set, set and use the defaults
+   * of the previous picture.  Otherwise, reset all defaults.
+   * Gej: sticky = 0 reset defaults, 1 don't reset anything, 2 only
+   * reset the color table
+   */
+  unsigned char* headerp;
+  unsigned char* head;
   unsigned char *buf, *buf2;
-  char *tb;
-  int octet_count=0;
-  int blen; /* length of buf */
-  int x1,x2,x3,x4; /* needed for setting defaults */
+  char* tb;
+  int octet_count = 0;
+  int blen;           /* length of buf */
+  int x1, x2, x3, x4; /* needed for setting defaults */
 
   if ((im->state != 0) && (im->state != 2))
   {
@@ -1202,22 +1212,22 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
 
   /* increment the picture number */
   im->picnum++;
-  tb = static_cast<char *>(calloc(4*4, SIZEOF(char) ));
-  headerp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
+  tb = static_cast<char*>(calloc(4 * 4, SIZEOF(char)));
+  headerp = static_cast<unsigned char*>(calloc(1024, SIZEOF(unsigned char)));
   if (!tb || !headerp)
   {
     free(tb);
     free(headerp);
     return 0; /* memory allocation failed */
   }
-  head=headerp;
+  head = headerp;
 
   /*** Attribute: BegPic; Elem Class 0; Elem ID 3 */
-  snprintf(tb, 4*4, "picture %d", im->picnum);
+  snprintf(tb, 4 * 4, "picture %d", im->picnum);
   buf = reinterpret_cast<unsigned char*>(tb);
   /* buf = (unsigned char *) "picture 1"; */
-  blen = static_cast<int>(strlen(reinterpret_cast<char *>(buf)));
-  cgmcomhead(head, 0, 3, blen+1);
+  blen = static_cast<int>(strlen(reinterpret_cast<char*>(buf)));
+  cgmcomhead(head, 0, 3, blen + 1);
   head += 2;
   head += cgmAppByte(head, static_cast<short int>(blen));
   buf2 = buf;
@@ -1234,7 +1244,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   }
   if (octet_count % 4)
   {
-    octet_count +=2;
+    octet_count += 2;
     head += cgmAppNull(head, 2);
   }
 
@@ -1301,7 +1311,7 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
     if (sticky == 1)
     {
       /* keep the color table */
-      if(cgmImageAddColor(im, 0, im->colorsTotal - 1) == -1)
+      if (cgmImageAddColor(im, 0, im->colorsTotal - 1) == -1)
       {
         /* no colortable */
         return 1;
@@ -1313,46 +1323,65 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
       cgmImageColorClear(im);
     }
     im->state = 1;
-    x1=im->ltype; x2=im->lwidth; x3=im->lcolor;
-    im->ltype=CGMLTYPE; im->lwidth=CGMLWIDTH; im->lcolor=CGMLCOLOR;
-    if(!cgmSetLineAttrib(im, x1, x2, x3))
+    x1 = im->ltype;
+    x2 = im->lwidth;
+    x3 = im->lcolor;
+    im->ltype = CGMLTYPE;
+    im->lwidth = CGMLWIDTH;
+    im->lcolor = CGMLCOLOR;
+    if (!cgmSetLineAttrib(im, x1, x2, x3))
     {
       return 0;
     }
 
-    x1=im->shapestyle; x2=im->shapecolor; x3=im->shapehatch;
-    im->shapestyle=CGMSHAPESTYLE; im->shapecolor=CGMSHAPECOLOR;
-    im->shapehatch=CGMSHAPEHATCH;
+    x1 = im->shapestyle;
+    x2 = im->shapecolor;
+    x3 = im->shapehatch;
+    im->shapestyle = CGMSHAPESTYLE;
+    im->shapecolor = CGMSHAPECOLOR;
+    im->shapehatch = CGMSHAPEHATCH;
     if (!cgmSetShapeFillAttrib(im, x1, x2, x3))
     {
       return 0;
     }
 
-    x1=im->edgetype; x2=im->edgewidth;
-    x3=im->edgecolor; x4=im->edgevis;
-    im->edgetype=CGMEDGETYPE; im->edgewidth=CGMEDGEWIDTH;
-    im->edgecolor=CGMEDGECOLOR; im->edgevis=CGMEDGEVIS;
+    x1 = im->edgetype;
+    x2 = im->edgewidth;
+    x3 = im->edgecolor;
+    x4 = im->edgevis;
+    im->edgetype = CGMEDGETYPE;
+    im->edgewidth = CGMEDGEWIDTH;
+    im->edgecolor = CGMEDGECOLOR;
+    im->edgevis = CGMEDGEVIS;
     if (!cgmSetShapeEdgeAttrib(im, x1, x2, x3, x4))
     {
       return 0;
     }
 
-    x1=im->textfont; x2=im->textcolor; x3=im->textheight;
-    im->textfont=CGMTEXTFONT; im->textcolor=CGMTEXTCOLOR;
-    im->textheight=CGMTEXTHEIGHT;
-    if(!cgmSetTextAttrib(im, x1, x2, x3))
+    x1 = im->textfont;
+    x2 = im->textcolor;
+    x3 = im->textheight;
+    im->textfont = CGMTEXTFONT;
+    im->textcolor = CGMTEXTCOLOR;
+    im->textheight = CGMTEXTHEIGHT;
+    if (!cgmSetTextAttrib(im, x1, x2, x3))
     {
       return 0;
     }
-    x1=im->textpath; im->textpath = CGMTEXTPATH;
+    x1 = im->textpath;
+    im->textpath = CGMTEXTPATH;
     if (!cgmSetTextPath(im, x1))
     {
       return 0;
     }
 
-    x1=im->mtype; x2=im->msize; x3=im->mcolor;
-    im->ltype=CGMMTYPE; im->lwidth=CGMMSIZE; im->lcolor=CGMMCOLOR;
-    if(!cgmSetMarkerAttrib(im, x1, x2, x3))
+    x1 = im->mtype;
+    x2 = im->msize;
+    x3 = im->mcolor;
+    im->ltype = CGMMTYPE;
+    im->lwidth = CGMMSIZE;
+    im->lcolor = CGMMCOLOR;
+    if (!cgmSetMarkerAttrib(im, x1, x2, x3))
     {
       return 0;
     }
@@ -1387,11 +1416,11 @@ static int cgmCgmNewPic(cgmImagePtr im, int sticky)
   }
 
   /* now start the new picture */
-  return(cgmCgmPic(im, sticky));
+  return (cgmCgmPic(im, sticky));
 }
 #endif
 
-static int cgmImageCgm(cgmImagePtr im, FILE *out)
+static int cgmImageCgm(cgmImagePtr im, FILE* out)
 /* Gej: Write the image to file *out, which must be open already
  * does not close the file */
 {
@@ -1399,15 +1428,14 @@ static int cgmImageCgm(cgmImagePtr im, FILE *out)
   return cgmImageEndCgm(im);
 }
 
-
 static int cgmSetLineType(cgmImagePtr im, int lntype)
 {
-/* Attribute: Line Type; Elem Class 5; Elem ID 2
- * Set the line type.  Possible values are:
- * 1=solid, 2=dash, 3=dot, 4=dash-dot, 5=dash-dot-dot
- * Even though new ones can be defined, I am limiting lntype to these values
- * If you really need more, you can make the proper changes.
- */
+  /* Attribute: Line Type; Elem Class 5; Elem ID 2
+   * Set the line type.  Possible values are:
+   * 1=solid, 2=dash, 3=dot, 4=dash-dot, 5=dash-dot-dot
+   * Even though new ones can be defined, I am limiting lntype to these values
+   * If you really need more, you can make the proper changes.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -1432,12 +1460,12 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 5, 2, 2))
   {
@@ -1469,12 +1497,12 @@ static int cgmSetLineType(cgmImagePtr im, int lntype)
 
 static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
 {
-/* Attribute: Line Width; Elem Class 5; Elem ID 3
- * sets the line width.  with an image of height X with line width 1
- * the displayed width will be 1/X%.  as an example, if you image is
- * x=5, y=10, and you set line width = 1, and draw a vertical line, the
- * resulting line will cover 20% of horizontal area.
- */
+  /* Attribute: Line Width; Elem Class 5; Elem ID 3
+   * sets the line width.  with an image of height X with line width 1
+   * the displayed width will be 1/X%.  as an example, if you image is
+   * x=5, y=10, and you set line width = 1, and draw a vertical line, the
+   * resulting line will cover 20% of horizontal area.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -1493,12 +1521,12 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /*gej: line width is 32 bit floating point number, 16 bits before the
    * decimal, 16 bits after if Line Spec is default (1, scaled)
@@ -1547,10 +1575,10 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
 
 static int cgmSetLineColor(cgmImagePtr im, int lncolor)
 {
-/* Attribute: Line Colour; Elem Class 5; Elem ID 4
- * Sets the line color.  lncolor should be an index into the color
- * table that you have previously allocated.
- */
+  /* Attribute: Line Colour; Elem Class 5; Elem ID 4
+   * Sets the line color.  lncolor should be an index into the color
+   * table that you have previously allocated.
+   */
   unsigned char *es, *esp;
   int octet_count;
   /* First check and see if the user doesn't want any changes,
@@ -1569,28 +1597,27 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
-  if ((lncolor >= im->colorsTotal ) || (lncolor < 0))
+  if ((lncolor >= im->colorsTotal) || (lncolor < 0))
   {
-    return 0;  /* you must allocate a color before you use it */
+    return 0; /* you must allocate a color before you use it */
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
-
+  esp = es;
 
   if (!cgmcomhead(es, 5, 4, 1))
   {
-    free (esp);
+    free(esp);
     return 0;
   }
   es += 2;
 
-  *es =  0377 & lncolor; /* mask off last 8 bits and put in es */
+  *es = 0377 & lncolor; /* mask off last 8 bits and put in es */
   es++;
 
   es += cgmAppNull(es, 1);
@@ -1614,15 +1641,15 @@ static int cgmSetLineColor(cgmImagePtr im, int lncolor)
 
 static int cgmSetFillStyle(cgmImagePtr im, int instyle)
 {
-/* set the style of the interior of filled area elements.
- * Attribute: Interior Style; Elem Class 5; Elem ID 22
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Interior Style: (integers 0-6, corresponding to: hollow, solid,
- *                      [not pattern], hatch, empty, [not geometric pattern],
- *                      interpolated.)
- * attribute is 16 bit signed int
- */
+  /* set the style of the interior of filled area elements.
+   * Attribute: Interior Style; Elem Class 5; Elem ID 22
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Interior Style: (integers 0-6, corresponding to: hollow, solid,
+   *                      [not pattern], hatch, empty, [not geometric pattern],
+   *                      interpolated.)
+   * attribute is 16 bit signed int
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -1648,17 +1675,17 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* set the header to Class 5, ID 22, Length 2 */
   if (!cgmcomhead(es, 5, 22, 2))
   {
-    free (esp);
+    free(esp);
     return 0;
   }
   es += 2;
@@ -1684,12 +1711,12 @@ static int cgmSetFillStyle(cgmImagePtr im, int instyle)
 
 static int cgmSetFillColor(cgmImagePtr im, int incolor)
 {
-/* set the color of the interior of filled area elements
- * Attribute: Fill Colour; Elem Class 5; Elem ID 23
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Fill Colour: (index into the color table)
- */
+  /* set the color of the interior of filled area elements
+   * Attribute: Fill Colour; Elem Class 5; Elem ID 23
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Fill Colour: (index into the color table)
+   */
   unsigned char *es, *esp;
   int octet_count;
   /* First check and see if the user doesn't want any changes,
@@ -1708,18 +1735,18 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
-  if ((incolor >= im->colorsTotal ) || (incolor < 0))
+  if ((incolor >= im->colorsTotal) || (incolor < 0))
   {
-    return 0;  /* you must allocate a color before you use it */
+    return 0; /* you must allocate a color before you use it */
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 5, 23, 1))
   {
@@ -1728,7 +1755,7 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
   }
   es += 2;
 
-  *es =  0377 & incolor; /* mask off last 8 bits and put in es */
+  *es = 0377 & incolor; /* mask off last 8 bits and put in es */
   es++;
   es += cgmAppNull(es, 1);
 
@@ -1751,16 +1778,16 @@ static int cgmSetFillColor(cgmImagePtr im, int incolor)
 
 static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
 {
-/* Set the hatch pattern for the interior of filled-area elements
- * the fill style must be set to hatch for this to have an effect.
- * Attribute: Hatch Index; Elem Class 5; Elem ID 24
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Hatch Index: (integers 1-6, corresponding to: horizontal lines,
- *                   vertical lines, pos. slope parallel lines,
- *                   neg. slope parallel lines, horizontal/vertical
- *                   crosshatch, positive/negative slope crosshatch)
- */
+  /* Set the hatch pattern for the interior of filled-area elements
+   * the fill style must be set to hatch for this to have an effect.
+   * Attribute: Hatch Index; Elem Class 5; Elem ID 24
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Hatch Index: (integers 1-6, corresponding to: horizontal lines,
+   *                   vertical lines, pos. slope parallel lines,
+   *                   neg. slope parallel lines, horizontal/vertical
+   *                   crosshatch, positive/negative slope crosshatch)
+   */
 
   unsigned char *es, *esp;
   int octet_count, temp;
@@ -1786,15 +1813,15 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* set the command header to class 5, id 24, length 2 */
-  if (!cgmcomhead (es, 5, 24, 2))
+  if (!cgmcomhead(es, 5, 24, 2))
   {
     free(esp);
     return 0;
@@ -1826,19 +1853,19 @@ static int cgmSetFillHatch(cgmImagePtr im, int inhatch)
 
 static int cgmSetEdgeType(cgmImagePtr im, int edtype)
 {
-/* set the type of the edge of filled-area elements.
- * Attribute: Edge Type; Elem Class 5; Elem ID 27
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Edge Type (integers 1-5, corresponding to: solid, dash, dot,
- *                dash-dot, dash-dot-dot. These are the same as those used
- *                for line type.)
- * In Part 3 of the standard (Binary Encoding) on page 47 it says that
- * edge type is integer.  This is incorrect.  Edge type is Index, just
- * like line type.
- * Even though new ones can be defined, I am limiting lntype to these values
- * If you really need more, you can make the proper changes.
- */
+  /* set the type of the edge of filled-area elements.
+   * Attribute: Edge Type; Elem Class 5; Elem ID 27
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Edge Type (integers 1-5, corresponding to: solid, dash, dot,
+   *                dash-dot, dash-dot-dot. These are the same as those used
+   *                for line type.)
+   * In Part 3 of the standard (Binary Encoding) on page 47 it says that
+   * edge type is integer.  This is incorrect.  Edge type is Index, just
+   * like line type.
+   * Even though new ones can be defined, I am limiting lntype to these values
+   * If you really need more, you can make the proper changes.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -1863,14 +1890,18 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
-  if(!cgmcomhead(es, 5, 27, 2)) {free(esp);return 0;}
+  if (!cgmcomhead(es, 5, 27, 2))
+  {
+    free(esp);
+    return 0;
+  }
   es += 2;
 
   /* add in the value of edtype */
@@ -1894,12 +1925,12 @@ static int cgmSetEdgeType(cgmImagePtr im, int edtype)
 
 static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
 {
-/* Set the width of the edge of filled-area elements.
- * Attribute: Edge Width; Elem Class 5; Elem ID 28
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Edge Width (should be the same as line width)
- */
+  /* Set the width of the edge of filled-area elements.
+   * Attribute: Edge Width; Elem Class 5; Elem ID 28
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Edge Width (should be the same as line width)
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -1918,12 +1949,12 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /*gej: edge width is 32 bit floating point number, 16 bits before the
    * decimal, 16 bits after for default edge spec (1, scaled) if
@@ -1937,8 +1968,8 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
     }
     es += 2;
     octet_count = 2;
-    es+= cgmAppShort(es, edwidth);
-    octet_count+=2;
+    es += cgmAppShort(es, edwidth);
+    octet_count += 2;
     /* the next two (after decimal point) will always be zero */
     es += cgmAppNull(es, 2);
     octet_count += 2;
@@ -1952,8 +1983,8 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
     }
     es += 2;
     octet_count = 2;
-    es+= cgmAppShort(es, edwidth);
-    octet_count+=2;
+    es += cgmAppShort(es, edwidth);
+    octet_count += 2;
   }
 
   /* add it to the buffer */
@@ -1972,12 +2003,12 @@ static int cgmSetEdgeWidth(cgmImagePtr im, int edwidth)
 
 static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
 {
-/* Set the color of the edge of filled-area elements.
- * Attribute: Edge Color; Elem Class 5; Elem ID 29
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Edge Colour (index into the color table)
- */
+  /* Set the color of the edge of filled-area elements.
+   * Attribute: Edge Color; Elem Class 5; Elem ID 29
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Edge Colour (index into the color table)
+   */
   unsigned char *es, *esp;
   int octet_count;
   /* First check and see if the user doesn't want any changes,
@@ -1996,18 +2027,18 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
-  if ((edcolor >= im->colorsTotal ) || (edcolor < 0))
+  if ((edcolor >= im->colorsTotal) || (edcolor < 0))
   {
-    return 0;  /* you must allocate a color before you use it */
+    return 0; /* you must allocate a color before you use it */
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
   if (!cgmcomhead(es, 5, 29, 1))
   {
     free(esp);
@@ -2015,7 +2046,7 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
   }
   es += 2;
 
-  *es =  0377 & edcolor; /* mask off last 8 bits and put in es */
+  *es = 0377 & edcolor; /* mask off last 8 bits and put in es */
   es++;
   es += cgmAppNull(es, 1);
 
@@ -2038,13 +2069,13 @@ static int cgmSetEdgeColor(cgmImagePtr im, int edcolor)
 
 static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
 {
-/* Set the visibility of the edge of filled-area elements.
- * Attribute: Edge Visibility; Elem Class 5; Elem ID 30
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- *     Edge Visibility (integer 0 or 1, corresponding to: Off, On)
- * Attribute is 16 bit signed int.
- */
+  /* Set the visibility of the edge of filled-area elements.
+   * Attribute: Edge Visibility; Elem Class 5; Elem ID 30
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   *     Edge Visibility (integer 0 or 1, corresponding to: Off, On)
+   * Attribute is 16 bit signed int.
+   */
   unsigned char *es, *esp;
   int octet_count, temp;
 
@@ -2063,19 +2094,20 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 5, 30, 2))
   {
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
   temp = edvis >> 8;
   *es = *es | (temp & 0377);
   es++;
@@ -2099,22 +2131,22 @@ static int cgmSetEdgeVis(cgmImagePtr im, int edvis)
 
 static int cgmSetTextFont(cgmImagePtr im, int font)
 {
-/* Attribute: Text Font Index; Elem Class 5; Elem ID 10
- * font is an index into the font table.  it can have one of the following
- * values:
- * 1 Times Roman
- * 2 Times Bold
- * 3 Times Italic
- * 4 Times Bold Italic
- * 5 Helvetica
- * 6 Helvetica Bold
- * 7 Helvetica Italic
- * 8 Helvetica Bold Italic
- * 9 Courier
- * 10 Courier Bold
- * 11 Courier Italic
- * 12 Courier Bold Italic
- */
+  /* Attribute: Text Font Index; Elem Class 5; Elem ID 10
+   * font is an index into the font table.  it can have one of the following
+   * values:
+   * 1 Times Roman
+   * 2 Times Bold
+   * 3 Times Italic
+   * 4 Times Bold Italic
+   * 5 Helvetica
+   * 6 Helvetica Bold
+   * 7 Helvetica Italic
+   * 8 Helvetica Bold Italic
+   * 9 Courier
+   * 10 Courier Bold
+   * 11 Courier Italic
+   * 12 Courier Bold Italic
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -2139,14 +2171,14 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
-  if(!cgmcomhead(es, 5, 10, 2))
+  if (!cgmcomhead(es, 5, 10, 2))
   {
     free(esp);
     return 0;
@@ -2173,9 +2205,9 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
 
 static int cgmSetTextColor(cgmImagePtr im, int color)
 {
-/* Attribute: Text Colour ; Elem Class 5; Elem ID 14
- * set the foreground color of text
- */
+  /* Attribute: Text Colour ; Elem Class 5; Elem ID 14
+   * set the foreground color of text
+   */
   unsigned char *es, *esp;
   int octet_count;
   /* First check and see if the user doesn't want any changes,
@@ -2194,27 +2226,27 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
-  if ((color >= im->colorsTotal ) || (color < 0))
+  if ((color >= im->colorsTotal) || (color < 0))
   {
-    return 0;  /* you must allocate a color before you use it */
+    return 0; /* you must allocate a color before you use it */
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
-  if(!cgmcomhead(es, 5, 14, 1))
+  if (!cgmcomhead(es, 5, 14, 1))
   {
     free(esp);
     return 0;
   }
   es += 2;
 
-  *es =  0377 & color; /* mask off last 8 bits and put in es */
+  *es = 0377 & color; /* mask off last 8 bits and put in es */
   es++;
 
   octet_count = 4; /* we just know this; 2 octets of header,
@@ -2236,9 +2268,9 @@ static int cgmSetTextColor(cgmImagePtr im, int color)
 
 static int cgmSetTextHeight(cgmImagePtr im, int height)
 {
-/* Attribute: Character Height; Elem Class 5; Elem ID 15
- * the height is in the same units as line width
- */
+  /* Attribute: Character Height; Elem Class 5; Elem ID 15
+   * the height is in the same units as line width
+   */
   unsigned char *es, *esp;
   int octet_count;
   /* First check and see if the user doesn't want any changes,
@@ -2256,19 +2288,20 @@ static int cgmSetTextHeight(cgmImagePtr im, int height)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
-  if(!cgmcomhead(es, 5, 15, 2))
+  if (!cgmcomhead(es, 5, 15, 2))
   {
     free(esp);
     return 0;
   }
-  octet_count = 2; es += 2;
+  octet_count = 2;
+  es += 2;
 
   es += cgmAppShort(es, height);
   octet_count += 2;
@@ -2289,13 +2322,13 @@ static int cgmSetTextHeight(cgmImagePtr im, int height)
 
 static int cgmSetTextPath(cgmImagePtr im, int tpath)
 {
-/* Attribute: Text Path; Elem Class 5; Elem ID 17
- * Is one of:
- *   0 right -- Means the direction of the character base vector
- *   1 left  -- means 180 degrees from the character base vector
- *   2 up    -- means the direction of the character up vector
- *   3 down  -- means 180 degrees from the character up vector
- */
+  /* Attribute: Text Path; Elem Class 5; Elem ID 17
+   * Is one of:
+   *   0 right -- Means the direction of the character base vector
+   *   1 left  -- means 180 degrees from the character base vector
+   *   2 up    -- means the direction of the character up vector
+   *   3 down  -- means 180 degrees from the character up vector
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -2314,19 +2347,20 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 5, 17, 2))
   {
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
 
   es += cgmAppShort(es, static_cast<short int>(tpath));
   octet_count += 2;
@@ -2348,29 +2382,28 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
 #ifdef VTK_NOT_DEFINED
 static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int ybase)
 {
-/* Attribute: Character Orientation; Elem Class 5; Elem ID 16
- * (xbase,ybase) is the run and the rise of the line that the text is
- * written along.  For regular text at an angle, set xup = -ybase
- * and yup = xbase.  Setting it to something different will result in
- * skewed text (which may be what you want.) Text written from bottom to
- * top at a 90 degree angle would have the following parameters
- * xup=-1, yup=0, xbase=0, ybase=1
- *
- * This function adds the Orientation to the metafile every time.
- * It does not follow the normal -1 for no change, although if you
- * put in the same numbers it won't re-add it to the meta file.
- */
+  /* Attribute: Character Orientation; Elem Class 5; Elem ID 16
+   * (xbase,ybase) is the run and the rise of the line that the text is
+   * written along.  For regular text at an angle, set xup = -ybase
+   * and yup = xbase.  Setting it to something different will result in
+   * skewed text (which may be what you want.) Text written from bottom to
+   * top at a 90 degree angle would have the following parameters
+   * xup=-1, yup=0, xbase=0, ybase=1
+   *
+   * This function adds the Orientation to the metafile every time.
+   * It does not follow the normal -1 for no change, although if you
+   * put in the same numbers it won't re-add it to the meta file.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
-
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
   octet_count = 0;
 
   if (!cgmcomhead(es, 5, 16, 8))
@@ -2378,18 +2411,19 @@ static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int yba
     free(esp);
     return 0;
   }
-  es +=2; octet_count += 2;
+  es += 2;
+  octet_count += 2;
 
   /* In the metafile it is a 16 bit signed integer */
   /* add xup */
-  es += cgmAppShort(es, (short int) xup);
+  es += cgmAppShort(es, (short int)xup);
   octet_count += 2;
   /* add the rest */
-  es += cgmAppShort(es, (short int) yup);
+  es += cgmAppShort(es, (short int)yup);
   octet_count += 2;
-  es += cgmAppShort(es, (short int) xbase);
+  es += cgmAppShort(es, (short int)xbase);
   octet_count += 2;
-  es += cgmAppShort(es, (short int) ybase);
+  es += cgmAppShort(es, (short int)ybase);
   octet_count += 2;
 
   /* add it to the buffer */
@@ -2408,12 +2442,12 @@ static int cgmSetTextOrient(cgmImagePtr im, int xup, int yup, int xbase, int yba
 
 static int cgmSetMarkerType(cgmImagePtr im, int mtype)
 {
-/* Attribute: Marker Type; Elem Class 5; Elem ID 6
- * Set the Marker type.  Possible values are:
- * 1=dot, 2=plus, 3=asterisk, 4=circle, 5=cross
- * Even though new ones can be defined, I am limiting lntype to these values
- * If you really need more, you can make the proper changes.
- */
+  /* Attribute: Marker Type; Elem Class 5; Elem ID 6
+   * Set the Marker type.  Possible values are:
+   * 1=dot, 2=plus, 3=asterisk, 4=circle, 5=cross
+   * Even though new ones can be defined, I am limiting lntype to these values
+   * If you really need more, you can make the proper changes.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -2438,12 +2472,12 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 5, 6, 2))
   {
@@ -2454,7 +2488,7 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
   /* set Param_List_Len to 2 (signed int at index precision) */
 
   /* add in the value of mtype */
-  //es += cgmAppShort(es, (short int) mtype);
+  // es += cgmAppShort(es, (short int) mtype);
 
   octet_count = 4; /* we just know this */
 
@@ -2474,12 +2508,12 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
 
 static int cgmSetMarkerSize(cgmImagePtr im, int msize)
 {
-/* Attribute: Marker Size; Elem Class 5; Elem ID 7
- * sets the marker size.  with an image of height X with marker size 1
- * the displayed size will be 1/X%.  as an example, if you image is
- * x=5, y=10, and you set marker size = 1, and draw a marker, the
- * resulting marker will cover 20% of horizontal area.
- */
+  /* Attribute: Marker Size; Elem Class 5; Elem ID 7
+   * sets the marker size.  with an image of height X with marker size 1
+   * the displayed size will be 1/X%.  as an example, if you image is
+   * x=5, y=10, and you set marker size = 1, and draw a marker, the
+   * resulting marker will cover 20% of horizontal area.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
@@ -2498,20 +2532,23 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>( calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
-
+  esp = es;
 
   /*gej: marker size is 32 bit floating point number, 16 bits before the
    * decimal, 16 bits after if marker spec is default (1, scaled)
    * for absolute mode (0, absolute) it is 16 bit SI */
   if (im->markerspec)
   {
-    if (!cgmcomhead(es, 5, 7, 4)) {free(esp);return 0;}
+    if (!cgmcomhead(es, 5, 7, 4))
+    {
+      free(esp);
+      return 0;
+    }
     octet_count = 2;
     es += 2;
     es += cgmAppShort(es, static_cast<short int>(msize));
@@ -2529,10 +2566,9 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
     }
     octet_count = 2;
     es += 2;
-    //es += cgmAppShort(es, (short int) msize);
+    // es += cgmAppShort(es, (short int) msize);
     octet_count += 2;
   }
-
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
@@ -2550,10 +2586,10 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
 
 static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
 {
-/* Attribute: Marker Colour; Elem Class 5; Elem ID 8
- * Sets the marker color.  mcolor should be an index into the color
- * table that you have previously allocated.
- */
+  /* Attribute: Marker Colour; Elem Class 5; Elem ID 8
+   * Sets the marker color.  mcolor should be an index into the color
+   * table that you have previously allocated.
+   */
   unsigned char *es, *esp;
   int octet_count;
   /* First check and see if the user doesn't want any changes,
@@ -2572,31 +2608,30 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
 
   /* Make sure the color they want to use has been allocated.
    * also, that color must be non-negative */
-  if ((mcolor >= im->colorsTotal ) || (mcolor < 0))
+  if ((mcolor >= im->colorsTotal) || (mcolor < 0))
   {
-    return 0;  /* you must allocate a color before you use it */
+    return 0; /* you must allocate a color before you use it */
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = static_cast<unsigned char *>(calloc(4*4, SIZEOF(unsigned char ) ));
+  es = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
-
+  esp = es;
 
   if (!cgmcomhead(es, 5, 8, 1))
   {
-    free (esp);
+    free(esp);
     return 0;
   }
   es += 2;
 
-  *es =  0377 & mcolor; /* mask off last 8 bits and put in es */
+  *es = 0377 & mcolor; /* mask off last 8 bits and put in es */
   es++;
 
-  //es += cgmAppNull(es, 1);
+  // es += cgmAppNull(es, 1);
 
   octet_count = 4; /* we just know this; 2 octets of header,
                     * 1 octet of data, 1 octet of null data */
@@ -2615,12 +2650,11 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
   }
 }
 
-static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth,
-                            int lncolor)
+static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth, int lncolor)
 {
-/* Spits out the attributes of lines.  These attributes stay in effect
- * until changed, so you don't have to output them every time.
- */
+  /* Spits out the attributes of lines.  These attributes stay in effect
+   * until changed, so you don't have to output them every time.
+   */
 
   if (!cgmSetLineType(im, lntype))
   {
@@ -2638,22 +2672,21 @@ static int cgmSetLineAttrib(cgmImagePtr im, int lntype, int lnwidth,
   return 1;
 }
 
-static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor,
-                                 int inhatch)
+static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor, int inhatch)
 {
-/* Spits out the attributes for the interior of filled-area elements.
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- * Set the following attributes:
- *     Interior Style: (integers 0-6, corresponding to: hollow, solid,
- *                      [not pattern], hatch, empty, [not geometric pattern],
- *                      interpolated.)
- *     Fill Colour: (index into the color table)
- *     Hatch Index: (integers 1-6, corresponding to: horizontal lines,
- *                   vertical lines, pos. slope parallel lines,
- *                   neg. slope parallel lines, horizontal/vertical
- *                   crosshatch, positive/negative slope crosshatch)
- */
+  /* Spits out the attributes for the interior of filled-area elements.
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   * Set the following attributes:
+   *     Interior Style: (integers 0-6, corresponding to: hollow, solid,
+   *                      [not pattern], hatch, empty, [not geometric pattern],
+   *                      interpolated.)
+   *     Fill Colour: (index into the color table)
+   *     Hatch Index: (integers 1-6, corresponding to: horizontal lines,
+   *                   vertical lines, pos. slope parallel lines,
+   *                   neg. slope parallel lines, horizontal/vertical
+   *                   crosshatch, positive/negative slope crosshatch)
+   */
   if (!cgmSetFillStyle(im, instyle))
   {
     return 0;
@@ -2670,22 +2703,21 @@ static int cgmSetShapeFillAttrib(cgmImagePtr im, int instyle, int incolor,
   return 1;
 }
 
-static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth,
-                                 int edcolor, int edvis)
+static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth, int edcolor, int edvis)
 {
-/* Spits out the attributes for the edges of filled-area elements.  It may
- * seem logical that these would be the same as the corresponding line
- * attributes, but this is not the case.
- * These attributes stay in effect until changed, so you don't have to output
- * them every time.
- * Set the following attributes:
- *     Edge Type (integers 1-5, corresponding to: solid, dash, dot,
- *                dash-dot, dash-dot-dot. These are the same as those used
- *                for line type.)
- *     Edge Width (should be the same as line width)
- *     Edge Colour (index into the color table)
- *     Edge Visibility (integer 0 or 1, corresponding to: Off, On)
- */
+  /* Spits out the attributes for the edges of filled-area elements.  It may
+   * seem logical that these would be the same as the corresponding line
+   * attributes, but this is not the case.
+   * These attributes stay in effect until changed, so you don't have to output
+   * them every time.
+   * Set the following attributes:
+   *     Edge Type (integers 1-5, corresponding to: solid, dash, dot,
+   *                dash-dot, dash-dot-dot. These are the same as those used
+   *                for line type.)
+   *     Edge Width (should be the same as line width)
+   *     Edge Colour (index into the color table)
+   *     Edge Visibility (integer 0 or 1, corresponding to: Off, On)
+   */
   if (!cgmSetEdgeType(im, edtype))
   {
     return 0;
@@ -2708,33 +2740,33 @@ static int cgmSetShapeEdgeAttrib(cgmImagePtr im, int edtype, int edwidth,
 
 static int cgmSetTextAttrib(cgmImagePtr im, int font, int color, int height)
 {
-/* Set the attributes of text.  the font is an integer pointer into the
- * font list where:
- * 1 Times
- * 2 Times Bold
- * 3 Times Italic
- * 4 Times Bold Italic
- * 5 Helvetica
- * 6 Helvetica Bold
- * 7 Helvetica Italic
- * 8 Helvetica Bold Italic
- * 9 Courier
- * 10 Courier Bold
- * 11 Courier Italic
- * 12 Courier Bold Italic
- * color is an index into the colortable which is the color of the text
- * size is the approximate size you want the text written in.
- */
+  /* Set the attributes of text.  the font is an integer pointer into the
+   * font list where:
+   * 1 Times
+   * 2 Times Bold
+   * 3 Times Italic
+   * 4 Times Bold Italic
+   * 5 Helvetica
+   * 6 Helvetica Bold
+   * 7 Helvetica Italic
+   * 8 Helvetica Bold Italic
+   * 9 Courier
+   * 10 Courier Bold
+   * 11 Courier Italic
+   * 12 Courier Bold Italic
+   * color is an index into the colortable which is the color of the text
+   * size is the approximate size you want the text written in.
+   */
 
-  if(!cgmSetTextFont(im, font))
+  if (!cgmSetTextFont(im, font))
   {
     return 0;
   }
-  if(!cgmSetTextColor(im, color))
+  if (!cgmSetTextColor(im, color))
   {
     return 0;
   }
-  if(!cgmSetTextHeight(im, height))
+  if (!cgmSetTextHeight(im, height))
   {
     return 0;
   }
@@ -2744,9 +2776,9 @@ static int cgmSetTextAttrib(cgmImagePtr im, int font, int color, int height)
 
 static int cgmSetMarkerAttrib(cgmImagePtr im, int mtype, int msize, int mcolor)
 {
-/* Spits out the attributes of Markers.  These attributes stay in effect
- * until changed, so you don't have to output them every time.
- */
+  /* Spits out the attributes of Markers.  These attributes stay in effect
+   * until changed, so you don't have to output them every time.
+   */
 
   if (!cgmSetMarkerType(im, mtype))
   {
@@ -2794,7 +2826,7 @@ static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b)
   long rd, gd, bd;
   int ct = (-1);
   long mindist = 0;
-  for (i=0; (i<(im->colorsTotal)); i++)
+  for (i = 0; (i < (im->colorsTotal)); i++)
   {
     long dist;
     if (im->open[i])
@@ -2817,9 +2849,9 @@ static int cgmImageColorClosest(cgmImagePtr im, int r, int g, int b)
 
 static int cgmImageColorClear(cgmImagePtr im)
 {
-/* mark all entries in the color table as open */
+  /* mark all entries in the color table as open */
   short int i;
-  for (i=0; (i<(cgmMaxColors)); i++)
+  for (i = 0; (i < (cgmMaxColors)); i++)
   {
     im->open[i] = 1;
   }
@@ -2833,7 +2865,7 @@ static int cgmImageColorExact(cgmImagePtr im, int r, int g, int b)
 /* gej: 5/96, changed colors to work with short ints */
 {
   short int i;
-  for (i=0; (i<(im->colorsTotal)); i++)
+  for (i = 0; (i < (im->colorsTotal)); i++)
   {
     if (im->open[i])
     {
@@ -2856,7 +2888,7 @@ static int cgmImageAddColorIndex(cgmImagePtr im, int r, int g, int b)
 {
   short int i;
   short int ct = (-1);
-  for (i=0; (i<(im->colorsTotal)); i++)
+  for (i = 0; (i < (im->colorsTotal)); i++)
   {
     if (im->open[i])
     {
@@ -2888,7 +2920,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
  */
 {
   unsigned char *cts, *ctsp; /* GEJ: color table attribute */
-  int octet_count; /* GEJ: octet count */
+  int octet_count;           /* GEJ: octet count */
   int numco, curly;
   octet_count = 0;
   /*
@@ -2903,39 +2935,41 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
   }
   numco = ei - si + 1;
 
-  if (( numco > 0) && (numco < 10))
+  if ((numco > 0) && (numco < 10))
   {
     /* we can use the short form of the command */
     /* allocate sufficient space. Should be 32 bits * 10 to be safe*/
-    cts = static_cast<unsigned char *>( calloc(4*10, SIZEOF(unsigned char ) ));
+    cts = static_cast<unsigned char*>(calloc(4 * 10, SIZEOF(unsigned char)));
     if (!cts)
     {
       return -1; /* memory allocation failed */
     }
-    ctsp=cts;
-    if (!cgmcomhead(ctsp,5,34,(numco*3)+1))
+    ctsp = cts;
+    if (!cgmcomhead(ctsp, 5, 34, (numco * 3) + 1))
     {
       free(cts);
       return -1;
     }
-    ctsp +=2; octet_count += 2;
+    ctsp += 2;
+    octet_count += 2;
   }
   else if ((numco > 9) && (numco < 256))
   {
     /* we must use the long form of the command */
     /* allocate sufficient space. Should be 32 bits*256 to be safe*/
-    cts = static_cast<unsigned char *>(calloc(256*4, SIZEOF(unsigned char ) ));
+    cts = static_cast<unsigned char*>(calloc(256 * 4, SIZEOF(unsigned char)));
     if (!cts)
     {
       return -1; /* memory allocation failed */
     }
-    ctsp=cts;
-    if (!cgmcomheadlong(ctsp,5,34,(numco*3)+1))
+    ctsp = cts;
+    if (!cgmcomheadlong(ctsp, 5, 34, (numco * 3) + 1))
     {
       free(cts);
       return -1;
     }
-    ctsp +=4; octet_count += 4;
+    ctsp += 4;
+    octet_count += 4;
   }
   else
   {
@@ -2951,14 +2985,14 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
     ctsp += cgmAppByte(ctsp, im->red[numco]);
     ctsp += cgmAppByte(ctsp, im->green[numco]);
     ctsp += cgmAppByte(ctsp, im->blue[numco]);
-    octet_count +=3;
+    octet_count += 3;
   }
 
   curly = 4 - (octet_count % 4);
   if (curly % 4)
   {
     octet_count += curly;
-    //ctsp += cgmAppNull(ctsp, curly);
+    // ctsp += cgmAppNull(ctsp, curly);
   }
   /* add it to the buffer */
   if (cgmAddElem(im, cts, octet_count))
@@ -2988,7 +3022,7 @@ static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b)
   /* GEJ: w we have successfully allocated it in the color table
    * so let's put it in the CGM as well.
    */
-  if (cgmImageAddColor(im, ct, ct) == -1 )
+  if (cgmImageAddColor(im, ct, ct) == -1)
   {
     return -1;
   }
@@ -3086,7 +3120,7 @@ static int cgmImageColor16(cgmImagePtr im)
   {
     ei = li;
   }
-  if(cgmImageAddColor(im,si,ei) == -1)
+  if (cgmImageAddColor(im, si, ei) == -1)
   {
     return -1;
   }
@@ -3096,7 +3130,7 @@ static int cgmImageColor16(cgmImagePtr im)
   }
 }
 
-static int cgmImageColorDeallocate(cgmImagePtr vtkNotUsed(im),  int vtkNotUsed(color))
+static int cgmImageColorDeallocate(cgmImagePtr vtkNotUsed(im), int vtkNotUsed(color))
 /* wogl: the parameter names are commented to avoid compiler warnings */
 /* From gd library, see README file for copyright information */
 /* gej: should work unchanged */
@@ -3109,10 +3143,9 @@ static int cgmImageColorDeallocate(cgmImagePtr vtkNotUsed(im),  int vtkNotUsed(c
 }
 #endif
 
-static int cgmImageColorGet(cgmImagePtr im, int cgmIndex,
-                            int& r, int& g, int& b)
+static int cgmImageColorGet(cgmImagePtr im, int cgmIndex, int& r, int& g, int& b)
 {
-  cgmIndex = (cgmIndex >= cgmMaxColors ? cgmMaxColors-1 : cgmIndex);
+  cgmIndex = (cgmIndex >= cgmMaxColors ? cgmMaxColors - 1 : cgmIndex);
   r = im->red[cgmIndex];
   g = im->green[cgmIndex];
   b = im->blue[cgmIndex];
@@ -3138,18 +3171,18 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
   /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
-  if (!(cgmImageBoundsSafe(im, x1,y1)) || !(cgmImageBoundsSafe(im, x2,y2)))
+  if (!(cgmImageBoundsSafe(im, x1, y1)) || !(cgmImageBoundsSafe(im, x2, y2)))
   {
     return 0;
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 4, 1, 8))
   {
@@ -3160,29 +3193,36 @@ static int cgmLine(cgmImagePtr im, int x1, int y1, int x2, int y2)
   octet_count = 2;
 
   /* now we are ready for the parameter data */
-  sweet = (short int) x1;
+  sweet = (short int)x1;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) y1;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)y1;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) x2;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)x2;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) y2;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)y2;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
   octet_count++;
 
   /* add it to the buffer */
@@ -3210,18 +3250,18 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
   /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
-  if (!cgmImageBoundsSafe(im, x,y) )
+  if (!cgmImageBoundsSafe(im, x, y))
   {
     return 0;
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   if (!cgmcomhead(es, 4, 3, 4))
   {
@@ -3231,9 +3271,9 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
   es += 2;
   octet_count = 2;
 
-  octet_count += cgmAppShort(es, (short int) x);
+  octet_count += cgmAppShort(es, (short int)x);
   es += 2;
-  octet_count += cgmAppShort(es, (short int) y);
+  octet_count += cgmAppShort(es, (short int)y);
   es += 2;
 
   /* add it to the buffer */
@@ -3251,15 +3291,15 @@ static int cgmMarker(cgmImagePtr im, int x, int y)
 
 static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
 {
-/* Graphic Primitive: rectangle; Elem Class 4; Elem ID 11
- * Actually generate the rectangle, if you are writing a program to use this
- * library, use this function, not cgmImageRectangle,
- * those are just in for compatibility with gd
- *
- * This function will draw a Rectangle using the current
- * edge type, width, color, and visibility, and the current
- * fill style, color, and hatch
- */
+  /* Graphic Primitive: rectangle; Elem Class 4; Elem ID 11
+   * Actually generate the rectangle, if you are writing a program to use this
+   * library, use this function, not cgmImageRectangle,
+   * those are just in for compatibility with gd
+   *
+   * This function will draw a Rectangle using the current
+   * edge type, width, color, and visibility, and the current
+   * fill style, color, and hatch
+   */
   unsigned char *es, *esp;
   int octet_count;
   short int sweet;
@@ -3268,18 +3308,18 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
   /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
-  if (!(cgmImageBoundsSafe(im, x1,y1)) || !(cgmImageBoundsSafe(im, x2,y2)))
+  if (!(cgmImageBoundsSafe(im, x1, y1)) || !(cgmImageBoundsSafe(im, x2, y2)))
   {
     return 0;
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* their are four 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 11, 8))
@@ -3287,32 +3327,40 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
 
   /* now we are ready for the parameter data */
-  sweet = (short int) x1;
+  sweet = (short int)x1;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) y1;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)y1;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) x2;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)x2;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) y2;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)y2;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
   octet_count++;
 
   /* add it to the buffer */
@@ -3330,13 +3378,13 @@ static int cgmRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2)
 
 static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
 {
-/* Graphic Primitive: circle; Elem Class 4; Elem ID 12
- * cx,cy is the center of the circle, r is the radius
- *
- * This function will draw a Circle using the current
- * edge type, width, color, and visibility, and the current
- * fill style, color, and hatch
- */
+  /* Graphic Primitive: circle; Elem Class 4; Elem ID 12
+   * cx,cy is the center of the circle, r is the radius
+   *
+   * This function will draw a Circle using the current
+   * edge type, width, color, and visibility, and the current
+   * fill style, color, and hatch
+   */
   unsigned char *es, *esp;
   int octet_count;
   short int sweet;
@@ -3345,18 +3393,18 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
   /* check to make sure the circle is within the scope of the picture
    * ie. the values you give for drawing the circle are within
    * the values you created the picture with */
-  if (!(cgmImageBoundsSafe(im, cx,cy)))
+  if (!(cgmImageBoundsSafe(im, cx, cy)))
   {
     return 0;
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* their are three 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 12, 6))
@@ -3364,26 +3412,32 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
 
   /* now we are ready for the parameter data */
-  sweet = (short int) cx;
+  sweet = (short int)cx;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) cy;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)cy;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) r;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)r;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
   octet_count++;
 
   /* add it to the buffer */
@@ -3399,13 +3453,13 @@ static int cgmCircle(cgmImagePtr im, int cx, int cy, int r)
   }
 }
 
-static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey)
+static int cgmArc3Pt(cgmImagePtr im, int sx, int sy, int ix, int iy, int ex, int ey)
 {
-/* Graphic Primitive: Circular Arc 3 Point; Elem Class 4; Elem ID 13
- *
- * This function will draw a Circular Arc using the current
- * Line type, width, and color,
- */
+  /* Graphic Primitive: Circular Arc 3 Point; Elem Class 4; Elem ID 13
+   *
+   * This function will draw a Circular Arc using the current
+   * Line type, width, and color,
+   */
   unsigned char *es, *esp;
   int octet_count;
   short int sweet;
@@ -3414,18 +3468,19 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
   /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
-  if (!(cgmImageBoundsSafe(im, sx,sy)) || !(cgmImageBoundsSafe(im, ix,iy)) || !(cgmImageBoundsSafe(im, ex, ey)))
+  if (!(cgmImageBoundsSafe(im, sx, sy)) || !(cgmImageBoundsSafe(im, ix, iy)) ||
+    !(cgmImageBoundsSafe(im, ex, ey)))
   {
     return 0;
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* their are six 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 13, 12))
@@ -3433,44 +3488,56 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
 
   /* now we are ready for the parameter data */
-  sweet = (short int) sx;
+  sweet = (short int)sx;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) sy;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)sy;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) ix;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)ix;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) iy;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)iy;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) ex;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)ex;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
-  es++; octet_count++;
-  sweet = (short int) ey;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
+  es++;
+  octet_count++;
+  sweet = (short int)ey;
   sour = sweet >> 8;
   *es = *es | (sour & 0377);
-  es++; octet_count++;
-  *es = (unsigned char) sweet;
+  es++;
+  octet_count++;
+  *es = (unsigned char)sweet;
   octet_count++;
 
   /* add it to the buffer */
@@ -3486,24 +3553,25 @@ static int cgmArc3Pt(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey
   }
 }
 
-static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,int ey, int cl)
+static int cgmArc3PtClose(cgmImagePtr im, int sx, int sy, int ix, int iy, int ex, int ey, int cl)
 {
-/* Graphic Primitive: Circular Arc 3 Point Close; Elem Class 4; Elem ID 14
- *
- * This function will draw a Circle using the current
- * edge type, width, color, and visibility, and the current
- * fill style, color, and hatch
- *
- * cgm is the closure type.  It can be either 0 for pie closure or
- * 1 for chord closure.
- */
+  /* Graphic Primitive: Circular Arc 3 Point Close; Elem Class 4; Elem ID 14
+   *
+   * This function will draw a Circle using the current
+   * edge type, width, color, and visibility, and the current
+   * fill style, color, and hatch
+   *
+   * cgm is the closure type.  It can be either 0 for pie closure or
+   * 1 for chord closure.
+   */
   unsigned char *es, *esp;
   int octet_count;
 
   /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
-  if (!(cgmImageBoundsSafe(im, sx,sy)) || !(cgmImageBoundsSafe(im, ix,iy)) || !(cgmImageBoundsSafe(im, ex, ey)))
+  if (!(cgmImageBoundsSafe(im, sx, sy)) || !(cgmImageBoundsSafe(im, ix, iy)) ||
+    !(cgmImageBoundsSafe(im, ex, ey)))
   {
     return 0;
   }
@@ -3515,12 +3583,12 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
   }
 
   /* allocate sufficient space.  should be 32 bits * 6 to be safe */
-  es = (unsigned char *) calloc(4*6, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 6, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* their are seven 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 14, 14))
@@ -3528,23 +3596,24 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
 
   /* now we are ready for the parameter data */
-  octet_count += cgmAppShort(es, (short int) sx);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) sy);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) ix);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) iy);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) ex);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) ey);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) cl);
-  es +=2;
+  octet_count += cgmAppShort(es, (short int)sx);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)sy);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)ix);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)iy);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)ex);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)ey);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)cl);
+  es += 2;
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
@@ -3559,32 +3628,33 @@ static int cgmArc3PtClose(cgmImagePtr im, int sx,int sy, int ix,int iy, int ex,i
   }
 }
 
-static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,int d2y )
+static int cgmEllipse(cgmImagePtr im, int cx, int cy, int d1x, int d1y, int d2x, int d2y)
 {
-/* Graphic Primitive: Ellipse; Elem Class 4; Elem ID 17
- *
- * This function will draw an Ellipse using the current
- * edge type, width, color, and visibility, and the current
- * fill style, color, and hatch
- */
+  /* Graphic Primitive: Ellipse; Elem Class 4; Elem ID 17
+   *
+   * This function will draw an Ellipse using the current
+   * edge type, width, color, and visibility, and the current
+   * fill style, color, and hatch
+   */
   unsigned char *es, *esp;
   int octet_count;
 
   /* check to make sure the line is within the scope of the picture
    * ie. the values you give for drawing the line are within
    * the values you created the picture with */
-  if (!(cgmImageBoundsSafe(im, cx,cy)) || !(cgmImageBoundsSafe(im, d1x,d1y)) || !(cgmImageBoundsSafe(im, d2x, d2y)))
+  if (!(cgmImageBoundsSafe(im, cx, cy)) || !(cgmImageBoundsSafe(im, d1x, d1y)) ||
+    !(cgmImageBoundsSafe(im, d2x, d2y)))
   {
     return 0;
   }
 
   /* allocate sufficient space.  should be 32 bits * 4 to be safe */
-  es = (unsigned char *) calloc(4*4, SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(4 * 4, SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
   /* their are six 16 bit signed integers as attributes */
   if (!cgmcomhead(es, 4, 17, 12))
@@ -3592,21 +3662,22 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
     free(esp);
     return 0;
   }
-  es +=2; octet_count = 2;
+  es += 2;
+  octet_count = 2;
 
   /* now we are ready for the parameter data */
-  octet_count += cgmAppShort(es, (short int) cx);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) cy);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) d1x);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) d1y);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) d2x);
-  es +=2;
-  octet_count += cgmAppShort(es, (short int) d2y);
-  es +=2;
+  octet_count += cgmAppShort(es, (short int)cx);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)cy);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)d1x);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)d1y);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)d2x);
+  es += 2;
+  octet_count += cgmAppShort(es, (short int)d2y);
+  es += 2;
 
   /* add it to the buffer */
   if (cgmAddElem(im, esp, octet_count))
@@ -3624,18 +3695,18 @@ static int cgmEllipse(cgmImagePtr im, int cx,int cy, int d1x,int d1y, int d2x,in
 
 static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
 {
-/* Graphic Primitive: Polygon; Elem Class 4; Elem ID 7
- *
- * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
- * p[m].x and p[m].y containing the x and y values respectively.  n
- * is the number of points in this array (not the index of the last point,
- * which is n-1).  n must be at least 3 (otherwise
- * you really don't have much of a polygon, it is closer to a line.)
- *
- * This function will draw a Polygon using the current
- * edge type, width, color, and visibility, and the current
- * fill style, color, and hatch
- */
+  /* Graphic Primitive: Polygon; Elem Class 4; Elem ID 7
+   *
+   * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
+   * p[m].x and p[m].y containing the x and y values respectively.  n
+   * is the number of points in this array (not the index of the last point,
+   * which is n-1).  n must be at least 3 (otherwise
+   * you really don't have much of a polygon, it is closer to a line.)
+   *
+   * This function will draw a Polygon using the current
+   * edge type, width, color, and visibility, and the current
+   * fill style, color, and hatch
+   */
   unsigned char *es, *esp;
   int octet_count;
   int x; /* counter */
@@ -3650,21 +3721,21 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 32 bits*10 to be safe */
-    es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
+    es = static_cast<unsigned char*>(calloc(4 * 10, SIZEOF(unsigned char)));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
+    esp = es;
 
     /* their are n*2 16 bit signed integers as attributes */
-    if (!cgmcomhead(es, 4, 7, (n*4)))
+    if (!cgmcomhead(es, 4, 7, (n * 4)))
     {
       free(esp);
       return 0;
     }
-    es +=2; octet_count = 2;
-
+    es += 2;
+    octet_count = 2;
   }
   else if (n < 8191)
   {
@@ -3679,19 +3750,20 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then things could fail in a most unsavory fashion.
      */
     /* allocate sufficient space.  32 bits*(n+1) to be safe */
-    es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
+    es = static_cast<unsigned char*>(calloc(4 * (n + 1), SIZEOF(unsigned char)));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
+    esp = es;
 
-    if (!cgmcomheadlong(es, 4, 7, (n*4)))
+    if (!cgmcomheadlong(es, 4, 7, (n * 4)))
     {
       free(esp);
       return 0;
     }
-    es +=4; octet_count = 4;
+    es += 4;
+    octet_count = 4;
   }
   else
   {
@@ -3700,7 +3772,7 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
     return 0;
   }
 
-  for (x=0; x<n; x++)
+  for (x = 0; x < n; x++)
   {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, static_cast<short int>(p->x));
@@ -3725,20 +3797,20 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
 #ifdef VTK_NOT_DEFINED
 static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
 {
-/* Graphic Primitive: Polygon; Elem Class 4; Elem ID 8
- *
- * cgmPointPtr is defined in cgm.h, basically, it is three arrays of integers
- * p[m].x and p[m].y  containing the x and y values respectively and p[m].e
- * the characteristics of the line leaving point n (0=invisible,1=visible,
- * 2=close,invisible, 3=close,visible).  n is the number of points in this
- * array (not the index of the last point, which is n-1).
- * n must be at least 3 (otherwise you really don't have much of a polygon,
- * it is closer to a line.)
- *
- * This function will draw a set of Polygons using the current
- * edge type, width, color, and the current
- * fill style, color, and hatch
- */
+  /* Graphic Primitive: Polygon; Elem Class 4; Elem ID 8
+   *
+   * cgmPointPtr is defined in cgm.h, basically, it is three arrays of integers
+   * p[m].x and p[m].y  containing the x and y values respectively and p[m].e
+   * the characteristics of the line leaving point n (0=invisible,1=visible,
+   * 2=close,invisible, 3=close,visible).  n is the number of points in this
+   * array (not the index of the last point, which is n-1).
+   * n must be at least 3 (otherwise you really don't have much of a polygon,
+   * it is closer to a line.)
+   *
+   * This function will draw a set of Polygons using the current
+   * edge type, width, color, and the current
+   * fill style, color, and hatch
+   */
   unsigned char *es, *esp;
   int octet_count;
   int x; /* counter */
@@ -3753,22 +3825,21 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 48 bits*10 to be safe */
-    es = (unsigned char *) calloc(6*10,SIZEOF(unsigned char ));
+    es = (unsigned char*)calloc(6 * 10, SIZEOF(unsigned char));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
-
+    esp = es;
 
     /* their are n*2 16 bit signed integers as attributes */
-    if (!cgmcomhead(es, 4, 8, (n*6)))
+    if (!cgmcomhead(es, 4, 8, (n * 6)))
     {
       free(esp);
       return 0;
     }
-    es +=2; octet_count = 2;
-
+    es += 2;
+    octet_count = 2;
   }
   else if (n < 5462)
   {
@@ -3783,19 +3854,20 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then things could fail in a most unsavory fashion.
      */
     /* allocate sufficient space.  48 bits*(n+1) to be safe */
-    es = (unsigned char *) calloc(6*(n+1), SIZEOF(unsigned char ));
+    es = (unsigned char*)calloc(6 * (n + 1), SIZEOF(unsigned char));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
+    esp = es;
 
-    if (!cgmcomheadlong(es, 4, 8, (n*6)))
+    if (!cgmcomheadlong(es, 4, 8, (n * 6)))
     {
       free(esp);
       return 0;
     }
-    es +=4; octet_count = 4;
+    es += 4;
+    octet_count = 4;
   }
   else
   {
@@ -3804,12 +3876,12 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
     return 0;
   }
 
-  for (x=0; x<n; x++)
+  for (x = 0; x < n; x++)
   {
     /* now we are ready for the parameter data */
-    es += cgmAppShort(es, (short int) p->x);
-    es += cgmAppShort(es, (short int) p->y);
-    es += cgmAppShort(es, (short int) p->e);
+    es += cgmAppShort(es, (short int)p->x);
+    es += cgmAppShort(es, (short int)p->y);
+    es += cgmAppShort(es, (short int)p->e);
     octet_count += 6;
     p++;
   }
@@ -3830,16 +3902,16 @@ static int cgmPolygonSet(cgmImagePtr im, cgmPointPtr p, int n)
 
 static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
 {
-/* Graphic Primitive: Polyline; Elem Class 4; Elem ID 1
- *
- * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
- * p[m].x and p[m].y  containing the x and y values respectively.  n
- * is the number of points in this array (not the index of the last point,
- * which is n-1).  if n is 2, it is a regular line, like cgmline
- *
- * This function will draw a Polyline using the current
- * line type, width, color, and visibility,
- */
+  /* Graphic Primitive: Polyline; Elem Class 4; Elem ID 1
+   *
+   * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
+   * p[m].x and p[m].y  containing the x and y values respectively.  n
+   * is the number of points in this array (not the index of the last point,
+   * which is n-1).  if n is 2, it is a regular line, like cgmline
+   *
+   * This function will draw a Polyline using the current
+   * line type, width, color, and visibility,
+   */
   unsigned char *es, *esp;
   int octet_count;
   int x; /* counter */
@@ -3854,21 +3926,21 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 32 bits*10 to be safe */
-    es = static_cast<unsigned char *>(calloc(4*10,SIZEOF(unsigned char )));
+    es = static_cast<unsigned char*>(calloc(4 * 10, SIZEOF(unsigned char)));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
+    esp = es;
 
     /* their are n*2 16 bit signed integers as attributes */
-    if (!cgmcomhead(es, 4, 1, (n*4)))
+    if (!cgmcomhead(es, 4, 1, (n * 4)))
     {
       free(esp);
       return 0;
     }
-    es +=2; octet_count = 2;
-
+    es += 2;
+    octet_count = 2;
   }
   else if (n < 8191)
   {
@@ -3879,19 +3951,20 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then the list may have to grow several times
      */
     /* allocate sufficient space.  32 bits*(n+1) to be safe */
-    es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
+    es = static_cast<unsigned char*>(calloc(4 * (n + 1), SIZEOF(unsigned char)));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
+    esp = es;
 
-    if (!cgmcomheadlong(es, 4, 1, (n*4)))
+    if (!cgmcomheadlong(es, 4, 1, (n * 4)))
     {
       free(esp);
       return 0;
     }
-    es +=4; octet_count = 4;
+    es += 4;
+    octet_count = 4;
   }
   else
   {
@@ -3900,7 +3973,7 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
     return 0;
   }
 
-  for (x=0; x<n; x++)
+  for (x = 0; x < n; x++)
   {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, static_cast<short int>(p->x));
@@ -3924,16 +3997,16 @@ static int cgmPolyLine(cgmImagePtr im, cgmPointPtr p, int n)
 
 static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
 {
-/* Graphic Primitive: PolyMarker; Elem Class 4; Elem ID 3
- *
- * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
- * p[m].x and p[m].y  containing the x and y values respectively.  n
- * is the number of points in this array (not the index of the last point,
- * which is n-1).  if n is 2, it is a regular line, like cgmline
- *
- * This function will insert n markers using the current
- * Marker type, width, color, and visibility,
- */
+  /* Graphic Primitive: PolyMarker; Elem Class 4; Elem ID 3
+   *
+   * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
+   * p[m].x and p[m].y  containing the x and y values respectively.  n
+   * is the number of points in this array (not the index of the last point,
+   * which is n-1).  if n is 2, it is a regular line, like cgmline
+   *
+   * This function will insert n markers using the current
+   * Marker type, width, color, and visibility,
+   */
   unsigned char *es, *esp;
   int octet_count;
   int x; /* counter */
@@ -3947,22 +4020,21 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
     /* It fits in the short form of the command, lets us
      * add it right now, shall we? */
     /* allocate sufficient space. Should be 32 bits*10 to be safe */
-    es = static_cast<unsigned char *>( calloc(4*10,SIZEOF(unsigned char )));
+    es = static_cast<unsigned char*>(calloc(4 * 10, SIZEOF(unsigned char)));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
-
+    esp = es;
 
     /* their are n*2 16 bit signed integers as attributes */
-    if (!cgmcomhead(es, 4, 3, (n*4)))
+    if (!cgmcomhead(es, 4, 3, (n * 4)))
     {
       free(esp);
       return 0;
     }
-    es +=2; octet_count = 2;
-
+    es += 2;
+    octet_count = 2;
   }
   else if (n < 8191)
   {
@@ -3973,19 +4045,20 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
      * (at most 32769) then the list may have to grow several times
      */
     /* allocate sufficient space.  32 bits*(n+1) to be safe */
-    es = static_cast<unsigned char *>(calloc(4*(n+1), SIZEOF(unsigned char )));
+    es = static_cast<unsigned char*>(calloc(4 * (n + 1), SIZEOF(unsigned char)));
     if (!es)
     {
       return 0; /* memory allocation failed */
     }
-    esp=es;
+    esp = es;
 
-    if (!cgmcomheadlong(es, 4, 3, (n*4)))
+    if (!cgmcomheadlong(es, 4, 3, (n * 4)))
     {
       free(esp);
       return 0;
     }
-    es +=4; octet_count = 4;
+    es += 4;
+    octet_count = 4;
   }
   else
   {
@@ -3994,7 +4067,7 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
     return 0;
   }
 
-  for (x=0; x<n; x++)
+  for (x = 0; x < n; x++)
   {
     /* now we are ready for the parameter data */
     es += cgmAppShort(es, static_cast<short int>(p->x));
@@ -4017,22 +4090,22 @@ static int cgmPolyMarker(cgmImagePtr im, cgmPointPtr p, int n)
 }
 
 #ifdef VTK_NOT_DEFINED
-static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
+static int cgmText(cgmImagePtr im, int x, int y, const char* ts)
 {
-/* Graphic Primitive: Text; Elem Class 4; Elem ID 4
- * add text to the picture.  Start it at the point (x,y)
- * this should be the lower left corner of where the text is
- * the parameters are point, enumerated(set to 1), string
- *
- * String encoding in CGM is a little strange.  After you have the other
- * parameter info, the first octet for the string is either 0..254 which
- * is the number of octets of string data, or 255 which signifies a long
- * string.  if it is 255 then the next 16 bits indicate the length of the
- * string.  the first bit (bit15) is 0 if this is the last part of the
- * string and 1 if another part follows it.  the next 15 bits are in the
- * range 0..32767 and are the number of octets of string info following.
- * so the length stored in the command header is the whole enchelada.
- */
+  /* Graphic Primitive: Text; Elem Class 4; Elem ID 4
+   * add text to the picture.  Start it at the point (x,y)
+   * this should be the lower left corner of where the text is
+   * the parameters are point, enumerated(set to 1), string
+   *
+   * String encoding in CGM is a little strange.  After you have the other
+   * parameter info, the first octet for the string is either 0..254 which
+   * is the number of octets of string data, or 255 which signifies a long
+   * string.  if it is 255 then the next 16 bits indicate the length of the
+   * string.  the first bit (bit15) is 0 if this is the last part of the
+   * string and 1 if another part follows it.  the next 15 bits are in the
+   * range 0..32767 and are the number of octets of string info following.
+   * so the length stored in the command header is the whole enchelada.
+   */
   int tslen, curly;
   unsigned char *es, *esp;
   int octet_count;
@@ -4056,42 +4129,43 @@ static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
     return 0;
   }
 
-  es = (unsigned char *) calloc( ((4*4)+tslen), SIZEOF(unsigned char ) );
+  es = (unsigned char*)calloc(((4 * 4) + tslen), SIZEOF(unsigned char));
   if (!es)
   {
     return 0; /* memory allocation failed */
   }
-  esp=es;
+  esp = es;
 
-  if (!cgmcomheadlong(es, 4, 4, 9+tslen))
+  if (!cgmcomheadlong(es, 4, 4, 9 + tslen))
   {
     free(esp);
     return 0;
   }
-  es +=4; octet_count = 4;
+  es += 4;
+  octet_count = 4;
 
   /* add the x position, the y position, then 1, which signifies
    * that this is all the text, there is none appended after it */
-  es += cgmAppShort(es, (short int) x);
-  es += cgmAppShort(es, (short int) y);
-  es += cgmAppShort(es, (short int) 1);
+  es += cgmAppShort(es, (short int)x);
+  es += cgmAppShort(es, (short int)y);
+  es += cgmAppShort(es, (short int)1);
   octet_count += 6;
 
   /* now take care of the string information, for strings 254 bytes
    * or less, I could use a short one, but why bother, use the long
    * form for everything */
-  es += cgmAppByte(es, (short int) 255);
-  es += cgmAppShort(es, (short int) tslen);
+  es += cgmAppByte(es, (short int)255);
+  es += cgmAppShort(es, (short int)tslen);
   octet_count += 3;
   /* gej: I should set bit 15 to 0 because it is the final part of a
    * string but I am not going to since I already checked that it was
    * a 16 number that was non-negative */
 
-  while(*ts)
+  while (*ts)
   {
-    *es++ = (unsigned char) *ts++;
+    *es++ = (unsigned char)*ts++;
   }
-  octet_count +=tslen;
+  octet_count += tslen;
   /* now if the octet_count is not divisible by 4 add null padding */
   curly = 4 - (octet_count % 4);
   if (curly % 4)
@@ -4129,7 +4203,7 @@ static int cgmImageLine(cgmImagePtr im, int x1, int y1, int x2, int y2, int colo
   }
   if (!cgmLine(im, x1, y1, x2, y2))
   {
-    return 0;/* draw the line */
+    return 0; /* draw the line */
   }
   /* restore the state If it fails, don't return an error, because
    * the line was still drawn */
@@ -4166,26 +4240,25 @@ static int cgmImageBoundsSafe(cgmImagePtr im, int x, int y)
   return (!(((y < 0) || (y >= im->sy)) || ((x < 0) || (x >= im->sx))));
 }
 
-
 static int cgmImageRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2, int color)
 /* Graphic Primitive: rectangle; Elem Class 4; Elem ID 11
  */
 
 /* gej: but I think I will use the cgm rectangle */
 {
-  if(!cgmImageLine(im, x1, y1, x2, y1, color))
+  if (!cgmImageLine(im, x1, y1, x2, y1, color))
   {
     return 0;
   }
-  if(!cgmImageLine(im, x1, y2, x2, y2, color))
+  if (!cgmImageLine(im, x1, y2, x2, y2, color))
   {
     return 0;
   }
-  if(!cgmImageLine(im, x1, y1, x1, y2, color))
+  if (!cgmImageLine(im, x1, y1, x1, y2, color))
   {
     return 0;
   }
-  if(!cgmImageLine(im, x2, y1, x2, y2, color))
+  if (!cgmImageLine(im, x2, y1, x2, y2, color))
   {
     return 0;
   }
@@ -4193,7 +4266,6 @@ static int cgmImageRectangle(cgmImagePtr im, int x1, int y1, int x2, int y2, int
   return 1;
 }
 #endif
-
 
 /* Expert functions.  If you need more control, you can use these
  * functions, but you probably won't need to. */
@@ -4247,14 +4319,14 @@ static int cgmImageSetEdgeSpec(cgmImagePtr im, int specmode)
 }
 #endif
 
-static int cgmImageSetOutput(cgmImagePtr im, FILE *output)
+static int cgmImageSetOutput(cgmImagePtr im, FILE* output)
 /* sets the output file to *output.  which must already be open.
  * does not close the file
  * Useful if you want to write the file as you go along, or if you
  * want to write it to a stream
  */
 {
-  if(output)
+  if (output)
   {
     im->outfile = output;
     return 1;
@@ -4266,35 +4338,35 @@ static int cgmImageSetOutput(cgmImagePtr im, FILE *output)
 }
 
 #ifdef VTK_NOT_DEFINED
-static int cgmImageAddFont(cgmImagePtr im, const char *fontname)
+static int cgmImageAddFont(cgmImagePtr im, const char* fontname)
 /* adds a font to the list of fonts.  This only has an effect
  * if you are using the expert functions for starting pictures, and
  * have not yet opened the first picture.  Returns 0 for failure,
  * and the font index on success */
 {
-  unsigned char *oldfonts;
+  unsigned char* oldfonts;
   int listsize;
   oldfonts = im->fontlist;
   if (oldfonts)
   {
-    listsize = strlen( (char *)oldfonts) + 1 + strlen(fontname) + 1;
+    listsize = strlen((char*)oldfonts) + 1 + strlen(fontname) + 1;
   }
   else
   {
-    listsize = strlen(fontname) +1;
+    listsize = strlen(fontname) + 1;
   }
-  im->fontlist=(unsigned char *) calloc(listsize,SIZEOF(unsigned char));
+  im->fontlist = (unsigned char*)calloc(listsize, SIZEOF(unsigned char));
   if (!im->fontlist)
   {
     return 0; /* memory allocation failed */
   }
   if (oldfonts)
   {
-    snprintf((char *)im->fontlist, listsize, "%s%s%s", (char *)oldfonts, ",", fontname);
+    snprintf((char*)im->fontlist, listsize, "%s%s%s", (char*)oldfonts, ",", fontname);
   }
   else
   {
-    snprintf((char *)im->fontlist, listsize, "%s", fontname);
+    snprintf((char*)im->fontlist, listsize, "%s", fontname);
   }
   im->numfonts++;
   if (oldfonts)
@@ -4360,17 +4432,16 @@ static cgmImagePtr cgmImageStartCgm()
 /* initializes the CGM and sets up the defaults.  If you are using
  * the "expert" functions, you should call this first. _ge */
 {
-  const char *tmps;
+  const char* tmps;
   int tmpsl;
   cgmImagePtr im;
-  im = static_cast<cgmImage *>(calloc(SIZEOF(cgmImage), 1));
+  im = static_cast<cgmImage*>(calloc(SIZEOF(cgmImage), 1));
   if (!im)
   {
     return 0; /* memory allocation failed */
   }
   /* elemlist is set to some number, when it is full, make it bigger */
-  im->elemlist = static_cast<unsigned char *>(calloc(CGMSTARTLISTSIZE,
-                                                     SIZEOF(unsigned char ) ));
+  im->elemlist = static_cast<unsigned char*>(calloc(CGMSTARTLISTSIZE, SIZEOF(unsigned char)));
   if (!im->elemlist)
   {
     free(im);
@@ -4390,25 +4461,25 @@ static cgmImagePtr cgmImageStartCgm()
   /* don't make this longer than 250 characters */
   tmps = "vtk CGM Output file";
   tmpsl = static_cast<int>(strlen(tmps));
-  if (tmpsl >250)
+  if (tmpsl > 250)
   {
     tmpsl = 250;
   }
-  im->desc = static_cast<unsigned char *>( calloc(tmpsl+1, SIZEOF(unsigned char)));
+  im->desc = static_cast<unsigned char*>(calloc(tmpsl + 1, SIZEOF(unsigned char)));
   strncpy(reinterpret_cast<char*>(im->desc), tmps, tmpsl);
   /* The font list can be quite long, but individual font names can
    * can only be 250 chars */
-  tmps = "TIMES_ROMAN,TIMES_BOLD,TIMES_ITALIC,TIMES_BOLD_ITALIC,HELVETICA,HELVETICA_BOLD,HELVETICA_ITALIC,HELVETICA_BOLD_ITALIC,COURIER,COURIER_BOLD,COURIER_ITALIC,COURIER_BOLD_ITALIC";
-  im->numfonts=12;
+  tmps = "TIMES_ROMAN,TIMES_BOLD,TIMES_ITALIC,TIMES_BOLD_ITALIC,HELVETICA,HELVETICA_BOLD,HELVETICA_"
+         "ITALIC,HELVETICA_BOLD_ITALIC,COURIER,COURIER_BOLD,COURIER_ITALIC,COURIER_BOLD_ITALIC";
+  im->numfonts = 12;
   tmpsl = static_cast<int>(strlen(tmps));
-  im->fontlist = static_cast<unsigned char *>( calloc(tmpsl+1,
-                                                      SIZEOF(unsigned char)));
+  im->fontlist = static_cast<unsigned char*>(calloc(tmpsl + 1, SIZEOF(unsigned char)));
   strcpy(reinterpret_cast<char*>(im->fontlist), tmps);
   im->outfile = nullptr;
 
   if (!cgmImageSetDefaults(im))
   {
-    cgmImageDestroy (im);
+    cgmImageDestroy(im);
   }
   /* set the state */
   im->state = 0; /* 0 no pictures started, 1 in a picture,
@@ -4421,7 +4492,7 @@ static int cgmImageEndPic(cgmImagePtr im)
 /* close the current picture */
 {
   unsigned char *es, *esp;
-  int octet_count=0;
+  int octet_count = 0;
 
   /* make sure we are really in a picture before ending it */
   if (im->state != 1)
@@ -4429,12 +4500,12 @@ static int cgmImageEndPic(cgmImagePtr im)
     return 0;
   }
 
-  esp = static_cast<unsigned char *>(calloc(1024, SIZEOF(unsigned char )));
+  esp = static_cast<unsigned char*>(calloc(1024, SIZEOF(unsigned char)));
   if (!esp)
   {
     return 0; /* memory allocation failed */
   }
-  es=esp;
+  es = esp;
 
   /* Attribute: End Picture; Elem Class 0; Elem ID 5; Length 0  */
   if (!cgmcomhead(es, 0, 5, 0))
@@ -4447,7 +4518,7 @@ static int cgmImageEndPic(cgmImagePtr im)
   if (cgmAddElem(im, esp, octet_count))
   {
     free(esp);
-    im->state=2;
+    im->state = 2;
     return 1;
   }
   else
@@ -4457,23 +4528,23 @@ static int cgmImageEndPic(cgmImagePtr im)
   }
 }
 
-static int cgmImageEndCgm (cgmImagePtr im)
+static int cgmImageEndCgm(cgmImagePtr im)
 /* close the current CGM file.  If an output stream is
  * defined, write the CGM to it */
 {
-  int x; /* counter */
-  int used; /* number of bytes used in the list */
+  int x;                         /* counter */
+  int used;                      /* number of bytes used in the list */
   unsigned char *efile, *efilep; /* end of file information */
 
   cgmImageEndPic(im);
   if (im->state == 2)
   { /* We have closed the pic, but not the CGM */
-    efile = static_cast<unsigned char *>( calloc(4*4,SIZEOF(unsigned char )));
+    efile = static_cast<unsigned char*>(calloc(4 * 4, SIZEOF(unsigned char)));
     if (!efile)
     {
       return 0; /* memory allocation failed */
     }
-    efilep=efile;
+    efilep = efile;
     /* Attribute: End Metafile; Elem Class 0; Elem ID 2 */
     cgmcomhead(efilep, 0, 2, 0);
 
@@ -4492,7 +4563,7 @@ static int cgmImageEndCgm (cgmImagePtr im)
   {
     /* now output the CGM, one byte at a time */
     used = im->listlen - im->bytestoend;
-    for (x=0;x < used; x++)
+    for (x = 0; x < used; x++)
     {
       putc(static_cast<unsigned char>(im->elemlist[x]), im->outfile);
     }

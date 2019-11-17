@@ -31,7 +31,7 @@
  * @sa
  * vtkInteractorStyleJoystickActor vtkInteractorStyleTrackballCamera
  * vtkInteractorStyleTrackballActor
-*/
+ */
 
 #ifndef vtkInteractorStyleJoystickCamera_h
 #define vtkInteractorStyleJoystickCamera_h
@@ -42,8 +42,8 @@
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleJoystickCamera *New();
-  vtkTypeMacro(vtkInteractorStyleJoystickCamera,vtkInteractorStyle);
+  static vtkInteractorStyleJoystickCamera* New();
+  vtkTypeMacro(vtkInteractorStyleJoystickCamera, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

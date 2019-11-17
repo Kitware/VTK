@@ -26,7 +26,7 @@
  * Binary files written on one system may not be readable on other systems.
  * @sa
  * vtkPolyData vtkDataReader
-*/
+ */
 
 #ifndef vtkPolyDataReader_h
 #define vtkPolyDataReader_h
@@ -39,25 +39,23 @@ class vtkPolyData;
 class VTKIOLEGACY_EXPORT vtkPolyDataReader : public vtkDataReader
 {
 public:
-  static vtkPolyDataReader *New();
-  vtkTypeMacro(vtkPolyDataReader,vtkDataReader);
+  static vtkPolyDataReader* New();
+  vtkTypeMacro(vtkPolyDataReader, vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get the output of this reader.
    */
-  vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx);
-  void SetOutput(vtkPolyData *output);
+  vtkPolyData* GetOutput();
+  vtkPolyData* GetOutput(int idx);
+  void SetOutput(vtkPolyData* output);
   //@}
 
   /**
    * Actual reading happens here
    */
-  int ReadMeshSimple(const std::string& fname,
-                     vtkDataObject* output) override;
-
+  int ReadMeshSimple(const std::string& fname, vtkDataObject* output) override;
 
 protected:
   vtkPolyDataReader();

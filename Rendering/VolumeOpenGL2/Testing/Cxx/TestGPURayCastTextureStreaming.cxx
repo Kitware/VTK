@@ -42,10 +42,9 @@
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 
-
 int TestGPURayCastTextureStreaming(int argc, char* argv[])
 {
-  //cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Load data
   vtkNew<vtkVolume16Reader> reader;
@@ -66,20 +65,20 @@ int TestGPURayCastTextureStreaming(int argc, char* argv[])
 
   // Prepare TFs
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddRGBPoint(0,    0.0, 0.0, 0.0);
-  ctf->AddRGBPoint(500,  1.0, 0.5, 0.3);
+  ctf->AddRGBPoint(0, 0.0, 0.0, 0.0);
+  ctf->AddRGBPoint(500, 1.0, 0.5, 0.3);
   ctf->AddRGBPoint(1000, 1.0, 0.5, 0.3);
   ctf->AddRGBPoint(1150, 1.0, 1.0, 0.9);
 
   vtkNew<vtkPiecewiseFunction> pf;
-  pf->AddPoint(0,    0.00);
-  pf->AddPoint(500,  0.15);
+  pf->AddPoint(0, 0.00);
+  pf->AddPoint(500, 0.15);
   pf->AddPoint(1000, 0.15);
   pf->AddPoint(1150, 0.85);
 
   vtkNew<vtkPiecewiseFunction> gf;
-  gf->AddPoint(0,   0.0);
-  gf->AddPoint(90,  0.5);
+  gf->AddPoint(0, 0.0);
+  gf->AddPoint(90, 0.5);
   gf->AddPoint(100, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
@@ -102,8 +101,7 @@ int TestGPURayCastTextureStreaming(int argc, char* argv[])
   mapper->SetUseJittering(0);
 
   // Force a number of partition blocks
-  vtkOpenGLGPUVolumeRayCastMapper* mappergl =
-    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+  vtkOpenGLGPUVolumeRayCastMapper* mappergl = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
   mappergl->SetPartitions(2, 1, 2);
 
   vtkNew<vtkVolume> volume;
@@ -125,10 +123,9 @@ int TestGPURayCastTextureStreaming(int argc, char* argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renWin, 90);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

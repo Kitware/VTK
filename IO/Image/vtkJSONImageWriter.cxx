@@ -48,90 +48,89 @@ vtkJSONImageWriter::~vtkJSONImageWriter()
 //----------------------------------------------------------------------------
 void vtkJSONImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "FileName: " <<
-    (this->FileName ? this->FileName : "(none)") << "\n";
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
 //----------------------------------------------------------------------------
 
-int vtkJSONImageWriter::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed( outputVector) )
+int vtkJSONImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   this->SetErrorCode(vtkErrorCode::NoError);
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *input =
-    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Error checking
-  if (input == nullptr )
+  if (input == nullptr)
   {
-    vtkErrorMacro(<<"Write:Please specify an input!");
+    vtkErrorMacro(<< "Write:Please specify an input!");
     return 0;
   }
-  if ( !this->FileName)
+  if (!this->FileName)
   {
-    vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
+    vtkErrorMacro(<< "Write:Please specify either a FileName or a file prefix and pattern");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
   }
 
   // Write
   this->InvokeEvent(vtkCommand::StartEvent);
-  vtkCharArray *validMask = vtkArrayDownCast<vtkCharArray>(input->GetPointData()->GetArray("vtkValidPointMask"));
+  vtkCharArray* validMask =
+    vtkArrayDownCast<vtkCharArray>(input->GetPointData()->GetArray("vtkValidPointMask"));
 
   ofstream file(this->FileName, ios::out);
   if (file.fail())
   {
-    vtkErrorMacro("RecursiveWrite: Could not open file " <<
-                  this->FileName);
+    vtkErrorMacro("RecursiveWrite: Could not open file " << this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return 0;
   }
   file << "{"
        << "\"filename\" : \"" << this->FileName << "\""
-       << ",\n\"dimensions\": [" << input->GetDimensions()[0] << ", " << input->GetDimensions()[1] << ", " << input->GetDimensions()[2] << "]"
-       << ",\n\"origin\": [" << input->GetOrigin()[0] << ", " << input->GetOrigin()[1] << ", " << input->GetOrigin()[2] << "]"
-       << ",\n\"spacing\": [" << input->GetSpacing()[0] << ", " << input->GetSpacing()[1] << ", " << input->GetSpacing()[2] << "]";
+       << ",\n\"dimensions\": [" << input->GetDimensions()[0] << ", " << input->GetDimensions()[1]
+       << ", " << input->GetDimensions()[2] << "]"
+       << ",\n\"origin\": [" << input->GetOrigin()[0] << ", " << input->GetOrigin()[1] << ", "
+       << input->GetOrigin()[2] << "]"
+       << ",\n\"spacing\": [" << input->GetSpacing()[0] << ", " << input->GetSpacing()[1] << ", "
+       << input->GetSpacing()[2] << "]";
 
   // Write all arrays
   int nbArrays = input->GetPointData()->GetNumberOfArrays();
-  for(int i=0; i < nbArrays; ++i)
+  for (int i = 0; i < nbArrays; ++i)
   {
     vtkDataArray* array = input->GetPointData()->GetArray(i);
     // We only dump scalar values
-    if(array->GetNumberOfComponents() != 1 || !strcmp(array->GetName(),"vtkValidPointMask"))
+    if (array->GetNumberOfComponents() != 1 || !strcmp(array->GetName(), "vtkValidPointMask"))
     {
       continue;
     }
-    if(this->ArrayName && strlen(this->ArrayName) > 0 && strcmp(array->GetName(),this->ArrayName))
+    if (this->ArrayName && strlen(this->ArrayName) > 0 && strcmp(array->GetName(), this->ArrayName))
     {
       continue;
     }
     file << ",\n\"" << array->GetName() << "\": [";
     vtkIdType startIdx = 0;
     vtkIdType endIdx = array->GetNumberOfTuples();
-    if(this->Slice >= 0)
+    if (this->Slice >= 0)
     {
       vtkIdType sliceSize = input->GetDimensions()[0] * input->GetDimensions()[1];
       startIdx = sliceSize * this->Slice;
       endIdx = startIdx + sliceSize;
     }
-    for(vtkIdType idx = startIdx; idx < endIdx; ++idx)
+    for (vtkIdType idx = startIdx; idx < endIdx; ++idx)
     {
-      if(idx % 50 == 0)
+      if (idx % 50 == 0)
       {
         file << "\n";
         file.flush();
       }
-      if(idx != startIdx)
+      if (idx != startIdx)
       {
         file << ", ";
       }
-      if((validMask == nullptr) || (validMask && validMask->GetValue(idx)))
+      if ((validMask == nullptr) || (validMask && validMask->GetValue(idx)))
       {
         file << array->GetVariantValue(idx).ToString();
       }
@@ -139,7 +138,6 @@ int vtkJSONImageWriter::RequestData(
       {
         file << "null";
       }
-
     }
     file << "]";
   }

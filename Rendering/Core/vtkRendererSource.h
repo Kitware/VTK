@@ -42,7 +42,7 @@
  * @sa
  * vtkWindowToImageFilter vtkRendererPointCloudSource vtkRenderer
  * vtkImageData vtkDepthImageToPointCloud
-*/
+ */
 
 #ifndef vtkRendererSource_h
 #define vtkRendererSource_h
@@ -56,7 +56,7 @@ class vtkRenderer;
 class VTKRENDERINGCORE_EXPORT vtkRendererSource : public vtkAlgorithm
 {
 public:
-  static vtkRendererSource *New();
+  static vtkRendererSource* New();
   vtkTypeMacro(vtkRendererSource, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -141,22 +141,18 @@ public:
   /**
    * see vtkAlgorithm for details
    */
-  vtkTypeBool ProcessRequest(vtkInformation*,
-                             vtkInformationVector**,
-                             vtkInformationVector*) override;
+  vtkTypeBool ProcessRequest(
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 protected:
   vtkRendererSource();
   ~vtkRendererSource() override;
 
-  void RequestData(vtkInformation* request,
-                   vtkInformationVector** inputVector,
-                   vtkInformationVector* outputVector);
-  virtual void RequestInformation (vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
+  void RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
+  virtual void RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*);
 
-  vtkRenderer *Input;
+  vtkRenderer* Input;
   vtkTypeBool WholeWindow;
   vtkTypeBool RenderFlag;
   vtkTypeBool DepthValues;

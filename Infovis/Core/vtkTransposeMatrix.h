@@ -25,7 +25,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkTransposeMatrix_h
 #define vtkTransposeMatrix_h
@@ -44,10 +44,7 @@ protected:
   vtkTransposeMatrix();
   ~vtkTransposeMatrix() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTransposeMatrix(const vtkTransposeMatrix&) = delete;
@@ -55,4 +52,3 @@ private:
 };
 
 #endif
-

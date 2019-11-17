@@ -30,7 +30,6 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-
 int TestGPURayCastGradientOpacityLight(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
@@ -54,13 +53,12 @@ int TestGPURayCastGradientOpacityLight(int argc, char* argv[])
   iren->SetInteractorStyle(style);
 
   // Load data
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,
-   "Data/HeadMRVolume.mhd");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HeadMRVolume.mhd");
 
   vtkNew<vtkMetaImageReader> reader;
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
@@ -103,6 +101,5 @@ int TestGPURayCastGradientOpacityLight(int argc, char* argv[])
     iren->Start();
   }
 
-  return !((retVal == vtkTesting::PASSED) ||
-           (retVal == vtkTesting::DO_INTERACTOR));
+  return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));
 }

@@ -21,7 +21,7 @@
  * be passed in the source's output.  This is primarily intended to
  * allow file readers to configure what data arrays are read from the
  * file.
-*/
+ */
 
 #ifndef vtkDataArraySelection_h
 #define vtkDataArraySelection_h
@@ -34,7 +34,7 @@ class vtkDataArraySelectionInternals;
 class VTKCOMMONCORE_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkDataArraySelection,vtkObject);
+  vtkTypeMacro(vtkDataArraySelection, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArraySelection* New();
 
@@ -101,7 +101,7 @@ public:
   /**
    * Get an index of the array with the given name.
    */
-  int GetArrayIndex(const char *name) const;
+  int GetArrayIndex(const char* name) const;
 
   /**
    * Get the index of an array with the given name among those
@@ -148,7 +148,7 @@ public:
    * Also note for arrays already known to this instance (i.e.
    * `this->ArrayExists(name) == true`, this method has no effect.
    */
-  int AddArray(const char* name, bool state=true);
+  int AddArray(const char* name, bool state = true);
 
   /**
    * Remove an array setting given its index.
@@ -178,8 +178,7 @@ public:
    * This method **does not** call `this->Modified()`.
    */
   void SetArrays(const char* const* names, int numArrays);
-  void SetArraysWithDefault(const char* const* names, int numArrays,
-                            int defaultStatus);
+  void SetArraysWithDefault(const char* const* names, int numArrays, int defaultStatus);
   //@}
 
   /**

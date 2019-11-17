@@ -22,11 +22,11 @@
 
 extern "C"
 {
-VTKWRAPPINGPYTHONCORE_EXPORT
-PyTypeObject *PyVTKEnum_Add(PyTypeObject *pytype);
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype);
 
-VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKEnum_New(PyTypeObject *pytype, int val);
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyObject* PyVTKEnum_New(PyTypeObject* pytype, int val);
 }
 
 #endif

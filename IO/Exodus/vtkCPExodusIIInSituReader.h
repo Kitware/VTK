@@ -23,7 +23,7 @@
  * This class can be used to import Exodus II files into VTK without repacking
  * the data into the standard VTK memory layout, avoiding the cost of a deep
  * copy.
-*/
+ */
 
 #ifndef vtkCPExodusIIInSituReader_h
 #define vtkCPExodusIIInSituReader_h
@@ -31,20 +31,19 @@
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // For vtkNew
-#include <string> // For std::string
-#include <vector> // For std::vector
+#include <string>   // For std::string
+#include <vector>   // For std::vector
 
 class vtkDataArrayCollection;
 class vtkPointData;
 class vtkPoints;
 
-class VTKIOEXODUS_EXPORT vtkCPExodusIIInSituReader :
-    public vtkMultiBlockDataSetAlgorithm
+class VTKIOEXODUS_EXPORT vtkCPExodusIIInSituReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  static vtkCPExodusIIInSituReader *New();
+  static vtkCPExodusIIInSituReader* New();
   vtkTypeMacro(vtkCPExodusIIInSituReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -73,29 +72,23 @@ public:
   /**
    * Get the floating point tag associated with the timestep at 'step'.
    */
-  double GetTimeStepValue(int step)
-  {
-    return TimeSteps.at(step);
-  }
+  double GetTimeStepValue(int step) { return TimeSteps.at(step); }
 
 protected:
   vtkCPExodusIIInSituReader();
   ~vtkCPExodusIIInSituReader() override;
 
-  vtkTypeBool ProcessRequest(vtkInformation *request,
-                     vtkInformationVector **inputVector,
-                     vtkInformationVector *outputVector) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &) = delete;
-  void operator=(const vtkCPExodusIIInSituReader &) = delete;
+  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader&) = delete;
+  void operator=(const vtkCPExodusIIInSituReader&) = delete;
 
   bool ExOpen();
-  char *FileName;
+  char* FileName;
   int FileId;
 
   bool ExGetMetaData();
@@ -122,4 +115,4 @@ private:
   int CurrentTimeStep;
 };
 
-#endif //vtkCPExodusIIInSituReader_h
+#endif // vtkCPExodusIIInSituReader_h

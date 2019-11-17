@@ -20,8 +20,8 @@
 
 vtkStandardNewMacro(vtkGraphWeightEuclideanDistanceFilter);
 
-float vtkGraphWeightEuclideanDistanceFilter::ComputeWeight(vtkGraph* const graph,
-                                                           const vtkEdgeType& edge) const
+float vtkGraphWeightEuclideanDistanceFilter::ComputeWeight(
+  vtkGraph* const graph, const vtkEdgeType& edge) const
 {
   double p1[3];
   graph->GetPoint(edge.Source, p1);
@@ -37,7 +37,7 @@ float vtkGraphWeightEuclideanDistanceFilter::ComputeWeight(vtkGraph* const graph
 bool vtkGraphWeightEuclideanDistanceFilter::CheckRequirements(vtkGraph* const graph) const
 {
   vtkPoints* points = graph->GetPoints();
-  if(!points)
+  if (!points)
   {
     return false;
   }
@@ -47,5 +47,5 @@ bool vtkGraphWeightEuclideanDistanceFilter::CheckRequirements(vtkGraph* const gr
 //----------------------------------------------------------------------------
 void vtkGraphWeightEuclideanDistanceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGraphWeightFilter::PrintSelf(os,indent);
+  vtkGraphWeightFilter::PrintSelf(os, indent);
 }

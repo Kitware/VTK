@@ -40,7 +40,6 @@
 #include <vtkVolumeProperty.h>
 #include <vtkWindowToImageFilter.h>
 
-
 // Description
 // Tests off-screen rendering of vtkProjectedTetrahedra.
 
@@ -70,8 +69,7 @@ vtkSmartPointer<vtkVolume> CubeVolume_TetrahedraOffscreen(double r, double g, do
   rectilinearGridToTetrahedra->SetInputData(grid);
   rectilinearGridToTetrahedra->Update();
 
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid
-    = rectilinearGridToTetrahedra->GetOutput();
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid = rectilinearGridToTetrahedra->GetOutput();
 
   // Add scalars to the grid
   vtkNew<vtkDoubleArray> scalars;
@@ -115,8 +113,7 @@ vtkSmartPointer<vtkActor> ConeActor_TetrahedraOffscreen(double r, double g, doub
   return actor;
 }
 
-
-int TestProjectedTetrahedraOffscreen(int argc, char *argv[])
+int TestProjectedTetrahedraOffscreen(int argc, char* argv[])
 {
   // Create the props
 

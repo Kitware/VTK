@@ -30,21 +30,20 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkVariantExtract_h
 #define vtkVariantExtract_h
 
 #include <typeinfo> // for typeid
 
-template<typename T>
+template <typename T>
 T vtkVariantExtract(const vtkVariant& value, bool& valid)
 {
   vtkGenericWarningMacro(
     << "Cannot convert vtkVariant containing [" << value.GetTypeAsString() << "] "
     << "to unsupported type [" << typeid(T).name() << "].  "
-    << "Create a vtkVariantExtract<> specialization to eliminate this warning."
-    );
+    << "Create a vtkVariantExtract<> specialization to eliminate this warning.");
 
   valid = false;
 
@@ -52,105 +51,106 @@ T vtkVariantExtract(const vtkVariant& value, bool& valid)
   return dummy;
 }
 
-template<>
+template <>
 inline char vtkVariantExtract<char>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsChar();
   return valid ? value.ToChar() : 0;
 }
 
-template<>
+template <>
 inline unsigned char vtkVariantExtract<unsigned char>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnsignedChar();
   return valid ? value.ToUnsignedChar() : 0;
 }
 
-template<>
+template <>
 inline short vtkVariantExtract<short>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsShort();
   return valid ? value.ToShort() : 0;
 }
 
-template<>
+template <>
 inline unsigned short vtkVariantExtract<unsigned short>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnsignedShort();
   return valid ? value.ToUnsignedShort() : 0;
 }
 
-template<>
+template <>
 inline int vtkVariantExtract<int>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsInt();
   return valid ? value.ToInt() : 0;
 }
 
-template<>
+template <>
 inline unsigned int vtkVariantExtract<unsigned int>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnsignedInt();
   return valid ? value.ToUnsignedInt() : 0;
 }
 
-template<>
+template <>
 inline long vtkVariantExtract<long>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsLong();
   return valid ? value.ToLong() : 0;
 }
 
-template<>
+template <>
 inline unsigned long vtkVariantExtract<unsigned long>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnsignedLong();
   return valid ? value.ToUnsignedLong() : 0;
 }
 
-template<>
+template <>
 inline long long vtkVariantExtract<long long>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsLongLong();
   return valid ? value.ToLongLong() : 0;
 }
 
-template<>
-inline unsigned long long vtkVariantExtract<unsigned long long>(const vtkVariant& value, bool& valid)
+template <>
+inline unsigned long long vtkVariantExtract<unsigned long long>(
+  const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnsignedLongLong();
   return valid ? value.ToUnsignedLongLong() : 0;
 }
 
-template<>
+template <>
 inline float vtkVariantExtract<float>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsFloat();
   return valid ? value.ToFloat() : 0.0f;
 }
 
-template<>
+template <>
 inline double vtkVariantExtract<double>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsDouble();
   return valid ? value.ToDouble() : 0.0;
 }
 
-template<>
+template <>
 inline vtkStdString vtkVariantExtract<vtkStdString>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsString();
   return valid ? value.ToString() : vtkStdString();
 }
 
-template<>
+template <>
 inline vtkUnicodeString vtkVariantExtract<vtkUnicodeString>(const vtkVariant& value, bool& valid)
 {
   valid = value.IsUnicodeString();
   return valid ? value.ToUnicodeString() : vtkUnicodeString();
 }
 
-template<>
+template <>
 inline vtkVariant vtkVariantExtract<vtkVariant>(const vtkVariant& value, bool& valid)
 {
   valid = true;

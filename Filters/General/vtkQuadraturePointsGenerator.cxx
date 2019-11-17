@@ -55,8 +55,7 @@ vtkQuadraturePointsGenerator::~vtkQuadraturePointsGenerator() = default;
 
 //-----------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::FillInputPortInformation(
-      int vtkNotUsed(port),
-      vtkInformation *info)
+  int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;
@@ -64,24 +63,20 @@ int vtkQuadraturePointsGenerator::FillInputPortInformation(
 
 //-----------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::RequestData(
-      vtkInformation *,
-      vtkInformationVector **input,
-      vtkInformationVector *output)
+  vtkInformation*, vtkInformationVector** input, vtkInformationVector* output)
 {
-  vtkDataObject *tmpDataObj;
+  vtkDataObject* tmpDataObj;
   // Get the input.
-  tmpDataObj
-     = input[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
-  vtkUnstructuredGrid *usgIn = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
+  tmpDataObj = input[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
+  vtkUnstructuredGrid* usgIn = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
   // Get the output.
-  tmpDataObj
-     = output->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
-  vtkPolyData *pdOut = vtkPolyData::SafeDownCast(tmpDataObj);
+  tmpDataObj = output->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
+  vtkPolyData* pdOut = vtkPolyData::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn == nullptr || pdOut == nullptr || usgIn->GetNumberOfCells() == 0
-      || usgIn->GetNumberOfPoints() == 0 || usgIn->GetCellData() == nullptr
-      || usgIn->GetCellData()->GetNumberOfArrays() == 0)
+  if (usgIn == nullptr || pdOut == nullptr || usgIn->GetNumberOfCells() == 0 ||
+    usgIn->GetNumberOfPoints() == 0 || usgIn->GetCellData() == nullptr ||
+    usgIn->GetCellData()->GetNumberOfArrays() == 0)
   {
     vtkErrorMacro("Filter data has not been configured correctly. Aborting.");
     return 1;
@@ -96,26 +91,20 @@ int vtkQuadraturePointsGenerator::RequestData(
 
 // ----------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::GenerateField(
-        vtkUnstructuredGrid *usgIn,
-        vtkDataArray* data,
-        vtkDataArray* offsets,
-        vtkPolyData* pdOut)
+  vtkUnstructuredGrid* usgIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut)
 {
-  vtkInformation *info = offsets->GetInformation();
-  vtkInformationQuadratureSchemeDefinitionVectorKey *key
-    = vtkQuadratureSchemeDefinition::DICTIONARY();
+  vtkInformation* info = offsets->GetInformation();
+  vtkInformationQuadratureSchemeDefinitionVectorKey* key =
+    vtkQuadratureSchemeDefinition::DICTIONARY();
   if (!key->Has(info))
   {
-    vtkErrorMacro(
-      << "Dictionary is not present in array "
-      << offsets->GetName() << " " << offsets
-     << " Aborting.");
+    vtkErrorMacro(<< "Dictionary is not present in array " << offsets->GetName() << " " << offsets
+                  << " Aborting.");
     return 0;
   }
 
   int dictSize = key->Size(info);
-  vtkQuadratureSchemeDefinition **dict
-    = new vtkQuadratureSchemeDefinition *[dictSize];
+  vtkQuadratureSchemeDefinition** dict = new vtkQuadratureSchemeDefinition*[dictSize];
   key->GetRange(info, dict, 0, 0, dictSize);
 
   vtkIdType nVerts = pdOut->GetNumberOfPoints();
@@ -128,12 +117,11 @@ int vtkQuadraturePointsGenerator::GenerateField(
   vtkIdType previous = -1;
 
   int offsetType = offsets->GetDataType();
-  void *pOffsets = offsets->GetVoidPointer(0);
-  switch(offsetType)
+  void* pOffsets = offsets->GetVoidPointer(0);
+  switch (offsetType)
   {
     vtkTemplateMacro(
-      for (cellId = 0; cellId < ncell; cellId++)
-      {
+      for (cellId = 0; cellId < ncell; cellId++) {
         vtkIdType offset = static_cast<vtkIdType>(((VTK_TT*)pOffsets)[cellId]);
         if (offset != previous + 1)
         {
@@ -152,24 +140,18 @@ int vtkQuadraturePointsGenerator::GenerateField(
         }
       }
 
-      if ( (previous+1) != nVerts )
-      {
-        shallowok = false;
-      }
+      if ((previous + 1) != nVerts) { shallowok = false; }
 
-      if (shallowok)
-      {
+      if (shallowok) {
         // ok, all the original cells are here, we can shallow copy the array
         // from input to output
         pdOut->GetPointData()->AddArray(data);
-      }
-      else
-      {
+      } else {
         // in this case, we have to duplicate the valid tuples
-        vtkDataArray *V_out = data->NewInstance();
+        vtkDataArray* V_out = data->NewInstance();
         V_out->SetName(data->GetName());
         V_out->SetNumberOfComponents(data->GetNumberOfComponents());
-        V_out->CopyComponentNames( data );
+        V_out->CopyComponentNames(data);
         for (cellId = 0; cellId < ncell; cellId++)
         {
           vtkIdType offset = static_cast<vtkIdType>(((VTK_TT*)pOffsets)[cellId]);
@@ -191,8 +173,7 @@ int vtkQuadraturePointsGenerator::GenerateField(
         V_out->Squeeze();
         pdOut->GetPointData()->AddArray(V_out);
         V_out->Delete();
-      }
-    );
+      });
   }
   delete[] dict;
   return 1;
@@ -200,9 +181,7 @@ int vtkQuadraturePointsGenerator::GenerateField(
 
 //-----------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::Generate(
-        vtkUnstructuredGrid *usgIn,
-        vtkDataArray* offsets,
-        vtkPolyData *pdOut)
+  vtkUnstructuredGrid* usgIn, vtkDataArray* offsets, vtkPolyData* pdOut)
 {
   if (usgIn == nullptr || offsets == nullptr || pdOut == nullptr)
   {
@@ -221,72 +200,59 @@ int vtkQuadraturePointsGenerator::Generate(
   }
 
   // get the dictionary
-  vtkInformation *info = offsets->GetInformation();
-  vtkInformationQuadratureSchemeDefinitionVectorKey *key =
-      vtkQuadratureSchemeDefinition::DICTIONARY();
+  vtkInformation* info = offsets->GetInformation();
+  vtkInformationQuadratureSchemeDefinitionVectorKey* key =
+    vtkQuadratureSchemeDefinition::DICTIONARY();
   if (!key->Has(info))
   {
-    vtkErrorMacro(
-      << "Dictionary is not present in array "
-      << offsets->GetName()
-      << " Aborting.");
+    vtkErrorMacro(<< "Dictionary is not present in array " << offsets->GetName() << " Aborting.");
     return 0;
   }
   int dictSize = key->Size(info);
-  vtkQuadratureSchemeDefinition **dict =
-      new vtkQuadratureSchemeDefinition *[dictSize];
+  vtkQuadratureSchemeDefinition** dict = new vtkQuadratureSchemeDefinition*[dictSize];
   key->GetRange(info, dict, 0, 0, dictSize);
 
   // Grab the point set.
-  vtkDataArray *X = usgIn->GetPoints()->GetData();
+  vtkDataArray* X = usgIn->GetPoints()->GetData();
   int X_type = X->GetDataType();
-  void *pX = X->GetVoidPointer(0);
+  void* pX = X->GetVoidPointer(0);
 
   // Create the result array.
-  vtkDoubleArray *qPts = vtkDoubleArray::New();
+  vtkDoubleArray* qPts = vtkDoubleArray::New();
   vtkIdType nCells = usgIn->GetNumberOfCells();
-  qPts->Allocate(3* nCells ); // Expect at least one point per cell
+  qPts->Allocate(3 * nCells); // Expect at least one point per cell
   qPts->SetNumberOfComponents(3);
 
   // For all cells interpolate.
   switch (X_type)
   {
-    vtkTemplateMacro(
-      if (!vtkQuadraturePointsUtilities::Interpolate(
-              usgIn,
-              nCells,
-              (VTK_TT*)pX,
-              3,
-              dict,
-              qPts,
-              (int*)nullptr))
-      {
-        vtkWarningMacro("Failed to interpolate cell vertices "
-            "to quadrature points. Aborting.");
-      }
-      );
+    vtkTemplateMacro(if (!vtkQuadraturePointsUtilities::Interpolate(
+                           usgIn, nCells, (VTK_TT*)pX, 3, dict, qPts, (int*)nullptr)) {
+      vtkWarningMacro("Failed to interpolate cell vertices "
+                      "to quadrature points. Aborting.");
+    });
   }
   delete[] dict;
 
   // Add the interpolated quadrature points to the output
   vtkIdType nVerts = qPts->GetNumberOfTuples();
-  vtkPoints *p = vtkPoints::New();
+  vtkPoints* p = vtkPoints::New();
   p->SetDataTypeToDouble();
   p->SetData(qPts);
   qPts->Delete();
   pdOut->SetPoints(p);
   p->Delete();
   // Generate vertices at the quadrature points
-  vtkIdTypeArray *va = vtkIdTypeArray::New();
-  va->SetNumberOfTuples(2* nVerts );
-  vtkIdType *verts = va->GetPointer(0);
+  vtkIdTypeArray* va = vtkIdTypeArray::New();
+  va->SetNumberOfTuples(2 * nVerts);
+  vtkIdType* verts = va->GetPointer(0);
   for (int i = 0; i < nVerts; ++i)
   {
     verts[0] = 1;
     verts[1] = i;
     verts += 2;
   }
-  vtkCellArray *cells = vtkCellArray::New();
+  vtkCellArray* cells = vtkCellArray::New();
   cells->AllocateExact(nVerts, va->GetNumberOfValues() - nVerts);
   cells->ImportLegacyFormat(va);
   pdOut->SetVerts(cells);
@@ -295,20 +261,19 @@ int vtkQuadraturePointsGenerator::Generate(
 
   // then loop over all fields to map the field array to the points
   int nArrays = usgIn->GetFieldData()->GetNumberOfArrays();
-  for (int i = 0; i<nArrays; ++i)
+  for (int i = 0; i < nArrays; ++i)
   {
     vtkDataArray* array = usgIn->GetFieldData()->GetArray(i);
-    if (array == nullptr) continue;
+    if (array == nullptr)
+      continue;
 
-    const char* arrayOffsetName = array->GetInformation()->Get(
-        vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME());
+    const char* arrayOffsetName =
+      array->GetInformation()->Get(vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME());
     if (arrayOffsetName == nullptr)
     {
       // not an error, since non-quadrature point field data may
       //  be present.
-      vtkDebugMacro(
-        << "array " << array->GetName()
-        << " has no offset array name, Skipping");
+      vtkDebugMacro(<< "array " << array->GetName() << " has no offset array name, Skipping");
       continue;
     }
 
@@ -316,10 +281,8 @@ int vtkQuadraturePointsGenerator::Generate(
     {
       // not an error, this array does not belong with the current
       // quadrature scheme definition.
-      vtkDebugMacro(
-        << "array " << array->GetName()
-        << " has another offset array : "
-        << arrayOffsetName << ", Skipping");
+      vtkDebugMacro(<< "array " << array->GetName()
+                    << " has another offset array : " << arrayOffsetName << ", Skipping");
       continue;
     }
 

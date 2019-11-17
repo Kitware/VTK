@@ -54,20 +54,16 @@ vtkTreeFieldAggregator::~vtkTreeFieldAggregator()
   this->SetField(nullptr);
 }
 
-int vtkTreeFieldAggregator::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkTreeFieldAggregator::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkTree *input = vtkTree::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkTree *output = vtkTree::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* input = vtkTree::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTree* output = vtkTree::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Shallow copy the input
   output->ShallowCopy(input);
@@ -127,14 +123,12 @@ int vtkTreeFieldAggregator::RequestData(
 
   // Set up DFS iterator that traverses
   // children before the parent (i.e. bottom-up).
-  vtkSmartPointer<vtkTreeDFSIterator> dfs =
-    vtkSmartPointer<vtkTreeDFSIterator>::New();
+  vtkSmartPointer<vtkTreeDFSIterator> dfs = vtkSmartPointer<vtkTreeDFSIterator>::New();
   dfs->SetTree(output);
   dfs->SetMode(vtkTreeDFSIterator::FINISH);
 
   // Create a iterator for getting children.
-  vtkSmartPointer<vtkAdjacentVertexIterator> it =
-    vtkSmartPointer<vtkAdjacentVertexIterator>::New();
+  vtkSmartPointer<vtkAdjacentVertexIterator> it = vtkSmartPointer<vtkAdjacentVertexIterator>::New();
 
   // Iterator through the tree, aggregating child values into parent.
   while (dfs->HasNext())
@@ -169,11 +163,11 @@ int vtkTreeFieldAggregator::RequestData(
 
 void vtkTreeFieldAggregator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Field: " << (this->Field ? this->Field : "(none)") << endl;
   os << indent << "LeafVertexUnitSize: " << (this->LeafVertexUnitSize ? "On" : "Off") << endl;
   os << indent << "MinValue: " << this->MinValue << endl;
-  os << indent << "LogScale: " << (this->LogScale? "On" : "Off") << endl;
+  os << indent << "LogScale: " << (this->LogScale ? "On" : "Off") << endl;
 }
 
 double vtkTreeFieldAggregator::GetDoubleValue(vtkAbstractArray* arr, vtkIdType id)

@@ -30,21 +30,22 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @sa
  * vtkGraph vtkBoostGraphAdapter
-*/
+ */
 
 #ifndef vtkBoostKruskalMinimumSpanningTree_h
 #define vtkBoostKruskalMinimumSpanningTree_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
-#include "vtkStdString.h" // For string type
-#include "vtkVariant.h" // For variant type
+#include "vtkStdString.h"                         // For string type
+#include "vtkVariant.h"                           // For variant type
 
 #include "vtkSelectionAlgorithm.h"
 
-class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostKruskalMinimumSpanningTree : public vtkSelectionAlgorithm
+class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostKruskalMinimumSpanningTree
+  : public vtkSelectionAlgorithm
 {
 public:
-  static vtkBoostKruskalMinimumSpanningTree *New();
+  static vtkBoostKruskalMinimumSpanningTree* New();
   vtkTypeMacro(vtkBoostKruskalMinimumSpanningTree, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -85,16 +86,11 @@ protected:
   vtkBoostKruskalMinimumSpanningTree();
   ~vtkBoostKruskalMinimumSpanningTree();
 
-  int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int FillOutputPortInformation(
-    int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   char* EdgeWeightArrayName;

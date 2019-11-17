@@ -23,7 +23,7 @@
  * functionality, consider using vtkSimpleImageToImageAlgorithm instead.
  * @sa
  * vtkSimpleImageToImageAlgorithm
-*/
+ */
 
 #ifndef vtkThreadedImageAlgorithm_h
 #define vtkThreadedImageAlgorithm_h
@@ -37,7 +37,7 @@ class vtkMultiThreader;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedImageAlgorithm : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkThreadedImageAlgorithm,vtkImageAlgorithm);
+  vtkTypeMacro(vtkThreadedImageAlgorithm, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -46,17 +46,13 @@ public:
    * will call this method. It is public so that the thread functions
    * can call this method.
    */
-  virtual void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData,
-                                   int extent[6], int threadId);
+  virtual void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int threadId);
 
   // also support the old signature
-  virtual void ThreadedExecute(vtkImageData *inData,
-                               vtkImageData *outData,
-                               int extent[6], int threadId);
+  virtual void ThreadedExecute(
+    vtkImageData* inData, vtkImageData* outData, int extent[6], int threadId);
 
   //@{
   /**
@@ -114,21 +110,20 @@ public:
    * Get/Set the number of threads to create when rendering.
    * This is ignored if EnableSMP is On.
    */
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
+  vtkSetClampMacro(NumberOfThreads, int, 1, VTK_MAX_THREADS);
+  vtkGetMacro(NumberOfThreads, int);
   //@}
 
   /**
    * Putting this here until I merge graphics and imaging streaming.
    */
-  virtual int SplitExtent(int splitExt[6], int startExt[6],
-                          int num, int total);
+  virtual int SplitExtent(int splitExt[6], int startExt[6], int num, int total);
 
 protected:
   vtkThreadedImageAlgorithm();
   ~vtkThreadedImageAlgorithm() override;
 
-  vtkMultiThreader *Threader;
+  vtkMultiThreader* Threader;
   int NumberOfThreads;
 
   bool EnableSMP;
@@ -151,9 +146,8 @@ protected:
    * This is called by the superclass.
    * This is the method you should override.
    */
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Execute ThreadedRequestData for the given set of pieces.
@@ -161,13 +155,9 @@ protected:
    * and ThreadedRequestData will be called for all pieces starting
    * at "begin" and up to but not including "end".
    */
-  virtual void SMPRequestData(vtkInformation *request,
-                              vtkInformationVector **inputVector,
-                              vtkInformationVector *outputVector,
-                              vtkImageData ***inData,
-                              vtkImageData **outData,
-                              vtkIdType begin, vtkIdType end,
-                              vtkIdType pieces, int extent[6]);
+  virtual void SMPRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    vtkIdType begin, vtkIdType end, vtkIdType pieces, int extent[6]);
 
   /**
    * Allocate space for output data and copy attributes from first input.
@@ -175,10 +165,9 @@ protected:
    * they must be large enough to store the data objects for all inputs and
    * outputs.
    */
-  virtual void PrepareImageData(vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector,
-                                vtkImageData ***inDataObjects=nullptr,
-                                vtkImageData **outDataObjects=nullptr);
+  virtual void PrepareImageData(vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inDataObjects = nullptr,
+    vtkImageData** outDataObjects = nullptr);
 
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) = delete;

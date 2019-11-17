@@ -25,7 +25,7 @@
  * vtkResliceCursorWidget.
  * @sa
  * vtkResliceCursor vtkResliceCursorWidget
-*/
+ */
 
 #ifndef vtkResliceCursorPicker_h
 #define vtkResliceCursorPicker_h
@@ -42,7 +42,7 @@ class vtkPlane;
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPicker : public vtkPicker
 {
 public:
-  static vtkResliceCursorPicker *New();
+  static vtkResliceCursorPicker* New();
   vtkTypeMacro(vtkResliceCursorPicker, vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -52,60 +52,53 @@ public:
    * the third value is z=0. The return value will be non-zero if
    * something was successfully picked.
    */
-  int Pick(double selectionX, double selectionY, double selectionZ,
-                   vtkRenderer *renderer) override;
+  int Pick(double selectionX, double selectionY, double selectionZ, vtkRenderer* renderer) override;
 
   //@{
   /**
    * Get the picked axis
    */
-  vtkGetMacro( PickedAxis1, int );
-  vtkGetMacro( PickedAxis2, int );
-  vtkGetMacro( PickedCenter, int );
+  vtkGetMacro(PickedAxis1, int);
+  vtkGetMacro(PickedAxis2, int);
+  vtkGetMacro(PickedCenter, int);
   //@}
 
   //@{
   /**
    * Set the reslice cursor algorithm. One must be set
    */
-  virtual void SetResliceCursorAlgorithm(
-      vtkResliceCursorPolyDataAlgorithm * );
-  vtkGetObjectMacro( ResliceCursorAlgorithm,
-                     vtkResliceCursorPolyDataAlgorithm );
+  virtual void SetResliceCursorAlgorithm(vtkResliceCursorPolyDataAlgorithm*);
+  vtkGetObjectMacro(ResliceCursorAlgorithm, vtkResliceCursorPolyDataAlgorithm);
   //@}
 
-  virtual void SetTransformMatrix( vtkMatrix4x4 * );
+  virtual void SetTransformMatrix(vtkMatrix4x4*);
 
   /**
    * Overloaded pick method that returns the picked coordinates of the current
    * resliced plane in world coordinates when given a display position
    */
-  void Pick(
-    double displayPos[2], double world[3], vtkRenderer *ren );
+  void Pick(double displayPos[2], double world[3], vtkRenderer* ren);
 
 protected:
   vtkResliceCursorPicker();
   ~vtkResliceCursorPicker() override;
 
-  virtual int IntersectPolyDataWithLine(
-      double p1[3], double p2[3], vtkPolyData *, double tol );
-  virtual int IntersectPointWithLine(
-    double p1[3], double p2[3], double X[3], double tol );
+  virtual int IntersectPolyDataWithLine(double p1[3], double p2[3], vtkPolyData*, double tol);
+  virtual int IntersectPointWithLine(double p1[3], double p2[3], double X[3], double tol);
 
   void TransformPlane();
-  void TransformPoint( double pIn[4], double pOut[4] );
-  void InverseTransformPoint( double pIn[4], double pOut[4] );
+  void TransformPoint(double pIn[4], double pOut[4]);
+  void InverseTransformPoint(double pIn[4], double pOut[4]);
 
 private:
-
-  vtkGenericCell *Cell; //used to accelerate picking
-  vtkResliceCursorPolyDataAlgorithm * ResliceCursorAlgorithm;
+  vtkGenericCell* Cell; // used to accelerate picking
+  vtkResliceCursorPolyDataAlgorithm* ResliceCursorAlgorithm;
 
   int PickedAxis1;
   int PickedAxis2;
   int PickedCenter;
-  vtkMatrix4x4 * TransformMatrix;
-  vtkPlane     * Plane;
+  vtkMatrix4x4* TransformMatrix;
+  vtkPlane* Plane;
 
 private:
   vtkResliceCursorPicker(const vtkResliceCursorPicker&) = delete;

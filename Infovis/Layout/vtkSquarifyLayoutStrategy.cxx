@@ -34,13 +34,11 @@ vtkSquarifyLayoutStrategy::~vtkSquarifyLayoutStrategy() = default;
 
 void vtkSquarifyLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 void vtkSquarifyLayoutStrategy::Layout(
-    vtkTree* inputTree,
-    vtkDataArray* coordsArray,
-    vtkDataArray* sizeArray)
+  vtkTree* inputTree, vtkDataArray* coordsArray, vtkDataArray* sizeArray)
 {
   if (!inputTree || inputTree->GetNumberOfVertices() == 0)
   {
@@ -61,33 +59,25 @@ void vtkSquarifyLayoutStrategy::Layout(
 
   // Get the root vertex and set it to 0,1,0,1
   vtkIdType rootId = inputTree->GetRoot();
-  float coords[] = {0,1,0,1};
+  float coords[] = { 0, 1, 0, 1 };
   coordsArray->SetTuple(rootId, coords);
   inputTree->GetPoints()->SetPoint(rootId, 0.5, 0.5, 0.0);
 
   // Now layout the children vertices
   this->AddBorder(coords);
-  this->LayoutChildren(inputTree, coordsArray, sizeArray,
-      inputTree->GetNumberOfChildren(rootId), rootId, 0,
-      coords[0], coords[1], coords[2], coords[3]);
+  this->LayoutChildren(inputTree, coordsArray, sizeArray, inputTree->GetNumberOfChildren(rootId),
+    rootId, 0, coords[0], coords[1], coords[2], coords[3]);
 }
 
-void vtkSquarifyLayoutStrategy::LayoutChildren(
-  vtkTree *tree,
-  vtkDataArray *coordsArray,
-  vtkDataArray *sizeArray,
-  vtkIdType nchildren,
-  vtkIdType parent,
-  vtkIdType begin,
-  float minX, float maxX,
-  float minY, float maxY)
+void vtkSquarifyLayoutStrategy::LayoutChildren(vtkTree* tree, vtkDataArray* coordsArray,
+  vtkDataArray* sizeArray, vtkIdType nchildren, vtkIdType parent, vtkIdType begin, float minX,
+  float maxX, float minY, float maxY)
 {
   float sizeX = maxX - minX;
   float sizeY = maxY - minY;
   if ((sizeX == 0.0) || (sizeY == 0.0))
   {
-    vtkErrorMacro(<< "Invalid Box Sizes for Vertex: "
-                  << tree->GetChild(parent, begin) << " ("
+    vtkErrorMacro(<< "Invalid Box Sizes for Vertex: " << tree->GetChild(parent, begin) << " ("
                   << sizeX << ", " << sizeY << ")");
     return;
   }
@@ -192,10 +182,10 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
       {
         position = sizeX * (part / curTotal);
       }
-      coords[0] = rowMinX + oldPosition;     // minX
-      coords[1] = rowMinX + position;        // maxX
-      coords[2] = rowMinY;                   // minY
-      coords[3] = rowMaxY;                   // maxY
+      coords[0] = rowMinX + oldPosition; // minX
+      coords[1] = rowMinX + position;    // maxX
+      coords[2] = rowMinY;               // minY
+      coords[3] = rowMaxY;               // maxY
     }
     else
     {
@@ -207,22 +197,21 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
       {
         position = sizeY * (part / curTotal);
       }
-      coords[0] = rowMinX;                   // minX
-      coords[1] = rowMaxX;                   // maxX
-      coords[2] = rowMaxY - position;        // minY
-      coords[3] = rowMaxY - oldPosition;     // maxY
+      coords[0] = rowMinX;               // minX
+      coords[1] = rowMaxX;               // maxX
+      coords[2] = rowMaxY - position;    // minY
+      coords[3] = rowMaxY - oldPosition; // maxY
     }
 
     coordsArray->SetTuple(id, coords);
-    tree->GetPoints()->SetPoint(id,
-        (coords[0] + coords[1])/2.0,
-        (coords[2] + coords[3])/2.0, 0.0);
+    tree->GetPoints()->SetPoint(
+      id, (coords[0] + coords[1]) / 2.0, (coords[2] + coords[3]) / 2.0, 0.0);
     vtkIdType numNewChildren = tree->GetNumberOfChildren(id);
     if (numNewChildren > 0)
     {
       this->AddBorder(coords);
-      this->LayoutChildren(tree, coordsArray, sizeArray, numNewChildren, id, 0,
-        coords[0], coords[1], coords[2], coords[3]);
+      this->LayoutChildren(tree, coordsArray, sizeArray, numNewChildren, id, 0, coords[0],
+        coords[1], coords[2], coords[3]);
     }
   }
 
@@ -246,7 +235,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(
       restMinY = rowMinY;
       restMaxY = rowMaxY;
     }
-    this->LayoutChildren(tree, coordsArray, sizeArray, nchildren, parent, cur,
-      restMinX, restMaxX, restMinY, restMaxY);
+    this->LayoutChildren(
+      tree, coordsArray, sizeArray, nchildren, parent, cur, restMinX, restMaxX, restMinY, restMaxY);
   }
 }

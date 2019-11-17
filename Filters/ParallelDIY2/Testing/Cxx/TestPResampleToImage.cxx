@@ -37,19 +37,16 @@
 #include VTK_DIY2(diy/mpi.hpp)
 // clang-format on
 
-
-int TestPResampleToImage(int argc, char *argv[])
+int TestPResampleToImage(int argc, char* argv[])
 {
   diy::mpi::environment mpienv(argc, argv);
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv, true);
   diy::mpi::communicator world;
 
-
   // Setup parallel rendering
   vtkNew<vtkCompositeRenderManager> prm;
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
+  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
   renWin->AddRenderer(renderer);
@@ -61,7 +58,6 @@ int TestPResampleToImage(int argc, char *argv[])
 
   prm->SetRenderWindow(renWin);
   prm->SetController(controller);
-
 
   // Create Pipeline
   vtkNew<vtkRTAnalyticSource> wavelet;
@@ -89,7 +85,6 @@ int TestPResampleToImage(int argc, char *argv[])
   vtkNew<vtkPieceScalars> pieceScalars;
   pieceScalars->SetInputConnection(contour->GetOutputPort());
   pieceScalars->SetScalarModeToCellData();
-
 
   // Execute pipeline and render
   vtkNew<vtkPolyDataMapper> mapper;

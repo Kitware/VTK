@@ -35,7 +35,7 @@
  *
  * @sa
  * vtkTriangleFilter vtkMultiObjectMassProperties
-*/
+ */
 
 #ifndef vtkMassProperties_h
 #define vtkMassProperties_h
@@ -49,15 +49,19 @@ public:
   /**
    * Constructs with initial values of zero.
    */
-  static vtkMassProperties *New();
+  static vtkMassProperties* New();
 
-  vtkTypeMacro(vtkMassProperties,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkMassProperties, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Compute and return the volume.
    */
-  double GetVolume() {this->Update(); return this->Volume;}
+  double GetVolume()
+  {
+    this->Update();
+    return this->Volume;
+  }
 
   /**
    * Compute and return the projected volume.
@@ -67,37 +71,77 @@ public:
    * * Either the polydata is not closed
    * * Or the polydata contains triangle that are flipped
    */
-  double GetVolumeProjected() {this->Update(); return this->VolumeProjected;}
+  double GetVolumeProjected()
+  {
+    this->Update();
+    return this->VolumeProjected;
+  }
 
   /**
    * Compute and return the volume projected on to each axis aligned plane.
    */
-  double GetVolumeX() {this->Update(); return this->VolumeX;}
-  double GetVolumeY() {this->Update(); return this->VolumeY;}
-  double GetVolumeZ() {this->Update(); return this->VolumeZ;}
+  double GetVolumeX()
+  {
+    this->Update();
+    return this->VolumeX;
+  }
+  double GetVolumeY()
+  {
+    this->Update();
+    return this->VolumeY;
+  }
+  double GetVolumeZ()
+  {
+    this->Update();
+    return this->VolumeZ;
+  }
 
   /**
    * Compute and return the weighting factors for the maximum unit
    * normal component (MUNC).
    */
-  double GetKx() {this->Update(); return this->Kx;}
-  double GetKy() {this->Update(); return this->Ky;}
-  double GetKz() {this->Update(); return this->Kz;}
+  double GetKx()
+  {
+    this->Update();
+    return this->Kx;
+  }
+  double GetKy()
+  {
+    this->Update();
+    return this->Ky;
+  }
+  double GetKz()
+  {
+    this->Update();
+    return this->Kz;
+  }
 
   /**
    * Compute and return the area.
    */
-  double GetSurfaceArea() {this->Update(); return this->SurfaceArea;}
+  double GetSurfaceArea()
+  {
+    this->Update();
+    return this->SurfaceArea;
+  }
 
   /**
    * Compute and return the min cell area.
    */
-  double GetMinCellArea() {this->Update(); return this->MinCellArea;}
+  double GetMinCellArea()
+  {
+    this->Update();
+    return this->MinCellArea;
+  }
 
   /**
    * Compute and return the max cell area.
    */
-  double GetMaxCellArea() {this->Update(); return this->MaxCellArea;}
+  double GetMaxCellArea()
+  {
+    this->Update();
+    return this->MaxCellArea;
+  }
 
   /**
    * Compute and return the normalized shape index. This characterizes the
@@ -105,28 +149,30 @@ public:
    * is one. This number is always >= 1.0.
    */
   double GetNormalizedShapeIndex()
-    {this->Update(); return this->NormalizedShapeIndex;}
+  {
+    this->Update();
+    return this->NormalizedShapeIndex;
+  }
 
 protected:
   vtkMassProperties();
   ~vtkMassProperties() override;
 
-  int RequestData(vtkInformation* request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  double  SurfaceArea;
-  double  MinCellArea;
-  double  MaxCellArea;
-  double  Volume;
-  double  VolumeProjected; // == Projected area of triangles * average z values
-  double  VolumeX;
-  double  VolumeY;
-  double  VolumeZ;
-  double  Kx;
-  double  Ky;
-  double  Kz;
-  double  NormalizedShapeIndex;
+  double SurfaceArea;
+  double MinCellArea;
+  double MaxCellArea;
+  double Volume;
+  double VolumeProjected; // == Projected area of triangles * average z values
+  double VolumeX;
+  double VolumeY;
+  double VolumeZ;
+  double Kx;
+  double Ky;
+  double Kz;
+  double NormalizedShapeIndex;
 
 private:
   vtkMassProperties(const vtkMassProperties&) = delete;

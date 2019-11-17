@@ -20,7 +20,6 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
 
-
 //----------------------------------------------------------------------
 vtkPolyDataContourLineInterpolator::vtkPolyDataContourLineInterpolator()
 {
@@ -36,9 +35,8 @@ vtkPolyDataContourLineInterpolator::~vtkPolyDataContourLineInterpolator()
 //----------------------------------------------------------------------
 void vtkPolyDataContourLineInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Polys: \n";
-  this->Polys->PrintSelf(os,indent.GetNextIndent());
-
+  this->Polys->PrintSelf(os, indent.GetNextIndent());
 }

@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 
-int TestScalarBarAboveBelow(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestScalarBarAboveBelow(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int resolution = 3;
   vtkNew<vtkPlaneSource> plane;

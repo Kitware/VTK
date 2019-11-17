@@ -74,7 +74,8 @@ struct ClientData
 
   void Render()
   {
-    assert(this->CurrentIndex >= 0 && this->CurrentIndex < static_cast<int>(this->TimeSteps.size()));
+    assert(
+      this->CurrentIndex >= 0 && this->CurrentIndex < static_cast<int>(this->TimeSteps.size()));
     this->Reader->UpdateTimeStep(this->TimeSteps[this->CurrentIndex]);
     this->Mapper->SetInputDataObject(this->Reader->GetOutputDataObject(0));
     this->Window->Render();

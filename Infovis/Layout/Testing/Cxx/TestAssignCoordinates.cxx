@@ -29,10 +29,9 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-int TestAssignCoordinates(int argc, char *argv[])
+int TestAssignCoordinates(int argc, char* argv[])
 {
   cerr << "Generating graph ..." << endl;
   VTK_CREATE(vtkMutableDirectedGraph, g);

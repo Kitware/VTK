@@ -40,9 +40,7 @@ vtkReduceTable::~vtkReduceTable() = default;
 
 //---------------------------------------------------------------------------
 int vtkReduceTable::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (this->IndexColumn == -1)
   {
@@ -52,11 +50,9 @@ int vtkReduceTable::RequestData(
 
   // Get input table
   vtkInformation* inputInfo = inputVector[0]->GetInformationObject(0);
-  vtkTable* input = vtkTable::SafeDownCast(
-    inputInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* input = vtkTable::SafeDownCast(inputInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (this->IndexColumn < 0 ||
-      this->IndexColumn > input->GetNumberOfColumns() - 1)
+  if (this->IndexColumn < 0 || this->IndexColumn > input->GetNumberOfColumns() - 1)
   {
     vtkWarningMacro(<< "Index column exceeds bounds of input table");
     return 1;
@@ -64,8 +60,7 @@ int vtkReduceTable::RequestData(
 
   // Get output table
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkTable* output = vtkTable::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkTable* output = vtkTable::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   this->InitializeOutputTable(input, output);
   this->AccumulateIndexValues(input);
@@ -75,28 +70,24 @@ int vtkReduceTable::RequestData(
 
   this->PopulateIndexColumn(output);
 
- // populate the data columns of the output table
- for (vtkIdType col = 0; col < output->GetNumberOfColumns(); ++col)
- {
-   if (col == this->IndexColumn)
-   {
-     continue;
-   }
+  // populate the data columns of the output table
+  for (vtkIdType col = 0; col < output->GetNumberOfColumns(); ++col)
+  {
+    if (col == this->IndexColumn)
+    {
+      continue;
+    }
 
-   this->PopulateDataColumn(input, output, col);
-
- }
+    this->PopulateDataColumn(input, output, col);
+  }
 
   // Clean up pipeline information
   int piece = -1;
   int npieces = -1;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
-    piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    npieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    npieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   }
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), npieces);
   output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
@@ -105,7 +96,7 @@ int vtkReduceTable::RequestData(
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::InitializeOutputTable(vtkTable *input, vtkTable *output)
+void vtkReduceTable::InitializeOutputTable(vtkTable* input, vtkTable* output)
 {
   output->DeepCopy(input);
   for (vtkIdType row = output->GetNumberOfRows() - 1; row > -1; --row)
@@ -115,7 +106,7 @@ void vtkReduceTable::InitializeOutputTable(vtkTable *input, vtkTable *output)
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::AccumulateIndexValues(vtkTable *input)
+void vtkReduceTable::AccumulateIndexValues(vtkTable* input)
 {
   for (vtkIdType row = 0; row < input->GetNumberOfRows(); ++row)
   {
@@ -137,7 +128,7 @@ void vtkReduceTable::AccumulateIndexValues(vtkTable *input)
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::PopulateIndexColumn(vtkTable *output)
+void vtkReduceTable::PopulateIndexColumn(vtkTable* output)
 {
   vtkIdType row = 0;
   for (std::set<vtkVariant>::iterator itr = this->IndexValues.begin();
@@ -149,8 +140,7 @@ void vtkReduceTable::PopulateIndexColumn(vtkTable *output)
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::PopulateDataColumn(vtkTable *input, vtkTable *output,
-                                        vtkIdType col)
+void vtkReduceTable::PopulateDataColumn(vtkTable* input, vtkTable* output, vtkIdType col)
 {
   int reductionMethod = 0;
 
@@ -184,8 +174,7 @@ void vtkReduceTable::PopulateDataColumn(vtkTable *input, vtkTable *output,
     // (no collapse necessary)
     if (oldRows.size() == 1)
     {
-      output->SetValue(row, col,
-        input->GetValue(this->NewRowToOldRowsMap[indexValue].at(0), col));
+      output->SetValue(row, col, input->GetValue(this->NewRowToOldRowsMap[indexValue].at(0), col));
       continue;
     }
 
@@ -208,9 +197,8 @@ void vtkReduceTable::PopulateDataColumn(vtkTable *input, vtkTable *output,
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::ReduceValuesToMean(vtkTable *input, vtkTable *output,
-                                        vtkIdType row, vtkIdType col,
-                                        std::vector<vtkIdType> oldRows)
+void vtkReduceTable::ReduceValuesToMean(
+  vtkTable* input, vtkTable* output, vtkIdType row, vtkIdType col, std::vector<vtkIdType> oldRows)
 {
   if (!input->GetValue(0, col).IsNumeric())
   {
@@ -219,8 +207,7 @@ void vtkReduceTable::ReduceValuesToMean(vtkTable *input, vtkTable *output,
   }
 
   double mean = 0.0;
-  for (std::vector<vtkIdType>::iterator itr = oldRows.begin();
-       itr != oldRows.end(); ++itr)
+  for (std::vector<vtkIdType>::iterator itr = oldRows.begin(); itr != oldRows.end(); ++itr)
   {
     mean += input->GetValue(*itr, col).ToDouble();
   }
@@ -229,9 +216,8 @@ void vtkReduceTable::ReduceValuesToMean(vtkTable *input, vtkTable *output,
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::ReduceValuesToMedian(vtkTable *input, vtkTable *output,
-                                          vtkIdType row, vtkIdType col,
-                                          std::vector<vtkIdType> oldRows)
+void vtkReduceTable::ReduceValuesToMedian(
+  vtkTable* input, vtkTable* output, vtkIdType row, vtkIdType col, std::vector<vtkIdType> oldRows)
 {
   if (!input->GetValue(0, col).IsNumeric())
   {
@@ -241,8 +227,7 @@ void vtkReduceTable::ReduceValuesToMedian(vtkTable *input, vtkTable *output,
 
   // generate a vector of values
   std::vector<double> values;
-  for (std::vector<vtkIdType>::iterator itr = oldRows.begin();
-       itr != oldRows.end(); ++itr)
+  for (std::vector<vtkIdType>::iterator itr = oldRows.begin(); itr != oldRows.end(); ++itr)
   {
     values.push_back(input->GetValue(*itr, col).ToDouble());
   }
@@ -253,28 +238,25 @@ void vtkReduceTable::ReduceValuesToMedian(vtkTable *input, vtkTable *output,
   // get the median and store it in the output table
   if (values.size() % 2 == 1)
   {
-    output->SetValue(row, col,
-      vtkVariant( values.at( (values.size() - 1) / 2 ) )
-    );
+    output->SetValue(row, col, vtkVariant(values.at((values.size() - 1) / 2)));
   }
   else
   {
-    double d1 = values.at( (values.size() - 1) / 2 );
-    double d2 = values.at( values.size() / 2 );
-    output->SetValue(row, col, vtkVariant( (d1 + d2) / 2.0 ));
+    double d1 = values.at((values.size() - 1) / 2);
+    double d2 = values.at(values.size() / 2);
+    output->SetValue(row, col, vtkVariant((d1 + d2) / 2.0));
   }
 }
 
 //---------------------------------------------------------------------------
-void vtkReduceTable::ReduceValuesToMode(vtkTable *input, vtkTable *output,
-                                        vtkIdType row, vtkIdType col,
-                                        std::vector<vtkIdType> oldRows)
+void vtkReduceTable::ReduceValuesToMode(
+  vtkTable* input, vtkTable* output, vtkIdType row, vtkIdType col, std::vector<vtkIdType> oldRows)
 {
   // setup a map to determine how frequently each value appears
   std::map<vtkVariant, int> modeMap;
   std::map<vtkVariant, int>::iterator mapItr;
-  for (std::vector<vtkIdType>::iterator vectorItr = oldRows.begin();
-       vectorItr != oldRows.end(); ++vectorItr)
+  for (std::vector<vtkIdType>::iterator vectorItr = oldRows.begin(); vectorItr != oldRows.end();
+       ++vectorItr)
   {
     vtkVariant v = input->GetValue(*vectorItr, col);
     mapItr = modeMap.find(v);
@@ -305,8 +287,7 @@ void vtkReduceTable::ReduceValuesToMode(vtkTable *input, vtkTable *output,
 //---------------------------------------------------------------------------
 int vtkReduceTable::GetReductionMethodForColumn(vtkIdType col)
 {
-  std::map<vtkIdType, int>::iterator itr =
-    this->ColumnReductionMethods.find(col);
+  std::map<vtkIdType, int>::iterator itr = this->ColumnReductionMethods.find(col);
   if (itr != this->ColumnReductionMethods.end())
   {
     return itr->second;
@@ -325,8 +306,6 @@ void vtkReduceTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "IndexColumn: " << this->IndexColumn << endl;
-  os << indent << "NumericalReductionMethod: "
-     << this->NumericalReductionMethod << endl;
-  os << indent << "NonNumericalReductionMethod: "
-     << this->NonNumericalReductionMethod << endl;
+  os << indent << "NumericalReductionMethod: " << this->NumericalReductionMethod << endl;
+  os << indent << "NonNumericalReductionMethod: " << this->NonNumericalReductionMethod << endl;
 }

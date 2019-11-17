@@ -22,12 +22,10 @@
  * The default is a 2D Correlation.  The Output type will be double.
  * The output size will match the size of the first input.
  * The second input is considered the correlation kernel.
-*/
+ */
 
 #ifndef vtkImageCorrelation_h
 #define vtkImageCorrelation_h
-
-
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -35,8 +33,8 @@
 class VTKIMAGINGGENERAL_EXPORT vtkImageCorrelation : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageCorrelation *New();
-  vtkTypeMacro(vtkImageCorrelation,vtkThreadedImageAlgorithm);
+  static vtkImageCorrelation* New();
+  vtkTypeMacro(vtkImageCorrelation, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -44,38 +42,31 @@ public:
    * Determines how the input is interpreted (set of 2d slices ...).
    * The default is 2.
    */
-  vtkSetClampMacro(Dimensionality,int,2,3);
-  vtkGetMacro(Dimensionality,int);
+  vtkSetClampMacro(Dimensionality, int, 2, 3);
+  vtkGetMacro(Dimensionality, int);
   //@}
 
   /**
    * Set the input image.
    */
-  virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
+  virtual void SetInput1Data(vtkDataObject* in) { this->SetInputData(0, in); }
 
   /**
    * Set the correlation kernel.
    */
-  virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
+  virtual void SetInput2Data(vtkDataObject* in) { this->SetInputData(1, in); }
 
 protected:
   vtkImageCorrelation();
   ~vtkImageCorrelation() override {}
 
   int Dimensionality;
-  int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation*,
-                                   vtkInformationVector**,
-                                   vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData,
-                                   int extent[6], int threadId) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int threadId) override;
 
 private:
   vtkImageCorrelation(const vtkImageCorrelation&) = delete;
@@ -83,6 +74,3 @@ private:
 };
 
 #endif
-
-
-

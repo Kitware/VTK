@@ -49,10 +49,11 @@ vtkStandardNewMacro(vtkVASPTessellationReader);
 typedef vtksys::RegularExpression RegEx;
 typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
 
-namespace {
+namespace
+{
 
 template <typename T>
-bool parse(const std::string &str, T &result)
+bool parse(const std::string& str, T& result)
 {
   if (!str.empty())
   {
@@ -64,7 +65,7 @@ bool parse(const std::string &str, T &result)
 }
 
 template <typename T>
-bool parseCommaSepList(const std::string &input, std::vector<T> &data)
+bool parseCommaSepList(const std::string& input, std::vector<T>& data)
 {
   std::istringstream in(input);
   for (std::string valStr; std::getline(in, valStr, ',');)
@@ -82,9 +83,8 @@ bool parseCommaSepList(const std::string &input, std::vector<T> &data)
 // This parses the voronoi points/faces list. The input is expected to be:
 // [number of commaSepLists], ([commaSepList]) ([commaSepList]) ...
 template <typename T>
-bool parseVariableLists(const std::string &input,
-                        std::vector<std::vector<T> > &data,
-                        RegEx *parenExtract)
+bool parseVariableLists(
+  const std::string& input, std::vector<std::vector<T> >& data, RegEx* parenExtract)
 {
   std::istringstream in(input);
   size_t nLists;
@@ -117,32 +117,34 @@ bool parseVariableLists(const std::string &input,
 } // end anon namespace
 
 //------------------------------------------------------------------------------
-void vtkVASPTessellationReader::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkVASPTessellationReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
 vtkVASPTessellationReader::vtkVASPTessellationReader()
-  : FileName(nullptr),
-    TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
-    LatticeParser(new RegEx("^ *Rx1 *= *([0-9EeDd.+-]+) *," // Rx1
-                            " *Rx2 *= *([0-9EeDd.+-]+) *," // Rx2
-                            " *Rx3 *= *([0-9EeDd.+-]+) *," // Rx3
-                            " *Ry2 *= *([0-9EeDd.+-]+) *," // Ry2
-                            " *Ry3 *= *([0-9EeDd.+-]+) *," // Ry3
-                            " *Rz3 *= *([0-9EeDd.+-]+) *$" // Rz3
-                            )),
-    AtomCountParser(new RegEx("^ *Natoms *= *([0-9]+) *$")), // Natoms = (int)),
-    AtomParser(new RegEx("^ *([0-9]+) *," // Atom index
-                         " *\\(" // Open paren
-                         " *([0-9EeDd.+-]+) *," // X coord
-                         " *([0-9EeDd.+-]+) *," // Y coord
-                         " *([0-9EeDd.+-]+)" // Z coord
-                         " *\\) *," // Close paren
-                         " *([0-9EeDd.+-]+) *$" // Radius
-                         )),
-    ParenExtract(new RegEx("\\(([^(]+)\\)")) // Extract contents of (...)
+  : FileName(nullptr)
+  , TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$"))
+  ,                                                       // time = (timeVal)
+  LatticeParser(new RegEx("^ *Rx1 *= *([0-9EeDd.+-]+) *," // Rx1
+                          " *Rx2 *= *([0-9EeDd.+-]+) *,"  // Rx2
+                          " *Rx3 *= *([0-9EeDd.+-]+) *,"  // Rx3
+                          " *Ry2 *= *([0-9EeDd.+-]+) *,"  // Ry2
+                          " *Ry3 *= *([0-9EeDd.+-]+) *,"  // Ry3
+                          " *Rz3 *= *([0-9EeDd.+-]+) *$"  // Rz3
+    ))
+  , AtomCountParser(new RegEx("^ *Natoms *= *([0-9]+) *$"))
+  ,                                           // Natoms = (int)),
+  AtomParser(new RegEx("^ *([0-9]+) *,"       // Atom index
+                       " *\\("                // Open paren
+                       " *([0-9EeDd.+-]+) *," // X coord
+                       " *([0-9EeDd.+-]+) *," // Y coord
+                       " *([0-9EeDd.+-]+)"    // Z coord
+                       " *\\) *,"             // Close paren
+                       " *([0-9EeDd.+-]+) *$" // Radius
+    ))
+  , ParenExtract(new RegEx("\\(([^(]+)\\)")) // Extract contents of (...)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(2);
@@ -160,26 +162,23 @@ vtkVASPTessellationReader::~vtkVASPTessellationReader()
 }
 
 //------------------------------------------------------------------------------
-int vtkVASPTessellationReader::RequestData(vtkInformation *,
-                                           vtkInformationVector **,
-                                           vtkInformationVector *outInfos)
+int vtkVASPTessellationReader::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
-  vtkInformation *outInfo0 = outInfos->GetInformationObject(0);
-  vtkInformation *outInfo1 = outInfos->GetInformationObject(1);
+  vtkInformation* outInfo0 = outInfos->GetInformationObject(0);
+  vtkInformation* outInfo1 = outInfos->GetInformationObject(1);
 
-  vtkMolecule *molecule = vtkMolecule::SafeDownCast(
-        outInfo0->Get(vtkDataObject::DATA_OBJECT()));
+  vtkMolecule* molecule = vtkMolecule::SafeDownCast(outInfo0->Get(vtkDataObject::DATA_OBJECT()));
   assert(molecule);
 
-  vtkUnstructuredGrid *voronoi = vtkUnstructuredGrid::SafeDownCast(
-        outInfo1->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid* voronoi =
+    vtkUnstructuredGrid::SafeDownCast(outInfo1->Get(vtkDataObject::DATA_OBJECT()));
   assert(voronoi);
 
   std::ifstream in(this->FileName);
   if (!in)
   {
-    vtkErrorMacro("Could not open file for reading: "
-                  << (this->FileName ? this->FileName : ""));
+    vtkErrorMacro("Could not open file for reading: " << (this->FileName ? this->FileName : ""));
     return 1;
   }
 
@@ -190,9 +189,8 @@ int vtkVASPTessellationReader::RequestData(vtkInformation *,
   {
     if (!this->NextTimeStep(in, time))
     {
-      vtkErrorMacro("Error -- attempting to read timestep #" << (stepIdx + 1)
-                    << " but encountered a parsing error at timestep #"
-                    << (i + 1) << ".");
+      vtkErrorMacro("Error -- attempting to read timestep #"
+        << (stepIdx + 1) << " but encountered a parsing error at timestep #" << (i + 1) << ".");
       return 1;
     }
   }
@@ -213,14 +211,12 @@ int vtkVASPTessellationReader::RequestData(vtkInformation *,
 
 //------------------------------------------------------------------------------
 int vtkVASPTessellationReader::RequestInformation(
-    vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *outInfos)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outInfos)
 {
   std::ifstream in(this->FileName);
   if (!in)
   {
-    vtkErrorMacro("Could not open file for reading: "
-                  << (this->FileName ? this->FileName : ""));
+    vtkErrorMacro("Could not open file for reading: " << (this->FileName ? this->FileName : ""));
     return 1;
   }
 
@@ -239,10 +235,9 @@ int vtkVASPTessellationReader::RequestInformation(
   {
     for (int port = 0; port < 2; ++port)
     {
-      vtkInformation *outInfo = outInfos->GetInformationObject(port);
+      vtkInformation* outInfo = outInfos->GetInformationObject(port);
       outInfo->Set(vtkSDDP::TIME_RANGE(), timeRange, 2);
-      outInfo->Set(vtkSDDP::TIME_STEPS(), &times[0],
-          static_cast<int>(times.size()));
+      outInfo->Set(vtkSDDP::TIME_STEPS(), &times[0], static_cast<int>(times.size()));
     }
   }
 
@@ -250,8 +245,7 @@ int vtkVASPTessellationReader::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkVASPTessellationReader::FillOutputPortInformation(int port,
-                                                         vtkInformation *info)
+int vtkVASPTessellationReader::FillOutputPortInformation(int port, vtkInformation* info)
 {
   switch (port)
   {
@@ -269,7 +263,7 @@ int vtkVASPTessellationReader::FillOutputPortInformation(int port,
 }
 
 //------------------------------------------------------------------------------
-bool vtkVASPTessellationReader::NextTimeStep(std::istream &in, double &time)
+bool vtkVASPTessellationReader::NextTimeStep(std::istream& in, double& time)
 {
   std::string line;
   while (std::getline(in, line))
@@ -290,15 +284,14 @@ bool vtkVASPTessellationReader::NextTimeStep(std::istream &in, double &time)
 }
 
 //------------------------------------------------------------------------------
-size_t vtkVASPTessellationReader::SelectTimeStepIndex(vtkInformation *info)
+size_t vtkVASPTessellationReader::SelectTimeStepIndex(vtkInformation* info)
 {
-  if (!info->Has(vtkSDDP::TIME_STEPS()) ||
-      !info->Has(vtkSDDP::UPDATE_TIME_STEP()))
+  if (!info->Has(vtkSDDP::TIME_STEPS()) || !info->Has(vtkSDDP::UPDATE_TIME_STEP()))
   {
     return 0;
   }
 
-  double *times = info->Get(vtkSDDP::TIME_STEPS());
+  double* times = info->Get(vtkSDDP::TIME_STEPS());
   int nTimes = info->Length(vtkSDDP::TIME_STEPS());
   double t = info->Get(vtkSDDP::UPDATE_TIME_STEP());
 
@@ -318,9 +311,8 @@ size_t vtkVASPTessellationReader::SelectTimeStepIndex(vtkInformation *info)
 }
 
 //------------------------------------------------------------------------------
-bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
-                                             vtkMolecule *molecule,
-                                             vtkUnstructuredGrid *voronoi)
+bool vtkVASPTessellationReader::ReadTimeStep(
+  std::istream& in, vtkMolecule* molecule, vtkUnstructuredGrid* voronoi)
 {
   // Assume the 'time = ...' line has already been read.
   std::string line;
@@ -345,43 +337,43 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   // Rxx
   if (!parse(this->LatticeParser->match(1), latA[0]))
   {
-    vtkErrorMacro("Error parsing Rxx component '"
-                  << this->LatticeParser->match(1) << "' from line: " << line);
+    vtkErrorMacro(
+      "Error parsing Rxx component '" << this->LatticeParser->match(1) << "' from line: " << line);
     return false;
   }
   // Rxy
   if (!parse(this->LatticeParser->match(2), latB[0]))
   {
-    vtkErrorMacro("Error parsing Rxy component '"
-                  << this->LatticeParser->match(2) << "' from line: " << line);
+    vtkErrorMacro(
+      "Error parsing Rxy component '" << this->LatticeParser->match(2) << "' from line: " << line);
     return false;
   }
   // Rxz
   if (!parse(this->LatticeParser->match(3), latC[0]))
   {
-    vtkErrorMacro("Error parsing Rxz component '"
-                  << this->LatticeParser->match(3) << "' from line: " << line);
+    vtkErrorMacro(
+      "Error parsing Rxz component '" << this->LatticeParser->match(3) << "' from line: " << line);
     return false;
   }
   // Ryy
   if (!parse(this->LatticeParser->match(4), latB[1]))
   {
-    vtkErrorMacro("Error parsing Ryy component '"
-                  << this->LatticeParser->match(4) << "' from line: " << line);
+    vtkErrorMacro(
+      "Error parsing Ryy component '" << this->LatticeParser->match(4) << "' from line: " << line);
     return false;
   }
   // Ryz
   if (!parse(this->LatticeParser->match(5), latC[1]))
   {
-    vtkErrorMacro("Error parsing Ryz component '"
-                  << this->LatticeParser->match(5) << "' from line: " << line);
+    vtkErrorMacro(
+      "Error parsing Ryz component '" << this->LatticeParser->match(5) << "' from line: " << line);
     return false;
   }
   // Rzz
   if (!parse(this->LatticeParser->match(6), latC[2]))
   {
-    vtkErrorMacro("Error parsing Rzz component '"
-                  << this->LatticeParser->match(6) << "' from line: " << line);
+    vtkErrorMacro(
+      "Error parsing Rzz component '" << this->LatticeParser->match(6) << "' from line: " << line);
     return false;
   }
 
@@ -402,9 +394,8 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   vtkIdType nAtoms;
   if (!parse(this->AtomCountParser->match(1), nAtoms))
   {
-    vtkErrorMacro("Error parsing number atoms '"
-                  << this->AtomCountParser->match(1) << "'' from line: "
-                  << line);
+    vtkErrorMacro("Error parsing number atoms '" << this->AtomCountParser->match(1)
+                                                 << "'' from line: " << line);
     return false;
   }
 
@@ -433,8 +424,10 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   // We'll add positions as we parse them later.
   if (static_cast<size_t>(nAtoms) != atomicNumbers.size())
   {
-    vtkErrorMacro("Error: expected " << nAtoms << " atomic numbers, but only "
-                  "parsed " << atomicNumbers.size());
+    vtkErrorMacro("Error: expected " << nAtoms
+                                     << " atomic numbers, but only "
+                                        "parsed "
+                                     << atomicNumbers.size());
     return false;
   }
   vtkVector3f pos(0.f);
@@ -501,47 +494,48 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
 
     if (!this->AtomParser->find(line))
     {
-      vtkErrorMacro("Error parsing atom position/radius specification: "
-                    << line);
+      vtkErrorMacro("Error parsing atom position/radius specification: " << line);
       return false;
     }
     vtkIdType atomId;
     if (!parse(this->AtomParser->match(1), atomId))
     {
-      vtkErrorMacro("Error parsing atomId '" << this->AtomParser->match(1)
-                    << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing atomId '" << this->AtomParser->match(1) << "' from line: " << line);
       return false;
     }
     if (!parse(this->AtomParser->match(2), pos[0]))
     {
-      vtkErrorMacro("Error parsing x coordinate '" << this->AtomParser->match(2)
-                    << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing x coordinate '" << this->AtomParser->match(2) << "' from line: " << line);
       return false;
     }
     if (!parse(this->AtomParser->match(3), pos[1]))
     {
-      vtkErrorMacro("Error parsing y coordinate '" << this->AtomParser->match(3)
-                    << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing y coordinate '" << this->AtomParser->match(3) << "' from line: " << line);
       return false;
     }
     if (!parse(this->AtomParser->match(4), pos[2]))
     {
-      vtkErrorMacro("Error parsing z coordinate '" << this->AtomParser->match(4)
-                    << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing z coordinate '" << this->AtomParser->match(4) << "' from line: " << line);
       return false;
     }
     float radius;
     if (!parse(this->AtomParser->match(5), radius))
     {
-      vtkErrorMacro("Error parsing radius '" << this->AtomParser->match(5)
-                    << "' from line: " << line);
+      vtkErrorMacro(
+        "Error parsing radius '" << this->AtomParser->match(5) << "' from line: " << line);
       return false;
     }
 
     if (atomId >= nAtoms)
     {
-      vtkErrorMacro("Found entry for atom with id " << atomId << ", but "
-                    "only " << nAtoms << " atoms exist.");
+      vtkErrorMacro("Found entry for atom with id " << atomId
+                                                    << ", but "
+                                                       "only "
+                                                    << nAtoms << " atoms exist.");
       return false;
     }
     vtkAtom atom = molecule->GetAtom(atomId);
@@ -552,14 +546,13 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     pointData.clear();
     if (!std::getline(in, line))
     {
-      vtkErrorMacro("Unexpected EOF while reading voronoi points for atom "
-                    << atomId);
+      vtkErrorMacro("Unexpected EOF while reading voronoi points for atom " << atomId);
       return false;
     }
     if (!parseVariableLists(line, pointData, this->ParenExtract))
     {
-      vtkErrorMacro("Error while parsing voronoi point data for atom "
-                    << atomId << ". Input: " << line);
+      vtkErrorMacro(
+        "Error while parsing voronoi point data for atom " << atomId << ". Input: " << line);
       return false;
     }
 
@@ -567,14 +560,13 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     faceData.clear();
     if (!std::getline(in, line))
     {
-      vtkErrorMacro("Unexpected EOF while reading voronoi faces for atom "
-                    << atomId);
+      vtkErrorMacro("Unexpected EOF while reading voronoi faces for atom " << atomId);
       return false;
     }
     if (!parseVariableLists(line, faceData, this->ParenExtract))
     {
-      vtkErrorMacro("Error while parsing voronoi face data for atom "
-                    << atomId << ". Input: " << line);
+      vtkErrorMacro(
+        "Error while parsing voronoi face data for atom " << atomId << ". Input: " << line);
       return false;
     }
 
@@ -583,12 +575,13 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     uniquePointIds.clear();
     for (size_t i = 0; i < pointData.size(); ++i)
     {
-      const std::vector<double> &p = pointData[i];
+      const std::vector<double>& p = pointData[i];
       if (p.size() != 3)
       {
-        vtkErrorMacro("Error: Tessellation point " << i << " for atom "
-                      << atomId << " has " << p.size() << " components. "
-                      "Expected a 3D coordinate.");
+        vtkErrorMacro("Error: Tessellation point " << i << " for atom " << atomId << " has "
+                                                   << p.size()
+                                                   << " components. "
+                                                      "Expected a 3D coordinate.");
         return false;
       }
       locator->InsertUniquePoint(&p[0], pointIds[i]);
@@ -599,10 +592,10 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     faceStream.clear();
     for (size_t faceId = 0; faceId < faceData.size(); ++faceId)
     {
-      const std::vector<vtkIdType> &face = faceData[faceId];
+      const std::vector<vtkIdType>& face = faceData[faceId];
       faceStream.push_back(static_cast<vtkIdType>(face.size()));
-      for (std::vector<vtkIdType>::const_iterator it = face.begin(),
-           itEnd = face.end(); it != itEnd; ++it)
+      for (std::vector<vtkIdType>::const_iterator it = face.begin(), itEnd = face.end();
+           it != itEnd; ++it)
       {
         // Convert the local point id into the dataset point id:
         vtkIdType datasetId = pointIds[*it];
@@ -615,11 +608,9 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     std::copy(uniquePointIds.begin(), uniquePointIds.end(), pointIds.begin());
 
     // Add cell to tessellation dataset:
-    voronoi->InsertNextCell(VTK_POLYHEDRON,
-                            static_cast<vtkIdType>(pointIds.size()),
-                            pointIds.empty() ? nullptr : &pointIds[0],
-                            static_cast<vtkIdType>(faceData.size()),
-                            faceStream.empty() ? nullptr : &faceStream[0]);
+    voronoi->InsertNextCell(VTK_POLYHEDRON, static_cast<vtkIdType>(pointIds.size()),
+      pointIds.empty() ? nullptr : &pointIds[0], static_cast<vtkIdType>(faceData.size()),
+      faceStream.empty() ? nullptr : &faceStream[0]);
     tessAtomicNumbers->InsertNextValue(atom.GetAtomicNumber());
     tessAtomIds->InsertNextValue(atom.GetId());
   }

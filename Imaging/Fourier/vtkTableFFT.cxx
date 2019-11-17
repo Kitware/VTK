@@ -30,8 +30,7 @@
 #include "vtkTable.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <cstring>
 
@@ -46,18 +45,17 @@ vtkTableFFT::vtkTableFFT() = default;
 
 vtkTableFFT::~vtkTableFFT() = default;
 
-void vtkTableFFT::PrintSelf(ostream &os, vtkIndent indent)
+void vtkTableFFT::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-int vtkTableFFT::RequestData(vtkInformation *vtkNotUsed(request),
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector)
+int vtkTableFFT::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkTable *input = vtkTable::GetData(inputVector[0]);
-  vtkTable *output = vtkTable::GetData(outputVector);
+  vtkTable* input = vtkTable::GetData(inputVector[0]);
+  vtkTable* output = vtkTable::GetData(outputVector);
 
   if (!input || !output)
   {
@@ -68,21 +66,25 @@ int vtkTableFFT::RequestData(vtkInformation *vtkNotUsed(request),
   vtkIdType numColumns = input->GetNumberOfColumns();
   for (vtkIdType col = 0; col < numColumns; col++)
   {
-    this->UpdateProgress((double)col/numColumns);
+    this->UpdateProgress((double)col / numColumns);
 
-    vtkDataArray *array = vtkArrayDownCast<vtkDataArray>(input->GetColumn(col));
-    if (!array) continue;
-    if (array->GetNumberOfComponents() != 1) continue;
+    vtkDataArray* array = vtkArrayDownCast<vtkDataArray>(input->GetColumn(col));
+    if (!array)
+      continue;
+    if (array->GetNumberOfComponents() != 1)
+      continue;
     if (array->GetName())
     {
-      if (SystemTools::Strucmp(array->GetName(),"time") == 0) continue;
+      if (SystemTools::Strucmp(array->GetName(), "time") == 0)
+        continue;
       if (strcmp(array->GetName(), "vtkValidPointMask") == 0)
       {
         output->AddColumn(array);
         continue;
       }
     }
-    if (array->IsA("vtkIdTypeArray")) continue;
+    if (array->IsA("vtkIdTypeArray"))
+      continue;
 
     vtkSmartPointer<vtkDataArray> frequencies = this->DoFFT(array);
     frequencies->SetName(array->GetName());
@@ -93,7 +95,7 @@ int vtkTableFFT::RequestData(vtkInformation *vtkNotUsed(request),
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray *input)
+vtkSmartPointer<vtkDataArray> vtkTableFFT::DoFFT(vtkDataArray* input)
 {
   // Build an image data containing the input data.
   VTK_CREATE(vtkImageData, imgInput);

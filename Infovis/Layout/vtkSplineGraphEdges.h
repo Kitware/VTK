@@ -25,7 +25,7 @@
  * vtkSplineGraphEdges uses a vtkSpline to make edges into nicely sampled
  * splines. By default, the filter will use an optimized b-spline.
  * Otherwise, it will use a custom vtkSpline instance set by the user.
-*/
+ */
 
 #ifndef vtkSplineGraphEdges_h
 #define vtkSplineGraphEdges_h
@@ -39,8 +39,8 @@ class vtkSpline;
 class VTKINFOVISLAYOUT_EXPORT vtkSplineGraphEdges : public vtkGraphAlgorithm
 {
 public:
-  static vtkSplineGraphEdges *New();
-  vtkTypeMacro(vtkSplineGraphEdges,vtkGraphAlgorithm);
+  static vtkSplineGraphEdges* New();
+  vtkTypeMacro(vtkSplineGraphEdges, vtkGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -79,10 +79,7 @@ protected:
   vtkSplineGraphEdges();
   ~vtkSplineGraphEdges() override;
 
-  int RequestData(
-    vtkInformation *,
-    vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMTimeType GetMTime() override;
 

@@ -10,9 +10,10 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkProperty.h"
 
-int vtkImplicitPlaneRepresentationTest1(int , char * [] )
+int vtkImplicitPlaneRepresentationTest1(int, char*[])
 {
-  vtkSmartPointer< vtkImplicitPlaneRepresentation > node1 = vtkSmartPointer< vtkImplicitPlaneRepresentation >::New();
+  vtkSmartPointer<vtkImplicitPlaneRepresentation> node1 =
+    vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
 
   EXERCISE_BASIC_IMPLICIT_PLANE_REPRESENTATION_METHODS(vtkImplicitPlaneRepresentation, node1);
 
@@ -37,7 +38,6 @@ int vtkImplicitPlaneRepresentationTest1(int , char * [] )
   }
 
   node1->UpdatePlacement();
-
 
   vtkSmartPointer<vtkProperty> prop = node1->GetNormalProperty();
   if (prop == nullptr)

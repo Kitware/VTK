@@ -16,7 +16,6 @@
 // This example...
 //
 
-
 #include "vtkDataSetAttributes.h"
 #include "vtkGraphLayoutView.h"
 #include "vtkMutableDirectedGraph.h"

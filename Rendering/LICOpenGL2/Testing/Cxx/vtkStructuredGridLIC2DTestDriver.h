@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef  vtkStructuredGridLIC2DTestDriver_h
-#define  vtkStructuredGridLIC2DTestDriver_h
+#ifndef vtkStructuredGridLIC2DTestDriver_h
+#define vtkStructuredGridLIC2DTestDriver_h
 
 // Description:
 // For demo.

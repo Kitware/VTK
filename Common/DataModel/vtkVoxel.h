@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkConvexPointSet vtkHexahedron vtkPyramid vtkTetra vtkWedge
-*/
+ */
 
 #ifndef vtkVoxel_h
 #define vtkVoxel_h
@@ -38,45 +38,41 @@ class vtkIncrementalPointLocator;
 class VTKCOMMONDATAMODEL_EXPORT vtkVoxel : public vtkCell3D
 {
 public:
-  static vtkVoxel *New();
-  vtkTypeMacro(vtkVoxel,vtkCell3D);
+  static vtkVoxel* New();
+  vtkTypeMacro(vtkVoxel, vtkCell3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int* &pts) override;
-  void GetFacePoints(int faceId, int* &pts) override;
-  double *GetParametricCoords() override;
+  void GetEdgePoints(int edgeId, int*& pts) override;
+  void GetFacePoints(int faceId, int*& pts) override;
+  double* GetParametricCoords() override;
   //@}
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() override {return VTK_VOXEL;}
-  int GetCellDimension() override {return 3;}
-  int GetNumberOfEdges() override {return 12;}
-  int GetNumberOfFaces() override {return 6;}
-  vtkCell *GetEdge(int edgeId) override;
-  vtkCell *GetFace(int faceId) override;
-  int CellBoundary(int subId, const double pcoords[3], vtkIdList *pts) override;
-  void Contour(double value, vtkDataArray *cellScalars,
-               vtkIncrementalPointLocator *locator, vtkCellArray *verts,
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
-  int EvaluatePosition(const double x[3], double closestPoint[3],
-                       int& subId, double pcoords[3],
-                       double& dist2, double weights[]) override;
-  void EvaluateLocation(int& subId, const double pcoords[3], double x[3],
-                        double *weights) override;
-  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) override;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
-  void Derivatives(int subId, const double pcoords[3], const double *values,
-                   int dim, double *derivs) override;
+  int GetCellType() override { return VTK_VOXEL; }
+  int GetCellDimension() override { return 3; }
+  int GetNumberOfEdges() override { return 12; }
+  int GetNumberOfFaces() override { return 6; }
+  vtkCell* GetEdge(int edgeId) override;
+  vtkCell* GetFace(int faceId) override;
+  int CellBoundary(int subId, const double pcoords[3], vtkIdList* pts) override;
+  void Contour(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
+    vtkCellArray* verts, vtkCellArray* lines, vtkCellArray* polys, vtkPointData* inPd,
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd) override;
+  int EvaluatePosition(const double x[3], double closestPoint[3], int& subId, double pcoords[3],
+    double& dist2, double weights[]) override;
+  void EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights) override;
+  int IntersectWithLine(const double p1[3], const double p2[3], double tol, double& t, double x[3],
+    double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts) override;
+  void Derivatives(
+    int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   //@}
 
   /**
@@ -90,11 +86,11 @@ public:
    */
   void InterpolateFunctions(const double pcoords[3], double weights[8]) override
   {
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
+    vtkVoxel::InterpolationFunctions(pcoords, weights);
   }
   void InterpolateDerivs(const double pcoords[3], double derivs[24]) override
   {
-    vtkVoxel::InterpolationDerivs(pcoords,derivs);
+    vtkVoxel::InterpolationDerivs(pcoords, derivs);
   }
   //@}
 
@@ -119,8 +115,8 @@ public:
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int *GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
-  static int *GetFaceArray(int faceId) VTK_SIZEHINT(4);
+  static int* GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
+  static int* GetFaceArray(int faceId) VTK_SIZEHINT(4);
   //@}
 
 protected:
@@ -131,8 +127,8 @@ private:
   vtkVoxel(const vtkVoxel&) = delete;
   void operator=(const vtkVoxel&) = delete;
 
-  vtkLine *Line;
-  vtkPixel *Pixel;
+  vtkLine* Line;
+  vtkPixel* Pixel;
 };
 
 #endif

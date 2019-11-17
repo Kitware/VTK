@@ -43,28 +43,26 @@
 class vtkCenteredSlider2DCallback : public vtkCommand
 {
 public:
-  static vtkCenteredSlider2DCallback *New()
-  { return new vtkCenteredSlider2DCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) override
+  static vtkCenteredSlider2DCallback* New() { return new vtkCenteredSlider2DCallback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    vtkCenteredSliderWidget *sliderWidget =
-      reinterpret_cast<vtkCenteredSliderWidget*>(caller);
+    vtkCenteredSliderWidget* sliderWidget = reinterpret_cast<vtkCenteredSliderWidget*>(caller);
     double widgetValue = sliderWidget->GetValue();
-    this->Glyph->SetScaleFactor(this->Glyph->GetScaleFactor()*widgetValue);
+    this->Glyph->SetScaleFactor(this->Glyph->GetScaleFactor() * widgetValue);
   }
-  vtkCenteredSlider2DCallback():Glyph(nullptr) {}
-  vtkGlyph3D *Glyph;
+  vtkCenteredSlider2DCallback()
+    : Glyph(nullptr)
+  {
+  }
+  vtkGlyph3D* Glyph;
 };
 
-int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create a mace out of filters.
-  vtkSmartPointer<vtkSphereSource> sphereSource =
-    vtkSmartPointer<vtkSphereSource>::New();
-  vtkSmartPointer<vtkConeSource> cone =
-    vtkSmartPointer<vtkConeSource>::New();
-  vtkSmartPointer<vtkGlyph3D> glyph =
-    vtkSmartPointer<vtkGlyph3D>::New();
+  vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
+  vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
+  vtkSmartPointer<vtkGlyph3D> glyph = vtkSmartPointer<vtkGlyph3D>::New();
   glyph->SetInputConnection(sphereSource->GetOutputPort());
   glyph->SetSourceConnection(cone->GetOutputPort());
   glyph->SetVectorModeToUseNormal();
@@ -73,26 +71,21 @@ int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   // The sphere and spikes are appended into a single polydata.
   // This just makes things simpler to manage.
-  vtkSmartPointer<vtkAppendPolyData> apd =
-    vtkSmartPointer<vtkAppendPolyData>::New();
+  vtkSmartPointer<vtkAppendPolyData> apd = vtkSmartPointer<vtkAppendPolyData>::New();
   apd->AddInputConnection(glyph->GetOutputPort());
   apd->AddInputConnection(sphereSource->GetOutputPort());
 
-  vtkSmartPointer<vtkPolyDataMapper> maceMapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
+  vtkSmartPointer<vtkPolyDataMapper> maceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   maceMapper->SetInputConnection(apd->GetOutputPort());
 
-  vtkSmartPointer<vtkLODActor> maceActor =
-    vtkSmartPointer<vtkLODActor>::New();
+  vtkSmartPointer<vtkLODActor> maceActor = vtkSmartPointer<vtkLODActor>::New();
   maceActor->SetMapper(maceMapper);
   maceActor->VisibilityOn();
-  maceActor->SetPosition(1,1,1);
+  maceActor->SetPosition(1, 1, 1);
 
   // Create the RenderWindow, Renderer and both Actors
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer(ren1);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -109,9 +102,9 @@ int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   sliderRep->SetValue(1.0);
   sliderRep->SetTitleText("Spike Size");
   sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToNormalizedDisplay();
-  sliderRep->GetPoint1Coordinate()->SetValue(0.2,0.1);
+  sliderRep->GetPoint1Coordinate()->SetValue(0.2, 0.1);
   sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToNormalizedDisplay();
-  sliderRep->GetPoint2Coordinate()->SetValue(0.8,0.1);
+  sliderRep->GetPoint2Coordinate()->SetValue(0.8, 0.1);
   sliderRep->SetSliderLength(0.02);
   sliderRep->SetSliderWidth(0.03);
   sliderRep->SetEndCapLength(0.03);
@@ -126,7 +119,7 @@ int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkCenteredSlider2DCallback> callback =
     vtkSmartPointer<vtkCenteredSlider2DCallback>::New();
   callback->Glyph = glyph;
-  sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
+  sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
   ren1->AddActor(maceActor);
 
@@ -139,14 +132,14 @@ int TestCenteredSliderWidget2D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
   recorder->SetInteractor(iren);
   recorder->SetFileName("c:/record.log");
-//  recorder->Record();
-//  recorder->ReadFromInputStringOn();
-//  recorder->SetInputString(eventLog);
+  //  recorder->Record();
+  //  recorder->ReadFromInputStringOn();
+  //  recorder->SetInputString(eventLog);
 
   // render the image
   iren->Initialize();
   renWin->Render();
-//  recorder->Play();
+  //  recorder->Play();
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.

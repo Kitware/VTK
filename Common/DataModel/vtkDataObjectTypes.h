@@ -22,7 +22,7 @@
  * to be updated every time a new data type is added to VTK.
  * @sa
  * vtkDataObject
-*/
+ */
 
 #ifndef vtkDataObjectTypes_h
 #define vtkDataObjectTypes_h
@@ -35,9 +35,9 @@ class vtkDataObject;
 class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectTypes : public vtkObject
 {
 public:
-  static vtkDataObjectTypes *New();
+  static vtkDataObjectTypes* New();
 
-  vtkTypeMacro(vtkDataObjectTypes,vtkObject);
+  vtkTypeMacro(vtkDataObjectTypes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -77,4 +77,3 @@ private:
 };
 
 #endif
-

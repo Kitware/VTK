@@ -23,7 +23,7 @@
 #include "vtkNew.h" // For.... vtkNew!
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkSmartPointer.h" // For.... vtkSmartPointer!
+#include "vtkSmartPointer.h"        // For.... vtkSmartPointer!
 
 class vtkActor;
 class vtkImageData;
@@ -34,18 +34,18 @@ class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTexture;
 
-class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D: public vtkProp3D
+class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D : public vtkProp3D
 {
 public:
   static vtkBillboardTextActor3D* New();
   vtkTypeMacro(vtkBillboardTextActor3D, vtkProp3D);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The UTF-8 encoded string to display.
    * @{
    */
-  void SetInput(const char *in);
+  void SetInput(const char* in);
   vtkGetStringMacro(Input);
   /** @} */
 
@@ -62,7 +62,7 @@ public:
    * The vtkTextProperty object that controls the rendered text.
    * @{
    */
-  void SetTextProperty(vtkTextProperty *tprop);
+  void SetTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(TextProperty, vtkTextProperty);
   /** @} */
 
@@ -88,16 +88,16 @@ public:
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
-  int RenderOpaqueGeometry(vtkViewport *vp) override;
+  int RenderOpaqueGeometry(vtkViewport* vp) override;
 
   /**
    * Just render in translucent pass, since it can execute multiple times
    * (depth peeling, for instance).
    */
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* vp) override;
 
-  void ReleaseGraphicsResources(vtkWindow *win) override;
-  double *GetBounds() override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
+  double* GetBounds() override;
   using Superclass::GetBounds;
 
   /**
@@ -112,13 +112,13 @@ protected:
 
   bool InputIsValid();
 
-  void UpdateInternals(vtkRenderer *ren);
+  void UpdateInternals(vtkRenderer* ren);
 
-  bool TextureIsStale(vtkRenderer *ren);
-  void GenerateTexture(vtkRenderer *ren);
+  bool TextureIsStale(vtkRenderer* ren);
+  void GenerateTexture(vtkRenderer* ren);
 
-  bool QuadIsStale(vtkRenderer *ren);
-  void GenerateQuad(vtkRenderer *ren);
+  bool QuadIsStale(vtkRenderer* ren);
+  void GenerateQuad(vtkRenderer* ren);
 
   // Used by the opaque pass to tell the translucent pass not to render.
   void Invalidate();
@@ -128,8 +128,8 @@ protected:
   void PreRender();
 
   // Text specification:
-  char *Input;
-  vtkTextProperty *TextProperty;
+  char* Input;
+  vtkTextProperty* TextProperty;
 
   // Offset in display coordinates.
   int DisplayOffset[2];

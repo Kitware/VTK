@@ -16,10 +16,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkTextSource.h>
 
-int TestTextSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestTextSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkTextSource> textSource
-    = vtkSmartPointer<vtkTextSource>::New();
+  vtkSmartPointer<vtkTextSource> textSource = vtkSmartPointer<vtkTextSource>::New();
   textSource->SetBackgroundColor(0.0, 0.0, 0.0);
   textSource->SetForegroundColor(1.0, 1.0, 1.0);
   textSource->BackingOn();
@@ -32,7 +31,7 @@ int TestTextSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = textSource->GetOutput();
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_FLOAT)
+  if (points->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
@@ -45,7 +44,7 @@ int TestTextSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = textSource->GetOutput();
   points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_DOUBLE)
+  if (points->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

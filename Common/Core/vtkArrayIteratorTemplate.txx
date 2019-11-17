@@ -117,7 +117,7 @@ template <class T>
 void vtkArrayIteratorTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Array: " ;
+  os << indent << "Array: ";
   if (this->Array)
   {
     os << "\n";
@@ -125,9 +125,9 @@ void vtkArrayIteratorTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "(none)" << "\n";
+    os << "(none)"
+       << "\n";
   }
 }
 
 #endif
-

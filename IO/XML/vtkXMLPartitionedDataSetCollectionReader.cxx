@@ -28,14 +28,10 @@
 vtkStandardNewMacro(vtkXMLPartitionedDataSetCollectionReader);
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetCollectionReader::vtkXMLPartitionedDataSetCollectionReader()
-{
-}
+vtkXMLPartitionedDataSetCollectionReader::vtkXMLPartitionedDataSetCollectionReader() {}
 
 //----------------------------------------------------------------------------
-vtkXMLPartitionedDataSetCollectionReader::~vtkXMLPartitionedDataSetCollectionReader()
-{
-}
+vtkXMLPartitionedDataSetCollectionReader::~vtkXMLPartitionedDataSetCollectionReader() {}
 
 //----------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetCollectionReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -59,8 +55,7 @@ const char* vtkXMLPartitionedDataSetCollectionReader::GetDataSetName()
 
 //----------------------------------------------------------------------------
 void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* element,
-  vtkCompositeDataSet* composite, const char* filePath,
-  unsigned int &dataSetIndex)
+  vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {
   vtkPartitionedDataSetCollection* col = vtkPartitionedDataSetCollection::SafeDownCast(composite);
   vtkPartitionedDataSet* ds = vtkPartitionedDataSet::SafeDownCast(composite);
@@ -71,7 +66,7 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
   }
 
   unsigned int maxElems = element->GetNumberOfNestedElements();
-  for (unsigned int cc=0; cc < maxElems; ++cc)
+  for (unsigned int cc = 0; cc < maxElems; ++cc)
   {
     vtkXMLDataElement* childXML = element->GetNestedElement(cc);
     if (!childXML || !childXML->GetName())
@@ -107,8 +102,7 @@ void vtkXMLPartitionedDataSetCollectionReader::ReadComposite(vtkXMLDataElement* 
       ds->SetPartition(index, childDS);
       dataSetIndex++;
     }
-    else if (col != nullptr
-             && strcmp(tagName, "Partitions") == 0)
+    else if (col != nullptr && strcmp(tagName, "Partitions") == 0)
     {
       vtkPartitionedDataSet* childDS = vtkPartitionedDataSet::New();
       this->ReadComposite(childXML, childDS, filePath, dataSetIndex);

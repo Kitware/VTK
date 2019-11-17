@@ -53,8 +53,9 @@ struct Conditions
   bool testInverseTransform;
 };
 
-static void SetTransform(vtkTransform* transform, int dimensionality, double rotX, double rotY, double rotZ,
-  double scaleX, double scaleY, double scaleZ, double transX, double transY, double transZ)
+static void SetTransform(vtkTransform* transform, int dimensionality, double rotX, double rotY,
+  double rotZ, double scaleX, double scaleY, double scaleZ, double transX, double transY,
+  double transZ)
 {
   transform->Translate(transX, transY, transZ);
   transform->RotateX(rotX);
@@ -63,12 +64,17 @@ static void SetTransform(vtkTransform* transform, int dimensionality, double rot
   transform->Scale(scaleX, scaleY, scaleZ);
   switch (dimensionality)
   {
-    case 0: transform->Scale(0.0, 0.0, 0.0); break;
-    case 1: transform->Scale(1.0, 0.0, 0.0); break;
-    case 2: transform->Scale(1.0, 1.0, 0.0); break;
+    case 0:
+      transform->Scale(0.0, 0.0, 0.0);
+      break;
+    case 1:
+      transform->Scale(1.0, 0.0, 0.0);
+      break;
+    case 2:
+      transform->Scale(1.0, 1.0, 0.0);
+      break;
   }
 }
-
 
 static int TestTransform(Conditions c)
 {
@@ -123,32 +129,33 @@ static int TestTransform(Conditions c)
   };
 
   // There can be some inaccuracies in forward computation when all points are coplanar.
-  const double forwardErrorTolerance = (c.sourceDimensionality == 3 && c.targetDimensionality == 3 ? 0.0 : 0.001);
+  const double forwardErrorTolerance =
+    (c.sourceDimensionality == 3 && c.targetDimensionality == 3 ? 0.0 : 0.001);
   // There can always be some inaccuracies in inverse computation.
   const double inverseErrorTolerance = 0.001;
 
   vtkNew<vtkTransform> sourceTransform;
   SetTransform(sourceTransform, c.sourceDimensionality, c.sourceRotX, c.sourceRotY, c.sourceRotZ,
-    c.sourceScaleX, c.sourceScaleY, c.sourceScaleZ,
-    c.sourceTransX, c.sourceTransY, c.sourceTransZ);
+    c.sourceScaleX, c.sourceScaleY, c.sourceScaleZ, c.sourceTransX, c.sourceTransY, c.sourceTransZ);
 
   // generate the transform we want to recover
   vtkNew<vtkTransform> targetTransform;
   SetTransform(targetTransform, c.targetDimensionality, c.targetRotX, c.targetRotY, c.targetRotZ,
-    c.targetScaleX, c.targetScaleY, c.targetScaleZ,
-    c.targetTransX, c.targetTransY, c.targetTransZ);
+    c.targetScaleX, c.targetScaleY, c.targetScaleZ, c.targetTransX, c.targetTransY, c.targetTransZ);
 
   // create the two point sets
   vtkNew<vtkPoints> sourcePoints;
   vtkNew<vtkPoints> targetPoints;
-  double psigma = c.noiseSigma/sqrt(3.0);
+  double psigma = c.noiseSigma / sqrt(3.0);
   for (int i = 0; i < npoints; i++)
   {
-    double sourcePoint[3] = { landmarkPointCoords[i][0], landmarkPointCoords[i][1], landmarkPointCoords[i][2] };
+    double sourcePoint[3] = { landmarkPointCoords[i][0], landmarkPointCoords[i][1],
+      landmarkPointCoords[i][2] };
     sourceTransform->TransformPoint(sourcePoint, sourcePoint);
     sourcePoints->InsertNextPoint(sourcePoint);
 
-    double targetPoint[3] = { landmarkPointCoords[i][0], landmarkPointCoords[i][1], landmarkPointCoords[i][2] };
+    double targetPoint[3] = { landmarkPointCoords[i][0], landmarkPointCoords[i][1],
+      landmarkPointCoords[i][2] };
     targetTransform->TransformPoint(targetPoint, targetPoint);
     targetPoint[0] += psigma * landmarkPointNoise[i][0];
     targetPoint[1] += psigma * landmarkPointNoise[i][1];
@@ -187,7 +194,7 @@ static int TestTransform(Conditions c)
     {
       errorCode = 1;
       errstream << "Forward transform average error is too high: "
-        << "r = " << r << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
+                << "r = " << r << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
     }
 
     // we expect the max error to be around 2 noiseSigma
@@ -196,7 +203,7 @@ static int TestTransform(Conditions c)
     {
       errorCode = 1;
       errstream << "Forward transform maximum error is too high: "
-        << "e = " << e << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
+                << "e = " << e << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
     }
   }
 
@@ -226,7 +233,7 @@ static int TestTransform(Conditions c)
     {
       errorCode = 1;
       errstream << "Inverse transform average error is too high: "
-        << "r = " << r << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
+                << "r = " << r << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
     }
 
     // we expect the max error to be around 2 noiseSigma
@@ -235,22 +242,28 @@ static int TestTransform(Conditions c)
     {
       errorCode = 1;
       errstream << "Inverse transform maximum error is too high: "
-        << "e = " << e << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
+                << "e = " << e << " vs. noiseSigma " << c.noiseSigma << ". " << std::endl;
     }
-
   }
 
   if (errorCode != 0)
   {
-    std::cerr << "Error for test case with " << npoints << " points, regularizeBulkTransform = " << c.regularizeBulkTransform << std::endl
+    std::cerr << "Error for test case with " << npoints
+              << " points, regularizeBulkTransform = " << c.regularizeBulkTransform << std::endl
               << "  Source: dimensionality = " << c.sourceDimensionality << std::endl
-              << "         rotation = " << c.sourceRotX << " " << c.sourceRotY << " " << c.sourceRotZ << std::endl
-              << "            scale = " << c.sourceScaleX << " " << c.sourceScaleY << " " << c.sourceScaleZ << std::endl
-              << "      translation = " << c.sourceTransX << " " << c.sourceTransY << " " << c.sourceTransZ << std::endl
+              << "         rotation = " << c.sourceRotX << " " << c.sourceRotY << " "
+              << c.sourceRotZ << std::endl
+              << "            scale = " << c.sourceScaleX << " " << c.sourceScaleY << " "
+              << c.sourceScaleZ << std::endl
+              << "      translation = " << c.sourceTransX << " " << c.sourceTransY << " "
+              << c.sourceTransZ << std::endl
               << "  Target: dimensionality = " << c.targetDimensionality << std::endl
-              << "         rotation = " << c.targetRotX << " " << c.targetRotY << " " << c.targetRotZ << std::endl
-              << "            scale = " << c.targetScaleX << " " << c.targetScaleY << " " << c.targetScaleZ << std::endl
-              << "      translation = " << c.targetTransX << " " << c.targetTransY << " " << c.targetTransZ << std::endl
+              << "         rotation = " << c.targetRotX << " " << c.targetRotY << " "
+              << c.targetRotZ << std::endl
+              << "            scale = " << c.targetScaleX << " " << c.targetScaleY << " "
+              << c.targetScaleZ << std::endl
+              << "      translation = " << c.targetTransX << " " << c.targetTransY << " "
+              << c.targetTransZ << std::endl
               << "       noiseSigma = " << c.noiseSigma << std::endl
               << "Details:" << std::endl
               << errstream.str() << std::endl;
@@ -268,7 +281,7 @@ static int TestTransform(Conditions c)
 // Also, the registration should give sensible results even if there are
 // only 1, 2, 3 or even no input points.
 
-int TestThinPlateSplineTransform(int,char *[])
+int TestThinPlateSplineTransform(int, char*[])
 {
   Conditions condition;
   condition.regularizeBulkTransform = true;
@@ -338,7 +351,8 @@ int TestThinPlateSplineTransform(int,char *[])
               }
               // Test with various source rotations
               // Test when points are rotated exactly by 90deg.
-              // These can cause singularities in the bulk transformation matrix therefore must be tested carefully.
+              // These can cause singularities in the bulk transformation matrix therefore must be
+              // tested carefully.
               for (int sourceRotated = 0; sourceRotated < 5; sourceRotated++)
               {
                 if (sourceRotated == 0)
@@ -416,16 +430,12 @@ int TestThinPlateSplineTransform(int,char *[])
                     // Points are coplanar, there are some limitations of what transforms are tested
                     if (condition.regularizeBulkTransform)
                     {
-                      // If regularization is enabled then both forward and inverse transforms are computed
-                      // but only if all points are in XY plane.
-                      bool allPointsInXYPlane =
-                        condition.sourceDimensionality == 2
-                        && condition.targetDimensionality == 2
-                        && sourceRotated == 0
-                        && targetRotated == 0
-                        && sourceTranslated == 0
-                        && targetTranslated == 0
-                        && noise == 0;
+                      // If regularization is enabled then both forward and inverse transforms are
+                      // computed but only if all points are in XY plane.
+                      bool allPointsInXYPlane = condition.sourceDimensionality == 2 &&
+                        condition.targetDimensionality == 2 && sourceRotated == 0 &&
+                        targetRotated == 0 && sourceTranslated == 0 && targetTranslated == 0 &&
+                        noise == 0;
                       condition.testForwardTransform = allPointsInXYPlane;
                       condition.testInverseTransform = allPointsInXYPlane;
                     }
@@ -453,10 +463,10 @@ int TestThinPlateSplineTransform(int,char *[])
   }
 
   if (numberOfErrors > 0)
-    {
+  {
     std::cerr << std::endl << "Number of errors: " << numberOfErrors << std::endl;
     return 1;
-    }
+  }
 
   return 0;
 }

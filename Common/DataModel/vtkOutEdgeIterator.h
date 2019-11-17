@@ -30,7 +30,7 @@
  *
  * @sa
  * vtkGraph vtkInEdgeIterator
-*/
+ */
 
 #ifndef vtkOutEdgeIterator_h
 #define vtkOutEdgeIterator_h
@@ -45,14 +45,14 @@ class vtkGraphEdge;
 class VTKCOMMONDATAMODEL_EXPORT vtkOutEdgeIterator : public vtkObject
 {
 public:
-  static vtkOutEdgeIterator *New();
+  static vtkOutEdgeIterator* New();
   vtkTypeMacro(vtkOutEdgeIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the iterator with a graph and vertex.
    */
-  void Initialize(vtkGraph *g, vtkIdType v);
+  void Initialize(vtkGraph* g, vtkIdType v);
 
   //@{
   /**
@@ -81,15 +81,12 @@ public:
    * The graph edge is owned by this iterator, and changes
    * after each call to NextGraphEdge().
    */
-  vtkGraphEdge *NextGraphEdge();
+  vtkGraphEdge* NextGraphEdge();
 
   /**
    * Whether this iterator has more edges.
    */
-  bool HasNext()
-  {
-    return this->Current != this->End;
-  }
+  bool HasNext() { return this->Current != this->End; }
 
 protected:
   vtkOutEdgeIterator();
@@ -99,13 +96,13 @@ protected:
    * Protected method for setting the graph used
    * by Initialize().
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
-  vtkGraph            *Graph;
-  const vtkOutEdgeType *Current;
-  const vtkOutEdgeType *End;
-  vtkIdType             Vertex;
-  vtkGraphEdge        *GraphEdge;
+  vtkGraph* Graph;
+  const vtkOutEdgeType* Current;
+  const vtkOutEdgeType* End;
+  vtkIdType Vertex;
+  vtkGraphEdge* GraphEdge;
 
 private:
   vtkOutEdgeIterator(const vtkOutEdgeIterator&) = delete;

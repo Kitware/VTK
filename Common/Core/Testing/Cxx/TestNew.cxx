@@ -25,7 +25,7 @@
 
 #include "vtkTestNewVar.h"
 
-int TestNew(int,char *[])
+int TestNew(int, char*[])
 {
   bool error = false;
   // This one should be cleaned up when the main function ends.
@@ -33,8 +33,7 @@ int TestNew(int,char *[])
   if (a->GetReferenceCount() != 1)
   {
     error = true;
-    cerr << "Error, reference count should be 1, was " << a->GetReferenceCount()
-         << endl;
+    cerr << "Error, reference count should be 1, was " << a->GetReferenceCount() << endl;
   }
   cout << "vtkNew streaming " << a << endl;
 
@@ -48,8 +47,7 @@ int TestNew(int,char *[])
   if (wf != nullptr)
   {
     error = true;
-    cerr << "Error, vtkNew failed to delete the object it contained."
-         << endl;
+    cerr << "Error, vtkNew failed to delete the object it contained." << endl;
   }
   // Test implicit conversion vtkNew::operator T* () const
   if (wf == nullptr)
@@ -80,15 +78,14 @@ int TestNew(int,char *[])
   }
 
   // Test raw object reference
-  vtkObject &p = *si;
+  vtkObject& p = *si;
   if (p.GetReferenceCount() != 1)
   {
     error = true;
     cerr << "Error, vtkNew failed to keep the object it contained, "
-      << "or setting a raw reference incremented it. Reference count: "
-      << p.GetReferenceCount() << endl;
+         << "or setting a raw reference incremented it. Reference count: " << p.GetReferenceCount()
+         << endl;
   }
-
 
   vtkNew<vtkTestNewVar> newVarObj;
   if (newVarObj->GetPointsRefCount() != 1)

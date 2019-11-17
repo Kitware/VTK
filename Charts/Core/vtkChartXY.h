@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkBarChartActor
-*/
+ */
 
 #ifndef vtkChartXY_h
 #define vtkChartXY_h
@@ -197,8 +197,8 @@ public:
   void SetSelectionMethod(int method) override;
 
   /**
-  * Remove all the selection from Plots
-  */
+   * Remove all the selection from Plots
+   */
   void RemovePlotSelections();
 
   //@{
@@ -276,10 +276,10 @@ public:
 
   //@{
   /**
-  * Set if the point can be dragged along X
-  * by the ClickAndDrag Action
-  * True by default.
-  */
+   * Set if the point can be dragged along X
+   * by the ClickAndDrag Action
+   * True by default.
+   */
   vtkSetMacro(DragPointAlongX, bool);
   vtkGetMacro(DragPointAlongX, bool);
   vtkBooleanMacro(DragPointAlongX, bool);
@@ -287,10 +287,10 @@ public:
 
   //@{
   /**
-  * Set if the point can be dragged along Y
-  * by the ClickAndDrag Action
-  * True by default.
-  */
+   * Set if the point can be dragged along Y
+   * by the ClickAndDrag Action
+   * True by default.
+   */
   vtkSetMacro(DragPointAlongY, bool);
   vtkGetMacro(DragPointAlongY, bool);
   vtkBooleanMacro(DragPointAlongY, bool);
@@ -346,8 +346,7 @@ public:
    * Populate the annotation link with the supplied selectionIds array, and set
    * the appropriate node properties for a standard row based chart selection.
    */
-  static void MakeSelection(vtkAnnotationLink* link,
-                            vtkIdTypeArray* selectionIds, vtkPlot* plot);
+  static void MakeSelection(vtkAnnotationLink* link, vtkIdTypeArray* selectionIds, vtkPlot* plot);
 
   /**
    * Subtract the supplied selection from the oldSelection.
@@ -497,8 +496,8 @@ protected:
   bool AdjustLowerBoundForLogPlot;
 
   /**
-  * Properties to enable the drag of a point for the ClickAndDrag Action
-  */
+   * Properties to enable the drag of a point for the ClickAndDrag Action
+   */
   bool DragPointAlongX;
   bool DragPointAlongY;
 
@@ -537,9 +536,9 @@ private:
   void ZoomInAxes(vtkAxis* x, vtkAxis* y, float* orign, float* max);
 
   /**
-  * Remove all the selection from Plots.
-  * The method does not call InvokeEvent(vtkCommand::SelectionChangedEvent)
-  */
+   * Remove all the selection from Plots.
+   * The method does not call InvokeEvent(vtkCommand::SelectionChangedEvent)
+   */
   void ReleasePlotSelections();
 
   /**

@@ -32,10 +32,9 @@ vtkOpenGLHelper::~vtkOpenGLHelper()
   this->VAO->Delete();
 }
 
-void vtkOpenGLHelper::ReleaseGraphicsResources(vtkWindow * win)
+void vtkOpenGLHelper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  vtkOpenGLRenderWindow *rwin =
-   vtkOpenGLRenderWindow::SafeDownCast(win);
+  vtkOpenGLRenderWindow* rwin = vtkOpenGLRenderWindow::SafeDownCast(win);
   if (rwin)
   {
     // Ensure that the context is current before releasing any

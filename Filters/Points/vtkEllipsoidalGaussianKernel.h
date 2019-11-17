@@ -42,7 +42,7 @@
  * @sa
  * vtkPointInterpolator vtkInterpolationKernel vtkGeneralizedKernel
  * vtkGaussianKernel vtkVoronoiKernel vtkSPHKernel vtkShepardKernel
-*/
+ */
 
 #ifndef vtkEllipsoidalGaussianKernel_h
 #define vtkEllipsoidalGaussianKernel_h
@@ -55,7 +55,6 @@ class vtkIdList;
 class vtkDataArray;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkEllipsoidalGaussianKernel : public vtkGeneralizedKernel
 {
 public:
@@ -63,8 +62,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkEllipsoidalGaussianKernel *New();
-  vtkTypeMacro(vtkEllipsoidalGaussianKernel,vtkGeneralizedKernel);
+  static vtkEllipsoidalGaussianKernel* New();
+  vtkTypeMacro(vtkEllipsoidalGaussianKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -72,8 +71,7 @@ public:
    * Initialize the kernel. Overload the superclass to set up scalars and
    * vectors.
    */
-  void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) override;
+  void Initialize(vtkAbstractPointLocator* loc, vtkDataSet* ds, vtkPointData* pd) override;
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -92,17 +90,17 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
   //@{
   /**
    * Specify whether vector values should be used to affect the shape
    * of the Gaussian distribution. By default this is on.
    */
-  vtkSetMacro(UseNormals,bool);
-  vtkGetMacro(UseNormals,bool);
-  vtkBooleanMacro(UseNormals,bool);
+  vtkSetMacro(UseNormals, bool);
+  vtkGetMacro(UseNormals, bool);
+  vtkBooleanMacro(UseNormals, bool);
   //@}
 
   //@{
@@ -112,8 +110,8 @@ public:
    * vtkPointInterpolator). If no input normals are available, then the named
    * NormalsArrayName is used.
    */
-  vtkSetMacro(NormalsArrayName,vtkStdString);
-  vtkGetMacro(NormalsArrayName,vtkStdString);
+  vtkSetMacro(NormalsArrayName, vtkStdString);
+  vtkGetMacro(NormalsArrayName, vtkStdString);
   //@}
 
   //@{
@@ -121,9 +119,9 @@ public:
    * Specify whether scalar values should be used to scale the weights.
    * By default this is off.
    */
-  vtkSetMacro(UseScalars,bool);
-  vtkGetMacro(UseScalars,bool);
-  vtkBooleanMacro(UseScalars,bool);
+  vtkSetMacro(UseScalars, bool);
+  vtkGetMacro(UseScalars, bool);
+  vtkBooleanMacro(UseScalars, bool);
   //@}
 
   //@{
@@ -133,8 +131,8 @@ public:
    * vtkPointInterpolator). If no input scalars are available, then the named
    * ScalarsArrayName is used.
    */
-  vtkSetMacro(ScalarsArrayName,vtkStdString);
-  vtkGetMacro(ScalarsArrayName,vtkStdString);
+  vtkSetMacro(ScalarsArrayName, vtkStdString);
+  vtkGetMacro(ScalarsArrayName, vtkStdString);
   //@}
 
   //@{
@@ -143,8 +141,8 @@ public:
    * on and a scalar array is provided, then the scalar value will be
    * multiplied by the ScaleFactor times the Gaussian function.
    */
-  vtkSetClampMacro(ScaleFactor,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(ScaleFactor,double);
+  vtkSetClampMacro(ScaleFactor, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(ScaleFactor, double);
   //@}
 
   //@{
@@ -153,8 +151,8 @@ public:
    * Sharpness=2. As the sharpness increases the effects of distant points
    * are reduced.
    */
-  vtkSetClampMacro(Sharpness,double,1,VTK_FLOAT_MAX);
-  vtkGetMacro(Sharpness,double);
+  vtkSetClampMacro(Sharpness, double, 1, VTK_FLOAT_MAX);
+  vtkGetMacro(Sharpness, double);
   //@}
 
   //@{
@@ -164,8 +162,8 @@ public:
    * distribution (in the direction of the normal); values > 1 produce a
    * pancake like distribution (orthogonal to the normal).
    */
-  vtkSetClampMacro(Eccentricity,double,0.000001,VTK_FLOAT_MAX);
-  vtkGetMacro(Eccentricity,double);
+  vtkSetClampMacro(Eccentricity, double, 0.000001, VTK_FLOAT_MAX);
+  vtkGetMacro(Eccentricity, double);
   //@}
 
 protected:
@@ -184,8 +182,8 @@ protected:
 
   // Internal structure to reduce computation
   double F2, E2;
-  vtkDataArray *NormalsArray;
-  vtkDataArray *ScalarsArray;
+  vtkDataArray* NormalsArray;
+  vtkDataArray* ScalarsArray;
 
   void FreeStructures() override;
 

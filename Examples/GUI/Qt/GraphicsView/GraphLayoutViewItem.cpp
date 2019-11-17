@@ -75,9 +75,6 @@ GraphLayoutViewItem::GraphLayoutViewItem(QGLContext* ctx, QGraphicsItem* p)
   GraphLayoutView->SetHideEdgeLabelsOnInteraction(1);
 
   GraphLayoutView->ResetCamera();
-
 }
 
-GraphLayoutViewItem::~GraphLayoutViewItem()
-{
-}
+GraphLayoutViewItem::~GraphLayoutViewItem() {}

@@ -40,7 +40,7 @@
  * @sa
  * vtkInteractorStyle vtkInteractorStyleTrackballActor
  * vtkInteractorStyleJoystickCamera vtkInteractorStyleJoystickActor
-*/
+ */
 
 #ifndef vtkParallelCoordinatesInteractorStyle_h
 #define vtkParallelCoordinatesInteractorStyle_h
@@ -50,15 +50,17 @@
 
 class vtkViewport;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkParallelCoordinatesInteractorStyle : public vtkInteractorStyleTrackballCamera
+class VTKINTERACTIONSTYLE_EXPORT vtkParallelCoordinatesInteractorStyle
+  : public vtkInteractorStyleTrackballCamera
 {
 public:
-  static vtkParallelCoordinatesInteractorStyle *New();
+  static vtkParallelCoordinatesInteractorStyle* New();
   vtkTypeMacro(vtkParallelCoordinatesInteractorStyle, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum {
-    INTERACT_HOVER=0,
+  enum
+  {
+    INTERACT_HOVER = 0,
     INTERACT_INSPECT,
     INTERACT_ZOOM,
     INTERACT_PAN
@@ -68,18 +70,18 @@ public:
   /**
    * Get the cursor positions in pixel coords
    */
-  vtkGetVector2Macro(CursorStartPosition,int);
-  vtkGetVector2Macro(CursorCurrentPosition,int);
-  vtkGetVector2Macro(CursorLastPosition,int);
+  vtkGetVector2Macro(CursorStartPosition, int);
+  vtkGetVector2Macro(CursorCurrentPosition, int);
+  vtkGetVector2Macro(CursorLastPosition, int);
   //@}
 
   //@{
   /**
    * Get the cursor positions in a given coordinate system
    */
-  void GetCursorStartPosition(vtkViewport *viewport, double pos[2]);
-  void GetCursorCurrentPosition(vtkViewport *viewport, double pos[2]);
-  void GetCursorLastPosition(vtkViewport *viewport, double pos[2]);
+  void GetCursorStartPosition(vtkViewport* viewport, double pos[2]);
+  void GetCursorCurrentPosition(vtkViewport* viewport, double pos[2]);
+  void GetCursorLastPosition(vtkViewport* viewport, double pos[2]);
   //@}
 
   //@{
