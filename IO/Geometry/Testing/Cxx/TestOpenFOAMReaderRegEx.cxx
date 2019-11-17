@@ -54,37 +54,37 @@ int TestOpenFOAMReaderRegEx(int argc, char* argv[])
           "inlet",
           {
               { "p", { 0 } },
-              { "U", { 1.0, 0.0, 0.0 } }
-          }
+              { "U", { 1.0, 0.0, 0.0 } },
+          },
       },
       {
           "outlet",
           {
               { "p", { 0 } },
               { "U", { 1.0, 0.0, 0.0 } },
-          }
+          },
       },
       {
           "frontAndBack",
           {
               { "p", { 0 } },
-              { "U", { 1.0, 0.0, 0.0 } }
-          }
+              { "U", { 1.0, 0.0, 0.0 } },
+          },
       },
       {
           "slippyWall",  // present in the test case as "*Wall" regex only
           {
               { "p", { 0 } },
-              { "U", { 1.0, 0.0, 0.0 } }
-          }
+              { "U", { 1.0, 0.0, 0.0 } },
+          },
       },
       {
           "stickyWall",  // present in the test case explicitly
           {
               { "p", { 0 } },
-              { "U", { 0.0, 0.0, 0.0 }}
-          }
-      }
+              { "U", { 0.0, 0.0, 0.0 }},
+          },
+      },
   };
 
   // Print summary

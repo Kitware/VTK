@@ -75,7 +75,7 @@ vtkCell *vtkBiQuadraticTriangle::GetEdge(int edgeId)
 
 //----------------------------------------------------------------------------
 // order picked carefully for parametric coordinate conversion
-static int LinearTris[6][3] = { {0,3,6}, {6,3,4}, {6,4,5}, {0,6,5}, {3,1,4}, {5,4,2} };
+static int LinearTris[6][3] = { {0,3,6}, {6,3,4}, {6,4,5}, {0,6,5}, {3,1,4}, {5,4,2}, };
 
 int vtkBiQuadraticTriangle::EvaluatePosition(const double x[3], double closestPoint[3],
                                            int& subId, double pcoords[3],
@@ -540,8 +540,14 @@ void vtkBiQuadraticTriangle::InterpolationDerivs(const double pcoords[3],
 
 //----------------------------------------------------------------------------
 static double vtkBiQTriangleCellPCoords[21] = {
-  0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0,
-  0.5,0.0,0.0, 0.5,0.5,0.0, 0.0,0.5,0.0, (1.0/3.0),(1.0/3.0),0.0};
+  0.0, 0.0, 0.0,                //
+  1.0, 0.0, 0.0,                //
+  0.0, 1.0, 0.0,                //
+  0.5, 0.0, 0.0,                //
+  0.5, 0.5, 0.0,                //
+  0.0, 0.5, 0.0,                //
+  (1.0 / 3.0), (1.0 / 3.0), 0.0 //
+};
 double *vtkBiQuadraticTriangle::GetParametricCoords()
 {
   return vtkBiQTriangleCellPCoords;

@@ -38,7 +38,7 @@ static const char *vtkWidgetEventStrings[] = {
   "TimedOut",
   "ModifyEvent",
   "Reset",
-  nullptr
+  nullptr,
 };
 
 vtkStandardNewMacro(vtkWidgetEvent);

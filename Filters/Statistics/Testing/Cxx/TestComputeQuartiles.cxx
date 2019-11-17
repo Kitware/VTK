@@ -40,23 +40,21 @@ int TestComputeQuartiles(int , char * [])
   const int numNotes = 20;
   table->SetNumberOfRows(numNotes);
 
-  const double MathValue[] =
-    {
-    18, 20, 20, 16,
-    12, 14, 16, 14,
-    14, 13, 16, 18,
-    6, 10, 16, 14,
-    4, 16, 16, 14
-    };
+  const double MathValue[] = {
+    18, 20, 20, 16, //
+    12, 14, 16, 14, //
+    14, 13, 16, 18, //
+    6, 10, 16, 14, //
+    4, 16, 16, 14 //
+  };
 
-  const double FrenchValue[] =
-    {
-    14, 12, 14, 16,
-    12, 14, 16, 4,
-    4, 10, 6, 20,
-    14, 16, 14, 14,
-    12, 2, 14, 8
-    };
+  const double FrenchValue[] = {
+    14, 12, 14, 16, //
+    12, 14, 16, 4, //
+    4, 10, 6, 20, //
+    14, 16, 14, 14, //
+    12, 2, 14, 8 //
+  };
 
   for (int i = 0; i < numNotes; ++i)
   {
@@ -81,11 +79,11 @@ int TestComputeQuartiles(int , char * [])
 
   const double MathQuartiles[] =
     {
-    4, 13.5, 15, 16, 20
+    4, 13.5, 15, 16, 20 //
     };
   const double FrenchQuartiles[] =
     {
-    2, 9, 14, 14, 20
+    2, 9, 14, 14, 20  //
     };
 
   bool ret = EXIT_SUCCESS;

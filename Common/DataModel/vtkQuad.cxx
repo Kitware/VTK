@@ -375,7 +375,7 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
 // Marching (convex) quadrilaterals
 //
 namespace { //required so we don't violate ODR
-static int edges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3} };
+static int edges[4][2] = { {0,1}, {1,2}, {3,2}, {0,3}, };
 
 typedef int EDGE_LIST;
 typedef struct {
@@ -398,7 +398,7 @@ static LINE_CASES lineCases[] = {
   {{3, 1, -1, -1, -1}},
   {{0, 1, -1, -1, -1}},
   {{3, 0, -1, -1, -1}},
-  {{-1, -1, -1, -1, -1}}
+  {{-1, -1, -1, -1, -1}},
 };
 }
 
@@ -936,8 +936,12 @@ void vtkQuad::Clip(double value, vtkDataArray *cellScalars,
 }
 
 //----------------------------------------------------------------------------
-static double vtkQuadCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                       1.0,1.0,0.0, 0.0,1.0,0.0};
+static double vtkQuadCellPCoords[12] = {
+  0.0,0.0,0.0,  //
+  1.0,0.0,0.0,  //
+  1.0,1.0,0.0,  //
+  0.0,1.0,0.0  //
+};
 double *vtkQuad::GetParametricCoords()
 {
   return vtkQuadCellPCoords;

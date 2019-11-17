@@ -847,7 +847,7 @@ void vtkImageData::ComputeBounds()
         {iMin, jMin, kMax},
         {iMax, jMin, kMax},
         {iMin, jMax, kMax},
-        {iMax, jMax, kMax}
+        {iMax, jMax, kMax},
       };
 
       double xyz[3];

@@ -564,7 +564,7 @@ bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
   static const int Index[3][8] =
     {  {0, 1, 2, 3, 4, 5, 6, 7},
        {0, 1, 4, 5, 2, 3, 6, 7},
-       {0, 2, 4, 6, 1, 3, 5, 7}};
+       {0, 2, 4, 6, 1, 3, 5, 7},};
 
 
   double d[8]={0,0,0,0,0,0,0,0}; //stores the signed distance to a plane

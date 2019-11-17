@@ -33,7 +33,7 @@ static vtkMarchingSquaresLineCases VTK_MARCHING_SQUARES_LINECASES[] = {
   {{3, 1, -1, -1, -1}},
   {{0, 1, -1, -1, -1}},
   {{3, 0, -1, -1, -1}},
-  {{-1, -1, -1, -1, -1}}
+  {{-1, -1, -1, -1, -1}},
 };
 
 vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()

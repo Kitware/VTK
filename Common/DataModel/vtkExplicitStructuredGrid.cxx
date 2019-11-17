@@ -36,20 +36,26 @@
 static const unsigned char MASKED_CELL_VALUE =
   vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
 
-static int HEXAHEDRON_POINT_MAP[] = { 0, 1, 3, 2, 4, 5, 7, 6,
-                                      1, 0, 2, 3, 5, 4, 6, 7,
-                                      0, 3, 1, 2, 4, 7, 5, 6,
-                                      3, 0, 2, 1, 7, 4, 6, 5,
-                                      0, 4, 1, 5, 2, 6, 3, 7,
-                                      4, 0, 5, 1, 6, 2, 7, 3 };
+static int HEXAHEDRON_POINT_MAP[] = {
+  0, 1, 3, 2, 4, 5, 7, 6, //
+  1, 0, 2, 3, 5, 4, 6, 7, //
+  0, 3, 1, 2, 4, 7, 5, 6, //
+  3, 0, 2, 1, 7, 4, 6, 5, //
+  0, 4, 1, 5, 2, 6, 3, 7, //
+  4, 0, 5, 1, 6, 2, 7, 3  //
+};
 
-static int SWAP_HEXAHEDRON_POINT_MAP[] = { 0, 1, 5, 4, 3, 2, 6, 7,
-                                           0, 4, 7, 3, 1, 5, 6, 2,
-                                           0, 3, 2, 1, 4, 7, 6, 5 };
+static int SWAP_HEXAHEDRON_POINT_MAP[] = {
+  0, 1, 5, 4, 3, 2, 6, 7, //
+  0, 4, 7, 3, 1, 5, 6, 2, //
+  0, 3, 2, 1, 4, 7, 6, 5  //
+};
 
-static int MIRROR_HEXAHEDRON_POINT_MAP[] = { 1, 0, 3, 2, 5, 4, 7, 6,
-                                             3, 2, 1, 0, 7, 6, 5, 4,
-                                             4, 5, 6, 7, 0, 1, 2, 3 };
+static int MIRROR_HEXAHEDRON_POINT_MAP[] = {
+  1, 0, 3, 2, 5, 4, 7, 6, //
+  3, 2, 1, 0, 7, 6, 5, 4, //
+  4, 5, 6, 7, 0, 1, 2, 3  //
+};
 
 vtkStandardNewMacro(vtkExplicitStructuredGrid);
 vtkSetObjectImplementationMacro(vtkExplicitStructuredGrid, Cells, vtkCellArray);

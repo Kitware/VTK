@@ -101,7 +101,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkPartitionedDataSetCollection",
   "vtkUniformHyperTreeGrid",
   "vtkExplicitStructuredGrid",
-  nullptr
+  nullptr,
 };
 
 //----------------------------------------------------------------------------

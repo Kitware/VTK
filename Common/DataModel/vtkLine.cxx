@@ -246,7 +246,7 @@ static VERT_CASES vertCases[4]= {
   {{-1,-1}},
   {{1,0}},
   {{0,1}},
-  {{-1,-1}}};
+  {{-1,-1}},};
 
 //----------------------------------------------------------------------------
 void vtkLine::Contour(double value, vtkDataArray *cellScalars,
@@ -756,7 +756,8 @@ static LINE_CASES lineCases[] = {
 {{ -1,  -1}},   // 0
 {{100,   1}},   // 1
 {{  0, 101}},   // 2
-{{100, 101}}};  // 3
+{{100, 101}},   // 3
+};
 }
 
 // Clip this line using scalar value provided. Like contouring, except

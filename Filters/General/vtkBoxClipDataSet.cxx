@@ -850,7 +850,7 @@ void vtkBoxClipDataSet::WedgeToTetra(const vtkIdType *wedgeId,
   vtkIdType tabpyram[5];
 
   const vtkIdType vwedge[6][4]={ {0, 4, 3, 5}, {1, 4, 3, 5}, {2, 4, 3, 5},
-                                 {3, 0, 1, 2}, {4, 0, 1, 2}, {5, 0, 1, 2} };
+                                 {3, 0, 1, 2}, {4, 0, 1, 2}, {5, 0, 1, 2}, };
 
   // the table 'vwedge' set 6 possibilities of the smallest index
   //
@@ -885,7 +885,7 @@ void vtkBoxClipDataSet::WedgeToTetra(const vtkIdType *wedgeId,
   // Pyramid :create 2 tetrahedra
   const vtkIdType vert[6][5]={ {1, 2, 5, 4, 0}, {2, 0, 3, 5, 1},
                                {3, 0, 1, 4, 2}, {1, 2, 5, 4, 3},
-                               {2, 0, 3, 5, 4}, {3, 0, 1, 4, 5} };
+                               {2, 0, 3, 5, 4}, {3, 0, 1, 4, 5}, };
   for(i=0;i<5;i++)
   {
     tabpyram[i] = wedgeId[vert[id][i]];
@@ -924,7 +924,7 @@ void  vtkBoxClipDataSet::PyramidToTetra(const vtkIdType *pyramId,
   //                        vpy[1]: {v0,v2,v3,v4}
   //
   const vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                              {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+                              {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4},};
 
   xmin = cellIds[pyramId[0]];
   idpy = 0;
@@ -1113,7 +1113,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
     case VTK_PIXEL: // 8
     {
-      const vtkIdType vtrip[2][3] = {{0,1,3},{0,3,2}};
+      const vtkIdType vtrip[2][3] = {{0,1,3},{0,3,2},};
       newCellArray->InsertNextCell(3,vtrip[0]);
       newCellArray->InsertNextCell(3,vtrip[1]);
     }
@@ -1124,7 +1124,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
     case VTK_BIQUADRATIC_QUAD:
     case VTK_QUADRATIC_LINEAR_QUAD:
     {
-      const vtkIdType vtriq[2][3] = {{0,1,2},{0,2,3}};
+      const vtkIdType vtriq[2][3] = {{0,1,2},{0,2,3},};
       newCellArray->InsertNextCell(3,vtriq[0]);
       newCellArray->InsertNextCell(3,vtriq[1]);
     }
@@ -1214,7 +1214,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         if((id == 0)||(id == 3)||(id == 5)||(id == 6))
         {
           const vtkIdType vtetra[5][4]={{0,5,3,6},{0,4,5,6},
-                                        {0,1,3,5},{5,3,6,7},{0,3,2,6}};
+                                        {0,1,3,5},{5,3,6,7},{0,3,2,6},};
           for(i=0; i<5; i++)
           {
             newCellArray->InsertNextCell(4,vtetra[i]);
@@ -1223,7 +1223,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         else
         {
           const vtkIdType vtetra[5][4]={{1,2,4,7},{0,1,2,4},
-                                        {1,4,5,7},{1,3,2,7},{2,6,4,7}};
+                                        {1,4,5,7},{1,3,2,7},{2,6,4,7},};
 
           for(i=0; i<5; i++)
           {
@@ -1239,7 +1239,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
                                        {1,7,5,0,6,4},{1,3,7,0,2,6},
                                        {4,5,6,0,1,2},{6,5,7,2,1,3},
                                        {3,7,5,2,6,4},{1,3,5,0,2,4},
-                                       {0,1,4,2,3,6},{1,5,4,3,7,6}};
+                                       {0,1,4,2,3,6},{1,5,4,3,7,6},};
         unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
         switch(edgeId)
         {
@@ -1359,7 +1359,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         if((id == 0)||(id == 2)||(id == 5)||(id == 7))
         {
           const vtkIdType vtetra[5][4]={{0,5,2,7},{0,4,5,7},
-                                        {0,1,2,5},{5,2,7,6},{0,2,3,7}};
+                                        {0,1,2,5},{5,2,7,6},{0,2,3,7},};
           for(i=0; i<5; i++)
           {
             newCellArray->InsertNextCell(4,vtetra[i]);
@@ -1368,7 +1368,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         else
         {
           const vtkIdType vtetra[5][4]={{1,3,4,6},{0,1,3,4},
-                                        {1,4,5,6},{1,2,3,6},{3,7,4,6}};
+                                        {1,4,5,6},{1,2,3,6},{3,7,4,6},};
 
           for(i=0; i<5; i++)
           {
@@ -1384,7 +1384,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
                                        {1,6,5,0,7,4},{1,2,6,0,3,7},
                                        {4,5,7,0,1,3},{7,5,6,3,1,2},
                                        {2,6,5,3,7,4},{1,2,5,0,3,4},
-                                       {0,1,4,3,2,7},{1,5,4,2,6,7}};
+                                       {0,1,4,3,2,7},{1,5,4,2,6,7},};
         unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
 
         switch(edgeId)
@@ -1432,7 +1432,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       {
         //first tetrahedron
         const vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
-                                      {3,0,1,2},{4,0,1,2},{5,0,1,2}};
+                                      {3,0,1,2},{4,0,1,2},{5,0,1,2},};
         xmin = cellIds[0];
         id = 0;
         for(i=1;i<6;i++)
@@ -1448,9 +1448,9 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
         //Pyramid :create 2 tetrahedra
 
         const vtkIdType vert[6][5]={{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
-                                    {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};
+                                    {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5},};
         const vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                    {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+                                    {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4},};
         xmin    = cellIds[vert[id][0]];
         tabp[0] = vert[id][0];
         idpy = 0;
@@ -1490,7 +1490,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       {
         //note: the first element vpyram[][0] is the smallest index of pyramid
         const vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                      {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+                                      {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4},};
         xmin = cellIds[0];
         id   = 0;
         for(i=1;i<4;i++)
@@ -1539,7 +1539,7 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
     //VTK_WEDGE: Create 3 tetrahedra
     //first tetrahedron
     const vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
-                                  {3,0,1,2},{4,0,1,2},{5,0,1,2}};
+                                  {3,0,1,2},{4,0,1,2},{5,0,1,2},};
     xmin = cellIds[0];
     id = 0;
     for(i=1;i<6;i++)
@@ -1559,9 +1559,9 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
     //Pyramid: create 2 tetrahedra
 
     const vtkIdType vert[6][5]= {{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
-                                 {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};
+                                 {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5},};
     const vtkIdType vpy[8][4] = {{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                 {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+                                 {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4},};
     xmin    = cellIds[vert[id][0]];
     tabp[0] = vert[id][0];
     idpy = 0;
@@ -1592,7 +1592,7 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
     //VTK_PYRAMID: Create 2 tetrahedra
     //The first element in each set is the smallest index of pyramid
     const vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                  {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+                                  {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4},};
     xmin = cellIds[0];
     id   = 0;
     for(i=1;i<4;i++)
@@ -1869,8 +1869,9 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
   unsigned int idcellnew;
   unsigned int cutInd;
 
+  /* Edges Tetrahedron */
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
-                            {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
+                            {0,3}, {1,3}, {2,3}, };
   double value,deltaScalar;
   double t;
   double *p1, *p2;
@@ -1977,11 +1978,11 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                       {3,3,2,0,2,1},
                                       {1,0,2,0,1,3},
                                       {0,0,1,2,3,3},
-                                      {0,1,2,1,2,3}};
+                                      {0,1,2,1,2,3},};
     const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                                       {0,1,2,0,2,3},
                                       {0,1,2,1,0,3},
-                                      {0,1,2,0,1,2}};
+                                      {0,1,2,0,1,2},};
     const unsigned int tab2[12][5] = { {0,0,1,2,3},
                                        {2,1,0,1,3},
                                        {1,0,1,0,3},
@@ -1993,7 +1994,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                        {0,0,1,3,1},
                                        {1,0,1,3,2},
                                        {3,1,0,0,2},
-                                       {0,0,1,1,2}};
+                                       {0,0,1,1,2},};
     const unsigned int tab1[12][3] = { {2,3,1},
                                        {3,2,0},
                                        {3,0,1},
@@ -2005,7 +2006,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                        {2,0,3},
                                        {0,2,1},
                                        {0,1,3},
-                                       {1,0,2}};
+                                       {1,0,2},};
 
     vtkCellArray *cellarray = vtkCellArray::New();
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
@@ -2340,8 +2341,9 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
   unsigned int allInside, k;
   unsigned int planes;
 
+  /* Edges Tetrahedron */
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
-                            {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
+                            {0,3}, {1,3}, {2,3}, };
   double deltaScalar;
   double t;
   double *p1, *p2;
@@ -2446,11 +2448,11 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                                       {3,3,2,0,2,1},
                                       {1,0,2,0,1,3},
                                       {0,0,1,2,3,3},
-                                      {0,1,2,1,2,3}};
+                                      {0,1,2,1,2,3},};
     const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                                       {0,1,2,0,2,3},
                                       {0,1,2,1,0,3},
-                                      {0,1,2,0,1,2}};
+                                      {0,1,2,0,1,2},};
     const unsigned int tab2[12][5] = { {0,0,1,2,3},
                                        {2,1,0,1,3},
                                        {1,0,1,0,3},
@@ -2462,7 +2464,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                                        {0,0,1,3,1},
                                        {1,0,1,3,2},
                                        {3,1,0,0,2},
-                                       {0,0,1,1,2}};
+                                       {0,0,1,1,2},};
     const unsigned int tab1[12][3] = { {2,3,1},
                                        {3,2,0},
                                        {3,0,1},
@@ -2474,7 +2476,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                                        {2,0,3},
                                        {0,2,1},
                                        {0,1,3},
-                                       {1,0,2}};
+                                       {1,0,2},};
 
     vtkCellArray *cellarray = vtkCellArray::New();
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
@@ -2811,8 +2813,9 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
   unsigned int idcellnew;
   unsigned int idtetranew;
 
+  /* Edges Tetrahedron */
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
-                            {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
+                            {0,3}, {1,3}, {2,3}, };
   double value,deltaScalar;
   double t;
   double v[3], x[3];
@@ -2929,11 +2932,11 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                       {3,3,2,0,2,1},
                                       {1,0,2,0,1,3},
                                       {0,0,1,2,3,3},
-                                      {0,1,2,1,2,3}};
+                                      {0,1,2,1,2,3},};
     const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                                       {0,1,2,0,2,3},
                                       {0,1,2,1,0,3},
-                                      {0,1,2,0,1,2}};
+                                      {0,1,2,0,1,2},};
     const unsigned int tab2[12][5] = { {0,0,1,2,3},
                                        {2,1,0,1,3},
                                        {1,0,1,0,3},
@@ -2945,7 +2948,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                        {0,0,1,3,1},
                                        {1,0,1,3,2},
                                        {3,1,0,0,2},
-                                       {0,0,1,1,2}};
+                                       {0,0,1,1,2},};
     const unsigned int tab1[12][3] = { {2,3,1},
                                        {3,2,0},
                                        {3,0,1},
@@ -2957,7 +2960,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                        {2,0,3},
                                        {0,2,1},
                                        {0,1,3},
-                                       {1,0,2}};
+                                       {1,0,2},};
 
     vtkCellArray *cellarray    = vtkCellArray::New();
     vtkCellArray *cellarrayout = vtkCellArray::New();
@@ -3353,8 +3356,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
   int i,j,k;
   int allInside;
 
+  /* Edges Tetrahedron */
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
-                            {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
+                            {0,3}, {1,3}, {2,3}, };
   double deltaScalar;
   double p[6], t;
   double v_tetra[4][3];
@@ -3475,11 +3479,11 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                                       {3,3,2,0,2,1},
                                       {1,0,2,0,1,3},
                                       {0,0,1,2,3,3},
-                                      {0,1,2,1,2,3}};
+                                      {0,1,2,1,2,3},};
     const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
                                       {0,1,2,0,2,3},
                                       {0,1,2,1,0,3},
-                                      {0,1,2,0,1,2}};
+                                      {0,1,2,0,1,2},};
     const unsigned int tab2[12][5] = { {0,0,1,2,3},
                                        {2,1,0,1,3},
                                        {1,0,1,0,3},
@@ -3491,7 +3495,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                                        {0,0,1,3,1},
                                        {1,0,1,3,2},
                                        {3,1,0,0,2},
-                                       {0,0,1,1,2}};
+                                       {0,0,1,1,2},};
     const unsigned int tab1[12][3] = { {2,3,1},
                                        {3,2,0},
                                        {3,0,1},
@@ -3503,7 +3507,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                                        {2,0,3},
                                        {0,2,1},
                                        {0,1,3},
-                                       {1,0,2}};
+                                       {1,0,2},};
 
     vtkCellArray *cellarray    = vtkCellArray::New();
     vtkCellArray *cellarrayout = vtkCellArray::New();
@@ -3904,7 +3908,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   unsigned int planes;
   unsigned int cutInd;
 
-  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};  /* Edges Triangle*/
+  /* Edges Triangle*/
+  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0},};
   double value,deltaScalar;
   double t, *p1, *p2;
   double v[3],x[3];
@@ -4013,10 +4018,10 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
 
     unsigned int tab2[3][4] = { {1,2,1,0},
                             {2,0,0,1},
-                            {0,1,0,1}};
+                            {0,1,0,1},};
     unsigned int tab1[3][2] = { {2,1},
                             {0,2},
-                            {1,0}};
+                            {1,0},};
 
     vtkCellArray *cellarray = vtkCellArray::New();
     int newCellId = cellarray->InsertNextCell(3,iid);
@@ -4249,7 +4254,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   unsigned int planes;
   unsigned int idcellnew;
 
-  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};  /* Edges Triangle */
+  /* Edges Triangle */
+  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0},};
   double value,deltaScalar;
   double t, *p1, *p2;
   double v[3],x[3];
@@ -4371,10 +4377,10 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
 
     unsigned int tab2[3][4] = { {1,2,1,0},
                             {2,0,0,1},
-                            {0,1,0,1}};
+                            {0,1,0,1},};
     unsigned int tab1[3][2] = { {2,1},
                             {0,2},
-                            {1,0}};
+                            {1,0},};
 
     vtkCellArray *cellarray    = vtkCellArray::New();
     vtkCellArray *cellarrayout = vtkCellArray::New();
@@ -4661,7 +4667,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   unsigned int idcellnew;
   unsigned int planes;
 
-  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};
+  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0},};
   double deltaScalar;
   double t, *p1, *p2;
   double v[3],x[3];
@@ -4764,10 +4770,10 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
 
       unsigned int tab2[3][4] = { {1,2,1,0},
                               {2,0,0,1},
-                              {0,1,0,1}};
+                              {0,1,0,1},};
       unsigned int tab1[3][2] = { {2,1},
                               {0,2},
-                              {1,0}};
+                              {1,0},};
 
       vtkCellArray *cellarray = vtkCellArray::New();
       int newCellId = cellarray->InsertNextCell(3,iid);
@@ -5009,7 +5015,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   unsigned int idcellnew;
   unsigned int planes;
 
-  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}}; /* Edges Triangle */
+  /* Edges Triangle */
+  vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0},};
   double deltaScalar;
   double t, *p1, *p2;
   double v[3],x[3];
@@ -5125,10 +5132,10 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
 
     unsigned int tab2[3][4] = { {1, 2, 1, 0},
                             {2, 0, 0, 1},
-                            {0, 1, 0, 1} };
+                            {0, 1, 0, 1}, };
     unsigned int tab1[3][2] = { {2, 1},
                             {0, 2},
-                            {1, 0} };
+                            {1, 0}, };
 
     vtkCellArray *cellarray    = vtkCellArray::New();
     vtkCellArray *cellarrayout = vtkCellArray::New();

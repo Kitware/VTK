@@ -192,7 +192,7 @@ int TestThreadedImageAlgorithmSplitExtent(int, char*[])
     { 0, 2, 1 },
     { 2, 0, 1 },
     { 1, 0, 2 },
-    { 0, 1, 2 }
+    { 0, 1, 2 },
   };
 
   for (int mode = 0; mode < 3; mode++)

@@ -75,26 +75,29 @@ vtkQuadraticPyramid::~vtkQuadraticPyramid()
 // point id 13 is created to make it easier to subdivide this cell and it is
 // located at the center of the quadrilateral face of the pyramid. LinearPyramid
 // is only used by the Subdivide(), Contour() and Clip() methods.
-static int LinearPyramids[10][5] = { {0,5,13,8,9},
+static int LinearPyramids[10][5] = {
+  // 6 pyramids
+  {0,5,13,8,9},
                                      {5,1,6,13,10},
                                      {8,13,7,3,12},
                                      {13,6,2,7,11},
                                      {9,10,11,12,4},
-                                     {9,12,11,10,13}, // 6 pyramids
+                                     {9,12,11,10,13},
+                                     // 4 tets
                                      {5,13,9,10,0},
                                      {6,13,10,11,0},
                                      {7,13,11,12,0},
-                                     {8,13,12,9,0} }; // 4 tets
+                                     {8,13,12,9,0}, };
 
 static int PyramidFaces[5][8] = { {0,3,2,1,8,7,6,5},
                                   {0,1,4,5,10,9,0,0},
                                   {1,2,4,6,11,10,0,0},
                                   {2,3,4,7,12,11,0,0},
-                                  {3,0,4,8,9,12,0,0}};
+                                  {3,0,4,8,9,12,0,0},};
 
 static int PyramidEdges[8][3] = { {0,1,5}, {1,2,6}, {2,3,7},
                                   {3,0,8},{0,4,9},{1,4,10},
-                                  {2,4,11}, {3,4,12} };
+                                  {2,4,11}, {3,4,12}, };
 
 //----------------------------------------------------------------------------
 int *vtkQuadraticPyramid::GetEdgeArray(int edgeId)
@@ -586,7 +589,7 @@ int vtkQuadraticPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     {10, 9, 4, 11},
     {9, 7, 8, 12},
     {9, 11, 7, 12},
-    {11, 9, 4, 12} };
+    {11, 9, 4, 12}, };
 
   vtkIdType counter = 0;
   for (int i=0;i<14;i++)
@@ -839,11 +842,21 @@ void vtkQuadraticPyramid::InterpolationDerivs(const double pcoords[3],
     derivs[i] *= 2;
 }
 
-static double vtkQPyramidCellPCoords[39] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.0,
-                                            0.0,1.0,0.0, 0.0,0.0,1.0, 0.5,0.0,0.0,
-                                            1.0,0.5,0.0, 0.5,1.0,0.0, 0.0,0.5,0.0,
-                                            0.0,0.0,0.5, 1.0,0.0,0.5,
-                                            1.0,1.0,0.5, 0.0,1.0,0.5 };
+static double vtkQPyramidCellPCoords[39] = {
+  0.0,0.0,0.0,  //
+  1.0,0.0,0.0,  //
+  1.0,1.0,0.0,  //
+  0.0,1.0,0.0,  //
+  0.0,0.0,1.0,  //
+  0.5,0.0,0.0,  //
+  1.0,0.5,0.0,  //
+  0.5,1.0,0.0,  //
+  0.0,0.5,0.0,  //
+  0.0,0.0,0.5,  //
+  1.0,0.0,0.5,  //
+  1.0,1.0,0.5,  //
+  0.0,1.0,0.5   //
+};
 
 //----------------------------------------------------------------------------
 double *vtkQuadraticPyramid::GetParametricCoords()

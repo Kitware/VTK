@@ -2758,7 +2758,7 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
     LS_ARRAYNAME_SPECIES_07,
     LS_ARRAYNAME_SPECIES_08,
     LS_ARRAYNAME_SPECIES_09,
-    LS_ARRAYNAME_SPECIES_10
+    LS_ARRAYNAME_SPECIES_10,
   };
 
   const char* aDictNames[] = {
@@ -2788,7 +2788,7 @@ int vtkLSDynaReader::ReadNodeStateInfo( vtkIdType step )
     "cfdSpec07",
     "cfdSpec08",
     "cfdSpec09",
-    "cfdSpec10"
+    "cfdSpec10",
   };
   int aComponents[] = {
     -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1

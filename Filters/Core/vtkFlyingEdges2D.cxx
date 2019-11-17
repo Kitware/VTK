@@ -279,12 +279,12 @@ public:
 //----------------------------------------------------------------------------
 // Specify the points that define each edge.
 template <class T> const unsigned char vtkFlyingEdges2DAlgorithm<T>::
-VertMap[4][2] = {{0,1}, {2,3}, {0,2}, {1,3}};
+VertMap[4][2] = {{0,1}, {2,3}, {0,2}, {1,3},};
 
 //----------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the pixel axes origin.
 template <class T> const unsigned char vtkFlyingEdges2DAlgorithm<T>::
-VertOffsets[4][2] = {{0,0}, {1,0}, {0,1}, {1,1}};
+VertOffsets[4][2] = {{0,0}, {1,0}, {0,1}, {1,1},};
 
 // Initialize case array
 template <class T> const unsigned char vtkFlyingEdges2DAlgorithm<T>::
@@ -292,7 +292,7 @@ EdgeCases[16][5] = {
     {0,0,0,0,0}, {1,0,2,0,0}, {1,3,0,0,0}, {1,3,2,0,0},
     {1,2,1,0,0}, {1,0,1,0,0}, {2,2,1,3,0}, {1,3,1,0,0},
     {1,1,3,0,0}, {2,0,2,3,1}, {1,1,0,0,0}, {1,1,2,0,0},
-    {1,2,3,0,0}, {1,0,3,0,0}, {1,2,0,0,0}, {0,0,0,0,0}};
+    {1,2,3,0,0}, {1,0,3,0,0}, {1,2,0,0,0}, {0,0,0,0,0},};
 
 //----------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build some

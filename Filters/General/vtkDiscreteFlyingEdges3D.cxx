@@ -421,13 +421,13 @@ EdgeMap[12] = {0,5,1,4,2,7,3,6,8,9,10,11};
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
 template <class T> const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::
 VertMap[12][2] = {{0,1}, {2,3}, {4,5}, {6,7}, {0,2}, {1,3}, {4,6}, {5,7},
-                  {0,4}, {1,5}, {2,6}, {3,7}};
+                  {0,4}, {1,5}, {2,6}, {3,7},};
 
 //----------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the voxel axes origin.
 template <class T> const unsigned char vtkDiscreteFlyingEdges3DAlgorithm<T>::
 VertOffsets[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
-                     {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1}};
+                     {0,0,1}, {1,0,1}, {0,1,1}, {1,1,1},};
 
 //----------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build the

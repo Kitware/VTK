@@ -84,7 +84,7 @@ vtkCell *vtkQuadraticQuad::GetEdge(int edgeId)
 //----------------------------------------------------------------------------
 
 static int LinearQuads[4][4] = { {0, 4, 8, 7}, {4, 1, 5, 8},
-                                 {8, 5, 2, 6}, {7, 8, 6, 3} };
+                                 {8, 5, 2, 6}, {7, 8, 6, 3}, };
 
 void vtkQuadraticQuad::Subdivide(double *weights)
 {
@@ -576,10 +576,16 @@ void vtkQuadraticQuad::InterpolationDerivs(const double pcoords[3], double deriv
 }
 
 //----------------------------------------------------------------------------
-static double vtkQQuadCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                        1.0,1.0,0.0, 0.0,1.0,0.0,
-                                        0.5,0.0,0.0, 1.0,0.5,0.0,
-                                        0.5,1.0,0.0, 0.0,0.5,0.0};
+static double vtkQQuadCellPCoords[24] = {
+  0.0,0.0,0.0,  //
+  1.0,0.0,0.0,  //
+  1.0,1.0,0.0,  //
+  0.0,1.0,0.0,  //
+  0.5,0.0,0.0,  //
+  1.0,0.5,0.0,  //
+  0.5,1.0,0.0,  //
+  0.0,0.5,0.0  //
+};
 double *vtkQuadraticQuad::GetParametricCoords()
 {
   return vtkQQuadCellPCoords;

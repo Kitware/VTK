@@ -221,8 +221,8 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), const double pcoords[3],
 //
 namespace { //required so we don't violate ODR
 static int edges[6][2] = { {0,1}, {1,2}, {2,0},
-                           {0,3}, {1,3}, {2,3} };
-static int faces[4][4] = { {0,1,3,-1}, {1,2,3,-1}, {2,0,3,-1}, {0,2,1,-1} };
+                           {0,3}, {1,3}, {2,3}, };
+static int faces[4][4] = { {0,1,3,-1}, {1,2,3,-1}, {2,0,3,-1}, {0,2,1,-1}, };
 
 typedef int EDGE_LIST;
 typedef struct {
@@ -245,7 +245,7 @@ static TRIANGLE_CASES triCases[] = {
   {{ 4, 3, 1, 1, 3, 2, -1}},
   {{ 4, 0, 1, -1, -1, -1, -1}},
   {{ 2, 0, 3, -1, -1, -1, -1}},
-  {{-1, -1, -1, -1, -1, -1, -1}}
+  {{-1, -1, -1, -1, -1, -1, -1}},
 };
 }
 
@@ -957,8 +957,12 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
 }
 
 //----------------------------------------------------------------------------
-static double vtkTetraCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                        0.0,1.0,0.0, 0.0,0.0,1.0};
+static double vtkTetraCellPCoords[12] = {
+  0.0,0.0,0.0,  //
+  1.0,0.0,0.0,  //
+  0.0,1.0,0.0,  //
+  0.0,0.0,1.0  //
+};
 
 double *vtkTetra::GetParametricCoords()
 {

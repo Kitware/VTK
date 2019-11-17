@@ -576,7 +576,7 @@ IntersectWithPlane(double bounds[6], double origin[3], double normal[3],
   // order the intersections to form a polygon.
   static int edges[12][2] = { {0,1}, {2,3}, {4,5}, {6,7},
                               {0,2}, {1,3}, {4,6}, {5,7},
-                              {0,4}, {1,5}, {2,6}, {3,7}};
+                              {0,4}, {1,5}, {2,6}, {3,7},};
 
   // Generating scalars is needed for performing intersections. Also populate
   // the box corner vertex coordinates,

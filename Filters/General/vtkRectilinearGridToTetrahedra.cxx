@@ -364,9 +364,9 @@ Want right handed Tetrahedra...
    };
 
  static const int tet5[5][4]      =
-   { {0,1,4,2},{1,4,7,5},{1,4,2,7},{1,2,3,7},{2,7,4,6} };
+   { {0,1,4,2},{1,4,7,5},{1,4,2,7},{1,2,3,7},{2,7,4,6}, };
  static const int tet5flip[5][4]  =
-   { {3,1,0,5}, {0,3,6,2}, {3,5,6,7}, {0,6,5,4}, {0,3,5,6}};
+   { {3,1,0,5}, {0,3,6,2}, {3,5,6,7}, {0,6,5,4}, {0,3,5,6},};
 
   // 12 tet to confirm to tet5
   static const int tet12_conform[12][4] = {
@@ -387,7 +387,7 @@ Want right handed Tetrahedra...
     {8,2,1,3},
   /* Top side */
     {8,4,1,0},
-    {8,1,4,5}};
+    {8,1,4,5},};
 
   // 12 tet to confirm to tet5flip
   static int tet12_conform_flip[12][4] = {
@@ -408,7 +408,7 @@ Want right handed Tetrahedra...
     {8,0,3,2},
   /* Top side */
     {8,5,0,4},
-    {8,0,5,1}};
+    {8,0,5,1},};
 
   // 12 tet chosen to have the least number of edges per node
   static int tet12[12][4] = {
@@ -429,7 +429,7 @@ Want right handed Tetrahedra...
     {8,0,5,1},
   /* Bottom side */
     {8,7,2,3},
-    {8,2,7,6}};
+    {8,2,7,6},};
 
 
   int i, j;

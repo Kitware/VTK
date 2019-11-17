@@ -639,13 +639,15 @@ void vtkLagrangeTriangle::Derivatives(int vtkNotUsed(subId),
 #ifdef SEVEN_POINT_TRIANGLE
 namespace
 {
-double SevenPointTriangleCoords[7*3] = {0.,0.,0.,
-                                        1.,0.,0.,
-                                        0.,1.,0.,
-                                        .5,0.,0.,
-                                        .5,.5,0.,
-                                        0.,.5,0.,
-                                        1./3.,1./3.,0.};
+double SevenPointTriangleCoords[7*3] = {
+  0., 0., 0.,          //
+  1., 0., 0.,          //
+  0., 1., 0.,          //
+  .5, 0., 0.,          //
+  .5, .5, 0.,          //
+  0., .5, 0.,          //
+  1. / 3., 1. / 3., 0. //
+};
 }
 #endif
 

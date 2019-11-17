@@ -55,6 +55,7 @@ void MakeStatDistDataSet (vtkDataSet* dataset)
   const int yCells = yVerts - 1;
   const int nCells = xCells * yCells;
 
+  // clang-format off
   // Poisson distribution [0:49] mean = 10
   static double poisson[nVerts] = {
     8,  10, 9,  8,  14, 11, 12, 9,  19, 7,  8,  11, 7,  10, 11, 11, 11, 6,  8,  8,  7,  15, 9,  7,
@@ -238,6 +239,8 @@ void MakeStatDistDataSet (vtkDataSet* dataset)
     6,  5,  33, 41, 29, 32, 49, 0,  46, 9,  48, 26, 13, 35, 29, 41, 41, 32, 36, 32, 17, 26, 33, 16,
     43, 22, 45, 13, 47, 5,  20, 41, 48, 16, 26, 26, 40, 46, 33, 12
   };
+  // clang-format on
+
   vtkPointData* pd = dataset->GetPointData();
   vtkCellData* cd = dataset->GetCellData();
 

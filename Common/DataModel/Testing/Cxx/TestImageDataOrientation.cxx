@@ -107,50 +107,48 @@ int TestImageDataOrientation(int,char *[])
   const double pi = vtkMath::Pi();
 
   // test 0D, 1D, 2D, 3D data with various extents, spacings, origins, directions
-  static int dims[4][3] = {
-    { 1, 1, 1 }, { 3, 1, 1 }, { 3, 3, 1 }, { 3, 3, 3 } };
-  static int starts[4][3] = {
-    { 0, 0, 0 }, { -1, 0, -1 }, { 2, 3, 6 }, { -10, 0, 5 } };
-  static double spacings[4][3] = {
-    { 1, 1, 1 }, { 1.0/7, 1, 1 }, { 1, -1, 1 }, { -1, 1, -1/13.0 } };
-  static double origins[4][3] = {
-    { 0, 0, 0 }, { 1.0/13, 0, 0 }, { 0, -1, 0 }, { -1, 0, -1/7.0 } };
+  static int dims[4][3] = { { 1, 1, 1 }, { 3, 1, 1 }, { 3, 3, 1 }, { 3, 3, 3 }, };
+  static int starts[4][3] = { { 0, 0, 0 }, { -1, 0, -1 }, { 2, 3, 6 }, { -10, 0, 5 }, };
+  static double spacings[4][3] = { { 1, 1, 1 }, { 1.0 / 7, 1, 1 }, { 1, -1, 1 },
+    { -1, 1, -1 / 13.0 }, };
+  static double origins[4][3] = { { 0, 0, 0 }, { 1.0 / 13, 0, 0 }, { 0, -1, 0 },
+    { -1, 0, -1 / 7.0 }, };
   static double directions[7][9] = {
     {
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
+      1, 0, 0, //
+      0, 1, 0, //
+      0, 0, 1  //
     },
     {
-      -1, 0, 0,
-      0, -1, 0,
-      0, 0, 1
+      -1, 0, 0, //
+      0, -1, 0, //
+      0, 0, 1   //
     },
     {
-      1, 0, 0,
-      0, 0, 1,
-      0, 1, 0
+      1, 0, 0, //
+      0, 0, 1, //
+      0, 1, 0  //
     },
     {
-      0, -1, 0,
-      1, 0, 0,
-      0, 0, 1
+      0, -1, 0, //
+      1, 0, 0,  //
+      0, 0, 1   //
     },
     {
-      1, 0, 0,
-      0, cos(pi/4), sin(pi/4),
-      0, -sin(pi/4), cos(pi/4)
+      1, 0, 0,                     //
+      0, cos(pi / 4), sin(pi / 4), //
+      0, -sin(pi / 4), cos(pi / 4) //
     },
     {
-      cos(-pi/5), sin(-pi/5), 0,
-      -sin(-pi/5), cos(-pi/5), 0,
-      0, 0, 1
+      cos(-pi / 5), sin(-pi / 5), 0,  //
+      -sin(-pi / 5), cos(-pi / 5), 0, //
+      0, 0, 1                         //
     },
     {
-      cos(pi/0.8), 0, sin(pi/0.8),
-      0, 1, 0,
-      -sin(pi/0.8), 0, cos(pi/0.8),
-    }
+      cos(pi / 0.8), 0, sin(pi / 0.8),  //
+      0, 1, 0,                          //
+      -sin(pi / 0.8), 0, cos(pi / 0.8), //
+    },
   };
 
   int extent[6];

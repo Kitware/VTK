@@ -533,7 +533,7 @@ static const double extraWedgeParams[][3] =
   { 0.5, 0.5, 0.5 },
   { 0.0, 0.5, 0.5 },
   // body point
-  { 1/3.,1/3.,1/3.}
+  { 1/3.,1/3.,1/3.},
 };
 
 static const double extraLinHexParams[12][3] =
@@ -560,7 +560,7 @@ static const double extraQuadHexParams[7][3] =
   { 0.5, 1.0, 0.5 },
   { 0.0, 0.5, 0.5 },
   { 1.0, 0.5, 0.5 },
-  { 0.5, 0.5, 0.5 }
+  { 0.5, 0.5, 0.5 },
 };
 
 static const double extraLagrangeQuadParams[4][3] =
@@ -568,12 +568,12 @@ static const double extraLagrangeQuadParams[4][3] =
   { 0.5, 0.0, 0.0 },
   { 1.0, 0.5, 0.0 },
   { 0.5, 1.0, 0.0 },
-  { 0.0, 0.5, 0.0 }
+  { 0.0, 0.5, 0.0 },
 };
 
 static const double extraQuadQuadParams[1][3] =
 {
-  { 0.5, 0.5, 0.0 }
+  { 0.5, 0.5, 0.0 },
 };
 
 static const double extraLagrangeTriParams[3][3] =
@@ -595,32 +595,32 @@ static const double extraLagrangeTetraParams[6][3] =
 
 static vtkIdType linEdgeEdges[][2] =
 {
-  {0,1}
+  {0,1},
 };
 
 static vtkIdType quadEdgeEdges[][2] =
 {
   {0,2},
-  {2,1}
+  {2,1},
 };
 
 static vtkIdType cubicLinEdges[][2] =
 {
   {0,2},
   {2,3},
-  {3,1}
+  {3,1},
 };
 
 static vtkIdType linTriTris[][3] =
 {
-  {0,1,2}
+  {0,1,2},
 };
 
 static vtkIdType linTriEdges[][2] =
 {
   {0,1},
   {1,2},
-  {2,0}
+  {2,0},
 };
 
 static vtkIdType quadTriTris[][3] =
@@ -628,7 +628,7 @@ static vtkIdType quadTriTris[][3] =
   {0,3,5},
   {5,3,1},
   {5,1,4},
-  {4,2,5}
+  {4,2,5},
 };
 
 static vtkIdType biQuadTriTris[][3] =
@@ -638,7 +638,7 @@ static vtkIdType biQuadTriTris[][3] =
   {6,1,4},
   {6,4,2},
   {6,2,5},
-  {0,6,5}
+  {0,6,5},
 };
 
 static vtkIdType biQuadTriEdges[][2] =
@@ -648,7 +648,7 @@ static vtkIdType biQuadTriEdges[][2] =
   {1,4},
   {4,2},
   {2,5},
-  {5,0}
+  {5,0},
 };
 
 static vtkIdType quadTriEdges[][2] =
@@ -658,13 +658,13 @@ static vtkIdType quadTriEdges[][2] =
   {1,4},
   {4,2},
   {2,5},
-  {5,0}
+  {5,0},
 };
 
 static vtkIdType linQuadTris[][3] =
 {
   {0,1,2},
-  {0,2,3}
+  {0,2,3},
 };
 
 static vtkIdType linQuadEdges[][2] =
@@ -672,7 +672,7 @@ static vtkIdType linQuadEdges[][2] =
   {0,1},
   {1,2},
   {2,3},
-  {3,0}
+  {3,0},
 };
 
 static vtkIdType quadQuadTris[][3] =
@@ -684,7 +684,7 @@ static vtkIdType quadQuadTris[][3] =
   {4,1,5},
   {8,4,5},
   {8,5,2},
-  {2,6,8}
+  {2,6,8},
 };
 
 static vtkIdType quadQuadEdges[][2] =
@@ -696,7 +696,7 @@ static vtkIdType quadQuadEdges[][2] =
   {2,6},
   {6,3},
   {3,7},
-  {7,0}
+  {7,0},
 };
 
 static vtkIdType quadWedgeTetrahedra[][4] =
@@ -740,7 +740,7 @@ static vtkIdType quadWedgeTetrahedra[][4] =
   { 20, 19,  5, 14 },
   { 20, 19, 14,  2 },
   { 20, 19,  2,  8 },
-  { 20, 19,  8,  0 }
+  { 20, 19,  8,  0 },
 };
 
 static vtkIdType quadWedgeTris[][3] =
@@ -784,7 +784,7 @@ static vtkIdType quadWedgeTris[][3] =
   { 19,  5, 14 },
   { 19, 14,  2 },
   { 19,  2,  8 },
-  { 19,  8,  0 }
+  { 19,  8,  0 },
 };
 
 static vtkIdType quadWedgeEdges[][2] =
@@ -806,13 +806,13 @@ static vtkIdType quadWedgeEdges[][2] =
   {1,13},
   {13,4},
   {2,14},
-  {14,5}
+  {14,5},
 };
 
 static vtkIdType linPyrTetrahedra[][4] =
 {
   {0,1,2,4},
-  {0,2,3,4}
+  {0,2,3,4},
 };
 
 static vtkIdType linPyrTris[][3] =
@@ -822,7 +822,7 @@ static vtkIdType linPyrTris[][3] =
   {0,1,4},
   {1,2,4},
   {2,3,4},
-  {3,0,4}
+  {3,0,4},
 };
 
 static vtkIdType linPyrEdges[][2] =
@@ -834,12 +834,12 @@ static vtkIdType linPyrEdges[][2] =
   {0,4},
   {1,4},
   {2,4},
-  {3,4}
+  {3,4},
 };
 
 static vtkIdType linTetTetrahedra[][4] =
 {
-  {0,1,2,3}
+  {0,1,2,3},
 };
 
 static vtkIdType linTetTris[][3] =
@@ -847,7 +847,7 @@ static vtkIdType linTetTris[][3] =
   {0,2,1},
   {0,1,3},
   {1,2,3},
-  {2,0,3}
+  {2,0,3},
 };
 
 static vtkIdType linTetEdges[][2] =
@@ -857,7 +857,7 @@ static vtkIdType linTetEdges[][2] =
   {2,0},
   {0,3},
   {1,3},
-  {2,3}
+  {2,3},
 };
 
 static vtkIdType quadTetTetrahedra[][4] =
@@ -869,7 +869,7 @@ static vtkIdType quadTetTetrahedra[][4] =
   {6,8,7,4},
   {6,8,4,5},
   {6,8,5,9},
-  {6,8,9,7}
+  {6,8,9,7},
 };
 
 static vtkIdType quadTetTris[][3] =
@@ -892,7 +892,7 @@ static vtkIdType quadTetTris[][3] =
   {2,6,9},
   {9,6,7},
   {7,6,0},
-  {9,7,3}
+  {9,7,3},
 };
 
 static vtkIdType quadTetEdges[][2] =
@@ -908,7 +908,7 @@ static vtkIdType quadTetEdges[][2] =
   {1,8},
   {8,3},
   {2,9},
-  {9,3}
+  {9,3},
 };
 
 /* Each face should look like this:
@@ -975,7 +975,7 @@ static vtkIdType quadHexTetrahedra[][4] =
   { 6,18,25,26},
   {18, 2,25,26},
   { 2, 9,25,26},
-  { 9, 1,25,26}
+  { 9, 1,25,26},
 };
 
 static vtkIdType quadHexTris[][3] =
@@ -1032,7 +1032,7 @@ static vtkIdType quadHexTris[][3] =
   { 6,18,25},
   {18, 2,25},
   { 2, 9,25},
-  { 9, 1,25}
+  { 9, 1,25},
 };
 
 static vtkIdType quadHexEdges[][2] =
@@ -1060,7 +1060,7 @@ static vtkIdType quadHexEdges[][2] =
   { 2,18},
   {18, 6},
   { 7,19},
-  {19, 3}
+  {19, 3},
 };
 
 
@@ -1118,7 +1118,7 @@ static vtkIdType quadVoxTetrahedra[][4] =
   { 7,18,25,26},
   {18, 3,25,26},
   { 3, 9,25,26},
-  { 9, 1,25,26}
+  { 9, 1,25,26},
 };
 
 static vtkIdType quadVoxTris[][3] =
@@ -1175,7 +1175,7 @@ static vtkIdType quadVoxTris[][3] =
   { 7,18,25},
   {18, 3,25},
   { 3, 9,25},
-  { 9, 1,25}
+  { 9, 1,25},
 };
 
 static vtkIdType quadVoxEdges[][2] =
@@ -1203,7 +1203,7 @@ static vtkIdType quadVoxEdges[][2] =
   { 3,18},
   {18, 7},
   { 6,19},
-  {19, 2}
+  {19, 2},
 };
 
 

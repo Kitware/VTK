@@ -155,12 +155,11 @@ int TestOrderStatistics( int, char *[] )
   // Offset between baseline values for each variable
   int valsOffset = 5;
 
-  double valsTest1 [] =
-    {
-      46., 47., 49., 51.5, 54.,
-      45., 47., 49., 52., 54.,
-      0., 7.5, 15.5, 23.5, 31.,
-    };
+  double valsTest1 [] = {
+    46., 47., 49., 51.5, 54., //
+    45., 47., 49., 52., 54., //
+    0., 7.5, 15.5, 23.5, 31. //
+  };
 
   // Get output data and meta tables
   vtkTable* outputData = os->GetOutput( vtkStatisticsAlgorithm::OUTPUT_DATA );
@@ -326,12 +325,11 @@ int TestOrderStatistics( int, char *[] )
   os->SetAssessOption( false );
   os->Update();
 
-  double valsTest2 [] =
-    {
-      46., 47., 49., 51., 54.,
-      45., 47., 49., 52., 54.,
-      0., 7., 15., 23., 31.,
-    };
+  double valsTest2 [] = {
+    46., 47., 49., 51., 54.,  //
+    45., 47., 49., 52., 54.,  //
+    0., 7., 15., 23., 31.  //
+  };
 
   // Get calculated model
   outputModelDS = vtkMultiBlockDataSet::SafeDownCast( os->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );

@@ -75,7 +75,7 @@ bool IsConvex(Shape shape)
                                             {-0.375185,  1.1547,     -1.58931},
                                             {-1.21412,   0,          -1.58931},
                                             {-0.375185,  -1.1547,    -1.58931},
-                                            {0.982247,   -0.713644,  -1.58931}};
+                                            {0.982247,   -0.713644,  -1.58931},};
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
     {
@@ -94,7 +94,7 @@ bool IsConvex(Shape shape)
                                             {17, 12, 7, 11, 16},
                                             {18, 13, 8, 12, 17},
                                             {19, 14, 9, 13, 18},
-                                            {19, 18, 17, 16, 15}};
+                                            {19, 18, 17, 16, 15},};
 
     for (int i = 0; i < nFaces; i++)
     {
@@ -122,7 +122,7 @@ bool IsConvex(Shape shape)
                                             {-.25, -.25, -.25},
                                             {-.25, .5,   -.25},
                                             {-.5,  .5,   -.25},
-                                            {-.5,  -.5,  -.25}};
+                                            {-.5,  -.5,  -.25},};
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
@@ -163,7 +163,7 @@ bool IsConvex(Shape shape)
                                          {.5,   .5, -.5},
                                          {-.5,  .5, -.5},
                                          {-.5, -.5, -.5},
-                                         {.5,  -.5, -.5}};
+                                         {.5,  -.5, -.5},};
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
@@ -201,7 +201,7 @@ bool IsConvex(Shape shape)
                                          {0.,   .5, -.5},
                                          {-.5,  .5, -.5},
                                          {-.5, -.5, -.5},
-                                         {.5,  -.5, -.5}};
+                                         {.5,  -.5, -.5},};
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
@@ -247,7 +247,7 @@ bool IsConvex(Shape shape)
                                          {.5,   .5, -.5},
                                          {-.5,  .5, -.5},
                                          {-.5, -.5, -.5},
-                                         {.5,  -.5, -.5}};
+                                         {.5,  -.5, -.5},};
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
@@ -288,7 +288,7 @@ bool IsConvex(Shape shape)
                                          {0., 1., -.5},
                                          {1., 1., -.5},
                                          {1., 0., -.5},
-                                         {.5, .5, .5}};
+                                         {.5, .5, .5},};
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)
@@ -320,7 +320,7 @@ bool IsConvex(Shape shape)
                                          {0., 1., -.5},
                                          {.25, .25, -.5},
                                          {1., 0., -.5},
-                                         {0., 0., .5}};
+                                         {0., 0., .5},};
 
     polyhedronPoints->SetNumberOfPoints(nPoints);
     for (int i = 0; i < nPoints; i++)

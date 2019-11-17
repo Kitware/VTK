@@ -370,7 +370,7 @@ static LINE_CASES lineCases[] = {
   {{2, 1, -1}},
   {{0, 1, -1}},
   {{2, 0, -1}},
-  {{-1, -1, -1}}
+  {{-1, -1, -1}},
 };
 }
 
@@ -1589,8 +1589,11 @@ void vtkTriangle::ComputeQuadric(const double x1[3], const double x2[3], const d
 }
 
 //----------------------------------------------------------------------------
-static double vtkTriangleCellPCoords[9] =
-{0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0};
+static double vtkTriangleCellPCoords[9] = {
+  0.0,0.0,0.0,  //
+  1.0,0.0,0.0,  //
+  0.0,1.0,0.0  //
+};
 double *vtkTriangle::GetParametricCoords()
 {
   return vtkTriangleCellPCoords;

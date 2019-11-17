@@ -56,8 +56,8 @@ inline vtkColor3ub vtkColor3ubFromHex3(vtkTypeUInt32 hex)
 vtkColorSeries::Private::Private()
 {
   this->Palettes.resize(vtkColorSeries::CUSTOM);
-  vtkTypeUInt32 colors[] =
-    {
+  // clang-format off
+  vtkTypeUInt32 colors[] = {
     // Original vtkColorSeries palettes, not part of the Brewer schemes
     vtkColorSeries::SPECTRUM,
     0x000000, 0xE41A1C, 0x377EB8, 0x4DAF4A, 0x984EA3, 0xFF7F00, 0xA65628,
@@ -251,7 +251,8 @@ guidance on attribution and permissions:
     //   Set3
     vtkColorSeries::BREWER_QUALITATIVE_SET3,
     0x8DD3C7, 0xFFFFB3, 0xBEBADA, 0xFB8072, 0x80B1D3, 0xFDB462, 0xB3DE69, 0xFCCDE5, 0xD9D9D9, 0xBC80BD, 0xCCEBC5, 0xFFED6F,
-    };
+  };
+  // clang-format on
   const char* names[] =
     {
     "Spectrum",
@@ -276,32 +277,31 @@ guidance on attribution and permissions:
     "Brewer Qualitative Pastel1",
     "Brewer Qualitative Set1",
     "Brewer Qualitative Paired",
-    "Brewer Qualitative Set3"
+    "Brewer Qualitative Set3",
     };
-  int sizes[][2] =
-    {
-      {  7,  7 },
-      {  6,  6 },
-      {  7,  7 },
-      {  7,  7 },
-      {  7,  7 },
-      {  6,  6 },
+  int sizes[][2] = {
+    { 7, 7 },
+    { 6, 6 },
+    { 7, 7 },
+    { 7, 7 },
+    { 7, 7 },
+    { 6, 6 },
 
-      { 11,  3 },
-      { 11,  3 },
-      { 11,  3 },
-      {  9,  3 },
-      {  9,  3 },
-      {  9,  3 },
-      {  8,  8 },
-      {  8,  8 },
-      {  8,  8 },
-      {  8,  8 },
-      {  9,  9 },
-      {  9,  9 },
-      { 11, 11 },
-      { 12, 12 }
-    };
+    { 11, 3 },
+    { 11, 3 },
+    { 11, 3 },
+    { 9, 3 },
+    { 9, 3 },
+    { 9, 3 },
+    { 8, 8 },
+    { 8, 8 },
+    { 8, 8 },
+    { 8, 8 },
+    { 9, 9 },
+    { 9, 9 },
+    { 11, 11 },
+    { 12, 12 },
+  };
   vtkTypeUInt32* color = colors;
   vtkColorSeriesPalette* pal;
   for (unsigned i = 0; i < sizeof(names) / sizeof(names[0]); ++i)

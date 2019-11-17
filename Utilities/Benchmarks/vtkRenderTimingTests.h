@@ -576,7 +576,7 @@ class depthPeelingTest : public vtkRTTest
                                                   { 128,  64,  64, 32 },
                                                   {  64, 128,  64, 32 },
                                                   {  64,  64, 128, 32 },
-                                                  {  64,  64,  64, 32 } };
+                                                  {  64,  64,  64, 32 }, };
 
     for (int i = 0; i < NUM_ACTORS; ++i)
       {

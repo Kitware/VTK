@@ -71,7 +71,7 @@ vtkCell *vtkQuadraticTriangle::GetEdge(int edgeId)
 
 //----------------------------------------------------------------------------
 // order picked carefully for parametric coordinate conversion
-static int LinearTris[4][3] = { {0,3,5}, {3, 1,4}, {5,4,2}, {4,5,3} };
+static int LinearTris[4][3] = { {0,3,5}, {3, 1,4}, {5,4,2}, {4,5,3}, };
 
 int vtkQuadraticTriangle::EvaluatePosition(const double* x, double closestPoint[3],
                                            int& subId, double pcoords[3],
@@ -442,8 +442,13 @@ void vtkQuadraticTriangle::InterpolationDerivs(const double pcoords[3],
 
 //----------------------------------------------------------------------------
 static double vtkQTriangleCellPCoords[18] = {
-  0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0,
-  0.5,0.0,0.0, 0.5,0.5,0.0, 0.0,0.5,0.0};
+  0.0,0.0,0.0,  //
+  1.0,0.0,0.0,  //
+  0.0,1.0,0.0,  //
+  0.5,0.0,0.0,  //
+  0.5,0.5,0.0,  //
+  0.0,0.5,0.0  //
+};
 double *vtkQuadraticTriangle::GetParametricCoords()
 {
   return vtkQTriangleCellPCoords;

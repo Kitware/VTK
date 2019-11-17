@@ -58,7 +58,7 @@ static BenchOption FilterList[] =
   { "Reslice2D",      "reslice:kernel=linear:rotation=45/0/0/1" },
   { "Reslice3D",      "reslice:kernel=linear:rotation=60/0/1/1" },
   { "Colors4",        "colormap:components=4" },
-  { nullptr, nullptr }
+  { nullptr, nullptr },
 };
 
 static BenchOption SplitModeList[] =
@@ -66,7 +66,7 @@ static BenchOption SplitModeList[] =
   { "Slab", "slab" },
   { "Beam", "beam" },
   { "Block", "block" },
-  { nullptr, nullptr }
+  { nullptr, nullptr },
 };
 
 // These are only for --enable-smp on
@@ -80,14 +80,14 @@ static BenchOption BlockByteList[] =
   { "1MiB",   "1048576" },
   { "4MiB",   "4194304" },
   { "16MiB",  "16777216" },
-  { nullptr, nullptr }
+  { nullptr, nullptr },
 };
 
 static BenchOption ImageSizeList[] =
 {
   { "4096x4096",   "4096x4096x1" },
   { "256x256x256", "256x256x256" },
-  { nullptr, nullptr }
+  { nullptr, nullptr },
 };
 
 static BenchParameter Parameters[] =
@@ -96,7 +96,7 @@ static BenchParameter Parameters[] =
   { "--split-mode", SplitModeList },
   { "--bytes-per-piece", BlockByteList },
   { "--size", ImageSizeList },
-  { nullptr, nullptr }
+  { nullptr, nullptr },
 };
 
 int main(int argc, char *argv[])

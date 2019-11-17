@@ -38,11 +38,11 @@ namespace
   // The linearized tetra is comprised of six linearized edges. Each edge is
   // comprised of two vertices. These must be consistent with vtkTetra.
   static const vtkIdType EdgeVertices[6][2] = {{0,1},{1,2},{2,0},
-                                               {0,3},{1,3},{2,3}};
+                                               {0,3},{1,3},{2,3},};
 
   // The barycentric coordinates of the four vertices of the linear tetra.
   static const vtkIdType LinearVertices[4][4] = {{0,0,0,1}, {1,0,0,0},
-                                                 {0,1,0,0}, {0,0,1,0}};
+                                                 {0,1,0,0}, {0,0,1,0},};
 
   // When describing a linearized tetra face, there is a mapping between the
   // four-component barycentric tetra system and the three-component barycentric
@@ -50,7 +50,7 @@ namespace
   // system for each face (e.g. face 0 varies across the barycentric tetra
   // coordinates 0, 2 and 3).
   static const vtkIdType FaceBCoords[4][3] = {{0,2,3}, {2,0,1},
-                                              {2,1,3}, {1,0,3}};
+                                              {2,1,3}, {1,0,3},};
 
   // When describing a linearized tetra face, there is a mapping between the
   // four-component barycentric tetra system and the three-component barycentric
@@ -63,7 +63,7 @@ namespace
   // and varies the other two. These are the coordinates that are held constant
   // for each edge.
   static const vtkIdType EdgeMinCoords[6][2] = {{1,2},{2,3},{0,2},
-                                                {0,1},{1,3},{0,3}};
+                                                {0,1},{1,3},{0,3},};
 
   // The coordinate that increments when traversing an edge (i.e. the coordinate
   // of the nonzero component of the second vertex of the edge).
@@ -80,30 +80,32 @@ namespace
   static const int LinearTetras[3][4][4] =
     { { {2,0,1,4}, {2,1,5,4}, {2,5,3,4}, {2,3,0,4} },
       { {0,4,1,5}, {0,1,2,5}, {0,2,3,5}, {0,3,4,5} },
-      { {1,5,2,3}, {1,2,0,3}, {1,0,4,3}, {1,4,5,3} } };
+      { {1,5,2,3}, {1,2,0,3}, {1,0,4,3}, {1,4,5,3} }, };
 
 #ifdef FIFTEEN_POINT_TETRA
-  double FifteenPointTetraCoords[15*3] = {0.,0.,0.,
-                                          1.,0.,0.,
-                                          0.,1.,0.,
-                                          0.,0.,1.,
-                                          .5,0.,0.,
-                                          .5,.5,0.,
-                                          0.,.5,0.,
-                                          0.,0.,.5,
-                                          .5,0.,.5,
-                                          0.,.5,.5,
-                                          1./3.,1./3.,0.,
-                                          1./3.,0.,1./3.,
-                                          1./3.,1./3,1./3.,
-                                          0.,1./3.,1./3.,
-                                          .25,.25,.25};
+  double FifteenPointTetraCoords[15*3] = {
+    0., 0., 0.,               //
+    1., 0., 0.,               //
+    0., 1., 0.,               //
+    0., 0., 1.,               //
+    .5, 0., 0.,               //
+    .5, .5, 0.,               //
+    0., .5, 0.,               //
+    0., 0., .5,               //
+    .5, 0., .5,               //
+    0., .5, .5,               //
+    1. / 3., 1. / 3., 0.,     //
+    1. / 3., 0., 1. / 3.,     //
+    1. / 3., 1. / 3, 1. / 3., //
+    0., 1. / 3., 1. / 3.,     //
+    .25, .25, .25             //
+  };
 
   static const vtkIdType FifteenPointTetraSubtetras[28][4] =
     {{0,4,10,14},{1,4,10,14},{1,5,10,14},{2,5,10,14},{2,6,10,14},{0,6,10,14},
      {0,7,11,14},{3,7,11,14},{3,8,11,14},{1,8,11,14},{1,4,11,14},{0,4,11,14},
      {1,5,12,14},{2,5,12,14},{2,9,12,14},{3,9,12,14},{3,8,12,14},{1,8,12,14},
-     {0,7,13,14},{3,7,13,14},{3,9,13,14},{2,9,13,14},{2,6,13,14},{0,6,13,14}};
+     {0,7,13,14},{3,7,13,14},{3,9,13,14},{2,9,13,14},{2,6,13,14},{0,6,13,14},};
 #endif
 }
 
@@ -485,7 +487,7 @@ int vtkLagrangeTetra::CellBoundary(int vtkNotUsed(subId), const double pcoords[3
     { 0, 3, 2 },
     { 0, 1, 3 },
     { 0, 2, 1 },
-    { 1, 2, 3 }
+    { 1, 2, 3 },
   };
 
   pts->SetNumberOfIds(3);

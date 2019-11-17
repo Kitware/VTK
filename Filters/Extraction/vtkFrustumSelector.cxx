@@ -497,17 +497,17 @@ vtkFrustumSelector::vtkFrustumSelector(vtkPlanes* f)
   this->Frustum = f;
   if (!this->Frustum)
   {
-    double verts[32] = //an inside out unit cube - which selects nothing
-      {
-      0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 1.0, 1.0, 0.0,
-      1.0, 0.0, 0.0, 0.0,
-      1.0, 0.0, 1.0, 0.0,
-      1.0, 1.0, 0.0, 0.0,
-      1.0, 1.0, 1.0, 0.0
-      };
+    //an inside out unit cube - which selects nothing
+    double verts[32] = {
+      0.0, 0.0, 0.0, 0.0, //
+      0.0, 0.0, 1.0, 0.0, //
+      0.0, 1.0, 0.0, 0.0, //
+      0.0, 1.0, 1.0, 0.0, //
+      1.0, 0.0, 0.0, 0.0, //
+      1.0, 0.0, 1.0, 0.0, //
+      1.0, 1.0, 0.0, 0.0, //
+      1.0, 1.0, 1.0, 0.0 //
+    };
     this->Frustum = vtkSmartPointer<vtkPlanes>::New();
     this->CreateFrustum(verts);
   }

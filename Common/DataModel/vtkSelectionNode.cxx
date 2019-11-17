@@ -47,7 +47,7 @@ const char vtkSelectionNode
   "THRESHOLDS",
   "BLOCKS",
   "QUERY",
-  "USER"
+  "USER",
 };
 
 const char vtkSelectionNode
@@ -58,7 +58,7 @@ const char vtkSelectionNode
   "FIELD",
   "VERTEX",
   "EDGE",
-  "ROW"
+  "ROW",
 };
 
 vtkInformationKeyMacro(vtkSelectionNode,CONTENT_TYPE,Integer);

@@ -46,23 +46,21 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   int numPoints = 20;
   table->SetNumberOfRows(numPoints);
 
-  double MathValue[] =
-    {
-    18, 20, 20, 16,
-    12, 14, 16, 14,
-    14, 13, 16, 18,
-    6, 10, 16, 14,
-    4, 16, 16, 14
-    };
+  double MathValue[] = {
+    18, 20, 20, 16, //
+    12, 14, 16, 14, //
+    14, 13, 16, 18, //
+    6, 10, 16, 14, //
+    4, 16, 16, 14 //
+  };
 
-  double FrenchValue[] =
-    {
-    14, 12, 14, 16,
-    12, 14, 16, 4,
-    4, 10, 6, 20,
-    14, 16, 14, 14,
-    12, 2, 14, 8
-    };
+  double FrenchValue[] = {
+    14, 12, 14, 16, //
+    12, 14, 16, 4, //
+    4, 10, 6, 20, //
+    14, 16, 14, 14, //
+    12, 2, 14, 8 //
+  };
 
   for (int i = 0; i < numPoints; ++i)
   {

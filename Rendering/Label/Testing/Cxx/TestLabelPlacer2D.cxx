@@ -1963,7 +1963,7 @@ static const char* vtkTextLabelList[] =
   "Now Look What You've Made Me Do",
   "Kiss This Then",
   "Experiencing A Significant Gravitas Shortfall",
-  "Hairier Legs Than Mine"
+  "Hairier Legs Than Mine",
 };
 
 static unsigned int vtkTextLabelListLength =

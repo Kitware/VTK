@@ -677,7 +677,7 @@ void vtkCellTypeSource::GenerateTetras(
           i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1)};
+          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
@@ -747,7 +747,7 @@ void vtkCellTypeSource::GenerateHexahedron(
           i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1)};
+          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
         output->InsertNextCell(VTK_HEXAHEDRON, 8, hexIds);
       }
     }
@@ -815,7 +815,7 @@ void vtkCellTypeSource::GeneratePyramids(
           i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1)};
+          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
@@ -873,7 +873,7 @@ void vtkCellTypeSource::GenerateQuadraticTetras(
     {{0, 3}, {3, 7}, {0, 7}, {0, 8}, {3, 8}, {7, 8}},
     {{0, 7}, {4, 7}, {0, 4}, {0, 8}, {7, 8}, {4, 8}},
     {{7, 6}, {3, 7}, {3, 6}, {6, 8}, {7, 8}, {3, 8}},
-    {{3, 6}, {3, 2}, {2, 6}, {6, 8}, {3, 8}, {2, 8}}
+    {{3, 6}, {3, 2}, {2, 6}, {6, 8}, {3, 8}, {2, 8}},
   };
 
   for(int k=0;k<zDim;k++)
@@ -891,7 +891,7 @@ void vtkCellTypeSource::GenerateQuadraticTetras(
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          -1};
+          -1,};
 
         // add in center point
         double point1[3], point2[3];
@@ -962,7 +962,7 @@ void vtkCellTypeSource::GenerateQuadraticHexahedron(
   const vtkIdType edgePairs[12][2] = {
     {0, 1}, {1, 2}, {3, 2}, {0, 3},
     {4, 5}, {5, 6}, {7, 6}, {4, 7},
-    {0, 4}, {1, 5}, {2, 6}, {3, 7} };
+    {0, 4}, {1, 5}, {2, 6}, {3, 7}, };
 
   for(int k=0;k<zDim;k++)
   {
@@ -979,7 +979,7 @@ void vtkCellTypeSource::GenerateQuadraticHexahedron(
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,};
         for(int e=0;e<12;e++)
         {
           std::pair<vtkIdType, vtkIdType> edge =
@@ -1022,13 +1022,14 @@ void vtkCellTypeSource::GenerateQuadraticWedges(
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
   const vtkIdType edgePairs[2][9][2] = {
-    { {0, 3}, {1, 3}, {0, 1},
-      {4, 7}, {5, 7}, {4, 5},
-      {0, 4}, {3, 7}, {1, 5}},
-    { {1, 3}, {3, 2}, {1, 2},
-      {5, 7}, {7, 6}, {5, 6},
-      {1, 5}, {3, 7}, {2, 6}
-    }};
+    { {0, 3}, {1, 3}, {0, 1}, //
+      {4, 7}, {5, 7}, {4, 5}, //
+      {0, 4}, {3, 7}, {1, 5}  //
+    },
+    { {1, 3}, {3, 2}, {1, 2}, //
+      {5, 7}, {7, 6}, {5, 6}, //
+      {1, 5}, {3, 7}, {2, 6}  //
+    },};
   for(int k=0;k<zDim;k++)
   {
     for(int j=0;j<yDim;j++)
@@ -1043,7 +1044,7 @@ void vtkCellTypeSource::GenerateQuadraticWedges(
           i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1)};
+          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),};
 
         vtkIdType wedgeIds[2][15] = {
           {hexIds[0], hexIds[3], hexIds[1],
@@ -1097,18 +1098,24 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
   const vtkIdType edgePairs[6][8][2] = {
-    { {0, 1}, {1, 2}, {3, 2}, {0, 3},
-      {0, 8}, {1, 8}, {2, 8}, {3, 8} },
-    { {5, 6}, {4, 5}, {4, 7}, {7, 6},
-      {6, 8}, {5, 8}, {4, 8}, {7, 8} },
-    { {1, 5}, {5, 6}, {2, 6}, {1, 2},
-      {1, 8}, {5, 8}, {6, 8}, {2, 8} },
-    { {0, 4}, {4, 5}, {1, 5}, {0, 1},
-      {0, 8}, {4, 8}, {5, 8}, {1, 8} },
-    { {0, 3}, {3, 7}, {4, 7}, {0, 4},
-      {0, 8}, {3, 8}, {7, 8}, {4, 8} },
-    { {7, 6}, {3, 7}, {3, 2}, {2, 6},
-      {6, 8}, {7, 8}, {3, 8}, {2, 8} }
+    { {0, 1}, {1, 2}, {3, 2}, {0, 3}, //
+      {0, 8}, {1, 8}, {2, 8}, {3, 8}  //
+    },
+    { {5, 6}, {4, 5}, {4, 7}, {7, 6}, //
+      {6, 8}, {5, 8}, {4, 8}, {7, 8}  //
+    },
+    { {1, 5}, {5, 6}, {2, 6}, {1, 2}, //
+      {1, 8}, {5, 8}, {6, 8}, {2, 8}  //
+    },
+    { {0, 4}, {4, 5}, {1, 5}, {0, 1}, //
+      {0, 8}, {4, 8}, {5, 8}, {1, 8}  //
+    },
+    { {0, 3}, {3, 7}, {4, 7}, {0, 4}, //
+      {0, 8}, {3, 8}, {7, 8}, {4, 8}  //
+    },
+    { {7, 6}, {3, 7}, {3, 2}, {2, 6}, //
+      {6, 8}, {7, 8}, {3, 8}, {2, 8}  //
+    },
   };
 
   for(int k=0;k<zDim;k++)
@@ -1126,7 +1133,7 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(
           i+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+j*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
           i+1+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1),
-          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1), -1};
+          i+(j+1)*(xDim+1)+(k+1)*(xDim+1)*(yDim+1), -1,};
         // add in center point
         double point1[3], point2[3];
         output->GetPoint(hexIds[0], point1);
@@ -1405,7 +1412,7 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
           { 1, 2, 3, 6 },
           { 4, 7, 6, 3 },
           { 4, 6, 5, 1 },
-          { 1, 4, 6, 3 }
+          { 1, 4, 6, 3 },
         };
         for (int te = 0; te < 5; ++te)
         {
@@ -1440,7 +1447,7 @@ void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int ex
               { 0, 1, 2 },
               { 0, 1, 3 },
               { 1, 2, 3 },
-              { 0, 2, 3 }
+              { 0, 2, 3 },
             };
             for (int extra = 0; extra < 4; ++extra)
             {

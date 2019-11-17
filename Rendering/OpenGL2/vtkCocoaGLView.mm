@@ -164,7 +164,7 @@ static const char *vtkMacCharCodeToKeySymTable[128] = {
   "quoteleft", "a", "b", "c", "d", "e", "f", "g",
   "h", "i", "j", "k", "l", "m", "n", "o",
   "p", "q", "r", "s", "t", "u", "v", "w",
-  "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
+  "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete"
 };
 
 //----------------------------------------------------------------------------
@@ -182,7 +182,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   "F5", "F6", "F7", "F3", "F8", nullptr, nullptr, nullptr,
   nullptr, "Snapshot", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
   nullptr, nullptr, "Help", "Home", "Prior", "Delete", "F4", "End",
-  "F2", "Next", "F1", "Left", "Right", "Down", "Up", nullptr,
+  "F2", "Next", "F1", "Left", "Right", "Down", "Up", nullptr
 };
 
 //----------------------------------------------------------------------------

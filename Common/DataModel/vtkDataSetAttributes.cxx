@@ -48,7 +48,7 @@ const char vtkDataSetAttributes
   "GlobalIds",
   "PedigreeIds",
   "EdgeFlag",
-  "Tangents"
+  "Tangents",
 };
 
 const char vtkDataSetAttributes
@@ -61,7 +61,7 @@ const char vtkDataSetAttributes
   "vtkDataSetAttributes::GLOBALIDS",
   "vtkDataSetAttributes::PEDIGREEIDS",
   "vtkDataSetAttributes::EDGEFLAG",
-  "vtkDataSetAttributes::TANGENTS"
+  "vtkDataSetAttributes::TANGENTS",
 };
 
 //--------------------------------------------------------------------------
@@ -457,7 +457,7 @@ struct CopyStructuredDataWorker
         this->OutExt[2] - this->InExt[2],
         this->OutExt[3] - this->InExt[2],
         this->OutExt[4] - this->InExt[4],
-        this->OutExt[5] - this->InExt[4]
+        this->OutExt[5] - this->InExt[4],
       };
 
       // Give the compiler a hand -- allow optimizations that require both arrays
@@ -469,7 +469,7 @@ struct CopyStructuredDataWorker
 
       const int dims[3] = { this->InExt[1] - this->InExt[0] + 1,
                             this->InExt[3] - this->InExt[2] + 1,
-                            this->InExt[5] - this->InExt[4] + 1};
+                            this->InExt[5] - this->InExt[4] + 1,};
 
       vtkIdType outTupleIdx = 0;
       for (int outz = relOutExt[4]; outz <= relOutExt[5]; ++outz)

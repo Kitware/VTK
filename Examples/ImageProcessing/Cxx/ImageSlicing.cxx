@@ -180,10 +180,11 @@ int main (int argc, char *argv[])
   //         0, 0, 0, 1 };
 
   static double sagittalElements[16] = {
-           0, 0,-1, 0,
-           1, 0, 0, 0,
-           0,-1, 0, 0,
-           0, 0, 0, 1 };
+           0, 0,-1, 0,//
+           1, 0, 0, 0,//
+           0,-1, 0, 0,//
+           0, 0, 0, 1//
+  };
 
   //static double obliqueElements[16] = {
   //         1, 0, 0, 0,

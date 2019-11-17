@@ -31,21 +31,21 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro( vtkHyperTreeGridToDualGrid );
 
 static const unsigned int CornerNeighborCursorsTable3D0[8] = {
-   0, 1, 3, 4, 9, 10, 12, 13, };
+   0, 1, 3, 4, 9, 10, 12, 13 };
 static const unsigned int CornerNeighborCursorsTable3D1[8] = {
-   1, 2, 4, 5, 10, 11, 13, 14, };
+   1, 2, 4, 5, 10, 11, 13, 14 };
 static const unsigned int CornerNeighborCursorsTable3D2[8] = {
-   3, 4, 6, 7, 12, 13, 15, 16, };
+   3, 4, 6, 7, 12, 13, 15, 16 };
 static const unsigned int CornerNeighborCursorsTable3D3[8] = {
-   4, 5, 7, 8, 13, 14, 16, 17, };
+   4, 5, 7, 8, 13, 14, 16, 17 };
 static const unsigned int CornerNeighborCursorsTable3D4[8] = {
-   9, 10, 12, 13, 18, 19, 21, 22, };
+   9, 10, 12, 13, 18, 19, 21, 22 };
 static const unsigned int CornerNeighborCursorsTable3D5[8] = {
-   10, 11, 13, 14, 19, 20, 22, 23, };
+   10, 11, 13, 14, 19, 20, 22, 23 };
 static const unsigned int CornerNeighborCursorsTable3D6[8] = {
-   12, 13, 15, 16, 21, 22, 24, 25, };
+   12, 13, 15, 16, 21, 22, 24, 25 };
 static const unsigned int CornerNeighborCursorsTable3D7[8] = {
-   13, 14, 16, 17, 22, 23, 25, 26, };
+   13, 14, 16, 17, 22, 23, 25, 26 };
 static const unsigned int* CornerNeighborCursorsTable3D[8] = {
   CornerNeighborCursorsTable3D0,
   CornerNeighborCursorsTable3D1,

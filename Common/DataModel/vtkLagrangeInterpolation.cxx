@@ -38,7 +38,7 @@ static const double hexCorner[8][3] = {
   {  0.,  0., +1. },
   { +1.,  0., +1. },
   { +1., +1., +1. },
-  {  0., +1., +1. }
+  {  0., +1., +1. },
 };
 
 // Edges and faces are always oriented along quad/hexahedron axes,
@@ -57,7 +57,7 @@ static const int hexEdgeCorners[12][5] = {
   { 0, 4,   2,        0, 1 },
   { 1, 5,   2,        0, 1 },
   { 3, 7,   2,        0, 1 },
-  { 2, 6,   2,        0, 1 }
+  { 2, 6,   2,        0, 1 },
 };
 
 static const int hexFaceCorners[6][7] = {
@@ -86,7 +86,7 @@ static const double wedgeCorner[6][3] = {
   {  0., +1.,  0. },
   {  0.,  0., +1. },
   { +1.,  0., +1. },
-  {  0., +1., +1. }
+  {  0., +1., +1. },
 };
 
 // Edges and faces are always oriented along quad/hexahedron axes,
@@ -104,7 +104,7 @@ static const int wedgeEdgeCorners[9][5] = {
 
   { 0, 3,   2,        0, 1 },
   { 1, 4,   2,        0, 1 },
-  { 2, 5,   2,        0, 1 }
+  { 2, 5,   2,        0, 1 },
 };
 
 static const int wedgeFaceCorners[5][9] = {

@@ -35,19 +35,21 @@ namespace tovtkm
 //------------------------------------------------------------------------------
 // All scalar types in vtkType.h
 struct VTKScalarTypes
-  : vtkm::ListTagBase<char,
-                      signed char,
-                      unsigned char,
-                      short,
-                      unsigned short,
-                      int,
-                      unsigned int,
-                      long,
-                      unsigned long,
-                      long long,
-                      unsigned long long,
-                      float,
-                      double>
+  : vtkm::ListTagBase< //
+      char, //
+      signed char, //
+      unsigned char, //
+      short, //
+      unsigned short, //
+      int, //
+      unsigned int, //
+      long, //
+      unsigned long, //
+      long long, //
+      unsigned long long, //
+      float, //
+      double //
+    >
 {
 };
 
@@ -121,26 +123,29 @@ using CellSetSingleType64Bit = vtkm::cont::CellSetSingleType<Int64AsIdAOSStorage
 
 //------------------------------------------------------------------------------
 struct CellListUnstructuredInVTK
-    : vtkm::ListTagBase<CellSetExplicit32Bit,
-                        CellSetExplicit64Bit,
-                        CellSetSingleType32Bit,
-                        CellSetSingleType64Bit>
+  : vtkm::ListTagBase< //
+      CellSetExplicit32Bit, //
+      CellSetExplicit64Bit, //
+      CellSetSingleType32Bit, //
+      CellSetSingleType64Bit //
+    >
 {
 };
 struct CellListUnstructuredOutVTK
-    : vtkm::ListTagBase<
-          vtkm::cont::CellSetExplicit<>,
-          vtkm::cont::CellSetSingleType<>,
-          CellSetExplicit32Bit,
-          CellSetExplicit64Bit,
-          CellSetSingleType32Bit,
-          CellSetSingleType64Bit,
-          vtkm::cont::CellSetPermutation<CellSetExplicit32Bit>,
-          vtkm::cont::CellSetPermutation<CellSetExplicit64Bit>,
-          vtkm::cont::CellSetPermutation<CellSetSingleType32Bit>,
-          vtkm::cont::CellSetPermutation<CellSetSingleType64Bit>,
-          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetExplicit<>>,
-          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetSingleType<>>>
+    : vtkm::ListTagBase< //
+      vtkm::cont::CellSetExplicit<>, //
+      vtkm::cont::CellSetSingleType<>, //
+      CellSetExplicit32Bit, //
+      CellSetExplicit64Bit, //
+      CellSetSingleType32Bit, //
+      CellSetSingleType64Bit, //
+      vtkm::cont::CellSetPermutation<CellSetExplicit32Bit>, //
+      vtkm::cont::CellSetPermutation<CellSetExplicit64Bit>, //
+      vtkm::cont::CellSetPermutation<CellSetSingleType32Bit>, //
+      vtkm::cont::CellSetPermutation<CellSetSingleType64Bit>, //
+      vtkm::cont::CellSetPermutation<vtkm::cont::CellSetExplicit<> >, //
+      vtkm::cont::CellSetPermutation<vtkm::cont::CellSetSingleType<> > //
+    >
 {
 };
 

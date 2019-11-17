@@ -189,7 +189,7 @@ const char* x3dElementString[X3DELEMENTNUM] = {
     "TextureCoordinate3D",
     "TextureCoordinate4D",
     "TextureTransform3D",
-    "TextureTransformMatrix3D"
+    "TextureTransformMatrix3D",
   };
 
 const char* x3dAttributeString[X3DATTRIBUTENUM] = {
@@ -538,6 +538,6 @@ const char* x3dAttributeString[X3DATTRIBUTENUM] = {
   "texCoord",
   "activate",
   "programs",
-  "matrix"
+  "matrix",
   };
 

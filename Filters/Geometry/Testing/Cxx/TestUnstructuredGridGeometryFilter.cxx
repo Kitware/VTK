@@ -3583,7 +3583,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
     {0, 1, 5, 4},
     {3, 7, 6, 2},
     {0, 3, 2, 1},
-    {4, 5, 6, 7}
+    {4, 5, 6, 7},
   };
   polyhedron->GetPointIds()->SetNumberOfIds(6 * 5 + 1);
   vtkIdType fptr = 0;

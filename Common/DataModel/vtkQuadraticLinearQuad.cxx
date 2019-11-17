@@ -56,10 +56,10 @@ vtkQuadraticLinearQuad::~vtkQuadraticLinearQuad ()
 }
 
 //----------------------------------------------------------------------------
-static int LinearQuads[2][4] = { {0, 4, 5, 3}, {4, 1, 2, 5} };
+static int LinearQuads[2][4] = { {0, 4, 5, 3}, {4, 1, 2, 5}, };
 
 static int LinearQuadEdges[4][3] = { {0, 1, 4}, {1, 2,-1},
-                                     {2, 3, 5}, {3, 0,-1}};
+                                     {2, 3, 5}, {3, 0,-1},};
 
 //----------------------------------------------------------------------------
 int *vtkQuadraticLinearQuad::GetEdgeArray(int edgeId)
@@ -446,9 +446,14 @@ void vtkQuadraticLinearQuad::InterpolationDerivs(const double pcoords[3], double
 }
 
 //----------------------------------------------------------------------------
-static double vtkQLinQuadCellPCoords[18] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                                             1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-                                             0.5, 0.0, 0.0, 0.5, 1.0, 0.0 };
+static double vtkQLinQuadCellPCoords[18] = {
+  0.0, 0.0, 0.0,  //
+  1.0, 0.0, 0.0,  //
+  1.0, 1.0, 0.0,  //
+  0.0, 1.0, 0.0,  //
+  0.5, 0.0, 0.0,  //
+  0.5, 1.0, 0.0  //
+};
 
 double *vtkQuadraticLinearQuad::GetParametricCoords ()
 {

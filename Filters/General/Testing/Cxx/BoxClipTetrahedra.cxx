@@ -56,10 +56,10 @@
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 static double tetrahedraPoints[4*3] = {
-  1.0, 0.0, 0.0,
-  -1.0, 0.0, 0.0,
-  0.0, 0.0, 1.0,
-  0.0, 1.0, 0.5
+  1.0, 0.0, 0.0,  //
+  -1.0, 0.0, 0.0,  //
+  0.0, 0.0, 1.0,  //
+  0.0, 1.0, 0.5 //
 };
 
 // All possible cell connectivites with the correct winding.
@@ -78,7 +78,7 @@ static vtkIdType tetrahedra[12][4] = {
 
   { 1, 3, 2, 0 },
   { 2, 1, 3, 0 },
-  { 3, 2, 1, 0 }
+  { 3, 2, 1, 0 },
 };
 
 static double minusx[] = { -1.0, 0.0, 0.0 };

@@ -34,27 +34,27 @@
 // VTK_21_POINT_WEDGE is defined (or not) in vtkLagrangeInterpolation.h
 #ifdef VTK_21_POINT_WEDGE
 static double vtkLagrangeWedge21ParametricCoords[21*3] = {
-  0.0,  0.0,  0.0,
-  1.0,  0.0,  0.0,
-  0.0,  1.0,  0.0,
-  0.0,  0.0,  1.0,
-  1.0,  0.0,  1.0,
-  0.0,  1.0,  1.0,
-  0.5,  0.0,  0.0,
-  0.5,  0.5,  0.0,
-  0.0,  0.5,  0.0,
-  0.5,  0.0,  1.0,
-  0.5,  0.5,  1.0,
-  0.0,  0.5,  1.0,
-  0.0,  0.0,  0.5,
-  1.0,  0.0,  0.5,
-  0.0,  1.0,  0.5,
-  1/3., 1/3., 0.0,
-  1/3., 1/3., 1.0,
-  0.5,  0.0,  0.5,
-  0.5,  0.5,  0.5,
-  0.0,  0.5,  0.5,
-  1/3., 1/3., 0.5
+  0.0, 0.0, 0.0,       //
+  1.0, 0.0, 0.0,       //
+  0.0, 1.0, 0.0,       //
+  0.0, 0.0, 1.0,       //
+  1.0, 0.0, 1.0,       //
+  0.0, 1.0, 1.0,       //
+  0.5, 0.0, 0.0,       //
+  0.5, 0.5, 0.0,       //
+  0.0, 0.5, 0.0,       //
+  0.5, 0.0, 1.0,       //
+  0.5, 0.5, 1.0,       //
+  0.0, 0.5, 1.0,       //
+  0.0, 0.0, 0.5,       //
+  1.0, 0.0, 0.5,       //
+  0.0, 1.0, 0.5,       //
+  1 / 3., 1 / 3., 0.0, //
+  1 / 3., 1 / 3., 1.0, //
+  0.5, 0.0, 0.5,       //
+  0.5, 0.5, 0.5,       //
+  0.0, 0.5, 0.5,       //
+  1 / 3., 1 / 3., 0.5  //
 };
 // Traversal order of subcells in 1st k-layer above:
 static const int vtkLagrangeWedge21EdgePoints[] = { 0, 6, 1, 7, 2, 8, 0 };
@@ -78,7 +78,7 @@ static const int vtkLagrangeWedge21ApproxCorners[12][6] = {
 };
 static const int vtkLagrangeWedge21TriFace[2][7] = {
   {  0,  2,  1,  8,  7,  6, 15 },
-  {  3,  4,  5,  9, 10, 11, 16 }
+  {  3,  4,  5,  9, 10, 11, 16 },
 };
 static const int vtkLagrangeWedge21QuadFace[3][9] = {
   {  0,  1,  4,  3,  6, 13,  9, 12, 17 },
@@ -94,7 +94,7 @@ static const int vtkLagrangeWedge21Edge[9][3] = {
   {  5,  3, 11 },
   {  0,  3, 12 },
   {  1,  4, 13 },
-  {  2,  5, 14 }
+  {  2,  5, 14 },
 };
 #endif
 
@@ -778,7 +778,7 @@ bool vtkLagrangeWedge::SubCellCoordinatesFromId(int& i, int& j, int& k, int subI
     { 2, 0 },
     { 1, 1 },
     { 0, 2 },
-    { 0, 1 }
+    { 0, 1 },
   };
   if (this->Order[3] == 21)
   {

@@ -65,7 +65,7 @@ int TestAMRInterpolatedVelocityField(int, char*[])
     {{-2.1,-0.51,1},
      {-1.9,-0.51,1},
      {-0.9,-0.51,1},
-     {-0.1,-0.51,1}
+     {-0.1,-0.51,1},
     };
 
   double v[3];

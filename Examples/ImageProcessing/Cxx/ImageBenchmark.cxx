@@ -164,7 +164,7 @@ const char *DefaultFilters[] =
   "histogram:stencil",
   "bspline:degree=3",
 
-  nullptr
+  nullptr,
 };
 
 bool Verbose = false;

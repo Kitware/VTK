@@ -103,7 +103,7 @@ static const char *vtkWrapPython_ClassHeader(
     { "vtkEdgeType", "vtkGraph.h" },
     { "vtkInEdgeType", "vtkGraph.h" },
     { "vtkOutEdgeType", "vtkGraph.h" },
-    { NULL, NULL }
+    { NULL, NULL },
   };
 
   HierarchyEntry *entry;

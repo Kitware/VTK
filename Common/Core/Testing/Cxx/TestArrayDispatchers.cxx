@@ -27,18 +27,18 @@
 #include <utility> // for std::move
 
 namespace vtkArrayDispatch {
-typedef vtkTypeList::Unique<
-  vtkTypeList::Create<
-    vtkAOSDataArrayTemplate<double>,
-    vtkAOSDataArrayTemplate<float>,
-    vtkAOSDataArrayTemplate<int>,
-    vtkAOSDataArrayTemplate<unsigned char>,
-    vtkAOSDataArrayTemplate<vtkIdType>,
-    vtkSOADataArrayTemplate<double>,
-    vtkSOADataArrayTemplate<float>,
-    vtkSOADataArrayTemplate<int>,
-    vtkSOADataArrayTemplate<unsigned char>,
-    vtkSOADataArrayTemplate<vtkIdType>
+typedef vtkTypeList::Unique< //
+  vtkTypeList::Create< //
+    vtkAOSDataArrayTemplate<double>, //
+    vtkAOSDataArrayTemplate<float>, //
+    vtkAOSDataArrayTemplate<int>, //
+    vtkAOSDataArrayTemplate<unsigned char>, //
+    vtkAOSDataArrayTemplate<vtkIdType>, //
+    vtkSOADataArrayTemplate<double>, //
+    vtkSOADataArrayTemplate<float>, //
+    vtkSOADataArrayTemplate<int>, //
+    vtkSOADataArrayTemplate<unsigned char>, //
+    vtkSOADataArrayTemplate<vtkIdType> //
   >
 >::Result Arrays;
 } // end namespace vtkArrayDispatch
@@ -191,16 +191,20 @@ std::vector<vtkDataArray*> Arrays::allArrays;
 // Miscellaneous Debris
 typedef std::vector<vtkDataArray*>::iterator ArrayIter;
 
-typedef vtkTypeList::Create<vtkAOSDataArrayTemplate<double>,
-                            vtkAOSDataArrayTemplate<float>,
-                            vtkAOSDataArrayTemplate<int>,
-                            vtkAOSDataArrayTemplate<unsigned char>,
-                            vtkAOSDataArrayTemplate<vtkIdType>> AoSArrayList;
-typedef vtkTypeList::Create<vtkSOADataArrayTemplate<double>,
-                            vtkSOADataArrayTemplate<float>,
-                            vtkSOADataArrayTemplate<int>,
-                            vtkSOADataArrayTemplate<unsigned char>,
-                            vtkSOADataArrayTemplate<vtkIdType>> SoAArrayList;
+typedef vtkTypeList::Create< //
+  vtkAOSDataArrayTemplate<double>, //
+  vtkAOSDataArrayTemplate<float>, //
+  vtkAOSDataArrayTemplate<int>, //
+  vtkAOSDataArrayTemplate<unsigned char>, //
+  vtkAOSDataArrayTemplate<vtkIdType> //
+> AoSArrayList;
+typedef vtkTypeList::Create< //
+  vtkSOADataArrayTemplate<double>, //
+  vtkSOADataArrayTemplate<float>, //
+  vtkSOADataArrayTemplate<int>, //
+  vtkSOADataArrayTemplate<unsigned char>, //
+  vtkSOADataArrayTemplate<vtkIdType> //
+> SoAArrayList;
 
 typedef vtkTypeList::Append<AoSArrayList, SoAArrayList>::Result AllArrayList;
 

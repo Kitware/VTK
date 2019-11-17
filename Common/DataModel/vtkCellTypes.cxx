@@ -89,7 +89,7 @@ static const char* vtkCellTypesStrings[] = {
   "vtkHigherOrderWedge",
   "vtkHigherOrderPyramid",
   "vtkHigherOrderHexahedron",
-  nullptr
+  nullptr,
 };
 
 //----------------------------------------------------------------------------

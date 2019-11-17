@@ -375,7 +375,7 @@ bool vtkEvenlySpacedStreamlines2D::ForEachCell(
       {{ijk[0] + 1, ijk[1],     ijk[2]}},
       {{ijk[0] - 1, ijk[1] - 1, ijk[2]}},
       {{ijk[0],     ijk[1] - 1, ijk[2]}},
-      {{ijk[0] + 1, ijk[1] - 1, ijk[2]}}
+      {{ijk[0] + 1, ijk[1] - 1, ijk[2]}},
   }};
   int extent[6];
   this->SuperposedGrid->GetExtent(extent);
