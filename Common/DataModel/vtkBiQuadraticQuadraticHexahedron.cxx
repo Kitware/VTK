@@ -621,6 +621,7 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(const double pcoo
   double y = 2.0*(pcoords[1]-0.5);
   double z = 2.0*(pcoords[2]-0.5);
 
+  // clang-format off
   //The eight corner points
   weights[0] = ( 0.25*(x*(1-x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*z*(1-z));
   weights[1] = (-0.25*(x*(1+x))*(y*(1-y)) - 0.25*(1+x)*(1-x)*(1+y)*(1-y))*(-0.5*z*(1-z));
@@ -650,6 +651,7 @@ void vtkBiQuadraticQuadraticHexahedron::InterpolationFunctions(const double pcoo
   weights[21] = 0.5*((1+y)*(1-y))*(1+x)  *((1+z)*(1-z));
   weights[22] = 0.5*((1+x)*(1-x))*(1-y)  *((1+z)*(1-z));
   weights[23] = 0.5*((1+x)*(1-x))*(1+y)  *((1+z)*(1-z));
+  // clang-format on
 }
 
 

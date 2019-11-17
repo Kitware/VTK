@@ -52,6 +52,7 @@ void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3],
   double cv = cos(v);
   double sv = sin(v);
 
+  // clang-format off
   double subX = 3 * cv + 5 * su * cv * cu - 30 * su - 60 * su * pow(cu, 6)
                 + 90 * su * pow(cu, 4);
   double subY = 80 * cv * pow(cu, 7) * su + 48 * cv * pow(cu, 6)
@@ -88,6 +89,7 @@ void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3],
                               + 3.0 * sv * pow(cu, 2) - 5.0 * su * sv * cu - 3.0 * sv);
   Du[2] = 2.0 / 15.0 * sv * (5.0 * pow(cu, 2) - 5.0 * pow(su, 2));
   Dv[2] = 2.0 / 15.0 * cv * subZ;
+  // clang-format on
 }
 
 //----------------------------------------------------------------------------

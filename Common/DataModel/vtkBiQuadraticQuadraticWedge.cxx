@@ -550,6 +550,7 @@ void vtkBiQuadraticQuadraticWedge::InterpolationFunctions(const double pcoords[3
   double y = 2*(pcoords[1]- 0.5);
   double z = 2*(pcoords[2]- 0.5);
 
+  // clang-format off
   // corners
   weights[0] =-0.25 * (x + y) * (x + y + 1) * z * (1 - z);
   weights[1] =-0.25 *  x      * (x + 1)     * z * (1 - z);
@@ -559,22 +560,23 @@ void vtkBiQuadraticQuadraticWedge::InterpolationFunctions(const double pcoords[3
   weights[5] = 0.25 *      y  * (1 + y)     * z * (1 + z);
 
   // midsides of quadratic triangles
-  weights[6] =  (x + 1)*(x + y) *  0.5 * z * (1 - z);
-  weights[7] = -(x + 1)*(y + 1) *  0.5 * z * (1 - z);
-  weights[8] =  (y + 1)*(x + y) *  0.5 * z * (1 - z);
-  weights[9] = -(x + 1)*(x + y) *  0.5 * z * (1 + z);
-  weights[10]=  (x + 1)*(y + 1) *  0.5 * z * (1 + z);
-  weights[11]= -(y + 1)*(x + y) *  0.5 * z * (1 + z);
+  weights[6] =  (x + 1) * (x + y) *  0.5 * z * (1 - z);
+  weights[7] = -(x + 1) * (y + 1) *  0.5 * z * (1 - z);
+  weights[8] =  (y + 1) * (x + y) *  0.5 * z * (1 - z);
+  weights[9] = -(x + 1) * (x + y) *  0.5 * z * (1 + z);
+  weights[10]=  (x + 1) * (y + 1) *  0.5 * z * (1 + z);
+  weights[11]= -(y + 1) * (x + y) *  0.5 * z * (1 + z);
 
   // midsides of edges between the two triangles
-  weights[12] = 0.5 * (x + y) * (x + y + 1) * (1 + z)*(1 - z);
-  weights[13] = 0.5 *  x      * (x + 1)     * (1 + z)*(1 - z);
-  weights[14] = 0.5 *      y  * (1 + y)     * (1 + z)*(1 - z);
+  weights[12] = 0.5 * (x + y) * (x + y + 1) * (1 + z) * (1 - z);
+  weights[13] = 0.5 *  x      * (x + 1)     * (1 + z) * (1 - z);
+  weights[14] = 0.5 *      y  * (1 + y)     * (1 + z) * (1 - z);
 
   //Centerpoints of the biquadratic quads
-  weights[15] = -(x + 1)*(x + y) * (1 + z)*(1 - z);
-  weights[16] =  (x + 1)*(y + 1) * (1 + z)*(1 - z);
-  weights[17] = -(y + 1)*(x + y) * (1 + z)*(1 - z);
+  weights[15] = -(x + 1)*(x + y) * (1 + z) * (1 - z);
+  weights[16] =  (x + 1)*(y + 1) * (1 + z) * (1 - z);
+  weights[17] = -(y + 1)*(x + y) * (1 + z) * (1 - z);
+  // clang-format on
 }
 
 //----------------------------------------------------------------------------
@@ -588,7 +590,8 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs(const double pcoords[3], 
   double y = 2*(pcoords[1]- 0.5);
   double z = 2*(pcoords[2]- 0.5);
 
-  //Derivatives in x-direction
+  // clang-format off
+  // Derivatives in x-direction
   // corners
   derivs[0] = -0.25 * (2 * x + 2 * y + 1) * z * (1 - z);
   derivs[1] = -0.25 * (2 * x + 1)         * z * (1 - z);
@@ -597,46 +600,46 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs(const double pcoords[3], 
   derivs[4] =  0.25 * (2 * x + 1)         * z * (1 + z);
   derivs[5] =  0;
   // midsides of quadratic triangles
-  derivs[6] =  (2 * x + y + 1) *  0.5 * z * (1 - z);
-  derivs[7] = -(y + 1)         *  0.5 * z * (1 - z);
-  derivs[8] =  (y + 1)         *  0.5 * z * (1 - z);
-  derivs[9] = -(2 * x + y + 1) *  0.5 * z * (1 + z);
-  derivs[10] = (y + 1)         *  0.5 * z * (1 + z) ;
-  derivs[11] =-(y + 1)         *  0.5 * z * (1 + z) ;
+  derivs[6] =  (2 * x + y + 1) * 0.5 * z * (1 - z);
+  derivs[7] = -(y + 1)         * 0.5 * z * (1 - z);
+  derivs[8] =  (y + 1)         * 0.5 * z * (1 - z);
+  derivs[9] = -(2 * x + y + 1) * 0.5 * z * (1 + z);
+  derivs[10] = (y + 1)         * 0.5 * z * (1 + z) ;
+  derivs[11] =-(y + 1)         * 0.5 * z * (1 + z) ;
   // midsides of edges between the two triangles
   derivs[12] = 0.5 * (2 * x + 2 * y + 1) * (1 + z)*(1 - z);
   derivs[13] = 0.5 * (2 * x + 1)         * (1 + z)*(1 - z);
   derivs[14] = 0;
-  //Centerpoints of the biquadratic quads
-  derivs[15] = -(2 * x + y + 1) * (1 + z)*(1 - z);
-  derivs[16] =  (y + 1)         * (1 + z)*(1 - z);
-  derivs[17] = -(y + 1)         * (1 + z)*(1 - z);
+  // Centerpoints of the biquadratic quads
+  derivs[15] = -(2 * x + y + 1) * (1 + z) * (1 - z);
+  derivs[16] =  (y + 1)         * (1 + z) * (1 - z);
+  derivs[17] = -(y + 1)         * (1 + z) * (1 - z);
 
-  //Derivatives in y-direction
+  // Derivatives in y-direction
   // corners
-  derivs[18] = -0.25 * (2 * y + 2 * x + 1)   * z * (1 - z);
+  derivs[18] = -0.25 * (2 * y + 2 * x + 1) * z * (1 - z);
   derivs[19] =  0;
-  derivs[20] = -0.25 * (2 * y + 1)           * z * (1 - z);
-  derivs[21] =  0.25 * (2 * y + 2 * x + 1)   * z * (1 + z);
+  derivs[20] = -0.25 * (2 * y + 1)         * z * (1 - z);
+  derivs[21] =  0.25 * (2 * y + 2 * x + 1) * z * (1 + z);
   derivs[22] =  0;
-  derivs[23] =  0.25 * (2 * y + 1)           * z * (1 + z);
+  derivs[23] =  0.25 * (2 * y + 1)         * z * (1 + z);
   // midsides of quadratic triangles
-  derivs[24] =  (x + 1)         *  0.5 * z * (1 - z);
-  derivs[25] = -(x + 1)         *  0.5 * z * (1 - z);
-  derivs[26] =  (2 * y + x + 1) *  0.5 * z * (1 - z);
-  derivs[27] = -(x + 1)         *  0.5 * z * (1 + z);
-  derivs[28] =  (x + 1)         *  0.5 * z * (1 + z);
-  derivs[29] = -(2 * y + x + 1) *  0.5 * z * (1 + z);
+  derivs[24] =  (x + 1)         * 0.5 * z * (1 - z);
+  derivs[25] = -(x + 1)         * 0.5 * z * (1 - z);
+  derivs[26] =  (2 * y + x + 1) * 0.5 * z * (1 - z);
+  derivs[27] = -(x + 1)         * 0.5 * z * (1 + z);
+  derivs[28] =  (x + 1)         * 0.5 * z * (1 + z);
+  derivs[29] = -(2 * y + x + 1) * 0.5 * z * (1 + z);
   // midsides of edges between the two triangles
-  derivs[30] = 0.5 * (2 * y + 2 * x + 1) * (1 + z)*(1 - z);
+  derivs[30] = 0.5 * (2 * y + 2 * x + 1) * (1 + z) * (1 - z);
   derivs[31] = 0;
-  derivs[32] = 0.5 * (2 * y + 1)         * (1 + z)*(1 - z);
-  //Centerpoints of the biquadratic quads
-  derivs[33] = -(x + 1)         * (1 + z)*(1 - z);
-  derivs[34] =  (x + 1)         * (1 + z)*(1 - z);
-  derivs[35] = -(2 * y + x + 1) * (1 + z)*(1 - z);
+  derivs[32] = 0.5 * (2 * y + 1)         * (1 + z) * (1 - z);
+  // Centerpoints of the biquadratic quads
+  derivs[33] = -(x + 1)         * (1 + z) * (1 - z);
+  derivs[34] =  (x + 1)         * (1 + z) * (1 - z);
+  derivs[35] = -(2 * y + x + 1) * (1 + z) * (1 - z);
 
-  //Derivatives in z-direction
+  // Derivatives in z-direction
   // corners
   derivs[36] = -0.25 * (x + y) * (x + y + 1) * (1 - 2 * z);
   derivs[37] = -0.25 *  x      * (x + 1)     * (1 - 2 * z);
@@ -645,20 +648,21 @@ void vtkBiQuadraticQuadraticWedge::InterpolationDerivs(const double pcoords[3], 
   derivs[40] =  0.25 *  x      * (x + 1)     * (1 + 2 * z);
   derivs[41] =  0.25 *      y  * (1 + y)     * (1 + 2 * z);
   // midsides of quadratic triangles
-  derivs[42] =  (x + 1)*(x + y) *  0.5 * (1 - 2 * z);
-  derivs[43] = -(x + 1)*(y + 1) *  0.5 * (1 - 2 * z);
-  derivs[44] =  (y + 1)*(x + y) *  0.5 * (1 - 2 * z);
-  derivs[45] = -(x + 1)*(x + y) *  0.5 * (1 + 2 * z);
-  derivs[46] =  (x + 1)*(y + 1) *  0.5 * (1 + 2 * z);
-  derivs[47] = -(y + 1)*(x + y) *  0.5 * (1 + 2 * z);
+  derivs[42] =  (x + 1) * (x + y) *  0.5 * (1 - 2 * z);
+  derivs[43] = -(x + 1) * (y + 1) *  0.5 * (1 - 2 * z);
+  derivs[44] =  (y + 1) * (x + y) *  0.5 * (1 - 2 * z);
+  derivs[45] = -(x + 1) * (x + y) *  0.5 * (1 + 2 * z);
+  derivs[46] =  (x + 1) * (y + 1) *  0.5 * (1 + 2 * z);
+  derivs[47] = -(y + 1) * (x + y) *  0.5 * (1 + 2 * z);
   // midsides of edges between the two triangles
   derivs[48] = 0.5 * (x + y) * (x + y + 1) * (-2 * z);
   derivs[49] = 0.5 *  x      * (x + 1)     * (-2 * z);
   derivs[50] = 0.5 *      y  * (1 + y)     * (-2 * z);
-  //Centerpoints of the biquadratic quads
-  derivs[51] = -(x + 1)*(x + y) * (-2 * z);
-  derivs[52] =  (x + 1)*(y + 1) * (-2 * z);
-  derivs[53] = -(y + 1)*(x + y) * (-2 * z);
+  // Centerpoints of the biquadratic quads
+  derivs[51] = -(x + 1) * (x + y) * (-2 * z);
+  derivs[52] =  (x + 1) * (y + 1) * (-2 * z);
+  derivs[53] = -(y + 1) * (x + y) * (-2 * z);
+  // clang-format off
 
   // we compute derivatives in [-1; 1] but we need them in [ 0; 1]
   for(int i = 0; i < 54; i++)
