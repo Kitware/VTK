@@ -626,6 +626,7 @@ function (vtk_module_scan)
     string(REGEX REPLACE "( |\n)+" ";" _vtk_scan_module_args "${_vtk_scan_module_args}")
     _vtk_module_parse_module_args(_vtk_scan_module_name ${_vtk_scan_module_args})
     _vtk_module_debug(module "@_vtk_scan_module_name@ declared by @_vtk_scan_module_file@")
+    string(REPLACE "::" "_" _vtk_scan_module_name_safe "${_vtk_scan_module_name}")
 
     if (${_vtk_scan_module_name}_THIRD_PARTY)
       if (_vtk_module_warnings)
@@ -699,7 +700,6 @@ function (vtk_module_scan)
     # Handle cache entries and determine the enabled state of the module from
     # the relevant cache variables.
     if (_vtk_build_use_option)
-      string(REPLACE "::" "_" _vtk_scan_module_name_safe "${_vtk_scan_module_name}")
       set("VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}" "DEFAULT"
         CACHE STRING "Enable the ${_vtk_scan_module_name} module. ${${_vtk_scan_module_name}_DESCRIPTION}")
       mark_as_advanced("VTK_MODULE_ENABLE_${_vtk_scan_module_name_safe}")
