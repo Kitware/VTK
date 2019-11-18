@@ -49,9 +49,10 @@ public:
   vtkViewNode* CreateNode(vtkObject*);
 
   /**
-   * Creates and returns a vtkViewNode for the provided class name.
+   * @deprecated As of 9.0, No longer equivalent to CreateNode(vtkObject*).
+   * Unused in 8.2.
    */
-  vtkViewNode* CreateNode(const char*);
+  VTK_LEGACY(vtkViewNode* CreateNode(const char*));
 
 protected:
   vtkViewNodeFactory();
