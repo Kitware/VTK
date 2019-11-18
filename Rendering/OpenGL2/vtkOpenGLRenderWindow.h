@@ -258,15 +258,6 @@ public:
   vtkGetObjectMacro(OffScreenFramebuffer, vtkOpenGLFramebufferObject);
   //@}
 
-  //@{
-  /**
-   * Render to an offscreen destination such as a framebuffer.
-   * All four combinations of ShowWindow and UseOffScreenBuffers
-   * should work for most rendering backends.
-   */
-  void SetUseOffScreenBuffers(bool) override;
-  //@}
-
   /**
    * Returns its texture unit manager object. A new one will be created if one
    * hasn't already been set up.
@@ -419,10 +410,14 @@ public:
   int GetNoiseTextureUnit();
 
   /**
-   * Update the system, if needed, due to stereo rendering. For some stereo
-   * methods, subclasses might need to switch some hardware settings here.
+   * Update the system, if needed, at end of render process
    */
-  void StereoUpdate() override;
+  void End() override;
+
+  /**
+   * Handle opengl specific code and calls superclass
+   */
+  void Render() override;
 
   /**
    * Intermediate method performs operations required between the rendering
@@ -430,13 +425,8 @@ public:
    */
   void StereoMidpoint() override;
 
-  /**
-   * Handle opengl specific code and calls superclass
-   */
-  void Render() override;
-
-  // does the current read buffer require resolving for reading pixels
-  bool GetCurrentBufferNeedsResolving();
+  // does VTKs framebuffer require resolving for reading pixels
+  bool GetBufferNeedsResolving();
 
 protected:
   vtkOpenGLRenderWindow();
@@ -519,6 +509,9 @@ protected:
   vtkTextureObject* NoiseTextureObject;
 
   double FirstRenderTime;
+
+  // keep track of in case we need to recreate the framebuffer
+  int LastMultiSamples;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

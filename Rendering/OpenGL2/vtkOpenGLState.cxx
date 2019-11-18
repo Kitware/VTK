@@ -28,6 +28,8 @@
 
 #include <cmath>
 
+#include "vtksys/SystemInformation.hxx"
+
 // If you define NO_CACHE then all state->vtkgl* calls
 // will get passed down to OpenGL regardless of the current
 // state. This basically bypasses the caching mechanism
@@ -44,8 +46,8 @@
 //    printed.
 // 3) All methods check the cache state to see if anything is out of sync
 //
+// #undef VTK_REPORT_OPENGL_ERRORS
 #ifdef VTK_REPORT_OPENGL_ERRORS
-#include "vtksys/SystemInformation.hxx"
 
 // this method checks all the cached state to make sure
 // nothing is out of sync. It can be slow.
@@ -548,6 +550,8 @@ void vtkOpenGLState::vtkglDrawBuffer(unsigned int val)
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
       "A vtkOpenGLFramebufferObject is currently bound but a hardware draw buffer was requested.");
+    std::string msg = vtksys::SystemInformation::GetProgramStack(0, 0);
+    vtkGenericWarningMacro("at stack loc\n" << msg);
   }
 
 #ifndef NO_CACHE
@@ -585,7 +589,7 @@ void vtkOpenGLState::vtkglDrawBuffers(unsigned int count, unsigned int* vals)
   {
     // todo get rid of the && and make this always an error if FO is set
     vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is currently bound but a hardware draw bufer was requested.");
+      "A vtkOpenGLFramebufferObject is currently bound but hardware draw buffers were requested.");
   }
 
 #ifndef NO_CACHE
@@ -681,7 +685,7 @@ void vtkOpenGLState::vtkglReadBuffer(unsigned int val)
     val < GL_COLOR_ATTACHMENT0 && val != GL_NONE)
   {
     vtkGenericWarningMacro(
-      "A vtkOpenGLFramebufferObject is currently bound but a hardware draw bufer was requested.");
+      "A vtkOpenGLFramebufferObject is currently bound but a hardware read buffer was requested.");
   }
 
 #ifndef NO_CACHE
@@ -1542,6 +1546,7 @@ void vtkOpenGLState::PopDrawFramebufferBinding()
   else
   {
     vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
+    abort();
   }
 }
 
@@ -1557,6 +1562,7 @@ void vtkOpenGLState::PopReadFramebufferBinding()
   else
   {
     vtkGenericWarningMacro("Attempt to pop framebuffer beyond beginning of the stack.");
+    abort();
   }
 }
 

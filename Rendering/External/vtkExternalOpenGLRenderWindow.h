@@ -80,11 +80,23 @@ public:
   vtkBooleanMacro(AutomaticWindowPositionAndResize, int);
   //@}
 
+  //@{
+  /**
+   * Turn on/off a flag which enables/disables using the content from an
+   * outside applicaiton.  When on the active read buffer is first blitted
+   * into VTK and becomes the starting poiint for VTK's rendering.
+   */
+  vtkGetMacro(UseExternalContent, bool);
+  vtkSetMacro(UseExternalContent, bool);
+  vtkBooleanMacro(UseExternalContent, bool);
+  //@}
+
 protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow() override;
 
   int AutomaticWindowPositionAndResize;
+  bool UseExternalContent;
 
 private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&) = delete;

@@ -212,6 +212,19 @@ public:
     this->Attachment = attachment;
   }
 
+  int GetSamples()
+  {
+    if (this->Texture)
+    {
+      return this->Texture->GetSamples();
+    }
+    if (this->Renderbuffer)
+    {
+      return this->Renderbuffer->GetSamples();
+    }
+    return 0;
+  }
+
   void GetSize(int (&size)[2])
   {
     if (this->Texture)
@@ -562,6 +575,7 @@ bool vtkOpenGLFramebufferObject::Start(int width, int height)
 void vtkOpenGLFramebufferObject::ActivateBuffers()
 {
   GLint maxbuffers;
+  // todo move to cache
   glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
 
   GLenum* buffers = new GLenum[maxbuffers];
@@ -1438,6 +1452,12 @@ void vtkOpenGLFramebufferObject::Download(
   pbo->UnBind();
 }
 
+int vtkOpenGLFramebufferObject::GetMultiSamples()
+{
+  int abuff = this->ActiveBuffers[0];
+  return this->ColorBuffers[abuff]->GetSamples();
+}
+
 bool vtkOpenGLFramebufferObject::PopulateFramebuffer(int width, int height)
 {
   return this->PopulateFramebuffer(width, height, true, 1, VTK_UNSIGNED_CHAR, true, 24, 0);
@@ -1489,7 +1509,7 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(int width, int height, bool
             depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed16);
             break;
           case 32:
-            depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Float32);
+            depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed32);
             break;
           case 24:
           default:

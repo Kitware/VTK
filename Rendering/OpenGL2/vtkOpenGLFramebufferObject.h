@@ -425,6 +425,8 @@ public:
    */
   void Resize(int width, int height);
 
+  int GetMultiSamples();
+
 protected:
   /**
    * Attach a specific buffer

@@ -435,7 +435,6 @@ void vtkIOSRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "MultiSamples: " << this->MultiSamples << endl;
   os << indent << "RootWindow (UIWindow): " << this->GetRootWindow() << endl;
   os << indent << "WindowId (UIView): " << this->GetWindowId() << endl;
   os << indent << "ParentId: " << this->GetParentId() << endl;

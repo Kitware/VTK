@@ -157,6 +157,11 @@ public:
   virtual void Start() = 0;
 
   /**
+   * Update the system, if needed, at end of render process
+   */
+  virtual void End(){};
+
+  /**
    * Finalize the rendering process.
    */
   virtual void Finalize() = 0;
@@ -644,8 +649,9 @@ public:
   //@{
   /**
    * Set / Get the number of multisamples to use for hardware antialiasing.
+   * A value of 1 will be set to 0.
    */
-  vtkSetMacro(MultiSamples, int);
+  virtual void SetMultiSamples(int);
   vtkGetMacro(MultiSamples, int);
   //@}
 

@@ -29,7 +29,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 
 int TestEdgeFlags(int argc, char* argv[])
