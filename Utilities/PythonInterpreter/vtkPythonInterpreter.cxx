@@ -149,7 +149,12 @@ inline void vtkPrependPythonPath(const char* pathtoadd)
 #else
   PyObject* newpath = PyString_FromString(pathtoadd);
 #endif
-  PyList_Insert(path, 0, newpath);
+
+  // avoid adding duplicate paths.
+  if (PySequence_Contains(path, newpath) == 0)
+  {
+    PyList_Insert(path, 0, newpath);
+  }
   Py_DECREF(newpath);
 }
 
@@ -277,6 +282,9 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
       Py_DECREF(wrapperErr);
     }
 
+    // We call this before processing any of Python paths added by the
+    // application using `PrependPythonPath`. This ensures that application
+    // specified paths are preferred to the ones `vtkPythonInterpreter` adds.
     vtkPythonInterpreter::SetupVTKPythonPaths();
 
     for (size_t cc = 0; cc < PythonPaths.size(); cc++)
@@ -350,11 +358,10 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
   std::replace(out_dir.begin(), out_dir.end(), '/', '\\');
 #endif
 
-  // save path for future use.
-  PythonPaths.push_back(out_dir);
-
   if (Py_IsInitialized() == 0)
   {
+    // save path for future use.
+    PythonPaths.push_back(out_dir);
     return;
   }
 
