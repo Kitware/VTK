@@ -67,23 +67,7 @@ int vtkTextureMapToSphere::RequestData(
     return 1;
   }
 
-  if ( this->AutomaticSphereGeneration )
-  {
-    this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
-    for ( ptId=0; ptId < numPts; ptId++ )
-    {
-      input->GetPoint(ptId, x);
-      this->Center[0] += x[0];
-      this->Center[1] += x[1];
-      this->Center[2] += x[2];
-    }
-    this->Center[0] /= numPts;
-    this->Center[1] /= numPts;
-    this->Center[2] /= numPts;
-
-    vtkDebugMacro(<<"Center computed as: (" << this->Center[0] <<", "
-                  << this->Center[1] <<", " << this->Center[2] <<")");
-  }
+  this->ComputeCenter(input);
 
   //loop over all points computing spherical coordinates. Only tricky part
   //is keeping track of singularities/numerical problems.
@@ -187,6 +171,29 @@ int vtkTextureMapToSphere::RequestData(
   newTCoords->Delete();
 
   return 1;
+}
+
+void vtkTextureMapToSphere::ComputeCenter(vtkDataSet* dataSet)
+{
+  if (this->AutomaticSphereGeneration)
+  {
+    double x[3];
+    vtkIdType numPts = dataSet->GetNumberOfPoints();
+    this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+    for (vtkIdType ptId=0; ptId < numPts; ++ptId)
+    {
+      dataSet->GetPoint(ptId, x);
+      this->Center[0] += x[0];
+      this->Center[1] += x[1];
+      this->Center[2] += x[2];
+    }
+    this->Center[0] /= numPts;
+    this->Center[1] /= numPts;
+    this->Center[2] /= numPts;
+
+    vtkDebugMacro(<<"Center computed as: (" << this->Center[0] <<", "
+                  << this->Center[1] <<", " << this->Center[2] <<")");
+  }
 }
 
 void vtkTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
