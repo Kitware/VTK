@@ -39,7 +39,7 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastVolumeRotation(int argc, char *argv[])
+int TestGPURayCastVolumeRotation(int argc, char* argv[])
 {
   double scalarRange[2];
 
@@ -48,10 +48,9 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  delete [] volumeFile;
+  delete[] volumeFile;
 
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   volumeMapper->SetSampleDistance(0.01);
@@ -112,8 +111,8 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

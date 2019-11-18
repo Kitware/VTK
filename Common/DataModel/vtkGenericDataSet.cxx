@@ -25,7 +25,7 @@
 
 #include <cassert>
 
-vtkCxxSetObjectMacro(vtkGenericDataSet,Tessellator,vtkGenericCellTessellator);
+vtkCxxSetObjectMacro(vtkGenericDataSet, Tessellator, vtkGenericCellTessellator);
 
 //----------------------------------------------------------------------------
 vtkGenericDataSet::vtkGenericDataSet()
@@ -38,7 +38,7 @@ vtkGenericDataSet::vtkGenericDataSet()
 //----------------------------------------------------------------------------
 vtkGenericDataSet::~vtkGenericDataSet()
 {
-  if(this->Tessellator!=nullptr)
+  if (this->Tessellator != nullptr)
   {
     this->Tessellator->Delete();
   }
@@ -48,19 +48,19 @@ vtkGenericDataSet::~vtkGenericDataSet()
 //----------------------------------------------------------------------------
 void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
 
   os << indent << "Attributes:\n";
-  this->GetAttributes()->PrintSelf(os,indent.GetNextIndent());
+  this->GetAttributes()->PrintSelf(os, indent.GetNextIndent());
 
   this->ComputeBounds();
   os << indent << "Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" <<this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" <<this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" <<this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
+  os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
 
   os << indent << "Tessellator:" << this->Tessellator << endl;
 }
@@ -75,21 +75,21 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
 // THE DATASET IS NOT MODIFIED
 // \pre types_exist: types!=0
-void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
+void vtkGenericDataSet::GetCellTypes(vtkCellTypes* types)
 {
-  assert("pre: types_exist" && types!=nullptr);
+  assert("pre: types_exist" && types != nullptr);
 
   unsigned char type;
-  vtkGenericCellIterator *it = this->NewCellIterator(-1);
-  vtkGenericAdaptorCell *c = it->NewCell();
+  vtkGenericCellIterator* it = this->NewCellIterator(-1);
+  vtkGenericAdaptorCell* c = it->NewCell();
 
   types->Reset();
   it->Begin();
-  while(!it->IsAtEnd())
+  while (!it->IsAtEnd())
   {
     it->GetCell(c);
-    type=c->GetType();
-    if ( ! types->IsType(type) )
+    type = c->GetType();
+    if (!types->IsType(type))
     {
       types->InsertNextType(type);
     }
@@ -104,20 +104,20 @@ void vtkGenericDataSet::GetCellTypes(vtkCellTypes *types)
 // (xmin,xmax, ymin,ymax, zmin,zmax).
 // The return value is VOLATILE.
 // \post result_exists: result!=0
-double *vtkGenericDataSet::GetBounds()
+double* vtkGenericDataSet::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
 }
 
 //----------------------------------------------------------------------------
- // Description:
+// Description:
 // Return the geometry bounding box in global coordinates in
 // the form (xmin,xmax, ymin,ymax, zmin,zmax) into `bounds'.
 void vtkGenericDataSet::GetBounds(double bounds[6])
 {
   this->ComputeBounds();
-  memcpy(bounds,this->Bounds,sizeof(double)*6);
+  memcpy(bounds, this->Bounds, sizeof(double) * 6);
 }
 
 //----------------------------------------------------------------------------
@@ -125,12 +125,12 @@ void vtkGenericDataSet::GetBounds(double bounds[6])
 // Get the center of the bounding box in global coordinates.
 // The return value is VOLATILE.
 // - \post result_exists: result!=0
-double *vtkGenericDataSet::GetCenter()
+double* vtkGenericDataSet::GetCenter()
 {
   this->ComputeBounds();
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) * 0.5;
+    this->Center[i] = (this->Bounds[2 * i + 1] + this->Bounds[2 * i]) * 0.5;
   }
   return this->Center;
 }
@@ -141,9 +141,9 @@ double *vtkGenericDataSet::GetCenter()
 void vtkGenericDataSet::GetCenter(double center[3])
 {
   this->ComputeBounds();
-  for (int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) * 0.5;
+    center[i] = (this->Bounds[2 * i + 1] + this->Bounds[2 * i]) * 0.5;
   }
 }
 
@@ -152,17 +152,17 @@ void vtkGenericDataSet::GetCenter(double center[3])
 // Length of the diagonal of the bounding box.
 double vtkGenericDataSet::GetLength()
 {
-  double result, l=0.0;
+  double result, l = 0.0;
   int i;
 
   this->ComputeBounds();
-  for (i=0; i<3; i++)
+  for (i = 0; i < 3; i++)
   {
-    result = this->Bounds[2*i+1] - this->Bounds[2*i];
+    result = this->Bounds[2 * i + 1] - this->Bounds[2 * i];
     l += result * result;
   }
   result = sqrt(l);
-  assert("post: positive_result" && result>=0);
+  assert("post: positive_result" && result >= 0);
   return result;
 }
 
@@ -175,12 +175,12 @@ vtkMTimeType vtkGenericDataSet::GetMTime()
   result = this->Superclass::GetMTime();
 
   mtime = this->Attributes->GetMTime();
-  result = ( mtime > result ? mtime : result );
+  result = (mtime > result ? mtime : result);
 
-  if(this->Tessellator)
+  if (this->Tessellator)
   {
     mtime = this->Tessellator->GetMTime();
-    result = ( mtime > result ? mtime : result );
+    result = (mtime > result ? mtime : result);
   }
 
   return result;

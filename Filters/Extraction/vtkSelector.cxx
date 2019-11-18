@@ -38,9 +38,7 @@ vtkSelector::vtkSelector()
 }
 
 //----------------------------------------------------------------------------
-vtkSelector::~vtkSelector()
-{
-}
+vtkSelector::~vtkSelector() {}
 
 //----------------------------------------------------------------------------
 void vtkSelector::Initialize(vtkSelectionNode* node)

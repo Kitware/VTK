@@ -18,7 +18,7 @@
  *
  * vtkXMLMultiBlockDataWriter is a vtkXMLCompositeDataWriter subclass to handle
  * vtkMultiBlockDataSet.
-*/
+ */
 
 #ifndef vtkXMLMultiBlockDataWriter_h
 #define vtkXMLMultiBlockDataWriter_h
@@ -36,8 +36,7 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() override
-    { return "vtm"; }
+  const char* GetDefaultFileExtension() override { return "vtm"; }
 
 protected:
   vtkXMLMultiBlockDataWriter();
@@ -47,15 +46,12 @@ protected:
 
   // Internal method called recursively to create the xml tree for the children
   // of compositeData.
-  int WriteComposite(vtkCompositeDataSet* compositeData,
-    vtkXMLDataElement* parent, int &writerIdx) override;
+  int WriteComposite(
+    vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx) override;
 
 private:
   vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&) = delete;
   void operator=(const vtkXMLMultiBlockDataWriter&) = delete;
-
 };
 
 #endif
-
-

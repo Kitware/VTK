@@ -25,8 +25,7 @@
 
 // Pipe 2 for PipelineParallelism.
 // See PipelineParallelism.cxx for more information.
-void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
-           void* vtkNotUsed(arg))
+void pipe2(vtkMultiProcessController* vtkNotUsed(controller), void* vtkNotUsed(arg))
 {
   // Input port
   vtkInputPort* ip = vtkInputPort::New();
@@ -72,7 +71,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
 
   // Get more data. With every update the XFreq of the rtSource
   // is increased.
-  for (int i=0; i<17; i++)
+  for (int i = 0; i < 17; i++)
   {
     cf->GetOutput()->Update();
     pd->ShallowCopy(cf->GetOutput());
@@ -89,7 +88,4 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
   actor->Delete();
   ren->Delete();
   renWin->Delete();
-
 }
-
-

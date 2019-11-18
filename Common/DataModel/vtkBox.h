@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkCubeSource vtkImplicitFunction
-*/
+ */
 
 #ifndef vtkBox_h
 #define vtkBox_h
@@ -38,13 +38,13 @@ class vtkBoundingBox;
 class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkBox,vtkImplicitFunction);
+  vtkTypeMacro(vtkBox, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct box with center at (0,0,0) and each side of length 1.0.
    */
-  static vtkBox *New();
+  static vtkBox* New();
 
   /**
    * Evaluate box defined by the two points (pMin,pMax).
@@ -64,23 +64,20 @@ public:
   void SetXMin(double p[3]);
   void SetXMin(double x, double y, double z);
   void GetXMin(double p[3]);
-  void GetXMin(double &x, double &y, double &z);
+  void GetXMin(double& x, double& y, double& z);
   //@}
 
   void SetXMax(double p[3]);
   void SetXMax(double x, double y, double z);
   void GetXMax(double p[3]);
-  void GetXMax(double &x, double &y, double &z);
+  void GetXMax(double& x, double& y, double& z);
 
-  void SetBounds(double xMin, double xMax,
-                 double yMin, double yMax,
-                 double zMin, double zMax);
+  void SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   void SetBounds(const double bounds[6]);
-  void GetBounds(double &xMin, double &xMax,
-                 double &yMin, double &yMax,
-                 double &zMin, double &zMax);
+  void GetBounds(
+    double& xMin, double& xMax, double& yMin, double& yMax, double& zMin, double& zMax);
   void GetBounds(double bounds[6]);
-  double *GetBounds() VTK_SIZEHINT(6);
+  double* GetBounds() VTK_SIZEHINT(6);
 
   /**
    * A special method that allows union set operation on bounding boxes.
@@ -99,8 +96,8 @@ public:
    * dir[3] is NOT normalized.  Valid intersections will only occur between
    * 0<=t<=1.)
    */
-  static char IntersectBox(double bounds[6], const double origin[3], double dir[3],
-                           double coord[3], double& t);
+  static char IntersectBox(
+    double bounds[6], const double origin[3], double dir[3], double coord[3], double& t);
 
   /**
    * Intersect a line with the box.  Give the endpoints of the line in
@@ -114,11 +111,8 @@ public:
    * do not need them to be returned.  The function return value will be
    * zero if the line is wholly outside of the box.
    */
-  static int IntersectWithLine(const double bounds[6],
-                               const double p1[3], const double p2[3],
-                               double &t1, double &t2,
-                               double x1[3], double x2[3],
-                               int &plane1, int &plane2);
+  static int IntersectWithLine(const double bounds[6], const double p1[3], const double p2[3],
+    double& t1, double& t2, double x1[3], double x2[3], int& plane1, int& plane2);
 
   /**
    * Plane intersection with the box. The plane is infinite in extent and
@@ -127,8 +121,7 @@ public:
    * The function returns non-zero if the plane and box intersect; zero
    * otherwise.
    */
-  static vtkTypeBool IntersectWithPlane(double bounds[6], double origin[3],
-                                double normal[3]);
+  static vtkTypeBool IntersectWithPlane(double bounds[6], double origin[3], double normal[3]);
 
   /**
    * Plane intersection with the box. The plane is infinite in extent and
@@ -141,22 +134,20 @@ public:
    * vtkPoints array layout and is organized as (xyz, xyz, xyz, xyz, xyz,
    * xyz).
    */
-  static vtkTypeBool IntersectWithPlane(double bounds[6], double origin[3],
-                                double normal[3], double xints[18]);
+  static vtkTypeBool IntersectWithPlane(
+    double bounds[6], double origin[3], double normal[3], double xints[18]);
 
 protected:
   vtkBox();
   ~vtkBox() override;
 
-  vtkBoundingBox *BBox;
-  double Bounds[6]; //supports the GetBounds() method
+  vtkBoundingBox* BBox;
+  double Bounds[6]; // supports the GetBounds() method
 
 private:
   vtkBox(const vtkBox&) = delete;
   void operator=(const vtkBox&) = delete;
 };
-
-
 
 inline void vtkBox::SetXMin(double p[3])
 {
@@ -167,6 +158,5 @@ inline void vtkBox::SetXMax(double p[3])
 {
   this->SetXMax(p[0], p[1], p[2]);
 }
-
 
 #endif

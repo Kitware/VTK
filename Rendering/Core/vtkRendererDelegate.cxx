@@ -15,26 +15,25 @@
 
 #include "vtkRendererDelegate.h"
 
-
 vtkRendererDelegate::vtkRendererDelegate()
 {
-  this->Used=false;
+  this->Used = false;
 }
 
 vtkRendererDelegate::~vtkRendererDelegate() = default;
 
 void vtkRendererDelegate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Used: ";
-  if(this->Used)
+  if (this->Used)
   {
-      os<<"On";
+    os << "On";
   }
   else
   {
-      os<<"Off";
+    os << "Off";
   }
-  os<<endl;
+  os << endl;
 }

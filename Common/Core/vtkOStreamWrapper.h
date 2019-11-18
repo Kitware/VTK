@@ -22,7 +22,7 @@
  * compilation.  Experimentation has revealed between 10% and 60% less
  * time for compilation depending on the platform.  This wrapper is
  * used by the macros in vtkSetGet.h.
-*/
+ */
 
 #ifndef vtkOStreamWrapper_h
 #define vtkOStreamWrapper_h
@@ -42,6 +42,7 @@ class vtkStdString;
 class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkOStreamWrapper
 {
   class std_string;
+
 public:
   //@{
   /**
@@ -57,33 +58,35 @@ public:
   /**
    * Type for a fake endl.
    */
-  struct EndlType {};
+  struct EndlType
+  {
+  };
 
   //@{
   /**
    * Forward this output operator to the real ostream.
    */
-  vtkOStreamWrapper& operator << (const EndlType&);
-  vtkOStreamWrapper& operator << (const vtkIndent&);
-  vtkOStreamWrapper& operator << (vtkObjectBase&);
-  vtkOStreamWrapper& operator << (const vtkLargeInteger&);
-  vtkOStreamWrapper& operator << (const vtkSmartPointerBase&);
-  vtkOStreamWrapper& operator << (const vtkStdString&);
-  vtkOStreamWrapper& operator << (const char*);
-  vtkOStreamWrapper& operator << (void*);
-  vtkOStreamWrapper& operator << (char);
-  vtkOStreamWrapper& operator << (short);
-  vtkOStreamWrapper& operator << (int);
-  vtkOStreamWrapper& operator << (long);
-  vtkOStreamWrapper& operator << (long long);
-  vtkOStreamWrapper& operator << (unsigned char);
-  vtkOStreamWrapper& operator << (unsigned short);
-  vtkOStreamWrapper& operator << (unsigned int);
-  vtkOStreamWrapper& operator << (unsigned long);
-  vtkOStreamWrapper& operator << (unsigned long long);
-  vtkOStreamWrapper& operator << (float);
-  vtkOStreamWrapper& operator << (double);
-  vtkOStreamWrapper& operator << (bool);
+  vtkOStreamWrapper& operator<<(const EndlType&);
+  vtkOStreamWrapper& operator<<(const vtkIndent&);
+  vtkOStreamWrapper& operator<<(vtkObjectBase&);
+  vtkOStreamWrapper& operator<<(const vtkLargeInteger&);
+  vtkOStreamWrapper& operator<<(const vtkSmartPointerBase&);
+  vtkOStreamWrapper& operator<<(const vtkStdString&);
+  vtkOStreamWrapper& operator<<(const char*);
+  vtkOStreamWrapper& operator<<(void*);
+  vtkOStreamWrapper& operator<<(char);
+  vtkOStreamWrapper& operator<<(short);
+  vtkOStreamWrapper& operator<<(int);
+  vtkOStreamWrapper& operator<<(long);
+  vtkOStreamWrapper& operator<<(long long);
+  vtkOStreamWrapper& operator<<(unsigned char);
+  vtkOStreamWrapper& operator<<(unsigned short);
+  vtkOStreamWrapper& operator<<(unsigned int);
+  vtkOStreamWrapper& operator<<(unsigned long);
+  vtkOStreamWrapper& operator<<(unsigned long long);
+  vtkOStreamWrapper& operator<<(float);
+  vtkOStreamWrapper& operator<<(double);
+  vtkOStreamWrapper& operator<<(bool);
   //@}
 
   // Work-around for IBM Visual Age bug in overload resolution.
@@ -91,24 +94,23 @@ public:
   vtkOStreamWrapper& WriteInternal(const char*);
   vtkOStreamWrapper& WriteInternal(void*);
   template <typename T>
-  vtkOStreamWrapper& operator << (T* p)
+  vtkOStreamWrapper& operator<<(T* p)
   {
     return this->WriteInternal(p);
   }
 #endif
 
-  vtkOStreamWrapper& operator << (void (*)(void*));
-  vtkOStreamWrapper& operator << (void* (*)(void*));
-  vtkOStreamWrapper& operator << (int (*)(void*));
-  vtkOStreamWrapper& operator << (int* (*)(void*));
-  vtkOStreamWrapper& operator << (float* (*)(void*));
-  vtkOStreamWrapper& operator << (const char* (*)(void*));
-  vtkOStreamWrapper& operator << (void (*)(void*, int*));
+  vtkOStreamWrapper& operator<<(void (*)(void*));
+  vtkOStreamWrapper& operator<<(void* (*)(void*));
+  vtkOStreamWrapper& operator<<(int (*)(void*));
+  vtkOStreamWrapper& operator<<(int* (*)(void*));
+  vtkOStreamWrapper& operator<<(float* (*)(void*));
+  vtkOStreamWrapper& operator<<(const char* (*)(void*));
+  vtkOStreamWrapper& operator<<(void (*)(void*, int*));
 
   // Accept std::string without a declaration.
   template <template <typename, typename, typename> class S>
-  vtkOStreamWrapper& operator << (const
-    S< char, std::char_traits<char>, std::allocator<char> >& s)
+  vtkOStreamWrapper& operator<<(const S<char, std::char_traits<char>, std::allocator<char> >& s)
   {
     return *this << reinterpret_cast<std_string const&>(s);
   }
@@ -146,14 +148,15 @@ public:
    * or may not be used.
    */
   static void UseEndl(const EndlType&) {}
+  //@}
 protected:
   // Reference to the real ostream.
   ostream& ostr;
+
 private:
   vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r) = delete;
-  vtkOStreamWrapper& operator << (std_string const&);
+  vtkOStreamWrapper& operator<<(std_string const&);
 };
-  //@}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkOStreamWrapper.h

@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkButtonSource.h"
 
-
 // Construct
 vtkButtonSource::vtkButtonSource()
 {
@@ -31,18 +30,16 @@ vtkButtonSource::vtkButtonSource()
 
 void vtkButtonSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Center: (" << this->Center[0] << ", "
-                              << this->Center[1] << ", "
-                              << this->Center[2] << ")\n";
+  os << indent << "Center: (" << this->Center[0] << ", " << this->Center[1] << ", "
+     << this->Center[2] << ")\n";
 
-  os << indent << "Shoulder Texture Coordinate: ("
-     << this->ShoulderTextureCoordinate[0] << ", "
+  os << indent << "Shoulder Texture Coordinate: (" << this->ShoulderTextureCoordinate[0] << ", "
      << this->ShoulderTextureCoordinate[1] << ")\n";
 
   os << indent << "Texture Style: ";
-  if ( this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE )
+  if (this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE)
   {
     os << "Fit\n";
   }
@@ -51,10 +48,8 @@ void vtkButtonSource::PrintSelf(ostream& os, vtkIndent indent)
     os << "Proportional\n";
   }
 
-  os << indent << "Texture Dimensions: ("
-     << this->TextureDimensions[0] << ", "
+  os << indent << "Texture Dimensions: (" << this->TextureDimensions[0] << ", "
      << this->TextureDimensions[1] << ")\n";
 
-  os << indent << "Two Sided: "
-     << (this->TwoSided ? "On\n" : "Off\n");
+  os << indent << "Two Sided: " << (this->TwoSided ? "On\n" : "Off\n");
 }

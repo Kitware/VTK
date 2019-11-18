@@ -36,20 +36,16 @@
 #include <cctype>
 
 vtkStandardNewMacro(vtkFixedWidthTextReader);
-vtkCxxSetObjectMacro(vtkFixedWidthTextReader,TableErrorObserver,vtkCommand);
+vtkCxxSetObjectMacro(vtkFixedWidthTextReader, TableErrorObserver, vtkCommand);
 
 // Function body at bottom of file
-static int splitString(const vtkStdString& input,
-                       unsigned int fieldWidth,
-                       bool stripWhitespace,
-                       std::vector<vtkStdString>& results,
-                       bool includeEmpties=true);
-
+static int splitString(const vtkStdString& input, unsigned int fieldWidth, bool stripWhitespace,
+  std::vector<vtkStdString>& results, bool includeEmpties = true);
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
 // myself.
-static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(std::istream& stream, vtkStdString& output, char delim = '\n');
 
 // ----------------------------------------------------------------------
 
@@ -80,21 +76,17 @@ vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
 void vtkFixedWidthTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
   os << indent << "Field width: " << this->FieldWidth << endl;
-  os << indent << "Strip leading/trailing whitespace: "
-     << (this->StripWhiteSpace ? "Yes" : "No") << endl;
-  os << indent << "HaveHeaders: "
-     << (this->HaveHeaders ? "Yes" : "No") << endl;
+  os << indent << "Strip leading/trailing whitespace: " << (this->StripWhiteSpace ? "Yes" : "No")
+     << endl;
+  os << indent << "HaveHeaders: " << (this->HaveHeaders ? "Yes" : "No") << endl;
 }
 
 // ----------------------------------------------------------------------
 
 int vtkFixedWidthTextReader::RequestData(
-                                        vtkInformation*,
-                                        vtkInformationVector**,
-                                        vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   int numLines = 0;
 
@@ -108,7 +100,7 @@ int vtkFixedWidthTextReader::RequestData(
   std::ifstream infile(this->FileName, ios::in);
   if (!infile || infile.fail())
   {
-    vtkErrorMacro(<<"vtkFixedWidthTextReader: Couldn't open file!");
+    vtkErrorMacro(<< "vtkFixedWidthTextReader: Couldn't open file!");
     return 2;
   }
 
@@ -121,21 +113,15 @@ int vtkFixedWidthTextReader::RequestData(
 
   my_getline(infile, firstLine);
 
-//  vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
+  //  vtkDebugMacro(<<"First line of file: " << firstLine.c_str());
 
   if (this->HaveHeaders)
   {
-    splitString(firstLine,
-                this->FieldWidth,
-                this->StripWhiteSpace,
-                headers);
+    splitString(firstLine, this->FieldWidth, this->StripWhiteSpace, headers);
   }
   else
   {
-    splitString(firstLine,
-                this->FieldWidth,
-                this->StripWhiteSpace,
-                firstLineFields);
+    splitString(firstLine, this->FieldWidth, this->StripWhiteSpace, firstLineFields);
 
     for (unsigned int i = 0; i < firstLineFields.size(); ++i)
     {
@@ -145,7 +131,7 @@ int vtkFixedWidthTextReader::RequestData(
     }
   }
 
-  vtkTable *table = vtkTable::GetData(outputVector);
+  vtkTable* table = vtkTable::GetData(outputVector);
   if (this->TableErrorObserver)
   {
     table->AddObserver(vtkCommand::ErrorEvent, this->TableErrorObserver);
@@ -154,7 +140,7 @@ int vtkFixedWidthTextReader::RequestData(
   // Now we can create the arrays that will hold the data for each
   // field.
   std::vector<vtkStdString>::const_iterator fieldIter;
-  for(fieldIter = headers.begin(); fieldIter != headers.end(); ++fieldIter)
+  for (fieldIter = headers.begin(); fieldIter != headers.end(); ++fieldIter)
   {
     vtkStringArray* array = vtkStringArray::New();
     array->SetName((*fieldIter).c_str());
@@ -168,7 +154,7 @@ int vtkFixedWidthTextReader::RequestData(
   {
     vtkVariantArray* dataArray = vtkVariantArray::New();
     std::vector<vtkStdString>::const_iterator I;
-    for(I = firstLineFields.begin(); I != firstLineFields.end(); ++I)
+    for (I = firstLineFields.begin(); I != firstLineFields.end(); ++I)
     {
       dataArray->InsertNextValue(vtkVariant(*I));
     }
@@ -189,22 +175,19 @@ int vtkFixedWidthTextReader::RequestData(
       this->InvokeEvent(vtkCommand::ProgressEvent, &numLinesRead);
     }
 
-    vtkDebugMacro(<<"Next line: " << nextLine.c_str());
+    vtkDebugMacro(<< "Next line: " << nextLine.c_str());
     std::vector<vtkStdString> dataVector;
 
     // Split string on the delimiters
-    splitString(nextLine,
-                this->FieldWidth,
-                this->StripWhiteSpace,
-                dataVector);
+    splitString(nextLine, this->FieldWidth, this->StripWhiteSpace, dataVector);
 
-    vtkDebugMacro(<<"Split into " << dataVector.size() << " fields");
+    vtkDebugMacro(<< "Split into " << dataVector.size() << " fields");
     // Add data to the output arrays
 
     // Convert from vector to variant array
     vtkVariantArray* dataArray = vtkVariantArray::New();
     std::vector<vtkStdString>::const_iterator I;
-    for(I = dataVector.begin(); I != dataVector.end(); ++I)
+    for (I = dataVector.begin(); I != dataVector.end(); ++I)
     {
       dataArray->InsertNextValue(vtkVariant(*I));
     }
@@ -227,12 +210,8 @@ int vtkFixedWidthTextReader::RequestData(
 
 // ----------------------------------------------------------------------
 
-static int
-splitString(const vtkStdString& input,
-            unsigned int fieldWidth,
-            bool stripWhitespace,
-            std::vector<vtkStdString>& results,
-            bool includeEmpties)
+static int splitString(const vtkStdString& input, unsigned int fieldWidth, bool stripWhitespace,
+  std::vector<vtkStdString>& results, bool includeEmpties)
 {
   if (input.empty())
   {
@@ -243,29 +222,26 @@ splitString(const vtkStdString& input,
   vtkStdString thisFieldText;
   vtkStdString parsedField;
 
-
   while (thisField * fieldWidth < input.size())
   {
-    thisFieldText = input.substr(thisField*fieldWidth, fieldWidth);
+    thisFieldText = input.substr(thisField * fieldWidth, fieldWidth);
 
     if (stripWhitespace)
     {
       unsigned int startIndex = 0, endIndex = static_cast<unsigned int>(thisFieldText.size()) - 1;
       while (startIndex < thisFieldText.size() &&
-             isspace(static_cast<int>(thisFieldText.at(startIndex))))
+        isspace(static_cast<int>(thisFieldText.at(startIndex))))
       {
         ++startIndex;
       }
-      while (endIndex > 0 &&
-             isspace(static_cast<int>(thisFieldText.at(endIndex))))
+      while (endIndex > 0 && isspace(static_cast<int>(thisFieldText.at(endIndex))))
       {
-        -- endIndex;
+        --endIndex;
       }
 
       if (startIndex <= endIndex)
       {
-        parsedField =
-          thisFieldText.substr(startIndex, (endIndex - startIndex) + 1);
+        parsedField = thisFieldText.substr(startIndex, (endIndex - startIndex) + 1);
       }
       else
       {
@@ -276,7 +252,7 @@ splitString(const vtkStdString& input,
     {
       parsedField = thisFieldText;
     }
-    ++ thisField;
+    ++thisField;
     if (!parsedField.empty() || includeEmpties)
     {
       results.push_back(parsedField);
@@ -288,15 +264,13 @@ splitString(const vtkStdString& input,
 
 // ----------------------------------------------------------------------
 
-static int
-my_getline(istream& in, vtkStdString &out, char delimiter)
+static int my_getline(istream& in, vtkStdString& out, char delimiter)
 {
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 
-  while ((nextValue = in.get()) != EOF &&
-         numCharactersRead < out.max_size())
+  while ((nextValue = in.get()) != EOF && numCharactersRead < out.max_size())
   {
     ++numCharactersRead;
 
@@ -313,6 +287,3 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
 
   return numCharactersRead;
 }
-
-
-

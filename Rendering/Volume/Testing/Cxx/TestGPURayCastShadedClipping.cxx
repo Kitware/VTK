@@ -33,21 +33,19 @@
 #include <vtkVolume16Reader.h>
 #include <vtkVolumeProperty.h>
 
-void CreateVolumeShadedClippingPipeline(vtkImageData* data,
-                                        vtkVolume* volume,
-                                        int UseClippedVoxelIntensity)
+void CreateVolumeShadedClippingPipeline(
+  vtkImageData* data, vtkVolume* volume, int UseClippedVoxelIntensity)
 {
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetInputData(data);
   volumeMapper->SetBlendModeToComposite();
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(   70.0,  0.0);
-  scalarOpacity->AddPoint(  1200, .2);
-  scalarOpacity->AddPoint(  1300, .3);
-  scalarOpacity->AddPoint(  2000, .3);
-  scalarOpacity->AddPoint(  4095.0,  1.0);
-
+  scalarOpacity->AddPoint(70.0, 0.0);
+  scalarOpacity->AddPoint(1200, .2);
+  scalarOpacity->AddPoint(1300, .3);
+  scalarOpacity->AddPoint(2000, .3);
+  scalarOpacity->AddPoint(4095.0, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
@@ -58,12 +56,11 @@ void CreateVolumeShadedClippingPipeline(vtkImageData* data,
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
-  colorTransferFunction->AddRGBPoint(     0.0, 0.5 , 0.0 , 0.0);
-  colorTransferFunction->AddRGBPoint(   600.0, 1.0 , 0.5 , 0.5);
-  colorTransferFunction->AddRGBPoint(  1280.0, 0.9 , 0.2 , 0.3);
-  colorTransferFunction->AddRGBPoint(  1960.0, 0.81, 0.27, 0.1);
-  colorTransferFunction->AddRGBPoint(  4095.0, 0.5 , 0.5 , 0.5);
-
+  colorTransferFunction->AddRGBPoint(0.0, 0.5, 0.0, 0.0);
+  colorTransferFunction->AddRGBPoint(600.0, 1.0, 0.5, 0.5);
+  colorTransferFunction->AddRGBPoint(1280.0, 0.9, 0.2, 0.3);
+  colorTransferFunction->AddRGBPoint(1960.0, 0.81, 0.27, 0.1);
+  colorTransferFunction->AddRGBPoint(4095.0, 0.5, 0.5, 0.5);
 
   // Test cropping now
   const double* bounds = data->GetBounds();
@@ -72,8 +69,7 @@ void CreateVolumeShadedClippingPipeline(vtkImageData* data,
   clipPlane1->SetNormal(0.8, 0.0, 0.0);
 
   vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(
-    0.45 * (bounds[0] + bounds[1]), 0.35 * (bounds[2] + bounds[3]), 0.0);
+  clipPlane2->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.35 * (bounds[2] + bounds[3]), 0.0);
   clipPlane2->SetNormal(0.2, -0.2, 0.0);
 
   vtkNew<vtkPlaneCollection> clipPlaneCollection;
@@ -89,11 +85,9 @@ int TestGPURayCastShadedClipping(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkSmartPointer<vtkVolume16Reader> reader =
-    vtkSmartPointer<vtkVolume16Reader>::New();
+  vtkSmartPointer<vtkVolume16Reader> reader = vtkSmartPointer<vtkVolume16Reader>::New();
   reader->SetDataDimensions(64, 64);
   reader->SetDataByteOrderToLittleEndian();
   reader->SetImageRange(1, 93);

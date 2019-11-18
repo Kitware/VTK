@@ -28,7 +28,7 @@
 #include "vtkAxis.h"
 
 //----------------------------------------------------------------------------
-int TestChartDouble(int, char *[])
+int TestChartDouble(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
   vtkNew<vtkContextView> view;
@@ -64,7 +64,7 @@ int TestChartDouble(int, char *[])
   }
 
   // Add multiple line plots, setting the colors etc
-  vtkPlot *line = chart->AddPlot(vtkChart::POINTS);
+  vtkPlot* line = chart->AddPlot(vtkChart::POINTS);
   line->SetInputData(table, 0, 1);
   line = chart->AddPlot(vtkChart::LINE);
   line->SetInputData(table, 0, 2);

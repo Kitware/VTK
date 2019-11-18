@@ -23,7 +23,7 @@
  * Only the whole extent is modified.
  * 2: If ClipDataOn is set, then you will get no more that the clipped
  * extent.
-*/
+ */
 
 #ifndef vtkStructuredGridClip_h
 #define vtkStructuredGridClip_h
@@ -37,19 +37,18 @@
 class VTKFILTERSGENERAL_EXPORT vtkStructuredGridClip : public vtkStructuredGridAlgorithm
 {
 public:
-  static vtkStructuredGridClip *New();
-  vtkTypeMacro(vtkStructuredGridClip,vtkStructuredGridAlgorithm);
+  static vtkStructuredGridClip* New();
+  vtkTypeMacro(vtkStructuredGridClip, vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * The whole extent of the output has to be set explicitly.
    */
-  void SetOutputWholeExtent(int extent[6], vtkInformation *outInfo=nullptr);
-  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
-                            int minZ, int maxZ);
+  void SetOutputWholeExtent(int extent[6], vtkInformation* outInfo = nullptr);
+  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
-  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+  int* GetOutputWholeExtent() { return this->OutputWholeExtent; }
   //@}
 
   void ResetOutputWholeExtent();
@@ -76,24 +75,15 @@ protected:
 
   vtkTypeBool ClipData;
 
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void CopyData(vtkStructuredGrid *inData, vtkStructuredGrid *outData, int *ext);
+  void CopyData(vtkStructuredGrid* inData, vtkStructuredGrid* outData, int* ext);
 
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkStructuredGridClip(const vtkStructuredGridClip&) = delete;
   void operator=(const vtkStructuredGridClip&) = delete;
 };
 
-
-
 #endif
-
-
-

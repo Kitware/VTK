@@ -155,9 +155,11 @@ std::string vtkJSONDataSetWriter::WriteArray(
   std::stringstream ss;
   ss << "{\n"
      << INDENT << "  \"vtkClass\": \"" << className << "\",\n"
-     << INDENT << "  \"name\": \"" << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
+     << INDENT << "  \"name\": \""
+     << this->GetValidString(arrayName == nullptr ? array->GetName() : arrayName) << "\",\n"
      << INDENT << "  \"numberOfComponents\": " << array->GetNumberOfComponents() << ",\n"
-     << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert) << "Array\",\n"
+     << INDENT << "  \"dataType\": \"" << vtkJSONDataSetWriter::GetShortType(array, needConvert)
+     << "Array\",\n"
      << INDENT << "  \"ref\": {\n"
      << INDENT << "     \"encode\": \"LittleEndian\",\n"
      << INDENT << "     \"basepath\": \"data\",\n"
@@ -393,8 +395,8 @@ std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversi
   vtkJSONDataSetWriter::ComputeMD5(content, size, hash);
 
   std::stringstream ss;
-  ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_" << input->GetNumberOfValues()
-     << "-" << hash.c_str();
+  ss << vtkJSONDataSetWriter::GetShortType(input, needConversion) << "_"
+     << input->GetNumberOfValues() << "-" << hash.c_str();
 
   return ss.str();
 }

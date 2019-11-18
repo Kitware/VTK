@@ -37,7 +37,7 @@
 //----------------------------------------------------------------------------
 int TestTanglegramItem(int argc, char* argv[])
 {
-  //tree #1
+  // tree #1
   vtkNew<vtkMutableDirectedGraph> graph1;
   vtkIdType root = graph1->AddVertex();
   vtkIdType internalOne = graph1->AddChild(root);
@@ -77,7 +77,7 @@ int TestTanglegramItem(int argc, char* argv[])
   nodeWeights->SetName("node weight");
   graph1->GetVertexData()->AddArray(nodeWeights);
 
-  //tree #2
+  // tree #2
   vtkNew<vtkMutableDirectedGraph> graph2;
   root = graph2->AddVertex();
   internalOne = graph2->AddChild(root);

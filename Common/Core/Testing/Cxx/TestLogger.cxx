@@ -30,7 +30,7 @@ void log_handler(void* user_data, const vtkLogger::Message& message)
 }
 }
 
-int TestLogger(int, char* [])
+int TestLogger(int, char*[])
 {
   std::string lines;
   vtkLogF(INFO, "changing verbosity to %d", vtkLogger::VERBOSITY_TRACE);

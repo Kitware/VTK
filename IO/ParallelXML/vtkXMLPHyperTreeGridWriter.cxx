@@ -59,7 +59,8 @@ const char* vtkXMLPHyperTreeGridWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter* vtkXMLPHyperTreeGridWriter::CreateHyperTreeGridPieceWriter(int vtkNotUsed(index))
+vtkXMLHyperTreeGridWriter* vtkXMLPHyperTreeGridWriter::CreateHyperTreeGridPieceWriter(
+  int vtkNotUsed(index))
 {
   // Create the writer for the piece.
   vtkXMLHyperTreeGridWriter* pWriter = vtkXMLHyperTreeGridWriter::New();
@@ -76,9 +77,7 @@ vtkXMLWriter* vtkXMLPHyperTreeGridWriter::CreatePieceWriter(int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPHyperTreeGridWriter::WritePData(vtkIndent vtkNotUsed(indent))
-{
-}
+void vtkXMLPHyperTreeGridWriter::WritePData(vtkIndent vtkNotUsed(indent)) {}
 
 //----------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridWriter::WritePieceInternal()

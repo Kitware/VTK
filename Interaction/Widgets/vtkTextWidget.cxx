@@ -26,28 +26,27 @@ vtkTextWidget::vtkTextWidget() = default;
 vtkTextWidget::~vtkTextWidget() = default;
 
 //-------------------------------------------------------------------------
-void vtkTextWidget::SetTextActor(vtkTextActor *textActor)
+void vtkTextWidget::SetTextActor(vtkTextActor* textActor)
 {
-  vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
-  if ( ! textRep )
+  vtkTextRepresentation* textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
+  if (!textRep)
   {
     this->CreateDefaultRepresentation();
     textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
   }
 
-  if ( textRep->GetTextActor() != textActor )
+  if (textRep->GetTextActor() != textActor)
   {
     textRep->SetTextActor(textActor);
     this->Modified();
   }
 }
 
-
 //-------------------------------------------------------------------------
-vtkTextActor *vtkTextWidget::GetTextActor()
+vtkTextActor* vtkTextWidget::GetTextActor()
 {
-  vtkTextRepresentation *textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
-  if ( ! textRep )
+  vtkTextRepresentation* textRep = reinterpret_cast<vtkTextRepresentation*>(this->WidgetRep);
+  if (!textRep)
   {
     return nullptr;
   }
@@ -60,7 +59,7 @@ vtkTextActor *vtkTextWidget::GetTextActor()
 //----------------------------------------------------------------------
 void vtkTextWidget::CreateDefaultRepresentation()
 {
-  if ( ! this->WidgetRep )
+  if (!this->WidgetRep)
   {
     this->WidgetRep = vtkTextRepresentation::New();
   }
@@ -69,6 +68,5 @@ void vtkTextWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------------------
 void vtkTextWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }

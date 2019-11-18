@@ -25,7 +25,7 @@
  * (see vtkDividingCubes). Points are generated only on the edges of cells,
  * not in the interior, and at lower density than dividing cubes. However, it
  * is more general than dividing cubes since it treats any type of dataset.
-*/
+ */
 
 #ifndef vtkEdgePoints_h
 #define vtkEdgePoints_h
@@ -38,31 +38,32 @@ class vtkMergePoints;
 class VTKFILTERSGENERAL_EXPORT vtkEdgePoints : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkEdgePoints,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkEdgePoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with contour value of 0.0.
    */
-  static vtkEdgePoints *New();
+  static vtkEdgePoints* New();
 
   //@{
   /**
    * Set/get the contour value.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
   //@}
 
 protected:
   vtkEdgePoints();
   ~vtkEdgePoints() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double Value;
-  vtkMergePoints *Locator;
+  vtkMergePoints* Locator;
+
 private:
   vtkEdgePoints(const vtkEdgePoints&) = delete;
   void operator=(const vtkEdgePoints&) = delete;

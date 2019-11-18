@@ -23,23 +23,23 @@
 class vtkSliderCallback : public vtkCommand
 {
 public:
-  static vtkSliderCallback *New()
+  static vtkSliderCallback* New() { return new vtkSliderCallback; }
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
-    return new vtkSliderCallback;
-  }
-  void Execute(vtkObject *caller, unsigned long, void*) override
-  {
-    vtkSliderWidget *sliderWidget =
-      reinterpret_cast<vtkSliderWidget*>(caller);
-    int value = static_cast<int>(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
-    this->SphereSource->SetPhiResolution(value/2);
+    vtkSliderWidget* sliderWidget = reinterpret_cast<vtkSliderWidget*>(caller);
+    int value = static_cast<int>(
+      static_cast<vtkSliderRepresentation*>(sliderWidget->GetRepresentation())->GetValue());
+    this->SphereSource->SetPhiResolution(value / 2);
     this->SphereSource->SetThetaResolution(value);
   }
-  vtkSliderCallback():SphereSource(nullptr) {}
-  vtkSphereSource *SphereSource;
+  vtkSliderCallback()
+    : SphereSource(nullptr)
+  {
+  }
+  vtkSphereSource* SphereSource;
 };
 
-int main (int, char *[])
+int main(int, char*[])
 {
   // A sphere
   vtkSmartPointer<vtkSphereSource> sphereSource = vtkSmartPointer<vtkSphereSource>::New();
@@ -61,7 +61,8 @@ int main (int, char *[])
   renderWindow->AddRenderer(renderer);
 
   // An interactor
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
   // Add the actors to the scene
@@ -71,7 +72,8 @@ int main (int, char *[])
   renderWindow->Render();
 
   // Here we describe the representation of the widget.
-  vtkSmartPointer<vtkSliderRepresentation2D> sliderRep = vtkSmartPointer<vtkSliderRepresentation2D>::New();
+  vtkSmartPointer<vtkSliderRepresentation2D> sliderRep =
+    vtkSmartPointer<vtkSliderRepresentation2D>::New();
   sliderRep->SetMinimumValue(3.0);
   sliderRep->SetMaximumValue(20.0);
   sliderRep->SetValue(sphereSource->GetThetaResolution());
@@ -81,7 +83,7 @@ int main (int, char *[])
   // slider will stay in the same proportionate location if the window
   // is resized.
   sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToNormalizedDisplay();
-  sliderRep->GetPoint1Coordinate()->SetValue(.1 ,.1);
+  sliderRep->GetPoint1Coordinate()->SetValue(.1, .1);
   sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToNormalizedDisplay();
   sliderRep->GetPoint2Coordinate()->SetValue(.3, .1);
 
@@ -99,7 +101,7 @@ int main (int, char *[])
   // Observe the interaction events of the widget. If the computation
   // in the callback is time consuming, observe the
   // EndInteractionEvent instead.
-  sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
+  sliderWidget->AddObserver(vtkCommand::InteractionEvent, callback);
 
   renderWindowInteractor->Initialize();
   renderWindow->Render();

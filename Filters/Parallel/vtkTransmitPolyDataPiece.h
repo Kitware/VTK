@@ -21,7 +21,7 @@
  * This filter can be used to redistribute data from producers that can't
  * produce data in parallel. All data is produced on first process and
  * the distributed to others using the multiprocess controller.
-*/
+ */
 
 #ifndef vtkTransmitPolyDataPiece_h
 #define vtkTransmitPolyDataPiece_h
@@ -34,7 +34,7 @@ class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkTransmitPolyDataPiece *New();
+  static vtkTransmitPolyDataPiece* New();
   vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -61,12 +61,12 @@ protected:
   ~vtkTransmitPolyDataPiece() override;
 
   // Data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  void RootExecute(vtkPolyData *input, vtkPolyData *output, vtkInformation *outInfo);
-  void SatelliteExecute(int procId, vtkPolyData *output, vtkInformation *outInfo);
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void RootExecute(vtkPolyData* input, vtkPolyData* output, vtkInformation* outInfo);
+  void SatelliteExecute(int procId, vtkPolyData* output, vtkInformation* outInfo);
 
   vtkTypeBool CreateGhostCells;
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
 
 private:
   vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&) = delete;

@@ -23,18 +23,17 @@
 #include <vtkRenderer.h>
 #include <vtkXMLPolyDataReader.h>
 
-int TestDateToNumeric(int argc, char *argv[])
+int TestDateToNumeric(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/mine_with_dates.vtp");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mine_with_dates.vtp");
 
   // Read the data
   vtkNew<vtkXMLPolyDataReader> reader;
-  reader->SetFileName (fileName);
-  delete [] fileName;
+  reader->SetFileName(fileName);
+  delete[] fileName;
 
   vtkNew<vtkDateToNumeric> d2n;
-  d2n->SetInputConnection (reader->GetOutputPort());
+  d2n->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(d2n->GetOutputPort());

@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkRenderer vtkCollection
-*/
+ */
 
 #ifndef vtkRendererCollection_h
 #define vtkRendererCollection_h
@@ -34,23 +34,20 @@
 class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
 {
 public:
-  static vtkRendererCollection *New();
+  static vtkRendererCollection* New();
   vtkTypeMacro(vtkRendererCollection, vtkCollection);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a Renderer to the bottom of the list.
    */
-  void AddItem(vtkRenderer *a)
-    { this->vtkCollection::AddItem(a); }
-
+  void AddItem(vtkRenderer* a) { this->vtkCollection::AddItem(a); }
 
   /**
    * Get the next Renderer in the list.
    * Return NULL when at the end of the list.
    */
-  vtkRenderer *GetNextItem()
-    { return static_cast<vtkRenderer *>(this->GetNextItemAsObject()); }
+  vtkRenderer* GetNextItem() { return static_cast<vtkRenderer*>(this->GetNextItemAsObject()); }
 
   /**
    * Forward the Render() method to each renderer in the list.
@@ -61,14 +58,16 @@ public:
    * Get the first Renderer in the list.
    * Return NULL when at the end of the list.
    */
-  vtkRenderer *GetFirstRenderer();
+  vtkRenderer* GetFirstRenderer();
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
-  vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie)
-    { return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie)); }
+  vtkRenderer* GetNextRenderer(vtkCollectionSimpleIterator& cookie)
+  {
+    return static_cast<vtkRenderer*>(this->GetNextItemAsObject(cookie));
+  }
 
 protected:
   vtkRendererCollection() {}
@@ -76,8 +75,7 @@ protected:
 
 private:
   // hide the standard AddItem from the user and the compiler.
-  void AddItem(vtkObject *o)
-    { this->vtkCollection::AddItem(o); }
+  void AddItem(vtkObject* o) { this->vtkCollection::AddItem(o); }
 
   vtkRendererCollection(const vtkRendererCollection&) = delete;
   void operator=(const vtkRendererCollection&) = delete;

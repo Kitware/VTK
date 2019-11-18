@@ -38,7 +38,7 @@
  * primitives (for instance, spheres at critical nodes and cylinders between
  * intermediary samples, see Graphics/Testing/Cxx/TestReebGraph.cxx).
  *
-*/
+ */
 
 #ifndef vtkReebGraphSurfaceSkeletonFilter_h
 #define vtkReebGraphSurfaceSkeletonFilter_h
@@ -49,8 +49,7 @@
 class vtkReebGraph;
 class vtkTable;
 
-class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphSurfaceSkeletonFilter :
-  public vtkDataObjectAlgorithm
+class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphSurfaceSkeletonFilter : public vtkDataObjectAlgorithm
 {
 public:
   static vtkReebGraphSurfaceSkeletonFilter* New();
@@ -93,11 +92,11 @@ protected:
   vtkIdType FieldId;
   int NumberOfSamples, NumberOfSmoothingIterations;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *) override;
-  int FillOutputPortInformation(int portNumber, vtkInformation *info) override;
+  int FillInputPortInformation(int portNumber, vtkInformation*) override;
+  int FillOutputPortInformation(int portNumber, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkReebGraphSurfaceSkeletonFilter(const vtkReebGraphSurfaceSkeletonFilter&) = delete;

@@ -24,7 +24,7 @@
  * @sa
  * vtkImplicitDataSet vtkInterpolatedVelocityField
  * vtkInitialValueProblemSolver
-*/
+ */
 
 #ifndef vtkFunctionSet_h
 #define vtkFunctionSet_h
@@ -35,7 +35,7 @@
 class VTKCOMMONMATH_EXPORT vtkFunctionSet : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkFunctionSet,vtkObject);
+  vtkTypeMacro(vtkFunctionSet, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -47,23 +47,24 @@ public:
    * FunctionValues signatures.
    */
   virtual int FunctionValues(double* x, double* f) { return this->FunctionValues(x, f, nullptr); }
-  virtual int FunctionValues(double* x, double* f, void* vtkNotUsed(userData)) { return this->FunctionValues(x, f); }
+  virtual int FunctionValues(double* x, double* f, void* vtkNotUsed(userData))
+  {
+    return this->FunctionValues(x, f);
+  }
 
   /**
    * Return the number of functions. Note that this is constant for
    * a given type of set of functions and can not be changed at
    * run time.
    */
-  virtual int GetNumberOfFunctions() {
-    return this->NumFuncs; }
+  virtual int GetNumberOfFunctions() { return this->NumFuncs; }
 
   /**
    * Return the number of independent variables. Note that this is
    * constant for a given type of set of functions and can not be changed
    * at run time.
    */
-  virtual int GetNumberOfIndependentVariables() {
-    return this->NumIndepVars; }
+  virtual int GetNumberOfIndependentVariables() { return this->NumIndepVars; }
 
 protected:
   vtkFunctionSet();
@@ -78,8 +79,3 @@ private:
 };
 
 #endif
-
-
-
-
-

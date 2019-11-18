@@ -18,7 +18,7 @@
  *
  * vtkCompositeDataIterator provides an interface for accessing datasets
  * in a collection (vtkCompositeDataIterator).
-*/
+ */
 
 #ifndef vtkCompositeDataIterator_h
 #define vtkCompositeDataIterator_h
@@ -65,7 +65,7 @@ public:
   /**
    * Move the iterator to the next item in the collection.
    */
-  virtual void GoToNextItem() =0;
+  virtual void GoToNextItem() = 0;
 
   /**
    * Test whether the iterator is finished with the traversal.
@@ -73,7 +73,7 @@ public:
    * It is safe to call any of the GetCurrent...() methods only when
    * IsDoneWithTraversal() returns 0.
    */
-  virtual int IsDoneWithTraversal() =0;
+  virtual int IsDoneWithTraversal() = 0;
 
   /**
    * Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
@@ -85,13 +85,13 @@ public:
    * a new vtkInformation object is none is already present. Use
    * HasCurrentMetaData to avoid unnecessary creation of vtkInformation objects.
    */
-  virtual vtkInformation* GetCurrentMetaData() =0;
+  virtual vtkInformation* GetCurrentMetaData() = 0;
 
   /**
    * Returns if the a meta-data information object is present for the current
    * item. Return 1 on success, 0 otherwise.
    */
-  virtual int HasCurrentMetaData() =0;
+  virtual int HasCurrentMetaData() = 0;
 
   //@{
   /**
@@ -106,7 +106,7 @@ public:
   /**
    * Flat index is an index to identify the data in a composite data structure
    */
-  virtual unsigned int GetCurrentFlatIndex()=0;
+  virtual unsigned int GetCurrentFlatIndex() = 0;
 
   //@{
   /**
@@ -129,9 +129,6 @@ protected:
 private:
   vtkCompositeDataIterator(const vtkCompositeDataIterator&) = delete;
   void operator=(const vtkCompositeDataIterator&) = delete;
-
 };
 
 #endif
-
-

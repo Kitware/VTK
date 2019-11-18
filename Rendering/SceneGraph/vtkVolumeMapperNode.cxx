@@ -28,14 +28,10 @@
 vtkStandardNewMacro(vtkVolumeMapperNode);
 
 //----------------------------------------------------------------------------
-vtkVolumeMapperNode::vtkVolumeMapperNode()
-{
-}
+vtkVolumeMapperNode::vtkVolumeMapperNode() {}
 
 //----------------------------------------------------------------------------
-vtkVolumeMapperNode::~vtkVolumeMapperNode()
-{
-}
+vtkVolumeMapperNode::~vtkVolumeMapperNode() {}
 
 //----------------------------------------------------------------------------
 void vtkVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)

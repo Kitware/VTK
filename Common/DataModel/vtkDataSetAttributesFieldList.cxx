@@ -377,9 +377,7 @@ vtkDataSetAttributesFieldList::vtkDataSetAttributesFieldList(int vtkNotUsed(numb
 }
 
 //----------------------------------------------------------------------------
-vtkDataSetAttributesFieldList::~vtkDataSetAttributesFieldList()
-{
-}
+vtkDataSetAttributesFieldList::~vtkDataSetAttributesFieldList() {}
 
 //----------------------------------------------------------------------------
 void vtkDataSetAttributesFieldList::Reset()
@@ -398,10 +396,10 @@ void vtkDataSetAttributesFieldList::InitializeFieldList(vtkDataSetAttributes* ds
   // initialize OutputLocation to match the input location for 0th input. This
   // is to support legacy use-cases where FieldList was used without
   // calling CopyAllocate.
-  for (auto &pair : this->Internals->Fields)
+  for (auto& pair : this->Internals->Fields)
   {
-      auto& fieldInfo = pair.second;
-      fieldInfo.OutputLocation = fieldInfo.Location.front();
+    auto& fieldInfo = pair.second;
+    fieldInfo.OutputLocation = fieldInfo.Location.front();
   }
 }
 

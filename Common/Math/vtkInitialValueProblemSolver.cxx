@@ -16,7 +16,6 @@
 
 #include "vtkFunctionSet.h"
 
-
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver()
 {
   this->FunctionSet = nullptr;
@@ -40,16 +39,22 @@ void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
 {
   if (this->FunctionSet != fset)
   {
-    if (this->FunctionSet != nullptr) { this->FunctionSet->UnRegister(this); }
-    if (fset != nullptr && (fset->GetNumberOfFunctions() !=
-                      fset->GetNumberOfIndependentVariables() - 1))
+    if (this->FunctionSet != nullptr)
+    {
+      this->FunctionSet->UnRegister(this);
+    }
+    if (fset != nullptr &&
+      (fset->GetNumberOfFunctions() != fset->GetNumberOfIndependentVariables() - 1))
     {
       vtkErrorMacro("Invalid function set!");
       this->FunctionSet = nullptr;
       return;
     }
     this->FunctionSet = fset;
-    if (this->FunctionSet != nullptr) { this->FunctionSet->Register(this); }
+    if (this->FunctionSet != nullptr)
+    {
+      this->FunctionSet->Register(this);
+    }
     this->Modified();
   }
   this->Initialize();
@@ -57,7 +62,7 @@ void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
 
 void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Function set : " << this->FunctionSet << endl;
   os << indent << "Function values : " << this->Vals << endl;
   os << indent << "Function derivatives: " << this->Derivs << endl;
@@ -71,11 +76,8 @@ void vtkInitialValueProblemSolver::Initialize()
     return;
   }
   delete[] this->Vals;
-  this->Vals =
-    new double[this->FunctionSet->GetNumberOfIndependentVariables()];
+  this->Vals = new double[this->FunctionSet->GetNumberOfIndependentVariables()];
   delete[] this->Derivs;
-  this->Derivs =
-    new double[this->FunctionSet->GetNumberOfFunctions()];
+  this->Derivs = new double[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;
 }
-

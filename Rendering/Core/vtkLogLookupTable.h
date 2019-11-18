@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkLookupTable
-*/
+ */
 
 #ifndef vtkLogLookupTable_h
 #define vtkLogLookupTable_h
@@ -32,7 +32,7 @@
 class VTKRENDERINGCORE_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
-  static vtkLogLookupTable *New();
+  static vtkLogLookupTable* New();
 
   vtkTypeMacro(vtkLogLookupTable, vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -40,6 +40,7 @@ public:
 protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
   ~vtkLogLookupTable() override {}
+
 private:
   vtkLogLookupTable(const vtkLogLookupTable&) = delete;
   void operator=(const vtkLogLookupTable&) = delete;

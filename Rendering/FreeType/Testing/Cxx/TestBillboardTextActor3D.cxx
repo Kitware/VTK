@@ -34,11 +34,11 @@
 #include <sstream>
 #include <vector>
 
-namespace vtkTestBillboardTextActor3D {
-void setupBillboardTextActor3D(vtkBillboardTextActor3D *actor,
-                               vtkPolyData *anchor)
+namespace vtkTestBillboardTextActor3D
 {
-  vtkTextProperty *p = actor->GetTextProperty();
+void setupBillboardTextActor3D(vtkBillboardTextActor3D* actor, vtkPolyData* anchor)
+{
+  vtkTextProperty* p = actor->GetTextProperty();
   std::ostringstream label;
   label << "TProp Angle: " << p->GetOrientation() << "\n"
         << "HAlign: " << p->GetJustificationAsString() << "\n"
@@ -46,18 +46,17 @@ void setupBillboardTextActor3D(vtkBillboardTextActor3D *actor,
   actor->SetInput(label.str().c_str());
 
   // Add the anchor point:
-  double *pos = actor->GetPosition();
-  double *col = p->GetColor();
+  double* pos = actor->GetPosition();
+  double* col = p->GetColor();
   vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], pos[2]);
   anchor->GetVerts()->InsertNextCell(1, &ptId);
-  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
-                                                        col[1] * 255,
-                                                        col[2] * 255, 255);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(
+    col[0] * 255, col[1] * 255, col[2] * 255, 255);
 }
 
-void setupGrid(vtkPolyData *grid)
+void setupGrid(vtkPolyData* grid)
 {
-  double marks[4] = {0., 200., 400., 600.};
+  double marks[4] = { 0., 200., 400., 600. };
   double thickness = 200.;
 
   vtkNew<vtkPoints> points;
@@ -97,12 +96,10 @@ void setupGrid(vtkPolyData *grid)
 // Test for bug #17233: https://gitlab.kitware.com/vtk/vtk/issues/17233
 // The Bounds were not updated when the position changed. Ensure that we aren't
 // returning stale bounds after modifying the actor.
-bool RegressionTest_17233(vtkBillboardTextActor3D *actor)
+bool RegressionTest_17233(vtkBillboardTextActor3D* actor)
 {
-  double *bounds = actor->GetBounds();
-  double origBounds[6] = { bounds[0], bounds[1],
-                           bounds[2], bounds[3],
-                           bounds[4], bounds[5] };
+  double* bounds = actor->GetBounds();
+  double origBounds[6] = { bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5] };
 
   double pos[3];
   actor->GetPosition(pos);
@@ -123,19 +120,19 @@ bool RegressionTest_17233(vtkBillboardTextActor3D *actor)
 } // end namespace vtkTestBillboardTextActor3D
 
 //----------------------------------------------------------------------------
-int TestBillboardTextActor3D(int, char *[])
+int TestBillboardTextActor3D(int, char*[])
 {
   using namespace vtkTestBillboardTextActor3D;
   vtkNew<vtkRenderer> ren;
   ren->UseDepthPeelingOn();
 
   // use this to capture one of the text actors for later regression testing:
-  vtkBillboardTextActor3D *bbActor = nullptr;
+  vtkBillboardTextActor3D* bbActor = nullptr;
 
   int width = 600;
   int height = 600;
-  int x[3] = {100, 300, 500};
-  int y[3] = {100, 300, 500};
+  int x[3] = { 100, 300, 500 };
+  int y[3] = { 100, 300, 500 };
 
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
@@ -179,9 +176,7 @@ int TestBillboardTextActor3D(int, char *[])
       actor->GetTextProperty()->SetFontSize(20);
       actor->GetTextProperty()->SetOrientation(45.0 * (3 * row + col));
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .26);
-      actor->GetTextProperty()->SetBackgroundColor(0.,
-                                                   1. - col * .26,
-                                                   1. - row * .26);
+      actor->GetTextProperty()->SetBackgroundColor(0., 1. - col * .26, 1. - row * .26);
       actor->GetTextProperty()->SetBackgroundOpacity(0.85);
       actor->SetPosition(x[col], y[row], 0.);
       setupBillboardTextActor3D(actor, anchors);
@@ -234,8 +229,8 @@ int TestBillboardTextActor3D(int, char *[])
   iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
-  ren->GetActiveCamera()->SetPosition(width/2, height/2, 1400);
-  ren->GetActiveCamera()->SetFocalPoint(width/2, height/2, 0);
+  ren->GetActiveCamera()->SetPosition(width / 2, height / 2, 1400);
+  ren->GetActiveCamera()->SetFocalPoint(width / 2, height / 2, 0);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->GetActiveCamera()->Roll(45.);
   ren->GetActiveCamera()->Elevation(45.);

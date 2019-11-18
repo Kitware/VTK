@@ -21,14 +21,14 @@
  * of material interfaces, for parallel data sets
  *
  * @par Thanks:
- * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by <br>
- * CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
+ * This file is part of the generalized Youngs material interface reconstruction algorithm
+ * contributed by <br> CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
  * BP12, F-91297 Arpajon, France. <br>
  * Implementation by Thierry Carrard and Philippe Pebay
  *
  * @sa
  * vtkYoungsMaterialInterface
-*/
+ */
 
 #ifndef vtkPYoungsMaterialInterface_h
 #define vtkPYoungsMaterialInterface_h
@@ -42,13 +42,13 @@ class VTKFILTERSPARALLEL_EXPORT vtkPYoungsMaterialInterface : public vtkYoungsMa
 {
 public:
   static vtkPYoungsMaterialInterface* New();
-  vtkTypeMacro(vtkPYoungsMaterialInterface,vtkYoungsMaterialInterface);
+  vtkTypeMacro(vtkPYoungsMaterialInterface, vtkYoungsMaterialInterface);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Parallel implementation of the material aggregation.
    */
-  void Aggregate ( int, int* ) override;
+  void Aggregate(int, int*) override;
 
   //@{
   /**
@@ -60,8 +60,8 @@ public:
   //@}
 
 protected:
-  vtkPYoungsMaterialInterface ();
-  ~vtkPYoungsMaterialInterface () override;
+  vtkPYoungsMaterialInterface();
+  ~vtkPYoungsMaterialInterface() override;
 
   vtkMultiProcessController* Controller;
 

@@ -57,7 +57,7 @@
  *
  * @sa
  * vtkImageWriter vtkMetaImageReader
-*/
+ */
 
 #ifndef vtkMetaImageWriter_h
 #define vtkMetaImageWriter_h
@@ -65,18 +65,21 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
-namespace vtkmetaio { class MetaImage; } // forward declaration
+namespace vtkmetaio
+{
+class MetaImage;
+} // forward declaration
 
 class VTKIOIMAGE_EXPORT vtkMetaImageWriter : public vtkImageWriter
 {
 public:
-  vtkTypeMacro(vtkMetaImageWriter,vtkImageWriter);
+  vtkTypeMacro(vtkMetaImageWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with FlipNormals turned off and Normals set to true.
    */
-  static vtkMetaImageWriter *New();
+  static vtkMetaImageWriter* New();
 
   /**
    * Specify file name of meta file
@@ -92,14 +95,8 @@ public:
   virtual char* GetRAWFileName();
   //@}
 
-  virtual void SetCompression( bool compress )
-  {
-    this->Compress = compress;
-  }
-  virtual bool GetCompression( void )
-  {
-    return this->Compress;
-  }
+  virtual void SetCompression(bool compress) { this->Compress = compress; }
+  virtual bool GetCompression(void) { return this->Compress; }
 
   // This is called by the superclass.
   // This is the method you should override.
@@ -117,11 +114,7 @@ private:
   vtkMetaImageWriter(const vtkMetaImageWriter&) = delete;
   void operator=(const vtkMetaImageWriter&) = delete;
 
-  vtkmetaio::MetaImage * MetaImagePtr;
-
+  vtkmetaio::MetaImage* MetaImagePtr;
 };
 
 #endif
-
-
-

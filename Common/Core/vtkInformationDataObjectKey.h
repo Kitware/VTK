@@ -18,7 +18,7 @@
  *
  * vtkInformationDataObjectKey is used to represent keys in
  * vtkInformation for values that are vtkDataObject instances.
-*/
+ */
 
 #ifndef vtkInformationDataObjectKey_h
 #define vtkInformationDataObjectKey_h
@@ -33,7 +33,7 @@ class vtkDataObject;
 class VTKCOMMONCORE_EXPORT vtkInformationDataObjectKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationDataObjectKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationDataObjectKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationDataObjectKey(const char* name, const char* location);

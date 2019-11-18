@@ -33,7 +33,7 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayRange_h
 #define vtkArrayRange_h
@@ -109,8 +109,8 @@ private:
    * Stores one-past-the-end of the range.
    */
   CoordinateT End;
-};
   //@}
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkArrayRange.h

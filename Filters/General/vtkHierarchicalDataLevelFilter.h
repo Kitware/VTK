@@ -20,7 +20,7 @@
  *
  * @sa
  * vtkLevelIdScalars
-*/
+ */
 
 #ifndef vtkHierarchicalDataLevelFilter_h
 #define vtkHierarchicalDataLevelFilter_h
@@ -31,14 +31,14 @@
 class VTKFILTERSGENERAL_EXPORT vtkHierarchicalDataLevelFilter : public vtkLevelIdScalars
 {
 public:
-  vtkTypeMacro(vtkHierarchicalDataLevelFilter,vtkLevelIdScalars);
+  vtkTypeMacro(vtkHierarchicalDataLevelFilter, vtkLevelIdScalars);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with PointIds and CellIds on; and ids being generated
    * as scalars.
    */
-  static vtkHierarchicalDataLevelFilter *New();
+  static vtkHierarchicalDataLevelFilter* New();
 
 protected:
   vtkHierarchicalDataLevelFilter();
@@ -50,5 +50,3 @@ private:
 };
 
 #endif
-
-

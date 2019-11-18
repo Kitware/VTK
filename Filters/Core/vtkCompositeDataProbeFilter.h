@@ -33,7 +33,7 @@
  * output. For all those locations in a block of where a particular data array
  * is missing, this filter uses vtkMath::Nan() for double and float arrays,
  * while 0 for all other types of arrays i.e int, char etc.
-*/
+ */
 
 #ifndef vtkCompositeDataProbeFilter_h
 #define vtkCompositeDataProbeFilter_h
@@ -85,13 +85,12 @@ protected:
   /**
    * Initializes output and various arrays which keep track for probing status.
    */
-  void InitializeOutputArrays(vtkPointData *outPD, vtkIdType numPts) override;
+  void InitializeOutputArrays(vtkPointData* outPD, vtkIdType numPts) override;
 
   /**
    * Handle composite input.
    */
-  int RequestData(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Create a default executive.
@@ -99,12 +98,10 @@ protected:
   vtkExecutive* CreateDefaultExecutive() override;
 
   bool PassPartialArrays;
+
 private:
   vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&) = delete;
   void operator=(const vtkCompositeDataProbeFilter&) = delete;
-
 };
 
 #endif
-
-

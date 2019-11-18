@@ -40,8 +40,8 @@ public:
   /**
    * Standard methods for instantiation. type information, and printing.
    */
-  static vtkOutlineFilter *New();
-  vtkTypeMacro(vtkOutlineFilter,vtkPolyDataAlgorithm);
+  static vtkOutlineFilter* New();
+  vtkTypeMacro(vtkOutlineFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -56,10 +56,10 @@ public:
 
   enum CompositeOutlineStyle
   {
-    ROOT_LEVEL=0,
-    LEAF_DATASETS=1,
-    ROOT_AND_LEAFS=2,
-    SPECIFIED_INDEX=3
+    ROOT_LEVEL = 0,
+    LEAF_DATASETS = 1,
+    ROOT_AND_LEAFS = 2,
+    SPECIFIED_INDEX = 3
   };
 
   //@{
@@ -73,16 +73,12 @@ public:
    * and 4) place a bounding box around each (flat) index of the composite
    * dataset. The default behavior is both root and leafs.
    */
-  vtkSetMacro(CompositeStyle,int);
-  vtkGetMacro(CompositeStyle,int);
-  void SetCompositeStyleToRoot()
-    { this->SetCompositeStyle(ROOT_LEVEL); }
-  void SetCompositeStyleToLeafs()
-    { this->SetCompositeStyle(LEAF_DATASETS); }
-  void SetCompositeStyleToRootAndLeafs()
-    { this->SetCompositeStyle(ROOT_AND_LEAFS); }
-  void SetCompositeStyleToSpecifiedIndex()
-    { this->SetCompositeStyle(SPECIFIED_INDEX); }
+  vtkSetMacro(CompositeStyle, int);
+  vtkGetMacro(CompositeStyle, int);
+  void SetCompositeStyleToRoot() { this->SetCompositeStyle(ROOT_LEVEL); }
+  void SetCompositeStyleToLeafs() { this->SetCompositeStyle(LEAF_DATASETS); }
+  void SetCompositeStyleToRootAndLeafs() { this->SetCompositeStyle(ROOT_AND_LEAFS); }
+  void SetCompositeStyleToSpecifiedIndex() { this->SetCompositeStyle(SPECIFIED_INDEX); }
   //@}
 
   //@{
@@ -104,8 +100,8 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
@@ -113,19 +109,16 @@ protected:
   ~vtkOutlineFilter() override;
 
   vtkTypeBool GenerateFaces;
-  int    CompositeStyle;
-  int    OutputPointsPrecision;
+  int CompositeStyle;
+  int OutputPointsPrecision;
 
   class vtkIndexSet;
-  vtkIndexSet *Indices;
+  vtkIndexSet* Indices;
 
-  void AppendOutline(vtkPoints *pts, vtkCellArray *lines, vtkCellArray *faces,
-                     double bds[6]);
+  void AppendOutline(vtkPoints* pts, vtkCellArray* lines, vtkCellArray* faces, double bds[6]);
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-
-
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkOutlineFilter(const vtkOutlineFilter&) = delete;

@@ -21,7 +21,7 @@
 
 class QGraphicsScene;
 class QOffscreenSurface;
-class	QOpenGLFramebufferObject;
+class QOpenGLFramebufferObject;
 class QWidget;
 
 /**
@@ -41,15 +41,15 @@ public:
   /**
    * Set/Get the QWidget that this TextureObject will render/use
    */
-  void SetWidget(QWidget *w);
-  QWidget *GetWidget() { return this->Widget; }
+  void SetWidget(QWidget* w);
+  QWidget* GetWidget() { return this->Widget; }
   //@}
 
   /**
    * get the QScene used for rendering, this is where events will
    * be forwarded to.
    */
-  QGraphicsScene *GetScene() { return this->Scene; }
+  QGraphicsScene* GetScene() { return this->Scene; }
 
   /**
    * Activate and Bind the texture. Ovrloaded to handle the opengl related
@@ -60,16 +60,16 @@ public:
   /**
    * Free resources
    */
-  void ReleaseGraphicsResources(vtkWindow *win) override;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
 protected:
   vtkQWidgetTexture();
   ~vtkQWidgetTexture() override;
 
-  QGraphicsScene *Scene;
-  QOffscreenSurface *OffscreenSurface;
-  QOpenGLFramebufferObject *Framebuffer;
-  QWidget *Widget;
+  QGraphicsScene* Scene;
+  QOffscreenSurface* OffscreenSurface;
+  QOpenGLFramebufferObject* Framebuffer;
+  QWidget* Widget;
 
   // method called when the widget needs repainting
   std::function<void()> RedrawMethod;

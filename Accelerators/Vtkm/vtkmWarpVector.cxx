@@ -35,22 +35,20 @@
 
 #include <vtkm/filter/WarpVector.h>
 
-vtkStandardNewMacro(vtkmWarpVector)
+vtkStandardNewMacro(vtkmWarpVector);
 
 //------------------------------------------------------------------------------
-vtkmWarpVector::vtkmWarpVector() : vtkWarpVector()
+vtkmWarpVector::vtkmWarpVector()
+  : vtkWarpVector()
 {
 }
 
 //------------------------------------------------------------------------------
-vtkmWarpVector::~vtkmWarpVector()
-{
-}
+vtkmWarpVector::~vtkmWarpVector() {}
 
 //------------------------------------------------------------------------------
 int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
-                               vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
   vtkSmartPointer<vtkPointSet> output = vtkPointSet::GetData(outputVector);
@@ -58,7 +56,7 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   if (!input)
   {
     // Try converting image data.
-    vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
+    vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
     {
       vtkNew<vtkImageDataToPointSet> image2points;
@@ -71,7 +69,7 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   if (!input)
   {
     // Try converting rectilinear grid.
-    vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
+    vtkRectilinearGrid* inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
     {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
@@ -92,33 +90,32 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (!vectors || !numPts)
   {
-     vtkDebugMacro(<< "no input data");
-     return 1;
+    vtkDebugMacro(<< "no input data");
+    return 1;
   }
 
   output->CopyStructure(input);
 
   try
   {
-     vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-     vtkm::cont::Field vectorField = tovtkm::Convert(vectors,
-                                                     vectorsAssociation);
-     in.AddField(vectorField);
+    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    vtkm::cont::Field vectorField = tovtkm::Convert(vectors, vectorsAssociation);
+    in.AddField(vectorField);
 
-     vtkmInputFilterPolicy policy;
-     vtkm::filter::WarpVector warpVector(this->ScaleFactor);
-     warpVector.SetUseCoordinateSystemAsField("true");
-     warpVector.SetVectorField(vectorField.GetName(), vectorField.GetAssociation());
-     auto result = warpVector.Execute(in, policy);
+    vtkmInputFilterPolicy policy;
+    vtkm::filter::WarpVector warpVector(this->ScaleFactor);
+    warpVector.SetUseCoordinateSystemAsField("true");
+    warpVector.SetVectorField(vectorField.GetName(), vectorField.GetAssociation());
+    auto result = warpVector.Execute(in, policy);
 
-     vtkDataArray* warpVectorResult = fromvtkm::Convert(
-          result.GetField("warpvector",vtkm::cont::Field::Association::POINTS));
-     vtkNew<vtkPoints> newPts;
+    vtkDataArray* warpVectorResult =
+      fromvtkm::Convert(result.GetField("warpvector", vtkm::cont::Field::Association::POINTS));
+    vtkNew<vtkPoints> newPts;
 
-     newPts->SetNumberOfPoints(warpVectorResult->GetNumberOfTuples());
-     newPts->SetData(warpVectorResult);
-     output->SetPoints(newPts);
-     warpVectorResult->FastDelete();
+    newPts->SetNumberOfPoints(warpVectorResult->GetNumberOfTuples());
+    newPts->SetData(warpVectorResult);
+    output->SetPoints(newPts);
+    warpVectorResult->FastDelete();
   }
   catch (const vtkm::cont::Error& e)
   {
@@ -134,9 +131,8 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-
 //------------------------------------------------------------------------------
-void vtkmWarpVector::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkmWarpVector::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

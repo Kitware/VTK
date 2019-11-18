@@ -39,7 +39,7 @@
  * @sa
  * vtkTextureMapToPlane vtkTextureMapToCylinder
  * vtkTransformTexture vtkThresholdTextureCoords
-*/
+ */
 
 #ifndef vtkTextureMapToSphere_h
 #define vtkTextureMapToSphere_h
@@ -52,21 +52,21 @@ class vtkDataSet;
 class VTKFILTERSTEXTURE_EXPORT vtkTextureMapToSphere : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkTextureMapToSphere,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkTextureMapToSphere, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with Center (0,0,0) and the PreventSeam ivar is set to
    * true. The sphere center is automatically computed.
    */
-  static vtkTextureMapToSphere *New();
+  static vtkTextureMapToSphere* New();
 
   //@{
   /**
    * Specify a point defining the center of the sphere.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
   //@}
 
   //@{
@@ -74,9 +74,9 @@ public:
    * Turn on/off automatic sphere generation. This means it automatically
    * finds the sphere center.
    */
-  vtkSetMacro(AutomaticSphereGeneration,vtkTypeBool);
-  vtkGetMacro(AutomaticSphereGeneration,vtkTypeBool);
-  vtkBooleanMacro(AutomaticSphereGeneration,vtkTypeBool);
+  vtkSetMacro(AutomaticSphereGeneration, vtkTypeBool);
+  vtkGetMacro(AutomaticSphereGeneration, vtkTypeBool);
+  vtkBooleanMacro(AutomaticSphereGeneration, vtkTypeBool);
   //@}
 
   //@{
@@ -86,11 +86,10 @@ public:
    * theta angle variation between 0->180 and 180->0 degrees. Otherwise, the
    * s-coordinate ranges from 0->1 between 0->360 degrees.
    */
-  vtkSetMacro(PreventSeam,vtkTypeBool);
-  vtkGetMacro(PreventSeam,vtkTypeBool);
-  vtkBooleanMacro(PreventSeam,vtkTypeBool);
+  vtkSetMacro(PreventSeam, vtkTypeBool);
+  vtkGetMacro(PreventSeam, vtkTypeBool);
+  vtkBooleanMacro(PreventSeam, vtkTypeBool);
   //@}
-
 
   /*
    * Computes the center point of the data set if AutomaticSphereGeneration is set to true.
@@ -101,7 +100,7 @@ protected:
   vtkTextureMapToSphere();
   ~vtkTextureMapToSphere() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Center[3];
   vtkTypeBool AutomaticSphereGeneration;
@@ -113,5 +112,3 @@ private:
 };
 
 #endif
-
-

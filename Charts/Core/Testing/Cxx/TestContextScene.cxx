@@ -26,7 +26,7 @@
 #include "vtkRegressionTestImage.h"
 
 //----------------------------------------------------------------------------
-int TestContextScene( int argc, char * argv [] )
+int TestContextScene(int argc, char* argv[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -70,11 +70,11 @@ int TestContextScene( int argc, char * argv [] )
   view->Render();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if(retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
   }
   return 0;
-  //return !retVal;
+  // return !retVal;
 }

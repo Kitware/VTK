@@ -114,18 +114,18 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
   this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
-  int *size = this->Interactor->GetRenderWindow()->GetSize();
-  if (this->EndPosition[0] > (size[0]-1))
+  int* size = this->Interactor->GetRenderWindow()->GetSize();
+  if (this->EndPosition[0] > (size[0] - 1))
   {
-    this->EndPosition[0] = size[0]-1;
+    this->EndPosition[0] = size[0] - 1;
   }
   if (this->EndPosition[0] < 0)
   {
     this->EndPosition[0] = 0;
   }
-  if (this->EndPosition[1] > (size[1]-1))
+  if (this->EndPosition[1] > (size[1] - 1))
   {
-    this->EndPosition[1] = size[1]-1;
+    this->EndPosition[1] = size[1] - 1;
   }
   if (this->EndPosition[1] < 0)
   {
@@ -137,10 +137,10 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
   // Adjust box to fit aspect ratio, if needed.
   this->AdjustBox(startPosition, endPosition);
 
-  vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
+  vtkUnsignedCharArray* tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);
 
-  unsigned char *pixels = tmpPixelArray->GetPointer(0);
+  unsigned char* pixels = tmpPixelArray->GetPointer(0);
 
   int minX = vtkMath::Min(startPosition[0], endPosition[0]);
   int minY = vtkMath::Min(startPosition[1], endPosition[1]);
@@ -148,9 +148,9 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
   int maxY = vtkMath::Max(startPosition[1], endPosition[1]);
 
   int clampedMinX = vtkMath::Max(minX, 0);
-  int clampedMaxX = vtkMath::Min(maxX, size[0]-1);
+  int clampedMaxX = vtkMath::Min(maxX, size[0] - 1);
   int clampedMinY = vtkMath::Max(minY, 0);
-  int clampedMaxY = vtkMath::Min(maxY, size[1]-1);
+  int clampedMaxY = vtkMath::Min(maxY, size[1] - 1);
 
   // Draw zoom box
   // Draw bottom horizontal line
@@ -158,9 +158,9 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
   {
     for (int i = clampedMinX; i < clampedMaxX; ++i)
     {
-      pixels[3*(minY*size[0]+i)] = 255 ^ pixels[3*(minY*size[0]+i)];
-      pixels[3*(minY*size[0]+i)+1] = 255 ^ pixels[3*(minY*size[0]+i)+1];
-      pixels[3*(minY*size[0]+i)+2] = 255 ^ pixels[3*(minY*size[0]+i)+2];
+      pixels[3 * (minY * size[0] + i)] = 255 ^ pixels[3 * (minY * size[0] + i)];
+      pixels[3 * (minY * size[0] + i) + 1] = 255 ^ pixels[3 * (minY * size[0] + i) + 1];
+      pixels[3 * (minY * size[0] + i) + 2] = 255 ^ pixels[3 * (minY * size[0] + i) + 2];
     }
   }
 
@@ -169,9 +169,9 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
   {
     for (int i = clampedMinX; i < clampedMaxX; ++i)
     {
-      pixels[3*(maxY*size[0]+i)] = 255 ^ pixels[3*(maxY*size[0]+i)];
-      pixels[3*(maxY*size[0]+i)+1] = 255 ^ pixels[3*(maxY*size[0]+i)+1];
-      pixels[3*(maxY*size[0]+i)+2] = 255 ^ pixels[3*(maxY*size[0]+i)+2];
+      pixels[3 * (maxY * size[0] + i)] = 255 ^ pixels[3 * (maxY * size[0] + i)];
+      pixels[3 * (maxY * size[0] + i) + 1] = 255 ^ pixels[3 * (maxY * size[0] + i) + 1];
+      pixels[3 * (maxY * size[0] + i) + 2] = 255 ^ pixels[3 * (maxY * size[0] + i) + 2];
     }
   }
 
@@ -180,9 +180,9 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
   {
     for (int i = clampedMinY; i < clampedMaxY; ++i)
     {
-      pixels[3*(i*size[0]+minX)] = 255 ^ pixels[3*(i*size[0]+minX)];
-      pixels[3*(i*size[0]+minX)+1] = 255 ^ pixels[3*(i*size[0]+minX)+1];
-      pixels[3*(i*size[0]+minX)+2] = 255 ^ pixels[3*(i*size[0]+minX)+2];
+      pixels[3 * (i * size[0] + minX)] = 255 ^ pixels[3 * (i * size[0] + minX)];
+      pixels[3 * (i * size[0] + minX) + 1] = 255 ^ pixels[3 * (i * size[0] + minX) + 1];
+      pixels[3 * (i * size[0] + minX) + 2] = 255 ^ pixels[3 * (i * size[0] + minX) + 2];
     }
   }
 
@@ -191,13 +191,13 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
   {
     for (int i = clampedMinY; i < clampedMaxY; ++i)
     {
-      pixels[3*(i*size[0]+maxX)] = 255 ^ pixels[3*(i*size[0]+maxX)];
-      pixels[3*(i*size[0]+maxX)+1] = 255 ^ pixels[3*(i*size[0]+maxX)+1];
-      pixels[3*(i*size[0]+maxX)+2] = 255 ^ pixels[3*(i*size[0]+maxX)+2];
+      pixels[3 * (i * size[0] + maxX)] = 255 ^ pixels[3 * (i * size[0] + maxX)];
+      pixels[3 * (i * size[0] + maxX) + 1] = 255 ^ pixels[3 * (i * size[0] + maxX) + 1];
+      pixels[3 * (i * size[0] + maxX) + 2] = 255 ^ pixels[3 * (i * size[0] + maxX) + 2];
     }
   }
 
-  this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 0);
+  this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0] - 1, size[1] - 1, pixels, 0);
   this->Interactor->GetRenderWindow()->Frame();
 
   tmpPixelArray->Delete();
@@ -211,7 +211,7 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
   }
   this->Moving = 1;
 
-  vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
+  vtkRenderWindow* renWin = this->Interactor->GetRenderWindow();
 
   this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
   this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
@@ -220,10 +220,10 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
 
   this->PixelArray->Initialize();
   this->PixelArray->SetNumberOfComponents(3);
-  int *size = renWin->GetSize();
-  this->PixelArray->SetNumberOfTuples(size[0]*size[1]);
+  int* size = renWin->GetSize();
+  this->PixelArray->SetNumberOfTuples(size[0] * size[1]);
 
-  renWin->GetPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
+  renWin->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 1, this->PixelArray);
 
   this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
   if (this->CurrentRenderer)
@@ -240,8 +240,8 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonUp()
     return;
   }
 
-  if (   (this->StartPosition[0] != this->EndPosition[0])
-      || (this->StartPosition[1] != this->EndPosition[1]) )
+  if ((this->StartPosition[0] != this->EndPosition[0]) ||
+    (this->StartPosition[1] != this->EndPosition[1]))
   {
     this->Zoom();
   }
@@ -260,7 +260,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
     startPosition[1] < endPosition[1] ? startPosition[1] : endPosition[1],
     std::abs(endPosition[0] - startPosition[0]), std::abs(endPosition[1] - startPosition[1]));
 
-  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
+  vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
   if (cam->GetParallelProjection() || this->UseDollyForPerspectiveProjection)
   {
     this->ZoomTraditional(box);
@@ -329,9 +329,9 @@ void vtkInteractorStyleRubberBandZoom::ZoomTraditional(const vtkRecti& box)
       clippingRange[1] = 0.001;
     }
     // This near plane check comes from vtkRenderer::ResetCameraClippingRange()
-    if (clippingRange[0] < 0.001*clippingRange[1])
+    if (clippingRange[0] < 0.001 * clippingRange[1])
     {
-      clippingRange[0] = 0.001*clippingRange[1];
+      clippingRange[0] = 0.001 * clippingRange[1];
     }
     cam->SetClippingRange(clippingRange);
   }

@@ -47,41 +47,41 @@ const int Height = 900;
 
 using Rotation = std::pair<double, double>; // tprop, painter
 std::array<Rotation, 4> RotArray{
-  Rotation{-45., -45.},
-  Rotation{-45., 0.},
-  Rotation{0., 0.},
-  Rotation{0., 45.},
+  Rotation{ -45., -45. },
+  Rotation{ -45., 0. },
+  Rotation{ 0., 0. },
+  Rotation{ 0., 45. },
 };
 
 using Scale = std::pair<double, double>; // x, y
 std::array<Scale, 3> ScaleArray{
-  Scale{0.1, 0.1},
-  Scale{1, 1},
-  Scale{10, 10},
+  Scale{ 0.1, 0.1 },
+  Scale{ 1, 1 },
+  Scale{ 10, 10 },
 };
 
 using Justification = std::pair<int, int>; // horiz, vert
 std::array<Justification, 3> JustArray{
-  Justification{VTK_TEXT_LEFT, VTK_TEXT_BOTTOM},
-  Justification{VTK_TEXT_CENTERED, VTK_TEXT_CENTERED},
-  Justification{VTK_TEXT_RIGHT, VTK_TEXT_TOP},
+  Justification{ VTK_TEXT_LEFT, VTK_TEXT_BOTTOM },
+  Justification{ VTK_TEXT_CENTERED, VTK_TEXT_CENTERED },
+  Justification{ VTK_TEXT_RIGHT, VTK_TEXT_TOP },
 };
 
 //----------------------------------------------------------------------------
 class TransformedTextPDFTest : public vtkContextItem
 {
 public:
-  static TransformedTextPDFTest *New();
-  vtkTypeMacro(TransformedTextPDFTest, vtkContextItem)
-  bool Paint(vtkContext2D *painter) override;
+  static TransformedTextPDFTest* New();
+  vtkTypeMacro(TransformedTextPDFTest, vtkContextItem);
+  bool Paint(vtkContext2D* painter) override;
 
 private:
-  void PaintCell(vtkContext2D *painter, size_t rotIdx, size_t scaleIdx, size_t justIdx);
+  void PaintCell(vtkContext2D* painter, size_t rotIdx, size_t scaleIdx, size_t justIdx);
 };
 
-vtkStandardNewMacro(TransformedTextPDFTest)
+vtkStandardNewMacro(TransformedTextPDFTest);
 
-bool TransformedTextPDFTest::Paint(vtkContext2D *painter)
+bool TransformedTextPDFTest::Paint(vtkContext2D* painter)
 {
   // Reset painter state that we care about:
   painter->GetBrush()->SetTexture(nullptr);
@@ -113,10 +113,8 @@ bool TransformedTextPDFTest::Paint(vtkContext2D *painter)
   return true;
 }
 
-void TransformedTextPDFTest::PaintCell(vtkContext2D *painter,
-                                       size_t rotIdx,
-                                       size_t scaleIdx,
-                                       size_t justIdx)
+void TransformedTextPDFTest::PaintCell(
+  vtkContext2D* painter, size_t rotIdx, size_t scaleIdx, size_t justIdx)
 {
   // Cells are arranged:
   //
@@ -147,13 +145,12 @@ void TransformedTextPDFTest::PaintCell(vtkContext2D *painter,
   const int cellY = cellHeight * cellIdY;
   const int cellId = cellIdY * numCellsX + cellIdX;
 
-
   painter->GetPen()->SetColor(0, 0, 0, 255);
   painter->GetPen()->SetWidth(1);
   painter->GetBrush()->SetOpacity(0);
   painter->DrawRect(cellX, cellY, cellWidth, cellHeight);
 
-  std::array<double, 2> textAnchor{0., 0.};
+  std::array<double, 2> textAnchor{ 0., 0. };
 
   double tpropRot;
   double painterRot;
@@ -167,8 +164,7 @@ void TransformedTextPDFTest::PaintCell(vtkContext2D *painter,
   int vJust;
   std::tie(hJust, vJust) = JustArray[justIdx];
 
-  auto scaleToStr = [](double scale) -> std::string
-  {
+  auto scaleToStr = [](double scale) -> std::string {
     if (scale < 0.5)
     {
       return "S";
@@ -181,8 +177,7 @@ void TransformedTextPDFTest::PaintCell(vtkContext2D *painter,
   };
 
   std::ostringstream str;
-  str << "ID<" << rotIdx << "," << scaleIdx << "," << justIdx
-      << ">(" << cellId << ")\n"
+  str << "ID<" << rotIdx << "," << scaleIdx << "," << justIdx << ">(" << cellId << ")\n"
       << "TPropRot = " << static_cast<int>(tpropRot) << "\n"
       << "PainterRot = " << static_cast<int>(painterRot) << "\n"
       << "Scale = " << scaleToStr(scaleX) << scaleToStr(scaleY) << "\n"
@@ -263,7 +258,7 @@ int TestPDFTransformedText(int, char*[])
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
-      ->SetStringRendererToFreeType();
+    ->SetStringRendererToFreeType();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(view->GetRenderWindow());
@@ -272,8 +267,7 @@ int TestPDFTransformedText(int, char*[])
   view->GetRenderWindow()->Render();
 
   std::string filename =
-      vtkTestingInteractor::TempDirectory +
-      std::string("/TestPDFTransformedText.pdf");
+    vtkTestingInteractor::TempDirectory + std::string("/TestPDFTransformedText.pdf");
 
   vtkNew<vtkPDFExporter> exp;
   exp->SetRenderWindow(view->GetRenderWindow());

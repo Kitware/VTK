@@ -33,32 +33,27 @@
 
 #include "vtkTestUtilities.h"
 
-int TestImageThresholdConnectivity(int argc, char *argv[])
+int TestImageThresholdConnectivity(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  vtkSmartPointer<vtkInteractorStyleImage> style =
-    vtkSmartPointer<vtkInteractorStyleImage>::New();
+  vtkSmartPointer<vtkInteractorStyleImage> style = vtkSmartPointer<vtkInteractorStyleImage>::New();
   style->SetInteractionModeToImageSlicing();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
 
-  char* fname =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
-  vtkSmartPointer<vtkImageReader2> reader =
-    vtkSmartPointer<vtkImageReader2>::New();
+  vtkSmartPointer<vtkImageReader2> reader = vtkSmartPointer<vtkImageReader2>::New();
   reader->SetDataByteOrderToLittleEndian();
   reader->SetDataExtent(0, 63, 0, 63, 2, 4);
   reader->SetDataSpacing(3.2, 3.2, 1.5);
   reader->SetFilePrefix(fname);
 
-  delete [] fname;
+  delete[] fname;
 
-  vtkSmartPointer<vtkPoints> seeds =
-    vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkPoints> seeds = vtkSmartPointer<vtkPoints>::New();
   seeds->InsertNextPoint(1, 1, 5.25);
   seeds->InsertNextPoint(100.8, 100.8, 5.25);
 
@@ -66,11 +61,10 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
   {
     int j = i % 4;
     int k = i / 4;
-    vtkSmartPointer<vtkRenderer> renderer =
-      vtkSmartPointer<vtkRenderer>::New();
-    vtkCamera *camera = renderer->GetActiveCamera();
+    vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+    vtkCamera* camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0, 0.0, 0.0);
-    renderer->SetViewport(k/3.0, j/4.0, (k + 1)/3.0, (j + 1)/4.0);
+    renderer->SetViewport(k / 3.0, j / 4.0, (k + 1) / 3.0, (j + 1) / 4.0);
     renWin->AddRenderer(renderer);
 
     vtkSmartPointer<vtkImageThresholdConnectivity> connectivity =
@@ -98,8 +92,7 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
     int extent[6] = { 0, 63, 0, 63, 3, 3 };
     connectivity->UpdateExtent(extent);
 
-    vtkSmartPointer<vtkImageSliceMapper> imageMapper =
-      vtkSmartPointer<vtkImageSliceMapper>::New();
+    vtkSmartPointer<vtkImageSliceMapper> imageMapper = vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(connectivity->GetOutputPort());
     imageMapper->BorderOn();
     imageMapper->SliceFacesCameraOn();
@@ -111,10 +104,9 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
     camera->SetPosition(point);
     camera->SetViewUp(0.0, 1.0, 0.0);
     camera->ParallelProjectionOn();
-    camera->SetParallelScale(3.2*32);
+    camera->SetParallelScale(3.2 * 32);
 
-    vtkSmartPointer<vtkImageSlice> image =
-      vtkSmartPointer<vtkImageSlice>::New();
+    vtkSmartPointer<vtkImageSlice> image = vtkSmartPointer<vtkImageSlice>::New();
     image->SetMapper(imageMapper);
     image->GetProperty()->SetColorWindow(2000);
     image->GetProperty()->SetColorLevel(1000);

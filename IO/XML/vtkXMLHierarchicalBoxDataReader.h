@@ -25,19 +25,18 @@
  * @warning
  * The reader supports reading v1.1 and above. For older versions, use
  * vtkXMLHierarchicalBoxDataFileConverter.
-*/
+ */
 
 #ifndef vtkXMLHierarchicalBoxDataReader_h
 #define vtkXMLHierarchicalBoxDataReader_h
 
 #include "vtkXMLUniformGridAMRReader.h"
 
-class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader :
-  public vtkXMLUniformGridAMRReader
+class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLUniformGridAMRReader
 {
 public:
   static vtkXMLHierarchicalBoxDataReader* New();
-  vtkTypeMacro(vtkXMLHierarchicalBoxDataReader,vtkXMLUniformGridAMRReader);
+  vtkTypeMacro(vtkXMLHierarchicalBoxDataReader, vtkXMLUniformGridAMRReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -47,7 +46,6 @@ protected:
 private:
   vtkXMLHierarchicalBoxDataReader(const vtkXMLHierarchicalBoxDataReader&) = delete;
   void operator=(const vtkXMLHierarchicalBoxDataReader&) = delete;
-
 };
 
 #endif

@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkXMLTableWriter
-*/
+ */
 
 #ifndef vtkXMLPTableWriter_h
 #define vtkXMLPTableWriter_h
@@ -61,8 +61,8 @@ protected:
   ~vtkXMLPTableWriter() override;
 
   /**
-  * see algorithm for more info
-  */
+   * see algorithm for more info
+   */
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**

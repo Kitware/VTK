@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkPNGReader
-*/
+ */
 
 #ifndef vtkPNGWriter_h
 #define vtkPNGWriter_h
@@ -35,8 +35,8 @@ class vtkUnsignedCharArray;
 class VTKIOIMAGE_EXPORT vtkPNGWriter : public vtkImageWriter
 {
 public:
-  static vtkPNGWriter *New();
-  vtkTypeMacro(vtkPNGWriter,vtkImageWriter);
+  static vtkPNGWriter* New();
+  vtkTypeMacro(vtkPNGWriter, vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -102,13 +102,12 @@ protected:
   vtkPNGWriter();
   ~vtkPNGWriter() override;
 
-  void WriteSlice(vtkImageData *data, int* uExtent);
+  void WriteSlice(vtkImageData* data, int* uExtent);
   int CompressionLevel;
-  vtkUnsignedCharArray *Result;
-  FILE *TempFP;
+  vtkUnsignedCharArray* Result;
+  FILE* TempFP;
   class vtkInternals;
   vtkInternals* Internals;
-
 
 private:
   vtkPNGWriter(const vtkPNGWriter&) = delete;

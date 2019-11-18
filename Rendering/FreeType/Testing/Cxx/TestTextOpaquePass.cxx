@@ -30,10 +30,10 @@
 
 #include <string>
 
-namespace {
+namespace
+{
 template <typename T>
-void configureTextArray(vtkNew<T> objs[2][2][3],
-                        const std::string &prefix)
+void configureTextArray(vtkNew<T> objs[2][2][3], const std::string& prefix)
 {
   // Text options: half / full opacity
   double tOpacity[2] = { 0.5, 1.0 };
@@ -53,8 +53,8 @@ void configureTextArray(vtkNew<T> objs[2][2][3],
     {
       for (size_t b = 0; b < 3; ++b)
       {
-        T *obj = objs[t][e][b];
-        vtkTextProperty *tprop = obj->GetTextProperty();
+        T* obj = objs[t][e][b];
+        vtkTextProperty* tprop = obj->GetTextProperty();
 
         tprop->SetJustificationToCentered();
         tprop->SetVerticalJustificationToCentered();
@@ -80,7 +80,7 @@ void configureTextArray(vtkNew<T> objs[2][2][3],
 //------------------------------------------------------------------------------
 // This test ensures that text rendered with
 // vtkTextProperty::ForceOpaqueTextures is handled by the opaque render pass.
-int TestTextOpaquePass(int, char *[])
+int TestTextOpaquePass(int, char*[])
 {
   // Create combinations of opacities/features [text][border][background]
   // Text has two values, half or full opacity.
@@ -116,10 +116,10 @@ int TestTextOpaquePass(int, char *[])
 
   // To make things easier, setup the camera so that WC@Z=0 roughly match DC.
   ren->GetActiveCamera()->ParallelProjectionOn();
-  ren->GetActiveCamera()->SetPosition(width/2, height/2, 1.);
-  ren->GetActiveCamera()->SetFocalPoint(width/2, height/2, 0.);
+  ren->GetActiveCamera()->SetPosition(width / 2, height / 2, 1.);
+  ren->GetActiveCamera()->SetFocalPoint(width / 2, height / 2, 0.);
   ren->GetActiveCamera()->SetViewUp(0., 1., 0.);
-  ren->GetActiveCamera()->SetParallelScale(height/2);
+  ren->GetActiveCamera()->SetParallelScale(height / 2);
 
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);

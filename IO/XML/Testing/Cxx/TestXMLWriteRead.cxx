@@ -32,7 +32,7 @@ int TestXMLWriteRead(int argc, char* argv[])
   char* tempDir =
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   std::string fileName(tempDir);
-  delete [] tempDir;
+  delete[] tempDir;
 
   int statusFloat, statusDouble;
 

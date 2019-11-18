@@ -22,29 +22,24 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkStandardNewMacro (vtkPXdmf3Writer);
+vtkStandardNewMacro(vtkPXdmf3Writer);
 
 //----------------------------------------------------------------------------
-vtkPXdmf3Writer::vtkPXdmf3Writer ()
+vtkPXdmf3Writer::vtkPXdmf3Writer() {}
+
+//----------------------------------------------------------------------------
+vtkPXdmf3Writer::~vtkPXdmf3Writer() {}
+
+//----------------------------------------------------------------------------
+void vtkPXdmf3Writer::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-vtkPXdmf3Writer::~vtkPXdmf3Writer ()
+int vtkPXdmf3Writer::CheckParameters()
 {
-}
-
-//----------------------------------------------------------------------------
-void vtkPXdmf3Writer::PrintSelf (ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os,indent);
-}
-
-//----------------------------------------------------------------------------
-int vtkPXdmf3Writer::CheckParameters ()
-{
-  vtkMultiProcessController *c =
-    vtkMultiProcessController::GetGlobalController();
+  vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
   int numberOfProcesses = c ? c->GetNumberOfProcesses() : 1;
   int myRank = c ? c->GetLocalProcessId() : 0;
 
@@ -52,22 +47,18 @@ int vtkPXdmf3Writer::CheckParameters ()
 }
 
 //----------------------------------------------------------------------------
-int vtkPXdmf3Writer::RequestUpdateExtent (
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkPXdmf3Writer::RequestUpdateExtent(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Superclass::RequestUpdateExtent(request, inputVector, outputVector);
-  if (vtkMultiProcessController *c =
-      vtkMultiProcessController::GetGlobalController())
+  if (vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController())
   {
     int numberOfProcesses = c->GetNumberOfProcesses();
     int myRank = c->GetLocalProcessId();
 
-    vtkInformation *info = inputVector[0]->GetInformationObject(0);
+    vtkInformation* info = inputVector[0]->GetInformationObject(0);
     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), myRank);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              numberOfProcesses);
+    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numberOfProcesses);
   }
 
   return 1;
@@ -76,12 +67,11 @@ int vtkPXdmf3Writer::RequestUpdateExtent (
 //----------------------------------------------------------------------------
 int vtkPXdmf3Writer::GlobalContinueExecuting(int localContinue)
 {
-  vtkMultiProcessController *c =
-    vtkMultiProcessController::GetGlobalController();
+  vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
   int globalContinue = localContinue;
   if (c)
   {
-    c->AllReduce (&localContinue, &globalContinue, 1, vtkCommunicator::MIN_OP);
+    c->AllReduce(&localContinue, &globalContinue, 1, vtkCommunicator::MIN_OP);
   }
   return globalContinue;
 }

@@ -22,13 +22,14 @@
 
 #include <algorithm>
 
-#define TEST_FAIL(msg) \
-  std::cerr << "Test failed! " msg << "\n"; \
+#define TEST_FAIL(msg)                                                                             \
+  std::cerr << "Test failed! " msg << "\n";                                                        \
   return false
 
-namespace {
+namespace
+{
 
-bool TestCopy(vtkCompositeDataSet *src)
+bool TestCopy(vtkCompositeDataSet* src)
 {
   // Clone dataset:
   auto dst = vtk::TakeSmartPointer(src->NewInstance());
@@ -55,8 +56,7 @@ bool TestCopy(vtkCompositeDataSet *src)
 }
 
 // Test that the for-range iterators behave the same as the regular iterators.
-bool TestConfig(vtkCompositeDataSet *cds,
-                vtk::CompositeDataSetOptions opts)
+bool TestConfig(vtkCompositeDataSet* cds, vtk::CompositeDataSetOptions opts)
 {
   using Opts = vtk::CompositeDataSetOptions;
 
@@ -131,8 +131,8 @@ bool TestConfig(vtkCompositeDataSet *cds,
       // vtkDataObject pointer internally, so if the dataset changes, the
       // iterator will hold a stale value. Look up the data object in the
       // dataset instead. See VTK issue #17529.
-//      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
-      vtkDataObject *refDummy = refIter->GetDataSet()->GetDataSet(refIter);
+      //      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
+      vtkDataObject* refDummy = refIter->GetDataSet()->GetDataSet(refIter);
       node.SetDataObject(cache);
 
       if (refDummy != dummy)
@@ -163,8 +163,8 @@ bool TestConfig(vtkCompositeDataSet *cds,
       // vtkDataObject pointer internally, so if the dataset changes, the
       // iterator will hold a stale value. Look up the data object in the
       // dataset instead. See VTK issue #17529.
-//      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
-      vtkDataObject *refDummy = refIter->GetDataSet()->GetDataSet(refIter);
+      //      vtkDataObject *refDummy = refIter->GetCurrentDataObject();
+      vtkDataObject* refDummy = refIter->GetDataSet()->GetDataSet(refIter);
       node.SetDataObject(cache);
 
       if (refDummy != dummy)
@@ -197,7 +197,7 @@ bool TestConfig(vtkCompositeDataSet *cds,
   return true;
 }
 
-bool TestOptions(vtkCompositeDataSet *cds)
+bool TestOptions(vtkCompositeDataSet* cds)
 {
   using Opts = vtk::CompositeDataSetOptions;
 
@@ -234,25 +234,21 @@ bool TestOptions(vtkCompositeDataSet *cds)
 //
 vtkSmartPointer<vtkCompositeDataSet> CreateDataSet()
 {
-  auto addPolyData = [](unsigned int blockNum, vtkMultiBlockDataSet *mbds)
-      -> vtkSmartPointer<vtkPolyData>
-  {
+  auto addPolyData = [](unsigned int blockNum,
+                       vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkPolyData> {
     vtkNew<vtkPolyData> pd;
     mbds->SetBlock(blockNum, pd);
-    return {pd};
+    return { pd };
   };
 
-  auto addMultiBlock = [](unsigned int blockNum, vtkMultiBlockDataSet *mbds)
-      -> vtkSmartPointer<vtkMultiBlockDataSet>
-  {
+  auto addMultiBlock = [](unsigned int blockNum,
+                         vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkMultiBlockDataSet> {
     auto newMbds = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     mbds->SetBlock(blockNum, newMbds);
     return newMbds;
   };
 
-  auto addNullDataSet = [](unsigned int blockNum,
-                           vtkMultiBlockDataSet *mbds) -> void
-  {
+  auto addNullDataSet = [](unsigned int blockNum, vtkMultiBlockDataSet* mbds) -> void {
     mbds->SetBlock(blockNum, nullptr);
   };
 

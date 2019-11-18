@@ -26,7 +26,7 @@
  * vtkImageInterpolator object.
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkImageResize_h
 #define vtkImageResize_h
@@ -39,7 +39,7 @@ class vtkAbstractImageInterpolator;
 class VTKIMAGINGCORE_EXPORT vtkImageResize : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageResize *New();
+  static vtkImageResize* New();
   vtkTypeMacro(vtkImageResize, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -59,13 +59,10 @@ public:
    */
   vtkSetClampMacro(ResizeMethod, int, OUTPUT_DIMENSIONS, MAGNIFICATION_FACTORS);
   vtkGetMacro(ResizeMethod, int);
-  void SetResizeMethodToOutputDimensions() {
-    this->SetResizeMethod(OUTPUT_DIMENSIONS); }
-  void SetResizeMethodToOutputSpacing() {
-    this->SetResizeMethod(OUTPUT_SPACING); }
-  void SetResizeMethodToMagnificationFactors() {
-    this->SetResizeMethod(MAGNIFICATION_FACTORS); }
-  virtual const char *GetResizeMethodAsString();
+  void SetResizeMethodToOutputDimensions() { this->SetResizeMethod(OUTPUT_DIMENSIONS); }
+  void SetResizeMethodToOutputSpacing() { this->SetResizeMethod(OUTPUT_SPACING); }
+  void SetResizeMethodToMagnificationFactors() { this->SetResizeMethod(MAGNIFICATION_FACTORS); }
+  virtual const char* GetResizeMethodAsString();
   //@}
 
   //@{
@@ -146,8 +143,8 @@ public:
   /**
    * Set the interpolator for resampling the data.
    */
-  virtual void SetInterpolator(vtkAbstractImageInterpolator *sampler);
-  virtual vtkAbstractImageInterpolator *GetInterpolator();
+  virtual void SetInterpolator(vtkAbstractImageInterpolator* sampler);
+  virtual vtkAbstractImageInterpolator* GetInterpolator();
   //@}
 
   /**
@@ -159,19 +156,14 @@ protected:
   vtkImageResize();
   ~vtkImageResize() override;
 
-  virtual vtkAbstractImageInterpolator *GetInternalInterpolator();
+  virtual vtkAbstractImageInterpolator* GetInternalInterpolator();
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
 
   int ResizeMethod;
   int OutputDimensions[3];
@@ -184,8 +176,8 @@ protected:
   double IndexStretch[3];
   double IndexTranslate[3];
 
-  vtkAbstractImageInterpolator *Interpolator;
-  vtkAbstractImageInterpolator *NNInterpolator;
+  vtkAbstractImageInterpolator* Interpolator;
+  vtkAbstractImageInterpolator* NNInterpolator;
   vtkTypeBool Interpolate;
 
 private:

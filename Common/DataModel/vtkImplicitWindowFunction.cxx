@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkImplicitWindowFunction);
-vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitWindowFunction, ImplicitFunction, vtkImplicitFunction);
 
 // Construct object with window range (0,1) and window values (0,1).
 vtkImplicitWindowFunction::vtkImplicitWindowFunction()
@@ -40,12 +40,12 @@ vtkImplicitWindowFunction::~vtkImplicitWindowFunction()
 // Evaluate window function.
 double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
 {
-  static bool beenWarned=false;
+  static bool beenWarned = false;
   double value, diff1, diff2, scaledRange;
 
-  if ( ! this->ImplicitFunction && ! beenWarned )
+  if (!this->ImplicitFunction && !beenWarned)
   {
-    vtkErrorMacro(<<"Implicit function must be defined");
+    vtkErrorMacro(<< "Implicit function must be defined");
     beenWarned = true;
     return 0.0;
   }
@@ -56,14 +56,14 @@ double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
   diff2 = value - this->WindowRange[1];
 
   scaledRange = (this->WindowValues[1] - this->WindowValues[0]) / 2.0;
-  if ( scaledRange == 0.0 )
+  if (scaledRange == 0.0)
   {
     scaledRange = 1.0;
   }
 
-  if ( diff1 >= 0.0 && diff2 <= 0.0 ) //within window
+  if (diff1 >= 0.0 && diff2 <= 0.0) // within window
   {
-    if ( diff1 <= (-diff2) )
+    if (diff1 <= (-diff2))
     {
       value = diff1 / scaledRange + this->WindowValues[0];
     }
@@ -73,12 +73,12 @@ double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
     }
   }
 
-  else if ( diff1 < 0.0 ) //below window
+  else if (diff1 < 0.0) // below window
   {
     value = diff1 / scaledRange + this->WindowValues[0];
   }
 
-  else //above window
+  else // above window
   {
     value = -diff2 / scaledRange + this->WindowValues[0];
   }
@@ -89,10 +89,10 @@ double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
 // Evaluate window function gradient. Just return implicit function gradient.
 void vtkImplicitWindowFunction::EvaluateGradient(double x[3], double n[3])
 {
-    if ( this->ImplicitFunction )
-    {
-      this->ImplicitFunction->EvaluateGradient(x,n);
-    }
+  if (this->ImplicitFunction)
+  {
+    this->ImplicitFunction->EvaluateGradient(x, n);
+  }
 }
 
 vtkMTimeType vtkImplicitWindowFunction::GetMTime()
@@ -100,10 +100,10 @@ vtkMTimeType vtkImplicitWindowFunction::GetMTime()
   vtkMTimeType fMtime;
   vtkMTimeType mtime = this->vtkImplicitFunction::GetMTime();
 
-  if ( this->ImplicitFunction )
+  if (this->ImplicitFunction)
   {
     fMtime = this->ImplicitFunction->GetMTime();
-    if ( fMtime > mtime )
+    if (fMtime > mtime)
     {
       mtime = fMtime;
     }
@@ -113,9 +113,9 @@ vtkMTimeType vtkImplicitWindowFunction::GetMTime()
 
 void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->ImplicitFunction )
+  if (this->ImplicitFunction)
   {
     os << indent << "Implicit Function: " << this->ImplicitFunction << "\n";
   }
@@ -124,12 +124,11 @@ void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "No implicit function defined.\n";
   }
 
-  os << indent << "Window Range: (" << this->WindowRange[0]
-     << ", " << this->WindowRange[1] << ")\n";
+  os << indent << "Window Range: (" << this->WindowRange[0] << ", " << this->WindowRange[1]
+     << ")\n";
 
-  os << indent << "Window Values: (" << this->WindowValues[0]
-     << ", " << this->WindowValues[1] << ")\n";
-
+  os << indent << "Window Values: (" << this->WindowValues[0] << ", " << this->WindowValues[1]
+     << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -145,13 +144,10 @@ void vtkImplicitWindowFunction::UnRegister(vtkObjectBase* o)
 }
 
 //----------------------------------------------------------------------------
-void
-vtkImplicitWindowFunction
-::ReportReferences(vtkGarbageCollector* collector)
+void vtkImplicitWindowFunction ::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   // These filters share our input and are therefore involved in a
   // reference loop.
-  vtkGarbageCollectorReport(collector, this->ImplicitFunction,
-                            "ImplicitFunction");
+  vtkGarbageCollectorReport(collector, this->ImplicitFunction, "ImplicitFunction");
 }

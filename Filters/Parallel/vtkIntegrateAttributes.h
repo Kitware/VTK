@@ -23,7 +23,7 @@
  * The output of this filter is a single point and vertex.  The attributes
  * for this point and cell will contain the integration results
  * for the corresponding input attributes.
-*/
+ */
 
 #ifndef vtkIntegrateAttributes_h
 #define vtkIntegrateAttributes_h

@@ -1091,7 +1091,8 @@ int vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, in
   int numberOfPoints = 1;
   for (int i = 0; i < this->Header->dim; ++i)
   {
-    boxArrayDim[i] = ((boxArray[this->Header->dim * 1 + i] - boxArray[this->Header->dim * 0 + i]) + 1);
+    boxArrayDim[i] =
+      ((boxArray[this->Header->dim * 1 + i] - boxArray[this->Header->dim * 0 + i]) + 1);
     numberOfPoints *= boxArrayDim[i];
   }
   if (debugReader)
@@ -1167,8 +1168,8 @@ void vtkAMReXGridReaderInternal::Convert(
 void vtkAMReXGridReaderInternal::PermuteOrder(
   void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE)
 {
-  char const * pin = static_cast<char const *>(in);
-  char* pout = static_cast<char *>(out);
+  char const* pin = static_cast<char const*>(in);
+  char* pout = static_cast<char*>(out);
 
   pin--;
   pout--;

@@ -33,7 +33,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkUnsignedCharArray.h"
 
-int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char *argv[])
+int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char* argv[])
 {
   // The points to glyph:
   vtkNew<vtkPolyData> input;
@@ -62,7 +62,6 @@ int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char *argv[])
   indexArray->SetName("GlyphIndex");
   input->GetPointData()->AddArray(colors);
   colors->SetName("Colors");
-
 
   // The glyph sources:
   vtkNew<vtkArrowSource> s0a;

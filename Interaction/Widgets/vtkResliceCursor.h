@@ -27,7 +27,7 @@
  * vtkResliceCursorWidget vtkResliceCursor vtkResliceCursorPolyDataAlgorithm
  * vtkResliceCursorRepresentation vtkResliceCursorThickLineRepresentation
  * vtkResliceCursorActor vtkImagePlaneWidget
-*/
+ */
 
 #ifndef vtkResliceCursor_h
 #define vtkResliceCursor_h
@@ -43,53 +43,53 @@ class vtkPlaneCollection;
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursor : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkResliceCursor,vtkObject);
+  vtkTypeMacro(vtkResliceCursor, vtkObject);
 
-  static vtkResliceCursor *New();
+  static vtkResliceCursor* New();
 
   //@{
   /**
    * Set the image (3D) that we are slicing
    */
-  virtual void SetImage(vtkImageData * );
-  vtkGetObjectMacro( Image, vtkImageData );
+  virtual void SetImage(vtkImageData*);
+  vtkGetObjectMacro(Image, vtkImageData);
   //@}
 
   //@{
   /**
    * Set/Get the cente of the reslice cursor.
    */
-  virtual void SetCenter( double, double, double );
-  virtual void SetCenter( double center[3] );
-  vtkGetVector3Macro( Center, double );
+  virtual void SetCenter(double, double, double);
+  virtual void SetCenter(double center[3]);
+  vtkGetVector3Macro(Center, double);
   //@}
 
   //@{
   /**
    * Set/Get the thickness of the cursor
    */
-  vtkSetVector3Macro( Thickness, double );
-  vtkGetVector3Macro( Thickness, double );
+  vtkSetVector3Macro(Thickness, double);
+  vtkGetVector3Macro(Thickness, double);
   //@}
 
   //@{
   /**
    * Enable disable thick mode. Default is to enable it.
    */
-  vtkSetMacro( ThickMode, vtkTypeBool );
-  vtkGetMacro( ThickMode, vtkTypeBool );
-  vtkBooleanMacro( ThickMode, vtkTypeBool );
+  vtkSetMacro(ThickMode, vtkTypeBool);
+  vtkGetMacro(ThickMode, vtkTypeBool);
+  vtkBooleanMacro(ThickMode, vtkTypeBool);
   //@}
 
   /**
    * Get the 3D PolyData representation
    */
-  virtual vtkPolyData * GetPolyData();
+  virtual vtkPolyData* GetPolyData();
 
   /**
    * Get the slab and centerline polydata along an axis
    */
-  virtual vtkPolyData * GetCenterlineAxisPolyData( int axis );
+  virtual vtkPolyData* GetCenterlineAxisPolyData(int axis);
 
   /**
    * Printself method.
@@ -101,7 +101,7 @@ public:
    * passed to this method must be an integer in the range 0-2 (corresponding
    * to the X, Y and Z axes.
    */
-  virtual vtkPlane * GetPlane( int n );
+  virtual vtkPlane* GetPlane(int n);
 
   /**
    * Build the polydata
@@ -112,13 +112,13 @@ public:
   /**
    * Get the computed axes directions
    */
-  vtkGetVector3Macro( XAxis, double );
-  vtkGetVector3Macro( YAxis, double );
-  vtkGetVector3Macro( ZAxis, double );
-  vtkSetVector3Macro( XAxis, double );
-  vtkSetVector3Macro( YAxis, double );
-  vtkSetVector3Macro( ZAxis, double );
-  virtual double * GetAxis( int i );
+  vtkGetVector3Macro(XAxis, double);
+  vtkGetVector3Macro(YAxis, double);
+  vtkGetVector3Macro(ZAxis, double);
+  vtkSetVector3Macro(XAxis, double);
+  vtkSetVector3Macro(YAxis, double);
+  vtkSetVector3Macro(ZAxis, double);
+  virtual double* GetAxis(int i);
   //@}
 
   //@{
@@ -126,16 +126,16 @@ public:
    * Show a hole in the center of the cursor, so its easy to see the pixels
    * within the hole. ON by default
    */
-  vtkSetMacro( Hole, int );
-  vtkGetMacro( Hole, int );
+  vtkSetMacro(Hole, int);
+  vtkGetMacro(Hole, int);
   //@}
 
   //@{
   /**
    * Set the width of the hole in mm
    */
-  vtkSetMacro( HoleWidth, double );
-  vtkGetMacro( HoleWidth, double );
+  vtkSetMacro(HoleWidth, double);
+  vtkGetMacro(HoleWidth, double);
   //@}
 
   //@{
@@ -143,8 +143,8 @@ public:
    * Set the width of the hole in pixels. If set, this will override the
    * hole with in mm.
    */
-  vtkSetMacro( HoleWidthInPixels, double );
-  vtkGetMacro( HoleWidthInPixels, double );
+  vtkSetMacro(HoleWidthInPixels, double);
+  vtkGetMacro(HoleWidthInPixels, double);
   //@}
 
   /**
@@ -172,22 +172,22 @@ protected:
   virtual void BuildCursorGeometryWithHole();
   virtual void ComputeAxes();
 
-  vtkTypeBool           ThickMode;
-  int           Hole;
-  double        HoleWidth;
-  double        HoleWidthInPixels;
-  double        Thickness[3];
-  double        Center[3];
-  double        XAxis[3];
-  double        YAxis[3];
-  double        ZAxis[3];
-  vtkImageData *Image;
-  vtkPolyData  *PolyData;
+  vtkTypeBool ThickMode;
+  int Hole;
+  double HoleWidth;
+  double HoleWidthInPixels;
+  double Thickness[3];
+  double Center[3];
+  double XAxis[3];
+  double YAxis[3];
+  double ZAxis[3];
+  vtkImageData* Image;
+  vtkPolyData* PolyData;
 
-  vtkPolyData  *CenterlineAxis[3];
+  vtkPolyData* CenterlineAxis[3];
 
-  vtkPlaneCollection * ReslicePlanes;
-  vtkTimeStamp  PolyDataBuildTime;
+  vtkPlaneCollection* ReslicePlanes;
+  vtkTimeStamp PolyDataBuildTime;
 
 private:
   vtkResliceCursor(const vtkResliceCursor&) = delete;

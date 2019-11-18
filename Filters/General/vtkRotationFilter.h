@@ -24,7 +24,7 @@
  * @par Thanks:
  * Theophane Foggia of The Swiss National Supercomputing Centre (CSCS)
  * for creating and contributing this filter
-*/
+ */
 
 #ifndef vtkRotationFilter_h
 #define vtkRotationFilter_h
@@ -35,9 +35,9 @@
 class VTKFILTERSGENERAL_EXPORT vtkRotationFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkRotationFilter *New();
+  static vtkRotationFilter* New();
   vtkTypeMacro(vtkRotationFilter, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum RotationAxis
   {
@@ -52,9 +52,9 @@ public:
    */
   vtkSetClampMacro(Axis, int, 0, 2);
   vtkGetMacro(Axis, int);
-  void SetAxisToX() { this->SetAxis(USE_X); };
-  void SetAxisToY() { this->SetAxis(USE_Y); };
-  void SetAxisToZ() { this->SetAxis(USE_Z); };
+  void SetAxisToX() { this->SetAxis(USE_X); }
+  void SetAxisToY() { this->SetAxis(USE_Y); }
+  void SetAxisToZ() { this->SetAxis(USE_Z); }
   //@}
 
   //@{
@@ -69,8 +69,8 @@ public:
   /**
    * Set the rotation center coordinates.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVector3Macro(Center,double);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
   //@}
 
   //@{
@@ -93,13 +93,12 @@ public:
   vtkBooleanMacro(CopyInput, vtkTypeBool);
   //@}
 
-
 protected:
   vtkRotationFilter();
   ~vtkRotationFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int Axis;
   double Angle;
@@ -113,5 +112,3 @@ private:
 };
 
 #endif
-
-

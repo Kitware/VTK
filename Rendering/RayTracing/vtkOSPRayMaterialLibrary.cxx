@@ -37,69 +37,33 @@
 
 namespace
 {
-  const std::map<std::string, std::map<std::string, std::string> > Aliases = {
-    {
-      "OBJMaterial", {
-        { "colorMap", "map_Kd" },
-        { "map_kd", "map_Kd" },
-        { "map_ks", "map_Ks" },
-        { "map_ns", "map_Ns" },
-        { "map_bump", "map_Bump" },
-        { "normalMap", "map_Bump" },
-        { "BumpMap", "map_Bump" },
-        { "color", "Kd" },
-        { "kd", "Kd" },
-        { "alpha", "d" },
-        { "ks", "Ks" },
-        { "ns", "Ns" },
-        { "tf", "Tf" }
-      }
-    },
-    {
-      "ThinGlass", {
-        { "color", "attenuationColor" },
-        { "transmission", "attenuationColor" }
-      }
-    },
-    {
-      "MetallicPaint", {
-        { "color", "baseColor" }
-      }
-    },
-    {
-      "Glass", {
-        { "etaInside", "eta" },
-        { "etaOutside", "eta" },
-        { "attenuationColorOutside", "attenuationColor" }
-      }
-    },
-    {
-      "Principled", {}
-    },
-    {
-      "CarPaint", {}
-    },
-    {
-      "Metal", {}
-    },
-    {
-      "Alloy", {}
-    }
-  };
+const std::map<std::string, std::map<std::string, std::string> > Aliases = {
+  { "OBJMaterial",
+    { { "colorMap", "map_Kd" }, { "map_kd", "map_Kd" }, { "map_ks", "map_Ks" },
+      { "map_ns", "map_Ns" }, { "map_bump", "map_Bump" }, { "normalMap", "map_Bump" },
+      { "BumpMap", "map_Bump" }, { "color", "Kd" }, { "kd", "Kd" }, { "alpha", "d" },
+      { "ks", "Ks" }, { "ns", "Ns" }, { "tf", "Tf" } } },
+  { "ThinGlass", { { "color", "attenuationColor" }, { "transmission", "attenuationColor" } } },
+  { "MetallicPaint", { { "color", "baseColor" } } },
+  { "Glass",
+    { { "etaInside", "eta" }, { "etaOutside", "eta" },
+      { "attenuationColorOutside", "attenuationColor" } } },
+  { "Principled", {} }, { "CarPaint", {} }, { "Metal", {} }, { "Alloy", {} }
+};
 
-  std::string FindRealName(const std::string& materialType, const std::string& alias)
+std::string FindRealName(const std::string& materialType, const std::string& alias)
+{
+  auto matAliasesIt = ::Aliases.find(materialType);
+  if (matAliasesIt != ::Aliases.end())
   {
-    auto matAliasesIt = ::Aliases.find(materialType);
-    if (matAliasesIt != ::Aliases.end())
+    auto realNameIt = matAliasesIt->second.find(alias);
+    if (realNameIt != matAliasesIt->second.end())
     {
-      auto realNameIt = matAliasesIt->second.find(alias);
-      if (realNameIt != matAliasesIt->second.end())
-      {
-        return realNameIt->second;
-      }
+      return realNameIt->second;
     }
-    return alias;
   }
+  return alias;
+}
 }
 
 typedef std::map<std::string, std::vector<double> > NamedVariables;
@@ -159,8 +123,8 @@ void vtkOSPRayMaterialLibrary::AddMaterial(const std::string& nickname, const st
   }
   else
   {
-    vtkGenericWarningMacro("Unknown material type \"" << implname
-      << "\" for material named \"" << nickname << "\"");
+    vtkGenericWarningMacro(
+      "Unknown material type \"" << implname << "\" for material named \"" << nickname << "\"");
   }
 }
 
@@ -188,8 +152,8 @@ void vtkOSPRayMaterialLibrary::AddTexture(
   }
   else
   {
-    vtkGenericWarningMacro("Unknown parameter \"" << texname
-      << "\" for type \"" << this->Internal->ImplNames[nickname] << "\"");
+    vtkGenericWarningMacro("Unknown parameter \"" << texname << "\" for type \""
+                                                  << this->Internal->ImplNames[nickname] << "\"");
   }
 }
 
@@ -225,8 +189,8 @@ void vtkOSPRayMaterialLibrary::AddShaderVariable(
   }
   else
   {
-    vtkGenericWarningMacro("Unknown parameter \"" << varname
-      << "\" for type \"" << this->Internal->ImplNames[nickname] << "\"");
+    vtkGenericWarningMacro("Unknown parameter \"" << varname << "\" for type \""
+                                                  << this->Internal->ImplNames[nickname] << "\"");
   }
 }
 
@@ -768,15 +732,14 @@ std::vector<std::string> vtkOSPRayMaterialLibrary::GetTextureList(const std::str
 
 //-----------------------------------------------------------------------------
 const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
-  vtkOSPRayMaterialLibrary::GetParametersDictionary()
+vtkOSPRayMaterialLibrary::GetParametersDictionary()
 {
   // This is the material dictionary from OSPRay 1.8
   // If attribute name changes with new OSPRay version, keep old name aliases support in functions
   // vtkOSPRayMaterialLibrary::AddShaderVariable and vtkOSPRayMaterialLibrary::AddTexture
-  static std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap> dic =
-  {
-    {
-      "OBJMaterial", {
+  static std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap> dic = {
+    { "OBJMaterial",
+      {
         { "Ka", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "Kd", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "Ks", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
@@ -808,10 +771,9 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "map_d.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_d.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_d.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
-    {
-      "Principled", {
+      } },
+    { "Principled",
+      {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "metallic", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
@@ -980,10 +942,9 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "opacityMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "opacityMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "opacityMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
-    {
-      "CarPaint", {
+      } },
+    { "CarPaint",
+      {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "normal", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
@@ -1080,10 +1041,9 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "flipflopFalloffMap.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "flipflopFalloffMap.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "flipflopFalloffMap.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
-    {
-      "Metal", {
+      } },
+    { "Metal",
+      {
         { "ior", vtkOSPRayMaterialLibrary::ParameterType::FLOAT_DATA },
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
         { "k", vtkOSPRayMaterialLibrary::ParameterType::VEC3 },
@@ -1093,10 +1053,9 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "map_roughness.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_roughness.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_roughness.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
-    {
-      "Alloy", {
+      } },
+    { "Alloy",
+      {
         { "color", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "edgeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "roughness", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
@@ -1115,17 +1074,15 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "map_roughness.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_roughness.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_roughness.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
-    {
-      "Glass", {
+      } },
+    { "Glass",
+      {
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
-      }
-    },
-    {
-      "ThinGlass", {
+      } },
+    { "ThinGlass",
+      {
         { "eta", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "attenuationColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "attenuationDistance", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
@@ -1135,10 +1092,9 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "map_attenuationColor.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_attenuationColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_attenuationColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
-    {
-      "MetallicPaint", {
+      } },
+    { "MetallicPaint",
+      {
         { "baseColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
         { "flakeAmount", vtkOSPRayMaterialLibrary::ParameterType::NORMALIZED_FLOAT },
         { "flakeColor", vtkOSPRayMaterialLibrary::ParameterType::COLOR_RGB },
@@ -1149,8 +1105,7 @@ const std::map<std::string, vtkOSPRayMaterialLibrary::ParametersMap>&
         { "map_baseColor.rotation", vtkOSPRayMaterialLibrary::ParameterType::FLOAT },
         { "map_baseColor.scale", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
         { "map_baseColor.translation", vtkOSPRayMaterialLibrary::ParameterType::VEC2 },
-      }
-    },
+      } },
   };
   return dic;
 }

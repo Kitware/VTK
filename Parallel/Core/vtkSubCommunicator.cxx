@@ -38,7 +38,7 @@ vtkSubCommunicator::~vtkSubCommunicator()
   this->SetGroup(nullptr);
 }
 
-void vtkSubCommunicator::PrintSelf(ostream &os, vtkIndent indent)
+void vtkSubCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -46,17 +46,16 @@ void vtkSubCommunicator::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-int vtkSubCommunicator::SendVoidArray(const void *data, vtkIdType length,
-                                      int type, int remoteHandle, int tag)
+int vtkSubCommunicator::SendVoidArray(
+  const void* data, vtkIdType length, int type, int remoteHandle, int tag)
 {
   int realHandle = this->Group->GetProcessId(remoteHandle);
-  return this->Group->GetCommunicator()->SendVoidArray(data, length, type,
-                                                       realHandle, tag);
+  return this->Group->GetCommunicator()->SendVoidArray(data, length, type, realHandle, tag);
 }
 
 //-----------------------------------------------------------------------------
-int vtkSubCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
-                                         int type, int remoteHandle, int tag)
+int vtkSubCommunicator::ReceiveVoidArray(
+  void* data, vtkIdType length, int type, int remoteHandle, int tag)
 {
   int realHandle;
   if (remoteHandle == vtkMultiProcessController::ANY_SOURCE)
@@ -67,12 +66,11 @@ int vtkSubCommunicator::ReceiveVoidArray(void *data, vtkIdType length,
   {
     realHandle = this->Group->GetProcessId(remoteHandle);
   }
-  return this->Group->GetCommunicator()->ReceiveVoidArray(data, length, type,
-                                                          realHandle, tag);
+  return this->Group->GetCommunicator()->ReceiveVoidArray(data, length, type, realHandle, tag);
 }
 
 //-----------------------------------------------------------------------------
-void vtkSubCommunicator::SetGroup(vtkProcessGroup *group)
+void vtkSubCommunicator::SetGroup(vtkProcessGroup* group)
 {
   vtkSetObjectBodyMacro(Group, vtkProcessGroup, group);
 
@@ -81,8 +79,8 @@ void vtkSubCommunicator::SetGroup(vtkProcessGroup *group)
     this->LocalProcessId = this->Group->GetLocalProcessId();
     if (this->MaximumNumberOfProcesses != this->Group->GetNumberOfProcessIds())
     {
-      this->NumberOfProcesses = this->MaximumNumberOfProcesses
-        = this->Group->GetNumberOfProcessIds();
+      this->NumberOfProcesses = this->MaximumNumberOfProcesses =
+        this->Group->GetNumberOfProcessIds();
     }
   }
   else

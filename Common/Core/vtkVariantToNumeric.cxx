@@ -32,7 +32,7 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
   }
   if (this->IsString())
   {
-    return vtkVariantStringToNumeric<T>(* this->Data.String, valid);
+    return vtkVariantStringToNumeric<T>(*this->Data.String, valid);
   }
   if (this->IsFloat())
   {

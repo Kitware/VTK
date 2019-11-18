@@ -29,36 +29,39 @@
 #include <cstdio>
 
 // Forward declare the test function:
-namespace {
+namespace
+{
 
 //------------------------------------------------------------------------------
-struct UseFree {
+struct UseFree
+{
   static const int value = vtkAbstractArray::VTK_DATA_ARRAY_FREE;
 };
 
-struct UseDelete {
+struct UseDelete
+{
   static const int value = vtkAbstractArray::VTK_DATA_ARRAY_DELETE;
 };
 
-struct UseAlignedFree {
+struct UseAlignedFree
+{
   static const int value = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE;
 };
 
-struct UseLambda {
+struct UseLambda
+{
   static const int value = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED;
 };
 
 int timesLambdaFreeCalled = 0;
 
 //------------------------------------------------------------------------------
-#define testAssert(expr, errorMessage) \
-  if (!(expr)) \
-  { \
-    ++errors; \
-    vtkGenericWarningMacro(<<"Assertion failed: " #expr << "\n" \
-                           << errorMessage); \
+#define testAssert(expr, errorMessage)                                                             \
+  if (!(expr))                                                                                     \
+  {                                                                                                \
+    ++errors;                                                                                      \
+    vtkGenericWarningMacro(<< "Assertion failed: " #expr << "\n" << errorMessage);                 \
   }
-
 
 //------------------------------------------------------------------------------
 void* make_allocation(UseFree, std::size_t size, int)
@@ -68,10 +71,10 @@ void* make_allocation(UseFree, std::size_t size, int)
 
 void* make_allocation(UseDelete, std::size_t size, int type)
 {
-  //Std::string is weird. When UseDelete is passed it binds to a custom
-  //free function that casts the memory to std::string*. So to not violate
-  //this behavior we need to allocate as a string
-  if(type == VTK_STRING)
+  // Std::string is weird. When UseDelete is passed it binds to a custom
+  // free function that casts the memory to std::string*. So to not violate
+  // this behavior we need to allocate as a string
+  if (type == VTK_STRING)
   {
     return new std::string[size];
   }
@@ -84,9 +87,9 @@ void* make_allocation(UseDelete, std::size_t size, int type)
 void* make_allocation(UseAlignedFree, std::size_t size, int)
 {
 #if defined(_WIN32)
-    return _aligned_malloc(size, 16);
+  return _aligned_malloc(size, 16);
 #else
-    return malloc(size);
+  return malloc(size);
 #endif
 }
 
@@ -97,38 +100,38 @@ void* make_allocation(UseLambda, std::size_t size, int)
 
 //------------------------------------------------------------------------------
 template <typename FreeType>
-void assign_user_free(FreeType, vtkAbstractArray *) {}
-
-void assign_user_free(UseLambda, vtkAbstractArray *array)
+void assign_user_free(FreeType, vtkAbstractArray*)
 {
-  array->SetArrayFreeFunction([](void *ptr) {
-    delete[] reinterpret_cast<uint8_t *>(ptr);
+}
+
+void assign_user_free(UseLambda, vtkAbstractArray* array)
+{
+  array->SetArrayFreeFunction([](void* ptr) {
+    delete[] reinterpret_cast<uint8_t*>(ptr);
     timesLambdaFreeCalled++;
   });
 }
 
 //------------------------------------------------------------------------------
 template <typename FreeType>
-int assign_void_array(FreeType, vtkAbstractArray *array, void *ptr,
-                       std::size_t size, bool vtkShouldFree)
+int assign_void_array(
+  FreeType, vtkAbstractArray* array, void* ptr, std::size_t size, bool vtkShouldFree)
 {
   int errors = 0;
-  if (vtkSOADataArrayTemplate<double> *is_soa =
-      vtkArrayDownCast<vtkSOADataArrayTemplate<double>>(array))
+  if (vtkSOADataArrayTemplate<double>* is_soa =
+        vtkArrayDownCast<vtkSOADataArrayTemplate<double> >(array))
   {
     is_soa->SetNumberOfComponents(1);
-    is_soa->SetArray(0, reinterpret_cast<double *>(ptr),
-                     static_cast<vtkIdType>(size), false, !vtkShouldFree,
-                     FreeType::value);
+    is_soa->SetArray(0, reinterpret_cast<double*>(ptr), static_cast<vtkIdType>(size), false,
+      !vtkShouldFree, FreeType::value);
   }
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
-  else if (vtkScaledSOADataArrayTemplate<double> *is_scale_soa =
-      vtkArrayDownCast<vtkScaledSOADataArrayTemplate<double>>(array))
+  else if (vtkScaledSOADataArrayTemplate<double>* is_scale_soa =
+             vtkArrayDownCast<vtkScaledSOADataArrayTemplate<double> >(array))
   {
     is_scale_soa->SetNumberOfComponents(1);
-    is_scale_soa->SetArray(0, reinterpret_cast<double *>(ptr),
-                           static_cast<vtkIdType>(size), false, !vtkShouldFree,
-                           FreeType::value);
+    is_scale_soa->SetArray(0, reinterpret_cast<double*>(ptr), static_cast<vtkIdType>(size), false,
+      !vtkShouldFree, FreeType::value);
   }
 #endif
   else
@@ -141,13 +144,14 @@ int assign_void_array(FreeType, vtkAbstractArray *array, void *ptr,
 }
 
 //------------------------------------------------------------------------------
-template <typename FreeType> int ExerciseDelete(FreeType f)
+template <typename FreeType>
+int ExerciseDelete(FreeType f)
 {
   int errors = 0;
 
   std::cout << "Starting tests for free type: " << f.value << std::endl;
 
-  std::vector<vtkAbstractArray *> arrays;
+  std::vector<vtkAbstractArray*> arrays;
   arrays.push_back(vtkStringArray::New());
   arrays.push_back(vtkBitArray::New());
   arrays.push_back(vtkFloatArray::New());
@@ -160,10 +164,10 @@ template <typename FreeType> int ExerciseDelete(FreeType f)
   for (auto it = arrays.begin(); it != arrays.end(); ++it)
   {
 
-    vtkAbstractArray *array = *it;
+    vtkAbstractArray* array = *it;
 
     // test setting the array's memory and having it not free the memory
-    void *ptr = make_allocation(f, size, array->GetDataType());
+    void* ptr = make_allocation(f, size, array->GetDataType());
     errors += assign_void_array(f, array, ptr, size, false);
 
     // ask array to free memory, ptr should still be valid
@@ -181,7 +185,7 @@ template <typename FreeType> int ExerciseDelete(FreeType f)
 
   for (auto it = arrays.begin(); it != arrays.end(); ++it)
   {
-    vtkAbstractArray *array = *it;
+    vtkAbstractArray* array = *it;
     array->Delete();
   }
 
@@ -191,7 +195,7 @@ template <typename FreeType> int ExerciseDelete(FreeType f)
 } // end anon namespace
 
 //-------------Test Entry Point-------------------------------------------------
-int TestArrayFreeFunctions(int, char *[])
+int TestArrayFreeFunctions(int, char*[])
 {
   int errors = 0;
 
@@ -199,11 +203,11 @@ int TestArrayFreeFunctions(int, char *[])
   errors += ExerciseDelete(UseDelete{});
   errors += ExerciseDelete(UseAlignedFree{});
   errors += ExerciseDelete(UseLambda{});
-  if(timesLambdaFreeCalled != 5)
+  if (timesLambdaFreeCalled != 5)
   {
-   std::cerr << "Test failed! Lambda free not called " << std::endl;
+    std::cerr << "Test failed! Lambda free not called " << std::endl;
   }
-  if (errors > 0 )
+  if (errors > 0)
   {
     std::cerr << "Test failed! Error count: " << errors << std::endl;
   }

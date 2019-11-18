@@ -35,7 +35,7 @@
  * This class was optimized by Jacques-Bernard Lekien, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridThreshold_h
 #define vtkHyperTreeGridThreshold_h
@@ -52,37 +52,37 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridThreshold : public vtkHyperTree
 {
 public:
   static vtkHyperTreeGridThreshold* New();
-  vtkTypeMacro( vtkHyperTreeGridThreshold, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridThreshold, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
   //@{
   /**
    * Set/Get True, create a new mask ; false, create a new HTG.
    */
-  vtkSetMacro( JustCreateNewMask, bool );
-  vtkGetMacro( JustCreateNewMask, bool );
+  vtkSetMacro(JustCreateNewMask, bool);
+  vtkGetMacro(JustCreateNewMask, bool);
   //@}
 
   //@{
   /**
    * Set/Get minimum scalar value of threshold
    */
-  vtkSetMacro( LowerThreshold, double );
-  vtkGetMacro( LowerThreshold, double );
+  vtkSetMacro(LowerThreshold, double);
+  vtkGetMacro(LowerThreshold, double);
   //@}
 
   //@{
   /**
    * Set/Get maximum scalar value of threshold
    */
-  vtkSetMacro( UpperThreshold, double );
-  vtkGetMacro( UpperThreshold, double );
+  vtkSetMacro(UpperThreshold, double);
+  vtkGetMacro(UpperThreshold, double);
   //@}
 
   /**
    * Convenience method to set both threshold values at once
    */
-  void ThresholdBetween( double, double );
+  void ThresholdBetween(double, double);
 
 protected:
   vtkHyperTreeGridThreshold();
@@ -91,19 +91,19 @@ protected:
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to extract cells based on thresholded value
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
    * Recursively descend into tree down to leaves
    */
-  bool RecursivelyProcessTree( vtkHyperTreeGridNonOrientedCursor*,
-                               vtkHyperTreeGridNonOrientedCursor* );
-  bool RecursivelyProcessTreeWithCreateNewMask( vtkHyperTreeGridNonOrientedCursor*  );
+  bool RecursivelyProcessTree(
+    vtkHyperTreeGridNonOrientedCursor*, vtkHyperTreeGridNonOrientedCursor*);
+  bool RecursivelyProcessTreeWithCreateNewMask(vtkHyperTreeGridNonOrientedCursor*);
 
   /**
    * LowerThreshold scalar value to be accepted
@@ -144,6 +144,5 @@ private:
   vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) = delete;
   void operator=(const vtkHyperTreeGridThreshold&) = delete;
 };
-
 
 #endif /* vtkHyperTreeGridThreshold */

@@ -18,7 +18,7 @@
  *
  * vtkWebUtilities consolidates miscellaneous utility functions useful for
  * Python scripts designed for ParaView Web.
-*/
+ */
 
 #ifndef vtkWebUtilities_h
 #define vtkWebUtilities_h
@@ -37,8 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static std::string WriteAttributesToJavaScript(int field_type, vtkDataSet*);
-  static std::string WriteAttributeHeadersToJavaScript(
-    int field_type, vtkDataSet*);
+  static std::string WriteAttributeHeadersToJavaScript(int field_type, vtkDataSet*);
 
   //@{
   /**
@@ -48,7 +47,7 @@ public:
    * background without locking the main one.
    */
   static void ProcessRMIs();
-  static void ProcessRMIs(int reportError, int dont_loop=0);
+  static void ProcessRMIs(int reportError, int dont_loop = 0);
   //@}
 
 protected:
@@ -58,7 +57,6 @@ protected:
 private:
   vtkWebUtilities(const vtkWebUtilities&) = delete;
   void operator=(const vtkWebUtilities&) = delete;
-
 };
 
 #endif

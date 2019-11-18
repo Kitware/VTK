@@ -41,11 +41,10 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-
 // TODO Test geometry compositing with gl2. The only significant
 // differences appear to be along the box frame (outlineActor).
 
-int TestGPURayCastVolumeScale(int argc, char *argv[])
+int TestGPURayCastVolumeScale(int argc, char* argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
@@ -63,8 +62,7 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
 
   vtkSmartPointer<vtkImageChangeInformation> changeInformation =
@@ -120,7 +118,7 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
   ren->AddViewProp(volume);
   ren->AddActor(outlineActor);
 
-// Attach OSPRay render pass
+  // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
   {
@@ -132,8 +130,8 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

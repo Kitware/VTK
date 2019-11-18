@@ -23,13 +23,13 @@
  * uses handles, the number of which can be changed, to represent the
  * points that define the curve. The handles can be picked can be
  * picked on the curve itself to translate or rotate it in the scene.
-*/
+ */
 
 #ifndef vtkCurveRepresentation_h
 #define vtkCurveRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h" // needed for vtkPolyDataAlgorithm
+#include "vtkPolyDataAlgorithm.h"        // needed for vtkPolyDataAlgorithm
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
@@ -55,8 +55,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Used to manage the InteractionState of the widget
-  enum _InteractionState {
-    Outside=0,
+  enum _InteractionState
+  {
+    Outside = 0,
     OnHandle,
     OnLine,
     Moving,
@@ -84,9 +85,9 @@ public:
    * 3 for arbitrary oblique planes when the widget is tied to a
    * vtkPlaneSource.
    */
-  vtkSetMacro(ProjectToPlane,vtkTypeBool);
-  vtkGetMacro(ProjectToPlane,vtkTypeBool);
-  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
+  vtkSetMacro(ProjectToPlane, vtkTypeBool);
+  vtkGetMacro(ProjectToPlane, vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane, vtkTypeBool);
   //@}
 
   /**
@@ -95,16 +96,12 @@ public:
    */
   void SetPlaneSource(vtkPlaneSource* plane);
 
-  vtkSetClampMacro(ProjectionNormal,int,VTK_PROJECTION_YZ,VTK_PROJECTION_OBLIQUE);
-  vtkGetMacro(ProjectionNormal,int);
-  void SetProjectionNormalToXAxes()
-    { this->SetProjectionNormal(0); }
-  void SetProjectionNormalToYAxes()
-    { this->SetProjectionNormal(1); }
-  void SetProjectionNormalToZAxes()
-    { this->SetProjectionNormal(2); }
-  void SetProjectionNormalToOblique()
-    { this->SetProjectionNormal(3); }
+  vtkSetClampMacro(ProjectionNormal, int, VTK_PROJECTION_YZ, VTK_PROJECTION_OBLIQUE);
+  vtkGetMacro(ProjectionNormal, int);
+  void SetProjectionNormalToXAxes() { this->SetProjectionNormal(0); }
+  void SetProjectionNormalToYAxes() { this->SetProjectionNormal(1); }
+  void SetProjectionNormalToZAxes() { this->SetProjectionNormal(2); }
+  void SetProjectionNormalToOblique() { this->SetProjectionNormal(3); }
 
   //@{
   /**
@@ -125,7 +122,7 @@ public:
    * invoked. The user provides the vtkPolyData and the points and
    * polyline are added to it.
    */
-  virtual void GetPolyData(vtkPolyData *pd) = 0;
+  virtual void GetPolyData(vtkPolyData* pd) = 0;
 
   //@{
   /**
@@ -182,8 +179,8 @@ public:
    * minimum of 3 handles are required to form a closed loop.
    */
   void SetClosed(vtkTypeBool closed);
-  vtkGetMacro(Closed,vtkTypeBool);
-  vtkBooleanMacro(Closed,vtkTypeBool);
+  vtkGetMacro(Closed, vtkTypeBool);
+  vtkBooleanMacro(Closed, vtkTypeBool);
   //@}
 
   /**
@@ -215,11 +212,11 @@ public:
    * center and handle position are specified.
    */
   void BuildRepresentation() override = 0;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
   void EndWidgetInteraction(double e[2]) override;
-  double *GetBounds() override;
+  double* GetBounds() override;
   //@}
 
   //@{
@@ -240,8 +237,8 @@ public:
   void SetLineColor(double r, double g, double b);
 
   /*
-  * Register internal Pickers within PickingManager
-  */
+   * Register internal Pickers within PickingManager
+   */
   void RegisterPickers() override;
 
   //@{
@@ -290,9 +287,9 @@ protected:
   double Bounds[6];
 
   // Controlling vars
-  int             ProjectionNormal;
-  double          ProjectionPosition;
-  vtkTypeBool             ProjectToPlane;
+  int ProjectionNormal;
+  double ProjectionPosition;
+  vtkTypeBool ProjectToPlane;
   vtkPlaneSource* PlaneSource;
 
   // Projection capabilities
@@ -304,15 +301,15 @@ protected:
   vtkTypeBool Closed;
 
   // The line segments
-  vtkActor           *LineActor;
+  vtkActor* LineActor;
   void HighlightLine(int highlight);
 
   // Glyphs representing hot spots (e.g., handles)
-  vtkActor          **Handle;
+  vtkActor** Handle;
   HandleSource** HandleGeometry;
   void Initialize();
-  int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
-  int GetHandleIndex(vtkProp* prop);   // returns handle index or -1 on fail
+  int HighlightHandle(vtkProp* prop); // returns handle index or -1 on fail
+  int GetHandleIndex(vtkProp* prop);  // returns handle index or -1 on fail
   virtual void SizeHandles();
 
   /**
@@ -324,31 +321,31 @@ protected:
   void EraseHandle(const int&);
 
   // Do the picking
-  vtkCellPicker *HandlePicker;
-  vtkCellPicker *LinePicker;
+  vtkCellPicker* HandlePicker;
+  vtkCellPicker* LinePicker;
   double LastPickPosition[3];
-  vtkActor *CurrentHandle;
+  vtkActor* CurrentHandle;
   int CurrentHandleIndex;
   bool FirstSelected;
 
   // Methods to manipulate the curve.
-  void MovePoint(double *p1, double *p2);
-  void Scale(double *p1, double *p2, int X, int Y);
-  void Translate(double *p1, double *p2);
-  void Spin(double *p1, double *p2, double *vpn);
+  void MovePoint(double* p1, double* p2);
+  void Scale(double* p1, double* p2, int X, int Y);
+  void Translate(double* p1, double* p2);
+  void Spin(double* p1, double* p2, double* vpn);
 
   // Transform the control points (used for spinning)
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // Manage how the representation appears
   bool DirectionalLine;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty *HandleProperty;
-  vtkProperty *SelectedHandleProperty;
-  vtkProperty *LineProperty;
-  vtkProperty *SelectedLineProperty;
+  vtkProperty* HandleProperty;
+  vtkProperty* SelectedHandleProperty;
+  vtkProperty* LineProperty;
+  vtkProperty* SelectedLineProperty;
   void CreateDefaultProperties();
 
   // For efficient spinning
@@ -377,7 +374,7 @@ protected:
 
   protected:
     HandleSource();
-    ~HandleSource() override{};
+    ~HandleSource() override {}
     int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   private:
@@ -392,8 +389,6 @@ protected:
 private:
   vtkCurveRepresentation(const vtkCurveRepresentation&) = delete;
   void operator=(const vtkCurveRepresentation&) = delete;
-
 };
-
 
 #endif

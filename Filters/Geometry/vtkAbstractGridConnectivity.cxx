@@ -16,8 +16,8 @@
 
 vtkAbstractGridConnectivity::vtkAbstractGridConnectivity()
 {
-  this->NumberOfGrids                = 0;
-  this->NumberOfGhostLayers          = 0;
+  this->NumberOfGrids = 0;
+  this->NumberOfGhostLayers = 0;
   this->AllocatedGhostDataStructures = false;
 }
 
@@ -29,9 +29,9 @@ vtkAbstractGridConnectivity::~vtkAbstractGridConnectivity()
 }
 
 //------------------------------------------------------------------------------
-void vtkAbstractGridConnectivity::PrintSelf(std::ostream &os, vtkIndent indent )
+void vtkAbstractGridConnectivity::PrintSelf(std::ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << "NumberOfGrids: " << this->NumberOfGrids << std::endl;
   os << "NumberOfGhostLayers: " << this->NumberOfGhostLayers << std::endl;
 }

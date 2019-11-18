@@ -25,7 +25,7 @@
  * vtkGeoEdgeStrategy produces arcs for each edge in the input graph.
  * This is useful for viewing lines on a sphere (e.g. the earth).
  * The arcs may "jump" above the sphere's surface using ExplodeFactor.
-*/
+ */
 
 #ifndef vtkGeoEdgeStrategy_h
 #define vtkGeoEdgeStrategy_h
@@ -36,8 +36,8 @@
 class VTKINFOVISLAYOUT_EXPORT vtkGeoEdgeStrategy : public vtkEdgeLayoutStrategy
 {
 public:
-  static vtkGeoEdgeStrategy *New();
-  vtkTypeMacro(vtkGeoEdgeStrategy,vtkEdgeLayoutStrategy);
+  static vtkGeoEdgeStrategy* New();
+  vtkTypeMacro(vtkGeoEdgeStrategy, vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{

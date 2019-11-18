@@ -30,16 +30,15 @@
 // old versions of gcc are missing some pices of c++11 such as std::get_time
 // so use
 
-#if (defined(__GNUC__) && (__GNUC__ < 5)) || defined (ANDROID)
+#if (defined(__GNUC__) && (__GNUC__ < 5)) || defined(ANDROID)
 #define USE_STRPTIME
 #include "time.h"
 #endif
 
-
 vtkStandardNewMacro(vtkDateToNumeric);
 //----------------------------------------------------------------------------
-vtkDateToNumeric::vtkDateToNumeric() :
-  DateFormat(nullptr)
+vtkDateToNumeric::vtkDateToNumeric()
+  : DateFormat(nullptr)
 {
 }
 
@@ -96,17 +95,17 @@ int vtkDateToNumeric::RequestData(
 
     for (int idx = 0, max = inFD->GetNumberOfArrays(); idx < max; ++idx)
     {
-      vtkStringArray *inarray = vtkStringArray::SafeDownCast(inFD->GetAbstractArray(idx));
+      vtkStringArray* inarray = vtkStringArray::SafeDownCast(inFD->GetAbstractArray(idx));
       if (inarray && inarray->GetName())
       {
         // look at the first value to see if it is a date we can parse
         auto inval = inarray->GetValue(0);
         std::string useFormat;
-        for (auto & format : formats)
+        for (auto& format : formats)
         {
 #ifdef USE_STRPTIME
           struct tm atime;
-          auto result = strptime(inval.c_str() ,format.c_str(), &atime);
+          auto result = strptime(inval.c_str(), format.c_str(), &atime);
           if (result)
           {
             useFormat = format;
@@ -135,7 +134,7 @@ int vtkDateToNumeric::RequestData(
             inval = inarray->GetValue(i);
 #ifdef USE_STRPTIME
             struct tm atime;
-            auto result = strptime(inval.c_str() ,useFormat.c_str(), &atime);
+            auto result = strptime(inval.c_str(), useFormat.c_str(), &atime);
             if (result)
             {
               auto etime = mktime(&atime);

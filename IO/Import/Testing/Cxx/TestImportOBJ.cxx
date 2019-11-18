@@ -12,8 +12,7 @@ int TestImportOBJ(int argc, char* argv[])
 {
   if (argc < 4)
   {
-    std::cout << "Usage: " << argv[0] << " objfile mtlfile texturepath"
-              << std::endl;
+    std::cout << "Usage: " << argv[0] << " objfile mtlfile texturepath" << std::endl;
     return EXIT_FAILURE;
   }
   auto importer = vtkSmartPointer<vtkOBJImporter>::New();
@@ -41,8 +40,7 @@ int TestImportOBJ(int argc, char* argv[])
 
   auto actors = renderer->GetActors();
   actors->InitTraversal();
-  std::cout << "There are " << actors->GetNumberOfItems() << " actors"
-            << std::endl;
+  std::cout << "There are " << actors->GetNumberOfItems() << " actors" << std::endl;
 
   for (vtkIdType a = 0; a < actors->GetNumberOfItems(); ++a)
   {
@@ -57,11 +55,9 @@ int TestImportOBJ(int argc, char* argv[])
       actor->GetTexture()->InterpolateOn();
     }
 
-    vtkPolyData* pd =
-        dynamic_cast<vtkPolyData*>(actor->GetMapper()->GetInput());
+    vtkPolyData* pd = dynamic_cast<vtkPolyData*>(actor->GetMapper()->GetInput());
 
-    vtkPolyDataMapper* mapper =
-        dynamic_cast<vtkPolyDataMapper*>(actor->GetMapper());
+    vtkPolyDataMapper* mapper = dynamic_cast<vtkPolyDataMapper*>(actor->GetMapper());
     mapper->SetInputData(pd);
   }
   renWin->Render();

@@ -36,7 +36,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkTableToArray_h
 #define vtkTableToArray_h
@@ -77,10 +77,7 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkTableToArray(const vtkTableToArray&) = delete;
@@ -88,8 +85,6 @@ private:
 
   class implementation;
   implementation* const Implementation;
-
 };
 
 #endif
-

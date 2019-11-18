@@ -36,13 +36,12 @@
 using std::string;
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestConeLayoutStrategy(int argc, char* argv[])
 {
   VTK_CREATE(vtkTesting, testHelper);
-  testHelper->AddArguments(argc,const_cast<const char **>(argv));
+  testHelper->AddArguments(argc, const_cast<const char**>(argv));
   string dataRoot = testHelper->GetDataRoot();
   string file = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
 
@@ -93,13 +92,13 @@ int TestConeLayoutStrategy(int argc, char* argv[])
 
   view->ResetCamera();
 
-  view->GetRenderWindow()->SetSize( 600, 600 );
+  view->GetRenderWindow()->SetSize(600, 600);
   view->GetRenderWindow()->SetMultiSamples(0); // ensure to have the same test image everywhere
   view->SetInteractionModeTo3D();
   view->SetLabelPlacementModeToNoOverlap();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
-  if( retVal == vtkRegressionTester::DO_INTERACTOR )
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
@@ -107,5 +106,5 @@ int TestConeLayoutStrategy(int argc, char* argv[])
     retVal = vtkRegressionTester::PASSED;
   }
 
- return !retVal;
+  return !retVal;
 }

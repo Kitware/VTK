@@ -18,7 +18,7 @@
  *
  * vtkStructuredPointsGeometryFilter has been renamed to
  * vtkImageDataGeometryFilter
-*/
+ */
 
 #ifndef vtkStructuredPointsGeometryFilter_h
 #define vtkStructuredPointsGeometryFilter_h
@@ -26,15 +26,16 @@
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkImageDataGeometryFilter.h"
 
-class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter : public vtkImageDataGeometryFilter
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredPointsGeometryFilter
+  : public vtkImageDataGeometryFilter
 {
 public:
-  vtkTypeMacro(vtkStructuredPointsGeometryFilter,vtkImageDataGeometryFilter);
+  vtkTypeMacro(vtkStructuredPointsGeometryFilter, vtkImageDataGeometryFilter);
 
   /**
    * Construct with initial extent of all the data
    */
-  static vtkStructuredPointsGeometryFilter *New();
+  static vtkStructuredPointsGeometryFilter* New();
 
 protected:
   vtkStructuredPointsGeometryFilter();

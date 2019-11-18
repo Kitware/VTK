@@ -20,7 +20,7 @@
  * vtkDataSet. vtkImageData represents a geometric structure that is
  * a topological and geometrical regular array of points. Examples include
  * volumes (voxel data) and pixmaps.
-*/
+ */
 
 #ifndef vtkImageData_h
 #define vtkImageData_h
@@ -41,21 +41,21 @@ class vtkVoxel;
 class VTKCOMMONDATAMODEL_EXPORT vtkImageData : public vtkDataSet
 {
 public:
-  static vtkImageData *New();
+  static vtkImageData* New();
 
-  vtkTypeMacro(vtkImageData,vtkDataSet);
+  vtkTypeMacro(vtkImageData, vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Copy the geometric and topological structure of an input image data
    * object.
    */
-  void CopyStructure(vtkDataSet *ds) override;
+  void CopyStructure(vtkDataSet* ds) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_IMAGE_DATA;};
+  int GetDataObjectType() override { return VTK_IMAGE_DATA; }
 
   //@{
   /**
@@ -67,35 +67,34 @@ public:
    */
   vtkIdType GetNumberOfCells() override;
   vtkIdType GetNumberOfPoints() override;
-  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
+  double* GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
   void GetPoint(vtkIdType id, double x[3]) override;
-  vtkCell *GetCell(vtkIdType cellId) override;
-  vtkCell *GetCell(int i, int j, int k) override;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  vtkCell* GetCell(vtkIdType cellId) override;
+  vtkCell* GetCell(int i, int j, int k) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   virtual vtkIdType FindPoint(double x, double y, double z)
   {
     return this->vtkDataSet::FindPoint(x, y, z);
   }
   vtkIdType FindPoint(double x[3]) override;
-  vtkIdType FindCell(
-    double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-    int& subId, double pcoords[3], double *weights) override;
-  vtkIdType FindCell(
-    double x[3], vtkCell *cell, vtkGenericCell *gencell,
-    vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double *weights) override;
-  vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                                  double tol2, int& subId, double pcoords[3],
-                                  double *weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
+  vtkCell* FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) override;
   int GetCellType(vtkIdType cellId) override;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override
-    {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
-                                      this->GetDimensions());}
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
-    {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
+  void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override
+  {
+    vtkStructuredData::GetCellPoints(cellId, ptIds, this->DataDescription, this->GetDimensions());
+  }
+  void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override
+  {
+    vtkStructuredData::GetPointCells(ptId, cellIds, this->GetDimensions());
+  }
   void ComputeBounds() override;
-  int GetMaxCellSize() override {return 8;}; //voxel is the largest
+  int GetMaxCellSize() override { return 8; } // voxel is the largest
   //@}
 
   /**
@@ -119,7 +118,7 @@ public:
    * Dimensions are computed from Extents during this call.
    * \warning Non thread-safe, use second signature if you want it to be.
    */
-  virtual int *GetDimensions() VTK_SIZEHINT(3);
+  virtual int* GetDimensions() VTK_SIZEHINT(3);
 
   /**
    * Get dimensions of this structured points dataset.
@@ -138,8 +137,7 @@ public:
    * in the cell are specified with pcoords[3]. The function returns a 0 if the
    * point x is outside of the volume, and a 1 if inside the volume.
    */
-  virtual int ComputeStructuredCoordinates(
-    const double x[3],  int ijk[3],  double pcoords[3]);
+  virtual int ComputeStructuredCoordinates(const double x[3], int ijk[3], double pcoords[3]);
 
   /**
    * Given structured coordinates (i,j,k) for a voxel cell, compute the eight
@@ -150,8 +148,7 @@ public:
    * from which the gradient is to be computed. This method will treat
    * only 3D structured point datasets (i.e., volumes).
    */
-  virtual void GetVoxelGradient(
-    int i,int j,int k, vtkDataArray *s, vtkDataArray *g);
+  virtual void GetVoxelGradient(int i, int j, int k, vtkDataArray* s, vtkDataArray* g);
 
   /**
    * Given structured coordinates (i,j,k) for a point in a structured point
@@ -159,8 +156,7 @@ public:
    * The scalars s are the scalars from which the gradient is to be computed.
    * This method will treat structured point datasets of any dimension.
    */
-  virtual void GetPointGradient(
-    int i, int j, int k, vtkDataArray *s, double g[3]);
+  virtual void GetPointGradient(int i, int j, int k, vtkDataArray* s, double g[3]);
 
   /**
    * Return the dimensionality of the data.
@@ -170,23 +166,26 @@ public:
   /**
    * Given a location in structured coordinates (i-j-k), return the point id.
    */
-  virtual vtkIdType ComputePointId(int ijk[3]) {
-    return vtkStructuredData::ComputePointIdForExtent(this->Extent,ijk);};
+  virtual vtkIdType ComputePointId(int ijk[3])
+  {
+    return vtkStructuredData::ComputePointIdForExtent(this->Extent, ijk);
+  }
 
   /**
    * Given a location in structured coordinates (i-j-k), return the cell id.
    */
-  virtual vtkIdType ComputeCellId(int ijk[3]) {
-    return vtkStructuredData::ComputeCellIdForExtent(this->Extent,ijk);};
+  virtual vtkIdType ComputeCellId(int ijk[3])
+  {
+    return vtkStructuredData::ComputeCellIdForExtent(this->Extent, ijk);
+  }
 
   //@{
   /**
    * Set / Get the extent on just one axis
    */
-  virtual void SetAxisUpdateExtent(int axis, int min, int max,
-                                   const int* updateExtent,
-                                   int* axisUpdateExtent);
-  virtual void GetAxisUpdateExtent(int axis, int &min, int &max, const int* updateExtent);
+  virtual void SetAxisUpdateExtent(
+    int axis, int min, int max, const int* updateExtent, int* axisUpdateExtent);
+  virtual void GetAxisUpdateExtent(int axis, int& min, int& max, const int* updateExtent);
   //@}
 
   //@{
@@ -232,13 +231,13 @@ public:
    * up to date.  The first three methods compute the increments based on the
    * active scalar field while the next three, the scalar field is passed in.
    */
-  virtual vtkIdType *GetIncrements() VTK_SIZEHINT(3);
-  virtual void GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
+  virtual vtkIdType* GetIncrements() VTK_SIZEHINT(3);
+  virtual void GetIncrements(vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
   virtual void GetIncrements(vtkIdType inc[3]);
-  virtual vtkIdType *GetIncrements(vtkDataArray *scalars) VTK_SIZEHINT(3);
-  virtual void GetIncrements(vtkDataArray *scalars,
-                             vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
-  virtual void GetIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
+  virtual vtkIdType* GetIncrements(vtkDataArray* scalars) VTK_SIZEHINT(3);
+  virtual void GetIncrements(
+    vtkDataArray* scalars, vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
+  virtual void GetIncrements(vtkDataArray* scalars, vtkIdType inc[3]);
   //@}
 
   //@{
@@ -256,19 +255,19 @@ public:
    * while the second form allows the scalar array to be passed in.
    */
   virtual void GetContinuousIncrements(
-    int extent[6], vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
-  virtual void GetContinuousIncrements(vtkDataArray *scalars,
-    int extent[6], vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
+    int extent[6], vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
+  virtual void GetContinuousIncrements(
+    vtkDataArray* scalars, int extent[6], vtkIdType& incX, vtkIdType& incY, vtkIdType& incZ);
   //@}
 
   //@{
   /**
    * Access the native pointer for the scalar data
    */
-  virtual void *GetScalarPointerForExtent(int extent[6]);
-  virtual void *GetScalarPointer(int coordinates[3]);
-  virtual void *GetScalarPointer(int x, int y, int z);
-  virtual void *GetScalarPointer();
+  virtual void* GetScalarPointerForExtent(int extent[6]);
+  virtual void* GetScalarPointer(int coordinates[3]);
+  virtual void* GetScalarPointer(int x, int y, int z);
+  virtual void* GetScalarPointer();
   //@}
 
   //@{
@@ -276,11 +275,9 @@ public:
    * For access to data from wrappers
    */
   virtual float GetScalarComponentAsFloat(int x, int y, int z, int component);
-  virtual void SetScalarComponentFromFloat(
-    int x, int y, int z, int component, float v);
+  virtual void SetScalarComponentFromFloat(int x, int y, int z, int component, float v);
   virtual double GetScalarComponentAsDouble(int x, int y, int z, int component);
-  virtual void SetScalarComponentFromDouble(
-    int x, int y, int z, int component, double v);
+  virtual void SetScalarComponentFromDouble(int x, int y, int z, int component, double v);
   //@}
 
   /**
@@ -305,11 +302,18 @@ public:
    * It just executes a switch statement to call the correct function for
    * the regions data types.
    */
-  virtual void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
-  virtual void CopyAndCastFrom(vtkImageData *inData, int x0, int x1,
-                               int y0, int y1, int z0, int z1)
-    {int e[6]; e[0]=x0; e[1]=x1; e[2]=y0; e[3]=y1; e[4]=z0; e[5]=z1;
-    this->CopyAndCastFrom(inData, e);}
+  virtual void CopyAndCastFrom(vtkImageData* inData, int extent[6]);
+  virtual void CopyAndCastFrom(vtkImageData* inData, int x0, int x1, int y0, int y1, int z0, int z1)
+  {
+    int e[6];
+    e[0] = x0;
+    e[1] = x1;
+    e[2] = y0;
+    e[3] = y1;
+    e[4] = z0;
+    e[5] = z1;
+    this->CopyAndCastFrom(inData, e);
+  }
   //@}
 
   /**
@@ -334,8 +338,8 @@ public:
    * Set the spacing (width,height,length) of the cubical cells that
    * compose the data set.
    */
-  vtkGetVector3Macro(Spacing,double);
-  virtual void SetSpacing(double i, double j , double k);
+  vtkGetVector3Macro(Spacing, double);
+  virtual void SetSpacing(double i, double j, double k);
   virtual void SetSpacing(const double ijk[3]);
   //@}
 
@@ -348,8 +352,8 @@ public:
    * box.
    * The origin plus spacing determine the position in space of the points.
    */
-  vtkGetVector3Macro(Origin,double);
-  virtual void SetOrigin(double i, double j , double k);
+  vtkGetVector3Macro(Origin, double);
+  virtual void SetOrigin(double i, double j, double k);
   virtual void SetOrigin(const double ijk[3]);
   //@}
 
@@ -358,12 +362,11 @@ public:
    * Set/Get the direction transform of the dataset. The direction is a 3 by 3
    * matrix.
    */
-  vtkGetObjectMacro(DirectionMatrix,vtkMatrix3x3);
-  virtual void SetDirectionMatrix(vtkMatrix3x3 *m);
+  vtkGetObjectMacro(DirectionMatrix, vtkMatrix3x3);
+  virtual void SetDirectionMatrix(vtkMatrix3x3* m);
   virtual void SetDirectionMatrix(const double elements[9]);
-  virtual void SetDirectionMatrix(double e00, double e01, double e02,
-                                  double e10, double e11, double e12,
-                                  double e20, double e21, double e22);
+  virtual void SetDirectionMatrix(double e00, double e01, double e02, double e10, double e11,
+    double e12, double e20, double e21, double e22);
   //@}
 
   //@{
@@ -371,29 +374,19 @@ public:
    * Get the transformation matrix from the index space to the physical space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
-  vtkGetObjectMacro(IndexToPhysicalMatrix,vtkMatrix4x4);
+  vtkGetObjectMacro(IndexToPhysicalMatrix, vtkMatrix4x4);
   //@}
 
   //@{
   /**
    * Convert coordinates from index space (ijk) to physical space (xyz)
    */
-  virtual void TransformContinuousIndexToPhysicalPoint(double i,
-                                                       double j,
-                                                       double k,
-                                                       double xyz[3]);
-  virtual void TransformContinuousIndexToPhysicalPoint(const double ijk[3],
-                                                       double xyz[3]);
-  virtual void TransformIndexToPhysicalPoint(int i, int j, int k,
-                                             double xyz[3]);
-  virtual void TransformIndexToPhysicalPoint(const int ijk[3],
-                                             double xyz[3]);
-  static void TransformContinuousIndexToPhysicalPoint(
-    double i, double j, double k,
-    double const origin[3],
-    double const spacing[3],
-    double const direction[9],
-    double xyz[3]);
+  virtual void TransformContinuousIndexToPhysicalPoint(double i, double j, double k, double xyz[3]);
+  virtual void TransformContinuousIndexToPhysicalPoint(const double ijk[3], double xyz[3]);
+  virtual void TransformIndexToPhysicalPoint(int i, int j, int k, double xyz[3]);
+  virtual void TransformIndexToPhysicalPoint(const int ijk[3], double xyz[3]);
+  static void TransformContinuousIndexToPhysicalPoint(double i, double j, double k,
+    double const origin[3], double const spacing[3], double const direction[9], double xyz[3]);
   //@}
 
   //@{
@@ -401,54 +394,44 @@ public:
    * Get the transformation matrix from the physical space to the index space
    * coordinate system of the dataset. The transform is a 4 by 4 matrix.
    */
-  vtkGetObjectMacro(PhysicalToIndexMatrix,vtkMatrix4x4);
+  vtkGetObjectMacro(PhysicalToIndexMatrix, vtkMatrix4x4);
   //@}
 
   //@{
   /**
    * Convert coordinates from physical space (xyz) to index space (ijk)
    */
-  virtual void TransformPhysicalPointToContinuousIndex(double x,
-                                                       double y,
-                                                       double z,
-                                                       double ijk[3]);
-  virtual void TransformPhysicalPointToContinuousIndex(const double xyz[3],
-                                                       double ijk[3]);
+  virtual void TransformPhysicalPointToContinuousIndex(double x, double y, double z, double ijk[3]);
+  virtual void TransformPhysicalPointToContinuousIndex(const double xyz[3], double ijk[3]);
   //@}
 
   static void ComputeIndexToPhysicalMatrix(
-    double const origin[3],
-    double const spacing[3],
-    double const direction[9],
-    double result[16]);
+    double const origin[3], double const spacing[3], double const direction[9], double result[16]);
 
   //@{
   /**
    * Convert normal from physical space (xyz) to index space (ijk)
    */
-  virtual void TransformPhysicalNormalToContinuousIndex(const double xyz[3],
-                                                       double ijk[3]);
+  virtual void TransformPhysicalNormalToContinuousIndex(const double xyz[3], double ijk[3]);
   //@}
 
   /**
    * Convert a plane form physical to continuous index
    */
-  virtual void TransformPhysicalPlaneToContinuousIndex(double const pplane[4],
-    double iplane[4]);
+  virtual void TransformPhysicalPlaneToContinuousIndex(double const pplane[4], double iplane[4]);
 
   static void SetScalarType(int, vtkInformation* meta_data);
   static int GetScalarType(vtkInformation* meta_data);
   static bool HasScalarType(vtkInformation* meta_data);
   int GetScalarType();
-  const char* GetScalarTypeAsString()
-    { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
+  const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro(this->GetScalarType()); }
 
   //@{
   /**
    * Set/Get the number of scalar components for points. As with the
    * SetScalarType method this is setting pipeline info.
    */
-  static void SetNumberOfScalarComponents( int n, vtkInformation* meta_data);
+  static void SetNumberOfScalarComponents(int n, vtkInformation* meta_data);
   static int GetNumberOfScalarComponents(vtkInformation* meta_data);
   static bool HasNumberOfScalarComponents(vtkInformation* meta_data);
   int GetNumberOfScalarComponents();
@@ -478,8 +461,8 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
   //@}
 
   //--------------------------------------------------------------------------
@@ -493,15 +476,15 @@ public:
    * from any filed array.  It is a start at expanding image filters
    * to process any array (not just scalars).
    */
-  void *GetArrayPointerForExtent(vtkDataArray* array, int extent[6]);
-  void *GetArrayPointer(vtkDataArray* array, int coordinates[3]);
+  void* GetArrayPointerForExtent(vtkDataArray* array, int extent[6]);
+  void* GetArrayPointer(vtkDataArray* array, int coordinates[3]);
   //@}
 
   /**
    * Since various arrays have different number of components,
    * the will have different increments.
    */
-  void GetArrayIncrements(vtkDataArray *array, vtkIdType increments[3]);
+  void GetArrayIncrements(vtkDataArray* array, vtkIdType increments[3]);
 
   /**
    * Given how many pixel are required on a side for bounrary conditions (in
@@ -509,19 +492,19 @@ public:
    * extent for this ImageData that does not suffer from any boundary
    * conditions) and place it in intExt
    */
-  void ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds);
+  void ComputeInternalExtent(int* intExt, int* tgtExt, int* bnds);
 
   /**
    * The extent type is a 3D extent
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; };
+  int GetExtentType() override { return VTK_3D_EXTENT; }
 
   //@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkImageData* GetData(vtkInformation* info);
-  static vtkImageData* GetData(vtkInformationVector* v, int i=0);
+  static vtkImageData* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
 protected:
@@ -537,9 +520,9 @@ protected:
   // Variables used to define dataset physical orientation
   double Origin[3];
   double Spacing[3];
-  vtkMatrix3x3 *DirectionMatrix;
-  vtkMatrix4x4 *IndexToPhysicalMatrix;
-  vtkMatrix4x4 *PhysicalToIndexMatrix;
+  vtkMatrix3x3* DirectionMatrix;
+  vtkMatrix4x4* IndexToPhysicalMatrix;
+  vtkMatrix4x4* PhysicalToIndexMatrix;
 
   int Extent[6];
 
@@ -548,14 +531,14 @@ protected:
   // This one is given the number of components of the
   // scalar field explicitly
   void ComputeIncrements(int numberOfComponents);
-  void ComputeIncrements(vtkDataArray *scalars);
+  void ComputeIncrements(vtkDataArray* scalars);
 
   // The first method assumes Acitive Scalars
   void ComputeIncrements(vtkIdType inc[3]);
   // This one is given the number of components of the
   // scalar field explicitly
   void ComputeIncrements(int numberOfComponents, vtkIdType inc[3]);
-  void ComputeIncrements(vtkDataArray *scalars, vtkIdType inc[3]);
+  void ComputeIncrements(vtkDataArray* scalars, vtkIdType inc[3]);
 
   // for the index to physical methods
   void ComputeTransforms();
@@ -573,16 +556,16 @@ protected:
   int GetDataDescription() { return this->DataDescription; }
 
 private:
-  void InternalImageDataCopy(vtkImageData *src);
-private:
+  void InternalImageDataCopy(vtkImageData* src);
 
+private:
   friend class vtkUniformGrid;
 
   // for the GetCell method
-  vtkVertex *Vertex;
-  vtkLine *Line;
-  vtkPixel *Pixel;
-  vtkVoxel *Voxel;
+  vtkVertex* Vertex;
+  vtkLine* Line;
+  vtkPixel* Pixel;
+  vtkVoxel* Voxel;
 
   // for the GetPoint method
   double Point[3];
@@ -592,7 +575,6 @@ private:
   vtkImageData(const vtkImageData&) = delete;
   void operator=(const vtkImageData&) = delete;
 };
-
 
 //----------------------------------------------------------------------------
 inline void vtkImageData::ComputeIncrements()
@@ -607,13 +589,13 @@ inline void vtkImageData::ComputeIncrements(int numberOfComponents)
 }
 
 //----------------------------------------------------------------------------
-inline void vtkImageData::ComputeIncrements(vtkDataArray *scalars)
+inline void vtkImageData::ComputeIncrements(vtkDataArray* scalars)
 {
   this->ComputeIncrements(scalars, this->Increments);
 }
 
 //----------------------------------------------------------------------------
-inline double * vtkImageData::GetPoint(vtkIdType id)
+inline double* vtkImageData::GetPoint(vtkIdType id)
 {
   this->GetPoint(id, this->Point);
   return this->Point;
@@ -622,13 +604,13 @@ inline double * vtkImageData::GetPoint(vtkIdType id)
 //----------------------------------------------------------------------------
 inline vtkIdType vtkImageData::GetNumberOfPoints()
 {
-  const int *extent = this->Extent;
+  const int* extent = this->Extent;
   vtkIdType dims[3];
   dims[0] = extent[1] - extent[0] + 1;
   dims[1] = extent[3] - extent[2] + 1;
   dims[2] = extent[5] - extent[4] + 1;
 
-  return dims[0]*dims[1]*dims[2];
+  return dims[0] * dims[1] * dims[2];
 }
 
 //----------------------------------------------------------------------------

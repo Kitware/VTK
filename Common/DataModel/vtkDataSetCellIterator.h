@@ -16,7 +16,7 @@
  * @class   vtkDataSetCellIterator
  * @brief   Implementation of vtkCellIterator using
  * vtkDataSet API.
-*/
+ */
 
 #ifndef vtkDataSetCellIterator_h
 #define vtkDataSetCellIterator_h
@@ -27,11 +27,11 @@
 
 class vtkDataSet;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator: public vtkCellIterator
+class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator : public vtkCellIterator
 {
 public:
-  static vtkDataSetCellIterator *New();
-  vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator)
+  static vtkDataSetCellIterator* New();
+  vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   bool IsDoneWithTraversal() override;
@@ -48,14 +48,14 @@ protected:
   void FetchPoints() override;
 
   friend class vtkDataSet;
-  void SetDataSet(vtkDataSet *ds);
+  void SetDataSet(vtkDataSet* ds);
 
   vtkSmartPointer<vtkDataSet> DataSet;
   vtkIdType CellId;
 
 private:
-  vtkDataSetCellIterator(const vtkDataSetCellIterator &) = delete;
-  void operator=(const vtkDataSetCellIterator &) = delete;
+  vtkDataSetCellIterator(const vtkDataSetCellIterator&) = delete;
+  void operator=(const vtkDataSetCellIterator&) = delete;
 };
 
-#endif //vtkDataSetCellIterator_h
+#endif // vtkDataSetCellIterator_h

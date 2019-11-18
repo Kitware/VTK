@@ -23,7 +23,6 @@
 
 #include <cstdlib>
 
-
 int TestAppendLocationAttributes(int, char*[])
 {
   // Reference dataset
@@ -62,7 +61,8 @@ int TestAppendLocationAttributes(int, char*[])
 
   vtkPoints* cellCenterPoints = cellCentersOutput->GetPoints();
   vtkDataArray* cellCentersArray = appendLocationOutput->GetCellData()->GetArray("CellCenters");
-  vtkDataArray* pointLocationsArray = appendLocationOutput->GetPointData()->GetArray("PointLocations");
+  vtkDataArray* pointLocationsArray =
+    appendLocationOutput->GetPointData()->GetArray("PointLocations");
 
   for (vtkIdType i = 0; i < numCells; ++i)
   {

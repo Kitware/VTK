@@ -19,8 +19,8 @@
 #include "vtkPythonCompatibility.h"
 
 #ifdef VTK_COMPILED_USING_MPI
-# include "vtkMPIController.h"
-# include <mpi.h>
+#include "vtkMPIController.h"
+#include <mpi.h>
 #endif // VTK_COMPILED_USING_MPI
 
 #include "vtkOutputWindow.h"
@@ -33,22 +33,20 @@
 #include <string>
 
 #ifdef VTK_COMPILED_USING_MPI
-class vtkMPICleanup {
+class vtkMPICleanup
+{
 public:
-  vtkMPICleanup()
+  vtkMPICleanup() { this->Controller = nullptr; }
+  void Initialize(int* argc, char*** argv)
   {
-      this->Controller = nullptr;
-  }
-  void Initialize(int* argc, char ***argv)
-  {
-      MPI_Init(argc, argv);
-      this->Controller = vtkMPIController::New();
-      this->Controller->Initialize(argc, argv, 1);
-      vtkMultiProcessController::SetGlobalController(this->Controller);
+    MPI_Init(argc, argv);
+    this->Controller = vtkMPIController::New();
+    this->Controller->Initialize(argc, argv, 1);
+    vtkMultiProcessController::SetGlobalController(this->Controller);
   }
   void Cleanup()
   {
-    if ( this->Controller )
+    if (this->Controller)
     {
       this->Controller->Finalize();
       this->Controller->Delete();
@@ -56,13 +54,10 @@ public:
       vtkMultiProcessController::SetGlobalController(nullptr);
     }
   }
-  ~vtkMPICleanup()
-  {
-    this->Cleanup();
-  }
+  ~vtkMPICleanup() { this->Cleanup(); }
 
 private:
-  vtkMPIController *Controller;
+  vtkMPIController* Controller;
 };
 
 static vtkMPICleanup VTKMPICleanup;
@@ -74,7 +69,7 @@ static void AtExitCallback()
 }
 #endif // VTK_COMPILED_USING_MPI
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);

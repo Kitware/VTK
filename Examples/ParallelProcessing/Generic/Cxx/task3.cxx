@@ -32,18 +32,17 @@ void task3(double data)
 
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
-  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent,
-                           -1*iextent, iextent );
+  source1->SetWholeExtent(-1 * iextent, iextent, -1 * iextent, iextent, -1 * iextent, iextent);
   source1->SetCenter(0, 0, 0);
-  source1->SetStandardDeviation( 0.5 );
-  source1->SetMaximum( 255.0 );
-  source1->SetXFreq( 60 );
-  source1->SetXMag( 10 );
-  source1->SetYFreq( 30 );
-  source1->SetYMag( 18 );
-  source1->SetZFreq( 40 );
-  source1->SetZMag( 5 );
-  source1->GetOutput()->SetSpacing(2.0/extent,2.0/extent,2.0/extent);
+  source1->SetStandardDeviation(0.5);
+  source1->SetMaximum(255.0);
+  source1->SetXFreq(60);
+  source1->SetXMag(10);
+  source1->SetYFreq(30);
+  source1->SetYMag(18);
+  source1->SetZFreq(40);
+  source1->SetZMag(5);
+  source1->GetOutput()->SetSpacing(2.0 / extent, 2.0 / extent, 2.0 / extent);
 
   // Iso-surfacing.
   vtkContourFilter* contour = vtkContourFilter::New();
@@ -72,7 +71,6 @@ void task3(double data)
   append->AddInput(ip->GetPolyDataOutput());
   append->AddInput(probe->GetPolyDataOutput());
 
-
   // Rendering objects.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(append->GetOutputPort());
@@ -83,7 +81,7 @@ void task3(double data)
 
   // Create the render objects
   vtkRenderWindow* renWin = vtkRenderWindow::New();
-  renWin->SetSize( WINDOW_WIDTH, WINDOW_HEIGHT );
+  renWin->SetSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
@@ -97,8 +95,7 @@ void task3(double data)
   iren->Start();
 
   // Tell the other process we are done
-  ip->GetController()->TriggerRMI(1,
-                                  vtkMultiProcessController::BREAK_RMI_TAG);
+  ip->GetController()->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   // Cleanup
   iren->Delete();
@@ -112,7 +109,4 @@ void task3(double data)
   actor->Delete();
   ren->Delete();
   mapper->Delete();
-
 }
-
-

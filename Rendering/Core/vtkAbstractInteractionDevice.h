@@ -23,7 +23,7 @@ class vtkAbstractRenderDevice;
 class VTKRENDERINGCORE_EXPORT vtkAbstractInteractionDevice : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractInteractionDevice, vtkObject)
+  vtkTypeMacro(vtkAbstractInteractionDevice, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -49,9 +49,9 @@ public:
    */
   virtual void ProcessEvents() = 0;
 
-  void SetRenderWidget(vtkRenderWidget *widget);
+  void SetRenderWidget(vtkRenderWidget* widget);
   vtkRenderWidget* GetRenderWidget() { return this->RenderWidget; }
-  void SetRenderDevice(vtkAbstractRenderDevice *device);
+  void SetRenderDevice(vtkAbstractRenderDevice* device);
   vtkAbstractRenderDevice* GetRenderDevice() { return this->RenderDevice; }
 
 protected:
@@ -59,8 +59,8 @@ protected:
   ~vtkAbstractInteractionDevice() override;
 
   bool Initialized;
-  vtkRenderWidget *RenderWidget;
-  vtkAbstractRenderDevice *RenderDevice;
+  vtkRenderWidget* RenderWidget;
+  vtkAbstractRenderDevice* RenderDevice;
 
 private:
   vtkAbstractInteractionDevice(const vtkAbstractInteractionDevice&) = delete;

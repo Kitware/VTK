@@ -30,7 +30,7 @@
  *
  * This filter is useful when one wants to work with only a sub-set of the input
  * time steps.
-*/
+ */
 
 #ifndef vtkExtractTimeSteps_h
 #define vtkExtractTimeSteps_h
@@ -40,22 +40,18 @@
 
 #include <set> // for time step indices
 
-
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractTimeSteps : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkExtractTimeSteps, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkExtractTimeSteps *New();
+  static vtkExtractTimeSteps* New();
 
   /**
    * Get the number of time steps that will be extracted
    */
-  int GetNumberOfTimeSteps() const
-  {
-    return static_cast<int>(this->TimeStepIndices.size());
-  }
+  int GetNumberOfTimeSteps() const { return static_cast<int>(this->TimeStepIndices.size()); }
 
   /**
    * Add a time step index. Not added if the index already exists.
@@ -67,8 +63,8 @@ public:
    * Get/Set an array of time step indices. For the Get function,
    * timeStepIndices should be big enough for GetNumberOfTimeSteps() values.
    */
-  void SetTimeStepIndices(int count, const int *timeStepIndices);
-  void GetTimeStepIndices(int *timeStepIndices) const;
+  void SetTimeStepIndices(int count, const int* timeStepIndices);
+  void GetTimeStepIndices(int* timeStepIndices) const;
   //@}
 
   /**
@@ -116,16 +112,18 @@ public:
 
   // What timestep to provide when the requested time is between the timesteps
   // the filter is set to extract
-  enum {
+  enum
+  {
     PREVIOUS_TIMESTEP, // floor the time to the previous timestep
-    NEXT_TIMESTEP, // ceiling the time to the next timestep
-    NEAREST_TIMESTEP // take the timestep whose absolute difference from the requested time is smallest
+    NEXT_TIMESTEP,     // ceiling the time to the next timestep
+    NEAREST_TIMESTEP   // take the timestep whose absolute difference from the requested time is
+                       // smallest
   } EstimationMode;
   //@{
   /**
    * Get/Set what to do when the requested time is not one of the timesteps this filter
-   * is set to extract.  Should be one of the values of the enum vtkExtractTimeSteps::EstimationMode.
-   * The default is PREVIOUS_TIMESTEP.
+   * is set to extract.  Should be one of the values of the enum
+   * vtkExtractTimeSteps::EstimationMode. The default is PREVIOUS_TIMESTEP.
    */
   vtkGetMacro(TimeEstimationMode, int);
   vtkSetMacro(TimeEstimationMode, int);
@@ -136,14 +134,11 @@ public:
 
 protected:
   vtkExtractTimeSteps();
-  ~vtkExtractTimeSteps() override {};
+  ~vtkExtractTimeSteps() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   std::set<int> TimeStepIndices;
   bool UseRange;

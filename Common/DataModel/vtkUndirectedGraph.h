@@ -37,7 +37,7 @@
  *
  * @sa
  * vtkGraph vtkMutableUndirectedGraph
-*/
+ */
 
 #ifndef vtkUndirectedGraph_h
 #define vtkUndirectedGraph_h
@@ -48,14 +48,14 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkUndirectedGraph : public vtkGraph
 {
 public:
-  static vtkUndirectedGraph *New();
+  static vtkUndirectedGraph* New();
   vtkTypeMacro(vtkUndirectedGraph, vtkGraph);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override {return VTK_UNDIRECTED_GRAPH;}
+  int GetDataObjectType() override { return VTK_UNDIRECTED_GRAPH; }
 
   /**
    * Returns the full degree of the vertex.
@@ -75,29 +75,30 @@ public:
    * GetInEdge(vtkIdType, vtkIdType) is preferred.
    */
   void GetInEdge(vtkIdType v, vtkIdType i, vtkGraphEdge* e) override
-    { this->Superclass::GetInEdge(v, i, e); }
+  {
+    this->Superclass::GetInEdge(v, i, e);
+  }
 
   //@{
   /**
    * Retrieve a graph from an information vector.
    */
-  static vtkUndirectedGraph *GetData(vtkInformation *info);
-  static vtkUndirectedGraph *GetData(vtkInformationVector *v, int i=0);
+  static vtkUndirectedGraph* GetData(vtkInformation* info);
+  static vtkUndirectedGraph* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
    * Initialize the iterator to get the incoming edges to a vertex.
    * For an undirected graph, this is all incident edges.
    */
-  void GetInEdges(vtkIdType v, vtkInEdgeIterator *it) override
-    { Superclass::GetInEdges(v, it); }
+  void GetInEdges(vtkIdType v, vtkInEdgeIterator* it) override { Superclass::GetInEdges(v, it); }
 
   /**
    * Check the structure, and accept it if it is a valid
    * undirected graph. This is public to allow
    * the ToDirected/UndirectedGraph to work.
    */
-  bool IsStructureValid(vtkGraph *g) override;
+  bool IsStructureValid(vtkGraph* g) override;
 
 protected:
   vtkUndirectedGraph();
@@ -106,8 +107,7 @@ protected:
   /**
    * For iterators, returns the same edge list as GetOutEdges().
    */
-  void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges,
-                  vtkIdType & nedges) override;
+  void GetInEdges(vtkIdType v, const vtkInEdgeType*& edges, vtkIdType& nedges) override;
 
 private:
   vtkUndirectedGraph(const vtkUndirectedGraph&) = delete;

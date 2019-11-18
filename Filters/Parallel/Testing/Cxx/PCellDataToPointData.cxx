@@ -31,7 +31,7 @@
 
 #include <mpi.h>
 
-int PCellDataToPointData(int argc, char *argv[])
+int PCellDataToPointData(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -42,7 +42,7 @@ int PCellDataToPointData(int argc, char *argv[])
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMPIController *contr = vtkMPIController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv, 1);
 
   int retVal = EXIT_SUCCESS;
@@ -61,7 +61,7 @@ int PCellDataToPointData(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  int numProcs=contr->GetNumberOfProcesses();
+  int numProcs = contr->GetNumberOfProcesses();
 
   // Create and execute pipeline
   vtkRTAnalyticSource* wavelet = vtkRTAnalyticSource::New();
@@ -85,8 +85,8 @@ int PCellDataToPointData(int argc, char *argv[])
   if (vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints() != correct)
   {
     vtkGenericWarningMacro("Wrong number of unstructured grid points on process "
-                           << me << ". Should be " << correct << " but is " <<
-                           vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints());
+      << me << ". Should be " << correct << " but is "
+      << vtkDataSet::SafeDownCast(cd2pd->GetOutput())->GetNumberOfPoints());
     retVal = EXIT_FAILURE;
   }
 

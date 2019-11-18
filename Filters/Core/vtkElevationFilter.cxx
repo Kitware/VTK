@@ -38,57 +38,59 @@ public:
   double LowPoint[3];
   double HighPoint[3];
   double ScalarRange[2];
-  const TP *Points;
-  float *Scalars;
-  const double *V;
+  const TP* Points;
+  float* Scalars;
+  const double* V;
   double L2;
 
   // Constructor
   vtkElevationAlgorithm();
 
   // Interface between VTK and templated functions
-  static void Elevate(vtkElevationFilter *self, vtkIdType numPts,
-                      double v[3], double l2, TP *points, float *scalars);
+  static void Elevate(
+    vtkElevationFilter* self, vtkIdType numPts, double v[3], double l2, TP* points, float* scalars);
 
   // Interface implicit function computation to SMP tools.
-  template <class T> class ElevationOp
+  template <class T>
+  class ElevationOp
   {
-    public:
-      ElevationOp(vtkElevationAlgorithm<T> *algo)
-        { this->Algo = algo;}
-      vtkElevationAlgorithm *Algo;
-      void  operator() (vtkIdType k, vtkIdType end)
+  public:
+    ElevationOp(vtkElevationAlgorithm<T>* algo) { this->Algo = algo; }
+    vtkElevationAlgorithm* Algo;
+    void operator()(vtkIdType k, vtkIdType end)
+    {
+      double ns, vec[3];
+      const double* range = this->Algo->ScalarRange;
+      const double diffScalar = range[1] - range[0];
+      const double* v = this->Algo->V;
+      const double l2 = this->Algo->L2;
+      const double* lp = this->Algo->LowPoint;
+      const TP* p = this->Algo->Points + 3 * k;
+      float* s = this->Algo->Scalars + k;
+      for (; k < end; ++k)
       {
-        double ns, vec[3];
-        const double *range = this->Algo->ScalarRange;
-        const double diffScalar = range[1] - range[0];
-        const double *v = this->Algo->V;
-        const double l2 = this->Algo->L2;
-        const double *lp = this->Algo->LowPoint;
-        const TP *p = this->Algo->Points + 3*k;
-        float *s = this->Algo->Scalars + k;
-        for ( ; k < end; ++k)
-        {
-          vec[0] = p[0] - lp[0];
-          vec[1] = p[1] - lp[1];
-          vec[2] = p[2] - lp[2];
-          ns = (vec[0]*v[0] + vec[1]*v[1] + vec[2]*v[2]) / l2;
-          ns = (ns < 0.0 ? 0.0 : ns > 1.0 ? 1.0 : ns);
+        vec[0] = p[0] - lp[0];
+        vec[1] = p[1] - lp[1];
+        vec[2] = p[2] - lp[2];
+        ns = (vec[0] * v[0] + vec[1] * v[1] + vec[2] * v[2]) / l2;
+        ns = (ns < 0.0 ? 0.0 : ns > 1.0 ? 1.0 : ns);
 
-          // Store the resulting scalar value.
-          *s = range[0] + ns*diffScalar;
+        // Store the resulting scalar value.
+        *s = range[0] + ns * diffScalar;
 
-          p+=3;
-          ++s;
-        }
+        p += 3;
+        ++s;
       }
+    }
   };
 };
 
 //----------------------------------------------------------------------------
 // Initialized mainly to eliminate compiler warnings.
-template <class TP> vtkElevationAlgorithm<TP>::
-vtkElevationAlgorithm():Points(nullptr),Scalars(nullptr)
+template <class TP>
+vtkElevationAlgorithm<TP>::vtkElevationAlgorithm()
+  : Points(nullptr)
+  , Scalars(nullptr)
 {
   this->LowPoint[0] = this->LowPoint[1] = this->LowPoint[2] = 0.0;
   this->HighPoint[0] = this->HighPoint[1] = 0.0;
@@ -99,9 +101,9 @@ vtkElevationAlgorithm():Points(nullptr),Scalars(nullptr)
 
 //----------------------------------------------------------------------------
 // Templated class is glue between VTK and templated algorithms.
-template <class TP> void vtkElevationAlgorithm<TP>::
-Elevate(vtkElevationFilter *self, vtkIdType numPts,
-        double *v, double l2, TP *points, float *scalars)
+template <class TP>
+void vtkElevationAlgorithm<TP>::Elevate(
+  vtkElevationFilter* self, vtkIdType numPts, double* v, double l2, TP* points, float* scalars)
 {
   // Populate data into local storage
   vtkElevationAlgorithm<TP> algo;
@@ -116,7 +118,7 @@ Elevate(vtkElevationFilter *self, vtkIdType numPts,
 
   // Okay now generate samples using SMP tools
   ElevationOp<TP> values(&algo);
-  vtkSMPTools::For(0,algo.NumPts, values);
+  vtkSMPTools::For(0, algo.NumPts, values);
 }
 
 //----------------------------------------------------------------------------
@@ -141,24 +143,18 @@ vtkElevationFilter::~vtkElevationFilter() = default;
 //----------------------------------------------------------------------------
 void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "Low Point: ("
-     << this->LowPoint[0] << ", "
-     << this->LowPoint[1] << ", "
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Low Point: (" << this->LowPoint[0] << ", " << this->LowPoint[1] << ", "
      << this->LowPoint[2] << ")\n";
-  os << indent << "High Point: ("
-     << this->HighPoint[0] << ", "
-     << this->HighPoint[1] << ", "
+  os << indent << "High Point: (" << this->HighPoint[0] << ", " << this->HighPoint[1] << ", "
      << this->HighPoint[2] << ")\n";
-  os << indent << "Scalar Range: ("
-     << this->ScalarRange[0] << ", "
-     << this->ScalarRange[1] << ")\n";
+  os << indent << "Scalar Range: (" << this->ScalarRange[0] << ", " << this->ScalarRange[1]
+     << ")\n";
 }
 
 //----------------------------------------------------------------------------
-int vtkElevationFilter::RequestData(vtkInformation*,
-                                    vtkInformationVector** inputVector,
-                                    vtkInformationVector* outputVector)
+int vtkElevationFilter::RequestData(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // Get the input and output data objects.
   vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
@@ -166,24 +162,21 @@ int vtkElevationFilter::RequestData(vtkInformation*,
 
   // Check the size of the input.
   vtkIdType numPts = input->GetNumberOfPoints();
-  if(numPts < 1)
+  if (numPts < 1)
   {
     vtkDebugMacro("No input!");
     return 1;
   }
 
   // Allocate space for the elevation scalar data.
-  vtkSmartPointer<vtkFloatArray> newScalars =
-    vtkSmartPointer<vtkFloatArray>::New();
+  vtkSmartPointer<vtkFloatArray> newScalars = vtkSmartPointer<vtkFloatArray>::New();
   newScalars->SetNumberOfTuples(numPts);
 
   // Set up 1D parametric system and make sure it is valid.
-  double diffVector[3] =
-    { this->HighPoint[0] - this->LowPoint[0],
-      this->HighPoint[1] - this->LowPoint[1],
-      this->HighPoint[2] - this->LowPoint[2] };
+  double diffVector[3] = { this->HighPoint[0] - this->LowPoint[0],
+    this->HighPoint[1] - this->LowPoint[1], this->HighPoint[2] - this->LowPoint[2] };
   double length2 = vtkMath::Dot(diffVector, diffVector);
-  if(length2 <= 0)
+  if (length2 <= 0)
   {
     vtkErrorMacro("Bad vector, using (0,0,1).");
     diffVector[0] = 0;
@@ -196,55 +189,48 @@ int vtkElevationFilter::RequestData(vtkInformation*,
 
   // Create a fast path for point set input
   //
-  vtkPointSet *ps = vtkPointSet::SafeDownCast(input);
-  if ( ps )
+  vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
+  if (ps)
   {
-    float *scalars =
-      static_cast<float*>(newScalars->GetVoidPointer(0));
-    vtkPoints *points = ps->GetPoints();
-    void *pts = points->GetData()->GetVoidPointer(0);
-    switch ( points->GetDataType() )
+    float* scalars = static_cast<float*>(newScalars->GetVoidPointer(0));
+    vtkPoints* points = ps->GetPoints();
+    void* pts = points->GetData()->GetVoidPointer(0);
+    switch (points->GetDataType())
     {
-      vtkTemplateMacro(
-        vtkElevationAlgorithm<VTK_TT>::Elevate(this,
-                                               numPts,
-                                               diffVector,
-                                               length2,
-                                               static_cast<VTK_TT *>(pts),
-                                               scalars));
+      vtkTemplateMacro(vtkElevationAlgorithm<VTK_TT>::Elevate(
+        this, numPts, diffVector, length2, static_cast<VTK_TT*>(pts), scalars));
     }
-  }//fast path
+  } // fast path
 
   else
   {
     // Too bad, got to take the scenic route.
     // Support progress and abort.
-    vtkIdType tenth = (numPts >= 10? numPts/10 : 1);
-    double numPtsInv = 1.0/numPts;
+    vtkIdType tenth = (numPts >= 10 ? numPts / 10 : 1);
+    double numPtsInv = 1.0 / numPts;
     int abort = 0;
 
     // Compute parametric coordinate and map into scalar range.
     double diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
-    for(vtkIdType i=0; i < numPts && !abort; ++i)
+    for (vtkIdType i = 0; i < numPts && !abort; ++i)
     {
       // Periodically update progress and check for an abort request.
-      if(i % tenth == 0)
+      if (i % tenth == 0)
       {
-        this->UpdateProgress((i+1)*numPtsInv);
+        this->UpdateProgress((i + 1) * numPtsInv);
         abort = this->GetAbortExecute();
       }
 
       // Project this input point into the 1D system.
       double x[3];
       input->GetPoint(i, x);
-      double v[3] = { x[0] - this->LowPoint[0],
-                      x[1] - this->LowPoint[1],
-                      x[2] - this->LowPoint[2] };
+      double v[3] = { x[0] - this->LowPoint[0], x[1] - this->LowPoint[1],
+        x[2] - this->LowPoint[2] };
       double s = vtkMath::Dot(v, diffVector) / length2;
       s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
 
       // Store the resulting scalar value.
-      newScalars->SetValue(i, this->ScalarRange[0] + s*diffScalar);
+      newScalars->SetValue(i, this->ScalarRange[0] + s * diffScalar);
     }
   }
 

@@ -33,10 +33,8 @@ vtkImageNormalize::vtkImageNormalize()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageNormalize::RequestInformation (
-  vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
-  vtkInformationVector * outputVector)
+int vtkImageNormalize::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -49,16 +47,14 @@ int vtkImageNormalize::RequestInformation (
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageNormalizeExecute(vtkImageNormalize *self,
-                              vtkImageData *inData,
-                              vtkImageData *outData,
-                              int outExt[6], int id, T *)
+void vtkImageNormalizeExecute(
+  vtkImageNormalize* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<float> outIt(outData, outExt, self, id);
   int idxC, maxC;
   float sum;
-  T *inVect;
+  T* inVect;
 
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
@@ -67,8 +63,8 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
   while (!outIt.IsAtEnd())
   {
     T* inSI = inIt.BeginSpan();
-    float *outSI = outIt.BeginSpan();
-    float *outSIEnd = outIt.EndSpan();
+    float* outSI = outIt.BeginSpan();
+    float* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
     {
       // save the start of the vector
@@ -99,37 +95,29 @@ void vtkImageNormalizeExecute(vtkImageNormalize *self,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageNormalize::ThreadedExecute (vtkImageData *inData,
-                                        vtkImageData *outData,
-                                        int outExt[6], int id)
+void vtkImageNormalize::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData
-  << ", outData = " << outData);
+  vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 
   // this filter expects that input is the same type as output.
   if (outData->GetScalarType() != VTK_FLOAT)
   {
     vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
-    << ", must be float");
+                  << ", must be float");
     return;
   }
 
   switch (inData->GetScalarType())
   {
     vtkTemplateMacro(
-      vtkImageNormalizeExecute( this, inData,
-                                outData, outExt, id,
-                                static_cast<VTK_TT *>(nullptr)));
+      vtkImageNormalizeExecute(this, inData, outData, outExt, id, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
   }
 }
-
-
-

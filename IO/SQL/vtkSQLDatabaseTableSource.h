@@ -25,7 +25,7 @@
  * This class combines vtkSQLDatabase, vtkSQLQuery, and vtkQueryToTable to
  * provide a convenience class for generating tables from databases.
  * Also this class can be easily wrapped and used within ParaView / OverView.
-*/
+ */
 
 #ifndef vtkSQLDatabaseTableSource_h
 #define vtkSQLDatabaseTableSource_h
@@ -74,10 +74,7 @@ protected:
   vtkSQLDatabaseTableSource();
   ~vtkSQLDatabaseTableSource() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) = delete;
@@ -90,11 +87,10 @@ private:
    * This intercepts events from the graph layout class
    * and re-emits them as if they came from this class.
    */
-  vtkEventForwarderCommand *EventForwarder;
+  vtkEventForwarderCommand* EventForwarder;
 
   class implementation;
   implementation* const Implementation;
-
 };
 
 #endif

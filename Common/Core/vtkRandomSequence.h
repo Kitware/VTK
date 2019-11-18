@@ -26,7 +26,7 @@
  * "Object-Oriented Software Construction", 2nd Edition, by Bertrand Meyer.
  * chapter 23, "Principles of class design", "Pseudo-random number
  * generators: a design exercise", page 754--755.
-*/
+ */
 
 #ifndef vtkRandomSequence_h
 #define vtkRandomSequence_h
@@ -41,7 +41,7 @@ public:
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkRandomSequence,vtkObject);
+  vtkTypeMacro(vtkRandomSequence, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 

@@ -28,7 +28,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkLabelSizeCalculator);
-vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkTextRenderer);
+vtkCxxSetObjectMacro(vtkLabelSizeCalculator, FontUtil, vtkTextRenderer);
 
 vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 {
@@ -37,7 +37,7 @@ vtkLabelSizeCalculator::vtkLabelSizeCalculator()
   this->Implementation->FontProperties[0] = vtkSmartPointer<vtkTextProperty>::New();
   this->FontUtil = vtkTextRenderer::New(); // Never a nullptr moment.
   this->LabelSizeArrayName = nullptr;
-  this->SetLabelSizeArrayName( "LabelSize" );
+  this->SetLabelSizeArrayName("LabelSize");
   this->DPI = 72;
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Type");
@@ -45,31 +45,31 @@ vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 
 vtkLabelSizeCalculator::~vtkLabelSizeCalculator()
 {
-  this->SetFontUtil( nullptr );
-  this->SetLabelSizeArrayName( nullptr );
+  this->SetFontUtil(nullptr);
+  this->SetLabelSizeArrayName(nullptr);
   delete this->Implementation;
 }
 
-void vtkLabelSizeCalculator::PrintSelf( ostream& os, vtkIndent indent )
+void vtkLabelSizeCalculator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "LabelSizeArrayName: " << this->LabelSizeArrayName << "\n";
   os << indent << "FontProperties: ";
   std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->FontProperties.begin();
   itEnd = this->Implementation->FontProperties.end();
-  for ( ; it != itEnd; ++it )
+  for (; it != itEnd; ++it)
   {
     os << indent << "  " << it->first << ": " << it->second << endl;
   }
   os << indent << "FontUtil: " << this->FontUtil << "\n";
 }
 
-int vtkLabelSizeCalculator::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info )
+int vtkLabelSizeCalculator::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Remove( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE() );
-  info->Append( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet" );
-  info->Append( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph" );
+  info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
 }
 
@@ -80,34 +80,31 @@ void vtkLabelSizeCalculator::SetFontProperty(vtkTextProperty* prop, int type)
 
 vtkTextProperty* vtkLabelSizeCalculator::GetFontProperty(int type)
 {
-  if (this->Implementation->FontProperties.find(type) !=
-      this->Implementation->FontProperties.end())
+  if (this->Implementation->FontProperties.find(type) != this->Implementation->FontProperties.end())
   {
     return this->Implementation->FontProperties[type];
   }
   return nullptr;
 }
 
-int vtkLabelSizeCalculator::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector )
+int vtkLabelSizeCalculator::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject( 0 );
-  vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataObject* input = inInfo->Get( vtkDataObject::DATA_OBJECT() );
-  vtkDataObject* output = outInfo->Get( vtkDataObject::DATA_OBJECT() );
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   vtkFieldData* inFD = nullptr;
   vtkFieldData* outFD = nullptr;
 
-  vtkDataSet* dsInput = vtkDataSet::SafeDownCast( input );
-  vtkDataSet* dsOutput = vtkDataSet::SafeDownCast( output );
-  vtkGraph* graphInput = vtkGraph::SafeDownCast( input );
-  vtkGraph* graphOutput = vtkGraph::SafeDownCast( output );
+  vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
+  vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
+  vtkGraph* graphInput = vtkGraph::SafeDownCast(input);
+  vtkGraph* graphOutput = vtkGraph::SafeDownCast(output);
 
   // if input is empty, we are done
   if (graphInput && graphInput->GetNumberOfVertices() == 0)
@@ -119,90 +116,84 @@ int vtkLabelSizeCalculator::RequestData(
     return 1;
   }
 
-  if ( ! this->Implementation->FontProperties[0] )
+  if (!this->Implementation->FontProperties[0])
   {
-    vtkErrorMacro( "nullptr default font property, so I cannot compute label sizes." );
+    vtkErrorMacro("nullptr default font property, so I cannot compute label sizes.");
     return 0;
   }
 
-  if ( ! this->LabelSizeArrayName )
+  if (!this->LabelSizeArrayName)
   {
-    vtkErrorMacro( "nullptr value for LabelSizeArrayName." );
+    vtkErrorMacro("nullptr value for LabelSizeArrayName.");
     return 0;
   }
 
   // Figure out which array to process
-  vtkAbstractArray* inArr = this->GetInputAbstractArrayToProcess( 0, inputVector );
-  if ( ! inArr )
+  vtkAbstractArray* inArr = this->GetInputAbstractArrayToProcess(0, inputVector);
+  if (!inArr)
   {
-    vtkErrorMacro( "No input array available." );
+    vtkErrorMacro("No input array available.");
     return 0;
   }
-  vtkIntArray* typeArr = vtkArrayDownCast<vtkIntArray>(
-    this->GetInputAbstractArrayToProcess( 1, inputVector ));
+  vtkIntArray* typeArr =
+    vtkArrayDownCast<vtkIntArray>(this->GetInputAbstractArrayToProcess(1, inputVector));
 
-  vtkInformation* inArrInfo = this->GetInputArrayInformation( 0 );
-  int fieldAssoc = inArrInfo->Get( vtkDataObject::FIELD_ASSOCIATION() );
+  vtkInformation* inArrInfo = this->GetInputArrayInformation(0);
+  int fieldAssoc = inArrInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
 
-  vtkIntArray* lsz = this->LabelSizesForArray( inArr, typeArr );
+  vtkIntArray* lsz = this->LabelSizesForArray(inArr, typeArr);
 #if 0
   cout
     << "Input array... port: " << port << " connection: " << connection
     << " field association: " << fieldAssoc << " attribute type: " << attribType << "\n";
 #endif // 0
 
-  if ( dsInput )
+  if (dsInput)
   {
-    dsOutput->CopyStructure( dsInput );
-    dsOutput->CopyAttributes( dsInput );
-    if (
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE ||
+    dsOutput->CopyStructure(dsInput);
+    dsOutput->CopyAttributes(dsInput);
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE )
+      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE)
     {
       outFD = dsOutput->GetPointData();
-      outFD->AddArray( lsz );
+      outFD->AddArray(lsz);
     }
-    if (
-      ! inFD && (
-        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
+    if (!inFD &&
+      (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
         fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_CELLS ||
-        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES
-      ) )
+        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES))
     {
       outFD = dsOutput->GetCellData();
-      outFD->AddArray( lsz );
+      outFD->AddArray(lsz);
     }
-    vtkLabelHierarchy* hierarchyOutput = vtkLabelHierarchy::SafeDownCast( output );
-    if ( hierarchyOutput )
+    vtkLabelHierarchy* hierarchyOutput = vtkLabelHierarchy::SafeDownCast(output);
+    if (hierarchyOutput)
     {
-      hierarchyOutput->SetSizes( lsz );
+      hierarchyOutput->SetSizes(lsz);
     }
   }
-  else if ( graphInput )
+  else if (graphInput)
   {
-    graphOutput->ShallowCopy( graphInput );
-    if (
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE ||
+    graphOutput->ShallowCopy(graphInput);
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
       fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE )
+      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE)
     {
       outFD = graphOutput->GetVertexData();
-      outFD->AddArray( lsz );
+      outFD->AddArray(lsz);
     }
-    if (
-      ! inFD && (
-        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
+    if (!inFD &&
+      (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS ||
         fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_CELLS ||
-        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES
-      ) )
+        fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES))
     {
       outFD = graphOutput->GetEdgeData();
-      outFD->AddArray( lsz );
+      outFD->AddArray(lsz);
     }
   }
   lsz->Delete();
@@ -211,24 +202,23 @@ int vtkLabelSizeCalculator::RequestData(
 }
 
 vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
-  vtkAbstractArray* labels,
-  vtkIntArray* types )
+  vtkAbstractArray* labels, vtkIntArray* types)
 {
   vtkIdType nl = labels->GetNumberOfTuples();
 
   vtkIntArray* lsz = vtkIntArray::New();
-  lsz->SetName( this->LabelSizeArrayName );
-  lsz->SetNumberOfComponents( 4 );
-  lsz->SetNumberOfTuples( nl );
+  lsz->SetName(this->LabelSizeArrayName);
+  lsz->SetNumberOfComponents(4);
+  lsz->SetNumberOfTuples(nl);
 
   int bbox[4];
-  int* bds = lsz->GetPointer( 0 );
-  for ( vtkIdType i = 0; i < nl; ++ i )
+  int* bds = lsz->GetPointer(0);
+  for (vtkIdType i = 0; i < nl; ++i)
   {
     int type = 0;
-    if ( types )
+    if (types)
     {
-      type = types->GetValue( i );
+      type = types->GetValue(i);
     }
     vtkTextProperty* prop = this->Implementation->FontProperties[type];
     if (!prop)
@@ -236,17 +226,16 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
       prop = this->Implementation->FontProperties[0];
     }
     this->FontUtil->GetBoundingBox(
-          prop, labels->GetVariantValue(i).ToString().c_str(), bbox, this->DPI);
+      prop, labels->GetVariantValue(i).ToString().c_str(), bbox, this->DPI);
     bds[0] = bbox[1] - bbox[0];
     bds[1] = bbox[3] - bbox[2];
     bds[2] = bbox[0];
     bds[3] = bbox[2];
 
-    if( this->GetDebug() )
+    if (this->GetDebug())
     {
-      cout << "LSC: "
-           << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3]
-           << " \"" << labels->GetVariantValue( i ).ToString().c_str() << "\"\n";
+      cout << "LSC: " << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3] << " \""
+           << labels->GetVariantValue(i).ToString().c_str() << "\"\n";
     }
 
     bds += 4;
@@ -254,4 +243,3 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
 
   return lsz;
 }
-

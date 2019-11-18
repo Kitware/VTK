@@ -18,11 +18,10 @@
  *
  * vtkImageFlip will reflect the data along the filtered axis.  This filter is
  * actually a thin wrapper around vtkImageReslice.
-*/
+ */
 
 #ifndef vtkImageFlip_h
 #define vtkImageFlip_h
-
 
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
@@ -30,9 +29,9 @@
 class VTKIMAGINGCORE_EXPORT vtkImageFlip : public vtkImageReslice
 {
 public:
-  static vtkImageFlip *New();
+  static vtkImageFlip* New();
 
-  vtkTypeMacro(vtkImageFlip,vtkImageReslice);
+  vtkTypeMacro(vtkImageFlip, vtkImageReslice);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -88,9 +87,7 @@ protected:
   vtkImageFlip();
   ~vtkImageFlip() override {}
 
-  int RequestInformation(vtkInformation *,
-                                 vtkInformationVector **,
-                                 vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FilteredAxis;
   vtkTypeBool FlipAboutOrigin;

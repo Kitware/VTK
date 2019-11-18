@@ -22,7 +22,7 @@
  * {xmin,xmax,ymin,ymax,zmin,zmax} via SetBounds(). Alternatively, the
  * box may be arbitrarily aligned, in which case it should be set via
  * the SetCorners() member.
-*/
+ */
 
 #ifndef vtkOutlineSource_h
 #define vtkOutlineSource_h
@@ -31,7 +31,7 @@
 #include "vtkPolyDataAlgorithm.h"
 
 #define VTK_BOX_TYPE_AXIS_ALIGNED 0
-#define VTK_BOX_TYPE_ORIENTED     1
+#define VTK_BOX_TYPE_ORIENTED 1
 
 class VTKFILTERSSOURCES_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm
 {
@@ -40,8 +40,8 @@ public:
   /**
    * Standard methods for instantiation. type information, and printing.
    */
-  static vtkOutlineSource *New();
-  vtkTypeMacro(vtkOutlineSource,vtkPolyDataAlgorithm);
+  static vtkOutlineSource* New();
+  vtkTypeMacro(vtkOutlineSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -51,20 +51,18 @@ public:
    * Use the method SetBounds() with AxisAligned mode, and SetCorners()
    * with Oriented mode.
    */
-  vtkSetMacro(BoxType,int);
-  vtkGetMacro(BoxType,int);
-  void SetBoxTypeToAxisAligned()
-    {this->SetBoxType(VTK_BOX_TYPE_AXIS_ALIGNED);}
-  void SetBoxTypeToOriented()
-    {this->SetBoxType(VTK_BOX_TYPE_ORIENTED);}
+  vtkSetMacro(BoxType, int);
+  vtkGetMacro(BoxType, int);
+  void SetBoxTypeToAxisAligned() { this->SetBoxType(VTK_BOX_TYPE_AXIS_ALIGNED); }
+  void SetBoxTypeToOriented() { this->SetBoxType(VTK_BOX_TYPE_ORIENTED); }
   //@}
 
   //@{
   /**
    * Specify the bounds of the box to be used in Axis Aligned mode.
    */
-  vtkSetVector6Macro(Bounds,double);
-  vtkGetVectorMacro(Bounds,double,6);
+  vtkSetVector6Macro(Bounds, double);
+  vtkGetVectorMacro(Bounds, double, 6);
   //@}
 
   //@{
@@ -74,8 +72,8 @@ public:
    * ordering is using {x,y,z} convention for the unit cube as follows:
    * {0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1}.
    */
-  vtkSetVectorMacro(Corners,double,24);
-  vtkGetVectorMacro(Corners,double,24);
+  vtkSetVectorMacro(Corners, double, 24);
+  vtkGetVectorMacro(Corners, double, 24);
   //@}
 
   //@{
@@ -93,18 +91,18 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
   vtkOutlineSource();
   ~vtkOutlineSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int    BoxType;
-  vtkTypeBool    GenerateFaces;
-  int    OutputPointsPrecision;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int BoxType;
+  vtkTypeBool GenerateFaces;
+  int OutputPointsPrecision;
   double Bounds[6];
   double Corners[24];
 

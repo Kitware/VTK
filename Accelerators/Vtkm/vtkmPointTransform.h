@@ -13,12 +13,12 @@
 
 =========================================================================*/
 /**
-  * @class vtkmPointTransform
-  * @brief transform points via vtkm PointTransform filter
-  *
-  * vtkmPointTransform is a filter to transform point coordinates. For now it
-  * does not support transforming associated point normals and vectors, as well
-  * as cell normals and vectors with the point coordinates.
+ * @class vtkmPointTransform
+ * @brief transform points via vtkm PointTransform filter
+ *
+ * vtkmPointTransform is a filter to transform point coordinates. For now it
+ * does not support transforming associated point normals and vectors, as well
+ * as cell normals and vectors with the point coordinates.
  */
 
 #ifndef vtkmPointTransform_h
@@ -29,33 +29,32 @@
 
 class vtkHomogeneousTransform;
 
-class VTKACCELERATORSVTKM_EXPORT vtkmPointTransform :  public vtkPointSetAlgorithm
+class VTKACCELERATORSVTKM_EXPORT vtkmPointTransform : public vtkPointSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmPointTransform, vtkPointSetAlgorithm)
+  vtkTypeMacro(vtkmPointTransform, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkmPointTransform *New();
+  static vtkmPointTransform* New();
 
   //@{
   /**
    * Specify the transform object used to transform the points
    */
   void SetTransform(vtkHomogeneousTransform* tf);
-  vtkGetObjectMacro(Transform,vtkHomogeneousTransform);
+  vtkGetObjectMacro(Transform, vtkHomogeneousTransform);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+
 protected:
   vtkmPointTransform();
   ~vtkmPointTransform() override;
-  int RequestDataObject(vtkInformation* request,
-                        vtkInformationVector** inputVector,
-                        vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation*,
-                  vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   vtkHomogeneousTransform* Transform;
+
 private:
   vtkmPointTransform(const vtkmPointTransform&) = delete;
   void operator=(const vtkmPointTransform&) = delete;

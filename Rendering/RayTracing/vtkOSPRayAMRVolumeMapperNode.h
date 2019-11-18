@@ -20,7 +20,7 @@
  * Directly samples the vtkAMR data structure without resampling
  * Data is expected to be overlapping, only floats and doubles are now
  * supported.
-*/
+ */
 
 #ifndef vtkOSPRayAMRVolumeMapperNode_h
 #define vtkOSPRayAMRVolumeMapperNode_h
@@ -28,8 +28,7 @@
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkRenderingRayTracingModule.h" // For export macro
 
-class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayAMRVolumeMapperNode :
-  public vtkOSPRayVolumeMapperNode
+class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayAMRVolumeMapperNode : public vtkOSPRayVolumeMapperNode
 {
 public:
   static vtkOSPRayAMRVolumeMapperNode* New();
@@ -37,11 +36,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-  * Traverse graph in ospray's preferred order and render
-  */
+   * Traverse graph in ospray's preferred order and render
+   */
   virtual void Render(bool prepass) override;
-protected:
 
+protected:
   vtkOSPRayAMRVolumeMapperNode();
   ~vtkOSPRayAMRVolumeMapperNode() = default;
 

@@ -29,7 +29,6 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-
 //----------------------------------------------------------------------------
 vtkPoints* vtkPoints::New(int dataType)
 {
@@ -44,7 +43,7 @@ vtkPoints* vtkPoints::New(int dataType)
     return static_cast<vtkPoints*>(ret);
   }
   // If the factory was unable to create the object, then create it here.
-  vtkPoints *result = new vtkPoints(dataType);
+  vtkPoints* result = new vtkPoints(dataType);
   result->InitializeObjectBase();
   return result;
 }
@@ -75,7 +74,7 @@ vtkPoints::~vtkPoints()
 }
 
 // Given a list of pt ids, return an array of points.
-void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
+void vtkPoints::GetPoints(vtkIdList* ptIds, vtkPoints* outPoints)
 {
   outPoints->Data->SetNumberOfTuples(ptIds->GetNumberOfIds());
   this->Data->GetTuples(ptIds, outPoints->Data);
@@ -92,7 +91,7 @@ void vtkPoints::ComputeBounds()
 }
 
 // Return the bounds of the points.
-double *vtkPoints::GetBounds()
+double* vtkPoints::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
@@ -108,7 +107,7 @@ void vtkPoints::GetBounds(double bounds[6])
 vtkMTimeType vtkPoints::GetMTime()
 {
   vtkMTimeType doTime = this->Superclass::GetMTime();
-  if ( this->Data->GetMTime() > doTime )
+  if (this->Data->GetMTime() > doTime)
   {
     doTime = this->Data->GetMTime();
   }
@@ -158,13 +157,13 @@ void vtkPoints::SetDataType(int dataType)
 
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
-void vtkPoints::SetData(vtkDataArray *data)
+void vtkPoints::SetData(vtkDataArray* data)
 {
   if (data != this->Data && data != nullptr)
   {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
-      vtkErrorMacro(<<"Number of components is different...can't set data");
+      vtkErrorMacro(<< "Number of components is different...can't set data");
       return;
     }
     this->Data->UnRegister(this);
@@ -180,7 +179,7 @@ void vtkPoints::SetData(vtkDataArray *data)
 
 // Deep copy of data. Checks consistency to make sure this operation
 // makes sense.
-void vtkPoints::DeepCopy(vtkPoints *da)
+void vtkPoints::DeepCopy(vtkPoints* da)
 {
   if (da == nullptr)
   {
@@ -190,7 +189,7 @@ void vtkPoints::DeepCopy(vtkPoints *da)
   {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
-      vtkErrorMacro(<<"Number of components is different...can't copy");
+      vtkErrorMacro(<< "Number of components is different...can't copy");
       return;
     }
     this->Data->DeepCopy(da->Data);
@@ -200,7 +199,7 @@ void vtkPoints::DeepCopy(vtkPoints *da)
 
 // Shallow copy of data (i.e. via reference counting). Checks
 // consistency to make sure this operation makes sense.
-void vtkPoints::ShallowCopy(vtkPoints *da)
+void vtkPoints::ShallowCopy(vtkPoints* da)
 {
   this->SetData(da->GetData());
 }
@@ -226,7 +225,7 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  const double *bounds = this->GetBounds();
+  const double* bounds = this->GetBounds();
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";

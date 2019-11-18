@@ -23,13 +23,13 @@
  * vtkTextureMapToPlane vtkTextureMapToCylinder
  * vtkTransformTexture vtkThresholdTextureCoords
  * vtkTextureMapToSphere
-*/
+ */
 
 #ifndef vtkPTextureMapToSphere_h
 #define vtkPTextureMapToSphere_h
 
-#include "vtkTextureMapToSphere.h"
 #include "vtkFiltersParallelModule.h" // For export macro
+#include "vtkTextureMapToSphere.h"
 
 class vtkDataSet;
 class vtkMultiProcessController;
@@ -37,10 +37,10 @@ class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkPTextureMapToSphere : public vtkTextureMapToSphere
 {
 public:
-  vtkTypeMacro(vtkPTextureMapToSphere,vtkTextureMapToSphere);
+  vtkTypeMacro(vtkPTextureMapToSphere, vtkTextureMapToSphere);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPTextureMapToSphere *New();
+  static vtkPTextureMapToSphere* New();
 
 protected:
   vtkPTextureMapToSphere();

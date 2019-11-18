@@ -22,18 +22,17 @@
 
 //------------------------------------------------------------------------------
 // Can't use vtkStandardNewMacro with a template.
-template <class Scalar> vtkCPExodusIINodalCoordinatesTemplate<Scalar> *
-vtkCPExodusIINodalCoordinatesTemplate<Scalar>::New()
+template <class Scalar>
+vtkCPExodusIINodalCoordinatesTemplate<Scalar>* vtkCPExodusIINodalCoordinatesTemplate<Scalar>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkCPExodusIINodalCoordinatesTemplate<Scalar>)
+  VTK_STANDARD_NEW_BODY(vtkCPExodusIINodalCoordinatesTemplate<Scalar>);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::PrintSelf(ostream &os, vtkIndent indent)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Superclass::PrintSelf(
-        os, indent);
+  this->vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Superclass::PrintSelf(os, indent);
   os << indent << "XArray: " << this->XArray << std::endl;
   os << indent << "YArray: " << this->YArray << std::endl;
   os << indent << "ZArray: " << this->ZArray << std::endl;
@@ -41,16 +40,16 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::Initialize()
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Initialize()
 {
-  delete [] this->XArray;
+  delete[] this->XArray;
   this->XArray = nullptr;
-  delete [] this->YArray;
+  delete[] this->YArray;
   this->YArray = nullptr;
-  delete [] this->ZArray;
+  delete[] this->ZArray;
   this->ZArray = nullptr;
-  delete [] this->TempDoubleArray;
+  delete[] this->TempDoubleArray;
   this->TempDoubleArray = nullptr;
   this->MaxId = -1;
   this->Size = 0;
@@ -58,13 +57,14 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetTuples(vtkIdList *ptIds, vtkAbstractArray *output)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetTuples(
+  vtkIdList* ptIds, vtkAbstractArray* output)
 {
-  vtkDataArray *outArray = vtkDataArray::FastDownCast(output);
+  vtkDataArray* outArray = vtkDataArray::FastDownCast(output);
   if (!outArray)
   {
-    vtkWarningMacro(<<"Input is not a vtkDataArray");
+    vtkWarningMacro(<< "Input is not a vtkDataArray");
     return;
   }
 
@@ -81,19 +81,20 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetTuples(
+  vtkIdType p1, vtkIdType p2, vtkAbstractArray* output)
 {
-  vtkDataArray *da = vtkDataArray::FastDownCast(output);
+  vtkDataArray* da = vtkDataArray::FastDownCast(output);
   if (!da)
   {
-    vtkErrorMacro(<<"Input is not a vtkDataArray");
+    vtkErrorMacro(<< "Input is not a vtkDataArray");
     return;
   }
 
   if (da->GetNumberOfComponents() != this->GetNumberOfComponents())
   {
-    vtkErrorMacro(<<"Incorrect number of components in input array.");
+    vtkErrorMacro(<< "Incorrect number of components in input array.");
     return;
   }
 
@@ -104,23 +105,23 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::Squeeze()
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Squeeze()
 {
   // noop
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkArrayIterator*
-vtkCPExodusIINodalCoordinatesTemplate<Scalar>::NewIterator()
+template <class Scalar>
+vtkArrayIterator* vtkCPExodusIINodalCoordinatesTemplate<Scalar>::NewIterator()
 {
-  vtkErrorMacro(<<"Not implemented.");
+  vtkErrorMacro(<< "Not implemented.");
   return nullptr;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::LookupValue(vtkVariant value)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::LookupValue(vtkVariant value)
 {
   bool valid = true;
   Scalar val = vtkVariantCast<Scalar>(value, &valid);
@@ -132,8 +133,8 @@ template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::LookupValue(vtkVariant value, vtkIdList *ids)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::LookupValue(vtkVariant value, vtkIdList* ids)
 {
   bool valid = true;
   Scalar val = vtkVariantCast<Scalar>(value, &valid);
@@ -149,30 +150,30 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkVariant vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetVariantValue(vtkIdType idx)
+template <class Scalar>
+vtkVariant vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetVariantValue(vtkIdType idx)
 {
   return vtkVariant(this->GetValueReference(idx));
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::ClearLookup()
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ClearLookup()
 {
   // no-op, no fast lookup implemented.
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> double* vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetTuple(vtkIdType i)
+template <class Scalar>
+double* vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetTuple(vtkIdType i)
 {
   this->GetTuple(i, this->TempDoubleArray);
   return this->TempDoubleArray;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetTuple(vtkIdType i, double *tuple)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetTuple(vtkIdType i, double* tuple)
 {
   tuple[0] = static_cast<double>(this->XArray[i]);
   tuple[1] = static_cast<double>(this->YArray[i]);
@@ -183,15 +184,15 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::LookupTypedValue(Scalar value)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::LookupTypedValue(Scalar value)
 {
   return this->Lookup(value, 0);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::LookupTypedValue(Scalar value, vtkIdList *ids)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::LookupTypedValue(Scalar value, vtkIdList* ids)
 {
   ids->Reset();
   vtkIdType index = 0;
@@ -206,8 +207,7 @@ template <class Scalar>
 typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ValueType
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
-  return const_cast<vtkCPExodusIINodalCoordinatesTemplate<Scalar>*>(
-        this)->GetValueReference(idx);
+  return const_cast<vtkCPExodusIINodalCoordinatesTemplate<Scalar>*>(this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
@@ -233,8 +233,9 @@ vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValueReference(vtkIdType idx)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetTypedTuple(
+  vtkIdType tupleId, Scalar* tuple) const
 {
   tuple[0] = this->XArray[tupleId];
   tuple[1] = this->YArray[tupleId];
@@ -245,262 +246,269 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::Allocate(vtkIdType, vtkIdType)
+template <class Scalar>
+vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Allocate(vtkIdType, vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::Resize(vtkIdType)
+template <class Scalar>
+vtkTypeBool vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Resize(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetNumberOfTuples(vtkIdType)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetNumberOfTuples(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetTuple(
+  vtkIdType, vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetTuple(vtkIdType, const float *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetTuple(vtkIdType, const float*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetTuple(vtkIdType, const double *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetTuple(vtkIdType, const double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuple(
+  vtkIdType, vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTuple(vtkIdType, const float *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuple(vtkIdType, const float*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTuple(vtkIdType, const double *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuple(vtkIdType, const double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTuples(vtkIdList *, vtkIdList *, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuples(
+  vtkIdList*, vtkIdList*, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTuples(
+  vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertNextTuple(vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertNextTuple(
+  vtkIdType, vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertNextTuple(const float *)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertNextTuple(const float*)
 {
 
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertNextTuple(const double *)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertNextTuple(const double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::DeepCopy(vtkAbstractArray *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::DeepCopy(vtkAbstractArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::DeepCopy(vtkDataArray *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::DeepCopy(vtkDataArray*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InterpolateTuple(vtkIdType, vtkIdList *, vtkAbstractArray *, double *)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InterpolateTuple(
+  vtkIdType, vtkIdList*, vtkAbstractArray*, double*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InterpolateTuple(vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType,
-                   vtkAbstractArray*, double)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InterpolateTuple(
+  vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType, vtkAbstractArray*, double)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetVariantValue(vtkIdType, vtkVariant)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertVariantValue(vtkIdType, vtkVariant)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertVariantValue(vtkIdType, vtkVariant)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::RemoveTuple(vtkIdType)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::RemoveTuple(vtkIdType)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::RemoveFirstTuple()
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::RemoveFirstTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::RemoveLastTuple()
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::RemoveLastTuple()
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetTypedTuple(vtkIdType, const Scalar*)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTypedTuple(vtkIdType, const Scalar*)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertTypedTuple(vtkIdType, const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertNextTypedTuple(const Scalar *)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertNextTypedTuple(const Scalar*)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetValue(vtkIdType, Scalar)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertNextValue(Scalar)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertNextValue(Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertValue(vtkIdType, Scalar)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::InsertValue(vtkIdType, Scalar)
 {
-  vtkErrorMacro("Read only container.")
+  vtkErrorMacro("Read only container.");
   return;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::vtkCPExodusIINodalCoordinatesTemplate()
-  : XArray(nullptr),
-    YArray(nullptr),
-    ZArray(nullptr),
-    TempDoubleArray(nullptr)
+template <class Scalar>
+vtkCPExodusIINodalCoordinatesTemplate<Scalar>::vtkCPExodusIINodalCoordinatesTemplate()
+  : XArray(nullptr)
+  , YArray(nullptr)
+  , ZArray(nullptr)
+  , TempDoubleArray(nullptr)
 {
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::~vtkCPExodusIINodalCoordinatesTemplate()
+template <class Scalar>
+vtkCPExodusIINodalCoordinatesTemplate<Scalar>::~vtkCPExodusIINodalCoordinatesTemplate()
 {
-  delete [] this->XArray;
-  delete [] this->YArray;
-  delete [] this->ZArray;
-  delete [] this->TempDoubleArray;
+  delete[] this->XArray;
+  delete[] this->YArray;
+  delete[] this->ZArray;
+  delete[] this->TempDoubleArray;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetExodusScalarArrays(Scalar *x, Scalar *y, Scalar *z, vtkIdType numPoints)
+template <class Scalar>
+void vtkCPExodusIINodalCoordinatesTemplate<Scalar>::SetExodusScalarArrays(
+  Scalar* x, Scalar* y, Scalar* z, vtkIdType numPoints)
 {
   Initialize();
   this->XArray = x;
@@ -509,13 +517,13 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
   this->NumberOfComponents = (z != nullptr) ? 3 : 2;
   this->Size = this->NumberOfComponents * numPoints;
   this->MaxId = this->Size - 1;
-  this->TempDoubleArray = new double [this->NumberOfComponents];
+  this->TempDoubleArray = new double[this->NumberOfComponents];
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::Lookup(const Scalar &val, vtkIdType index)
+template <class Scalar>
+vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>::Lookup(const Scalar& val, vtkIdType index)
 {
   while (index <= this->MaxId)
   {

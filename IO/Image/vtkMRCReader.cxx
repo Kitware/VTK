@@ -36,12 +36,14 @@
 
 //#define VTK_DEBUG_MRC_HEADER
 
-namespace {
+namespace
+{
 //
 // This struct is written based on the description found here:
 // http://bio3d.colorado.edu/imod/doc/mrc_format.txt
 //
-struct mrc_file_header {
+struct mrc_file_header
+{
   vtkTypeInt32 nx;
   vtkTypeInt32 ny;
   vtkTypeInt32 nz;
@@ -91,7 +93,7 @@ struct mrc_file_header {
 };
 
 #ifdef VTK_DEBUG_MRC_HEADER
-std::ostream& operator <<(std::ostream& os, const mrc_file_header& hdr)
+std::ostream& operator<<(std::ostream& os, const mrc_file_header& hdr)
 {
   os << "extents:" << hdr.nx << " " << hdr.ny << " " << hdr.nz << std::endl;
   os << "mode: " << hdr.mode << std::endl;
@@ -103,18 +105,18 @@ std::ostream& operator <<(std::ostream& os, const mrc_file_header& hdr)
   os << "min: " << hdr.amin << " max: " << hdr.amax << " mean: " << hdr.amean << std::endl;
   os << "ispg: " << hdr.ispg << " next: " << hdr.next << std::endl;
   // skipping extra for now
-  os << "nint: " << hdr.nint << " nreal: "  << hdr.nreal << std::endl;
+  os << "nint: " << hdr.nint << " nreal: " << hdr.nreal << std::endl;
   os << "imodStamp: " << hdr.imodStamp << " imodFlags: " << hdr.imodFlags << std::endl;
   os << "idtype: " << hdr.idtype << " lens: " << hdr.lens << std::endl;
   os << "nd1: " << hdr.nd1 << " nd2: " << hdr.nd2 << std::endl;
   os << "vd1: " << hdr.vd1 << " vd2: " << hdr.vd2 << std::endl;
-  os << "tilt angles: " << hdr.tiltangles[0] << " " << hdr.tiltangles[1] << " "
-     << hdr.tiltangles[2] << " " << hdr.tiltangles[3] << " " << hdr.tiltangles[4]
-     << " " << hdr.tiltangles[5] << std::endl;
+  os << "tilt angles: " << hdr.tiltangles[0] << " " << hdr.tiltangles[1] << " " << hdr.tiltangles[2]
+     << " " << hdr.tiltangles[3] << " " << hdr.tiltangles[4] << " " << hdr.tiltangles[5]
+     << std::endl;
   os << "org: " << hdr.xorg << " " << hdr.yorg << " " << hdr.zorg << std::endl;
   os << "cmap: '" << hdr.cmap[0] << hdr.cmap[1] << hdr.cmap[2] << hdr.cmap[3] << "'";
-  os << " stamp: '" << hdr.stamp[0] << hdr.stamp[1] << hdr.stamp[2] << hdr.stamp[3]
-     << "'" << std::endl;
+  os << " stamp: '" << hdr.stamp[0] << hdr.stamp[1] << hdr.stamp[2] << hdr.stamp[3] << "'"
+     << std::endl;
   os << "rms: " << hdr.rms << " nlabl: " << hdr.nlabl << std::endl;
   for (int i = 0; i < hdr.nlabl; ++i)
   {
@@ -125,17 +127,19 @@ std::ostream& operator <<(std::ostream& os, const mrc_file_header& hdr)
 #endif
 }
 
-class vtkMRCReader::vtkInternal {
+class vtkMRCReader::vtkInternal
+{
 public:
   ifstream* stream;
   mrc_file_header header;
 
-  vtkInternal() : stream(nullptr), header() {}
-
-  ~vtkInternal()
+  vtkInternal()
+    : stream(nullptr)
+    , header()
   {
-    delete stream;
   }
+
+  ~vtkInternal() { delete stream; }
 
   void openFile(const char* file)
   {
@@ -144,7 +148,7 @@ public:
   }
 };
 
-vtkStandardNewMacro(vtkMRCReader)
+vtkStandardNewMacro(vtkMRCReader);
 
 vtkMRCReader::vtkMRCReader()
 {
@@ -162,11 +166,12 @@ vtkMRCReader::~vtkMRCReader()
 void vtkMRCReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << (this->FileName ? this->FileName : "nullptr")
-     << ", " << std::endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "nullptr") << ", "
+     << std::endl;
 }
 
-namespace {
+namespace
+{
 int getFileDataType(int mode)
 {
   switch (mode)
@@ -208,8 +213,7 @@ int getFileDataNumComponents(int mode)
 }
 
 int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
-                                     vtkInformationVector** vtkNotUsed(inputVector),
-                                     vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // If this fails then the packing is wrong and the file's header will not
   // be read in correctly
@@ -229,23 +233,23 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // There are some non-conformant programs that don't correctly fill in this field, and
     // assuming little endian is safer.
     {
-      vtkByteSwap::Swap4LERange(&this->Internals->header,24);
-      vtkByteSwap::Swap2LERange(&this->Internals->header.creatid,1);
-      vtkByteSwap::Swap2LERange(&this->Internals->header.nint,2);
-      vtkByteSwap::Swap4LERange(&this->Internals->header.imodStamp,2);
-      vtkByteSwap::Swap2LERange(&this->Internals->header.idtype,6);
-      vtkByteSwap::Swap4LERange(&this->Internals->header.tiltangles,9);
-      vtkByteSwap::Swap4LERange(&this->Internals->header.rms,2);
+      vtkByteSwap::Swap4LERange(&this->Internals->header, 24);
+      vtkByteSwap::Swap2LERange(&this->Internals->header.creatid, 1);
+      vtkByteSwap::Swap2LERange(&this->Internals->header.nint, 2);
+      vtkByteSwap::Swap4LERange(&this->Internals->header.imodStamp, 2);
+      vtkByteSwap::Swap2LERange(&this->Internals->header.idtype, 6);
+      vtkByteSwap::Swap4LERange(&this->Internals->header.tiltangles, 9);
+      vtkByteSwap::Swap4LERange(&this->Internals->header.rms, 2);
     }
     else
     {
-      vtkByteSwap::Swap4BERange(&this->Internals->header,24);
-      vtkByteSwap::Swap2BERange(&this->Internals->header.creatid,1);
-      vtkByteSwap::Swap2BERange(&this->Internals->header.nint,2);
-      vtkByteSwap::Swap4BERange(&this->Internals->header.imodStamp,2);
-      vtkByteSwap::Swap2BERange(&this->Internals->header.idtype,6);
-      vtkByteSwap::Swap4BERange(&this->Internals->header.tiltangles,9);
-      vtkByteSwap::Swap4BERange(&this->Internals->header.rms,2);
+      vtkByteSwap::Swap4BERange(&this->Internals->header, 24);
+      vtkByteSwap::Swap2BERange(&this->Internals->header.creatid, 1);
+      vtkByteSwap::Swap2BERange(&this->Internals->header.nint, 2);
+      vtkByteSwap::Swap4BERange(&this->Internals->header.imodStamp, 2);
+      vtkByteSwap::Swap2BERange(&this->Internals->header.idtype, 6);
+      vtkByteSwap::Swap4BERange(&this->Internals->header.tiltangles, 9);
+      vtkByteSwap::Swap4BERange(&this->Internals->header.rms, 2);
     }
 #ifdef VTK_DEBUG_MRC_HEADER
     std::cout << this->Internals->header;
@@ -266,10 +270,9 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     dataOrigin[1] = this->Internals->header.yorg;
     dataOrigin[2] = this->Internals->header.zorg;
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-                 extent, 6);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
     outInfo->Set(vtkDataObject::SPACING(), dataSpacing, 3);
-    outInfo->Set(vtkDataObject::ORIGIN(),  dataOrigin, 3);
+    outInfo->Set(vtkDataObject::ORIGIN(), dataOrigin, 3);
 
     vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
       getFileDataType(this->Internals->header.mode),
@@ -285,7 +288,8 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 }
 
-namespace {
+namespace
+{
 
 typedef void (*ByteSwapFunction)(void*, size_t);
 
@@ -298,27 +302,22 @@ ByteSwapFunction getByteSwapFunction(int vtkType, bool isLittleEndian)
   }
   if (size == 2)
   {
-    return isLittleEndian ? &vtkByteSwap::Swap2LERange
-                          : &vtkByteSwap::Swap2BERange;
+    return isLittleEndian ? &vtkByteSwap::Swap2LERange : &vtkByteSwap::Swap2BERange;
   }
   else if (size == 4)
   {
-    return isLittleEndian ? &vtkByteSwap::Swap4LERange
-                          : &vtkByteSwap::Swap4BERange;
+    return isLittleEndian ? &vtkByteSwap::Swap4LERange : &vtkByteSwap::Swap4BERange;
   }
   else if (size == 8)
   {
-    return isLittleEndian ? &vtkByteSwap::Swap8LERange
-                          : &vtkByteSwap::Swap8BERange;
+    return isLittleEndian ? &vtkByteSwap::Swap8LERange : &vtkByteSwap::Swap8BERange;
   }
   return nullptr;
 }
 
 template <typename T>
-void readData(int numComponents, int *outExt, vtkIdType *outInc,
-              vtkIdType *inOffsets, T * const outPtr,
-              std::ifstream& stream, vtkIdType dataStartPos,
-              ByteSwapFunction byteSwapFunction)
+void readData(int numComponents, int* outExt, vtkIdType* outInc, vtkIdType* inOffsets,
+  T* const outPtr, std::ifstream& stream, vtkIdType dataStartPos, ByteSwapFunction byteSwapFunction)
 {
   vtkIdType lineSize = (outExt[1] - outExt[0] + 1) * numComponents;
   T* ptr = outPtr;
@@ -330,12 +329,12 @@ void readData(int numComponents, int *outExt, vtkIdType *outInc,
       vtkIdType offset = z * inOffsets[2] + y * inOffsets[1] + outExt[0] * inOffsets[0];
       offset = dataStartPos + offset * sizeof(T);
 
-      stream.seekg(offset,std::ifstream::beg);
+      stream.seekg(offset, std::ifstream::beg);
       // read the line
       stream.read((char*)ptr, lineSize * sizeof(T));
       if (byteSwapFunction)
       {
-        byteSwapFunction((void*)outPtr,lineSize);
+        byteSwapFunction((void*)outPtr, lineSize);
       }
       // update the data pointer
       ptr += (lineSize + outInc[1]);
@@ -346,15 +345,15 @@ void readData(int numComponents, int *outExt, vtkIdType *outInc,
 
 }
 
-void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
-                                             vtkInformation* outInfo)
+void vtkMRCReader::ExecuteDataWithInformation(
+  vtkDataObject* vtkNotUsed(output), vtkInformation* outInfo)
 {
   vtkIdType outInc[3];
   vtkIdType inOffsets[3];
-  int *outExt;
+  int* outExt;
   int modifiedOutExt[6];
   int* execExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  vtkImageData *data = vtkImageData::GetData(outInfo);
+  vtkImageData* data = vtkImageData::GetData(outInfo);
   this->AllocateOutputData(data, outInfo, execExt);
 
   if (data->GetNumberOfPoints() <= 0)
@@ -371,7 +370,7 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
   modifiedOutExt[4] = outExt[4] - this->Internals->header.nzstart;
   modifiedOutExt[5] = outExt[5] - this->Internals->header.nzstart;
   data->GetContinuousIncrements(outExt, outInc[0], outInc[1], outInc[2]);
-  void *outPtr = data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  void* outPtr = data->GetScalarPointer(outExt[0], outExt[2], outExt[4]);
 
   if (!this->Internals->stream)
   {
@@ -385,8 +384,7 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
   int numComponents = getFileDataNumComponents(this->Internals->header.mode);
   inOffsets[0] = numComponents;
   inOffsets[1] = this->Internals->header.nx * numComponents;
-  inOffsets[2] = this->Internals->header.ny * this->Internals->header.nx
-              * numComponents;
+  inOffsets[2] = this->Internals->header.ny * this->Internals->header.nx * numComponents;
 
   // This is what the big-endian MRC files are supposed to look like.  I don't have one to
   // test with though.  However, if it does not look like that, assume it is little endian.
@@ -394,13 +392,11 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
   // assuming little endian is safer.
   bool fileIsLittleEndian = (this->Internals->header.stamp[0] != ((char)17));
 
-  ByteSwapFunction byteSwapFunction = getByteSwapFunction(vtkType,fileIsLittleEndian);
+  ByteSwapFunction byteSwapFunction = getByteSwapFunction(vtkType, fileIsLittleEndian);
   switch (vtkType)
   {
-    vtkTemplateMacro(
-        readData<VTK_TT>(numComponents, modifiedOutExt, outInc, inOffsets,
-                         static_cast<VTK_TT*>(outPtr), *this->Internals->stream,
-                         dataStartPos, byteSwapFunction));
+    vtkTemplateMacro(readData<VTK_TT>(numComponents, modifiedOutExt, outInc, inOffsets,
+      static_cast<VTK_TT*>(outPtr), *this->Internals->stream, dataStartPos, byteSwapFunction));
     default:
       vtkErrorMacro("Unknown data type");
   }

@@ -20,7 +20,7 @@
  * vtkGraph data files in vtk format. See text for format details.
  * @warning
  * Binary files written on one system may not be readable on other systems.
-*/
+ */
 
 #ifndef vtkGraphWriter_h
 #define vtkGraphWriter_h
@@ -34,8 +34,8 @@ class vtkMolecule;
 class VTKIOLEGACY_EXPORT vtkGraphWriter : public vtkDataWriter
 {
 public:
-  static vtkGraphWriter *New();
-  vtkTypeMacro(vtkGraphWriter,vtkDataWriter);
+  static vtkGraphWriter* New();
+  vtkTypeMacro(vtkGraphWriter, vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -52,9 +52,9 @@ protected:
 
   void WriteData() override;
 
-  void WriteMoleculeData(ostream *fp, vtkMolecule *m);
+  void WriteMoleculeData(ostream* fp, vtkMolecule* m);
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkGraphWriter(const vtkGraphWriter&) = delete;

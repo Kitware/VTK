@@ -19,12 +19,12 @@
  * vtkOSPRayTetrahedraMapperNode implements a volume rendering
  * that directly samples the AMR structure using OSPRay.
  *
-*/
+ */
 
 #ifndef vtkOSPRayTetrahedraMapperNode_h
 #define vtkOSPRayTetrahedraMapperNode_h
 
-#include "vtkOSPRayCache.h" // For common cache infrastructure
+#include "vtkOSPRayCache.h"               // For common cache infrastructure
 #include "vtkRenderingRayTracingModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
@@ -34,10 +34,9 @@ class VTKRENDERINGRAYTRACING_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVo
 
 {
 public:
-  vtkTypeMacro(vtkOSPRayTetrahedraMapperNode,
-                       vtkVolumeMapperNode);
-  static vtkOSPRayTetrahedraMapperNode *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkOSPRayTetrahedraMapperNode, vtkVolumeMapperNode);
+  static vtkOSPRayTetrahedraMapperNode* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
@@ -63,10 +62,11 @@ protected:
   std::vector<osp::vec3f> Vertices;
   std::vector<float> Field;
 
-  vtkOSPRayCache<vtkOSPRayCacheItemObject> *Cache;
+  vtkOSPRayCache<vtkOSPRayCacheItemObject>* Cache;
+
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
-  void operator=(const vtkOSPRayTetrahedraMapperNode &) = delete;
+  void operator=(const vtkOSPRayTetrahedraMapperNode&) = delete;
 };
 
 #endif

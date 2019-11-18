@@ -32,7 +32,7 @@ vtkAlgorithmOutput::~vtkAlgorithmOutput() = default;
 void vtkAlgorithmOutput::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  if(this->Producer)
+  if (this->Producer)
   {
     os << indent << "Producer: " << this->Producer << "\n";
   }

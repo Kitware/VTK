@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkDistanceWidget vtkHandleRepresentation vtkDistanceRepresentation2D vtkDistanceRepresentation
-*/
+ */
 
 #ifndef vtkDistanceRepresentation_h
 #define vtkDistanceRepresentation_h
@@ -32,7 +32,6 @@
 
 class vtkHandleRepresentation;
 
-
 class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -40,7 +39,7 @@ public:
   /**
    * Standard VTK methods.
    */
-  vtkTypeMacro(vtkDistanceRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkDistanceRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -64,8 +63,8 @@ public:
   virtual void SetPoint2DisplayPosition(double pos[3]) = 0;
   virtual void GetPoint1DisplayPosition(double pos[3]) = 0;
   virtual void GetPoint2DisplayPosition(double pos[3]) = 0;
-  virtual void SetPoint1WorldPosition(double pos[3])=0;
-  virtual void SetPoint2WorldPosition(double pos[3])=0;
+  virtual void SetPoint1WorldPosition(double pos[3]) = 0;
+  virtual void SetPoint2WorldPosition(double pos[3]) = 0;
   //@}
 
   //@{
@@ -79,7 +78,7 @@ public:
    * the widget is enabled. (The method InstantiateHandleRepresentation()
    * is invoked by the vtkDistance widget.)
    */
-  void SetHandleRepresentation(vtkHandleRepresentation *handle);
+  void SetHandleRepresentation(vtkHandleRepresentation* handle);
   void InstantiateHandleRepresentation();
   //@}
 
@@ -89,8 +88,8 @@ public:
    * properties can be set by grabbing these representations and setting the
    * properties appropriately.)
    */
-  vtkGetObjectMacro(Point1Representation,vtkHandleRepresentation);
-  vtkGetObjectMacro(Point2Representation,vtkHandleRepresentation);
+  vtkGetObjectMacro(Point1Representation, vtkHandleRepresentation);
+  vtkGetObjectMacro(Point2Representation, vtkHandleRepresentation);
   //@}
 
   //@{
@@ -99,8 +98,8 @@ public:
    * which the cursor is considered near enough to the end points of
    * the widget to be active.
    */
-  vtkSetClampMacro(Tolerance,int,1,100);
-  vtkGetMacro(Tolerance,int);
+  vtkSetClampMacro(Tolerance, int, 1, 100);
+  vtkGetMacro(Tolerance, int);
   //@}
 
   //@{
@@ -122,8 +121,8 @@ public:
    * to 2.54. The ruler marks will then be spaced in terms of centimeters, and
    * the label will show the measurement in centimeters.
    */
-  vtkSetMacro(Scale,double);
-  vtkGetMacro(Scale,double);
+  vtkSetMacro(Scale, double);
+  vtkGetMacro(Scale, double);
   //@}
 
   //@{
@@ -132,9 +131,9 @@ public:
    * are separated by the amount specified by RulerDistance. Otherwise, the ivar
    * NumberOfRulerTicks is used to draw the tick marks.
    */
-  vtkSetMacro(RulerMode,vtkTypeBool);
-  vtkGetMacro(RulerMode,vtkTypeBool);
-  vtkBooleanMacro(RulerMode,vtkTypeBool);
+  vtkSetMacro(RulerMode, vtkTypeBool);
+  vtkGetMacro(RulerMode, vtkTypeBool);
+  vtkBooleanMacro(RulerMode, vtkTypeBool);
   //@}
 
   //@{
@@ -142,8 +141,8 @@ public:
    * Specify the RulerDistance which indicates the spacing of the major ticks.
    * This ivar only has effect when the RulerMode is on.
    */
-  vtkSetClampMacro(RulerDistance,double,0,VTK_FLOAT_MAX);
-  vtkGetMacro(RulerDistance,double);
+  vtkSetClampMacro(RulerDistance, double, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(RulerDistance, double);
   //@}
 
   //@{
@@ -154,33 +153,32 @@ public:
    * number between the two handle endpoints. This ivar only has effect
    * when the RulerMode is off.
    */
-  vtkSetClampMacro(NumberOfRulerTicks,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfRulerTicks,int);
+  vtkSetClampMacro(NumberOfRulerTicks, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfRulerTicks, int);
   //@}
 
   // Used to communicate about the state of the representation
-  enum {Outside=0,NearP1,NearP2};
+  enum
+  {
+    Outside = 0,
+    NearP1,
+    NearP2
+  };
 
   //@{
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
   void BuildRepresentation() override;
-  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  int ComputeInteractionState(int X, int Y, int modify = 0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  void StartComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  void ComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  int ComputeComplexInteractionState(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) override;
+  void StartComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  void ComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata, int modify = 0) override;
   //@}
 
 protected:
@@ -188,15 +186,15 @@ protected:
   ~vtkDistanceRepresentation() override;
 
   // The handle and the rep used to close the handles
-  vtkHandleRepresentation *HandleRepresentation;
-  vtkHandleRepresentation *Point1Representation;
-  vtkHandleRepresentation *Point2Representation;
+  vtkHandleRepresentation* HandleRepresentation;
+  vtkHandleRepresentation* Point1Representation;
+  vtkHandleRepresentation* Point2Representation;
 
   // Selection tolerance for the handles
   int Tolerance;
 
   // Format for printing the distance
-  char *LabelFormat;
+  char* LabelFormat;
 
   // Scale to change from the VTK world coordinates to the desired coordinate
   // system.

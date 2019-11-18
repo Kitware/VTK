@@ -45,7 +45,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * @sa
  * vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
-*/
+ */
 
 #ifndef vtkAxisActor_h
 #define vtkAxisActor_h
@@ -196,9 +196,9 @@ public:
   vtkGetMacro(TickLocation, int);
   //@}
 
-  void SetTickLocationToInside(void) { this->SetTickLocation(VTK_TICKS_INSIDE); };
-  void SetTickLocationToOutside(void) { this->SetTickLocation(VTK_TICKS_OUTSIDE); };
-  void SetTickLocationToBoth(void) { this->SetTickLocation(VTK_TICKS_BOTH); };
+  void SetTickLocationToInside(void) { this->SetTickLocation(VTK_TICKS_INSIDE); }
+  void SetTickLocationToOutside(void) { this->SetTickLocation(VTK_TICKS_OUTSIDE); }
+  void SetTickLocationToBoth(void) { this->SetTickLocation(VTK_TICKS_BOTH); }
 
   //@{
   /**
@@ -418,9 +418,9 @@ public:
    */
   vtkSetClampMacro(AxisType, int, VTK_AXIS_TYPE_X, VTK_AXIS_TYPE_Z);
   vtkGetMacro(AxisType, int);
-  void SetAxisTypeToX(void) { this->SetAxisType(VTK_AXIS_TYPE_X); };
-  void SetAxisTypeToY(void) { this->SetAxisType(VTK_AXIS_TYPE_Y); };
-  void SetAxisTypeToZ(void) { this->SetAxisType(VTK_AXIS_TYPE_Z); };
+  void SetAxisTypeToX(void) { this->SetAxisType(VTK_AXIS_TYPE_X); }
+  void SetAxisTypeToY(void) { this->SetAxisType(VTK_AXIS_TYPE_Y); }
+  void SetAxisTypeToZ(void) { this->SetAxisType(VTK_AXIS_TYPE_Z); }
   //@}
 
   enum AxisPosition
@@ -452,10 +452,10 @@ public:
   vtkGetMacro(AxisPosition, int);
   //@}
 
-  void SetAxisPositionToMinMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); };
-  void SetAxisPositionToMinMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); };
-  void SetAxisPositionToMaxMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); };
-  void SetAxisPositionToMaxMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); };
+  void SetAxisPositionToMinMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMIN); }
+  void SetAxisPositionToMinMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MINMAX); }
+  void SetAxisPositionToMaxMax(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMAX); }
+  void SetAxisPositionToMaxMin(void) { this->SetAxisPosition(VTK_AXIS_POS_MAXMIN); }
 
   //@{
   /**

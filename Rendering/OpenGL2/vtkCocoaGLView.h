@@ -40,7 +40,7 @@
  *
  * @sa
  * vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
-*/
+ */
 
 #ifndef vtkCocoaGLView_h
 #define vtkCocoaGLView_h
@@ -53,23 +53,23 @@
 // Note: This file should be includable by both pure Objective-C and Objective-C++ source files.
 // To achieve this, we use the neat technique below:
 #ifdef __cplusplus
-  // Forward declarations
-  class vtkCocoaRenderWindow;
-  class vtkCocoaRenderWindowInteractor;
+// Forward declarations
+class vtkCocoaRenderWindow;
+class vtkCocoaRenderWindowInteractor;
 
-  // Type declarations
-  typedef vtkCocoaRenderWindow *vtkCocoaRenderWindowRef;
-  typedef vtkCocoaRenderWindowInteractor *vtkCocoaRenderWindowInteractorRef;
+// Type declarations
+typedef vtkCocoaRenderWindow* vtkCocoaRenderWindowRef;
+typedef vtkCocoaRenderWindowInteractor* vtkCocoaRenderWindowInteractorRef;
 #else
-  // Type declarations
-  typedef void *vtkCocoaRenderWindowRef;
-  typedef void *vtkCocoaRenderWindowInteractorRef;
+// Type declarations
+typedef void* vtkCocoaRenderWindowRef;
+typedef void* vtkCocoaRenderWindowInteractorRef;
 #endif
 
 VTKRENDERINGOPENGL2_EXPORT
 @interface vtkCocoaGLView : NSView
 {
-  @private
+@private
   vtkCocoaRenderWindowRef _myVTKRenderWindow;
   NSTrackingArea* _rolloverTrackingArea;
 }

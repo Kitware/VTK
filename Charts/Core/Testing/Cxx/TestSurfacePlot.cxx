@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
-int TestSurfacePlot(int , char * [])
+int TestSurfacePlot(int, char*[])
 {
   vtkNew<vtkChartXYZ> chart;
   vtkNew<vtkPlotSurface> plot;
@@ -53,8 +53,8 @@ int TestSurfacePlot(int , char * [])
     float x = i * inc;
     for (vtkIdType j = 0; j < numPoints; ++j)
     {
-      float y  = j * inc;
-      table->SetValue(i, j, sin(sqrt(x*x + y*y)));
+      float y = j * inc;
+      table->SetValue(i, j, sin(sqrt(x * x + y * y)));
     }
   }
 

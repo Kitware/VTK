@@ -28,11 +28,10 @@
  *
  * @sa
  * vtkImageThreshold vtkImageShiftScale
-*/
+ */
 
 #ifndef vtkImageCast_h
 #define vtkImageCast_h
-
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
@@ -40,31 +39,26 @@
 class VTKIMAGINGCORE_EXPORT vtkImageCast : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageCast *New();
-  vtkTypeMacro(vtkImageCast,vtkThreadedImageAlgorithm);
+  static vtkImageCast* New();
+  vtkTypeMacro(vtkImageCast, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set the desired output scalar type to cast to.
    */
-  vtkSetMacro(OutputScalarType,int);
-  vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
-  void SetOutputScalarTypeToDouble(){this->SetOutputScalarType(VTK_DOUBLE);};
-  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);};
-  void SetOutputScalarTypeToUnsignedInt()
-    {this->SetOutputScalarType(VTK_UNSIGNED_INT);};
-  void SetOutputScalarTypeToLong(){this->SetOutputScalarType(VTK_LONG);};
-  void SetOutputScalarTypeToUnsignedLong()
-    {this->SetOutputScalarType(VTK_UNSIGNED_LONG);};
-  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);};
-  void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
-  void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
-  void SetOutputScalarTypeToChar()
-    {this->SetOutputScalarType(VTK_CHAR);};
+  vtkSetMacro(OutputScalarType, int);
+  vtkGetMacro(OutputScalarType, int);
+  void SetOutputScalarTypeToFloat() { this->SetOutputScalarType(VTK_FLOAT); }
+  void SetOutputScalarTypeToDouble() { this->SetOutputScalarType(VTK_DOUBLE); }
+  void SetOutputScalarTypeToInt() { this->SetOutputScalarType(VTK_INT); }
+  void SetOutputScalarTypeToUnsignedInt() { this->SetOutputScalarType(VTK_UNSIGNED_INT); }
+  void SetOutputScalarTypeToLong() { this->SetOutputScalarType(VTK_LONG); }
+  void SetOutputScalarTypeToUnsignedLong() { this->SetOutputScalarType(VTK_UNSIGNED_LONG); }
+  void SetOutputScalarTypeToShort() { this->SetOutputScalarType(VTK_SHORT); }
+  void SetOutputScalarTypeToUnsignedShort() { this->SetOutputScalarType(VTK_UNSIGNED_SHORT); }
+  void SetOutputScalarTypeToUnsignedChar() { this->SetOutputScalarType(VTK_UNSIGNED_CHAR); }
+  void SetOutputScalarTypeToChar() { this->SetOutputScalarType(VTK_CHAR); }
   //@}
 
   //@{
@@ -81,17 +75,15 @@ public:
   vtkBooleanMacro(ClampOverflow, vtkTypeBool);
   //@}
 
-
 protected:
   vtkImageCast();
   ~vtkImageCast() override {}
 
   vtkTypeBool ClampOverflow;
   int OutputScalarType;
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) override;
+  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int ext[6], int id) override;
 
 private:
   vtkImageCast(const vtkImageCast&) = delete;
@@ -99,7 +91,3 @@ private:
 };
 
 #endif
-
-
-
-

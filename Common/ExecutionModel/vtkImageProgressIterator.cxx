@@ -17,6 +17,4 @@
 
 #include "vtkImageProgressIterator.txx"
 
-vtkInstantiateTemplateMacro(
-  template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator
-)
+vtkInstantiateTemplateMacro(template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator);

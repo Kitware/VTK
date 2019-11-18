@@ -26,7 +26,7 @@
  * This class was modified by Jacques-Bernard Lekien and Guenole Harel, 2018
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridGeometry_h
 #define vtkHyperTreeGridGeometry_h
@@ -49,8 +49,8 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeG
 {
 public:
   static vtkHyperTreeGridGeometry* New();
-  vtkTypeMacro( vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridGeometry, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
   //@{
   /**
@@ -58,8 +58,8 @@ public:
    * on, points with different point attributes (e.g., normals) are merged,
    * which may cause rendering artifacts.
    */
-  vtkSetMacro( Merging, bool );
-  vtkGetMacro( Merging, bool );
+  vtkSetMacro(Merging, bool);
+  vtkGetMacro(Merging, bool);
   //@}
 
 protected:
@@ -69,54 +69,43 @@ protected:
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to generate external boundary
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTreeNot3D( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void RecursivelyProcessTreeNot3D(vtkHyperTreeGridNonOrientedGeometryCursor*);
   void RecursivelyProcessTree3D(
-    vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*,
-    unsigned char);
+    vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*, unsigned char);
 
   /**
    * Process 1D leaves and issue corresponding edges (lines)
    */
-  void ProcessLeaf1D( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void ProcessLeaf1D(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
   /**
    * Process 2D leaves and issue corresponding faces (quads)
    */
-  void ProcessLeaf2D( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void ProcessLeaf2D(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
   /**
    * Process 3D leaves and issue corresponding cells (voxels)
    */
-  void ProcessLeaf3D( vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* );
+  void ProcessLeaf3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*);
 
   /**
    * Helper method to generate a face based on its normal and offset from cursor origin
    */
-  void AddFace(
-    vtkIdType useId,
-    const double* origin,
-    const double* size,
-    unsigned int offset,
-    unsigned int orientation );
+  void AddFace(vtkIdType useId, const double* origin, const double* size, unsigned int offset,
+    unsigned int orientation);
 
-  void AddFace2(
-    vtkIdType inId,
-    vtkIdType useId,
-    const double* origin,
-    const double* size,
-    unsigned int offset,
-    unsigned int orientation,
-    bool create = true );
+  void AddFace2(vtkIdType inId, vtkIdType useId, const double* origin, const double* size,
+    unsigned int offset, unsigned int orientation, bool create = true);
 
   /**
    * material Mask

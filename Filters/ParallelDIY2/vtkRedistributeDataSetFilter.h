@@ -268,17 +268,18 @@ private:
     const std::vector<vtkBoundingBox>& cuts, vtkIdType* mb_offset = nullptr);
   bool RedistributeDataSet(
     vtkDataSet* inputDS, vtkPartitionedDataSet* outputPDS, const std::vector<vtkBoundingBox>& cuts);
-  int RedistributeMultiBlockDataSet(vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output,
-    vtkIdType* mb_offset = nullptr);
-  int RedistributeMultiPieceDataSet(vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output,
-    vtkIdType* mb_offset = nullptr);
+  int RedistributeMultiBlockDataSet(
+    vtkMultiBlockDataSet* input, vtkMultiBlockDataSet* output, vtkIdType* mb_offset = nullptr);
+  int RedistributeMultiPieceDataSet(
+    vtkMultiPieceDataSet* input, vtkMultiPieceDataSet* output, vtkIdType* mb_offset = nullptr);
   vtkSmartPointer<vtkDataSet> ClipDataSet(vtkDataSet* dataset, const vtkBoundingBox& bbox);
 
   void MarkGhostCells(vtkPartitionedDataSet* pieces);
 
-  vtkSmartPointer<vtkPartitionedDataSet> AssignGlobalCellIds(vtkPartitionedDataSet* input,
-    vtkIdType* mb_offset = nullptr);
-  vtkSmartPointer<vtkDataSet> AssignGlobalCellIds(vtkDataSet* input, vtkIdType* mb_offset = nullptr);
+  vtkSmartPointer<vtkPartitionedDataSet> AssignGlobalCellIds(
+    vtkPartitionedDataSet* input, vtkIdType* mb_offset = nullptr);
+  vtkSmartPointer<vtkDataSet> AssignGlobalCellIds(
+    vtkDataSet* input, vtkIdType* mb_offset = nullptr);
 
   void MarkValidDimensions(vtkDataObject* inputDO);
 

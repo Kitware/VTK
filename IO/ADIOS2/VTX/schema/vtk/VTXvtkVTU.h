@@ -61,7 +61,7 @@ private:
   VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 
-  template<class T>
+  template <class T>
   void SetBlocksCommon(
     adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step);
 };

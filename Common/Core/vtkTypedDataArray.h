@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkGenericDataArray
-*/
+ */
 
 #ifndef vtkTypedDataArray_h
 #define vtkTypedDataArray_h
@@ -39,18 +39,18 @@
 #include "vtkGenericDataArray.h"
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkTypeTraits.h"   // For type metadata
-
-template <class Scalar> class vtkTypedDataArrayIterator;
+#include "vtkTypeTraits.h"       // For type metadata
 
 template <class Scalar>
-class vtkTypedDataArray :
-    public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
+class vtkTypedDataArrayIterator;
+
+template <class Scalar>
+class vtkTypedDataArray : public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
 {
-  typedef vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
-    GenericDataArrayType;
+  typedef vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar> GenericDataArrayType;
+
 public:
-  vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType)
+  vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType);
   typedef typename Superclass::ValueType ValueType;
 
   /**
@@ -71,7 +71,10 @@ public:
   /**
    * Compile time access to the VTK type identifier.
    */
-  enum { VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID };
+  enum
+  {
+    VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID
+  };
 
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkTypedDataArray.
@@ -81,7 +84,7 @@ public:
    * if these conditions are met, the method performs a static_cast to return
    * source as a vtkTypedDataArray pointer. Otherwise, nullptr is returned.
    */
-  static vtkTypedDataArray<Scalar>* FastDownCast(vtkAbstractArray *source);
+  static vtkTypedDataArray<Scalar>* FastDownCast(vtkAbstractArray* source);
 
   /**
    * Return the VTK data type held by this array.
@@ -96,18 +99,18 @@ public:
   /**
    * Set the tuple value at the ith location in the array.
    */
-  virtual void SetTypedTuple(vtkIdType i, const ValueType *t) = 0;
+  virtual void SetTypedTuple(vtkIdType i, const ValueType* t) = 0;
 
   /**
    * Insert (memory allocation performed) the tuple into the ith location
    * in the array.
    */
-  virtual void InsertTypedTuple(vtkIdType i, const ValueType *t) = 0;
+  virtual void InsertTypedTuple(vtkIdType i, const ValueType* t) = 0;
 
   /**
    * Insert (memory allocation performed) the tuple onto the end of the array.
    */
-  virtual vtkIdType InsertNextTypedTuple(const ValueType *t) = 0;
+  virtual vtkIdType InsertNextTypedTuple(const ValueType* t) = 0;
 
   /**
    * Get the data at a particular index.
@@ -128,7 +131,7 @@ public:
   /**
    * Copy the tuple value into a user-provided array.
    */
-  virtual void GetTypedTuple(vtkIdType idx, ValueType *t) const = 0;
+  virtual void GetTypedTuple(vtkIdType idx, ValueType* t) const = 0;
 
   /**
    * Insert data at the end of the array. Return its location in the array.
@@ -171,32 +174,32 @@ protected:
   virtual bool ReallocateTuples(vtkIdType numTuples);
 
 private:
-  vtkTypedDataArray(const vtkTypedDataArray &) = delete;
-  void operator=(const vtkTypedDataArray &) = delete;
+  vtkTypedDataArray(const vtkTypedDataArray&) = delete;
+  void operator=(const vtkTypedDataArray&) = delete;
 
   friend class vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>;
 };
 
 // Declare vtkArrayDownCast implementations for typed containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkTypedDataArray)
+vtkArrayDownCast_TemplateFastCastMacro(vtkTypedDataArray);
 
 // Included here to resolve chicken/egg issue with container/iterator:
 #include "vtkTypedDataArrayIterator.h" // For iterator
 
-template <class Scalar> inline
-typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::Begin()
+template <class Scalar>
+inline typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::Begin()
 {
   return Iterator(this, 0);
 }
 
-template <class Scalar> inline
-typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::End()
+template <class Scalar>
+inline typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::End()
 {
   return Iterator(this, this->MaxId + 1);
 }
 
 #include "vtkTypedDataArray.txx"
 
-#endif //vtkTypedDataArray_h
+#endif // vtkTypedDataArray_h
 
 // VTK-HeaderTest-Exclude: vtkTypedDataArray.h

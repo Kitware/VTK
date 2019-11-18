@@ -18,8 +18,8 @@
 #include "vtkVariant.h"
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::PrintSelf(ostream &os, vtkIndent indent)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkPeriodicDataArray<Scalar>::Superclass::PrintSelf(os, indent);
 
@@ -28,8 +28,8 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::Initialize()
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::Initialize()
 {
   delete[] this->TempScalarArray;
   this->TempScalarArray = nullptr;
@@ -51,8 +51,8 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InitializeArray(vtkAOSDataArrayTemplate<Scalar>* data)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InitializeArray(vtkAOSDataArrayTemplate<Scalar>* data)
 {
   this->Initialize();
   if (!data)
@@ -74,8 +74,8 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> bool vtkPeriodicDataArray<Scalar>::
-ComputeScalarRange(double* range)
+template <class Scalar>
+bool vtkPeriodicDataArray<Scalar>::ComputeScalarRange(double* range)
 {
   if (this->NumberOfComponents == 3)
   {
@@ -102,12 +102,12 @@ ComputeScalarRange(double* range)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> bool vtkPeriodicDataArray<Scalar>::
-ComputeVectorRange(double range[2])
+template <class Scalar>
+bool vtkPeriodicDataArray<Scalar>::ComputeVectorRange(double range[2])
 {
   if (this->NumberOfComponents == 3 && this->Data)
   {
-      this->Data->GetRange(range, -1);
+    this->Data->GetRange(range, -1);
   }
   else
   {
@@ -118,15 +118,15 @@ ComputeVectorRange(double range[2])
   return true;
 }
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>::
-ComputePeriodicRange()
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::ComputePeriodicRange()
 {
   if (this->Data)
   {
     this->Data->GetRange(this->PeriodicRange, 0);
     this->Data->GetRange(this->PeriodicRange + 2, 1);
     this->Data->GetRange(this->PeriodicRange + 4, 2);
-    Scalar boxPoints [8][3];
+    Scalar boxPoints[8][3];
 
     boxPoints[0][0] = this->PeriodicRange[0];
     boxPoints[0][1] = this->PeriodicRange[2];
@@ -186,12 +186,11 @@ ComputePeriodicRange()
   }
 }
 
-
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::GetTuples(vtkIdList *ptIds, vtkAbstractArray *output)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::GetTuples(vtkIdList* ptIds, vtkAbstractArray* output)
 {
-  vtkDataArray *da = vtkDataArray::FastDownCast(output);
+  vtkDataArray* da = vtkDataArray::FastDownCast(output);
   if (!da)
   {
     vtkWarningMacro(<< "Input is not a vtkDataArray");
@@ -205,7 +204,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
   }
 
   const vtkIdType numPoints = ptIds->GetNumberOfIds();
-  double *tempData = new double[this->NumberOfComponents];
+  double* tempData = new double[this->NumberOfComponents];
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     this->GetTuple(ptIds->GetId(i), tempData);
@@ -215,10 +214,10 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* output)
 {
-  vtkDataArray *da = vtkDataArray::FastDownCast(output);
+  vtkDataArray* da = vtkDataArray::FastDownCast(output);
   if (!da)
   {
     vtkErrorMacro(<< "Input is not a vtkDataArray");
@@ -231,7 +230,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
     return;
   }
 
-  double *tempData = new double[this->NumberOfComponents];
+  double* tempData = new double[this->NumberOfComponents];
   for (vtkIdType daTupleId = 0; p1 <= p2; ++p1)
   {
     this->GetTuple(p1, tempData);
@@ -241,53 +240,52 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::Squeeze()
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::Squeeze()
 {
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkArrayIterator*
-vtkPeriodicDataArray<Scalar>::NewIterator()
+template <class Scalar>
+vtkArrayIterator* vtkPeriodicDataArray<Scalar>::NewIterator()
 {
-  vtkArrayIteratorTemplate<Scalar>* iter =
-    vtkArrayIteratorTemplate<Scalar>::New();
+  vtkArrayIteratorTemplate<Scalar>* iter = vtkArrayIteratorTemplate<Scalar>::New();
   iter->Initialize(this);
   return iter;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::LookupValue(vtkVariant)
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::LookupValue(vtkVariant)
 {
   vtkErrorMacro("Lookup not implemented in this container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::LookupValue(vtkVariant, vtkIdList*)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::LookupValue(vtkVariant, vtkIdList*)
 {
   vtkErrorMacro("Lookup not implemented in this container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkVariant vtkPeriodicDataArray<Scalar>
-::GetVariantValue(vtkIdType idx)
+template <class Scalar>
+vtkVariant vtkPeriodicDataArray<Scalar>::GetVariantValue(vtkIdType idx)
 {
   return vtkVariant(this->GetValueReference(idx));
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::ClearLookup()
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::ClearLookup()
 {
   vtkErrorMacro("Lookup not implemented in this container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> double* vtkPeriodicDataArray<Scalar>
-::GetTuple(vtkIdType i)
+template <class Scalar>
+double* vtkPeriodicDataArray<Scalar>::GetTuple(vtkIdType i)
 {
   if (this->TempTupleIdx != i)
   {
@@ -302,8 +300,8 @@ template <class Scalar> double* vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::GetTuple(vtkIdType i, double *tuple)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::GetTuple(vtkIdType i, double* tuple)
 {
   if (this->TempTupleIdx != i)
   {
@@ -317,32 +315,32 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::LookupTypedValue(Scalar)
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::LookupTypedValue(Scalar)
 {
   vtkErrorMacro("Lookup not implemented in this container.");
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::LookupTypedValue(Scalar, vtkIdList*)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::LookupTypedValue(Scalar, vtkIdList*)
 {
   vtkErrorMacro("Lookup not implemented in this container.");
 }
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkPeriodicDataArray<Scalar>::ValueType
-vtkPeriodicDataArray<Scalar>::GetValue(vtkIdType idx) const
+typename vtkPeriodicDataArray<Scalar>::ValueType vtkPeriodicDataArray<Scalar>::GetValue(
+  vtkIdType idx) const
 {
   return const_cast<vtkPeriodicDataArray<Scalar>*>(this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkPeriodicDataArray<Scalar>::ValueType&
-vtkPeriodicDataArray<Scalar>::GetValueReference(vtkIdType idx)
+typename vtkPeriodicDataArray<Scalar>::ValueType& vtkPeriodicDataArray<Scalar>::GetValueReference(
+  vtkIdType idx)
 {
   vtkIdType tupleIdx = idx / this->NumberOfComponents;
   if (tupleIdx != this->TempTupleIdx)
@@ -354,8 +352,8 @@ vtkPeriodicDataArray<Scalar>::GetValueReference(vtkIdType idx)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::GetTypedTuple(vtkIdType tupleId, Scalar* tuple) const
 {
   this->Data->GetTypedTuple(tupleId, tuple);
   this->Transform(tuple);
@@ -363,9 +361,8 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkPeriodicDataArray<Scalar>::ValueType
-vtkPeriodicDataArray<Scalar>::GetTypedComponent(vtkIdType tupleId,
-                                                int compId) const
+typename vtkPeriodicDataArray<Scalar>::ValueType vtkPeriodicDataArray<Scalar>::GetTypedComponent(
+  vtkIdType tupleId, int compId) const
 {
   if (tupleId != this->TempTupleIdx)
   {
@@ -378,258 +375,258 @@ vtkPeriodicDataArray<Scalar>::GetTypedComponent(vtkIdType tupleId,
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> unsigned long int vtkPeriodicDataArray<Scalar>
-::GetActualMemorySize()
+template <class Scalar>
+unsigned long int vtkPeriodicDataArray<Scalar>::GetActualMemorySize()
 {
-  return static_cast<unsigned long int>
-    ((this->NumberOfComponents * (sizeof(Scalar) + sizeof(double)) +
-      sizeof(*this)) / 1024);
+  return static_cast<unsigned long int>(
+    (this->NumberOfComponents * (sizeof(Scalar) + sizeof(double)) + sizeof(*this)) / 1024);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkTypeBool vtkPeriodicDataArray<Scalar>
-::Allocate(vtkIdType, vtkIdType)
-{
-  vtkErrorMacro("Read only container.");
-  return 0;
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> vtkTypeBool vtkPeriodicDataArray<Scalar>
-::Resize(vtkIdType)
+template <class Scalar>
+vtkTypeBool vtkPeriodicDataArray<Scalar>::Allocate(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("Read only container.");
   return 0;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetNumberOfTuples(vtkIdType)
+template <class Scalar>
+vtkTypeBool vtkPeriodicDataArray<Scalar>::Resize(vtkIdType)
+{
+  vtkErrorMacro("Read only container.");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetNumberOfTuples(vtkIdType)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetTuple(vtkIdType, vtkIdType, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetTuple(vtkIdType, const float *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetTuple(vtkIdType, const float*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetTuple(vtkIdType, const double *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetTuple(vtkIdType, const double*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertTuple(vtkIdType, vtkIdType, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTuple(vtkIdType, const float *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertTuple(vtkIdType, const float*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTuple(vtkIdType, const double *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertTuple(vtkIdType, const double*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTuples(vtkIdList *, vtkIdList *, vtkAbstractArray *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertTuples(vtkIdList*, vtkIdList*, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray *)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertTuples(vtkIdType, vtkIdType, vtkIdType, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::InsertNextTuple(vtkIdType, vtkAbstractArray *)
-{
-  vtkErrorMacro("Read only container.");
-  return -1;
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::InsertNextTuple(const float *)
-{
-  vtkErrorMacro("Read only container.");
-  return -1;
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::InsertNextTuple(const double *)
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::InsertNextTuple(vtkIdType, vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::DeepCopy(vtkAbstractArray *)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::DeepCopy(vtkDataArray *)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InterpolateTuple(vtkIdType, vtkIdList *, vtkAbstractArray *, double *)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InterpolateTuple(vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType,
-                   vtkAbstractArray*, double)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetVariantValue(vtkIdType, vtkVariant)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertVariantValue(vtkIdType, vtkVariant)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::RemoveTuple(vtkIdType)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::RemoveFirstTuple()
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::RemoveLastTuple()
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetTypedTuple(vtkIdType, const Scalar*)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetTypedComponent(vtkIdType, int, Scalar)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTypedTuple(vtkIdType, const Scalar*)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::InsertNextTypedTuple(const Scalar *)
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::InsertNextTuple(const float*)
 {
   vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetValue(vtkIdType, Scalar)
-{
-  vtkErrorMacro("Read only container.");
-}
-
-//------------------------------------------------------------------------------
-template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::InsertNextValue(Scalar)
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::InsertNextTuple(const double*)
 {
   vtkErrorMacro("Read only container.");
   return -1;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertValue(vtkIdType, Scalar)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::DeepCopy(vtkAbstractArray*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> bool vtkPeriodicDataArray<Scalar>
-::AllocateTuples(vtkIdType)
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::DeepCopy(vtkDataArray*)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InterpolateTuple(
+  vtkIdType, vtkIdList*, vtkAbstractArray*, double*)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InterpolateTuple(
+  vtkIdType, vtkIdType, vtkAbstractArray*, vtkIdType, vtkAbstractArray*, double)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetVariantValue(vtkIdType, vtkVariant)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertVariantValue(vtkIdType, vtkVariant)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::RemoveTuple(vtkIdType)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::RemoveFirstTuple()
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::RemoveLastTuple()
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetTypedTuple(vtkIdType, const Scalar*)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetTypedComponent(vtkIdType, int, Scalar)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertTypedTuple(vtkIdType, const Scalar*)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::InsertNextTypedTuple(const Scalar*)
+{
+  vtkErrorMacro("Read only container.");
+  return -1;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::SetValue(vtkIdType, Scalar)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+vtkIdType vtkPeriodicDataArray<Scalar>::InsertNextValue(Scalar)
+{
+  vtkErrorMacro("Read only container.");
+  return -1;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InsertValue(vtkIdType, Scalar)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+bool vtkPeriodicDataArray<Scalar>::AllocateTuples(vtkIdType)
 {
   vtkErrorMacro("Read only container.");
   return false;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> bool vtkPeriodicDataArray<Scalar>
-::ReallocateTuples(vtkIdType)
+template <class Scalar>
+bool vtkPeriodicDataArray<Scalar>::ReallocateTuples(vtkIdType)
 {
   vtkErrorMacro("Read only container.");
   return false;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InvalidateRange()
+template <class Scalar>
+void vtkPeriodicDataArray<Scalar>::InvalidateRange()
 {
   this->InvalidRange = true;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkPeriodicDataArray<Scalar>
-::vtkPeriodicDataArray()
+template <class Scalar>
+vtkPeriodicDataArray<Scalar>::vtkPeriodicDataArray()
 {
   this->NumberOfComponents = 0;
   this->TempScalarArray = nullptr;
@@ -641,13 +638,13 @@ template <class Scalar> vtkPeriodicDataArray<Scalar>
 
   this->InvalidRange = true;
   this->Normalize = false;
-  this->PeriodicRange[0] = this->PeriodicRange[2] = this->PeriodicRange[4] =  VTK_DOUBLE_MAX;
+  this->PeriodicRange[0] = this->PeriodicRange[2] = this->PeriodicRange[4] = VTK_DOUBLE_MAX;
   this->PeriodicRange[1] = this->PeriodicRange[3] = this->PeriodicRange[5] = -VTK_DOUBLE_MAX;
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkPeriodicDataArray<Scalar>
-::~vtkPeriodicDataArray()
+template <class Scalar>
+vtkPeriodicDataArray<Scalar>::~vtkPeriodicDataArray()
 {
   this->Initialize();
 }

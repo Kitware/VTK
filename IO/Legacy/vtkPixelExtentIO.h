@@ -18,14 +18,14 @@
  * A small collection of I/O routines that can write vtkPixelExtent's
  * or collections of them to disk for visualization as unstructured
  * grids.
-*/
+ */
 
 #ifndef vtkPixelExtentIO_h
 #define vtkPixelExtentIO_h
 
 #include "vtkIOLegacyModule.h" // for export
-#include "vtkPixelExtent.h" // for pixel extent
-#include <deque> // for std::deque
+#include "vtkPixelExtent.h"    // for pixel extent
+#include <deque>               // for std::deque
 
 class vtkUnstructuredGrid;
 
@@ -39,11 +39,8 @@ public:
    * It's aassumed that the data is duplicated on all
    * ranks thus only rank 0 writes the data to disk.
    */
-  static
-  void Write(
-        int commRank,
-        const char *fileName,
-        const std::deque<std::deque<vtkPixelExtent> >&exts);
+  static void Write(
+    int commRank, const char* fileName, const std::deque<std::deque<vtkPixelExtent> >& exts);
 
   /**
    * Writes an extent for each MPI rank to disk as an
@@ -53,11 +50,7 @@ public:
    * It's aassumed that the data is duplicated on all
    * ranks thus only rank 0 writes the data to disk.
    */
-  static
-  void Write(
-        int commRank,
-        const char *fileName,
-        const std::deque<vtkPixelExtent> &exts);
+  static void Write(int commRank, const char* fileName, const std::deque<vtkPixelExtent>& exts);
 
   //@{
   /**
@@ -65,20 +58,15 @@ public:
    * write. It's assumed that each rank passes a unique
    * filename.
    */
-  static
-  void Write(
-        int commRank,
-        const char *fileName,
-        const vtkPixelExtent &ext);
-};
+  static void Write(int commRank, const char* fileName, const vtkPixelExtent& ext);
   //@}
-
+};
 
 /**
  * Insert the extent into an unstructured grid.
  */
 VTKIOLEGACY_EXPORT
-vtkUnstructuredGrid &operator<<(vtkUnstructuredGrid &data, const vtkPixelExtent &ext);
+vtkUnstructuredGrid& operator<<(vtkUnstructuredGrid& data, const vtkPixelExtent& ext);
 
 #endif
 // VTK-HeaderTest-Exclude: vtkPixelExtentIO.h

@@ -59,22 +59,22 @@
 template <class TCell>
 int TestOneInterpolationFunction(double eps = VTK_EPSILON)
 {
-  TCell *cell = TCell::New();
+  TCell* cell = TCell::New();
   int numPts = cell->GetNumberOfPoints();
-  double *sf = new double[numPts];
-  double *coords = cell->GetParametricCoords();
+  double* sf = new double[numPts];
+  double* coords = cell->GetParametricCoords();
   int r = 0;
-  for(int i=0;i<numPts;++i)
+  for (int i = 0; i < numPts; ++i)
   {
-    double *point = coords + 3*i;
+    double* point = coords + 3 * i;
     double sum = 0.;
     cell->InterpolateFunctions(point, sf); // virtual function
-    for(int j=0;j<numPts;j++)
+    for (int j = 0; j < numPts; j++)
     {
       sum += sf[j];
-      if(j == i)
+      if (j == i)
       {
-        if( fabs(sf[j] - 1) > eps)
+        if (fabs(sf[j] - 1) > eps)
         {
           std::cout << "fabs(sf[" << j << "] - 1): " << fabs(sf[j] - 1) << std::endl;
           ++r;
@@ -82,14 +82,14 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
       }
       else
       {
-        if( fabs(sf[j] - 0) > eps )
+        if (fabs(sf[j] - 0) > eps)
         {
           std::cout << "fabs(sf[" << j << "] - 0): " << fabs(sf[j] - 0) << std::endl;
           ++r;
         }
       }
     }
-    if( fabs(sum - 1) > eps )
+    if (fabs(sum - 1) > eps)
     {
       ++r;
     }
@@ -100,11 +100,11 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
   cell->GetParametricCenter(center);
   cell->InterpolateFunctions(center, sf); // virtual function
   double sum = 0.;
-  for(int j=0;j<numPts;j++)
+  for (int j = 0; j < numPts; j++)
   {
     sum += sf[j];
   }
-  if( fabs(sum - 1) > eps )
+  if (fabs(sum - 1) > eps)
   {
     ++r;
   }
@@ -114,24 +114,24 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
   return r;
 }
 
-int TestInterpolationFunctions(int, char *[])
+int TestInterpolationFunctions(int, char*[])
 {
   int r = 0;
   // Subclass of vtkCell3D
-  //r += TestOneInterpolationFunction<vtkEmptyCell>(); // not implemented
-  //r += TestOneInterpolationFunction<vtkGenericCell>(); // not implemented
+  // r += TestOneInterpolationFunction<vtkEmptyCell>(); // not implemented
+  // r += TestOneInterpolationFunction<vtkGenericCell>(); // not implemented
   r += TestOneInterpolationFunction<vtkLine>();
   r += TestOneInterpolationFunction<vtkPixel>();
-  //r += TestOneInterpolationFunction<vtkPolygon>();
-  //r += TestOneInterpolationFunction<vtkPolyLine>(); // not implemented
-  //r += TestOneInterpolationFunction<vtkPolyVertex>(); // not implemented
+  // r += TestOneInterpolationFunction<vtkPolygon>();
+  // r += TestOneInterpolationFunction<vtkPolyLine>(); // not implemented
+  // r += TestOneInterpolationFunction<vtkPolyVertex>(); // not implemented
   r += TestOneInterpolationFunction<vtkQuad>();
   r += TestOneInterpolationFunction<vtkTriangle>();
-  //r += TestOneInterpolationFunction<vtkTriangleStrip>(); // not implemented
+  // r += TestOneInterpolationFunction<vtkTriangleStrip>(); // not implemented
   r += TestOneInterpolationFunction<vtkVertex>();
 
   // Subclass of vtkCell3D
-  //r += TestOneInterpolationFunction<vtkConvexPointSet>(); // not implemented
+  // r += TestOneInterpolationFunction<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationFunction<vtkHexagonalPrism>();
   r += TestOneInterpolationFunction<vtkHexahedron>();
   r += TestOneInterpolationFunction<vtkPentagonalPrism>(1.e-5);

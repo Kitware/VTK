@@ -113,13 +113,13 @@
  *
  * @par Tests:
  *      Graphics/Testing/Cxx/TestReebGraph.cxx
-*/
+ */
 
 #ifndef vtkReebGraph_h
 #define vtkReebGraph_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include  "vtkMutableDirectedGraph.h"
+#include "vtkMutableDirectedGraph.h"
 
 class vtkDataArray;
 class vtkDataSet;
@@ -132,8 +132,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkReebGraph : public vtkMutableDirectedGraph
 {
 
 public:
-
-  static vtkReebGraph *New();
+  static vtkReebGraph* New();
 
   vtkTypeMacro(vtkReebGraph, vtkMutableDirectedGraph);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -145,8 +144,7 @@ public:
    * VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
    * THIS METHOD IS THREAD SAFE
    */
-  int GetDataObjectType() override {return VTK_REEB_GRAPH;}
-
+  int GetDataObjectType() override { return VTK_REEB_GRAPH; }
 
   enum
   {
@@ -168,7 +166,7 @@ public:
    * simplicial mesh (for example, the surface mesh contains quads instead of
    * triangles).
    */
-  int Build(vtkPolyData *mesh, vtkDataArray *scalarField);
+  int Build(vtkPolyData* mesh, vtkDataArray* scalarField);
 
   /**
    * Build the Reeb graph of the field 'scalarField' defined on the volume
@@ -182,8 +180,7 @@ public:
    * vtkReebGraph::ERR_NOT_A_SIMPLICIAL_MESH: the input mesh 'mesh' is not a
    * simplicial mesh.
    */
-  int Build(vtkUnstructuredGrid *mesh, vtkDataArray *scalarField);
-
+  int Build(vtkUnstructuredGrid* mesh, vtkDataArray* scalarField);
 
   /**
    * Build the Reeb graph of the field given by the Id 'scalarFieldId',
@@ -201,7 +198,7 @@ public:
    * vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the Id
    * 'scalarFieldId' does not exist.
    */
-  int Build(vtkPolyData *mesh, vtkIdType scalarFieldId);
+  int Build(vtkPolyData* mesh, vtkIdType scalarFieldId);
 
   /**
    * Build the Reeb graph of the field given by the Id 'scalarFieldId',
@@ -218,8 +215,7 @@ public:
    * vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the Id
    * 'scalarFieldId' does not exist.
    */
-  int Build(vtkUnstructuredGrid *mesh, vtkIdType scalarFieldId);
-
+  int Build(vtkUnstructuredGrid* mesh, vtkIdType scalarFieldId);
 
   /**
    * Build the Reeb graph of the field given by the name 'scalarFieldName',
@@ -237,7 +233,7 @@ public:
    * vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the name
    * 'scalarFieldName' does not exist.
    */
-  int Build(vtkPolyData *mesh, const char* scalarFieldName);
+  int Build(vtkPolyData* mesh, const char* scalarFieldName);
 
   /**
    * Build the Reeb graph of the field given by the name 'scalarFieldName',
@@ -254,7 +250,7 @@ public:
    * vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the name
    * 'scalarFieldName' does not exist.
    */
-  int Build(vtkUnstructuredGrid *mesh, const char* scalarFieldName);
+  int Build(vtkUnstructuredGrid* mesh, const char* scalarFieldName);
 
   /**
    * Streaming Reeb graph computation.
@@ -269,9 +265,8 @@ public:
 
    * IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
    */
-  int StreamTriangle( vtkIdType vertex0Id, double scalar0,
-                      vtkIdType vertex1Id, double scalar1,
-                      vtkIdType vertex2Id, double scalar2);
+  int StreamTriangle(vtkIdType vertex0Id, double scalar0, vtkIdType vertex1Id, double scalar1,
+    vtkIdType vertex2Id, double scalar2);
 
   /**
    * Streaming Reeb graph computation.
@@ -287,10 +282,8 @@ public:
 
    * IMPORTANT: The stream _must_ be finalized with the "CloseStream" call.
    */
-  int StreamTetrahedron( vtkIdType vertex0Id, double scalar0,
-                         vtkIdType vertex1Id, double scalar1,
-                         vtkIdType vertex2Id, double scalar2,
-                         vtkIdType vertex3Id, double scalar3);
+  int StreamTetrahedron(vtkIdType vertex0Id, double scalar0, vtkIdType vertex1Id, double scalar1,
+    vtkIdType vertex2Id, double scalar2, vtkIdType vertex3Id, double scalar3);
 
   /**
    * Finalize internal data structures, in the case of streaming computations
@@ -306,7 +299,7 @@ public:
 
   // Description:
   // Implements deep copy
-  void DeepCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject* src) override;
 
   /**
    * Simplify the Reeb graph given a threshold 'simplificationThreshold'
@@ -349,17 +342,16 @@ public:
    * J. Tierny, A. Gyulassy, E. Simon, V. Pascucci,
    * IEEE Trans. on Vis. and Comp. Graph. (Proc of IEEE VIS), 15:1177-1184,2009.
    */
-  int Simplify(double simplificationThreshold,
-    vtkReebGraphSimplificationMetric *simplificationMetric);
+  int Simplify(
+    double simplificationThreshold, vtkReebGraphSimplificationMetric* simplificationMetric);
 
   /**
    * Use a pre-defined Reeb graph (post-processing).
    * Use with caution!
    */
-  void Set(vtkMutableDirectedGraph *g);
+  void Set(vtkMutableDirectedGraph* g);
 
 protected:
-
   vtkReebGraph();
   ~vtkReebGraph() override;
 
@@ -369,7 +361,6 @@ protected:
 private:
   vtkReebGraph(const vtkReebGraph&) = delete;
   void operator=(const vtkReebGraph&) = delete;
-
 };
 
 #endif

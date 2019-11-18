@@ -24,7 +24,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-
 #include <cassert>
 #include <set>
 
@@ -36,7 +35,7 @@ public:
     unsigned int Level;
     unsigned int Index;
 
-    bool operator() (const Node& n1, const Node& n2) const
+    bool operator()(const Node& n1, const Node& n2) const
     {
       if (n1.Level == n2.Level)
       {
@@ -45,7 +44,6 @@ public:
       return (n1.Level < n2.Level);
     }
   };
-
 
   typedef std::set<Node, Node> DatasetsType;
   DatasetsType Datasets;
@@ -65,8 +63,7 @@ vtkExtractDataSets::~vtkExtractDataSets()
 }
 
 //----------------------------------------------------------------------------
-void vtkExtractDataSets::AddDataSet(
-  unsigned int level, unsigned int idx)
+void vtkExtractDataSets::AddDataSet(unsigned int level, unsigned int idx)
 {
   vtkInternals::Node node;
   node.Level = level;
@@ -83,64 +80,58 @@ void vtkExtractDataSets::ClearDataSetList()
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractDataSets::FillInputPortInformation(
-    int vtkNotUsed(port), vtkInformation* info )
+int vtkExtractDataSets::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(
-   vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkUniformGridAMR");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGridAMR");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractDataSets::FillOutputPortInformation(
-    int vtkNotUsed(port), vtkInformation *info )
+int vtkExtractDataSets::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-int vtkExtractDataSets::RequestData(
-    vtkInformation *vtkNotUsed(request),
-    vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector)
+int vtkExtractDataSets::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // STEP 0: Get input
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  assert( "pre: input information object is nullptr!" && (inInfo != nullptr) );
-  vtkUniformGridAMR *input =
-    vtkUniformGridAMR::SafeDownCast(
-        inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: input dataset is nullptr!" && (input != nullptr) );
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  assert("pre: input information object is nullptr!" && (inInfo != nullptr));
+  vtkUniformGridAMR* input =
+    vtkUniformGridAMR::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  assert("pre: input dataset is nullptr!" && (input != nullptr));
 
   // STEP 1: Get output
   vtkInformation* info = outputVector->GetInformationObject(0);
-  assert( "pre: output information object is nullptr!" && (info != nullptr) );
-  vtkMultiBlockDataSet *output =
-   vtkMultiBlockDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-  assert( "pre: output dataset is nullptr!" && (output != nullptr) );
+  assert("pre: output information object is nullptr!" && (info != nullptr));
+  vtkMultiBlockDataSet* output =
+    vtkMultiBlockDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+  assert("pre: output dataset is nullptr!" && (output != nullptr));
 
   // STEP 2: Initialize structure
-  output->SetNumberOfBlocks( input->GetNumberOfLevels() );
+  output->SetNumberOfBlocks(input->GetNumberOfLevels());
   unsigned int blk = 0;
-  for( ; blk < output->GetNumberOfBlocks(); ++blk )
+  for (; blk < output->GetNumberOfBlocks(); ++blk)
   {
-      vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
-//      mpds->SetNumberOfPieces( input->GetNumberOfDataSets( blk ) );
-      output->SetBlock( blk, mpds );
-      mpds->Delete();
+    vtkMultiPieceDataSet* mpds = vtkMultiPieceDataSet::New();
+    //      mpds->SetNumberOfPieces( input->GetNumberOfDataSets( blk ) );
+    output->SetBlock(blk, mpds);
+    mpds->Delete();
   } // END for all blocks/levels
 
   // STEP 3: Loop over sected blocks
   vtkInternals::DatasetsType::iterator iter = this->Internals->Datasets.begin();
-  for (;iter != this->Internals->Datasets.end(); ++iter)
+  for (; iter != this->Internals->Datasets.end(); ++iter)
   {
     vtkUniformGrid* inUG = input->GetDataSet(iter->Level, iter->Index);
-    if( inUG )
+    if (inUG)
     {
-      vtkMultiPieceDataSet *mpds =
-       vtkMultiPieceDataSet::SafeDownCast( output->GetBlock(iter->Level) );
-      assert( "pre: mpds is nullptr!" && (mpds!=nullptr) );
+      vtkMultiPieceDataSet* mpds =
+        vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(iter->Level));
+      assert("pre: mpds is nullptr!" && (mpds != nullptr));
 
       unsigned int out_index = mpds->GetNumberOfPieces();
       vtkUniformGrid* clone = inUG->NewInstance();
@@ -148,7 +139,7 @@ int vtkExtractDataSets::RequestData(
 
       // Remove blanking from output datasets.
       clone->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
-      mpds->SetPiece( out_index, clone );
+      mpds->SetPiece(out_index, clone);
       clone->Delete();
     }
   } // END for all selected items
@@ -161,4 +152,3 @@ void vtkExtractDataSets::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-

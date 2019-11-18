@@ -36,7 +36,7 @@
  *
  * @sa
  * vtkDataSetAlgorithm vtkPointSetToPointSetFilter
-*/
+ */
 
 #ifndef vtkCastToConcrete_h
 #define vtkCastToConcrete_h
@@ -48,16 +48,18 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCastToConcrete : public vtkDataSetAlgori
 {
 
 public:
-  static vtkCastToConcrete *New();
-  vtkTypeMacro(vtkCastToConcrete,vtkDataSetAlgorithm);
+  static vtkCastToConcrete* New();
+  vtkTypeMacro(vtkCastToConcrete, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkCastToConcrete() {}
   ~vtkCastToConcrete() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //insures compatibility; satisfies abstract api in vtkFilter
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**,
+    vtkInformationVector*) override; // insures compatibility; satisfies abstract api in vtkFilter
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkCastToConcrete(const vtkCastToConcrete&) = delete;
   void operator=(const vtkCastToConcrete&) = delete;

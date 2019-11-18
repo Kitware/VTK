@@ -22,17 +22,17 @@
  *
  * @sa
  * vtkPlot3DPoints vtkPlot3DLine vtkPlot3DBar vtkChart vtkChartXY
-*/
+ */
 
 #ifndef vtkPlot3D_h
 #define vtkPlot3D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkNew.h"              // Needed to hold vtkNew ivars
-#include "vtkSmartPointer.h"     // Needed to hold SP ivars
-#include "vtkVector.h"           // For Points ivar
-#include <vector>                // For ivars
+#include "vtkNew.h"          // Needed to hold vtkNew ivars
+#include "vtkSmartPointer.h" // Needed to hold SP ivars
+#include "vtkVector.h"       // For Points ivar
+#include <vector>            // For ivars
 
 class vtkChartXYZ;
 class vtkDataArray;
@@ -45,13 +45,13 @@ class VTKCHARTSCORE_EXPORT vtkPlot3D : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkPlot3D, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/get the vtkPen object that controls how this plot draws (out)lines.
    */
-  void SetPen(vtkPen *pen);
+  void SetPen(vtkPen* pen);
   vtkPen* GetPen();
   //@}
 
@@ -59,7 +59,7 @@ public:
   /**
    * Set/get the vtkPen object that controls how this plot draws (out)lines.
    */
-  void SetSelectionPen(vtkPen *pen);
+  void SetSelectionPen(vtkPen* pen);
   vtkPen* GetSelectionPen();
   //@}
 
@@ -67,16 +67,13 @@ public:
   /**
    * Set the input to the plot.
    */
-  virtual void SetInputData(vtkTable *input);
-  virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
-                            const vtkStdString &yName,
-                            const vtkStdString &zName);
-  virtual void SetInputData(vtkTable *input, const vtkStdString &xName,
-                            const vtkStdString &yName,
-                            const vtkStdString &zName,
-                            const vtkStdString &colorName);
-  virtual void SetInputData(vtkTable *input, vtkIdType xColumn,
-                            vtkIdType yColumn, vtkIdType zColumn);
+  virtual void SetInputData(vtkTable* input);
+  virtual void SetInputData(vtkTable* input, const vtkStdString& xName, const vtkStdString& yName,
+    const vtkStdString& zName);
+  virtual void SetInputData(vtkTable* input, const vtkStdString& xName, const vtkStdString& yName,
+    const vtkStdString& zName, const vtkStdString& colorName);
+  virtual void SetInputData(
+    vtkTable* input, vtkIdType xColumn, vtkIdType yColumn, vtkIdType zColumn);
   //@}
 
   /**
@@ -84,7 +81,7 @@ public:
    * scalar array.  The values of this array will be passed through a lookup
    * table to generate the color for each data point in the plot.
    */
-  virtual void SetColors(vtkDataArray *colorArr);
+  virtual void SetColors(vtkDataArray* colorArr);
 
   /**
    * Get all the data points within this plot.
@@ -123,7 +120,7 @@ public:
   /**
    * Set/get the selection array for the plot.
    */
-  virtual void SetSelection(vtkIdTypeArray *id);
+  virtual void SetSelection(vtkIdTypeArray* id);
   virtual vtkIdTypeArray* GetSelection();
   //@}
 
@@ -198,9 +195,8 @@ protected:
   vtkSmartPointer<vtkIdTypeArray> Selection;
 
 private:
-  vtkPlot3D(const vtkPlot3D &) = delete;
-  void operator=(const vtkPlot3D &) = delete;
-
+  vtkPlot3D(const vtkPlot3D&) = delete;
+  void operator=(const vtkPlot3D&) = delete;
 };
 
-#endif //vtkPlot3D_h
+#endif // vtkPlot3D_h

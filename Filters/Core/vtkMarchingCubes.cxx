@@ -55,7 +55,7 @@ vtkMarchingCubes::vtkMarchingCubes()
 vtkMarchingCubes::~vtkMarchingCubes()
 {
   this->ContourValues->Delete();
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->UnRegister(this);
     this->Locator = nullptr;
@@ -67,14 +67,14 @@ vtkMarchingCubes::~vtkMarchingCubes()
 // then this object is modified as well.
 vtkMTimeType vtkMarchingCubes::GetMTime()
 {
-  vtkMTimeType mTime=this->Superclass::GetMTime();
-  vtkMTimeType mTime2=this->ContourValues->GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime2 = this->ContourValues->GetMTime();
 
-  mTime = ( mTime2 > mTime ? mTime2 : mTime );
+  mTime = (mTime2 > mTime ? mTime2 : mTime);
   if (this->Locator)
   {
-    mTime2=this->Locator->GetMTime();
-    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    mTime2 = this->Locator->GetMTime();
+    mTime = (mTime2 > mTime ? mTime2 : mTime);
   }
 
   return mTime;
@@ -83,68 +83,68 @@ vtkMTimeType vtkMarchingCubes::GetMTime()
 // Calculate the gradient using central difference.
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
-void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3],
-                                          vtkIdType sliceSize, double n[3])
+void vtkMarchingCubesComputePointGradient(
+  int i, int j, int k, T* s, int dims[3], vtkIdType sliceSize, double n[3])
 {
   double sp, sm;
 
   // x-direction
-  if ( i == 0 )
+  if (i == 0)
   {
-    sp = s[i+1 + j*dims[0] + k*sliceSize];
-    sm = s[i + j*dims[0] + k*sliceSize];
+    sp = s[i + 1 + j * dims[0] + k * sliceSize];
+    sm = s[i + j * dims[0] + k * sliceSize];
     n[0] = sm - sp;
   }
-  else if ( i == (dims[0]-1) )
+  else if (i == (dims[0] - 1))
   {
-    sp = s[i + j*dims[0] + k*sliceSize];
-    sm = s[i-1 + j*dims[0] + k*sliceSize];
+    sp = s[i + j * dims[0] + k * sliceSize];
+    sm = s[i - 1 + j * dims[0] + k * sliceSize];
     n[0] = sm - sp;
   }
   else
   {
-    sp = s[i+1 + j*dims[0] + k*sliceSize];
-    sm = s[i-1 + j*dims[0] + k*sliceSize];
+    sp = s[i + 1 + j * dims[0] + k * sliceSize];
+    sm = s[i - 1 + j * dims[0] + k * sliceSize];
     n[0] = 0.5 * (sm - sp);
   }
 
   // y-direction
-  if ( j == 0 )
+  if (j == 0)
   {
-    sp = s[i + (j+1)*dims[0] + k*sliceSize];
-    sm = s[i + j*dims[0] + k*sliceSize];
+    sp = s[i + (j + 1) * dims[0] + k * sliceSize];
+    sm = s[i + j * dims[0] + k * sliceSize];
     n[1] = sm - sp;
   }
-  else if ( j == (dims[1]-1) )
+  else if (j == (dims[1] - 1))
   {
-    sp = s[i + j*dims[0] + k*sliceSize];
-    sm = s[i + (j-1)*dims[0] + k*sliceSize];
+    sp = s[i + j * dims[0] + k * sliceSize];
+    sm = s[i + (j - 1) * dims[0] + k * sliceSize];
     n[1] = sm - sp;
   }
   else
   {
-    sp = s[i + (j+1)*dims[0] + k*sliceSize];
-    sm = s[i + (j-1)*dims[0] + k*sliceSize];
+    sp = s[i + (j + 1) * dims[0] + k * sliceSize];
+    sm = s[i + (j - 1) * dims[0] + k * sliceSize];
     n[1] = 0.5 * (sm - sp);
   }
 
   // z-direction
-  if ( k == 0 )
+  if (k == 0)
   {
-    sp = s[i + j*dims[0] + (k+1)*sliceSize];
-    sm = s[i + j*dims[0] + k*sliceSize];
+    sp = s[i + j * dims[0] + (k + 1) * sliceSize];
+    sm = s[i + j * dims[0] + k * sliceSize];
     n[2] = sm - sp;
   }
-  else if ( k == (dims[2]-1) )
+  else if (k == (dims[2] - 1))
   {
-    sp = s[i + j*dims[0] + k*sliceSize];
-    sm = s[i + j*dims[0] + (k-1)*sliceSize];
+    sp = s[i + j * dims[0] + k * sliceSize];
+    sm = s[i + j * dims[0] + (k - 1) * sliceSize];
     n[2] = sm - sp;
   }
   else
   {
-    sp = s[i + j*dims[0] + (k+1)*sliceSize];
-    sm = s[i + j*dims[0] + (k-1)*sliceSize];
+    sp = s[i + j * dims[0] + (k + 1) * sliceSize];
+    sm = s[i + j * dims[0] + (k - 1) * sliceSize];
     n[2] = 0.5 * (sm - sp);
   }
 }
@@ -153,20 +153,16 @@ void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3]
 // Contouring filter specialized for volumes and "short int" data values.
 //
 template <class T>
-void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3],
-                                     vtkIncrementalPointLocator *locator,
-                                     vtkDataArray *newScalars,
-                                     vtkDataArray *newGradients,
-                                     vtkDataArray *newNormals,
-                                     vtkCellArray *newPolys, double *values,
-                                     int numValues)
+void vtkMarchingCubesComputeGradient(vtkMarchingCubes* self, T* scalars, int dims[3],
+  vtkIncrementalPointLocator* locator, vtkDataArray* newScalars, vtkDataArray* newGradients,
+  vtkDataArray* newNormals, vtkCellArray* newPolys, double* values, int numValues)
 {
   double s[8], value;
   int i, j, k;
   vtkIdType sliceSize;
-  static const int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
+  static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
   vtkMarchingCubesTriangleCases *triCase, *triCases;
-  EDGE_LIST  *edge;
+  EDGE_LIST* edge;
   int contNum, jOffset, ii, index, *vert;
   vtkIdType kOffset, idx;
   vtkIdType ptIds[3];
@@ -177,76 +173,75 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
   int extent[6];
   double t, *x1, *x2, x[3], *n1, *n2, n[3], min, max;
   double pts[8][3], gradients[8][3], xp, yp, zp;
-  static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
-                              {4,5}, {5,6}, {7,6}, {4,7},
-                              {0,4}, {1,5}, {3,7}, {2,6}};
+  static int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 },
+    { 4, 7 }, { 0, 4 }, { 1, 5 }, { 3, 7 }, { 2, 6 } };
 
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
+  vtkInformation* inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
-  triCases =  vtkMarchingCubesTriangleCases::GetCases();
+  triCases = vtkMarchingCubesTriangleCases::GetCases();
 
-//
-// Get min/max contour values
-//
-  if ( numValues < 1 )
+  //
+  // Get min/max contour values
+  //
+  if (numValues < 1)
   {
     return;
   }
-  for ( min=max=values[0], i=1; i < numValues; i++)
+  for (min = max = values[0], i = 1; i < numValues; i++)
   {
-    if ( values[i] < min )
+    if (values[i] < min)
     {
       min = values[i];
     }
-    if ( values[i] > max )
+    if (values[i] > max)
     {
       max = values[i];
     }
   }
-//
-// Traverse all voxel cells, generating triangles and point gradients
-// using marching cubes algorithm.
-//
+  //
+  // Traverse all voxel cells, generating triangles and point gradients
+  // using marching cubes algorithm.
+  //
   sliceSize = dims[0] * dims[1];
-  for ( k=0; k < (dims[2]-1); k++)
+  for (k = 0; k < (dims[2] - 1); k++)
   {
-    self->UpdateProgress (k / static_cast<double>(dims[2] - 1));
+    self->UpdateProgress(k / static_cast<double>(dims[2] - 1));
     if (self->GetAbortExecute())
     {
       break;
     }
-    kOffset = k*sliceSize;
-    pts[0][2] = k+extent[4];
+    kOffset = k * sliceSize;
+    pts[0][2] = k + extent[4];
     zp = pts[0][2] + 1;
-    for ( j=0; j < (dims[1]-1); j++)
+    for (j = 0; j < (dims[1] - 1); j++)
     {
-      jOffset = j*dims[0];
-      pts[0][1] = j+extent[2];
+      jOffset = j * dims[0];
+      pts[0][1] = j + extent[2];
       yp = pts[0][1] + 1;
-      for ( i=0; i < (dims[0]-1); i++)
+      for (i = 0; i < (dims[0] - 1); i++)
       {
-        //get scalar values
+        // get scalar values
         idx = i + jOffset + kOffset;
         s[0] = scalars[idx];
-        s[1] = scalars[idx+1];
-        s[2] = scalars[idx+1 + dims[0]];
+        s[1] = scalars[idx + 1];
+        s[2] = scalars[idx + 1 + dims[0]];
         s[3] = scalars[idx + dims[0]];
         s[4] = scalars[idx + sliceSize];
-        s[5] = scalars[idx+1 + sliceSize];
-        s[6] = scalars[idx+1 + dims[0] + sliceSize];
+        s[5] = scalars[idx + 1 + sliceSize];
+        s[6] = scalars[idx + 1 + dims[0] + sliceSize];
         s[7] = scalars[idx + dims[0] + sliceSize];
 
-        if ( (s[0] < min && s[1] < min && s[2] < min && s[3] < min &&
-        s[4] < min && s[5] < min && s[6] < min && s[7] < min) ||
-        (s[0] > max && s[1] > max && s[2] > max && s[3] > max &&
-        s[4] > max && s[5] > max && s[6] > max && s[7] > max) )
+        if ((s[0] < min && s[1] < min && s[2] < min && s[3] < min && s[4] < min && s[5] < min &&
+              s[6] < min && s[7] < min) ||
+          (s[0] > max && s[1] > max && s[2] > max && s[3] > max && s[4] > max && s[5] > max &&
+            s[6] > max && s[7] > max))
         {
           continue; // no contours possible
         }
 
-        //create voxel points
-        pts[0][0] = i+extent[0];
+        // create voxel points
+        pts[0][0] = i + extent[0];
         xp = pts[0][0] + 1;
 
         pts[1][0] = xp;
@@ -279,40 +274,44 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
 
         NeedGradients = ComputeGradients || ComputeNormals;
 
-        //create gradients if needed
+        // create gradients if needed
         if (NeedGradients)
         {
-          vtkMarchingCubesComputePointGradient(i,j,k, scalars, dims, sliceSize, gradients[0]);
-          vtkMarchingCubesComputePointGradient(i+1,j,k, scalars, dims, sliceSize, gradients[1]);
-          vtkMarchingCubesComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, gradients[2]);
-          vtkMarchingCubesComputePointGradient(i,j+1,k, scalars, dims, sliceSize, gradients[3]);
-          vtkMarchingCubesComputePointGradient(i,j,k+1, scalars, dims, sliceSize, gradients[4]);
-          vtkMarchingCubesComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, gradients[5]);
-          vtkMarchingCubesComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, gradients[6]);
-          vtkMarchingCubesComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, gradients[7]);
+          vtkMarchingCubesComputePointGradient(i, j, k, scalars, dims, sliceSize, gradients[0]);
+          vtkMarchingCubesComputePointGradient(i + 1, j, k, scalars, dims, sliceSize, gradients[1]);
+          vtkMarchingCubesComputePointGradient(
+            i + 1, j + 1, k, scalars, dims, sliceSize, gradients[2]);
+          vtkMarchingCubesComputePointGradient(i, j + 1, k, scalars, dims, sliceSize, gradients[3]);
+          vtkMarchingCubesComputePointGradient(i, j, k + 1, scalars, dims, sliceSize, gradients[4]);
+          vtkMarchingCubesComputePointGradient(
+            i + 1, j, k + 1, scalars, dims, sliceSize, gradients[5]);
+          vtkMarchingCubesComputePointGradient(
+            i + 1, j + 1, k + 1, scalars, dims, sliceSize, gradients[6]);
+          vtkMarchingCubesComputePointGradient(
+            i, j + 1, k + 1, scalars, dims, sliceSize, gradients[7]);
         }
-        for (contNum=0; contNum < numValues; contNum++)
+        for (contNum = 0; contNum < numValues; contNum++)
         {
           value = values[contNum];
           // Build the case table
-          for ( ii=0, index = 0; ii < 8; ii++)
+          for (ii = 0, index = 0; ii < 8; ii++)
           {
-            if ( s[ii] >= value )
+            if (s[ii] >= value)
             {
               index |= CASE_MASK[ii];
             }
           }
-          if ( index == 0 || index == 255 ) //no surface
+          if (index == 0 || index == 255) // no surface
           {
             continue;
           }
 
-          triCase = triCases+ index;
+          triCase = triCases + index;
           edge = triCase->edges;
 
-          for ( ; edge[0] > -1; edge += 3 )
+          for (; edge[0] > -1; edge += 3)
           {
-            for (ii=0; ii<3; ii++) //insert triangle
+            for (ii = 0; ii < 3; ii++) // insert triangle
             {
               vert = edges[edge[ii]];
               t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
@@ -323,105 +322,99 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
               x[2] = x1[2] + t * (x2[2] - x1[2]);
 
               // check for a new point
-              if ( locator->InsertUniquePoint(x, ptIds[ii]) )
+              if (locator->InsertUniquePoint(x, ptIds[ii]))
               {
-                  if (NeedGradients)
-                  {
-                    n1 = gradients[vert[0]];
-                    n2 = gradients[vert[1]];
-                    n[0] = n1[0] + t * (n2[0] - n1[0]);
-                    n[1] = n1[1] + t * (n2[1] - n1[1]);
-                    n[2] = n1[2] + t * (n2[2] - n1[2]);
-                  }
-                  if (ComputeScalars)
-                  {
-                    newScalars->InsertTuple(ptIds[ii],&value);
-                  }
-                  if (ComputeGradients)
-                  {
-                    newGradients->InsertTuple(ptIds[ii],n);
-                  }
-                  if (ComputeNormals)
-                  {
-                    vtkMath::Normalize(n);
-                    newNormals->InsertTuple(ptIds[ii],n);
-                  }
+                if (NeedGradients)
+                {
+                  n1 = gradients[vert[0]];
+                  n2 = gradients[vert[1]];
+                  n[0] = n1[0] + t * (n2[0] - n1[0]);
+                  n[1] = n1[1] + t * (n2[1] - n1[1]);
+                  n[2] = n1[2] + t * (n2[2] - n1[2]);
+                }
+                if (ComputeScalars)
+                {
+                  newScalars->InsertTuple(ptIds[ii], &value);
+                }
+                if (ComputeGradients)
+                {
+                  newGradients->InsertTuple(ptIds[ii], n);
+                }
+                if (ComputeNormals)
+                {
+                  vtkMath::Normalize(n);
+                  newNormals->InsertTuple(ptIds[ii], n);
+                }
               }
             }
             // check for degenerate triangle
-            if ( ptIds[0] != ptIds[1] &&
-                 ptIds[0] != ptIds[2] &&
-                 ptIds[1] != ptIds[2] )
+            if (ptIds[0] != ptIds[1] && ptIds[0] != ptIds[2] && ptIds[1] != ptIds[2])
             {
-                newPolys->InsertNextCell(3,ptIds);
+              newPolys->InsertNextCell(3, ptIds);
             }
-          }//for each triangle
-        }//for all contours
-      }//for i
-    }//for j
-  }//for k
+          } // for each triangle
+        }   // for all contours
+      }     // for i
+    }       // for j
+  }         // for k
 }
 
 //
 // Contouring filter specialized for volumes and "short int" data values.
 //
-int vtkMarchingCubes::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkImageData *input = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *newPts;
-  vtkCellArray *newPolys;
-  vtkFloatArray *newScalars;
-  vtkFloatArray *newNormals;
-  vtkFloatArray *newGradients;
-  vtkPointData *pd;
-  vtkDataArray *inScalars;
+  vtkPoints* newPts;
+  vtkCellArray* newPolys;
+  vtkFloatArray* newScalars;
+  vtkFloatArray* newNormals;
+  vtkFloatArray* newGradients;
+  vtkPointData* pd;
+  vtkDataArray* inScalars;
   int dims[3], extent[6];
   vtkIdType estimatedSize;
   double bounds[6];
-  vtkIdType numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
+  vtkIdType numContours = this->ContourValues->GetNumberOfContours();
+  double* values = this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching cubes");
 
-//
-// Initialize and check input
-//
-  pd=input->GetPointData();
-  if (pd ==nullptr)
+  //
+  // Initialize and check input
+  //
+  pd = input->GetPointData();
+  if (pd == nullptr)
   {
-    vtkErrorMacro(<<"PointData is nullptr");
+    vtkErrorMacro(<< "PointData is nullptr");
     return 1;
   }
-  vtkInformationVector *inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
-  if(inArrayVec)
-  { //we have been passed an input array
-    inScalars=this->GetInputArrayToProcess(0,inputVector);
+  vtkInformationVector* inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (inArrayVec)
+  { // we have been passed an input array
+    inScalars = this->GetInputArrayToProcess(0, inputVector);
   }
   else
   {
     inScalars = pd->GetScalars();
   }
-  if ( inScalars == nullptr )
+  if (inScalars == nullptr)
   {
-    vtkErrorMacro(<<"Scalars must be defined for contouring");
+    vtkErrorMacro(<< "Scalars must be defined for contouring");
     return 1;
   }
 
-  if ( input->GetDataDimension() != 3 )
+  if (input->GetDataDimension() != 3)
   {
-    vtkErrorMacro(<<"Cannot contour data of dimension != 3");
+    vtkErrorMacro(<< "Cannot contour data of dimension != 3");
     return 1;
   }
   input->GetDimensions(dims);
@@ -429,32 +422,32 @@ int vtkMarchingCubes::RequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
 
   // estimate the number of points from the volume dimensions
-  estimatedSize = static_cast<vtkIdType>(
-    pow(1.0*dims[0]*dims[1]*dims[2], 0.75));
-  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  estimatedSize = static_cast<vtkIdType>(pow(1.0 * dims[0] * dims[1] * dims[2], 0.75));
+  estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
   if (estimatedSize < 1024)
   {
     estimatedSize = 1024;
   }
   vtkDebugMacro(<< "Estimated allocation size is " << estimatedSize);
-  newPts = vtkPoints::New(); newPts->Allocate(estimatedSize,estimatedSize/2);
+  newPts = vtkPoints::New();
+  newPts->Allocate(estimatedSize, estimatedSize / 2);
   // compute bounds for merging points
-  for ( int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
-    bounds[2*i] = extent[2*i];
-    bounds[2*i+1] = extent[2*i+1];
+    bounds[2 * i] = extent[2 * i];
+    bounds[2 * i + 1] = extent[2 * i + 1];
   }
-  if ( this->Locator == nullptr )
+  if (this->Locator == nullptr)
   {
     this->CreateDefaultLocator();
   }
-  this->Locator->InitPointInsertion (newPts, bounds, estimatedSize);
+  this->Locator->InitPointInsertion(newPts, bounds, estimatedSize);
 
   if (this->ComputeNormals)
   {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->Allocate(3*estimatedSize,3*estimatedSize/2);
+    newNormals->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
   }
   else
   {
@@ -465,7 +458,7 @@ int vtkMarchingCubes::RequestData(
   {
     newGradients = vtkFloatArray::New();
     newGradients->SetNumberOfComponents(3);
-    newGradients->Allocate(3*estimatedSize,3*estimatedSize/2);
+    newGradients->Allocate(3 * estimatedSize, 3 * estimatedSize / 2);
   }
   else
   {
@@ -478,46 +471,39 @@ int vtkMarchingCubes::RequestData(
   if (this->ComputeScalars)
   {
     newScalars = vtkFloatArray::New();
-    newScalars->Allocate(estimatedSize,estimatedSize/2);
+    newScalars->Allocate(estimatedSize, estimatedSize / 2);
   }
   else
   {
     newScalars = nullptr;
   }
 
-  if (inScalars->GetNumberOfComponents() == 1 )
+  if (inScalars->GetNumberOfComponents() == 1)
   {
     void* scalars = inScalars->GetVoidPointer(0);
     switch (inScalars->GetDataType())
     {
-      vtkTemplateMacro(
-        vtkMarchingCubesComputeGradient(this, static_cast<VTK_TT*>(scalars),
-                                        dims,this->Locator,
-                                        newScalars,newGradients,
-                                        newNormals,newPolys,values,
-                                        numContours)
-        );
-    } //switch
+      vtkTemplateMacro(vtkMarchingCubesComputeGradient(this, static_cast<VTK_TT*>(scalars), dims,
+        this->Locator, newScalars, newGradients, newNormals, newPolys, values, numContours));
+    } // switch
   }
 
-  else //multiple components - have to convert
+  else // multiple components - have to convert
   {
     vtkIdType dataSize = static_cast<vtkIdType>(dims[0]) * dims[1] * dims[2];
-    vtkDoubleArray *image=vtkDoubleArray::New();
+    vtkDoubleArray* image = vtkDoubleArray::New();
     image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    image->SetNumberOfTuples(image->GetNumberOfComponents()*dataSize);
-    inScalars->GetTuples(0,dataSize,image);
+    image->SetNumberOfTuples(image->GetNumberOfComponents() * dataSize);
+    inScalars->GetTuples(0, dataSize, image);
 
-    double *scalars = image->GetPointer(0);
-    vtkMarchingCubesComputeGradient(this,scalars,dims,this->Locator,
-                  newScalars,newGradients,
-                  newNormals,newPolys,values,numContours);
+    double* scalars = image->GetPointer(0);
+    vtkMarchingCubesComputeGradient(this, scalars, dims, this->Locator, newScalars, newGradients,
+      newNormals, newPolys, values, numContours);
     image->Delete();
   }
 
-  vtkDebugMacro(<<"Created: "
-               << newPts->GetNumberOfPoints() << " points, "
-               << newPolys->GetNumberOfCells() << " triangles");
+  vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "
+                << newPolys->GetNumberOfCells() << " triangles");
   //
   // Update ourselves.  Because we don't know up front how many triangles
   // we've created, take care to reclaim memory.
@@ -547,7 +533,7 @@ int vtkMarchingCubes::RequestData(
   output->Squeeze();
   if (this->Locator)
   {
-    this->Locator->Initialize(); //free storage
+    this->Locator->Initialize(); // free storage
   }
 
   vtkImageTransform::TransformPointSet(input, output);
@@ -558,14 +544,14 @@ int vtkMarchingCubes::RequestData(
 // Description:
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
-void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator *locator)
+void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator* locator)
 {
-  if ( this->Locator == locator )
+  if (this->Locator == locator)
   {
     return;
   }
 
-  if ( this->Locator )
+  if (this->Locator)
   {
     this->Locator->UnRegister(this);
     this->Locator = nullptr;
@@ -582,13 +568,13 @@ void vtkMarchingCubes::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkMarchingCubes::CreateDefaultLocator()
 {
-  if ( this->Locator == nullptr)
+  if (this->Locator == nullptr)
   {
     this->Locator = vtkMergePoints::New();
   }
 }
 
-int vtkMarchingCubes::FillInputPortInformation(int, vtkInformation *info)
+int vtkMarchingCubes::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
@@ -596,18 +582,18 @@ int vtkMarchingCubes::FillInputPortInformation(int, vtkInformation *info)
 
 void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  this->ContourValues->PrintSelf(os,indent.GetNextIndent());
+  this->ContourValues->PrintSelf(os, indent.GetNextIndent());
 
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
 
-  if ( this->Locator )
+  if (this->Locator)
   {
     os << indent << "Locator:" << this->Locator << "\n";
-    this->Locator->PrintSelf(os,indent.GetNextIndent());
+    this->Locator->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

@@ -32,8 +32,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestDynamic2DLabelMapper(int argc, char* argv[])
 {
@@ -48,8 +47,8 @@ int TestDynamic2DLabelMapper(int argc, char* argv[])
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     double v = 20.0 * static_cast<double>(i) / numPoints;
-    x[0] = v*cos(v);
-    x[1] = v*sin(v);
+    x[0] = v * cos(v);
+    x[1] = v * sin(v);
     x[2] = 0;
     pts->SetPoint(i, x);
 

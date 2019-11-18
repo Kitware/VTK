@@ -27,7 +27,7 @@
  * exits.  Otherwise the application might hang while trying to exit.
  * @sa
  * vtkWin32VideoSource vtkMILVideoSource
-*/
+ */
 
 #ifndef vtkVideoSource_h
 #define vtkVideoSource_h
@@ -43,8 +43,8 @@ class vtkScalarsToColors;
 class VTKIOVIDEO_EXPORT vtkVideoSource : public vtkImageAlgorithm
 {
 public:
-  static vtkVideoSource *New();
-  vtkTypeMacro(vtkVideoSource,vtkImageAlgorithm);
+  static vtkVideoSource* New();
+  vtkTypeMacro(vtkVideoSource, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -93,7 +93,7 @@ public:
    * Are we in record mode? (record mode and play mode are mutually
    * exclusive).
    */
-  vtkGetMacro(Recording,int);
+  vtkGetMacro(Recording, int);
   //@}
 
   //@{
@@ -101,7 +101,7 @@ public:
    * Are we in play mode? (record mode and play mode are mutually
    * exclusive).
    */
-  vtkGetMacro(Playing,int);
+  vtkGetMacro(Playing, int);
   //@}
 
   //@{
@@ -114,9 +114,8 @@ public:
    * can handle 3D acquisition).
    */
   virtual void SetFrameSize(int x, int y, int z);
-  virtual void SetFrameSize(int dim[3]) {
-    this->SetFrameSize(dim[0], dim[1], dim[2]); };
-  vtkGetVector3Macro(FrameSize,int);
+  virtual void SetFrameSize(int dim[3]) { this->SetFrameSize(dim[0], dim[1], dim[2]); }
+  vtkGetVector3Macro(FrameSize, int);
   //@}
 
   //@{
@@ -124,7 +123,7 @@ public:
    * Request a particular frame rate (default 30 frames per second).
    */
   virtual void SetFrameRate(float rate);
-  vtkGetMacro(FrameRate,float);
+  vtkGetMacro(FrameRate, float);
   //@}
 
   //@{
@@ -133,10 +132,10 @@ public:
    * usually only VTK_LUMINANCE, VTK_RGB, and VTK_RGBA are supported.
    */
   virtual void SetOutputFormat(int format);
-  void SetOutputFormatToLuminance() { this->SetOutputFormat(VTK_LUMINANCE); };
-  void SetOutputFormatToRGB() { this->SetOutputFormat(VTK_RGB); };
-  void SetOutputFormatToRGBA() { this->SetOutputFormat(VTK_RGBA); };
-  vtkGetMacro(OutputFormat,int);
+  void SetOutputFormatToLuminance() { this->SetOutputFormat(VTK_LUMINANCE); }
+  void SetOutputFormatToRGB() { this->SetOutputFormat(VTK_RGB); }
+  void SetOutputFormatToRGBA() { this->SetOutputFormat(VTK_RGBA); }
+  vtkGetMacro(OutputFormat, int);
   //@}
 
   //@{
@@ -145,7 +144,7 @@ public:
    * the 'tape' can store.
    */
   virtual void SetFrameBufferSize(int FrameBufferSize);
-  vtkGetMacro(FrameBufferSize,int);
+  vtkGetMacro(FrameBufferSize, int);
   //@}
 
   //@{
@@ -155,8 +154,8 @@ public:
    * most recent frame first.
    * Default: 1
    */
-  vtkSetMacro(NumberOfOutputFrames,int);
-  vtkGetMacro(NumberOfOutputFrames,int);
+  vtkSetMacro(NumberOfOutputFrames, int);
+  vtkGetMacro(NumberOfOutputFrames, int);
   //@}
 
   //@{
@@ -164,9 +163,9 @@ public:
    * Set whether to automatically advance the buffer before each grab.
    * Default: on
    */
-  vtkBooleanMacro(AutoAdvance,vtkTypeBool);
-  vtkSetMacro(AutoAdvance,vtkTypeBool)
-  vtkGetMacro(AutoAdvance,vtkTypeBool);
+  vtkBooleanMacro(AutoAdvance, vtkTypeBool);
+  vtkSetMacro(AutoAdvance, vtkTypeBool);
+  vtkGetMacro(AutoAdvance, vtkTypeBool);
   //@}
 
   //@{
@@ -176,10 +175,9 @@ public:
    * will destroy the current contents of the framebuffer.
    * The default ClipRegion is (0,VTK_INT_MAX,0,VTK_INT_MAX,0,VTK_INT_MAX).
    */
-  virtual void SetClipRegion(int r[6]) {
-    this->SetClipRegion(r[0],r[1],r[2],r[3],r[4],r[5]); };
+  virtual void SetClipRegion(int r[6]) { this->SetClipRegion(r[0], r[1], r[2], r[3], r[4], r[5]); }
   virtual void SetClipRegion(int x0, int x1, int y0, int y1, int z0, int z1);
-  vtkGetVector6Macro(ClipRegion,int);
+  vtkGetVector6Macro(ClipRegion, int);
   //@}
 
   //@{
@@ -192,8 +190,8 @@ public:
    * default is (0,-1,0,-1,0,-1) which causes the entire frame to be
    * copied to the output.
    */
-  vtkSetVector6Macro(OutputWholeExtent,int);
-  vtkGetVector6Macro(OutputWholeExtent,int);
+  vtkSetVector6Macro(OutputWholeExtent, int);
+  vtkGetVector6Macro(OutputWholeExtent, int);
   //@}
 
   //@{
@@ -201,8 +199,8 @@ public:
    * Set/Get the pixel spacing.
    * Default: (1.0,1.0,1.0)
    */
-  vtkSetVector3Macro(DataSpacing,double);
-  vtkGetVector3Macro(DataSpacing,double);
+  vtkSetVector3Macro(DataSpacing, double);
+  vtkGetVector3Macro(DataSpacing, double);
   //@}
 
   //@{
@@ -210,8 +208,8 @@ public:
    * Set/Get the coordinates of the lower, left corner of the frame.
    * Default: (0.0,0.0,0.0)
    */
-  vtkSetVector3Macro(DataOrigin,double);
-  vtkGetVector3Macro(DataOrigin,double);
+  vtkSetVector3Macro(DataOrigin, double);
+  vtkGetVector3Macro(DataOrigin, double);
   //@}
 
   //@{
@@ -220,8 +218,8 @@ public:
    * will not modify the existing contents of the framebuffer, only
    * subsequently grabbed frames.
    */
-  vtkSetMacro(Opacity,float);
-  vtkGetMacro(Opacity,float);
+  vtkSetMacro(Opacity, float);
+  vtkGetMacro(Opacity, float);
   //@}
 
   //@{
@@ -254,7 +252,7 @@ public:
    * the Output.  Time began on Jan 1, 1970.  This timestamp is only
    * valid after the Output has been Updated.
    */
-  double GetFrameTimeStamp() { return this->FrameTimeStamp; };
+  double GetFrameTimeStamp() { return this->FrameTimeStamp; }
 
   //@{
   /**
@@ -262,7 +260,7 @@ public:
    * on the first Update or Grab.
    */
   virtual void Initialize();
-  virtual int GetInitialized() { return this->Initialized; };
+  virtual int GetInitialized() { return this->Initialized; }
   //@}
 
   /**
@@ -284,14 +282,14 @@ public:
    * And internal variable which marks the beginning of a Record session.
    * These methods are for internal use only.
    */
-  void SetStartTimeStamp(double t) { this->StartTimeStamp = t; };
-  double GetStartTimeStamp() { return this->StartTimeStamp; };
+  void SetStartTimeStamp(double t) { this->StartTimeStamp = t; }
+  double GetStartTimeStamp() { return this->StartTimeStamp; }
   //@}
 
 protected:
   vtkVideoSource();
   ~vtkVideoSource() override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int Initialized;
 
@@ -332,12 +330,12 @@ protected:
   int OutputNeedsInitialization;
 
   // An example of asynchrony
-  vtkMultiThreader *PlayerThreader;
+  vtkMultiThreader* PlayerThreader;
   int PlayerThreadId;
 
   // A mutex for the frame buffer: must be applied when any of the
   // below data is modified.
-  vtkCriticalSection *FrameBufferMutex;
+  vtkCriticalSection* FrameBufferMutex;
 
   // set according to the needs of the hardware:
   // number of bits per framebuffer pixel
@@ -358,9 +356,8 @@ protected:
   // it does wrap, sometimes
   int FrameIndex;
 
-
-  void **FrameBuffer;
-  double *FrameBufferTimeStamps;
+  void** FrameBuffer;
+  double* FrameBufferTimeStamps;
 
   //@{
   /**
@@ -368,10 +365,9 @@ protected:
    */
   virtual void UpdateFrameBuffer();
   virtual void AdvanceFrameBuffer(int n);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   // if some component conversion is required, it is done here:
-  virtual void UnpackRasterLine(char *outPtr, char *rowPtr,
-                                int start, int count);
+  virtual void UnpackRasterLine(char* outPtr, char* rowPtr, int start, int count);
   //@}
 
 private:
@@ -380,8 +376,3 @@ private:
 };
 
 #endif
-
-
-
-
-

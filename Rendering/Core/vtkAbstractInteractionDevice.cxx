@@ -15,16 +15,18 @@
 
 #include "vtkObjectFactory.h"
 
-vtkAbstractObjectFactoryNewMacro(vtkAbstractInteractionDevice)
+vtkAbstractObjectFactoryNewMacro(vtkAbstractInteractionDevice);
 
 vtkAbstractInteractionDevice::vtkAbstractInteractionDevice()
-  : Initialized(false), RenderWidget(nullptr), RenderDevice(nullptr)
+  : Initialized(false)
+  , RenderWidget(nullptr)
+  , RenderDevice(nullptr)
 {
 }
 
 vtkAbstractInteractionDevice::~vtkAbstractInteractionDevice() = default;
 
-void vtkAbstractInteractionDevice::SetRenderWidget(vtkRenderWidget *widget)
+void vtkAbstractInteractionDevice::SetRenderWidget(vtkRenderWidget* widget)
 {
   if (this->RenderWidget != widget)
   {
@@ -33,7 +35,7 @@ void vtkAbstractInteractionDevice::SetRenderWidget(vtkRenderWidget *widget)
   }
 }
 
-void vtkAbstractInteractionDevice::SetRenderDevice(vtkAbstractRenderDevice *d)
+void vtkAbstractInteractionDevice::SetRenderDevice(vtkAbstractRenderDevice* d)
 {
   if (this->RenderDevice != d)
   {

@@ -32,20 +32,19 @@
 #include "vtkClosestPointStrategy.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 
-
 class VTKCOMMONDATAMODEL_EXPORT vtkClosestNPointsStrategy : public vtkClosestPointStrategy
 {
 public:
   /**
    * Construct a vtkFindCellStrategy subclass.
    */
-  static vtkClosestNPointsStrategy * New();
+  static vtkClosestNPointsStrategy* New();
 
   //@{
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkClosestNPointsStrategy,vtkClosestPointStrategy);
+  vtkTypeMacro(vtkClosestNPointsStrategy, vtkClosestPointStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -55,17 +54,15 @@ public:
   /**
    * Implement the specific strategy.
    */
-  vtkIdType FindCell(double x[3], vtkCell *cell,
-                     vtkGenericCell *gencell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
 
   //@{
   /**
    * Set / get the value for the N closest points.
    */
-  vtkSetClampMacro(ClosestNPoints,int,1,100);
-  vtkGetMacro(ClosestNPoints,int);
+  vtkSetClampMacro(ClosestNPoints, int, 1, 100);
+  vtkGetMacro(ClosestNPoints, int);
   //@}
 
 protected:
@@ -78,6 +75,5 @@ private:
   vtkClosestNPointsStrategy(const vtkClosestNPointsStrategy&) = delete;
   void operator=(const vtkClosestNPointsStrategy&) = delete;
 };
-
 
 #endif

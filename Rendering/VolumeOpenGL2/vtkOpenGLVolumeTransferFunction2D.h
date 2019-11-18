@@ -49,20 +49,15 @@ protected:
   /**
    * Update the internal texture object using the 2D image data
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
   /**
    * Override needs update to not test for scalar range changes since the range
    * is encoded in the vtkImageData
    */
-  bool NeedsUpdate(vtkObject* func,
-                   double scalarRange[2],
-                   int blendMode,
-                   double sampleDistance) override;
+  bool NeedsUpdate(
+    vtkObject* func, double scalarRange[2], int blendMode, double sampleDistance) override;
 
   /**
    * Override allocate table to do nothing as no internal table management is
@@ -73,10 +68,8 @@ protected:
   vtkNew<vtkImageResize> ResizeFilter;
 
 private:
-  vtkOpenGLVolumeTransferFunction2D(const vtkOpenGLVolumeTransferFunction2D&) =
-    delete;
-  vtkOpenGLVolumeTransferFunction2D& operator=(
-    const vtkOpenGLVolumeTransferFunction2D&) = delete;
+  vtkOpenGLVolumeTransferFunction2D(const vtkOpenGLVolumeTransferFunction2D&) = delete;
+  vtkOpenGLVolumeTransferFunction2D& operator=(const vtkOpenGLVolumeTransferFunction2D&) = delete;
 };
 
 #endif // __VTK_WRAP__

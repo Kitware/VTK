@@ -55,15 +55,14 @@
  *
  * @sa
  * vtkPointInterpolator
-*/
+ */
 
 #ifndef vtkPointInterpolator2D_h
 #define vtkPointInterpolator2D_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPointInterpolator.h"
-#include "vtkStdString.h"        // For vtkStdString ivars
-
+#include "vtkStdString.h" // For vtkStdString ivars
 
 class VTKFILTERSPOINTS_EXPORT vtkPointInterpolator2D : public vtkPointInterpolator
 {
@@ -73,8 +72,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing.
    */
-  static vtkPointInterpolator2D *New();
-  vtkTypeMacro(vtkPointInterpolator2D,vtkPointInterpolator);
+  static vtkPointInterpolator2D* New();
+  vtkTypeMacro(vtkPointInterpolator2D, vtkPointInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -84,9 +83,9 @@ public:
    * attributes to be interpolated. This is in addition to any other point
    * attribute data associated with the source. By default this is enabled.
    */
-  vtkSetMacro(InterpolateZ,bool);
-  vtkGetMacro(InterpolateZ,bool);
-  vtkBooleanMacro(InterpolateZ,bool);
+  vtkSetMacro(InterpolateZ, bool);
+  vtkGetMacro(InterpolateZ, bool);
+  vtkBooleanMacro(InterpolateZ, bool);
   //@}
 
   //@{
@@ -110,12 +109,11 @@ protected:
   vtkStdString ZArrayName;
 
   // The driver of the algorithm
-  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output) override;
+  void Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* output) override;
 
 private:
   vtkPointInterpolator2D(const vtkPointInterpolator2D&) = delete;
   void operator=(const vtkPointInterpolator2D&) = delete;
-
 };
 
 #endif

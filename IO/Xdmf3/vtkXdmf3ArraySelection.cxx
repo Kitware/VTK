@@ -55,7 +55,7 @@ bool vtkXdmf3ArraySelection::HasArray(const char* name)
 //--------------------------------------------------------------------------
 int vtkXdmf3ArraySelection::GetArraySetting(const char* name)
 {
-  return this->ArrayIsEnabled(name)? 1 : 0;
+  return this->ArrayIsEnabled(name) ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------
@@ -67,11 +67,10 @@ void vtkXdmf3ArraySelection::SetArrayStatus(const char* name, bool status)
 //--------------------------------------------------------------------------
 const char* vtkXdmf3ArraySelection::GetArrayName(int index)
 {
-  int cc=0;
-  for (vtkXdmf3ArraySelection::iterator iter = this->begin();
-      iter != this->end(); ++iter)
+  int cc = 0;
+  for (vtkXdmf3ArraySelection::iterator iter = this->begin(); iter != this->end(); ++iter)
   {
-    if (cc==index)
+    if (cc == index)
     {
       return iter->first.c_str();
     }

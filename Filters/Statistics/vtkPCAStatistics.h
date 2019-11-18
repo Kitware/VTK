@@ -48,7 +48,7 @@ PURPOSE.  See the above copyright notice for more information.
  * Sandia National Laboratories for implementing this class.
  * Updated by Philippe Pebay, Kitware SAS 2012
  * Updated by Tristan Coulange and Joachim Pouderoux, Kitware SAS 2013
-*/
+ */
 
 #ifndef vtkPCAStatistics_h
 #define vtkPCAStatistics_h
@@ -62,8 +62,8 @@ class vtkIdTypeArray;
 class VTKFILTERSSTATISTICS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeStatistics
 {
 public:
-  vtkTypeMacro(vtkPCAStatistics,vtkMultiCorrelativeStatistics);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkPCAStatistics, vtkMultiCorrelativeStatistics);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPCAStatistics* New();
 
   /**
@@ -112,10 +112,10 @@ public:
    * perform some pre-processing to shift and scale input data columns
    * appropriately than to expect magical results from a shady normalization hack.
    */
-  vtkSetMacro(NormalizationScheme,int);
-  vtkGetMacro(NormalizationScheme,int);
-  virtual void SetNormalizationSchemeByName( const char* sname );
-  virtual const char* GetNormalizationSchemeName( int scheme );
+  vtkSetMacro(NormalizationScheme, int);
+  vtkGetMacro(NormalizationScheme, int);
+  virtual void SetNormalizationSchemeByName(const char* sname);
+  virtual const char* GetNormalizationSchemeName(int scheme);
   //@}
 
   //@{
@@ -144,7 +144,7 @@ public:
    * and therefore does not make a pipeline connection.
    */
   virtual vtkTable* GetSpecifiedNormalization();
-  virtual void SetSpecifiedNormalization( vtkTable* );
+  virtual void SetSpecifiedNormalization(vtkTable*);
   //@}
 
   //@{
@@ -170,8 +170,8 @@ public:
    * This function:
    * void GetEigenvectors(int request, vtkDoubleArray* eigenvectors)
    * does all of the work. The other functions are convenience functions that call this function
-   * with default arguments. These functions are not valid unless Update() has been called and the Derive
-   * option is turned on.
+   * with default arguments. These functions are not valid unless Update() has been called and the
+   * Derive option is turned on.
    */
   void GetEigenvectors(int request, vtkDoubleArray* eigenvectors);
   void GetEigenvectors(vtkDoubleArray* eigenvectors);
@@ -207,28 +207,30 @@ public:
 
    * By default BasisScheme is set to vtkPCAStatistics::FULL_BASIS.
    */
-  vtkSetMacro(BasisScheme,int);
-  vtkGetMacro(BasisScheme,int);
-  virtual const char* GetBasisSchemeName( int schemeIndex );
-  virtual void SetBasisSchemeByName( const char* schemeName );
+  vtkSetMacro(BasisScheme, int);
+  vtkGetMacro(BasisScheme, int);
+  virtual const char* GetBasisSchemeName(int schemeIndex);
+  virtual void SetBasisSchemeByName(const char* schemeName);
   //@}
 
   //@{
   /**
    * The number of basis vectors to use. See SetBasisScheme() for more information.
-   * When FixedBasisSize <= 0 (the default), the fixed basis size scheme is equivalent to the full basis scheme.
+   * When FixedBasisSize <= 0 (the default), the fixed basis size scheme is equivalent to the full
+   * basis scheme.
    */
-  vtkSetMacro(FixedBasisSize,int);
-  vtkGetMacro(FixedBasisSize,int);
+  vtkSetMacro(FixedBasisSize, int);
+  vtkGetMacro(FixedBasisSize, int);
   //@}
 
   //@{
   /**
-   * The minimum energy the new basis should use, as a fraction. See SetBasisScheme() for more information.
-   * When FixedBasisEnergy >= 1 (the default), the fixed basis energy scheme is equivalent to the full basis scheme.
+   * The minimum energy the new basis should use, as a fraction. See SetBasisScheme() for more
+   * information. When FixedBasisEnergy >= 1 (the default), the fixed basis energy scheme is
+   * equivalent to the full basis scheme.
    */
-  vtkSetClampMacro(FixedBasisEnergy,double,0.,1.);
-  vtkGetMacro(FixedBasisEnergy,double);
+  vtkSetClampMacro(FixedBasisEnergy, double, 0., 1.);
+  vtkGetMacro(FixedBasisEnergy, double);
   //@}
 
   /**
@@ -236,9 +238,7 @@ public:
    * set parameter values.
    * Return true if setting of requested parameter name was executed, false otherwise.
    */
-  bool SetParameter( const char* parameter,
-                     int index,
-                     vtkVariant value ) override;
+  bool SetParameter(const char* parameter, int index, vtkVariant value) override;
 
 protected:
   vtkPCAStatistics();
@@ -249,26 +249,22 @@ protected:
    * its fourth input (port 3).
    * We override FillInputPortInformation to indicate this.
    */
-  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) override;
+  void Derive(vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test( vtkTable*,
-             vtkMultiBlockDataSet*,
-             vtkTable* ) override;
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess( vtkTable*,
-               vtkMultiBlockDataSet*,
-               vtkTable* ) override;
+  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -279,10 +275,8 @@ protected:
   /**
    * Provide the appropriate assessment functor.
    */
-  void SelectAssessFunctor( vtkTable* inData,
-                            vtkDataObject* inMeta,
-                            vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) override;
+  void SelectAssessFunctor(vtkTable* inData, vtkDataObject* inMeta, vtkStringArray* rowNames,
+    AssessFunctor*& dfunc) override;
 
   int NormalizationScheme;
   int BasisScheme;
@@ -293,9 +287,8 @@ protected:
   static const char* NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1];
 
 private:
-  vtkPCAStatistics( const vtkPCAStatistics& ) = delete;
-  void operator = ( const vtkPCAStatistics& ) = delete;
+  vtkPCAStatistics(const vtkPCAStatistics&) = delete;
+  void operator=(const vtkPCAStatistics&) = delete;
 };
 
 #endif // vtkPCAStatistics_h
-

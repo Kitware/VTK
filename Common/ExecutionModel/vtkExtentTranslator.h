@@ -20,7 +20,7 @@
  * vtkExtentTranslator generates a structured extent from an unstructured
  * extent.  It uses a recursive scheme that splits the largest axis.  A hard
  * coded extent can be used for a starting point.
-*/
+ */
 
 #ifndef vtkExtentTranslator_h
 #define vtkExtentTranslator_h
@@ -34,9 +34,9 @@ class vtkInformationIntegerKey;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentTranslator : public vtkObject
 {
 public:
-  static vtkExtentTranslator *New();
+  static vtkExtentTranslator* New();
 
-  vtkTypeMacro(vtkExtentTranslator,vtkObject);
+  vtkTypeMacro(vtkExtentTranslator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -48,10 +48,10 @@ public:
   vtkGetVector6Macro(WholeExtent, int);
   vtkSetVector6Macro(Extent, int);
   vtkGetVector6Macro(Extent, int);
-  vtkSetMacro(Piece,int);
-  vtkGetMacro(Piece,int);
-  vtkSetMacro(NumberOfPieces,int);
-  vtkGetMacro(NumberOfPieces,int);
+  vtkSetMacro(Piece, int);
+  vtkGetMacro(Piece, int);
+  vtkSetMacro(NumberOfPieces, int);
+  vtkGetMacro(NumberOfPieces, int);
   vtkSetMacro(GhostLevel, int);
   vtkGetMacro(GhostLevel, int);
   //@}
@@ -66,13 +66,9 @@ public:
    */
   virtual int PieceToExtent();
   virtual int PieceToExtentByPoints();
-  virtual int PieceToExtentThreadSafe(int piece, int numPieces,
-                                      int ghostLevel, int *wholeExtent,
-                                      int *resultExtent, int splitMode,
-                                      int byPoints);
+  virtual int PieceToExtentThreadSafe(int piece, int numPieces, int ghostLevel, int* wholeExtent,
+    int* resultExtent, int splitMode, int byPoints);
   //@}
-
-
 
   /**
    * How should the streamer break up extents. Block mode
@@ -81,15 +77,11 @@ public:
    * Slab mode first breaks up the Z axis.  If it gets to one slice,
    * then it starts breaking up other axes.
    */
-  void SetSplitModeToBlock()
-    {this->SplitMode = vtkExtentTranslator::BLOCK_MODE;}
-  void SetSplitModeToXSlab()
-    {this->SplitMode = vtkExtentTranslator::X_SLAB_MODE;}
-  void SetSplitModeToYSlab()
-    {this->SplitMode = vtkExtentTranslator::Y_SLAB_MODE;}
-  void SetSplitModeToZSlab()
-    {this->SplitMode = vtkExtentTranslator::Z_SLAB_MODE;}
-  vtkGetMacro(SplitMode,int);
+  void SetSplitModeToBlock() { this->SplitMode = vtkExtentTranslator::BLOCK_MODE; }
+  void SetSplitModeToXSlab() { this->SplitMode = vtkExtentTranslator::X_SLAB_MODE; }
+  void SetSplitModeToYSlab() { this->SplitMode = vtkExtentTranslator::Y_SLAB_MODE; }
+  void SetSplitModeToZSlab() { this->SplitMode = vtkExtentTranslator::Z_SLAB_MODE; }
+  vtkGetMacro(SplitMode, int);
 
   /**
    * By default the translator creates N structured subextents by repeatedly
@@ -98,16 +90,16 @@ public:
    * shortest dimension is the slowest changing and thus least coherent in memory,
    * use this to tell the translator which dimensions to split.
    */
-  void SetSplitPath(int len, int *splitpath);
+  void SetSplitPath(int len, int* splitpath);
 
   // Don't change the numbers here - they are used in the code
   // to indicate array indices.
   enum Modes
   {
-    X_SLAB_MODE=0,
-    Y_SLAB_MODE=1,
-    Z_SLAB_MODE=2,
-    BLOCK_MODE= 3
+    X_SLAB_MODE = 0,
+    Y_SLAB_MODE = 1,
+    Z_SLAB_MODE = 2,
+    BLOCK_MODE = 3
   };
 
   /**
@@ -130,9 +122,8 @@ protected:
    * The whole extent Should be passed in as the extent.
    * It is modified to return the result.
    */
-  int SplitExtent(int piece, int numPieces, int *extent, int splitMode);
-  int SplitExtentByPoints(int piece, int numPieces, int *extent,
-                          int splitMode);
+  int SplitExtent(int piece, int numPieces, int* extent, int splitMode);
+  int SplitExtentByPoints(int piece, int numPieces, int* extent, int splitMode);
   //@}
 
   int Piece;

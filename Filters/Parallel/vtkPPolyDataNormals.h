@@ -16,7 +16,7 @@
  * @class   vtkPPolyDataNormals
  * @brief   compute normals for polygonal mesh
  *
-*/
+ */
 
 #ifndef vtkPPolyDataNormals_h
 #define vtkPPolyDataNormals_h
@@ -27,10 +27,10 @@
 class VTKFILTERSPARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
-  vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
+  vtkTypeMacro(vtkPPolyDataNormals, vtkPolyDataNormals);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPPolyDataNormals *New();
+  static vtkPPolyDataNormals* New();
 
   //@{
   /**
@@ -47,10 +47,11 @@ protected:
   ~vtkPPolyDataNormals() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool PieceInvariant;
+
 private:
   vtkPPolyDataNormals(const vtkPPolyDataNormals&) = delete;
   void operator=(const vtkPPolyDataNormals&) = delete;

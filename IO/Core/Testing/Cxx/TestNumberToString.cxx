@@ -27,7 +27,7 @@ int TestConvert(const unsigned int samples);
 template <typename T>
 int ConvertNumericLimitsValue(const char* t, T);
 }
-int TestNumberToString(int, char* [])
+int TestNumberToString(int, char*[])
 {
   int status = EXIT_SUCCESS;
   ;

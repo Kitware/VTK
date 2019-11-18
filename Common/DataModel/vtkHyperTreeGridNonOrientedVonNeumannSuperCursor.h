@@ -33,7 +33,7 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedVonNeumannSuperCursor_h
 #define vtkHyperTreeGridNonOrientedVonNeumannSuperCursor_h
@@ -42,25 +42,26 @@
 
 class vtkHyperTreeGrid;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedVonNeumannSuperCursor : public vtkHyperTreeGridNonOrientedSuperCursor
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
+  : public vtkHyperTreeGridNonOrientedSuperCursor
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridNonOrientedVonNeumannSuperCursor, vtkHyperTreeGridNonOrientedSuperCursor);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(
+    vtkHyperTreeGridNonOrientedVonNeumannSuperCursor, vtkHyperTreeGridNonOrientedSuperCursor);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedVonNeumannSuperCursor* New();
 
   /**
    * Initialize cursor at root of given tree index in grid.
    * JB Le create ne s'applique que sur le HT central.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false ) override;
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) override;
 
 protected:
-
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() {};
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() {}
 
   /**
    * Destructor
@@ -68,7 +69,8 @@ protected:
   ~vtkHyperTreeGridNonOrientedVonNeumannSuperCursor() override;
 
 private:
-  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor(const vtkHyperTreeGridNonOrientedVonNeumannSuperCursor&) = delete;
+  vtkHyperTreeGridNonOrientedVonNeumannSuperCursor(
+    const vtkHyperTreeGridNonOrientedVonNeumannSuperCursor&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedVonNeumannSuperCursor&) = delete;
 };
 

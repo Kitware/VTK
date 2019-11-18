@@ -16,11 +16,13 @@
 #include "vtkDebugLeaks.h"
 
 #ifdef VTK_DEBUG_LEAKS
-static const char *leakname = "vtkCommand or subclass";
+static const char* leakname = "vtkCommand or subclass";
 #endif
 
 //----------------------------------------------------------------
-vtkCommand::vtkCommand():AbortFlag(0),PassiveObserver(0)
+vtkCommand::vtkCommand()
+  : AbortFlag(0)
+  , PassiveObserver(0)
 {
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass(leakname);
@@ -30,7 +32,7 @@ vtkCommand::vtkCommand():AbortFlag(0),PassiveObserver(0)
 //----------------------------------------------------------------
 void vtkCommand::UnRegister()
 {
-  int refcount = this->GetReferenceCount()-1;
+  int refcount = this->GetReferenceCount() - 1;
   this->SetReferenceCount(refcount);
   if (refcount <= 0)
   {
@@ -42,22 +44,24 @@ void vtkCommand::UnRegister()
 }
 
 //----------------------------------------------------------------
-const char *vtkCommand::GetStringFromEventId(unsigned long event)
+const char* vtkCommand::GetStringFromEventId(unsigned long event)
 {
   switch (event)
   {
-#define _vtk_add_event(Enum)\
-  case Enum: return #Enum;
+// clang-format off
+#define _vtk_add_event(Enum)                                                                       \
+  case Enum:                                                                                       \
+    return #Enum;
 
   vtkAllEventsMacro()
 
 #undef _vtk_add_event
+      // clang-format on
 
-  case UserEvent:
-    return "UserEvent";
+      case UserEvent : return "UserEvent";
 
-  case NoEvent:
-    return "NoEvent";
+    case NoEvent:
+      return "NoEvent";
   }
 
   // Unknown event. Original code was returning NoEvent, so I'll stick with
@@ -66,19 +70,27 @@ const char *vtkCommand::GetStringFromEventId(unsigned long event)
 }
 
 //----------------------------------------------------------------
-unsigned long vtkCommand::GetEventIdFromString(const char *event)
+unsigned long vtkCommand::GetEventIdFromString(const char* event)
 {
   if (event)
   {
-#define _vtk_add_event(Enum)\
-    if (strcmp(event, #Enum) == 0) {return Enum;}
+
+// clang-format off
+#define _vtk_add_event(Enum)                                                                       \
+  if (strcmp(event, #Enum) == 0)                                                                   \
+  {                                                                                                \
+    return Enum;                                                                                   \
+  }
+
     vtkAllEventsMacro()
+
 #undef _vtk_add_event
 
     if (strcmp("UserEvent",event) == 0)
     {
       return vtkCommand::UserEvent;
     }
+    // clang-format on
   }
 
   return vtkCommand::NoEvent;

@@ -28,16 +28,16 @@
 class vtkPolyData;
 class vtkDataSet;
 
-namespace tovtkm {
+namespace tovtkm
+{
 // convert an polydata type
 VTKACCELERATORSVTKM_EXPORT
-vtkm::cont::DataSet Convert(vtkPolyData* input,
-                            FieldsFlag fields = FieldsFlag::None);
+vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields = FieldsFlag::None);
 }
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 VTKACCELERATORSVTKM_EXPORT
-bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output,
-             vtkDataSet* input);
+bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input);
 }
 #endif // vtkmlib_PolyDataConverter_h

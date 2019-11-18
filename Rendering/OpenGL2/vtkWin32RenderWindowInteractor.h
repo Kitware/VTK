@@ -25,7 +25,7 @@
  * messages into the event bindings by setting InstallMessageProc to false.
  * This provides a minimal "Mapped" mode of interaction
  *
-*/
+ */
 
 #ifndef vtkWin32RenderWindowInteractor_h
 #define vtkWin32RenderWindowInteractor_h
@@ -45,9 +45,9 @@ public:
   /**
    * Construct object so that light follows camera motion.
    */
-  static vtkWin32RenderWindowInteractor *New();
+  static vtkWin32RenderWindowInteractor* New();
 
-  vtkTypeMacro(vtkWin32RenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(vtkWin32RenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -83,9 +83,9 @@ public:
    * MFC or BCB programs can prevent this and instead directly route any mouse/key
    * messages into the event bindings by setting InstallMessgeProc to false.
    */
-  vtkSetMacro(InstallMessageProc,int);
-  vtkGetMacro(InstallMessageProc,int);
-  vtkBooleanMacro(InstallMessageProc,int);
+  vtkSetMacro(InstallMessageProc, int);
+  vtkGetMacro(InstallMessageProc, int);
+  vtkBooleanMacro(InstallMessageProc, int);
   //@}
 
   /**
@@ -95,8 +95,10 @@ public:
    */
   void TerminateApp(void) override;
 
-  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
-  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
+  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(
+    HWND hwnd, UINT uMsg, WPARAM w, LPARAM l);
+  friend VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(
+    HWND hwnd, UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor* me);
 
   //@{
   /**
@@ -130,8 +132,8 @@ public:
    * provided as a means to control how an interactor is exited given
    * the various language bindings (Win32, etc.).
    */
-  static void SetClassExitMethod(void (*f)(void *), void *arg);
-  static void SetClassExitMethodArgDelete(void (*f)(void *));
+  static void SetClassExitMethod(void (*f)(void*), void* arg);
+  static void SetClassExitMethodArgDelete(void (*f)(void*));
   //@}
 
   /**
@@ -144,11 +146,11 @@ protected:
   vtkWin32RenderWindowInteractor();
   ~vtkWin32RenderWindowInteractor();
 
-  HWND    WindowId;
+  HWND WindowId;
   WNDPROC OldProc;
-  int     InstallMessageProc;
-  int     MouseInWindow;
-  int     StartedMessageLoop;
+  int InstallMessageProc;
+  int MouseInWindow;
+  int StartedMessageLoop;
 
   //@{
   /**
@@ -156,9 +158,9 @@ protected:
    * (used to set different exit methods for various language bindings,
    * i.e. java, Win32)
    */
-  static void (*ClassExitMethod)(void *);
-  static void (*ClassExitMethodArgDelete)(void *);
-  static void *ClassExitMethodArg;
+  static void (*ClassExitMethod)(void*);
+  static void (*ClassExitMethodArgDelete)(void*);
+  static void* ClassExitMethodArg;
   //@}
 
   //@{
@@ -178,7 +180,7 @@ protected:
   void StartEventLoop() override;
 
 #ifdef VTK_USE_TDX
-  vtkTDxWinDevice *Device;
+  vtkTDxWinDevice* Device;
 #endif
 
 private:

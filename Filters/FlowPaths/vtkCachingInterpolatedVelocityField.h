@@ -39,7 +39,7 @@
  *
  * @todo
  * Need to clean up style to match vtk/Kitware standards. Please help.
-*/
+ */
 
 #ifndef vtkCachingInterpolatedVelocityField_h
 #define vtkCachingInterpolatedVelocityField_h
@@ -59,20 +59,22 @@ class vtkAbstractCellLocator;
 //---------------------------------------------------------------------------
 class IVFDataSetInfo;
 //---------------------------------------------------------------------------
-class IVFCacheList : public std::vector< IVFDataSetInfo > {};
+class IVFCacheList : public std::vector<IVFDataSetInfo>
+{
+};
 //---------------------------------------------------------------------------
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
-  vtkTypeMacro(vtkCachingInterpolatedVelocityField,vtkFunctionSet);
+  vtkTypeMacro(vtkCachingInterpolatedVelocityField, vtkFunctionSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkCachingInterpolatedVelocityField with no initial data set.
    * LastCellId is set to -1.
    */
-  static vtkCachingInterpolatedVelocityField *New();
+  static vtkCachingInterpolatedVelocityField* New();
 
   using Superclass::FunctionValues;
   //@{
@@ -87,7 +89,8 @@ public:
   /**
    * Add a dataset used by the interpolation function evaluation.
    */
-  virtual void SetDataSet(int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator *locator);
+  virtual void SetDataSet(
+    int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator* locator);
 
   //@{
   /**
@@ -96,8 +99,7 @@ public:
    * array.
    */
   vtkGetStringMacro(VectorsSelection);
-  void SelectVectors(const char *fieldName)
-    {this->SetVectorsSelection(fieldName);}
+  void SelectVectors(const char* fieldName) { this->SetVectorsSelection(fieldName); }
   //@}
 
   /**
@@ -134,26 +136,26 @@ public:
 
 protected:
   vtkCachingInterpolatedVelocityField();
- ~vtkCachingInterpolatedVelocityField() override;
+  ~vtkCachingInterpolatedVelocityField() override;
 
-  vtkGenericCell          *TempCell;
-  int                      CellCacheHit;
-  int                      DataSetCacheHit;
-  int                      CacheMiss;
-  int                      LastCacheIndex;
-  int                      LastCellId;
-  IVFDataSetInfo          *Cache;
-  IVFCacheList          CacheList;
-  char                    *VectorsSelection;
+  vtkGenericCell* TempCell;
+  int CellCacheHit;
+  int DataSetCacheHit;
+  int CacheMiss;
+  int LastCacheIndex;
+  int LastCellId;
+  IVFDataSetInfo* Cache;
+  IVFCacheList CacheList;
+  char* VectorsSelection;
 
-  std::vector<double>   Weights;
+  std::vector<double> Weights;
 
   vtkSetStringMacro(VectorsSelection);
 
   // private versions which work on the passed dataset/cache
   // these do the real computation
-  int FunctionValues(IVFDataSetInfo *cache, double *x, double *f);
-  int InsideTest(IVFDataSetInfo *cache, double* x);
+  int FunctionValues(IVFDataSetInfo* cache, double* x, double* f);
+  int InsideTest(IVFDataSetInfo* cache, double* x);
 
   friend class vtkTemporalInterpolatedVelocityField;
   //@{
@@ -164,11 +166,11 @@ protected:
    * This function is primarily reserved for use by
    * vtkTemporalInterpolatedVelocityField
    */
-  void FastCompute(IVFDataSetInfo *cache, double f[3]);
-  bool InterpolatePoint(vtkPointData *outPD, vtkIdType outIndex);
-  bool InterpolatePoint(vtkCachingInterpolatedVelocityField *inCIVF,
-                        vtkPointData *outPD, vtkIdType outIndex);
-  vtkGenericCell *GetLastCell();
+  void FastCompute(IVFDataSetInfo* cache, double f[3]);
+  bool InterpolatePoint(vtkPointData* outPD, vtkIdType outIndex);
+  bool InterpolatePoint(
+    vtkCachingInterpolatedVelocityField* inCIVF, vtkPointData* outPD, vtkIdType outIndex);
+  vtkGenericCell* GetLastCell();
   //@}
 
 private:
@@ -188,18 +190,19 @@ private:
 class IVFDataSetInfo
 {
 public:
-  vtkSmartPointer<vtkDataSet>             DataSet;
+  vtkSmartPointer<vtkDataSet> DataSet;
   vtkSmartPointer<vtkAbstractCellLocator> BSPTree;
-  vtkSmartPointer<vtkGenericCell>         Cell;
-  double                                  PCoords[3];
-  float                                  *VelocityFloat;
-  double                                 *VelocityDouble;
-  double                                  Tolerance;
-  bool                                    StaticDataSet;
+  vtkSmartPointer<vtkGenericCell> Cell;
+  double PCoords[3];
+  float* VelocityFloat;
+  double* VelocityDouble;
+  double Tolerance;
+  bool StaticDataSet;
   IVFDataSetInfo();
-  IVFDataSetInfo(const IVFDataSetInfo &ivfci);
-  IVFDataSetInfo &operator=(const IVFDataSetInfo &ivfci);
-  void SetDataSet(vtkDataSet *data, char *velocity, bool staticdataset, vtkAbstractCellLocator *locator);
+  IVFDataSetInfo(const IVFDataSetInfo& ivfci);
+  IVFDataSetInfo& operator=(const IVFDataSetInfo& ivfci);
+  void SetDataSet(
+    vtkDataSet* data, char* velocity, bool staticdataset, vtkAbstractCellLocator* locator);
   //
   static const double TOLERANCE_SCALE;
 };

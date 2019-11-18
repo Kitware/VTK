@@ -36,11 +36,10 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-
 class VTKFILTERSGENERAL_EXPORT vtkSplitByCellScalarFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  static vtkSplitByCellScalarFilter *New();
+  static vtkSplitByCellScalarFilter* New();
   vtkTypeMacro(vtkSplitByCellScalarFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -63,9 +62,9 @@ protected:
   ~vtkSplitByCellScalarFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   bool PassAllPoints;
 

@@ -85,8 +85,7 @@ int TestPanoramicProjectionPass(int argc, char* argv[])
   {
     double f = (i & 1) ? -2.0 : 2.0;
     double x = (i & 2) ? 1.0 : 0.0;
-    double c[3] = { static_cast<double>((i + 1) & 1),
-      static_cast<double>(((i + 1) >> 1) & 1),
+    double c[3] = { static_cast<double>((i + 1) & 1), static_cast<double>(((i + 1) >> 1) & 1),
       static_cast<double>(((i + 1) >> 2) & 1) };
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);

@@ -17,7 +17,7 @@
 #include "vtkPiecewiseFunction.h"
 
 //-----------------------------------------------------------------------------
-vtkAbstractObjectFactoryNewMacro(vtkPointGaussianMapper)
+vtkAbstractObjectFactoryNewMacro(vtkPointGaussianMapper);
 
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScaleFunction, vtkPiecewiseFunction);
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScalarOpacityFunction, vtkPiecewiseFunction);
@@ -58,10 +58,11 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Scale Array: " << (this->ScaleArray ? this->ScaleArray : "(none)") << "\n";
-  os << indent << "Scale Array Component: " << this->ScaleArrayComponent<< "\n";
+  os << indent << "Scale Array Component: " << this->ScaleArrayComponent << "\n";
   os << indent << "Opacity Array: " << (this->OpacityArray ? this->OpacityArray : "(none)") << "\n";
-  os << indent << "Opacity Array Component: " << this->OpacityArrayComponent<< "\n";
-  os << indent << "SplatShaderCode: " << (this->SplatShaderCode ? this->SplatShaderCode : "(none)") << "\n";
+  os << indent << "Opacity Array Component: " << this->OpacityArrayComponent << "\n";
+  os << indent << "SplatShaderCode: " << (this->SplatShaderCode ? this->SplatShaderCode : "(none)")
+     << "\n";
   os << indent << "ScaleFactor: " << this->ScaleFactor << "\n";
   os << indent << "Emissive: " << this->Emissive << "\n";
   os << indent << "OpacityTableSize: " << this->OpacityTableSize << "\n";

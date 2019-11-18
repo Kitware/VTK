@@ -58,7 +58,7 @@
  *
  * @warning This filter is not designed to perform 2D boolean operations,
  * and in fact relies on the inputs having no co-planar, overlapping cells.
-*/
+ */
 
 #ifndef vtkIntersectionPolyDataFilter_h
 #define vtkIntersectionPolyDataFilter_h
@@ -66,13 +66,12 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkIntersectionPolyDataFilter :
-        public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkIntersectionPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkIntersectionPolyDataFilter *New();
+  static vtkIntersectionPolyDataFilter* New();
   vtkTypeMacro(vtkIntersectionPolyDataFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -168,33 +167,28 @@ public:
    * intersection points resides, respectively. A geometric tolerance
    * can be specified in the last argument.
    */
-  static int TriangleTriangleIntersection(double p1[3], double q1[3],
-                                          double r1[3], double p2[3],
-                                          double q2[3], double r2[3],
-                                          int &coplanar, double pt1[3],
-                                          double pt2[3], double surfaceid[2],
-                                          double tolerance);
+  static int TriangleTriangleIntersection(double p1[3], double q1[3], double r1[3], double p2[3],
+    double q2[3], double r2[3], int& coplanar, double pt1[3], double pt2[3], double surfaceid[2],
+    double tolerance);
 
   /**
    * Function to clean and check the output surfaces for bad triangles and
    * free edges
    */
-  static void CleanAndCheckSurface(vtkPolyData *pd, double stats[2],
-                  double tolerance);
+  static void CleanAndCheckSurface(vtkPolyData* pd, double stats[2], double tolerance);
 
   /**
    * Function to clean and check the inputs
    */
-  static void CleanAndCheckInput(vtkPolyData *pd, double tolerance);
-
+  static void CleanAndCheckInput(vtkPolyData* pd, double tolerance);
 
 protected:
-  vtkIntersectionPolyDataFilter();  //Constructor
-  ~vtkIntersectionPolyDataFilter() override;  //Destructor
+  vtkIntersectionPolyDataFilter();           // Constructor
+  ~vtkIntersectionPolyDataFilter() override; // Destructor
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;  //Update
-  int FillInputPortInformation(int, vtkInformation*) override; //Input,Output
+    vtkInformationVector*) override;                           // Update
+  int FillInputPortInformation(int, vtkInformation*) override; // Input,Output
 
 private:
   vtkIntersectionPolyDataFilter(const vtkIntersectionPolyDataFilter&) = delete;
@@ -211,8 +205,7 @@ private:
   double Tolerance;
   double RelativeSubtriangleArea;
 
-  class Impl;  //Implementation class
+  class Impl; // Implementation class
 };
-
 
 #endif // vtkIntersectionPolyDataFilter_h

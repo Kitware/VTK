@@ -22,26 +22,25 @@
 vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the bottom of the list.
-void vtkLightCollection::AddItem(vtkLight *a)
+void vtkLightCollection::AddItem(vtkLight* a)
 {
   this->vtkCollection::AddItem(a);
 }
 
 // Get the next light in the list. nullptr is returned when the collection is
 // exhausted.
-vtkLight *vtkLightCollection::GetNextItem()
+vtkLight* vtkLightCollection::GetNextItem()
 {
-  return static_cast<vtkLight *>(this->GetNextItemAsObject());
+  return static_cast<vtkLight*>(this->GetNextItemAsObject());
 }
 
-vtkLight *vtkLightCollection::GetNextLight(
-  vtkCollectionSimpleIterator &cookie)
+vtkLight* vtkLightCollection::GetNextLight(vtkCollectionSimpleIterator& cookie)
 {
-  return static_cast<vtkLight *>(this->GetNextItemAsObject(cookie));
+  return static_cast<vtkLight*>(this->GetNextItemAsObject(cookie));
 }
 
 //----------------------------------------------------------------------------
 void vtkLightCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

@@ -32,7 +32,7 @@
  * when NamingMode is NUMBERS_WITH_UNDERSCORES, into "Points (X)", "Points (Y)",
  * and "Points (Z)" when NamingMode is NAMES_WITH_PARENS, and into Points_X,
  * Points_Y, and Points_Z when NamingMode is NAMES_WITH_UNDERSCORES.
-*/
+ */
 
 #ifndef vtkSplitColumnComponents_h
 #define vtkSplitColumnComponents_h
@@ -49,7 +49,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitColumnComponents : public vtkTableAlgorit
 {
 public:
   static vtkSplitColumnComponents* New();
-  vtkTypeMacro(vtkSplitColumnComponents,vtkTableAlgorithm);
+  vtkTypeMacro(vtkSplitColumnComponents, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -65,10 +65,10 @@ public:
 
   enum
   {
-    NUMBERS_WITH_PARENS = 0,    // e.g Points (0)
-    NAMES_WITH_PARENS = 1,      // e.g. Points (X)
-    NUMBERS_WITH_UNDERSCORES=2, // e.g. Points_0
-    NAMES_WITH_UNDERSCORES=3    // e.g. Points_X
+    NUMBERS_WITH_PARENS = 0,      // e.g Points (0)
+    NAMES_WITH_PARENS = 1,        // e.g. Points (X)
+    NUMBERS_WITH_UNDERSCORES = 2, // e.g. Points_0
+    NAMES_WITH_UNDERSCORES = 3    // e.g. Points_X
   };
 
   //@{
@@ -77,14 +77,10 @@ public:
    * Description is NUMBERS_WITH_PARENS.
    */
   vtkSetClampMacro(NamingMode, int, NUMBERS_WITH_PARENS, NAMES_WITH_UNDERSCORES);
-  void SetNamingModeToNumberWithParens()
-    { this->SetNamingMode(NUMBERS_WITH_PARENS); }
-  void SetNamingModeToNumberWithUnderscores()
-    { this->SetNamingMode(NUMBERS_WITH_UNDERSCORES); }
-  void SetNamingModeToNamesWithParens()
-    { this->SetNamingMode(NAMES_WITH_PARENS); }
-  void SetNamingModeToNamesWithUnderscores()
-    { this->SetNamingMode(NAMES_WITH_UNDERSCORES); }
+  void SetNamingModeToNumberWithParens() { this->SetNamingMode(NUMBERS_WITH_PARENS); }
+  void SetNamingModeToNumberWithUnderscores() { this->SetNamingMode(NUMBERS_WITH_UNDERSCORES); }
+  void SetNamingModeToNamesWithParens() { this->SetNamingMode(NAMES_WITH_PARENS); }
+  void SetNamingModeToNamesWithUnderscores() { this->SetNamingMode(NAMES_WITH_UNDERSCORES); }
   vtkGetMacro(NamingMode, int);
   //@}
 
@@ -113,10 +109,7 @@ protected:
    */
   std::string GetComponentLabel(vtkAbstractArray* array, int component_no);
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkSplitColumnComponents(const vtkSplitColumnComponents&) = delete;

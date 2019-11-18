@@ -34,44 +34,42 @@
 
 int TestImageResliceMapperBackground(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkInteractorStyle *style = vtkInteractorStyleImage::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkInteractorStyle* style = vtkInteractorStyleImage::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   iren->SetInteractorStyle(style);
   renWin->Delete();
   style->Delete();
 
-  vtkTIFFReader *reader = vtkTIFFReader::New();
+  vtkTIFFReader* reader = vtkTIFFReader::New();
 
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/beach.tif");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.tif");
 
   reader->SetFileName(fname);
   delete[] fname;
 
-  vtkImageClip *clip = vtkImageClip::New();
+  vtkImageClip* clip = vtkImageClip::New();
   clip->SetInputConnection(reader->GetOutputPort());
   clip->SetOutputWholeExtent(100, 107, 100, 107, 0, 0);
 
   for (int i = 0; i < 4; i++)
   {
-    vtkRenderer *renderer = vtkRenderer::New();
-    vtkCamera *camera = renderer->GetActiveCamera();
-    renderer->SetBackground(0.1,0.2,0.4);
-    renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
-                          0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
+    vtkRenderer* renderer = vtkRenderer::New();
+    vtkCamera* camera = renderer->GetActiveCamera();
+    renderer->SetBackground(0.1, 0.2, 0.4);
+    renderer->SetViewport(0.5 * (i & 1), 0.25 * (i & 2), 0.5 + 0.5 * (i & 1), 0.5 + 0.25 * (i & 2));
     renWin->AddRenderer(renderer);
     renderer->Delete();
 
-    vtkImageResliceMapper *imageMapper = vtkImageResliceMapper::New();
+    vtkImageResliceMapper* imageMapper = vtkImageResliceMapper::New();
     imageMapper->SetInputConnection(clip->GetOutputPort());
 
-    const double *bounds = imageMapper->GetBounds();
+    const double* bounds = imageMapper->GetBounds();
     double point[3];
-    point[0] = 0.5*(bounds[0] + bounds[1]);
-    point[1] = 0.5*(bounds[2] + bounds[3]);
-    point[2] = 0.5*(bounds[4] + bounds[5]);
+    point[0] = 0.5 * (bounds[0] + bounds[1]);
+    point[1] = 0.5 * (bounds[2] + bounds[3]);
+    point[2] = 0.5 * (bounds[4] + bounds[5]);
 
     camera->SetFocalPoint(point);
     point[2] += 500.0;
@@ -79,18 +77,18 @@ int TestImageResliceMapperBackground(int argc, char* argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(5.0);
 
-    vtkImageSlice *image = vtkImageSlice::New();
+    vtkImageSlice* image = vtkImageSlice::New();
     image->SetMapper(imageMapper);
     imageMapper->Delete();
     renderer->AddViewProp(image);
     image->GetMapper()->BackgroundOn();
     image->GetMapper()->SliceFacesCameraOn();
 
-    if ((i&1))
+    if ((i & 1))
     {
       imageMapper->ResampleToScreenPixelsOff();
     }
-    if ((i&2))
+    if ((i & 2))
     {
       imageMapper->SeparateWindowLevelOperationOn();
     }
@@ -101,11 +99,11 @@ int TestImageResliceMapperBackground(int argc, char* argv[])
     image->Delete();
   }
 
-  renWin->SetSize(400,400);
+  renWin->SetSize(400, 400);
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR )
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

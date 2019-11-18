@@ -22,7 +22,7 @@
  * linear cells and degree elevates each of the cells to quadratic. Additional
  * points are simply interpolated from the existing points (there is no snapping
  * to an external model).
-*/
+ */
 
 #ifndef vtkLinearToQuadraticCellsFilter_h
 #define vtkLinearToQuadraticCellsFilter_h
@@ -32,21 +32,21 @@
 
 class vtkIncrementalPointLocator;
 
-class VTKFILTERSGEOMETRY_EXPORT vtkLinearToQuadraticCellsFilter :
-  public vtkUnstructuredGridAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkLinearToQuadraticCellsFilter
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeMacro(vtkLinearToQuadraticCellsFilter,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkLinearToQuadraticCellsFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkLinearToQuadraticCellsFilter *New();
+  static vtkLinearToQuadraticCellsFilter* New();
 
   //@{
   /**
    * Specify a spatial locator for merging points. By default, an
    * instance of vtkMergePoints is used.
    */
-  void SetLocator(vtkIncrementalPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
+  void SetLocator(vtkIncrementalPointLocator* locator);
+  vtkGetObjectMacro(Locator, vtkIncrementalPointLocator);
   //@}
 
   /**
@@ -62,8 +62,8 @@ public:
    * the available precision settings.
    * OutputPointsPrecision is DEFAULT_PRECISION by default.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
   /**
@@ -75,16 +75,14 @@ protected:
   vtkLinearToQuadraticCellsFilter();
   ~vtkLinearToQuadraticCellsFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkIncrementalPointLocator *Locator;
+  vtkIncrementalPointLocator* Locator;
   int OutputPointsPrecision;
 
 private:
   vtkLinearToQuadraticCellsFilter(const vtkLinearToQuadraticCellsFilter&) = delete;
   void operator=(const vtkLinearToQuadraticCellsFilter&) = delete;
-
 };
 
 #endif

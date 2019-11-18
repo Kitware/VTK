@@ -41,14 +41,14 @@ bool Validate0(vtkMultiBlockDataSet* mb, int num_timesteps)
 
   vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(0));
   expect(b0 != nullptr, "expecting a vtkTable for block 0");
-  expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b0->GetNumberOfRows());
+  expect(b0->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows());
   expect(b0->GetNumberOfColumns() > 100, "mismatched columns");
 
   vtkTable* b1 = vtkTable::SafeDownCast(mb->GetBlock(1));
   expect(b1 != nullptr, "expecting a vtkTable for block 1");
-  expect(b1->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b1->GetNumberOfRows());
+  expect(b1->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b1->GetNumberOfRows());
   expect(b1->GetNumberOfColumns() > 100, "mismatched columns");
   return true;
 }
@@ -60,14 +60,15 @@ bool Validate1(vtkMultiBlockDataSet* mb, int num_timesteps, const char* bname)
 
   vtkTable* b0 = vtkTable::SafeDownCast(mb->GetBlock(0));
   expect(b0 != nullptr, "expecting a vtkTable for block 0");
-  expect(b0->GetNumberOfRows() == num_timesteps, "mismatched rows, expecting "
-      << num_timesteps << ", got " << b0->GetNumberOfRows());
+  expect(b0->GetNumberOfRows() == num_timesteps,
+    "mismatched rows, expecting " << num_timesteps << ", got " << b0->GetNumberOfRows());
   expect(b0->GetNumberOfColumns() >= 5, "mismatched columns");
 
   const char* name = mb->GetMetaData(0u)->Get(vtkCompositeDataSet::NAME());
   expect(name != nullptr, "expecting non-null name.");
-  expect(strcmp(name, bname) == 0, "block name not matching,"
-                                   " expected '"
+  expect(strcmp(name, bname) == 0,
+    "block name not matching,"
+    " expected '"
       << bname << "', got '" << name << "'");
   return true;
 }

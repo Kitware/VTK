@@ -41,8 +41,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
   std::string outputString;
   bool pass = true;
 
-  char* inputFile =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cube.vtu");
+  char* inputFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cube.vtu");
 
   int ResX[5] = { 10, 20, 30, 40, 50 };
   int ResY[5] = { 10, 20, 30, 40, 50 };
@@ -255,7 +254,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
 
   } // end for
 
-  delete [] inputFile;
+  delete[] inputFile;
 
   if (pass)
   {

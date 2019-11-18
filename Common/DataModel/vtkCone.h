@@ -26,7 +26,7 @@
  * @warning
  * The cone is infinite in extent. To truncate the cone use the
  * vtkImplicitBoolean in combination with clipping planes.
-*/
+ */
 
 #ifndef vtkCone_h
 #define vtkCone_h
@@ -40,9 +40,9 @@ public:
   /**
    * Construct cone with angle of 45 degrees.
    */
-  static vtkCone *New();
+  static vtkCone* New();
 
-  vtkTypeMacro(vtkCone,vtkImplicitFunction);
+  vtkTypeMacro(vtkCone, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -62,8 +62,8 @@ public:
   /**
    * Set/Get the cone angle (expressed in degrees).
    */
-  vtkSetClampMacro(Angle,double,0.0,89.0);
-  vtkGetMacro(Angle,double);
+  vtkSetClampMacro(Angle, double, 0.0, 89.0);
+  vtkGetMacro(Angle, double);
   //@}
 
 protected:
@@ -78,5 +78,3 @@ private:
 };
 
 #endif
-
-

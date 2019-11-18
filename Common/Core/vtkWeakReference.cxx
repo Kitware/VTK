@@ -18,8 +18,7 @@
 #include "vtkWeakPointer.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkWeakReference)
-
+vtkStandardNewMacro(vtkWeakReference);
 
 //----------------------------------------------------------------------------
 vtkWeakReference::vtkWeakReference() = default;
@@ -28,7 +27,7 @@ vtkWeakReference::vtkWeakReference() = default;
 vtkWeakReference::~vtkWeakReference() = default;
 
 //----------------------------------------------------------------------------
-void vtkWeakReference::Set(vtkObject *object)
+void vtkWeakReference::Set(vtkObject* object)
 {
   this->Object = object;
 }

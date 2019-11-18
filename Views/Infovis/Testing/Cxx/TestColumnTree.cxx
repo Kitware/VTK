@@ -139,7 +139,7 @@ int TestColumnTree(int argc, char* argv[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetScene()->AddItem(trans);
 
-  //Finally render the scene and compare the image to a reference image
+  // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();
 

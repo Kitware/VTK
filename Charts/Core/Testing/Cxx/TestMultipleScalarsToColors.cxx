@@ -37,11 +37,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //----------------------------------------------------------------------------
-int TestMultipleScalarsToColors(int , char * [])
+int TestMultipleScalarsToColors(int, char*[])
 {
   VTK_CREATE(vtkRenderWindow, renwin);
   renwin->SetMultiSamples(0);
@@ -50,31 +49,26 @@ int TestMultipleScalarsToColors(int , char * [])
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
 
-  //setup the 5 charts view ports
-  double viewports[20] ={
-    0.0,0.0,0.3,0.5,
-    0.3,0.0,1.0,0.5,
-    0.0,0.33,0.5,0.66,
-    0.5,0.33,1.0,0.66,
-    0.0,0.66,1.0,1.0};
+  // setup the 5 charts view ports
+  double viewports[20] = { 0.0, 0.0, 0.3, 0.5, 0.3, 0.0, 1.0, 0.5, 0.0, 0.33, 0.5, 0.66, 0.5, 0.33,
+    1.0, 0.66, 0.0, 0.66, 1.0, 1.0 };
 
   // Lookup Table
-  vtkSmartPointer<vtkLookupTable> lookupTable =
-    vtkSmartPointer<vtkLookupTable>::New();
+  vtkSmartPointer<vtkLookupTable> lookupTable = vtkSmartPointer<vtkLookupTable>::New();
   lookupTable->SetAlpha(0.5);
   lookupTable->Build();
   // Color transfer function
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     vtkSmartPointer<vtkColorTransferFunction>::New();
-  colorTransferFunction->AddHSVSegment(0.,0.,1.,1.,0.3333,0.3333,1.,1.);
-  colorTransferFunction->AddHSVSegment(0.3333,0.3333,1.,1.,0.6666,0.6666,1.,1.);
-  colorTransferFunction->AddHSVSegment(0.6666,0.6666,1.,1.,1.,0.,1.,1.);
+  colorTransferFunction->AddHSVSegment(0., 0., 1., 1., 0.3333, 0.3333, 1., 1.);
+  colorTransferFunction->AddHSVSegment(0.3333, 0.3333, 1., 1., 0.6666, 0.6666, 1., 1.);
+  colorTransferFunction->AddHSVSegment(0.6666, 0.6666, 1., 1., 1., 0., 1., 1.);
   colorTransferFunction->Build();
   // Opacity function
   vtkSmartPointer<vtkPiecewiseFunction> opacityFunction =
     vtkSmartPointer<vtkPiecewiseFunction>::New();
-  opacityFunction->AddPoint(0.,0.);
-  opacityFunction->AddPoint(1.,1.);
+  opacityFunction->AddPoint(0., 0.);
+  opacityFunction->AddPoint(1., 1.);
   // Histogram table
   vtkNew<vtkTable> histoTable;
   vtkNew<vtkDoubleArray> binArray;
@@ -95,8 +89,8 @@ int TestMultipleScalarsToColors(int , char * [])
   for (int i = 0; i < 5; ++i)
   {
     VTK_CREATE(vtkRenderer, ren);
-    ren->SetBackground(1.0,1.0,1.0);
-    ren->SetViewport(&viewports[i*4]);
+    ren->SetBackground(1.0, 1.0, 1.0);
+    ren->SetViewport(&viewports[i * 4]);
     renwin->AddRenderer(ren);
 
     VTK_CREATE(vtkChartXY, chart);
@@ -106,7 +100,7 @@ int TestMultipleScalarsToColors(int , char * [])
     chartScene->AddItem(chart);
     chartActor->SetScene(chartScene);
 
-    //both needed
+    // both needed
     ren->AddActor(chartActor);
     chartScene->SetRenderer(ren);
 
@@ -114,8 +108,7 @@ int TestMultipleScalarsToColors(int , char * [])
     {
       case 0:
       {
-        vtkSmartPointer<vtkLookupTableItem> item =
-          vtkSmartPointer<vtkLookupTableItem>::New();
+        vtkSmartPointer<vtkLookupTableItem> item = vtkSmartPointer<vtkLookupTableItem>::New();
         item->SetLookupTable(lookupTable);
         chart->AddPlot(item);
         chart->SetAutoAxes(false);

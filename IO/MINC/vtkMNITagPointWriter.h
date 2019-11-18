@@ -60,7 +60,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * vtkMINCImageReader vtkMNIObjectReader vtkMNITransformReader
  * @par Thanks:
  * Thanks to David Gobbi for contributing this class to VTK.
-*/
+ */
 
 #ifndef vtkMNITagPointWriter_h
 #define vtkMNITagPointWriter_h
@@ -78,33 +78,29 @@ class vtkPoints;
 class VTKIOMINC_EXPORT vtkMNITagPointWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkMNITagPointWriter,vtkWriter);
+  vtkTypeMacro(vtkMNITagPointWriter, vtkWriter);
 
-  static vtkMNITagPointWriter *New();
+  static vtkMNITagPointWriter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the extension for this file format.
    */
-  virtual const char* GetFileExtensions() {
-    return ".tag"; }
+  virtual const char* GetFileExtensions() { return ".tag"; }
 
   /**
    * Get the name of this file format.
    */
-  virtual const char* GetDescriptiveName() {
-    return "MNI tags"; }
+  virtual const char* GetDescriptiveName() { return "MNI tags"; }
 
   //@{
   /**
    * Set the points (unless you set them as inputs).
    */
-  virtual void SetPoints(int port, vtkPoints *points);
-  virtual void SetPoints(vtkPoints *points) {
-    this->SetPoints(0, points); }
-  virtual vtkPoints *GetPoints(int port);
-  virtual vtkPoints *GetPoints() {
-    return this->GetPoints(0); }
+  virtual void SetPoints(int port, vtkPoints* points);
+  virtual void SetPoints(vtkPoints* points) { this->SetPoints(0, points); }
+  virtual vtkPoints* GetPoints(int port);
+  virtual vtkPoints* GetPoints() { return this->GetPoints(0); }
   //@}
 
   //@{
@@ -112,7 +108,7 @@ public:
    * Set the labels (unless the input PointData has an
    * array called LabelText). Labels are optional.
    */
-  virtual void SetLabelText(vtkStringArray *a);
+  virtual void SetLabelText(vtkStringArray* a);
   vtkGetObjectMacro(LabelText, vtkStringArray);
   //@}
 
@@ -121,7 +117,7 @@ public:
    * Set the weights (unless the input PointData has an
    * array called Weights).  Weights are optional.
    */
-  virtual void SetWeights(vtkDoubleArray *a);
+  virtual void SetWeights(vtkDoubleArray* a);
   vtkGetObjectMacro(Weights, vtkDoubleArray);
   //@}
 
@@ -130,7 +126,7 @@ public:
    * Set the structure ids (unless the input PointData has
    * an array called StructureIds).  These are optional.
    */
-  virtual void SetStructureIds(vtkIntArray *a);
+  virtual void SetStructureIds(vtkIntArray* a);
   vtkGetObjectMacro(StructureIds, vtkIntArray);
   //@}
 
@@ -139,7 +135,7 @@ public:
    * Set the structure ids (unless the input PointData has
    * an array called PatientIds).  These are optional.
    */
-  virtual void SetPatientIds(vtkIntArray *a);
+  virtual void SetPatientIds(vtkIntArray* a);
   vtkGetObjectMacro(PatientIds, vtkIntArray);
   //@}
 
@@ -173,32 +169,30 @@ protected:
   vtkMNITagPointWriter();
   ~vtkMNITagPointWriter() override;
 
-  vtkPoints *Points[2];
-  vtkStringArray *LabelText;
-  vtkDoubleArray *Weights;
-  vtkIntArray *StructureIds;
-  vtkIntArray *PatientIds;
-  char *Comments;
+  vtkPoints* Points[2];
+  vtkStringArray* LabelText;
+  vtkDoubleArray* Weights;
+  vtkIntArray* StructureIds;
+  vtkIntArray* PatientIds;
+  char* Comments;
 
   void WriteData() override {}
-  virtual void WriteData(vtkPointSet *inputs[2]);
+  virtual void WriteData(vtkPointSet* inputs[2]);
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* FileName;
 
   int FileType;
 
-  ostream *OpenFile();
-  void CloseFile(ostream *fp);
+  ostream* OpenFile();
+  void CloseFile(ostream* fp);
 
 private:
   vtkMNITagPointWriter(const vtkMNITagPointWriter&) = delete;
   void operator=(const vtkMNITagPointWriter&) = delete;
-
 };
 
 #endif

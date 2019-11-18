@@ -19,7 +19,7 @@
  * vtkDataArrayCollectionIterator provides an implementation of
  * vtkCollectionIterator which allows the items to be retrieved with
  * the proper subclass pointer type for vtkDataArrayCollection.
-*/
+ */
 
 #ifndef vtkDataArrayCollectionIterator_h
 #define vtkDataArrayCollectionIterator_h
@@ -33,7 +33,7 @@ class vtkDataArrayCollection;
 class VTKCOMMONCORE_EXPORT vtkDataArrayCollectionIterator : public vtkCollectionIterator
 {
 public:
-  vtkTypeMacro(vtkDataArrayCollectionIterator,vtkCollectionIterator);
+  vtkTypeMacro(vtkDataArrayCollectionIterator, vtkCollectionIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArrayCollectionIterator* New();
 

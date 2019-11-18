@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPolyDataWriter
-*/
+ */
 
 #ifndef vtkXMLPPolyDataWriter_h
 #define vtkXMLPPolyDataWriter_h
@@ -38,7 +38,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPPolyDataWriter : public vtkXMLPUnstructured
 {
 public:
   static vtkXMLPPolyDataWriter* New();
-  vtkTypeMacro(vtkXMLPPolyDataWriter,vtkXMLPUnstructuredDataWriter);
+  vtkTypeMacro(vtkXMLPPolyDataWriter, vtkXMLPUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

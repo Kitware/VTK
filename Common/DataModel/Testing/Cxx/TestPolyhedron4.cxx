@@ -20,7 +20,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-int TestPolyhedron4(int argc, char *argv[])
+int TestPolyhedron4(int argc, char* argv[])
 {
   // Test that a nonwatertight polyhedron does no make vtkPolyhedron segfault
   char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv,

@@ -46,7 +46,6 @@
 class vtkAttributeClustering2DLayoutStrategy::Internals
 {
 public:
-
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct
@@ -61,19 +60,18 @@ public:
   std::vector<vtkLayoutEdge> Edges;
 };
 
-
 vtkStandardNewMacro(vtkAttributeClustering2DLayoutStrategy);
 
 // Cool-down function.
 static inline float CoolDown(float t, float r)
 {
-  return t-(t/r);
+  return t - (t / r);
 }
 
 // ----------------------------------------------------------------------
 
-vtkAttributeClustering2DLayoutStrategy::vtkAttributeClustering2DLayoutStrategy() :
-  Implementation(new Internals())
+vtkAttributeClustering2DLayoutStrategy::vtkAttributeClustering2DLayoutStrategy()
+  : Implementation(new Internals())
 {
 
   // Create internal vtk classes
@@ -92,7 +90,7 @@ vtkAttributeClustering2DLayoutStrategy::vtkAttributeClustering2DLayoutStrategy()
   this->EdgeWeightField = nullptr;
   this->SetEdgeWeightField("weight");
   this->RestDistance = 0;
-  this->CuttingThreshold=0;
+  this->CuttingThreshold = 0;
   this->VertexAttribute = nullptr;
 }
 
@@ -109,16 +107,25 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
 {
   // This method is a cut and paste of vtkSetStringMacro
   // except for the call to Initialize at the end :)
-  if ( this->VertexAttribute == nullptr && att == nullptr) { return;}
-  if ( this->VertexAttribute && att && (!strcmp(this->VertexAttribute,att))) { return;}
-  delete [] this->VertexAttribute;
+  if (this->VertexAttribute == nullptr && att == nullptr)
+  {
+    return;
+  }
+  if (this->VertexAttribute && att && (!strcmp(this->VertexAttribute, att)))
+  {
+    return;
+  }
+  delete[] this->VertexAttribute;
   if (att)
   {
     size_t n = strlen(att) + 1;
-    char *cp1 =  new char[n];
-    const char *cp2 = (att);
+    char* cp1 = new char[n];
+    const char* cp2 = (att);
     this->VertexAttribute = cp1;
-    do { *cp1++ = *cp2++; } while ( --n );
+    do
+    {
+      *cp1++ = *cp2++;
+    } while (--n);
   }
   else
   {
@@ -127,20 +134,20 @@ void vtkAttributeClustering2DLayoutStrategy::SetVertexAttribute(const char* att)
 
   this->Modified();
 
-  if(att && this->Graph)
+  if (att && this->Graph)
   {
     this->Initialize();
   }
 }
 
-
 // Helper functions
-void vtkAttributeClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData *splat, int x, int y)
+void vtkAttributeClustering2DLayoutStrategy::GenerateCircularSplat(
+  vtkImageData* splat, int x, int y)
 {
   splat->SetDimensions(x, y, 1);
   splat->AllocateScalars(VTK_FLOAT, 1);
 
-  const int *dimensions = splat->GetDimensions();
+  const int* dimensions = splat->GetDimensions();
 
   // Circular splat: 1 in the middle and 0 at the corners and sides
   for (int row = 0; row < dimensions[1]; ++row)
@@ -150,13 +157,13 @@ void vtkAttributeClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData 
       float splatValue;
 
       // coordinates will range from -1 to 1
-      float xCoord = (col - dimensions[0]/2.0) / (dimensions[0]/2.0);
-      float yCoord = (row - dimensions[1]/2.0) / (dimensions[1]/2.0);
+      float xCoord = (col - dimensions[0] / 2.0) / (dimensions[0] / 2.0);
+      float yCoord = (row - dimensions[1] / 2.0) / (dimensions[1] / 2.0);
 
-      float radius = sqrt(xCoord*xCoord + yCoord*yCoord);
+      float radius = sqrt(xCoord * xCoord + yCoord * yCoord);
       if ((1 - radius) > 0)
       {
-        splatValue = 1-radius;
+        splatValue = 1 - radius;
       }
       else
       {
@@ -164,21 +171,22 @@ void vtkAttributeClustering2DLayoutStrategy::GenerateCircularSplat(vtkImageData 
       }
 
       // Set value
-      splat->SetScalarComponentFromFloat(col,row,0,0,splatValue);
+      splat->SetScalarComponentFromFloat(col, row, 0, 0, splatValue);
     }
   }
 }
 
-void vtkAttributeClustering2DLayoutStrategy::GenerateGaussianSplat(vtkImageData *splat, int x, int y)
+void vtkAttributeClustering2DLayoutStrategy::GenerateGaussianSplat(
+  vtkImageData* splat, int x, int y)
 {
   splat->SetDimensions(x, y, 1);
   splat->AllocateScalars(VTK_FLOAT, 1);
 
-  const int *dimensions = splat->GetDimensions();
+  const int* dimensions = splat->GetDimensions();
 
   // Gaussian splat
   float falloff = 10; // fast falloff
-  float e= 2.71828182845904;
+  float e = 2.71828182845904;
 
   for (int row = 0; row < dimensions[1]; ++row)
   {
@@ -187,13 +195,13 @@ void vtkAttributeClustering2DLayoutStrategy::GenerateGaussianSplat(vtkImageData 
       float splatValue;
 
       // coordinates will range from -1 to 1
-      float xCoord = (col - dimensions[0]/2.0) / (dimensions[0]/2.0);
-      float yCoord = (row - dimensions[1]/2.0) / (dimensions[1]/2.0);
+      float xCoord = (col - dimensions[0] / 2.0) / (dimensions[0] / 2.0);
+      float yCoord = (row - dimensions[1] / 2.0) / (dimensions[1] / 2.0);
 
-      splatValue = pow(e,-((xCoord*xCoord + yCoord*yCoord) * falloff));
+      splatValue = pow(e, -((xCoord * xCoord + yCoord * yCoord) * falloff));
 
       // Set value
-      splat->SetScalarComponentFromFloat(col,row,0,0,splatValue);
+      splat->SetScalarComponentFromFloat(col, row, 0, 0, splatValue);
     }
   }
 }
@@ -202,7 +210,7 @@ void vtkAttributeClustering2DLayoutStrategy::GenerateGaussianSplat(vtkImageData 
 // Set the graph that will be laid out
 void vtkAttributeClustering2DLayoutStrategy::Initialize()
 {
-  if(!this->VertexAttribute)
+  if (!this->VertexAttribute)
   {
     vtkErrorMacro("Layout strategy requires VertexAttribute to be set");
     this->LayoutComplete = 1;
@@ -224,8 +232,8 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
   }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
-  float *rawPointData = array->GetPointer(0);
+  vtkFloatArray* array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
+  float* rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
   float div = 1;
@@ -243,7 +251,7 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
   // Set up array to store repulsion values
   this->RepulsionArray->SetNumberOfComponents(3);
   this->RepulsionArray->SetNumberOfTuples(numVertices);
-  for (vtkIdType i=0; i<numVertices*3; ++i)
+  for (vtkIdType i = 0; i < numVertices * 3; ++i)
   {
     this->RepulsionArray->SetValue(i, 0);
   }
@@ -251,34 +259,35 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
   // Set up array to store attraction values
   this->AttractionArray->SetNumberOfComponents(3);
   this->AttractionArray->SetNumberOfTuples(numVertices);
-  for (vtkIdType i=0; i<numVertices*3; ++i)
+  for (vtkIdType i = 0; i < numVertices * 3; ++i)
   {
     this->AttractionArray->SetValue(i, 0);
   }
 
   // Jitter x and y, skip z
-  for (vtkIdType i=0; i<numVertices*3; i+=3)
+  for (vtkIdType i = 0; i < numVertices * 3; i += 3)
   {
-    rawPointData[i] += this->RestDistance*(vtkMath::Random() - .5);
-    rawPointData[i+1] += this->RestDistance*(vtkMath::Random() - .5);
+    rawPointData[i] += this->RestDistance * (vtkMath::Random() - .5);
+    rawPointData[i + 1] += this->RestDistance * (vtkMath::Random() - .5);
   }
 
   this->Implementation->Edges.clear();
 
   // Given the vertex attribute provided,
   // construct phantom edges between vertices with matching values
-  vtkAbstractArray* vertexArr = this->Graph->GetVertexData()->GetAbstractArray(this->VertexAttribute);
+  vtkAbstractArray* vertexArr =
+    this->Graph->GetVertexData()->GetAbstractArray(this->VertexAttribute);
   vtkSmartPointer<vtkIdList> ids = vtkSmartPointer<vtkIdList>::New();
   this->EdgeCountArray->SetNumberOfComponents(1);
   this->EdgeCountArray->SetNumberOfTuples(numVertices);
-  this->EdgeCountArray->FillComponent(0,0);
-  for(int i=0; i<vertexArr->GetNumberOfTuples(); ++i)
+  this->EdgeCountArray->FillComponent(0, 0);
+  for (int i = 0; i < vertexArr->GetNumberOfTuples(); ++i)
   {
     vtkVariant v_source = vertexArr->GetVariantValue(i);
-    for(int k=i; k<vertexArr->GetNumberOfTuples(); ++k)
+    for (int k = i; k < vertexArr->GetNumberOfTuples(); ++k)
     {
       vtkVariant v_target = vertexArr->GetVariantValue(k);
-      if(v_source == v_target)
+      if (v_source == v_target)
       {
         Internals::vtkLayoutEdge e;
         e.from = i;
@@ -291,18 +300,16 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
     }
   }
 
-
   // Set some vars
   this->TotalIterations = 0;
   this->LayoutComplete = 0;
   this->Temp = this->InitialTemperature;
-  this->CuttingThreshold = 10000*this->RestDistance; // Max cut length
+  this->CuttingThreshold = 10000 * this->RestDistance; // Max cut length
 
   // Set up the image splatter
   this->GenerateGaussianSplat(this->SplatImage, 41, 41);
   this->DensityGrid->SetInputData(1, this->SplatImage);
   this->DensityGrid->SetOutputDimensions(100, 100, 1);
-
 }
 
 // ----------------------------------------------------------------------
@@ -321,8 +328,8 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
   // Is the layout already considered complete?
   if (this->IsLayoutComplete())
   {
-      vtkErrorMacro("Graph Layout already considered complete");
-      return;
+    vtkErrorMacro("Graph Layout already considered complete");
+    return;
   }
 
   // Set my graph as input into the density grid
@@ -333,28 +340,28 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
-  float *rawPointData = array->GetPointer(0);
+  vtkFloatArray* array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
+  float* rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
   // ye of weak hearts, tread no further!
-  float delta[]={0,0,0};
+  float delta[] = { 0, 0, 0 };
   float disSquared;
   float attractValue;
   float epsilon = 1e-5;
-  vtkIdType rawSourceIndex=0;
-  vtkIdType rawTargetIndex=0;
-  for(int i = 0; i < this->IterationsPerLayout; ++i)
+  vtkIdType rawSourceIndex = 0;
+  vtkIdType rawTargetIndex = 0;
+  for (int i = 0; i < this->IterationsPerLayout; ++i)
   {
 
     // Initialize the repulsion and attraction arrays
-    for (vtkIdType j=0; j<numVertices*3; ++j)
+    for (vtkIdType j = 0; j < numVertices * 3; ++j)
     {
       this->RepulsionArray->SetValue(j, 0);
     }
 
     // Set up array to store attraction values
-    for (vtkIdType j=0; j<numVertices*3; ++j)
+    for (vtkIdType j = 0; j < numVertices * 3; ++j)
     {
       this->AttractionArray->SetValue(j, 0);
     }
@@ -365,10 +372,10 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
     this->Graph->GetBounds(bounds);
 
     // Give bounds a 10% padding
-    paddedBounds[0] = bounds[0] - (bounds[1]-bounds[0])*.1;
-    paddedBounds[1] = bounds[1] + (bounds[1]-bounds[0])*.1;
-    paddedBounds[2] = bounds[2] - (bounds[3]-bounds[2])*.1;
-    paddedBounds[3] = bounds[3] + (bounds[3]-bounds[2])*.1;
+    paddedBounds[0] = bounds[0] - (bounds[1] - bounds[0]) * .1;
+    paddedBounds[1] = bounds[1] + (bounds[1] - bounds[0]) * .1;
+    paddedBounds[2] = bounds[2] - (bounds[3] - bounds[2]) * .1;
+    paddedBounds[3] = bounds[3] + (bounds[3] - bounds[2]) * .1;
     paddedBounds[4] = paddedBounds[5] = 0;
 
     // Update the density grid
@@ -383,42 +390,41 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
     }
 
     // Get the array handle
-    float *densityArray = static_cast<float*>
-      (this->DensityGrid->GetOutput()->GetScalarPointer());
+    float* densityArray = static_cast<float*>(this->DensityGrid->GetOutput()->GetScalarPointer());
 
     // Get the dimensions of the density grid
     int dims[3];
     this->DensityGrid->GetOutputDimensions(dims);
 
-
     // Calculate the repulsive forces
-    float *rawRepulseArray = this->RepulsionArray->GetPointer(0);
-    for(vtkIdType j=0; j<numVertices; ++j)
+    float* rawRepulseArray = this->RepulsionArray->GetPointer(0);
+    for (vtkIdType j = 0; j < numVertices; ++j)
     {
       rawSourceIndex = j * 3;
 
       // Compute indices into the density grid
-      int indexX = static_cast<int>(
-                   (rawPointData[rawSourceIndex]-paddedBounds[0]) /
-                   (paddedBounds[1]-paddedBounds[0]) * dims[0] + .5);
-      int indexY = static_cast<int>(
-                   (rawPointData[rawSourceIndex+1]-paddedBounds[2]) /
-                   (paddedBounds[3]-paddedBounds[2]) * dims[1] + .5);
+      int indexX = static_cast<int>((rawPointData[rawSourceIndex] - paddedBounds[0]) /
+          (paddedBounds[1] - paddedBounds[0]) * dims[0] +
+        .5);
+      int indexY = static_cast<int>((rawPointData[rawSourceIndex + 1] - paddedBounds[2]) /
+          (paddedBounds[3] - paddedBounds[2]) * dims[1] +
+        .5);
 
       // Look up the gradient density within the density grid
-      float x1 = densityArray[indexY * dims[0] + indexX-1];
-      float x2 = densityArray[indexY * dims[0] + indexX+1];
-      float y1 = densityArray[(indexY-1) * dims[0] + indexX];
-      float y2 = densityArray[(indexY+1) * dims[0] + indexX];
+      float x1 = densityArray[indexY * dims[0] + indexX - 1];
+      float x2 = densityArray[indexY * dims[0] + indexX + 1];
+      float y1 = densityArray[(indexY - 1) * dims[0] + indexX];
+      float y2 = densityArray[(indexY + 1) * dims[0] + indexX];
 
-      rawRepulseArray[rawSourceIndex]   = (x1-x2); // Push away from higher
-      rawRepulseArray[rawSourceIndex+1] = (y1-y2);
+      rawRepulseArray[rawSourceIndex] = (x1 - x2); // Push away from higher
+      rawRepulseArray[rawSourceIndex + 1] = (y1 - y2);
     }
 
     // Calculate the attractive forces
-    float *rawAttractArray = this->AttractionArray->GetPointer(0);
+    float* rawAttractArray = this->AttractionArray->GetPointer(0);
     std::vector<Internals::vtkLayoutEdge>::iterator iter;
-    for (iter = this->Implementation->Edges.begin(); iter != this->Implementation->Edges.end(); ++iter)
+    for (iter = this->Implementation->Edges.begin(); iter != this->Implementation->Edges.end();
+         ++iter)
     {
       // Check for dead edge
       if ((*iter).dead_edge)
@@ -430,13 +436,12 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
       rawTargetIndex = (*iter).to * 3;
 
       // No need to attract points to themselves
-      if (rawSourceIndex == rawTargetIndex) continue;
+      if (rawSourceIndex == rawTargetIndex)
+        continue;
 
-      delta[0] = rawPointData[rawSourceIndex] -
-             rawPointData[rawTargetIndex];
-      delta[1] = rawPointData[rawSourceIndex+1] -
-              rawPointData[rawTargetIndex+1];
-      disSquared = delta[0]*delta[0] + delta[1]*delta[1];
+      delta[0] = rawPointData[rawSourceIndex] - rawPointData[rawTargetIndex];
+      delta[1] = rawPointData[rawSourceIndex + 1] - rawPointData[rawTargetIndex + 1];
+      disSquared = delta[0] * delta[0] + delta[1] * delta[1];
 
       // Compute a bunch of parameters used below
       int sourceIndex = (*iter).from;
@@ -445,22 +450,22 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
       int numTargetEdges = this->EdgeCountArray->GetValue(targetIndex);
 
       // Perform weight adjustment
-      attractValue = 1.0*disSquared-this->RestDistance;
-      rawAttractArray[rawSourceIndex]   -= delta[0] * attractValue;
-      rawAttractArray[rawSourceIndex+1] -= delta[1] * attractValue;
-      rawAttractArray[rawTargetIndex]   += delta[0] * attractValue;
-      rawAttractArray[rawTargetIndex+1] += delta[1] * attractValue;
+      attractValue = 1.0 * disSquared - this->RestDistance;
+      rawAttractArray[rawSourceIndex] -= delta[0] * attractValue;
+      rawAttractArray[rawSourceIndex + 1] -= delta[1] * attractValue;
+      rawAttractArray[rawTargetIndex] += delta[0] * attractValue;
+      rawAttractArray[rawTargetIndex + 1] += delta[1] * attractValue;
 
       // This logic forces edge lengths to be short
       if (numSourceEdges < 10)
       {
-        rawPointData[rawSourceIndex]   -= delta[0]*.45;
-        rawPointData[rawSourceIndex+1] -= delta[1]*.45;
+        rawPointData[rawSourceIndex] -= delta[0] * .45;
+        rawPointData[rawSourceIndex + 1] -= delta[1] * .45;
       }
       else if (numTargetEdges < 10)
       {
-        rawPointData[rawTargetIndex]   += delta[0]*.45;
-        rawPointData[rawTargetIndex+1] += delta[1]*.45;
+        rawPointData[rawTargetIndex] += delta[0] * .45;
+        rawPointData[rawTargetIndex + 1] += delta[1] * .45;
       }
 
       // Cutting edges for clustering
@@ -469,21 +474,21 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
         if (((numSourceEdges > 1) && (numTargetEdges > 1)))
         {
           (*iter).dead_edge = 1;
-          this->EdgeCountArray->SetValue(sourceIndex, numSourceEdges-1);
-          this->EdgeCountArray->SetValue(targetIndex, numTargetEdges-1);
+          this->EdgeCountArray->SetValue(sourceIndex, numSourceEdges - 1);
+          this->EdgeCountArray->SetValue(targetIndex, numTargetEdges - 1);
         }
       }
     }
 
     // Okay now set new positions based on replusion
     // and attraction 'forces'
-    for(vtkIdType j=0; j<numVertices; ++j)
+    for (vtkIdType j = 0; j < numVertices; ++j)
     {
       rawSourceIndex = j * 3;
 
       // Get forces for this node
       float forceX = rawAttractArray[rawSourceIndex] + rawRepulseArray[rawSourceIndex];
-      float forceY = rawAttractArray[rawSourceIndex+1] + rawRepulseArray[rawSourceIndex+1];
+      float forceY = rawAttractArray[rawSourceIndex + 1] + rawRepulseArray[rawSourceIndex + 1];
 
       // Forces can get extreme so limit them
       // Note: This is pseudo-normalization of the
@@ -491,13 +496,13 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
 
       // Avoid divide by zero
       float forceDiv = fabs(forceX) + fabs(forceY) + epsilon;
-      float pNormalize = vtkMath::Min(1.0f, 1.0f/forceDiv);
+      float pNormalize = vtkMath::Min(1.0f, 1.0f / forceDiv);
       pNormalize *= this->Temp;
       forceX *= pNormalize;
       forceY *= pNormalize;
 
       rawPointData[rawSourceIndex] += forceX;
-      rawPointData[rawSourceIndex+1] += forceY;
+      rawPointData[rawSourceIndex + 1] += forceY;
     }
 
     // The point coordinates have been modified
@@ -507,14 +512,14 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
     this->Temp = CoolDown(this->Temp, this->CoolDownRate);
 
     // Announce progress
-    double progress = (i+this->TotalIterations) /
-                      static_cast<double>(this->MaxNumberOfIterations);
-    this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void *>(&progress));
+    double progress =
+      (i + this->TotalIterations) / static_cast<double>(this->MaxNumberOfIterations);
+    this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
 
     // Adjust cutting
-    float maxCutLength = 10000*this->RestDistance;
-    float minCutLength = 100*this->RestDistance;
-    this->CuttingThreshold = maxCutLength*(1-progress)*(1-progress) + minCutLength;
+    float maxCutLength = 10000 * this->RestDistance;
+    float minCutLength = 100 * this->RestDistance;
+    this->CuttingThreshold = maxCutLength * (1 - progress) * (1 - progress) + minCutLength;
 
   } // End loop this->IterationsPerLayout
 
@@ -551,21 +556,19 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
 
   // Get a quick pointer to the point data
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
-  float *rawPointData = array->GetPointer(0);
+  vtkFloatArray* array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
+  float* rawPointData = array->GetPointer(0);
 
   // Place the vertices into a giant grid (100xNumVertices)
   // and see if you have any collisions
-  vtkBitArray *giantGrid = vtkBitArray::New();
-  vtkIdType xDim =
-    static_cast<int>(sqrt(static_cast<double>(numVertices)) * 10);
-  vtkIdType yDim =
-    static_cast<int>(sqrt(static_cast<double>(numVertices)) * 10);
+  vtkBitArray* giantGrid = vtkBitArray::New();
+  vtkIdType xDim = static_cast<int>(sqrt(static_cast<double>(numVertices)) * 10);
+  vtkIdType yDim = static_cast<int>(sqrt(static_cast<double>(numVertices)) * 10);
   vtkIdType gridSize = xDim * yDim;
   giantGrid->SetNumberOfValues(gridSize);
 
   // Initialize array to zeros
-  for(vtkIdType i=0; i<gridSize; ++i)
+  for (vtkIdType i = 0; i < gridSize; ++i)
   {
     giantGrid->SetValue(i, 0);
   }
@@ -574,36 +577,36 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
   this->Graph->GetBounds(bounds);
 
   // Give bounds a 10% padding
-  paddedBounds[0] = bounds[0] - (bounds[1]-bounds[0])*.1;
-  paddedBounds[1] = bounds[1] + (bounds[1]-bounds[0])*.1;
-  paddedBounds[2] = bounds[2] - (bounds[3]-bounds[2])*.1;
-  paddedBounds[3] = bounds[3] + (bounds[3]-bounds[2])*.1;
+  paddedBounds[0] = bounds[0] - (bounds[1] - bounds[0]) * .1;
+  paddedBounds[1] = bounds[1] + (bounds[1] - bounds[0]) * .1;
+  paddedBounds[2] = bounds[2] - (bounds[3] - bounds[2]) * .1;
+  paddedBounds[3] = bounds[3] + (bounds[3] - bounds[2]) * .1;
   paddedBounds[4] = paddedBounds[5] = 0;
 
   int totalCollisionOps = 0;
 
-  for(vtkIdType i=0; i<numVertices; ++i)
+  for (vtkIdType i = 0; i < numVertices; ++i)
   {
     int rawIndex = i * 3;
 
     // Compute indices into the buckets
-    int indexX = static_cast<int>(
-                 (rawPointData[rawIndex]-paddedBounds[0]) /
-                 (paddedBounds[1]-paddedBounds[0]) * (xDim-1) + .5);
-    int indexY = static_cast<int>(
-                 (rawPointData[rawIndex+1]-paddedBounds[2]) /
-                 (paddedBounds[3]-paddedBounds[2]) * (yDim-1) + .5);
+    int indexX = static_cast<int>((rawPointData[rawIndex] - paddedBounds[0]) /
+        (paddedBounds[1] - paddedBounds[0]) * (xDim - 1) +
+      .5);
+    int indexY = static_cast<int>((rawPointData[rawIndex + 1] - paddedBounds[2]) /
+        (paddedBounds[3] - paddedBounds[2]) * (yDim - 1) +
+      .5);
 
     // See if you collide with another vertex
-    if (giantGrid->GetValue(indexX + indexY*xDim))
+    if (giantGrid->GetValue(indexX + indexY * xDim))
     {
 
       // Oh my... try to get yourself out of this
       // by randomly jumping to a place that doesn't
       // have another vertex
       bool collision = true;
-      float jumpDistanceX = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
-      float jumpDistanceY = 5.0*(paddedBounds[3]-paddedBounds[2])/yDim; // 2.5 grid spaces max
+      float jumpDistanceX = 5.0 * (paddedBounds[1] - paddedBounds[0]) / xDim; // 2.5 grid spaces max
+      float jumpDistanceY = 5.0 * (paddedBounds[3] - paddedBounds[2]) / yDim; // 2.5 grid spaces max
       int collisionOps = 0;
 
       // You get 10 tries and then we have to punt
@@ -612,26 +615,26 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
         collisionOps++;
 
         // Move
-        rawPointData[rawIndex] += jumpDistanceX*(vtkMath::Random() - .5);
-        rawPointData[rawIndex+1] += jumpDistanceY*(vtkMath::Random() - .5);
+        rawPointData[rawIndex] += jumpDistanceX * (vtkMath::Random() - .5);
+        rawPointData[rawIndex + 1] += jumpDistanceY * (vtkMath::Random() - .5);
 
         // Test
-        indexX = static_cast<int>(
-                 (rawPointData[rawIndex]-paddedBounds[0]) /
-                 (paddedBounds[1]-paddedBounds[0]) * (xDim-1) + .5);
-        indexY = static_cast<int>(
-                     (rawPointData[rawIndex+1]-paddedBounds[2]) /
-                     (paddedBounds[3]-paddedBounds[2]) * (yDim-1) + .5);
-        if (!giantGrid->GetValue(indexX + indexY*xDim))
+        indexX = static_cast<int>((rawPointData[rawIndex] - paddedBounds[0]) /
+            (paddedBounds[1] - paddedBounds[0]) * (xDim - 1) +
+          .5);
+        indexY = static_cast<int>((rawPointData[rawIndex + 1] - paddedBounds[2]) /
+            (paddedBounds[3] - paddedBounds[2]) * (yDim - 1) +
+          .5);
+        if (!giantGrid->GetValue(indexX + indexY * xDim))
         {
           collision = false; // yea
         }
       } // while
-        totalCollisionOps += collisionOps;
+      totalCollisionOps += collisionOps;
     } // if collide
 
     // Put into a bucket
-    giantGrid->SetValue(indexX + indexY*xDim, 1);
+    giantGrid->SetValue(indexX + indexY * xDim, 1);
   }
 
   // Delete giantGrid
@@ -644,7 +647,7 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
 
 void vtkAttributeClustering2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "RandomSeed: " << this->RandomSeed << endl;
   os << indent << "MaxNumberOfIterations: " << this->MaxNumberOfIterations << endl;
   os << indent << "IterationsPerLayout: " << this->IterationsPerLayout << endl;
@@ -652,6 +655,8 @@ void vtkAttributeClustering2DLayoutStrategy::PrintSelf(ostream& os, vtkIndent in
   os << indent << "CoolDownRate: " << this->CoolDownRate << endl;
   os << indent << "RestDistance: " << this->RestDistance << endl;
   os << indent << "CuttingThreshold: " << this->CuttingThreshold << endl;
-  os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)") << endl;
-  os << indent << "VertexAttribute: " << (this->VertexAttribute ? this->VertexAttribute : "(none)") << endl;
+  os << indent << "EdgeWeightField: " << (this->EdgeWeightField ? this->EdgeWeightField : "(none)")
+     << endl;
+  os << indent << "VertexAttribute: " << (this->VertexAttribute ? this->VertexAttribute : "(none)")
+     << endl;
 }

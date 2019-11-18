@@ -61,7 +61,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkSparseArray_h
 #define vtkSparseArray_h
@@ -71,13 +71,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkTypedArray.h"
 
-template<typename T>
+template <typename T>
 class vtkSparseArray : public vtkTypedArray<T>
 {
 public:
-  vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>)
+  vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>);
   static vtkSparseArray<T>* New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::DimensionT DimensionT;
@@ -251,8 +251,8 @@ private:
    * of the array.
    */
   T NullValue;
-};
   //@}
+};
 
 #include "vtkSparseArray.txx"
 

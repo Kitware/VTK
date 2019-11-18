@@ -34,9 +34,7 @@ vtkOTFilter::vtkOTFilter()
 }
 
 //-----------------------------------------------------------------------------
-vtkOTFilter::~vtkOTFilter()
-{
-}
+vtkOTFilter::~vtkOTFilter() {}
 
 //-----------------------------------------------------------------------------
 int vtkOTFilter::FillInputPortInformation(int port, vtkInformation* info)
@@ -58,8 +56,7 @@ void vtkOTFilter::AddToOutput(Sample* ns, const std::string& name)
 
 //-----------------------------------------------------------------------------
 int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->Output = vtkTable::GetData(outputVector, 0);
   this->Output->Initialize();
@@ -68,7 +65,7 @@ int vtkOTFilter::RequestData(vtkInformation* vtkNotUsed(request),
   Sample* ns = vtkOTUtilities::ArrayToSample(dataArray);
 
   int ret = 1;
-  if(ns)
+  if (ns)
   {
     ret = this->Process(ns);
     delete ns;

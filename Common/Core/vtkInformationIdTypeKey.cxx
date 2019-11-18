@@ -16,10 +16,9 @@
 
 #include "vtkInformation.h"
 
-
 //----------------------------------------------------------------------------
-vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationIdTypeKey::vtkInformationIdTypeKey(const char* name, const char* location)
+  : vtkInformationKey(name, location)
 {
   vtkCommonInformationKeyManager::Register(this);
 }
@@ -34,7 +33,7 @@ void vtkInformationIdTypeKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-class vtkInformationIdTypeValue: public vtkObjectBase
+class vtkInformationIdTypeValue : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkInformationIdTypeValue, vtkObjectBase);
@@ -44,9 +43,8 @@ public:
 //----------------------------------------------------------------------------
 void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
 {
-  if(vtkInformationIdTypeValue* oldv =
-     static_cast<vtkInformationIdTypeValue *>
-     (this->GetAsObjectBase(info)))
+  if (vtkInformationIdTypeValue* oldv =
+        static_cast<vtkInformationIdTypeValue*>(this->GetAsObjectBase(info)))
   {
     if (oldv->Value != value)
     {
@@ -73,9 +71,8 @@ void vtkInformationIdTypeKey::Set(vtkInformation* info, vtkIdType value)
 vtkIdType vtkInformationIdTypeKey::Get(vtkInformation* info)
 {
   vtkInformationIdTypeValue* v =
-    static_cast<vtkInformationIdTypeValue *>
-    (this->GetAsObjectBase(info));
-  return v?v->Value:0;
+    static_cast<vtkInformationIdTypeValue*>(this->GetAsObjectBase(info));
+  return v ? v->Value : 0;
 }
 
 //----------------------------------------------------------------------------
@@ -95,7 +92,7 @@ void vtkInformationIdTypeKey::ShallowCopy(vtkInformation* from, vtkInformation* 
 void vtkInformationIdTypeKey::Print(ostream& os, vtkInformation* info)
 {
   // Print the value.
-  if(this->Has(info))
+  if (this->Has(info))
   {
     os << this->Get(info);
   }
@@ -104,9 +101,8 @@ void vtkInformationIdTypeKey::Print(ostream& os, vtkInformation* info)
 //----------------------------------------------------------------------------
 vtkIdType* vtkInformationIdTypeKey::GetWatchAddress(vtkInformation* info)
 {
-  if(vtkInformationIdTypeValue* v =
-     static_cast<vtkInformationIdTypeValue *>
-     (this->GetAsObjectBase(info)))
+  if (vtkInformationIdTypeValue* v =
+        static_cast<vtkInformationIdTypeValue*>(this->GetAsObjectBase(info)))
   {
     return &v->Value;
   }

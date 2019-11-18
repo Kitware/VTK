@@ -176,7 +176,7 @@ namespace
 {
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
-template<class T>
+template <class T>
 void vtkXMLPHyperTreeGridAppendExecute(T* inPtr, T* outPtr, vtkIdType numTuple, vtkIdType numComp)
 {
   for (vtkIdType nt = 0; nt < numTuple; nt++)

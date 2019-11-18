@@ -34,7 +34,7 @@
  *  <li> node-center fields must match across processes. </li>
  * </ul>
  *
-*/
+ */
 
 #ifndef vtkStructuredImplicitConnectivity_h
 #define vtkStructuredImplicitConnectivity_h
@@ -64,13 +64,12 @@ struct StructuredGrid;
 } // END namespace detail
 } // END namespace vtk
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity :
-  public vtkObject
+class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity : public vtkObject
 {
 public:
   static vtkStructuredImplicitConnectivity* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkStructuredImplicitConnectivity,vtkObject);
+  vtkTypeMacro(vtkStructuredImplicitConnectivity, vtkObject);
 
   /**
    * \brief Sets the whole extent for the distributed structured domain.
@@ -88,12 +87,7 @@ public:
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
   // \note A rank with no or an empty grid, should not call this method.
-  void RegisterGrid(
-        const int gridID,
-        int extent[6],
-        vtkPoints* gridPnts,
-        vtkPointData* pointData
-        );
+  void RegisterGrid(const int gridID, int extent[6], vtkPoints* gridPnts, vtkPointData* pointData);
 
   // \brief Registers the rectilinear grid dataset belonging to this process.
   // \param gridID the ID of the in this rank.
@@ -105,14 +99,8 @@ public:
   // \pre gridID >= 0. The code uses values of gridID < -1 as flag internally.
   // \pre vtkStructuredExtent::Smaller(extent,wholeExtent) == true.
   // \note A rank with no or an empty grid, should not call this method.
-  void RegisterRectilinearGrid(
-        const int gridID,
-        int extent[6],
-        vtkDataArray* xcoords,
-        vtkDataArray* ycoords,
-        vtkDataArray* zcoords,
-        vtkPointData* pointData
-        );
+  void RegisterRectilinearGrid(const int gridID, int extent[6], vtkDataArray* xcoords,
+    vtkDataArray* ycoords, vtkDataArray* zcoords, vtkPointData* pointData);
 
   /**
    * \brief Finds implicit connectivity for a distributed structured dataset.

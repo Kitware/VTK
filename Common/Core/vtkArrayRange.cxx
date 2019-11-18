@@ -23,14 +23,15 @@
 
 #include <algorithm> // for std::max()
 
-vtkArrayRange::vtkArrayRange() :
-  Begin(0),
-  End(0)
+vtkArrayRange::vtkArrayRange()
+  : Begin(0)
+  , End(0)
 {
 }
 
-vtkArrayRange::vtkArrayRange(CoordinateT begin, CoordinateT end) :
-  Begin(begin), End(std::max(begin, end))
+vtkArrayRange::vtkArrayRange(CoordinateT begin, CoordinateT end)
+  : Begin(begin)
+  , End(std::max(begin, end))
 {
 }
 
@@ -74,4 +75,3 @@ ostream& operator<<(ostream& stream, const vtkArrayRange& rhs)
   stream << "[" << rhs.Begin << ", " << rhs.End << ")";
   return stream;
 }
-

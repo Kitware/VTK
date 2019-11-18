@@ -35,11 +35,10 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
   renderer->UseHiddenLineRemovalOn();
   renWin->AddRenderer(renderer);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
   vtkNew<vtkExodusIIReader> reader;
   reader->SetFileName(fileName);
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkCompositeDataGeometryFilter> geomFilter;
   geomFilter->SetInputConnection(reader->GetOutputPort());
@@ -56,7 +55,7 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
   // Workaround a rendering bug. See gitlab issue #16816.
   actor->GetProperty()->LightingOff();
 
-  renWin->SetSize(500,500);
+  renWin->SetSize(500, 500);
   renderer->SetBackground(1.0, 1.0, 1.0);
   renderer->SetBackground2(.3, .1, .2);
   renderer->GradientBackgroundOn();

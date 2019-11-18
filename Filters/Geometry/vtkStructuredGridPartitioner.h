@@ -23,7 +23,7 @@
  *
  * @sa
  *  vtkUniformGridPartitioner vtkRectilinearGridPartitioner
-*/
+ */
 
 #ifndef vtkStructuredGridPartitioner_h
 #define vtkStructuredGridPartitioner_h
@@ -37,37 +37,36 @@ class vtkIndent;
 class vtkStructuredGrid;
 class vtkPoints;
 
-class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridPartitioner :
-  public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridPartitioner : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  static vtkStructuredGridPartitioner *New();
+  static vtkStructuredGridPartitioner* New();
   vtkTypeMacro(vtkStructuredGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent ) override;
+  void PrintSelf(ostream& oss, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get macro for the number of subdivisions.
    */
-  vtkGetMacro(NumberOfPartitions,int);
-  vtkSetMacro(NumberOfPartitions,int);
+  vtkGetMacro(NumberOfPartitions, int);
+  vtkSetMacro(NumberOfPartitions, int);
   //@}
 
   //@{
   /**
    * Set/Get macro for the number of ghost layers.
    */
-  vtkGetMacro(NumberOfGhostLayers,int);
-  vtkSetMacro(NumberOfGhostLayers,int);
+  vtkGetMacro(NumberOfGhostLayers, int);
+  vtkSetMacro(NumberOfGhostLayers, int);
   //@}
 
   //@{
   /**
    * Set/Get & boolean macro for the DuplicateNodes property.
    */
-  vtkGetMacro(DuplicateNodes,vtkTypeBool);
-  vtkSetMacro(DuplicateNodes,vtkTypeBool);
-  vtkBooleanMacro(DuplicateNodes,vtkTypeBool);
+  vtkGetMacro(DuplicateNodes, vtkTypeBool);
+  vtkSetMacro(DuplicateNodes, vtkTypeBool);
+  vtkBooleanMacro(DuplicateNodes, vtkTypeBool);
   //@}
 
 protected:
@@ -77,21 +76,20 @@ protected:
   /**
    * Extracts the coordinates of the sub-grid from the whole grid.
    */
-  vtkPoints* ExtractSubGridPoints(vtkStructuredGrid *wholeGrid,int subext[6]);
+  vtkPoints* ExtractSubGridPoints(vtkStructuredGrid* wholeGrid, int subext[6]);
 
   // Standard Pipeline methods
-  int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
   vtkTypeBool DuplicateNodes;
 
 private:
-  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &) = delete;
-  void operator=(const vtkStructuredGridPartitioner &) = delete;
+  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner&) = delete;
+  void operator=(const vtkStructuredGridPartitioner&) = delete;
 };
 
 #endif /* vtkStructuredGridPartitioner_h */

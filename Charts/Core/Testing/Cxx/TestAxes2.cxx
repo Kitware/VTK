@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestAxes2(int , char * [])
+int TestAxes2(int, char*[])
 {
   int status = EXIT_SUCCESS;
 

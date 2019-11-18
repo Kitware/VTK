@@ -42,7 +42,7 @@
  * are therefore weighted by the triangle area. This is not more nor less
  * correct than normalizing them before adding them, but it is much faster.
  *
-*/
+ */
 
 #ifndef vtkmTriangleMeshPointNormals_h
 #define vtkmTriangleMeshPointNormals_h
@@ -50,11 +50,10 @@
 #include "vtkAcceleratorsVTKmModule.h" // for export macro
 #include "vtkTriangleMeshPointNormals.h"
 
-class VTKACCELERATORSVTKM_EXPORT vtkmTriangleMeshPointNormals
-  : public vtkTriangleMeshPointNormals
+class VTKACCELERATORSVTKM_EXPORT vtkmTriangleMeshPointNormals : public vtkTriangleMeshPointNormals
 {
 public:
-  vtkTypeMacro(vtkmTriangleMeshPointNormals, vtkTriangleMeshPointNormals)
+  vtkTypeMacro(vtkmTriangleMeshPointNormals, vtkTriangleMeshPointNormals);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmTriangleMeshPointNormals* New();
 
@@ -62,8 +61,7 @@ protected:
   vtkmTriangleMeshPointNormals();
   ~vtkmTriangleMeshPointNormals();
 
-  int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmTriangleMeshPointNormals(const vtkmTriangleMeshPointNormals&) = delete;

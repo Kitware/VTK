@@ -28,11 +28,11 @@
 
 void test_expression(const bool expression, const std::string& message)
 {
-  if(!expression)
+  if (!expression)
     throw std::runtime_error(message);
 }
 
-int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayInterpolationDense(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
@@ -46,8 +46,14 @@ int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkDenseArray<double> > b = vtkSmartPointer<vtkDenseArray<double> >::New();
     b->Resize(vtkArrayExtents(2));
 
-    vtkInterpolate(a.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(0, 1)), vtkArrayExtents(vtkArrayRange(1, 2))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(0, 1)), b.GetPointer());
-    vtkInterpolate(a.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(2, 3)), vtkArrayExtents(vtkArrayRange(3, 4))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(1, 2)), b.GetPointer());
+    vtkInterpolate(a.GetPointer(),
+      vtkArrayExtentsList(
+        vtkArrayExtents(vtkArrayRange(0, 1)), vtkArrayExtents(vtkArrayRange(1, 2))),
+      vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(0, 1)), b.GetPointer());
+    vtkInterpolate(a.GetPointer(),
+      vtkArrayExtentsList(
+        vtkArrayExtents(vtkArrayRange(2, 3)), vtkArrayExtents(vtkArrayRange(3, 4))),
+      vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(1, 2)), b.GetPointer());
 
     test_expression(b->GetValue(0) == 0.5, "expected 0.5");
     test_expression(b->GetValue(1) == 2.5, "expected 2.5");
@@ -66,8 +72,16 @@ int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkSmartPointer<vtkDenseArray<double> > d = vtkSmartPointer<vtkDenseArray<double> >::New();
     d->Resize(vtkArrayExtents(2, 2));
 
-    vtkInterpolate(c.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(0, 1), vtkArrayRange(0, 2)), vtkArrayExtents(vtkArrayRange(1, 2), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(0, 1), vtkArrayRange(0, 2)), d.GetPointer());
-    vtkInterpolate(c.GetPointer(), vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(2, 3), vtkArrayRange(0, 2)), vtkArrayExtents(vtkArrayRange(3, 4), vtkArrayRange(0, 2))), vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(1, 2), vtkArrayRange(0, 2)), d.GetPointer());
+    vtkInterpolate(c.GetPointer(),
+      vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(0, 1), vtkArrayRange(0, 2)),
+        vtkArrayExtents(vtkArrayRange(1, 2), vtkArrayRange(0, 2))),
+      vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(0, 1), vtkArrayRange(0, 2)),
+      d.GetPointer());
+    vtkInterpolate(c.GetPointer(),
+      vtkArrayExtentsList(vtkArrayExtents(vtkArrayRange(2, 3), vtkArrayRange(0, 2)),
+        vtkArrayExtents(vtkArrayRange(3, 4), vtkArrayRange(0, 2))),
+      vtkArrayWeights(0.5, 0.5), vtkArrayExtents(vtkArrayRange(1, 2), vtkArrayRange(0, 2)),
+      d.GetPointer());
 
     test_expression(d->GetValue(0, 0) == 1, "expected 1");
     test_expression(d->GetValue(0, 1) == 2, "expected 2");
@@ -76,7 +90,7 @@ int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;

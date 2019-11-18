@@ -8,7 +8,7 @@ class vtkTreeRingView;
 class TreeRingViewItem : public QVTKGraphicsItem
 {
 public:
-  TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p=0);
+  TreeRingViewItem(QGLContext* ctx, QGraphicsItem* p = 0);
   ~TreeRingViewItem();
 
 protected:

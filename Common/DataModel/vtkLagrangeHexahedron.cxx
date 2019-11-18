@@ -41,25 +41,24 @@ vtkLagrangeHexahedron::vtkLagrangeHexahedron()
   this->PointIds->SetNumberOfIds(8);
   this->CellScalars->SetNumberOfTuples(this->Order[3]);
   for (int i = 0; i < 8; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
-    this->PointIds->SetId(i,-1);
-    }
+    this->PointIds->SetId(i, -1);
+  }
 }
 
 vtkLagrangeHexahedron::~vtkLagrangeHexahedron() = default;
 
 void vtkLagrangeHexahedron::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Order: " << this->GetOrder(3) << "\n";
   if (this->PointParametricCoordinates)
-    {
-    os
-      << indent << "PointParametricCoordinates: "
-      << this->PointParametricCoordinates->GetNumberOfPoints()
-      << " entries\n";
-    }
+  {
+    os << indent
+       << "PointParametricCoordinates: " << this->PointParametricCoordinates->GetNumberOfPoints()
+       << " entries\n";
+  }
   os << indent << "Approx: " << this->Approx << "\n";
 }
 
@@ -74,29 +73,29 @@ vtkCell* vtkLagrangeHexahedron::GetEdge(int edgeId)
   result->Points->SetNumberOfPoints(npts);
   result->PointIds->SetNumberOfIds(npts);
   for (int i = 0; i < 2; ++i, ++sn)
-    {
+  {
     result->Points->SetPoint(sn, this->Points->GetPoint(eidx[i]));
     result->PointIds->SetId(sn, this->PointIds->GetId(eidx[i]));
-    }
+  }
   // Now add edge-interior points in axis order:
   int offset = 8;
   if (oi == 2)
-    {
+  {
     offset += 4 * (order[0] - 1 + order[1] - 1);
     offset += (edgeId - 8) * (order[2] - 1);
-    }
+  }
   else
-    {
+  {
     for (int ee = 0; ee < edgeId; ++ee)
-      {
-      offset += order[ee % 2 == 0 ? 0 : 1] - 1;
-      }
-    }
-  for (int jj = 0; jj < order[oi] - 1; ++jj, ++sn)
     {
+      offset += order[ee % 2 == 0 ? 0 : 1] - 1;
+    }
+  }
+  for (int jj = 0; jj < order[oi] - 1; ++jj, ++sn)
+  {
     result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
     result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
-    }
+  }
   return result;
 }
 
@@ -241,76 +240,72 @@ vtkCell* vtkLagrangeHexahedron::GetFace(int faceId)
   return result;
 }
 
-void vtkLagrangeHexahedron::Initialize()
-{
-}
+void vtkLagrangeHexahedron::Initialize() {}
 
 int vtkLagrangeHexahedron::CellBoundary(
   int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
-  double t1=pcoords[0]-pcoords[1];
-  double t2=1.0-pcoords[0]-pcoords[1];
-  double t3=pcoords[1]-pcoords[2];
-  double t4=1.0-pcoords[1]-pcoords[2];
-  double t5=pcoords[2]-pcoords[0];
-  double t6=1.0-pcoords[2]-pcoords[0];
+  double t1 = pcoords[0] - pcoords[1];
+  double t2 = 1.0 - pcoords[0] - pcoords[1];
+  double t3 = pcoords[1] - pcoords[2];
+  double t4 = 1.0 - pcoords[1] - pcoords[2];
+  double t5 = pcoords[2] - pcoords[0];
+  double t6 = 1.0 - pcoords[2] - pcoords[0];
 
   pts->SetNumberOfIds(4);
 
   // compare against six planes in parametric space that divide element
   // into six pieces.
-  if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
+  if (t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0)
   {
-    pts->SetId(0,this->PointIds->GetId(0));
-    pts->SetId(1,this->PointIds->GetId(1));
-    pts->SetId(2,this->PointIds->GetId(2));
-    pts->SetId(3,this->PointIds->GetId(3));
+    pts->SetId(0, this->PointIds->GetId(0));
+    pts->SetId(1, this->PointIds->GetId(1));
+    pts->SetId(2, this->PointIds->GetId(2));
+    pts->SetId(3, this->PointIds->GetId(3));
   }
 
-  else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
+  else if (t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0)
   {
-    pts->SetId(0,this->PointIds->GetId(1));
-    pts->SetId(1,this->PointIds->GetId(2));
-    pts->SetId(2,this->PointIds->GetId(6));
-    pts->SetId(3,this->PointIds->GetId(5));
+    pts->SetId(0, this->PointIds->GetId(1));
+    pts->SetId(1, this->PointIds->GetId(2));
+    pts->SetId(2, this->PointIds->GetId(6));
+    pts->SetId(3, this->PointIds->GetId(5));
   }
 
-  else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
+  else if (t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0)
   {
-    pts->SetId(0,this->PointIds->GetId(0));
-    pts->SetId(1,this->PointIds->GetId(1));
-    pts->SetId(2,this->PointIds->GetId(5));
-    pts->SetId(3,this->PointIds->GetId(4));
+    pts->SetId(0, this->PointIds->GetId(0));
+    pts->SetId(1, this->PointIds->GetId(1));
+    pts->SetId(2, this->PointIds->GetId(5));
+    pts->SetId(3, this->PointIds->GetId(4));
   }
 
-  else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
+  else if (t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0)
   {
-    pts->SetId(0,this->PointIds->GetId(4));
-    pts->SetId(1,this->PointIds->GetId(5));
-    pts->SetId(2,this->PointIds->GetId(6));
-    pts->SetId(3,this->PointIds->GetId(7));
+    pts->SetId(0, this->PointIds->GetId(4));
+    pts->SetId(1, this->PointIds->GetId(5));
+    pts->SetId(2, this->PointIds->GetId(6));
+    pts->SetId(3, this->PointIds->GetId(7));
   }
 
-  else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
+  else if (t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0)
   {
-    pts->SetId(0,this->PointIds->GetId(0));
-    pts->SetId(1,this->PointIds->GetId(4));
-    pts->SetId(2,this->PointIds->GetId(7));
-    pts->SetId(3,this->PointIds->GetId(3));
+    pts->SetId(0, this->PointIds->GetId(0));
+    pts->SetId(1, this->PointIds->GetId(4));
+    pts->SetId(2, this->PointIds->GetId(7));
+    pts->SetId(3, this->PointIds->GetId(3));
   }
 
   else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
   {
-    pts->SetId(0,this->PointIds->GetId(2));
-    pts->SetId(1,this->PointIds->GetId(3));
-    pts->SetId(2,this->PointIds->GetId(7));
-    pts->SetId(3,this->PointIds->GetId(6));
+    pts->SetId(0, this->PointIds->GetId(2));
+    pts->SetId(1, this->PointIds->GetId(3));
+    pts->SetId(2, this->PointIds->GetId(7));
+    pts->SetId(3, this->PointIds->GetId(6));
   }
 
-
-  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
-       pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
-       pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+  if (pcoords[0] < 0.0 || pcoords[0] > 1.0 || pcoords[1] < 0.0 || pcoords[1] > 1.0 ||
+    pcoords[2] < 0.0 || pcoords[2] > 1.0)
   {
     return 0;
   }
@@ -320,13 +315,8 @@ int vtkLagrangeHexahedron::CellBoundary(
   }
 }
 
-int vtkLagrangeHexahedron::EvaluatePosition(
-  const double x[3],
-  double closestPoint[3],
-  int& subId,
-  double pcoords[3],
-  double& minDist2,
-  double weights[])
+int vtkLagrangeHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
+  double pcoords[3], double& minDist2, double weights[])
 {
   int result = 0;
 
@@ -339,45 +329,44 @@ int vtkLagrangeHexahedron::EvaluatePosition(
   minDist2 = VTK_DOUBLE_MAX;
   vtkIdType nhex = vtkLagrangeInterpolation::NumberOfIntervals<3>(this->GetOrder());
   for (int subCell = 0; subCell < nhex; ++subCell)
-    {
+  {
     vtkHexahedron* approx = this->GetApproximateHex(subCell, nullptr, nullptr);
-    int stat = approx->EvaluatePosition(x, tmpClosestPt.GetData(), dummySubId, params.GetData(), tmpDist2, linearWeights);
+    int stat = approx->EvaluatePosition(
+      x, tmpClosestPt.GetData(), dummySubId, params.GetData(), tmpDist2, linearWeights);
     if (stat != -1 && tmpDist2 < minDist2)
-      {
+    {
       result = stat;
       subId = subCell;
       minDist2 = tmpDist2;
       for (int ii = 0; ii < 3; ++ii)
-        {
+      {
         pcoords[ii] = params[ii]; // We will translate the winning parameter values later.
         if (closestPoint)
-          {
+        {
           closestPoint[ii] = tmpClosestPt[ii];
-          }
         }
       }
     }
+  }
 
   if (result != -1)
-    {
+  {
     this->TransformApproxToCellParams(subId, pcoords);
     if (closestPoint)
-      {
+    {
       this->EvaluateLocation(dummySubId, pcoords, closestPoint, weights);
-      }
-    else
-      {
-      this->InterpolateFunctions(pcoords, weights);
-      }
     }
+    else
+    {
+      this->InterpolateFunctions(pcoords, weights);
+    }
+  }
 
   return result;
 }
 
 void vtkLagrangeHexahedron::EvaluateLocation(
-  int& subId,
-  const double pcoords[3],
-  double x[3], double* weights)
+  int& subId, const double pcoords[3], double x[3], double* weights)
 {
   subId = 0; // TODO: Should this be -1?
   this->InterpolateFunctions(pcoords, weights);
@@ -386,71 +375,50 @@ void vtkLagrangeHexahedron::EvaluateLocation(
   x[0] = x[1] = x[2] = 0.;
   vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < nPoints; ++idx)
-    {
+  {
     this->Points->GetPoint(idx, p);
     for (vtkIdType jdx = 0; jdx < 3; ++jdx)
-      {
+    {
       x[jdx] += p[jdx] * weights[idx];
-      }
     }
+  }
 }
 
-void vtkLagrangeHexahedron::Contour(
-  double value,
-  vtkDataArray* cellScalars,
-  vtkIncrementalPointLocator* locator,
-  vtkCellArray* verts,
-  vtkCellArray* lines,
-  vtkCellArray* polys,
-  vtkPointData* inPd,
-  vtkPointData* outPd,
-  vtkCellData* inCd,
-  vtkIdType cellId,
+void vtkLagrangeHexahedron::Contour(double value, vtkDataArray* cellScalars,
+  vtkIncrementalPointLocator* locator, vtkCellArray* verts, vtkCellArray* lines,
+  vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
   vtkCellData* outCd)
 {
-  this->PrepareApproxData(inPd, inCd, cellId, cellScalars); // writes to this->{CellScalars, ApproxPD, ApproxCD}
+  this->PrepareApproxData(
+    inPd, inCd, cellId, cellScalars); // writes to this->{CellScalars, ApproxPD, ApproxCD}
   vtkIdType nhex = vtkLagrangeInterpolation::NumberOfIntervals<3>(this->GetOrder());
   for (int i = 0; i < nhex; ++i)
-    {
-    vtkHexahedron* approx = this->GetApproximateHex(i, this->CellScalars.GetPointer(), this->Scalars.GetPointer());
-    approx->Contour(
-      value, this->Scalars.GetPointer(), locator,
-      verts, lines, polys, this->ApproxPD, outPd, this->ApproxCD, cellId, outCd);
-    }
+  {
+    vtkHexahedron* approx =
+      this->GetApproximateHex(i, this->CellScalars.GetPointer(), this->Scalars.GetPointer());
+    approx->Contour(value, this->Scalars.GetPointer(), locator, verts, lines, polys, this->ApproxPD,
+      outPd, this->ApproxCD, cellId, outCd);
+  }
 }
 
-void vtkLagrangeHexahedron::Clip(
-  double value,
-  vtkDataArray* cellScalars,
-  vtkIncrementalPointLocator* locator,
-  vtkCellArray* polys,
-  vtkPointData* inPd,
-  vtkPointData* outPd,
-  vtkCellData* inCd,
-  vtkIdType cellId,
-  vtkCellData* outCd,
-  int insideOut)
+void vtkLagrangeHexahedron::Clip(double value, vtkDataArray* cellScalars,
+  vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
 {
-  this->PrepareApproxData(inPd, inCd, cellId, cellScalars); // writes to this->{CellScalars, ApproxPD, ApproxCD}
+  this->PrepareApproxData(
+    inPd, inCd, cellId, cellScalars); // writes to this->{CellScalars, ApproxPD, ApproxCD}
   vtkIdType nhex = vtkLagrangeInterpolation::NumberOfIntervals<3>(this->GetOrder());
   for (int i = 0; i < nhex; ++i)
-    {
-    vtkHexahedron* approx = this->GetApproximateHex(i, this->CellScalars.GetPointer(), this->Scalars.GetPointer());
-    approx->Clip(
-      value, this->Scalars.GetPointer(), locator,
-      polys, this->ApproxPD, outPd, this->ApproxCD, cellId,
-      outCd, insideOut);
-    }
+  {
+    vtkHexahedron* approx =
+      this->GetApproximateHex(i, this->CellScalars.GetPointer(), this->Scalars.GetPointer());
+    approx->Clip(value, this->Scalars.GetPointer(), locator, polys, this->ApproxPD, outPd,
+      this->ApproxCD, cellId, outCd, insideOut);
+  }
 }
 
 int vtkLagrangeHexahedron::IntersectWithLine(
-  const double* p1,
-  const double* p2,
-  double tol,
-  double& t,
-  double* x,
-  double* pcoords,
-  int& subId)
+  const double* p1, const double* p2, double tol, double& t, double* x, double* pcoords, int& subId)
 {
   double tFirst = VTK_DOUBLE_MAX;
   bool intersection = false;
@@ -484,10 +452,7 @@ int vtkLagrangeHexahedron::IntersectWithLine(
   return intersection ? 1 : 0;
 }
 
-int vtkLagrangeHexahedron::Triangulate(
-  int vtkNotUsed(index),
-  vtkIdList* ptIds,
-  vtkPoints* pts)
+int vtkLagrangeHexahedron::Triangulate(int vtkNotUsed(index), vtkIdList* ptIds, vtkPoints* pts)
 {
   ptIds->Reset();
   pts->Reset();
@@ -495,64 +460,57 @@ int vtkLagrangeHexahedron::Triangulate(
   vtkIdType nhex = vtkLagrangeInterpolation::NumberOfIntervals<3>(this->GetOrder());
   vtkVector3i ijk;
   for (int i = 0; i < nhex; ++i)
-    {
+  {
     vtkHexahedron* approx = this->GetApproximateHex(i);
     if (!this->SubCellCoordinatesFromId(ijk, i))
     {
       continue;
     }
     if (approx->Triangulate(
-        (ijk[0] + ijk[1] + ijk[2]) % 2,
-        this->TmpIds.GetPointer(),
-        this->TmpPts.GetPointer()))
-      {
+          (ijk[0] + ijk[1] + ijk[2]) % 2, this->TmpIds.GetPointer(), this->TmpPts.GetPointer()))
+    {
       // Sigh. Triangulate methods all reset their points/ids
       // so we must copy them to our output.
       vtkIdType np = this->TmpPts->GetNumberOfPoints();
       vtkIdType ni = this->TmpIds->GetNumberOfIds();
       vtkIdType offset = pts->GetNumberOfPoints();
       for (vtkIdType ii = 0; ii < np; ++ii)
-        {
+      {
         pts->InsertNextPoint(this->TmpPts->GetPoint(ii));
-        }
+      }
       for (vtkIdType ii = 0; ii < ni; ++ii)
-        {
+      {
         ptIds->InsertNextId(this->TmpIds->GetId(ii) + offset);
-        }
       }
     }
+  }
   return 1;
 }
 
 void vtkLagrangeHexahedron::Derivatives(
-  int vtkNotUsed(subId),
-  const double pcoords[3],
-  const double* values,
-  int dim,
-  double* derivs)
+  int vtkNotUsed(subId), const double pcoords[3], const double* values, int dim, double* derivs)
 {
-  this->Interp->Tensor3EvaluateDerivative(this->Order, pcoords, this->GetPoints(), values, dim, derivs);
+  this->Interp->Tensor3EvaluateDerivative(
+    this->Order, pcoords, this->GetPoints(), values, dim, derivs);
 }
 
 double* vtkLagrangeHexahedron::GetParametricCoords()
 {
   if (!this->PointParametricCoordinates)
-    {
+  {
     this->PointParametricCoordinates = vtkSmartPointer<vtkPoints>::New();
     this->PointParametricCoordinates->SetDataTypeToDouble();
-    }
+  }
 
   // Ensure Order is up-to-date and check that current point size matches:
   if (static_cast<int>(this->PointParametricCoordinates->GetNumberOfPoints()) != this->GetOrder(3))
-    {
+  {
     this->PointParametricCoordinates->Initialize();
     vtkLagrangeInterpolation::AppendHexahedronCollocationPoints(
       this->PointParametricCoordinates, this->Order);
-    }
+  }
 
-  return
-    vtkDoubleArray::SafeDownCast(
-      this->PointParametricCoordinates->GetData())->GetPointer(0);
+  return vtkDoubleArray::SafeDownCast(this->PointParametricCoordinates->GetData())->GetPointer(0);
 }
 
 double vtkLagrangeHexahedron::GetParametricDistance(const double pcoords[3])
@@ -560,16 +518,13 @@ double vtkLagrangeHexahedron::GetParametricDistance(const double pcoords[3])
   double pDist, pDistMax = 0.0;
 
   for (int ii = 0; ii < 3; ++ii)
-    {
-    pDist =
-      (pcoords[ii] < 0. ? -pcoords[ii] :
-       (pcoords[ii] > 1. ? pcoords[ii] - 1. :
-        0.));
+  {
+    pDist = (pcoords[ii] < 0. ? -pcoords[ii] : (pcoords[ii] > 1. ? pcoords[ii] - 1. : 0.));
     if (pDist > pDistMax)
-      {
+    {
       pDistMax = pDist;
-      }
     }
+  }
 
   return pDistMax;
 }
@@ -582,26 +537,25 @@ const int* vtkLagrangeHexahedron::GetOrder()
   //   We populate the Order array for use with the interpolation class.
   vtkIdType npts = this->Points->GetNumberOfPoints();
   if (this->Order[3] != npts)
-    {
-    int pointsPerAxis = static_cast<int>(ceil(pow(npts, 1./3.))); // number of points along each axis
+  {
+    int pointsPerAxis =
+      static_cast<int>(ceil(pow(npts, 1. / 3.))); // number of points along each axis
     for (int i = 0; i < 3; ++i)
-      {
+    {
       this->Order[i] = pointsPerAxis - 1; // order 1 is linear, 2 is quadratic, ...
-      }
+    }
     this->Order[3] = static_cast<int>(npts);
     this->CellScalars->SetNumberOfTuples(npts);
-    }
+  }
   return this->Order;
 }
 
-void vtkLagrangeHexahedron::InterpolateFunctions(
-  const double pcoords[3], double* weights)
+void vtkLagrangeHexahedron::InterpolateFunctions(const double pcoords[3], double* weights)
 {
   vtkLagrangeInterpolation::Tensor3ShapeFunctions(this->GetOrder(), pcoords, weights);
 }
 
-void vtkLagrangeHexahedron::InterpolateDerivs(
-  const double pcoords[3], double* derivs)
+void vtkLagrangeHexahedron::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
   vtkLagrangeInterpolation::Tensor3ShapeDerivatives(this->GetOrder(), pcoords, derivs);
 }
@@ -610,23 +564,24 @@ void vtkLagrangeHexahedron::InterpolateDerivs(
 vtkHexahedron* vtkLagrangeHexahedron::GetApprox()
 {
   if (!this->Approx)
-    {
+  {
     this->Approx = vtkSmartPointer<vtkHexahedron>::New();
     this->ApproxPD = vtkSmartPointer<vtkPointData>::New();
     this->ApproxCD = vtkSmartPointer<vtkCellData>::New();
-    }
+  }
   return this->Approx.GetPointer();
 }
 
 /**\brief Prepare point data for use by linear approximating-elements.
-  *
-  * This copies the point data for the current cell into a new point-data
-  * object so that the point ids and scalar ids can match.
-  */
-void vtkLagrangeHexahedron::PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars)
+ *
+ * This copies the point data for the current cell into a new point-data
+ * object so that the point ids and scalar ids can match.
+ */
+void vtkLagrangeHexahedron::PrepareApproxData(
+  vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars)
 {
   this->GetApprox(); // Ensure this->Approx{PD,CD} are non-NULL.
-  this->GetOrder(); // Ensure the order has been updated to match this element.
+  this->GetOrder();  // Ensure the order has been updated to match this element.
   vtkIdType npts = this->Order[3];
   vtkIdType nele = this->Order[0] * this->Order[1] * this->Order[2];
   this->ApproxPD->Initialize();
@@ -636,31 +591,32 @@ void vtkLagrangeHexahedron::PrepareApproxData(vtkPointData* pd, vtkCellData* cd,
   this->ApproxPD->CopyAllocate(pd, npts);
   this->ApproxCD->CopyAllocate(cd, nele);
   for (int pp = 0; pp < npts; ++pp)
-    {
+  {
     this->ApproxPD->CopyData(pd, this->PointIds->GetId(pp), pp);
     this->CellScalars->SetValue(pp, cellScalars->GetTuple1(pp));
-    }
+  }
   for (int ee = 0; ee < nele; ++ee)
-    {
+  {
     this->ApproxCD->CopyData(cd, cellId, ee);
-    }
+  }
 }
 
-/**\brief Populate the linear hex returned by GetApprox() with point-data from one voxel-like intervals of this cell.
-  *
-  * Ensure that you have called GetOrder() before calling this method
-  * so that this->Order is up to date. This method does no checking
-  * before using it to map connectivity-array offsets.
-  */
+/**\brief Populate the linear hex returned by GetApprox() with point-data from one voxel-like
+ * intervals of this cell.
+ *
+ * Ensure that you have called GetOrder() before calling this method
+ * so that this->Order is up to date. This method does no checking
+ * before using it to map connectivity-array offsets.
+ */
 vtkHexahedron* vtkLagrangeHexahedron::GetApproximateHex(
   int subId, vtkDataArray* scalarsIn, vtkDataArray* scalarsOut)
 {
   vtkHexahedron* approx = this->GetApprox();
   bool doScalars = (scalarsIn && scalarsOut);
   if (doScalars)
-    {
+  {
     scalarsOut->SetNumberOfTuples(8);
-    }
+  }
   int i, j, k;
   if (!this->SubCellCoordinatesFromId(i, j, k, subId))
   {
@@ -670,22 +626,18 @@ vtkHexahedron* vtkLagrangeHexahedron::GetApproximateHex(
   // Get the point coordinates (and optionally scalars) for each of the 8 corners
   // in the approximating hexahedron spanned by (i, i+1) x (j, j+1) x (k, k+1):
   for (int ic = 0; ic < 8; ++ic)
-    {
+  {
     int corner = this->PointIndexFromIJK(
-      i + ((((ic + 1) / 2) % 2) ? 1 : 0),
-      j + (((ic / 2) % 2) ? 1 : 0),
-      k + ((ic / 4) ? 1 : 0));
+      i + ((((ic + 1) / 2) % 2) ? 1 : 0), j + (((ic / 2) % 2) ? 1 : 0), k + ((ic / 4) ? 1 : 0));
     vtkVector3d cp;
     this->Points->GetPoint(corner, cp.GetData());
     approx->Points->SetPoint(ic, cp.GetData());
     approx->PointIds->SetId(ic, doScalars ? corner : this->PointIds->GetId(corner));
     if (doScalars)
-      {
-      scalarsOut->SetTuple(ic,
-        scalarsIn->GetTuple(
-          corner));
-      }
+    {
+      scalarsOut->SetTuple(ic, scalarsIn->GetTuple(corner));
     }
+  }
   return approx;
 }
 
@@ -695,19 +647,21 @@ bool vtkLagrangeHexahedron::SubCellCoordinatesFromId(vtkVector3i& ijk, int subId
   return this->SubCellCoordinatesFromId(ijk[0], ijk[1], ijk[2], subId);
 }
 
-/**\brief Given an integer specifying an approximating linear hex, compute its IJK coordinate-position in this cell.
+/**\brief Given an integer specifying an approximating linear hex, compute its IJK
+ * coordinate-position in this cell.
  *
  * The \a subId specifies the lower-, left-, front-most vertex of the approximating hex.
  * This sets the ijk coordinates of that point.
  *
- * You must have called this->GetOrder() **before** invoking this method so that the order will be up to date.
+ * You must have called this->GetOrder() **before** invoking this method so that the order will be
+ * up to date.
  */
 bool vtkLagrangeHexahedron::SubCellCoordinatesFromId(int& i, int& j, int& k, int subId)
 {
   if (subId < 0)
-    {
+  {
     return false;
-    }
+  }
 
   int layerSize = this->Order[0] * this->Order[1];
   i = subId % this->Order[0];
@@ -716,22 +670,24 @@ bool vtkLagrangeHexahedron::SubCellCoordinatesFromId(int& i, int& j, int& k, int
   return true; // TODO: detect more invalid subId values
 }
 
-/**\brief Given (i,j,k) coordinates within the Lagrange hex, return an offset into the local connectivity (PointIds) array.
-  *
-  * Ensure that you have called GetOrder() before calling this method
-  * so that this->Order is up to date. This method does no checking
-  * before using it to map connectivity-array offsets.
-  */
+/**\brief Given (i,j,k) coordinates within the Lagrange hex, return an offset into the local
+ * connectivity (PointIds) array.
+ *
+ * Ensure that you have called GetOrder() before calling this method
+ * so that this->Order is up to date. This method does no checking
+ * before using it to map connectivity-array offsets.
+ */
 int vtkLagrangeHexahedron::PointIndexFromIJK(int i, int j, int k)
 {
   return vtkLagrangeHexahedron::PointIndexFromIJK(i, j, k, this->Order);
 }
 
-/**\brief Given (i,j,k) coordinates within the Lagrange hex, return an offset into the local connectivity (PointIds) array.
-  *
-  * The \a order parameter must point to an array of 3 integers specifying the order
-  * along each axis of the hexahedron.
-  */
+/**\brief Given (i,j,k) coordinates within the Lagrange hex, return an offset into the local
+ * connectivity (PointIds) array.
+ *
+ * The \a order parameter must point to an array of 3 integers specifying the order
+ * along each axis of the hexahedron.
+ */
 int vtkLagrangeHexahedron::PointIndexFromIJK(int i, int j, int k, const int* order)
 {
   bool ibdy = (i == 0 || i == order[0]);
@@ -741,104 +697,101 @@ int vtkLagrangeHexahedron::PointIndexFromIJK(int i, int j, int k, const int* ord
   int nbdy = (ibdy ? 1 : 0) + (jbdy ? 1 : 0) + (kbdy ? 1 : 0);
 
   if (nbdy == 3) // Vertex DOF
-    { // ijk is a corner node. Return the proper index (somewhere in [0,7]):
+  {              // ijk is a corner node. Return the proper index (somewhere in [0,7]):
     return (i ? (j ? 2 : 1) : (j ? 3 : 0)) + (k ? 4 : 0);
-    }
+  }
 
   int offset = 8;
   if (nbdy == 2) // Edge DOF
-    {
+  {
     if (!ibdy)
-      { // On i axis
-      return (i - 1) +
-        (j ? order[0] - 1 + order[1] - 1 : 0) +
-        (k ? 2 * (order[0] - 1 + order[1] - 1) : 0) +
-        offset;
-      }
+    { // On i axis
+      return (i - 1) + (j ? order[0] - 1 + order[1] - 1 : 0) +
+        (k ? 2 * (order[0] - 1 + order[1] - 1) : 0) + offset;
+    }
     if (!jbdy)
-      { // On j axis
-      return (j - 1) +
-        (i ? order[0] - 1 : 2 * (order[0] - 1) + order[1] - 1) +
-        (k ? 2 * (order[0] - 1 + order[1] - 1) : 0) +
-        offset;
-      }
+    { // On j axis
+      return (j - 1) + (i ? order[0] - 1 : 2 * (order[0] - 1) + order[1] - 1) +
+        (k ? 2 * (order[0] - 1 + order[1] - 1) : 0) + offset;
+    }
     // !kbdy, On k axis
     offset += 4 * (order[0] - 1) + 4 * (order[1] - 1);
     return (k - 1) + (order[2] - 1) * (i ? (j ? 3 : 1) : (j ? 2 : 0)) + offset;
-    }
+  }
 
   offset += 4 * (order[0] - 1 + order[1] - 1 + order[2] - 1);
   if (nbdy == 1) // Face DOF
-    {
+  {
     if (ibdy) // On i-normal face
-      {
-      return (j - 1) + ((order[1] - 1) * (k - 1)) + (i ? (order[1] - 1) * (order[2] - 1) : 0) + offset;
-      }
+    {
+      return (j - 1) + ((order[1] - 1) * (k - 1)) + (i ? (order[1] - 1) * (order[2] - 1) : 0) +
+        offset;
+    }
     offset += 2 * (order[1] - 1) * (order[2] - 1);
     if (jbdy) // On j-normal face
-      {
-      return (i - 1) + ((order[0] - 1) * (k - 1)) + (j ? (order[2] - 1) * (order[0] - 1) : 0) + offset;
-      }
+    {
+      return (i - 1) + ((order[0] - 1) * (k - 1)) + (j ? (order[2] - 1) * (order[0] - 1) : 0) +
+        offset;
+    }
     offset += 2 * (order[2] - 1) * (order[0] - 1);
     // kbdy, On k-normal face
-    return (i - 1) + ((order[0] - 1) * (j - 1)) + (k ? (order[0] - 1) * (order[1] - 1) : 0) + offset;
-    }
+    return (i - 1) + ((order[0] - 1) * (j - 1)) + (k ? (order[0] - 1) * (order[1] - 1) : 0) +
+      offset;
+  }
 
   // nbdy == 0: Body DOF
-  offset += 2 * (
-    (order[1] - 1) * (order[2] - 1) +
-    (order[2] - 1) * (order[0] - 1) +
-    (order[0] - 1) * (order[1] - 1));
-  return offset +
-    (i - 1) + (order[0] - 1) * (
-      (j - 1) + (order[1] - 1) * (
-        (k - 1)));
+  offset += 2 *
+    ((order[1] - 1) * (order[2] - 1) + (order[2] - 1) * (order[0] - 1) +
+      (order[0] - 1) * (order[1] - 1));
+  return offset + (i - 1) + (order[0] - 1) * ((j - 1) + (order[1] - 1) * ((k - 1)));
 }
 
-/**\brief Given the index, \a subCell, of a linear approximating-hex, translate pcoords from that hex into this nonlinear hex.
-  *
-  * You must call this->GetOrder() **before** invoking this method as it assumes
-  * the order is up to date.
-  */
+/**\brief Given the index, \a subCell, of a linear approximating-hex, translate pcoords from that
+ * hex into this nonlinear hex.
+ *
+ * You must call this->GetOrder() **before** invoking this method as it assumes
+ * the order is up to date.
+ */
 bool vtkLagrangeHexahedron::TransformApproxToCellParams(int subCell, double* pcoords)
 {
   vtkVector3i ijk;
   if (!this->SubCellCoordinatesFromId(ijk, subCell))
-    {
+  {
     return false;
-    }
+  }
   for (int pp = 0; pp < 3; ++pp)
-    {
+  {
     pcoords[pp] = (pcoords[pp] + ijk[pp]) / this->Order[pp];
-    }
+  }
   return true;
 }
 
-/**\brief Given the index, \a subCell, of a linear approximating-hex, translate pcoords from that hex into this nonlinear hex.
-  *
-  * You must call this->GetOrder() **before** invoking this method as it assumes
-  * the order is up to date.
-  */
+/**\brief Given the index, \a subCell, of a linear approximating-hex, translate pcoords from that
+ * hex into this nonlinear hex.
+ *
+ * You must call this->GetOrder() **before** invoking this method as it assumes
+ * the order is up to date.
+ */
 bool vtkLagrangeHexahedron::TransformFaceToCellParams(int bdyFace, double* pcoords)
 {
   if (bdyFace < 0 || bdyFace >= 6)
-    {
+  {
     return false;
-    }
+  }
 
   vtkVector2i faceParams = vtkLagrangeInterpolation::GetVaryingParametersOfHexFace(bdyFace);
   vtkVector3d tmp(pcoords);
   int pp;
   for (pp = 0; pp < 2; ++pp)
-    {
+  {
     pcoords[faceParams[pp]] = tmp[pp];
-    }
+  }
   if (bdyFace % 2 == ((bdyFace / 2) % 2))
-    {
+  {
     // Flip first parametric axis of "positive" faces to compensate for GetFace,
     // which flips odd faces to obtain inward-pointing normals for each boundary.
     pcoords[faceParams[0]] = 1. - pcoords[faceParams[0]];
-    }
+  }
   pp = vtkLagrangeInterpolation::GetFixedParameterOfHexFace(bdyFace);
   pcoords[pp] = (bdyFace % 2 == 0 ? 0.0 : 1.0);
   return true;

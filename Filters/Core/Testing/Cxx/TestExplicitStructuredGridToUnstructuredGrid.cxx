@@ -31,13 +31,11 @@
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
-int TestExplicitStructuredGridToUnstructuredGrid(int argc, char *argv[])
+int TestExplicitStructuredGridToUnstructuredGrid(int argc, char* argv[])
 {
   // Create the sample dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-10, 10,
-                          -10, 10,
-                          -10, 10);
+  wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
   wavelet->SetCenter(0.0, 0.0, 0.0);
   wavelet->Update();
 
@@ -49,9 +47,10 @@ int TestExplicitStructuredGridToUnstructuredGrid(int argc, char *argv[])
   ugConvertor->Update();
 
   vtkCellData* cellData = ugConvertor->GetOutput()->GetCellData();
-  if (!cellData->GetArray("BLOCK_I") || !cellData->GetArray("BLOCK_I") || !cellData->GetArray("BLOCK_I"))
+  if (!cellData->GetArray("BLOCK_I") || !cellData->GetArray("BLOCK_I") ||
+    !cellData->GetArray("BLOCK_I"))
   {
-    std::cout<<"Missing expected arrays"<<std::endl;
+    std::cout << "Missing expected arrays" << std::endl;
     return EXIT_FAILURE;
   }
 

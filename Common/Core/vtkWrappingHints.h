@@ -18,7 +18,7 @@
  *
  * The macros defined in this file can be used to supply hints for the
  * wrappers.
-*/
+ */
 
 #ifndef vtkWrappingHints_h
 #define vtkWrappingHints_h

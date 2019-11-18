@@ -41,7 +41,7 @@
  *
  * @warning
  * No SelectionList is created by default. It should be assigned.
-*/
+ */
 
 #ifndef vtkSelectionNode_h
 #define vtkSelectionNode_h
@@ -61,7 +61,7 @@ class vtkTable;
 class VTKCOMMONDATAMODEL_EXPORT vtkSelectionNode : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkSelectionNode,vtkObject);
+  vtkTypeMacro(vtkSelectionNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelectionNode* New();
 
@@ -126,17 +126,17 @@ public:
    */
   enum SelectionContent
   {
-    SELECTIONS,   //!< Deprecated.
-    GLOBALIDS,    //!< Select entities called out by their globally-unique IDs.
-    PEDIGREEIDS,  //!< Select entities that have some identifiable pedigree.
-    VALUES,       //!< Select entities that take on specific array values.
-    INDICES,      //!< Select entities by their offsets into the dataset.
-    FRUSTUM,      //!< Select entities contained within a viewing frustum.
-    LOCATIONS,    //!< Select entities near the supplied world coordinates.
-    THRESHOLDS,   //!< Select entities whose array values fall within a given threshold.
-    BLOCKS,       //!< Select blocks within a composite dataset by their flat index.
-    QUERY,        //!< Select entities with a text query.
-    USER,         //!< Select entities with user-supplied, application-specific logic.
+    SELECTIONS,  //!< Deprecated.
+    GLOBALIDS,   //!< Select entities called out by their globally-unique IDs.
+    PEDIGREEIDS, //!< Select entities that have some identifiable pedigree.
+    VALUES,      //!< Select entities that take on specific array values.
+    INDICES,     //!< Select entities by their offsets into the dataset.
+    FRUSTUM,     //!< Select entities contained within a viewing frustum.
+    LOCATIONS,   //!< Select entities near the supplied world coordinates.
+    THRESHOLDS,  //!< Select entities whose array values fall within a given threshold.
+    BLOCKS,      //!< Select blocks within a composite dataset by their flat index.
+    QUERY,       //!< Select entities with a text query.
+    USER,        //!< Select entities with user-supplied, application-specific logic.
     NUM_CONTENT_TYPES
   };
 
@@ -311,7 +311,7 @@ public:
   /**
    * Compares Properties of self and other to ensure that they are exactly same.
    */
-  bool EqualProperties(vtkSelectionNode* other, bool fullcompare=true);
+  bool EqualProperties(vtkSelectionNode* other, bool fullcompare = true);
 
 protected:
   vtkSelectionNode();
@@ -330,7 +330,6 @@ protected:
 private:
   vtkSelectionNode(const vtkSelectionNode&) = delete;
   void operator=(const vtkSelectionNode&) = delete;
-
 };
 
 #endif

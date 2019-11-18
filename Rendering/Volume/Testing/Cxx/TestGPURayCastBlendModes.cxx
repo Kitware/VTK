@@ -29,12 +29,12 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastBlendModes(int argc, char *argv[])
+int TestGPURayCastBlendModes(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  int dims[3] = {100, 100, 100};
-  int boundary[3] = {10, 10, 10};
+  int dims[3] = { 100, 100, 100 };
+  int boundary[3] = { 10, 10, 10 };
 
   // Create a vtkImageData with two components
   vtkNew<vtkImageData> image;
@@ -43,8 +43,7 @@ int TestGPURayCastBlendModes(int argc, char *argv[])
 
   // Fill the first half rectangular parallelopiped along X with the
   // first component values and the second half with second component values
-  unsigned char * ptr =
-    static_cast<unsigned char *> (image->GetScalarPointer(0, 0, 0));
+  unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(0, 0, 0));
 
   for (int z = 0; z < dims[2]; ++z)
   {
@@ -53,8 +52,8 @@ int TestGPURayCastBlendModes(int argc, char *argv[])
       for (int x = 0; x < dims[0]; ++x)
       {
         if ((z < boundary[2] || z > (dims[2] - boundary[2] - 1)) ||
-            (y < boundary[1] || y > (dims[1] - boundary[1] - 1)) ||
-            (x < boundary[0] || x > (dims[0] - boundary[0] - 1)))
+          (y < boundary[1] || y > (dims[1] - boundary[1] - 1)) ||
+          (x < boundary[0] || x > (dims[0] - boundary[0] - 1)))
         {
           *ptr++ = 255;
         }

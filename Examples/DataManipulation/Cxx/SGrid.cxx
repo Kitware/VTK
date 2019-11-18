@@ -43,7 +43,7 @@ int main()
   vtkNew<vtkNamedColors> colors;
 
   float rMin = 0.5, rMax = 1.0, deltaRad, deltaZ;
-  std::array<int, 3> dims = {{13, 11, 11}};
+  std::array<int, 3> dims = { { 13, 11, 11 } };
 
   // Create the structured grid.
   vtkNew<vtkStructuredGrid> sgrid;

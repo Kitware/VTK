@@ -39,18 +39,17 @@
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
 
-
-int TestMultiBlockMapper(int argc, char *argv[])
+int TestMultiBlockMapper(int argc, char* argv[])
 {
-  //cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   vtkNew<vtkXMLMultiBlockDataReader> reader;
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/headmr3blocks/headmr3blocks.vtm");
+  const char* fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headmr3blocks/headmr3blocks.vtm");
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkMultiBlockVolumeMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());

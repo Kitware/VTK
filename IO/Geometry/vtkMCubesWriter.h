@@ -29,7 +29,7 @@
  *
  * @sa
  * vtkMarchingCubes vtkSliceCubes vtkMCubesReader
-*/
+ */
 
 #ifndef vtkMCubesWriter_h
 #define vtkMCubesWriter_h
@@ -45,8 +45,8 @@ class vtkPolyData;
 class VTKIOGEOMETRY_EXPORT vtkMCubesWriter : public vtkWriter
 {
 public:
-  static vtkMCubesWriter *New();
-  vtkTypeMacro(vtkMCubesWriter,vtkWriter);
+  static vtkMCubesWriter* New();
+  vtkTypeMacro(vtkMCubesWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -79,15 +79,14 @@ protected:
 
   void WriteData() override;
 
-  void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals,
-                   vtkCellArray *polys);
-  void WriteLimits(FILE *fp, double *bounds);
+  void WriteMCubes(FILE* fp, vtkPoints* pts, vtkDataArray* normals, vtkCellArray* polys);
+  void WriteLimits(FILE* fp, double* bounds);
 
-  char *LimitsFileName;
+  char* LimitsFileName;
 
-  char *FileName;
+  char* FileName;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkMCubesWriter(const vtkMCubesWriter&) = delete;
@@ -95,5 +94,3 @@ private:
 };
 
 #endif
-
-

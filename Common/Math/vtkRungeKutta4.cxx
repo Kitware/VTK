@@ -21,7 +21,7 @@ vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4()
 {
-  for(int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
     this->NextDerivs[i] = nullptr;
   }
@@ -29,13 +29,12 @@ vtkRungeKutta4::vtkRungeKutta4()
 
 vtkRungeKutta4::~vtkRungeKutta4()
 {
-  for(int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
     delete[] this->NextDerivs[i];
     this->NextDerivs[i] = nullptr;
   }
 }
-
 
 void vtkRungeKutta4::Initialize()
 {
@@ -45,11 +44,10 @@ void vtkRungeKutta4::Initialize()
     return;
   }
   // Allocate memory for temporary derivatives array
-  for(int i=0; i<3; i++)
+  for (int i = 0; i < 3; i++)
   {
     delete[] this->NextDerivs[i];
-    this->NextDerivs[i] =
-      new double[this->FunctionSet->GetNumberOfFunctions()];
+    this->NextDerivs[i] = new double[this->FunctionSet->GetNumberOfFunctions()];
   }
 }
 
@@ -58,9 +56,8 @@ void vtkRungeKutta4::Initialize()
 // Press et al. (Cambridge University Press) or
 // Applied Numerical Analysis by C. F. Gerald and P. O. Wheatley
 // (Addison Wesley)
-int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext,
-                                    double t, double& delT, double& delTActual,
-                                    double, double, double, double& error, void* userData)
+int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext, double t,
+  double& delT, double& delTActual, double, double, double, double& error, void* userData)
 {
 
   int i, numDerivs, numVals;
@@ -82,75 +79,75 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
 
   numDerivs = this->FunctionSet->GetNumberOfFunctions();
   numVals = numDerivs + 1;
-  for(i=0; i<numVals-1; i++)
+  for (i = 0; i < numVals - 1; i++)
   {
     this->Vals[i] = xprev[i];
   }
-  this->Vals[numVals-1] = t;
+  this->Vals[numVals - 1] = t;
 
   //  4th order
   //  1
   if (dxprev)
   {
-    for(i=0; i<numDerivs; i++)
+    for (i = 0; i < numDerivs; i++)
     {
       this->Derivs[i] = dxprev[i];
     }
   }
-  else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs, userData) )
+  else if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs, userData))
   {
-    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    memcpy(xnext, this->Vals, (numVals - 1) * sizeof(double));
     return OUT_OF_DOMAIN;
   }
 
-  for(i=0; i<numVals-1; i++)
+  for (i = 0; i < numVals - 1; i++)
   {
-    this->Vals[i] = xprev[i] + delT/2.0*this->Derivs[i];
+    this->Vals[i] = xprev[i] + delT / 2.0 * this->Derivs[i];
   }
-  this->Vals[numVals-1] = t + delT/2.0;
+  this->Vals[numVals - 1] = t + delT / 2.0;
 
   // 2
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[0], userData))
   {
-    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
-    delTActual = delT/2.0; // we've been able to take half a step
+    memcpy(xnext, this->Vals, (numVals - 1) * sizeof(double));
+    delTActual = delT / 2.0; // we've been able to take half a step
     return OUT_OF_DOMAIN;
   }
 
-  for(i=0; i<numVals-1; i++)
+  for (i = 0; i < numVals - 1; i++)
   {
-    this->Vals[i] = xprev[i] + delT/2.0*this->NextDerivs[0][i];
+    this->Vals[i] = xprev[i] + delT / 2.0 * this->NextDerivs[0][i];
   }
-  this->Vals[numVals-1] = t + delT/2.0;
+  this->Vals[numVals - 1] = t + delT / 2.0;
 
   // 3
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[1], userData))
   {
-    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
-    delTActual = delT/2.0; // we've been able to take half a step
+    memcpy(xnext, this->Vals, (numVals - 1) * sizeof(double));
+    delTActual = delT / 2.0; // we've been able to take half a step
     return OUT_OF_DOMAIN;
   }
 
-  for(i=0; i<numVals-1; i++)
+  for (i = 0; i < numVals - 1; i++)
   {
-    this->Vals[i] = xprev[i] + delT*this->NextDerivs[1][i];
+    this->Vals[i] = xprev[i] + delT * this->NextDerivs[1][i];
   }
-  this->Vals[numVals-1] = t + delT;
+  this->Vals[numVals - 1] = t + delT;
 
   // 4
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[2], userData))
   {
-    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    memcpy(xnext, this->Vals, (numVals - 1) * sizeof(double));
     delTActual = delT; // we've been able to take a full step but couldn't finish the algorithm
     return OUT_OF_DOMAIN;
   }
 
-  for(i=0; i<numDerivs; i++)
+  for (i = 0; i < numDerivs; i++)
   {
-    xnext[i] = xprev[i] + delT*(this->Derivs[i]/6.0 +
-                                this->NextDerivs[0][i]/3.0 +
-                                this->NextDerivs[1][i]/3.0 +
-                                this->NextDerivs[2][i]/6.0);
+    xnext[i] = xprev[i] +
+      delT *
+        (this->Derivs[i] / 6.0 + this->NextDerivs[0][i] / 3.0 + this->NextDerivs[1][i] / 3.0 +
+          this->NextDerivs[2][i] / 6.0);
   }
   delTActual = delT;
   return 0;
@@ -158,14 +155,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
 
 void vtkRungeKutta4::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-  os << indent << "Runge-Kutta 4 function derivatives: "
-     << this->NextDerivs[0] << " " << this->NextDerivs[1]  << " "
-     << this->NextDerivs[2] << endl;
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Runge-Kutta 4 function derivatives: " << this->NextDerivs[0] << " "
+     << this->NextDerivs[1] << " " << this->NextDerivs[2] << endl;
 }
-
-
-
-
-
-

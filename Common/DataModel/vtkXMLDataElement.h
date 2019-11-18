@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkXMLDataParser
-*/
+ */
 
 #ifndef vtkXMLDataElement_h
 #define vtkXMLDataElement_h
@@ -36,7 +36,7 @@ class vtkXMLDataParser;
 class VTKCOMMONDATAMODEL_EXPORT vtkXMLDataElement : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkXMLDataElement,vtkObject);
+  vtkTypeMacro(vtkXMLDataElement, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataElement* New();
 
@@ -45,7 +45,7 @@ public:
    * Set/Get the name of the element.  This is its XML tag.
    */
   vtkGetStringMacro(Name);
-  virtual void SetName (const char* _arg);
+  virtual void SetName(const char* _arg);
   //@}
 
   //@{
@@ -124,11 +124,11 @@ public:
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
   //@}
 
-  int  GetScalarAttribute(const char* name, long long& value);
-  int  GetVectorAttribute(const char* name, int length, long long* value);
+  int GetScalarAttribute(const char* name, long long& value);
+  int GetVectorAttribute(const char* name, int length, long long* value);
   void SetVectorAttribute(const char* name, int length, long long const* value);
-  int  GetScalarAttribute(const char* name, unsigned long long& value);
-  int  GetVectorAttribute(const char* name, int length, unsigned long long* value);
+  int GetScalarAttribute(const char* name, unsigned long long& value);
+  int GetVectorAttribute(const char* name, int length, unsigned long long* value);
   void SetVectorAttribute(const char* name, int length, unsigned long long const* value);
 
   /**
@@ -160,7 +160,7 @@ public:
   /**
    * Remove one or all attributes.
    */
-  virtual void RemoveAttribute(const char *name);
+  virtual void RemoveAttribute(const char* name);
   virtual void RemoveAllAttributes();
   //@}
 
@@ -195,7 +195,7 @@ public:
   /**
    * Remove nested element.
    */
-  virtual void RemoveNestedElement(vtkXMLDataElement *);
+  virtual void RemoveNestedElement(vtkXMLDataElement*);
 
   /**
    * Remove all nested elements.
@@ -211,8 +211,7 @@ public:
    */
   vtkXMLDataElement* FindNestedElement(const char* id);
   vtkXMLDataElement* FindNestedElementWithName(const char* name);
-  vtkXMLDataElement* FindNestedElementWithNameAndId(
-    const char* name, const char* id);
+  vtkXMLDataElement* FindNestedElementWithNameAndId(const char* name, const char* id);
   vtkXMLDataElement* FindNestedElementWithNameAndAttribute(
     const char* name, const char* att_name, const char* att_value);
   //@}
@@ -243,7 +242,7 @@ public:
    * the same order).
    * Warning: Id, Parent, XMLByteIndex are ignored.
    */
-  virtual int IsEqualTo(vtkXMLDataElement *elem);
+  virtual int IsEqualTo(vtkXMLDataElement* elem);
 
   /**
    * Copy this element from another of the same type (elem), recursively.
@@ -251,7 +250,7 @@ public:
    * given the contents of 'elem'.
    * Warning: Parent is ignored.
    */
-  virtual void DeepCopy(vtkXMLDataElement *elem);
+  virtual void DeepCopy(vtkXMLDataElement* elem);
 
   //@{
   /**
@@ -262,7 +261,7 @@ public:
    * used to set the attribute encoding of each vtkXMLDataElement
    * created by this vtkXMLDataParser.
    */
-  vtkSetClampMacro(AttributeEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
+  vtkSetClampMacro(AttributeEncoding, int, VTK_ENCODING_NONE, VTK_ENCODING_UNKNOWN);
   vtkGetMacro(AttributeEncoding, int);
   //@}
 
@@ -283,8 +282,8 @@ public:
    * the character data is streamed insterting line feeds every
    * width number of fields. See PrintXML.
    */
-  vtkGetMacro(CharacterDataWidth,int);
-  vtkSetMacro(CharacterDataWidth,int);
+  vtkGetMacro(CharacterDataWidth, int);
+  vtkSetMacro(CharacterDataWidth, int);
   //@}
 
 protected:
@@ -309,8 +308,8 @@ protected:
   int IgnoreCharacterData;
 
   // Get/Set the stream position of the elements inline data.
-  vtkGetMacro(InlineDataPosition,vtkTypeInt64);
-  vtkSetMacro(InlineDataPosition,vtkTypeInt64);
+  vtkGetMacro(InlineDataPosition, vtkTypeInt64);
+  vtkSetMacro(InlineDataPosition, vtkTypeInt64);
   // The offset into the XML stream where the inline data begins.
   vtkTypeInt64 InlineDataPosition;
   // The offset into the XML stream where the element begins.
@@ -334,7 +333,7 @@ protected:
   vtkXMLDataElement* LookupElementInScope(const char* id);
   vtkXMLDataElement* LookupElementUpScope(const char* id);
   static int IsSpace(char c);
-  void PrintCharacterData(ostream &os,vtkIndent indent);
+  void PrintCharacterData(ostream& os, vtkIndent indent);
   static void PrintWithEscapedData(ostream& os, const char* data);
 
   friend class vtkXMLDataParser;
@@ -346,28 +345,30 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline
-void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
+inline void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
 {
-  if (this->IgnoreCharacterData){ return; }
+  if (this->IgnoreCharacterData)
+  {
+    return;
+  }
   // This is the index where we start to put the new data at.
-  size_t eod=this->EndOfCharacterData-1;
+  size_t eod = this->EndOfCharacterData - 1;
   // Check if the new data will write off the end. If it does
   // resize the character data buffer.
-  this->EndOfCharacterData+=length;
-  if (this->EndOfCharacterData>=this->CharacterDataBufferSize)
+  this->EndOfCharacterData += length;
+  if (this->EndOfCharacterData >= this->CharacterDataBufferSize)
   {
-    while(this->EndOfCharacterData>=this->CharacterDataBufferSize)
+    while (this->EndOfCharacterData >= this->CharacterDataBufferSize)
     {
-      this->CharacterDataBufferSize+=this->CharacterDataBlockSize;
+      this->CharacterDataBufferSize += this->CharacterDataBlockSize;
     }
-    this->CharacterData
-      = static_cast<char *>(realloc(this->CharacterData,this->CharacterDataBufferSize));
+    this->CharacterData =
+      static_cast<char*>(realloc(this->CharacterData, this->CharacterDataBufferSize));
   }
   // put the new data at the end of the buffer, and null terminate.
-  char *pCD=this->CharacterData+eod;
-  memmove(pCD,data,length);
-  pCD[length]='\0';
+  char* pCD = this->CharacterData + eod;
+  memmove(pCD, data, length);
+  pCD[length] = '\0';
   return;
 }
 

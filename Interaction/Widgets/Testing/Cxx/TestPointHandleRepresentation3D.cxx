@@ -28,14 +28,12 @@
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
 
-int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create the RenderWindow, Renderer and both Actors
   //
-  vtkSmartPointer<vtkRenderer> render =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
+  vtkSmartPointer<vtkRenderer> render = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(render);
 
@@ -47,14 +45,12 @@ int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)
   vtkSmartPointer<vtkPointHandleRepresentation3D> handlePointRep3D =
     vtkSmartPointer<vtkPointHandleRepresentation3D>::New();
   handlePointRep3D->AllOn();
-  handlePointRep3D->GetProperty()->SetColor(1.,0.,1.);
+  handlePointRep3D->GetProperty()->SetColor(1., 0., 1.);
 
-  vtkSmartPointer<vtkSeedRepresentation> seedRep =
-    vtkSmartPointer<vtkSeedRepresentation>::New();
+  vtkSmartPointer<vtkSeedRepresentation> seedRep = vtkSmartPointer<vtkSeedRepresentation>::New();
   seedRep->SetHandleRepresentation(handlePointRep3D);
 
-  vtkSmartPointer<vtkSeedWidget> seedWidget =
-    vtkSmartPointer<vtkSeedWidget>::New();
+  vtkSmartPointer<vtkSeedWidget> seedWidget = vtkSmartPointer<vtkSeedWidget>::New();
 
   seedWidget->SetRepresentation(seedRep);
   seedWidget->SetInteractor(iren);
@@ -62,10 +58,10 @@ int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)
   seedWidget->ProcessEventsOff();
 
   // Place two different points in different translation mode.
-  double bounds[6] = {0, 0.05, 0, 0.05, 0, 0.05};
-  double bounds2[6] = {-0.05, 0, -0.05, 0, -0.05, 0};
+  double bounds[6] = { 0, 0.05, 0, 0.05, 0, 0.05 };
+  double bounds2[6] = { -0.05, 0, -0.05, 0, -0.05, 0 };
 
-  vtkHandleWidget *currentHandle = seedWidget->CreateNewHandle();
+  vtkHandleWidget* currentHandle = seedWidget->CreateNewHandle();
   currentHandle->SetEnabled(1);
   vtkPointHandleRepresentation3D* handleRep =
     vtkPointHandleRepresentation3D::SafeDownCast(currentHandle->GetRepresentation());
@@ -73,8 +69,7 @@ int TestPointHandleRepresentation3D(int vtkNotUsed(argc), char *vtkNotUsed(argv)
 
   currentHandle = seedWidget->CreateNewHandle();
   currentHandle->SetEnabled(1);
-  handleRep =
-    vtkPointHandleRepresentation3D::SafeDownCast(currentHandle->GetRepresentation());
+  handleRep = vtkPointHandleRepresentation3D::SafeDownCast(currentHandle->GetRepresentation());
   handleRep->TranslationModeOff();
   handleRep->PlaceWidget(bounds2);
 

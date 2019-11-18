@@ -20,14 +20,13 @@
 #include <string>
 
 // Registration of ODBC dynamically with the vtkSQLDatabase factory method.
-vtkSQLDatabase * ODBCCreateFunction(const char* URL)
+vtkSQLDatabase* ODBCCreateFunction(const char* URL)
 {
   std::string urlstr(URL ? URL : "");
   std::string protocol, unused;
-  vtkODBCDatabase *db = 0;
+  vtkODBCDatabase* db = 0;
 
-  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) &&
-      protocol == "odbc")
+  if (vtksys::SystemTools::ParseURLProtocol(urlstr, protocol, unused) && protocol == "odbc")
   {
     db = vtkODBCDatabase::New();
     db->ParseURL(URL);

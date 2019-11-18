@@ -47,7 +47,7 @@ int TestTableSplitColumnComponents(int, char*[])
   for (int i = 0; i < 5; ++i)
   {
     single->InsertValue(i, i);
-    int ints[] = { i+1, 2 * (i+1), 3 * (i+1) };
+    int ints[] = { i + 1, 2 * (i + 1), 3 * (i + 1) };
     multi->InsertTypedTuple(i, ints);
   }
 
@@ -71,8 +71,7 @@ int TestTableSplitColumnComponents(int, char*[])
   vtkTable* out = split->GetOutput(0);
   if (out->GetNumberOfColumns() != 9) // 1 + (1+3) + (1+3)
   {
-    vtkGenericWarningMacro(<< "Incorrect column count: "
-                           << out->GetNumberOfColumns());
+    vtkGenericWarningMacro(<< "Incorrect column count: " << out->GetNumberOfColumns());
     return EXIT_FAILURE;
   }
   vtkIntArray* arrays[9];
@@ -80,8 +79,8 @@ int TestTableSplitColumnComponents(int, char*[])
 
   for (int i = 0; i < 5; ++i)
   {
-    if (arrays[0]->GetValue(i) != i || arrays[1]->GetValue(i) != i+1 ||
-        arrays[2]->GetValue(i) != 2*(i+1) || arrays[3]->GetValue(i) != 3*(i+1))
+    if (arrays[0]->GetValue(i) != i || arrays[1]->GetValue(i) != i + 1 ||
+      arrays[2]->GetValue(i) != 2 * (i + 1) || arrays[3]->GetValue(i) != 3 * (i + 1))
     {
       vtkGenericWarningMacro(<< "One of the output arrays values did not match.");
       table->Dump();

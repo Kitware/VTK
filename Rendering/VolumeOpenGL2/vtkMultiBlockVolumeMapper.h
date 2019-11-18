@@ -35,12 +35,11 @@
 #ifndef vtkMultiBlockVolumeMapper_h
 #define vtkMultiBlockVolumeMapper_h
 
-#include <vector>                            // For DataBlocks
+#include <vector> // For DataBlocks
 
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkTimeStamp.h"                    // For BlockLoadingTime
 #include "vtkVolumeMapper.h"
-
 
 class vtkDataObjectTree;
 class vtkDataSet;
@@ -48,12 +47,11 @@ class vtkImageData;
 class vtkMultiBlockDataSet;
 class vtkSmartVolumeMapper;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper :
-  public vtkVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper : public vtkVolumeMapper
 {
 public:
-  static vtkMultiBlockVolumeMapper *New();
-  vtkTypeMacro(vtkMultiBlockVolumeMapper,vtkVolumeMapper);
+  static vtkMultiBlockVolumeMapper* New();
+  vtkTypeMacro(vtkMultiBlockVolumeMapper, vtkVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -112,9 +110,9 @@ public:
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionPlanes
    */
-  void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
-    double arg4, double arg5, double arg6) override;
-  void SetCroppingRegionPlanes(double *planes) override;
+  void SetCroppingRegionPlanes(
+    double arg1, double arg2, double arg3, double arg4, double arg5, double arg6) override;
+  void SetCroppingRegionPlanes(double* planes) override;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionFlags

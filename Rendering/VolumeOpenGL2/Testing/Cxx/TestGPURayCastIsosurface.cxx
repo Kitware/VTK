@@ -23,10 +23,9 @@ int TestGPURayCastIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkRTAnalyticSource> data;
   data->SetWholeExtent(-100, 100, -100, 100, -100, 100);
   data->Update();
-  std::cout << "range: "
-            << data->GetOutput()->GetPointData()->GetScalars()->GetRange()[0] << ", "
-            << data->GetOutput()->GetPointData()->GetScalars()->GetRange()[1]
-            << std::endl;;
+  std::cout << "range: " << data->GetOutput()->GetPointData()->GetScalars()->GetRange()[0] << ", "
+            << data->GetOutput()->GetPointData()->GetScalars()->GetRange()[1] << std::endl;
+  ;
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(data->GetOutputPort());
   mapper->AutoAdjustSampleDistancesOff();

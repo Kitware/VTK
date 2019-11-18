@@ -43,7 +43,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
   sphere2->Update();
 
   // the normals obtained from the outer sphere
-  vtkDataArray *sphereNormals = sphere1->GetOutput()->GetPointData()->GetNormals();
+  vtkDataArray* sphereNormals = sphere1->GetOutput()->GetPointData()->GetNormals();
 
   // the cell locator
   vtkNew<vtkCellTreeLocator> locator;
@@ -63,7 +63,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
 
   // this loop traverses each point on the outer sphere (sphere1)
   // and  looks for an intersection on the inner sphere (sphere2)
-  for ( int i = 0; i < sphere1->GetOutput()->GetNumberOfPoints(); i ++ )
+  for (int i = 0; i < sphere1->GetOutput()->GetNumberOfPoints(); i++)
   {
     sphere1->GetOutput()->GetPoint(i, sourcePnt);
     sphereNormals->GetTuple(i, normalVec);
@@ -73,19 +73,19 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
     destinPnt[1] = sourcePnt[1] - rayLen * normalVec[1];
     destinPnt[2] = sourcePnt[2] - rayLen * normalVec[2];
 
-    if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
-                                    intersect, paraCoord, sub_id, cell_id, cell) )
+    if (locator->IntersectWithLine(
+          sourcePnt, destinPnt, 0.0010, param_t, intersect, paraCoord, sub_id, cell_id, cell))
     {
-      numIntersected ++;
+      numIntersected++;
     }
   }
 
-  if ( numIntersected != 9802 )
+  if (numIntersected != 9802)
   {
     int numMissed = 9802 - numIntersected;
     vtkGenericWarningMacro("ERROR: " << numMissed << " ray-sphere intersections missed! "
-                           << "If on a non-WinTel32 platform, try rayLen = 0.200001"
-                           << " or 0.20001 for a new test.");
+                                     << "If on a non-WinTel32 platform, try rayLen = 0.200001"
+                                     << " or 0.20001 for a new test.");
     return EXIT_FAILURE;
   }
   else
@@ -98,7 +98,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
   return EXIT_SUCCESS;
 }
 
-int CellTreeLocator( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
+int CellTreeLocator(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int retVal = TestWithCachedCellBoundsParameter(0);
   retVal += TestWithCachedCellBoundsParameter(1);

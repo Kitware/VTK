@@ -18,7 +18,6 @@
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
 
-
 int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkStringArray> sArray = vtkSmartPointer<vtkStringArray>::New();
@@ -55,29 +54,19 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
 
   vtkUnsignedCharArray* colors = tfer->MapScalars(sArray, VTK_RGBA, -1);
 
-  unsigned char expectedColors[numStrings][4] = {
-    {0, 0, 0, 255},
-    {255, 0, 0, 255},
-    {255, 0, 255, 255},
-    {255, 0, 0, 255},
-    {255, 0, 255, 255},
-    {0, 0, 0, 255}};
+  unsigned char expectedColors[numStrings][4] = { { 0, 0, 0, 255 }, { 255, 0, 0, 255 },
+    { 255, 0, 255, 255 }, { 255, 0, 0, 255 }, { 255, 0, 255, 255 }, { 0, 0, 0, 255 } };
 
   for (int i = 0; i < sArray->GetNumberOfValues(); ++i)
   {
     unsigned char color[4];
     colors->GetTypedTuple(i, color);
-    if (expectedColors[i][0] != color[0] ||
-        expectedColors[i][1] != color[1] ||
-        expectedColors[i][2] != color[2] ||
-        expectedColors[i][3] != color[3])
+    if (expectedColors[i][0] != color[0] || expectedColors[i][1] != color[1] ||
+      expectedColors[i][2] != color[2] || expectedColors[i][3] != color[3])
     {
-      std::cerr << "Color for string " << i << " ("
-                << static_cast<int>(color[0]) << ", "
-                << static_cast<int>(color[1]) << ", "
-                << static_cast<int>(color[2]) << ", "
-                << static_cast<int>(color[3])
-                << ") does not match expected color ("
+      std::cerr << "Color for string " << i << " (" << static_cast<int>(color[0]) << ", "
+                << static_cast<int>(color[1]) << ", " << static_cast<int>(color[2]) << ", "
+                << static_cast<int>(color[3]) << ") does not match expected color ("
                 << static_cast<int>(expectedColors[i][0]) << ", "
                 << static_cast<int>(expectedColors[i][1]) << ", "
                 << static_cast<int>(expectedColors[i][2]) << ", "

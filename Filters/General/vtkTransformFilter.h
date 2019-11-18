@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkAbstractTransform vtkTransformPolyDataFilter vtkActor
-*/
+ */
 
 #ifndef vtkTransformFilter_h
 #define vtkTransformFilter_h
@@ -46,8 +46,8 @@ class vtkAbstractTransform;
 class VTKFILTERSGENERAL_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
 {
 public:
-  static vtkTransformFilter *New();
-  vtkTypeMacro(vtkTransformFilter,vtkPointSetAlgorithm);
+  static vtkTransformFilter* New();
+  vtkTypeMacro(vtkTransformFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,10 +60,10 @@ public:
    * Specify the transform object used to transform points.
    */
   virtual void SetTransform(vtkAbstractTransform*);
-  vtkGetObjectMacro(Transform,vtkAbstractTransform);
+  vtkGetObjectMacro(Transform, vtkAbstractTransform);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   //@{
   /**
@@ -71,8 +71,8 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
   //@{
@@ -90,16 +90,13 @@ protected:
   vtkTransformFilter();
   ~vtkTransformFilter() override;
 
-  int RequestDataObject(vtkInformation *request,
-                        vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) override;
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkDataArray* CreateNewDataArray();
 
-  vtkAbstractTransform *Transform;
+  vtkAbstractTransform* Transform;
   int OutputPointsPrecision;
   bool TransformAllInputVectors;
 

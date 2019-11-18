@@ -25,7 +25,7 @@
 class QSurfaceFormat;
 class QOpenGLContext;
 
-//class QVTKInteractor;
+// class QVTKInteractor;
 class QVTKInteractorAdapter;
 class QVTKOpenGLWindow;
 class vtkGenericOpenGLRenderWindow;
@@ -65,6 +65,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QWidget
 {
   Q_OBJECT
   typedef QWidget Superclass;
+
 public:
   QVTKOpenGLWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
   QVTKOpenGLWidget(
@@ -197,7 +198,7 @@ public:
 
 protected:
   void resizeEvent(QResizeEvent* evt) override;
-  void paintEvent(QPaintEvent *evt) override;
+  void paintEvent(QPaintEvent* evt) override;
 
 private:
   QPointer<QVTKOpenGLWindow> VTKOpenGLWindow;

@@ -18,7 +18,7 @@
  *
  *
  * The output type is always the same as the input object type.
-*/
+ */
 
 #ifndef vtkPassThrough_h
 #define vtkPassThrough_h
@@ -56,9 +56,9 @@ public:
    * By default, this setting is false.
    * @{
    */
-  vtkSetMacro(AllowNullInput, bool)
-  vtkGetMacro(AllowNullInput, bool)
-  vtkBooleanMacro(AllowNullInput, bool)
+  vtkSetMacro(AllowNullInput, bool);
+  vtkGetMacro(AllowNullInput, bool);
+  vtkBooleanMacro(AllowNullInput, bool);
   /**@}*/
 
 protected:
@@ -66,13 +66,8 @@ protected:
   ~vtkPassThrough() override;
 
   int RequestDataObject(
-      vtkInformation *request,
-      vtkInformationVector **inVec,
-      vtkInformationVector *outVec) override;
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+    vtkInformation* request, vtkInformationVector** inVec, vtkInformationVector* outVec) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkTypeBool DeepCopyInput;
   bool AllowNullInput;
@@ -83,4 +78,3 @@ private:
 };
 
 #endif
-

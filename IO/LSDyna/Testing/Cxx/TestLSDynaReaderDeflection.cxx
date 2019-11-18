@@ -31,7 +31,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-int TestLSDynaReaderDeflection( int argc, char *argv[] )
+int TestLSDynaReaderDeflection(int argc, char* argv[])
 {
   // Read file name.
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/LSDyna/impact/d3plot");
@@ -40,7 +40,7 @@ int TestLSDynaReaderDeflection( int argc, char *argv[] )
   vtkNew<vtkLSDynaReader> reader;
   reader->SetFileName(fname);
   reader->UpdateTimeStep(1.0);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkCompositeDataGeometryFilter> geom1;
   geom1->SetInputConnection(0, reader->GetOutputPort(0));
@@ -67,8 +67,8 @@ int TestLSDynaReaderDeflection( int argc, char *argv[] )
   iren->SetRenderWindow(renWin);
 
   ren->AddActor(actor);
-  ren->SetBackground(0,0,0);
-  renWin->SetSize(300,300);
+  ren->SetBackground(0, 0, 0);
+  renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
@@ -76,9 +76,9 @@ int TestLSDynaReaderDeflection( int argc, char *argv[] )
   ren->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage(renWin);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

@@ -21,14 +21,14 @@
  * @class   vtkRenderedRepresentation
  *
  *
-*/
+ */
 
 #ifndef vtkRenderedRepresentation_h
 #define vtkRenderedRepresentation_h
 
 #include "vtkDataRepresentation.h"
-#include "vtkSmartPointer.h" // for SP ivars
-#include "vtkUnicodeString.h" // for string
+#include "vtkSmartPointer.h"       // for SP ivars
+#include "vtkUnicodeString.h"      // for string
 #include "vtkViewsInfovisModule.h" // For export macro
 
 class vtkApplyColors;
@@ -82,8 +82,7 @@ protected:
   /**
    * Subclasses may override this method to generate the hover text.
    */
-  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection*)
-    { return vtkUnicodeString(); }
+  virtual vtkUnicodeString GetHoverTextInternal(vtkSelection*) { return vtkUnicodeString(); }
 
   /**
    * The view will call this method before every render.
@@ -104,4 +103,3 @@ private:
 };
 
 #endif
-

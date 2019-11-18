@@ -41,7 +41,7 @@ vtkTree::~vtkTree() = default;
 //----------------------------------------------------------------------------
 vtkIdType vtkTree::GetChild(vtkIdType v, vtkIdType i)
 {
-  const vtkOutEdgeType *edges;
+  const vtkOutEdgeType* edges;
   vtkIdType nedges;
   this->GetOutEdges(v, edges, nedges);
   if (i < nedges)
@@ -54,7 +54,7 @@ vtkIdType vtkTree::GetChild(vtkIdType v, vtkIdType i)
 //----------------------------------------------------------------------------
 vtkIdType vtkTree::GetParent(vtkIdType v)
 {
-  const vtkInEdgeType *edges;
+  const vtkInEdgeType* edges;
   vtkIdType nedges;
   this->GetInEdges(v, edges, nedges);
   if (nedges > 0)
@@ -67,7 +67,7 @@ vtkIdType vtkTree::GetParent(vtkIdType v)
 //----------------------------------------------------------------------------
 vtkEdgeType vtkTree::GetParentEdge(vtkIdType v)
 {
-  const vtkInEdgeType *edges;
+  const vtkInEdgeType* edges;
   vtkIdType nedges;
   this->GetInEdges(v, edges, nedges);
   if (nedges > 0)
@@ -100,26 +100,26 @@ bool vtkTree::IsLeaf(vtkIdType vertex)
 }
 
 //----------------------------------------------------------------------------
-vtkTree *vtkTree::GetData(vtkInformation *info)
+vtkTree* vtkTree::GetData(vtkInformation* info)
 {
-  return info? vtkTree::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkTree::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkTree *vtkTree::GetData(vtkInformationVector *v, int i)
+vtkTree* vtkTree::GetData(vtkInformationVector* v, int i)
 {
   return vtkTree::GetData(v->GetInformationObject(i));
 }
 
 //----------------------------------------------------------------------------
-bool vtkTree::IsStructureValid(vtkGraph *g)
+bool vtkTree::IsStructureValid(vtkGraph* g)
 {
   if (!g)
   {
     return false;
   }
 
-  vtkTree *tree = vtkTree::SafeDownCast(g);
+  vtkTree* tree = vtkTree::SafeDownCast(g);
   if (tree)
   {
     // Since a tree has the additional root property, we need
@@ -171,8 +171,7 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
   std::vector<bool> visited(g->GetNumberOfVertices(), false);
   std::vector<vtkIdType> stack;
   stack.push_back(root);
-  vtkSmartPointer<vtkOutEdgeIterator> outIter =
-    vtkSmartPointer<vtkOutEdgeIterator>::New();
+  vtkSmartPointer<vtkOutEdgeIterator> outIter = vtkSmartPointer<vtkOutEdgeIterator>::New();
   while (!stack.empty())
   {
     vtkIdType v = stack.back();
@@ -208,7 +207,7 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
 }
 
 //----------------------------------------------------------------------------
-void vtkTree::ReorderChildren(vtkIdType parent, vtkIdTypeArray *children)
+void vtkTree::ReorderChildren(vtkIdType parent, vtkIdTypeArray* children)
 {
   this->ReorderOutVertices(parent, children);
 }
@@ -216,6 +215,6 @@ void vtkTree::ReorderChildren(vtkIdType parent, vtkIdTypeArray *children)
 //----------------------------------------------------------------------------
 void vtkTree::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Root: " << this->Root << endl;
 }

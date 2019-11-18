@@ -33,9 +33,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 //-----------------------------------------------------------------------------
 
-void vtkHyperTree::PrintSelf( ostream& os, vtkIndent indent )
+void vtkHyperTree::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Dimension: " << this->Dimension << "\n";
   os << indent << "BranchFactor: " << this->BranchFactor << "\n";
@@ -45,22 +45,23 @@ void vtkHyperTree::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "NumberOfVertices (coarse and leaves): " << this->Datas->NumberOfVertices << "\n";
   os << indent << "NumberOfNodes (coarse): " << this->Datas->NumberOfNodes << "\n";
 
-  if ( this->IsGlobalIndexImplicit() ) {
+  if (this->IsGlobalIndexImplicit())
+  {
     os << indent << "Implicit global index mapping\n";
     os << indent << "GlobalIndexStart: " << this->Datas->GlobalIndexStart << "\n";
-  } else {
+  }
+  else
+  {
     os << indent << "Explicit global index mapping\n";
   }
 
-  this->PrintSelfPrivate( os, indent );
+  this->PrintSelfPrivate(os, indent);
 }
 
 //-----------------------------------------------------------------------------
 
 void vtkHyperTree::Initialize(
-  unsigned char branchFactor,
-  unsigned char dimension,
-  unsigned char numberOfChildren)
+  unsigned char branchFactor, unsigned char dimension, unsigned char numberOfChildren)
 {
   this->BranchFactor = branchFactor;
   this->Dimension = dimension;
@@ -82,9 +83,9 @@ void vtkHyperTree::Initialize(
 
 //-----------------------------------------------------------------------------
 
-void vtkHyperTree::CopyStructure( vtkHyperTree* ht )
+void vtkHyperTree::CopyStructure(vtkHyperTree* ht)
 {
-  assert( "pre: ht_exists" && ht != nullptr );
+  assert("pre: ht_exists" && ht != nullptr);
 
   // Copy or shared
   this->Datas = ht->Datas;
@@ -92,36 +93,36 @@ void vtkHyperTree::CopyStructure( vtkHyperTree* ht )
   this->Dimension = ht->Dimension;
   this->NumberOfChildren = ht->NumberOfChildren;
   this->Scales = ht->Scales;
-  this->CopyStructurePrivate( ht );
+  this->CopyStructurePrivate(ht);
 }
 
 //-----------------------------------------------------------------------------
 
 std::shared_ptr<vtkHyperTreeGridScales> vtkHyperTree::InitializeScales(
-  const double* scales, bool reinitialize ) const
+  const double* scales, bool reinitialize) const
 {
-  if ( this->Scales == nullptr || reinitialize )
+  if (this->Scales == nullptr || reinitialize)
   {
-    this->Scales = std::make_shared<vtkHyperTreeGridScales>( this->BranchFactor, scales );
+    this->Scales = std::make_shared<vtkHyperTreeGridScales>(this->BranchFactor, scales);
   }
   return this->Scales;
 }
 
 //-----------------------------------------------------------------------------
 
-void vtkHyperTree::GetScale( double s[3] ) const
+void vtkHyperTree::GetScale(double s[3]) const
 {
-  assert( "pre: scales_exists" && this->Scales != nullptr );
-  const double* scale = this->Scales->GetScale( 0 );
-  memcpy( s, scale, 3 * sizeof(double) );
+  assert("pre: scales_exists" && this->Scales != nullptr);
+  const double* scale = this->Scales->GetScale(0);
+  memcpy(s, scale, 3 * sizeof(double));
 }
 
 //-----------------------------------------------------------------------------
 
-double vtkHyperTree::GetScale( unsigned int d ) const
+double vtkHyperTree::GetScale(unsigned int d) const
 {
-  assert( "pre: scales_exists" && this->Scales != nullptr );
-  const double* scale = this->Scales->GetScale( 0 );
+  assert("pre: scales_exists" && this->Scales != nullptr);
+  const double* scale = this->Scales->GetScale(0);
   return scale[d];
 }
 
@@ -129,10 +130,10 @@ double vtkHyperTree::GetScale( unsigned int d ) const
 struct vtkCompactHyperTreeData
 {
   // Storage to record the parent of each tree vertex
-  std::vector< unsigned int > ParentToElderChild_stl;
+  std::vector<unsigned int> ParentToElderChild_stl;
 
   // Storage to record the local to global id mapping
-  std::vector< vtkIdType > GlobalIndexTable_stl;
+  std::vector<vtkIdType> GlobalIndexTable_stl;
 };
 
 //=============================================================================
@@ -145,93 +146,81 @@ public:
   static vtkCompactHyperTree* New();
 
   //---------------------------------------------------------------------------
-  void RecursiveGetByLevelForWriter(
-    vtkBitArray* inIsMasked,
-    int level,
-    vtkIdType index,
-    std::vector< std::vector< bool > >& descByLevel,
-    std::vector< std::vector< bool > >& maskByLevel,
-    std::vector< std::vector< uint64_t > >& globalIdByLevel )
+  void RecursiveGetByLevelForWriter(vtkBitArray* inIsMasked, int level, vtkIdType index,
+    std::vector<std::vector<bool> >& descByLevel, std::vector<std::vector<bool> >& maskByLevel,
+    std::vector<std::vector<uint64_t> >& globalIdByLevel)
   {
-      vtkIdType idg = this->GetGlobalIndexFromLocal( index );
-      bool mask = ( inIsMasked->GetValue( idg ) != 0 );
-      maskByLevel[level].push_back( mask );
-      globalIdByLevel[level].emplace_back( idg );
-      if ( ! this->IsLeaf( index ) && ! mask )
+    vtkIdType idg = this->GetGlobalIndexFromLocal(index);
+    bool mask = (inIsMasked->GetValue(idg) != 0);
+    maskByLevel[level].push_back(mask);
+    globalIdByLevel[level].emplace_back(idg);
+    if (!this->IsLeaf(index) && !mask)
+    {
+      descByLevel[level].push_back(true);
+      for (int iChild = 0; iChild < this->NumberOfChildren; ++iChild)
       {
-        descByLevel[level].push_back( true );
-        for ( int iChild = 0; iChild < this->NumberOfChildren; ++ iChild )
-        {
-          RecursiveGetByLevelForWriter(
-            inIsMasked,
-            level + 1,
-            this->GetElderChildIndex( index ) + iChild,
-            descByLevel,
-            maskByLevel,
-            globalIdByLevel
-          );
-        }
-      } else {
-        descByLevel[level].push_back( false );
+        RecursiveGetByLevelForWriter(inIsMasked, level + 1,
+          this->GetElderChildIndex(index) + iChild, descByLevel, maskByLevel, globalIdByLevel);
       }
     }
+    else
+    {
+      descByLevel[level].push_back(false);
+    }
+  }
 
   //---------------------------------------------------------------------------
-  void GetByLevelForWriter(
-    vtkBitArray* inIsMasked,
-    vtkUnsignedLongArray* nbVerticesbyLevel,
-    vtkBitArray* isParent,
-    vtkBitArray* isMasked,
-    vtkIdList* ids ) override
+  void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkUnsignedLongArray* nbVerticesbyLevel,
+    vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) override
   {
     int maxLevels = this->GetNumberOfLevels();
-    std::vector< std::vector< bool > > descByLevel( maxLevels );
-    std::vector< std::vector< bool > > maskByLevel( maxLevels );
-    std::vector< std::vector< uint64_t > > globalIdByLevel( maxLevels );
+    std::vector<std::vector<bool> > descByLevel(maxLevels);
+    std::vector<std::vector<bool> > maskByLevel(maxLevels);
+    std::vector<std::vector<uint64_t> > globalIdByLevel(maxLevels);
     // Build information by levels
-    RecursiveGetByLevelForWriter( inIsMasked, 0, 0, descByLevel, maskByLevel, globalIdByLevel );
+    RecursiveGetByLevelForWriter(inIsMasked, 0, 0, descByLevel, maskByLevel, globalIdByLevel);
     // nbVerticesbyLevel
     nbVerticesbyLevel->Resize(0);
-    for ( int iLevel = 0; iLevel < maxLevels; ++ iLevel )
+    for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
     {
-      nbVerticesbyLevel->InsertNextValue( static_cast<unsigned long>(globalIdByLevel[iLevel].size()));
+      nbVerticesbyLevel->InsertNextValue(
+        static_cast<unsigned long>(globalIdByLevel[iLevel].size()));
     }
     nbVerticesbyLevel->Squeeze();
     //
     vtkIdType nb = this->GetNumberOfVertices();
-    ids->SetNumberOfIds( nb );
-    for ( std::size_t i = 0, iLevel = 0; iLevel < globalIdByLevel.size(); ++ iLevel )
+    ids->SetNumberOfIds(nb);
+    for (std::size_t i = 0, iLevel = 0; iLevel < globalIdByLevel.size(); ++iLevel)
     {
-      for ( auto idg : globalIdByLevel[iLevel] )
+      for (auto idg : globalIdByLevel[iLevel])
       {
-        ids->SetId( static_cast<vtkIdType>(i), idg );
+        ids->SetId(static_cast<vtkIdType>(i), idg);
         ++i;
       }
       globalIdByLevel[iLevel].clear();
     }
     globalIdByLevel.clear();
     // For more compressed
-    if( maxLevels > 2 )
+    if (maxLevels > 2)
     {
-      std::vector< bool >& desc = descByLevel[maxLevels - 2];
-      for ( std::vector< bool >::reverse_iterator it = desc.rbegin();
-           it != desc.rend(); -- it )
+      std::vector<bool>& desc = descByLevel[maxLevels - 2];
+      for (std::vector<bool>::reverse_iterator it = desc.rbegin(); it != desc.rend(); --it)
       {
-        if ( *it )
+        if (*it)
         {
-          if ( it != desc.rend() )
+          if (it != desc.rend())
           {
-            desc.resize( std::distance( it, desc.rend() ) );
+            desc.resize(std::distance(it, desc.rend()));
           }
           break;
         }
       }
     }
     // isParent
-    isParent->Resize( 0 );
-    for ( int iLevel = 0; iLevel < maxLevels - 1; ++ iLevel )
+    isParent->Resize(0);
+    for (int iLevel = 0; iLevel < maxLevels - 1; ++iLevel)
     {
-      for ( auto etat: descByLevel[iLevel] )
+      for (auto etat : descByLevel[iLevel])
       {
         isParent->InsertNextValue(etat);
       }
@@ -239,14 +228,14 @@ public:
     //
     isParent->Squeeze();
     // isMasked
-    if ( inIsMasked )
+    if (inIsMasked)
     {
-      isMasked->Resize( 0 );
-      for ( int iLevel = 0; iLevel < maxLevels; ++ iLevel )
+      isMasked->Resize(0);
+      for (int iLevel = 0; iLevel < maxLevels; ++iLevel)
       {
-        for ( auto etat: maskByLevel[iLevel] )
+        for (auto etat : maskByLevel[iLevel])
         {
-          isMasked->InsertNextValue( etat );
+          isMasked->InsertNextValue(etat);
         }
       }
     }
@@ -254,36 +243,32 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void InitializeForReader(
-    vtkIdType numberOfLevels,
-    vtkIdType nbVertices,
-    vtkIdType nbVerticesOfLastLevel,
-    vtkBitArray* isParent,
-    vtkBitArray* isMasked,
-    vtkBitArray* outIsMasked ) override
+  void InitializeForReader(vtkIdType numberOfLevels, vtkIdType nbVertices,
+    vtkIdType nbVerticesOfLastLevel, vtkBitArray* isParent, vtkBitArray* isMasked,
+    vtkBitArray* outIsMasked) override
   {
     vtkIdType nbIsParent = isParent->GetNumberOfTuples();
-    assert( isParent->GetNumberOfComponents() == 1 );
+    assert(isParent->GetNumberOfComponents() == 1);
 
     vtkIdType firstOffsetLastLevel = nbVertices - nbVerticesOfLastLevel;
-    if ( nbIsParent < firstOffsetLastLevel )
+    if (nbIsParent < firstOffsetLastLevel)
     {
       firstOffsetLastLevel = nbIsParent;
     }
-    this->CompactDatas->ParentToElderChild_stl.resize( firstOffsetLastLevel );
+    this->CompactDatas->ParentToElderChild_stl.resize(firstOffsetLastLevel);
 
     vtkIdType nbCoarses = 0;
-    if ( isParent->GetValue( 0 ) )
+    if (isParent->GetValue(0))
     {
       vtkIdType off = 1;
       this->CompactDatas->ParentToElderChild_stl[0] = off;
-      for ( vtkIdType i = 1; i < firstOffsetLastLevel; ++ i )
+      for (vtkIdType i = 1; i < firstOffsetLastLevel; ++i)
       {
-        if ( isParent->GetValue( i ) )
+        if (isParent->GetValue(i))
         {
           off += this->NumberOfChildren;
           this->CompactDatas->ParentToElderChild_stl[i] = off;
-          ++ nbCoarses;
+          ++nbCoarses;
         }
         else
         {
@@ -297,18 +282,18 @@ public:
     }
 
     vtkIdType nbIsMasked = isMasked->GetNumberOfTuples();
-    assert( isMasked->GetNumberOfComponents() == 1 );
+    assert(isMasked->GetNumberOfComponents() == 1);
 
     vtkIdType i = 0;
-    for ( ; i < nbIsMasked && i < nbVertices; ++ i )
+    for (; i < nbIsMasked && i < nbVertices; ++i)
     {
-      outIsMasked->InsertValue( this->GetGlobalIndexFromLocal( i ), isMasked->GetValue( i ) );
+      outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(i), isMasked->GetValue(i));
     }
     // By convention, the final values not explicitly described
     // by the isMasked parameter are False.
-    for ( ; i < nbVertices; ++ i )
+    for (; i < nbVertices; ++i)
     {
-      outIsMasked->InsertValue( this->GetGlobalIndexFromLocal( i ), false );
+      outIsMasked->InsertValue(this->GetGlobalIndexFromLocal(i), false);
     }
 
     this->Datas->NumberOfLevels = numberOfLevels;
@@ -317,7 +302,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTree* Freeze( const char* vtkNotUsed( mode ) ) override
+  vtkHyperTree* Freeze(const char* vtkNotUsed(mode)) override
   {
     // Option not used
     return this;
@@ -327,28 +312,27 @@ public:
   ~vtkCompactHyperTree() override {}
 
   //---------------------------------------------------------------------------
-  bool IsGlobalIndexImplicit() override {
-    return this->Datas->GlobalIndexStart == -1;
-  }
+  bool IsGlobalIndexImplicit() override { return this->Datas->GlobalIndexStart == -1; }
 
   //---------------------------------------------------------------------------
-  void SetGlobalIndexStart( vtkIdType start ) override {
-    assert( "pre: not_global_index_start_if_use_global_index_from_local" &&
-            this->CompactDatas->GlobalIndexTable_stl.size() == 0 );
+  void SetGlobalIndexStart(vtkIdType start) override
+  {
+    assert("pre: not_global_index_start_if_use_global_index_from_local" &&
+      this->CompactDatas->GlobalIndexTable_stl.size() == 0);
 
     this->Datas->GlobalIndexStart = start;
   }
 
   //---------------------------------------------------------------------------
-  void SetGlobalIndexFromLocal( vtkIdType index, vtkIdType global ) override
+  void SetGlobalIndexFromLocal(vtkIdType index, vtkIdType global) override
   {
-    assert( "pre: not_global_index_from_local_if_use_global_index_start" &&
-            this->Datas->GlobalIndexStart < 0 );
+    assert("pre: not_global_index_from_local_if_use_global_index_start" &&
+      this->Datas->GlobalIndexStart < 0);
 
     // If local index outside map range, resize the latter
-    if (static_cast<vtkIdType>( this->CompactDatas->GlobalIndexTable_stl.size() ) <= index)
+    if (static_cast<vtkIdType>(this->CompactDatas->GlobalIndexTable_stl.size()) <= index)
     {
-      this->CompactDatas->GlobalIndexTable_stl.resize( index + 1, -1 );
+      this->CompactDatas->GlobalIndexTable_stl.resize(index + 1, -1);
     }
     // This service allows the value of the global index to be positioned
     // several times in order to take into account a first description,
@@ -358,36 +342,38 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetGlobalIndexFromLocal( vtkIdType index ) const override
+  vtkIdType GetGlobalIndexFromLocal(vtkIdType index) const override
   {
-    if ( this->CompactDatas->GlobalIndexTable_stl.size() != 0 )
+    if (this->CompactDatas->GlobalIndexTable_stl.size() != 0)
     {
       // Case explicit global node index
-      assert( "pre: not_valid_index" && index >= 0 &&
-              index < (vtkIdType)this->CompactDatas->GlobalIndexTable_stl.size() );
-      assert( "pre: not_positive_global_index" && this->CompactDatas->GlobalIndexTable_stl[index] >= 0 );
+      assert("pre: not_valid_index" && index >= 0 &&
+        index < (vtkIdType)this->CompactDatas->GlobalIndexTable_stl.size());
+      assert(
+        "pre: not_positive_global_index" && this->CompactDatas->GlobalIndexTable_stl[index] >= 0);
       return this->CompactDatas->GlobalIndexTable_stl[index];
     }
     // Case implicit global node index
-    assert( "pre: not_positive_start_index" && this->Datas->GlobalIndexStart >= 0 );
-    assert( "pre: not_valid_index" && index >= 0 );
+    assert("pre: not_positive_start_index" && this->Datas->GlobalIndexStart >= 0);
+    assert("pre: not_valid_index" && index >= 0);
     return this->Datas->GlobalIndexStart + index;
   }
 
   //---------------------------------------------------------------------------
   vtkIdType GetGlobalNodeIndexMax() const override
   {
-    if ( static_cast<vtkIdType>( this->CompactDatas->GlobalIndexTable_stl.size() != 0 ) )
+    if (static_cast<vtkIdType>(this->CompactDatas->GlobalIndexTable_stl.size() != 0))
     {
       // Case explicit global node index
       const auto it_end = this->CompactDatas->GlobalIndexTable_stl.end();
-      const auto elt_found = std::max_element( this->CompactDatas->GlobalIndexTable_stl.begin(), it_end );
-      assert( "pre: not_positive_global_index" &&
-             ( *std::max_element( this->CompactDatas->GlobalIndexTable_stl.begin(), it_end ) ) >= 0 );
+      const auto elt_found =
+        std::max_element(this->CompactDatas->GlobalIndexTable_stl.begin(), it_end);
+      assert("pre: not_positive_global_index" &&
+        (*std::max_element(this->CompactDatas->GlobalIndexTable_stl.begin(), it_end)) >= 0);
       return *elt_found;
     }
     // Case implicit global node index
-    assert( "pre: not_positive_start_index" && this->Datas->GlobalIndexStart >= 0 );
+    assert("pre: not_positive_start_index" && this->Datas->GlobalIndexStart >= 0);
     return this->Datas->GlobalIndexStart + this->Datas->NumberOfVertices - 1;
   }
 
@@ -395,33 +381,32 @@ public:
   // Description:
   // Public only for entry: vtkHyperTreeGridEntry, vtkHyperTreeGridGeometryEntry,
   // vtkHyperTreeGridGeometryLevelEntry
-  vtkIdType GetElderChildIndex( unsigned int index_parent ) const override
+  vtkIdType GetElderChildIndex(unsigned int index_parent) const override
   {
-    assert( "pre: valid_range" &&
-            index_parent < static_cast<unsigned int>( this->Datas->NumberOfVertices ) );
+    assert("pre: valid_range" &&
+      index_parent < static_cast<unsigned int>(this->Datas->NumberOfVertices));
     return this->CompactDatas->ParentToElderChild_stl[index_parent];
   }
 
   //---------------------------------------------------------------------------
-  void SubdivideLeaf( vtkIdType index, unsigned int level ) override
+  void SubdivideLeaf(vtkIdType index, unsigned int level) override
   {
-    assert( "pre: not_valid_index" &&
-            index < static_cast<vtkIdType>( this->Datas->NumberOfVertices ) );
-    assert( "pre: not_leaf" && this->IsLeaf( index ) );
+    assert("pre: not_valid_index" && index < static_cast<vtkIdType>(this->Datas->NumberOfVertices));
+    assert("pre: not_leaf" && this->IsLeaf(index));
     // The leaf becomes a node and is not anymore a leaf
     // Nodes get constructed with leaf flags set to 1.
-    if ( static_cast<vtkIdType>( this->CompactDatas->ParentToElderChild_stl.size() ) <= index )
+    if (static_cast<vtkIdType>(this->CompactDatas->ParentToElderChild_stl.size()) <= index)
     {
-      this->CompactDatas->ParentToElderChild_stl.resize( index + 1, UINT_MAX );
+      this->CompactDatas->ParentToElderChild_stl.resize(index + 1, UINT_MAX);
     }
     // The first new child
-    unsigned int nextLeaf = static_cast<unsigned int>( this->Datas->NumberOfVertices );
+    unsigned int nextLeaf = static_cast<unsigned int>(this->Datas->NumberOfVertices);
     this->CompactDatas->ParentToElderChild_stl[index] = nextLeaf;
     // Add the new leaves to the number of leaves at the next level.
-    if ( level + 1 == this->Datas->NumberOfLevels ) // >=
+    if (level + 1 == this->Datas->NumberOfLevels) // >=
     {
       // We have a new level.
-      ++ this->Datas->NumberOfLevels;
+      ++this->Datas->NumberOfLevels;
     }
     // Update the number of non-leaf and all vertices
     this->Datas->NumberOfNodes += 1;
@@ -439,17 +424,17 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  bool IsTerminalNode( vtkIdType index ) const override
+  bool IsTerminalNode(vtkIdType index) const override
   {
-    assert( "pre: valid_range" && index >= 0 && index < this->Datas->NumberOfVertices );
-    if ( static_cast<unsigned long>(index) >= this->CompactDatas->ParentToElderChild_stl.size() )
+    assert("pre: valid_range" && index >= 0 && index < this->Datas->NumberOfVertices);
+    if (static_cast<unsigned long>(index) >= this->CompactDatas->ParentToElderChild_stl.size())
     {
       return 0;
     }
 
-    for ( unsigned int ichild = 0; ichild < this->NumberOfChildren; ++ ichild )
+    for (unsigned int ichild = 0; ichild < this->NumberOfChildren; ++ichild)
     {
-      if ( !this->IsChildLeaf( index, ichild ) )
+      if (!this->IsChildLeaf(index, ichild))
       {
         return 0;
       }
@@ -458,23 +443,24 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  bool IsLeaf( vtkIdType index ) const override
+  bool IsLeaf(vtkIdType index) const override
   {
-    assert( "pre: valid_range" && index >= 0 && index < this->Datas->NumberOfVertices );
-    return static_cast<unsigned long>( index ) >= this->CompactDatas->ParentToElderChild_stl.size() ||
+    assert("pre: valid_range" && index >= 0 && index < this->Datas->NumberOfVertices);
+    return static_cast<unsigned long>(index) >= this->CompactDatas->ParentToElderChild_stl.size() ||
       this->CompactDatas->ParentToElderChild_stl[index] == UINT_MAX ||
       this->Datas->NumberOfVertices == 1;
   }
 
   //---------------------------------------------------------------------------
-  bool IsChildLeaf( vtkIdType index_parent, unsigned int ichild ) const
+  bool IsChildLeaf(vtkIdType index_parent, unsigned int ichild) const
   {
-    assert( "pre: valid_range" && index_parent >= 0 && index_parent < this->Datas->NumberOfVertices );
-    if ( static_cast<unsigned long>(index_parent) >= this->CompactDatas->ParentToElderChild_stl.size() )
+    assert("pre: valid_range" && index_parent >= 0 && index_parent < this->Datas->NumberOfVertices);
+    if (static_cast<unsigned long>(index_parent) >=
+      this->CompactDatas->ParentToElderChild_stl.size())
     {
       return 0;
     }
-    assert( "pre: valid_range" && ichild < this->NumberOfChildren );
+    assert("pre: valid_range" && ichild < this->NumberOfChildren);
     vtkIdType index_child = this->CompactDatas->ParentToElderChild_stl[index_parent] + ichild;
     return static_cast<unsigned long>(index_child) >=
       this->CompactDatas->ParentToElderChild_stl.size() ||
@@ -482,46 +468,44 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  const std::vector< unsigned int >& GetParentElderChild() const
+  const std::vector<unsigned int>& GetParentElderChild() const
   {
     return this->CompactDatas->ParentToElderChild_stl;
   }
 
   //---------------------------------------------------------------------------
-  const std::vector< vtkIdType >& GetGlobalIndexTable() const
+  const std::vector<vtkIdType>& GetGlobalIndexTable() const
   {
     return this->CompactDatas->GlobalIndexTable_stl;
   }
 
 protected:
   //---------------------------------------------------------------------------
-  vtkCompactHyperTree() {
-    this->CompactDatas = std::make_shared<vtkCompactHyperTreeData>();
-  }
+  vtkCompactHyperTree() { this->CompactDatas = std::make_shared<vtkCompactHyperTreeData>(); }
 
   //---------------------------------------------------------------------------
   void InitializePrivate() override
   {
     // Set default tree structure with a single node at the root
-    this->CompactDatas->ParentToElderChild_stl.resize( 1 );
+    this->CompactDatas->ParentToElderChild_stl.resize(1);
     this->CompactDatas->ParentToElderChild_stl[0] = 0;
     // By default, the root don't have parent
     this->CompactDatas->GlobalIndexTable_stl.clear();
   }
 
   //---------------------------------------------------------------------------
-  void PrintSelfPrivate( ostream& os, vtkIndent indent ) override
+  void PrintSelfPrivate(ostream& os, vtkIndent indent) override
   {
     os << indent << "ParentToElderChild: " << this->CompactDatas->ParentToElderChild_stl.size()
        << endl;
-    for ( unsigned int i = 0; i < this->CompactDatas->ParentToElderChild_stl.size(); ++ i )
+    for (unsigned int i = 0; i < this->CompactDatas->ParentToElderChild_stl.size(); ++i)
     {
       os << this->CompactDatas->ParentToElderChild_stl[i] << " ";
     }
     os << endl;
 
     os << indent << "GlobalIndexTable: ";
-    for ( unsigned int i = 0; i < this->CompactDatas->GlobalIndexTable_stl.size(); ++ i )
+    for (unsigned int i = 0; i < this->CompactDatas->GlobalIndexTable_stl.size(); ++i)
     {
       os << " " << this->CompactDatas->GlobalIndexTable_stl[i];
     }
@@ -529,26 +513,26 @@ protected:
   }
 
   //---------------------------------------------------------------------------
-  void CopyStructurePrivate( vtkHyperTree* ht ) override
+  void CopyStructurePrivate(vtkHyperTree* ht) override
   {
-    assert( "pre: ht_exists" && ht != nullptr );
+    assert("pre: ht_exists" && ht != nullptr);
     vtkCompactHyperTree* htp = vtkCompactHyperTree::SafeDownCast(ht);
-    assert( "pre: same_type" && htp != nullptr );
+    assert("pre: same_type" && htp != nullptr);
     this->CompactDatas = htp->CompactDatas;
   }
 
   //---------------------------------------------------------------------------
-  std::shared_ptr< vtkCompactHyperTreeData > CompactDatas;
+  std::shared_ptr<vtkCompactHyperTreeData> CompactDatas;
 
 private:
-  vtkCompactHyperTree( const vtkCompactHyperTree& ) = delete;
-  void operator=( const vtkCompactHyperTree& ) = delete;
+  vtkCompactHyperTree(const vtkCompactHyperTree&) = delete;
+  void operator=(const vtkCompactHyperTree&) = delete;
 };
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompactHyperTree);
 //=============================================================================
 
-vtkHyperTree* vtkHyperTree::CreateInstance( unsigned char factor, unsigned char dimension )
+vtkHyperTree* vtkHyperTree::CreateInstance(unsigned char factor, unsigned char dimension)
 {
   if (factor < 2 || 3 < factor)
   {

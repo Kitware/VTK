@@ -21,25 +21,19 @@
 
 vtkStandardNewMacro(vtkPartitionedDataSet);
 //----------------------------------------------------------------------------
-vtkPartitionedDataSet::vtkPartitionedDataSet()
-{
-}
+vtkPartitionedDataSet::vtkPartitionedDataSet() {}
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSet::~vtkPartitionedDataSet()
-{
-}
+vtkPartitionedDataSet::~vtkPartitionedDataSet() {}
 
 //----------------------------------------------------------------------------
 vtkPartitionedDataSet* vtkPartitionedDataSet::GetData(vtkInformation* info)
 {
-  return
-    info? vtkPartitionedDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
+  return info ? vtkPartitionedDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------
-vtkPartitionedDataSet* vtkPartitionedDataSet::GetData(vtkInformationVector* v,
-                                                      int i)
+vtkPartitionedDataSet* vtkPartitionedDataSet::GetData(vtkInformationVector* v, int i)
 {
   return vtkPartitionedDataSet::GetData(v->GetInformationObject(i));
 }
@@ -49,7 +43,6 @@ void vtkPartitionedDataSet::SetNumberOfPartitions(unsigned int numPartitions)
 {
   this->Superclass::SetNumberOfChildren(numPartitions);
 }
-
 
 //----------------------------------------------------------------------------
 unsigned int vtkPartitionedDataSet::GetNumberOfPartitions()

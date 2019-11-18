@@ -28,7 +28,6 @@
 #include <vtkStdString.h>
 #include <vtkStringArray.h>
 
-
 int TestColorByStringArrayDefaultLookupTable(int argc, char* argv[])
 {
   vtkNew<vtkSphereSource> sphere;

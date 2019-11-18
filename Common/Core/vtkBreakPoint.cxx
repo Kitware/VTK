@@ -22,12 +22,11 @@
 void vtkBreakPoint::Break()
 {
 #ifndef _WIN32
-  int i=0;
+  int i = 0;
   char hostname[256];
-  gethostname(hostname,sizeof(hostname));
-  cout << "PID " << getpid() << " on " << hostname << " ready for attach"
-       << endl;
-  while(i==0)
+  gethostname(hostname, sizeof(hostname));
+  cout << "PID " << getpid() << " on " << hostname << " ready for attach" << endl;
+  while (i == 0)
   {
     sleep(5);
   }

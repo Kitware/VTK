@@ -32,10 +32,9 @@
 #include "vtkTree.h"
 #include "vtkVertexListIterator.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-void TestGraphIterators(vtkGraph *g, int & errors)
+void TestGraphIterators(vtkGraph* g, int& errors)
 {
   if (g->GetNumberOfVertices() != 10)
   {
@@ -68,14 +67,14 @@ void TestGraphIterators(vtkGraph *g, int & errors)
     vtkEdgeType e = edges->Next();
     if (g->GetSourceVertex(e.Id) != e.Source)
     {
-      cerr << "ERROR: Source does not match ("
-           << g->GetSourceVertex(e.Id) << "!=" << e.Source << ")" << endl;
+      cerr << "ERROR: Source does not match (" << g->GetSourceVertex(e.Id) << "!=" << e.Source
+           << ")" << endl;
       ++errors;
     }
     if (g->GetTargetVertex(e.Id) != e.Target)
     {
-      cerr << "ERROR: Target does not match ("
-           << g->GetTargetVertex(e.Id) << "!=" << e.Target << ")" << endl;
+      cerr << "ERROR: Target does not match (" << g->GetTargetVertex(e.Id) << "!=" << e.Target
+           << ")" << endl;
       ++errors;
     }
     ++numEdges;
@@ -105,14 +104,13 @@ void TestGraphIterators(vtkGraph *g, int & errors)
       }
       if (e.Id != e2.Id)
       {
-        cerr << "ERROR: Random-access id != iterator id "
-             << e.Id << "!=" << e2.Id << endl;
+        cerr << "ERROR: Random-access id != iterator id " << e.Id << "!=" << e2.Id << endl;
         ++errors;
       }
       if (e.Target != e2.Target)
       {
-        cerr << "ERROR: Random-access target != iterator target "
-             << e.Target << "!=" << e2.Target << endl;
+        cerr << "ERROR: Random-access target != iterator target " << e.Target << "!=" << e2.Target
+             << endl;
         ++errors;
       }
       ++index;
@@ -148,14 +146,13 @@ void TestGraphIterators(vtkGraph *g, int & errors)
       }
       if (e.Id != e2.Id)
       {
-        cerr << "ERROR: Random-access id != iterator id "
-             << e.Id << "!=" << e2.Id << endl;
+        cerr << "ERROR: Random-access id != iterator id " << e.Id << "!=" << e2.Id << endl;
         ++errors;
       }
       if (e.Source != e2.Source)
       {
-        cerr << "ERROR: Random-access source != iterator source "
-             << e.Source << "!=" << e2.Source << endl;
+        cerr << "ERROR: Random-access source != iterator source " << e.Source << "!=" << e2.Source
+             << endl;
         ++errors;
       }
       ++index;
@@ -201,7 +198,7 @@ void TestGraphIterators(vtkGraph *g, int & errors)
   }
 }
 
-void TestGraphDeletion(int & errors)
+void TestGraphDeletion(int& errors)
 {
   //         <-------e0--------
   // ( e4 ) v0 -e3-> v1 -e1-> v2 ( e2 )
@@ -268,7 +265,8 @@ void TestGraphDeletion(int & errors)
   //                 v1 -e1-> v0 ( e0 )
   mdg->RemoveVertex(0);
   mdg->Dump();
-  if (mdg->GetNumberOfVertices() != 2 || mdg->GetNumberOfEdges() != 2 || mdg->GetSourceVertex(0) != 0 || mdg->GetTargetVertex(0) != 0)
+  if (mdg->GetNumberOfVertices() != 2 || mdg->GetNumberOfEdges() != 2 ||
+    mdg->GetSourceVertex(0) != 0 || mdg->GetTargetVertex(0) != 0)
   {
     cerr << "ERROR: Did not remove vertex correctly." << endl;
     ++errors;

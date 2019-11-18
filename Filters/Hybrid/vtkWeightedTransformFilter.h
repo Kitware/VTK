@@ -66,7 +66,7 @@
  *
  * @sa
  * vtkAbstractTransform vtkLinearTransform vtkTransformPolyDataFilter vtkActor
-*/
+ */
 
 #ifndef vtkWeightedTransformFilter_h
 #define vtkWeightedTransformFilter_h
@@ -79,8 +79,8 @@ class vtkAbstractTransform;
 class VTKFILTERSHYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlgorithm
 {
 public:
-  static vtkWeightedTransformFilter *New();
-  vtkTypeMacro(vtkWeightedTransformFilter,vtkPointSetAlgorithm);
+  static vtkWeightedTransformFilter* New();
+  vtkTypeMacro(vtkWeightedTransformFilter, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -151,8 +151,8 @@ public:
    * a transform slot to nullptr is equivalent to assigning an overriding weight
    * of zero to that filter slot.
    */
-  virtual void SetTransform(vtkAbstractTransform *transform, int num);
-  virtual vtkAbstractTransform *GetTransform(int num);
+  virtual void SetTransform(vtkAbstractTransform* transform, int num);
+  virtual vtkAbstractTransform* GetTransform(int num);
   //@}
 
   //@{
@@ -178,20 +178,21 @@ public:
   //@}
 
 protected:
-  vtkAbstractTransform **Transforms;
+  vtkAbstractTransform** Transforms;
   int NumberOfTransforms;
   vtkTypeBool AddInputValues;
 
-  char *CellDataWeightArray;
-  char *WeightArray;
+  char* CellDataWeightArray;
+  char* WeightArray;
 
-  char *CellDataTransformIndexArray;
-  char *TransformIndexArray;
+  char* CellDataTransformIndexArray;
+  char* TransformIndexArray;
 
   vtkWeightedTransformFilter();
   ~vtkWeightedTransformFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) = delete;
   void operator=(const vtkWeightedTransformFilter&) = delete;

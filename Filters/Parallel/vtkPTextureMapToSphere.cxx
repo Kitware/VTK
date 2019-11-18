@@ -22,7 +22,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkTextureMapToSphere.h"
 
-
 vtkStandardNewMacro(vtkPTextureMapToSphere);
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The
@@ -37,7 +36,7 @@ void vtkPTextureMapToSphere::ComputeCenter(vtkDataSet* dataSet)
   if (this->AutomaticSphereGeneration && this->Controller->GetNumberOfProcesses() > 1)
   {
     vtkIdType numberOfPoints = dataSet->GetNumberOfPoints();
-    double out[4] = {static_cast<double>(numberOfPoints), 0.0, 0.0, 0.0}, x[3], in[4];
+    double out[4] = { static_cast<double>(numberOfPoints), 0.0, 0.0, 0.0 }, x[3], in[4];
 
     for (vtkIdType id = 0; id < numberOfPoints; ++id)
     {
@@ -49,9 +48,9 @@ void vtkPTextureMapToSphere::ComputeCenter(vtkDataSet* dataSet)
 
     this->Controller->AllReduce(out, in, 4, vtkCommunicator::SUM_OP);
 
-    if(!in[0])
+    if (!in[0])
     {
-      vtkErrorMacro(<<"No points");
+      vtkErrorMacro(<< "No points");
     }
 
     this->Center[0] = in[1] / in[0];
@@ -66,7 +65,7 @@ void vtkPTextureMapToSphere::ComputeCenter(vtkDataSet* dataSet)
 
 void vtkPTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Controller: " << *this->Controller << std::endl;
 }

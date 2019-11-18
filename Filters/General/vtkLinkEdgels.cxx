@@ -35,30 +35,26 @@ vtkLinkEdgels::vtkLinkEdgels()
   this->LinkThreshold = 90;
 }
 
-int vtkLinkEdgels::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkLinkEdgels::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkImageData *input = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointData *pd;
-  vtkPoints *newPts;
-  vtkCellArray *newLines;
-  vtkDoubleArray *inScalars;
-  vtkDoubleArray *outScalars;
-  vtkDoubleArray *outVectors;
-  int *dimensions;
+  vtkPointData* pd;
+  vtkPoints* newPts;
+  vtkCellArray* newLines;
+  vtkDoubleArray* inScalars;
+  vtkDoubleArray* outScalars;
+  vtkDoubleArray* outVectors;
+  int* dimensions;
   double *CurrMap, *inDataPtr;
-  vtkDataArray *inVectors;
+  vtkDataArray* inVectors;
   int ptId;
 
   vtkDebugMacro(<< "Extracting structured points geometry");
@@ -69,7 +65,7 @@ int vtkLinkEdgels::RequestData(
   inVectors = pd->GetVectors();
   if ((input->GetNumberOfPoints()) < 2 || inScalars == nullptr)
   {
-    vtkErrorMacro(<<"No data to transform (or wrong data type)!");
+    vtkErrorMacro(<< "No data to transform (or wrong data type)!");
     return 1;
   }
 
@@ -87,19 +83,19 @@ int vtkLinkEdgels::RequestData(
   //
   // Traverse all points, for each point find Gradient in the Image map.
   //
-  for (ptId=0; ptId < dimensions[2]; ptId++)
+  for (ptId = 0; ptId < dimensions[2]; ptId++)
   {
-    CurrMap = inDataPtr + dimensions[0]*dimensions[1]*ptId;
+    CurrMap = inDataPtr + dimensions[0] * dimensions[1] * ptId;
 
-    this->LinkEdgels(dimensions[0],dimensions[1],CurrMap, inVectors,
-                     newLines,newPts,outScalars,outVectors,ptId);
+    this->LinkEdgels(dimensions[0], dimensions[1], CurrMap, inVectors, newLines, newPts, outScalars,
+      outVectors, ptId);
   }
 
   output->SetPoints(newPts);
   output->SetLines(newLines);
 
   // Update ourselves
-//  outScalars->ComputeRange();
+  //  outScalars->ComputeRange();
   output->GetPointData()->SetScalars(outScalars);
   output->GetPointData()->SetVectors(outVectors);
 
@@ -112,57 +108,50 @@ int vtkLinkEdgels::RequestData(
 }
 
 // This method links the edges for one image.
-void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
-                               vtkDataArray *inVectors,
-                               vtkCellArray *newLines,
-                               vtkPoints *newPts,
-                               vtkDoubleArray *outScalars,
-                               vtkDoubleArray *outVectors,
-                               int z)
+void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double* image, vtkDataArray* inVectors,
+  vtkCellArray* newLines, vtkPoints* newPts, vtkDoubleArray* outScalars, vtkDoubleArray* outVectors,
+  int z)
 {
-  int **forward;
-  int **backward;
-  int x,y,ypos,zpos;
+  int** forward;
+  int** backward;
+  int x, y, ypos, zpos;
   int currX, currY, i;
   int newX, newY;
   double vec[3], vec1[3], vec2[3];
   double linkThresh, phiThresh;
   // these direction vectors are rotated 90 degrees
   // to convert gradient direction into edgel direction
-  static const double directions[8][2] = {
-    {0,1},  {-0.707, 0.707},
-    {-1,0}, {-0.707, -0.707},
-    {0,-1}, {0.707, -0.707},
-    {1,0},  {0.707, 0.707}};
-  static const int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
-  static const int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
+  static const double directions[8][2] = { { 0, 1 }, { -0.707, 0.707 }, { -1, 0 },
+    { -0.707, -0.707 }, { 0, -1 }, { 0.707, -0.707 }, { 1, 0 }, { 0.707, 0.707 } };
+  static const int xoffset[8] = { 1, 1, 0, -1, -1, -1, 0, 1 };
+  static const int yoffset[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
   int length, start;
   int bestDirection = 0;
   double error, bestError;
 
-  forward  = new int *[ydim];
-  backward = new int *[ydim];
+  forward = new int*[ydim];
+  backward = new int*[ydim];
   for (i = 0; i < ydim; i++)
   {
-    forward[i]  = new int [xdim];
-    backward[i] = new int [xdim];
-    memset(forward[i],0,xdim*sizeof(int));
-    memset(backward[i],0,xdim*sizeof(int));
+    forward[i] = new int[xdim];
+    backward[i] = new int[xdim];
+    memset(forward[i], 0, xdim * sizeof(int));
+    memset(backward[i], 0, xdim * sizeof(int));
   }
 
-  zpos = z*xdim*ydim;
-  linkThresh = cos(this->LinkThreshold*vtkMath::Pi()/180.0);
-  phiThresh = cos(this->PhiThreshold*vtkMath::Pi()/180.0);
+  zpos = z * xdim * ydim;
+  linkThresh = cos(this->LinkThreshold * vtkMath::Pi() / 180.0);
+  phiThresh = cos(this->PhiThreshold * vtkMath::Pi() / 180.0);
 
   // first find all forward & backwards links
   for (y = 0; y < ydim; y++)
   {
-    ypos = y*xdim;
+    ypos = y * xdim;
     for (x = 0; x < xdim; x++)
     {
       // find forward and backward neighbor for this pixel
       // if its value is less than threshold then ignore it
-      if (image[x+ypos] < this->GradientThreshold)
+      if (image[x + ypos] < this->GradientThreshold)
       {
         forward[y][x] = -1;
         backward[y][x] = -1;
@@ -170,39 +159,34 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
       else
       {
         // try all neighbors as forward, first try four connected
-        inVectors->GetTuple(x+ypos+zpos,vec1);
+        inVectors->GetTuple(x + ypos + zpos, vec1);
         vtkMath::Normalize(vec1);
         // first eliminate based on phi1 - alpha
         bestError = 0;
         for (i = 0; i < 8; i += 2)
         {
           // make sure it passes the linkThresh test
-          if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >=
-              linkThresh)
+          if ((directions[i][0] * vec1[0] + directions[i][1] * vec1[1]) >= linkThresh)
           {
             // make sure we don't go off the edge and are >= GradientThresh
             // and it hasn't already been set
-            if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&&
-                (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
-                (!backward[y+yoffset[i]][x+xoffset[i]])&&
-                (image[x + xoffset[i] + (y+yoffset[i])*xdim] >=
-                 this->GradientThreshold))
+            if ((x + xoffset[i] >= 0) && (x + xoffset[i] < xdim) && (y + yoffset[i] >= 0) &&
+              (y + yoffset[i] < ydim) && (!backward[y + yoffset[i]][x + xoffset[i]]) &&
+              (image[x + xoffset[i] + (y + yoffset[i]) * xdim] >= this->GradientThreshold))
             {
               // satisfied the first test, now check second
-              inVectors->GetTuple(x + xoffset[i] +
-                                   (y + yoffset[i])*xdim + zpos,vec2);
+              inVectors->GetTuple(x + xoffset[i] + (y + yoffset[i]) * xdim + zpos, vec2);
               vtkMath::Normalize(vec2);
-              if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
+              if ((vec1[0] * vec2[0] + vec1[1] * vec2[1]) >= phiThresh)
               {
                 // passed phi - phi test does the forward neighbor
                 // pass the link test
-                if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >=
-                    linkThresh)
+                if ((directions[i][0] * vec2[0] + directions[i][1] * vec2[1]) >= linkThresh)
                 {
                   // check against the current best solution
-                  error = (directions[i][0]*vec2[0]+directions[i][1]*vec2[1])
-                    + (directions[i][0]*vec1[0]+directions[i][1]*vec1[1])
-                    + (vec1[0]*vec2[0] + vec1[1]*vec2[1]);
+                  error = (directions[i][0] * vec2[0] + directions[i][1] * vec2[1]) +
+                    (directions[i][0] * vec1[0] + directions[i][1] * vec1[1]) +
+                    (vec1[0] * vec2[0] + vec1[1] * vec2[1]);
                   if (error > bestError)
                   {
                     bestDirection = i;
@@ -215,9 +199,9 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
         }
         if (bestError > 0)
         {
-          forward[y][x] = (bestDirection+1);
-          backward[y+yoffset[bestDirection]][x+xoffset[bestDirection]]
-            = ((bestDirection+4)%8)+1;
+          forward[y][x] = (bestDirection + 1);
+          backward[y + yoffset[bestDirection]][x + xoffset[bestDirection]] =
+            ((bestDirection + 4) % 8) + 1;
         }
         else
         {
@@ -225,32 +209,27 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           for (i = 1; i < 8; i += 2)
           {
             // make sure it passes the linkThresh test
-            if ((directions[i][0]*vec1[0]+directions[i][1]*vec1[1]) >=
-                linkThresh)
+            if ((directions[i][0] * vec1[0] + directions[i][1] * vec1[1]) >= linkThresh)
             {
               // make sure we don't go off the edge and are >= GradientThresh
               // and it hasn't already been set
-              if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&&
-                  (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&&
-                  (!backward[y+yoffset[i]][x+xoffset[i]])&&
-                  (image[x + xoffset[i] + (y+yoffset[i])*xdim] >=
-                   this->GradientThreshold))
+              if ((x + xoffset[i] >= 0) && (x + xoffset[i] < xdim) && (y + yoffset[i] >= 0) &&
+                (y + yoffset[i] < ydim) && (!backward[y + yoffset[i]][x + xoffset[i]]) &&
+                (image[x + xoffset[i] + (y + yoffset[i]) * xdim] >= this->GradientThreshold))
               {
                 // satisfied the first test, now check second
-                inVectors->GetTuple(x + xoffset[i] +
-                                     (y + yoffset[i])*xdim + zpos,vec2);
+                inVectors->GetTuple(x + xoffset[i] + (y + yoffset[i]) * xdim + zpos, vec2);
                 vtkMath::Normalize(vec2);
-                if ((vec1[0]*vec2[0] + vec1[1]*vec2[1]) >= phiThresh)
+                if ((vec1[0] * vec2[0] + vec1[1] * vec2[1]) >= phiThresh)
                 {
                   // passed phi - phi test does the forward neighbor
                   // pass the link test
-                  if ((directions[i][0]*vec2[0]+directions[i][1]*vec2[1]) >=
-                      linkThresh)
+                  if ((directions[i][0] * vec2[0] + directions[i][1] * vec2[1]) >= linkThresh)
                   {
                     // check against the current best solution
-                    error = (directions[i][0]*vec2[0]+directions[i][1]*vec2[1])
-                      + (directions[i][0]*vec1[0]+directions[i][1]*vec1[1])
-                      + (vec1[0]*vec2[0] + vec1[1]*vec2[1]);
+                    error = (directions[i][0] * vec2[0] + directions[i][1] * vec2[1]) +
+                      (directions[i][0] * vec1[0] + directions[i][1] * vec1[1]) +
+                      (vec1[0] * vec2[0] + vec1[1] * vec2[1]);
                     if (error > bestError)
                     {
                       bestDirection = i;
@@ -263,15 +242,14 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           }
           if (bestError > 0)
           {
-            forward[y][x] = (bestDirection+1);
-            backward[y+yoffset[bestDirection]][x+xoffset[bestDirection]]
-              = ((bestDirection+4)%8)+1;
+            forward[y][x] = (bestDirection + 1);
+            backward[y + yoffset[bestDirection]][x + xoffset[bestDirection]] =
+              ((bestDirection + 4) % 8) + 1;
           }
         }
       }
     }
   }
-
 
   // now construct the chains
   vec[2] = z;
@@ -291,8 +269,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           newX = currX + xoffset[backward[currY][currX] - 1];
           currY += yoffset[backward[currY][currX] - 1];
           currX = newX;
-        }
-        while ((currX != x || currY != y) && backward[currY][currX]);
+        } while ((currX != x || currY != y) && backward[currY][currX]);
 
         // now trace to the end and build the digital curve
         length = 0;
@@ -303,8 +280,8 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
         {
           currX = newX;
           currY = newY;
-          outScalars->InsertNextTuple(&(image[currX + currY*xdim]));
-          inVectors->GetTuple(currX+currY*xdim+zpos,vec2);
+          outScalars->InsertNextTuple(&(image[currX + currY * xdim]));
+          inVectors->GetTuple(currX + currY * xdim + zpos, vec2);
           vtkMath::Normalize(vec2);
           outVectors->InsertNextTuple(vec2);
           vec[0] = currX;
@@ -321,8 +298,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
           // clear out this edgel now that were done with it
           backward[newY][newX] = 0;
           forward[currY][currX] = 0;
-        }
-        while ((currX != newX || currY != newY));
+        } while ((currX != newX || currY != newY));
 
         // build up the cell
         newLines->InsertNextCell(length);
@@ -338,14 +314,14 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
   // free up the memory
   for (i = 0; i < ydim; i++)
   {
-    delete [] forward[i];
-    delete [] backward[i];
+    delete[] forward[i];
+    delete[] backward[i];
   }
-  delete [] forward;
-  delete [] backward;
+  delete[] forward;
+  delete[] backward;
 }
 
-int vtkLinkEdgels::FillInputPortInformation(int, vtkInformation *info)
+int vtkLinkEdgels::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
@@ -353,7 +329,7 @@ int vtkLinkEdgels::FillInputPortInformation(int, vtkInformation *info)
 
 void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "GradientThreshold:" << this->GradientThreshold << "\n";
   os << indent << "LinkThreshold:" << this->LinkThreshold << "\n";

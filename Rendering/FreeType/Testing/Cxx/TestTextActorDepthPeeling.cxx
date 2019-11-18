@@ -30,15 +30,15 @@
 
 int TestTextActorDepthPeeling(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
   renWin->SetMultiSamples(1);
   renWin->SetAlphaBitPlanes(1);
 
-  vtkRenderer *renderer = vtkRenderer::New();
+  vtkRenderer* renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
   renderer->Delete();
 
@@ -46,30 +46,29 @@ int TestTextActorDepthPeeling(int argc, char* argv[])
   renderer->SetMaximumNumberOfPeels(200);
   renderer->SetOcclusionRatio(0.1);
 
-  renderer->SetBackground(0.1,0.2,0.4);
-  renWin->SetSize(300,300);
+  renderer->SetBackground(0.1, 0.2, 0.4);
+  renWin->SetSize(300, 300);
 
-  vtkTextActor *actor = vtkTextActor::New();
-  actor->SetInput(
-    "Testing vtkTextActor with depth peeling\n(if available).\nLine 2.\nLine 3.");
-  actor->SetDisplayPosition(150,150);
+  vtkTextActor* actor = vtkTextActor::New();
+  actor->SetInput("Testing vtkTextActor with depth peeling\n(if available).\nLine 2.\nLine 3.");
+  actor->SetDisplayPosition(150, 150);
   actor->GetTextProperty()->SetJustificationToCentered();
 
   renderer->AddActor(actor);
   actor->Delete();
 
   renWin->Render();
-  if(renderer->GetLastRenderingUsedDepthPeeling())
+  if (renderer->GetLastRenderingUsedDepthPeeling())
   {
-    cout<<"depth peeling was used"<<endl;
+    cout << "depth peeling was used" << endl;
   }
   else
   {
-    cout<<"depth peeling was not used (alpha blending instead)"<<endl;
+    cout << "depth peeling was not used (alpha blending instead)" << endl;
   }
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

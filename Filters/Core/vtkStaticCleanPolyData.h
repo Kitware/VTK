@@ -65,7 +65,7 @@
  *
  * @sa
  * vtkCleanPolyData
-*/
+ */
 
 #ifndef vtkStaticCleanPolyData_h
 #define vtkStaticCleanPolyData_h
@@ -82,9 +82,9 @@ public:
   /**
    * Standard methods to instantiate, print, and provide type information.
    */
-  static vtkStaticCleanPolyData *New();
+  static vtkStaticCleanPolyData* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  vtkTypeMacro(vtkStaticCleanPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkStaticCleanPolyData, vtkPolyDataAlgorithm);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * a fraction of Bounding box diagonal, if true, AbsoluteTolerance is
    * used when adding points to locator (merging)
    */
-  vtkSetMacro(ToleranceIsAbsolute,vtkTypeBool);
-  vtkBooleanMacro(ToleranceIsAbsolute,vtkTypeBool);
-  vtkGetMacro(ToleranceIsAbsolute,vtkTypeBool);
+  vtkSetMacro(ToleranceIsAbsolute, vtkTypeBool);
+  vtkBooleanMacro(ToleranceIsAbsolute, vtkTypeBool);
+  vtkGetMacro(ToleranceIsAbsolute, vtkTypeBool);
   //@}
 
   //@{
@@ -103,43 +103,43 @@ public:
    * Specify tolerance in terms of fraction of bounding box length.  Default
    * is 0.0. This takes effect only if ToleranceIsAbsolute is false.
    */
-  vtkSetClampMacro(Tolerance,double,0.0,1.0);
-  vtkGetMacro(Tolerance,double);
+  vtkSetClampMacro(Tolerance, double, 0.0, 1.0);
+  vtkGetMacro(Tolerance, double);
   //@}
 
   //@{
   /**
    * Specify tolerance in absolute terms. Default is 1.0.
    */
-  vtkSetClampMacro(AbsoluteTolerance,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(AbsoluteTolerance,double);
+  vtkSetClampMacro(AbsoluteTolerance, double, 0.0, VTK_DOUBLE_MAX);
+  vtkGetMacro(AbsoluteTolerance, double);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate lines to points. Default is On.
    */
-  vtkSetMacro(ConvertLinesToPoints,vtkTypeBool);
-  vtkBooleanMacro(ConvertLinesToPoints,vtkTypeBool);
-  vtkGetMacro(ConvertLinesToPoints,vtkTypeBool);
+  vtkSetMacro(ConvertLinesToPoints, vtkTypeBool);
+  vtkBooleanMacro(ConvertLinesToPoints, vtkTypeBool);
+  vtkGetMacro(ConvertLinesToPoints, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate polys to lines. Default is On.
    */
-  vtkSetMacro(ConvertPolysToLines,vtkTypeBool);
-  vtkBooleanMacro(ConvertPolysToLines,vtkTypeBool);
-  vtkGetMacro(ConvertPolysToLines,vtkTypeBool);
+  vtkSetMacro(ConvertPolysToLines, vtkTypeBool);
+  vtkBooleanMacro(ConvertPolysToLines, vtkTypeBool);
+  vtkGetMacro(ConvertPolysToLines, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate strips to polys. Default is On.
    */
-  vtkSetMacro(ConvertStripsToPolys,vtkTypeBool);
-  vtkBooleanMacro(ConvertStripsToPolys,vtkTypeBool);
-  vtkGetMacro(ConvertStripsToPolys,vtkTypeBool);
+  vtkSetMacro(ConvertStripsToPolys, vtkTypeBool);
+  vtkBooleanMacro(ConvertStripsToPolys, vtkTypeBool);
+  vtkGetMacro(ConvertStripsToPolys, vtkTypeBool);
   //@}
 
   // This filter is difficult to stream.
@@ -157,8 +157,8 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
   //@{
@@ -167,8 +167,7 @@ public:
    * specifying the number of points per bucket. This method is generally
    * used for debugging or testing purposes.
    */
-  vtkStaticPointLocator *GetLocator()
-  { return this->Locator; }
+  vtkStaticPointLocator* GetLocator() { return this->Locator; }
   //@}
 
   /**
@@ -178,11 +177,11 @@ public:
 
 protected:
   vtkStaticCleanPolyData();
- ~vtkStaticCleanPolyData() override;
+  ~vtkStaticCleanPolyData() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Tolerance;
   double AbsoluteTolerance;
@@ -190,7 +189,7 @@ protected:
   vtkTypeBool ConvertPolysToLines;
   vtkTypeBool ConvertStripsToPolys;
   vtkTypeBool ToleranceIsAbsolute;
-  vtkStaticPointLocator *Locator;
+  vtkStaticPointLocator* Locator;
 
   vtkTypeBool PieceInvariant;
   int OutputPointsPrecision;

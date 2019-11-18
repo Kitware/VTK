@@ -29,16 +29,15 @@
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 
-#define PyVTKTemplate_Check(obj) \
-  (Py_TYPE(obj) == &PyVTKTemplate_Type)
+#define PyVTKTemplate_Check(obj) (Py_TYPE(obj) == &PyVTKTemplate_Type)
 
 extern "C"
 {
-VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKTemplate_New(const char *name, const char *docstring);
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyObject* PyVTKTemplate_New(const char* name, const char* docstring);
 
-VTKWRAPPINGPYTHONCORE_EXPORT
-int PyVTKTemplate_AddItem(PyObject *self, PyObject *val);
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKTemplate_AddItem(PyObject* self, PyObject* val);
 }
 
 #endif

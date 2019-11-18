@@ -27,8 +27,8 @@
 
 vtkStandardNewMacro(vtkCollectPolyData);
 
-vtkCxxSetObjectMacro(vtkCollectPolyData,Controller, vtkMultiProcessController);
-vtkCxxSetObjectMacro(vtkCollectPolyData,SocketController, vtkSocketController);
+vtkCxxSetObjectMacro(vtkCollectPolyData, Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkCollectPolyData, SocketController, vtkSocketController);
 
 //----------------------------------------------------------------------------
 vtkCollectPolyData::vtkCollectPolyData()
@@ -49,40 +49,34 @@ vtkCollectPolyData::~vtkCollectPolyData()
 }
 
 //--------------------------------------------------------------------------
-int vtkCollectPolyData::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkCollectPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkCollectPolyData::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkCollectPolyData::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPolyData *input = vtkPolyData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int numProcs, myId;
   int idx;
@@ -97,9 +91,9 @@ int vtkCollectPolyData::RequestData(
 
   if (this->Controller == nullptr && this->SocketController != nullptr)
   { // This is a client.  We assume no data on client for input.
-    if ( ! this->PassThrough)
+    if (!this->PassThrough)
     {
-      vtkPolyData *pd = vtkPolyData::New();
+      vtkPolyData* pd = vtkPolyData::New();
       this->SocketController->Receive(pd, 1, 121767);
       output->CopyStructure(pd);
       output->GetPointData()->PassData(pd->GetPointData());
@@ -125,8 +119,8 @@ int vtkCollectPolyData::RequestData(
   }
 
   // Collect.
-  vtkAppendPolyData *append = vtkAppendPolyData::New();
-  vtkPolyData *pd = nullptr;
+  vtkAppendPolyData* append = vtkAppendPolyData::New();
+  vtkPolyData* pd = nullptr;
 
   if (myId == 0)
   {
@@ -173,7 +167,7 @@ int vtkCollectPolyData::RequestData(
 //----------------------------------------------------------------------------
 void vtkCollectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "PassThough: " << this->PassThrough << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";

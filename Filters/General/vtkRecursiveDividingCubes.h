@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkDividingCubes vtkContourFilter vtkMarchingCubes
-*/
+ */
 
 #ifndef vtkRecursiveDividingCubes_h
 #define vtkRecursiveDividingCubes_h
@@ -45,24 +45,24 @@ class vtkVoxel;
 class VTKFILTERSGENERAL_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkRecursiveDividingCubes *New();
-  vtkTypeMacro(vtkRecursiveDividingCubes,vtkPolyDataAlgorithm);
+  static vtkRecursiveDividingCubes* New();
+  vtkTypeMacro(vtkRecursiveDividingCubes, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set isosurface value.
    */
-  vtkSetMacro(Value,double);
-  vtkGetMacro(Value,double);
+  vtkSetMacro(Value, double);
+  vtkGetMacro(Value, double);
   //@}
 
   //@{
   /**
    * Specify sub-voxel size at which to generate point.
    */
-  vtkSetClampMacro(Distance,double,1.0e-06,VTK_DOUBLE_MAX);
-  vtkGetMacro(Distance,double);
+  vtkSetClampMacro(Distance, double, 1.0e-06, VTK_DOUBLE_MAX);
+  vtkGetMacro(Distance, double);
   //@}
 
   //@{
@@ -71,16 +71,16 @@ public:
    * set to a large value, can be used to limit the number of points while
    * retaining good accuracy.
    */
-  vtkSetClampMacro(Increment,int,1,VTK_INT_MAX);
-  vtkGetMacro(Increment,int);
+  vtkSetClampMacro(Increment, int, 1, VTK_INT_MAX);
+  vtkGetMacro(Increment, int);
   //@}
 
 protected:
   vtkRecursiveDividingCubes();
   ~vtkRecursiveDividingCubes() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   void SubDivide(double origin[3], double h[3], double values[8]);
 
   double Value;
@@ -91,7 +91,8 @@ protected:
   int Count;
 
   // to replace a static
-  vtkVoxel *Voxel;
+  vtkVoxel* Voxel;
+
 private:
   vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&) = delete;
   void operator=(const vtkRecursiveDividingCubes&) = delete;

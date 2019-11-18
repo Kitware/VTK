@@ -33,11 +33,9 @@ vtkProbeSelectedLocations::vtkProbeSelectedLocations() = default;
 //----------------------------------------------------------------------------
 vtkProbeSelectedLocations::~vtkProbeSelectedLocations() = default;
 
-
 //----------------------------------------------------------------------------
-int vtkProbeSelectedLocations::RequestDataObject(vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkProbeSelectedLocations::RequestDataObject(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   if (this->PreserveTopology)
   {
@@ -48,13 +46,12 @@ int vtkProbeSelectedLocations::RequestDataObject(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
-  vtkInformationVector ** inputVector,
-  vtkInformationVector *outputVector)
+int vtkProbeSelectedLocations::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* selInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   if (!selInfo)
   {
@@ -80,10 +77,9 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   if (node->GetContentType() != vtkSelectionNode::LOCATIONS)
   {
     vtkErrorMacro("Missing or incompatible CONTENT_TYPE. "
-      "vtkSelection::LOCATIONS required.");
+                  "vtkSelection::LOCATIONS required.");
     return 0;
   }
-
 
   // From the indicates locations in the selInput, create a unstructured grid to
   // probe with.
@@ -92,8 +88,7 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   tempInput->SetPoints(points);
   points->Delete();
 
-  vtkDataArray* dA = vtkArrayDownCast<vtkDataArray>(
-    node->GetSelectionList());
+  vtkDataArray* dA = vtkArrayDownCast<vtkDataArray>(node->GetSelectionList());
   if (!dA)
   {
     // no locations to probe, quietly quit.
@@ -110,11 +105,10 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(numTuples);
 
-  for (vtkIdType cc=0; cc < numTuples; cc++)
+  for (vtkIdType cc = 0; cc < numTuples; cc++)
   {
     points->SetPoint(cc, dA->GetTuple(cc));
   }
-
 
   vtkDataSet* inputClone = dataInput->NewInstance();
   inputClone->ShallowCopy(dataInput);
@@ -134,23 +128,18 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   tp = nullptr;
 
   vtkDebugMacro(<< "Preparing subfilter to extract from dataset");
-  //pass all required information to the helper filter
+  // pass all required information to the helper filter
   int piece = 0;
   int npieces = 1;
-  int *uExtent=nullptr;
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+  int* uExtent = nullptr;
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
-    piece = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    npieces = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+    piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+    npieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   }
-  if (outInfo->Has(
-        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
   {
-    uExtent = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    uExtent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   }
 
   subFilter->UpdatePiece(piece, npieces, 0, uExtent);
@@ -165,4 +154,3 @@ void vtkProbeSelectedLocations::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
-

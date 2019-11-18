@@ -26,9 +26,12 @@
  */
 
 // Forward decs for StripPointers:
-template <typename ArrayType> class vtkNew;
-template <typename ArrayType> class vtkSmartPointer;
-template <typename ArrayType> class vtkWeakPointer;
+template <typename ArrayType>
+class vtkNew;
+template <typename ArrayType>
+class vtkSmartPointer;
+template <typename ArrayType>
+class vtkWeakPointer;
 
 namespace vtk
 {
@@ -50,19 +53,19 @@ struct StripPointers<T*>
 };
 
 template <typename ArrayType>
-struct StripPointers<vtkNew<ArrayType>>
+struct StripPointers<vtkNew<ArrayType> >
 {
   using type = ArrayType;
 };
 
 template <typename ArrayType>
-struct StripPointers<vtkSmartPointer<ArrayType>>
+struct StripPointers<vtkSmartPointer<ArrayType> >
 {
   using type = ArrayType;
 };
 
 template <typename ArrayType>
-struct StripPointers<vtkWeakPointer<ArrayType>>
+struct StripPointers<vtkWeakPointer<ArrayType> >
 {
   using type = ArrayType;
 };

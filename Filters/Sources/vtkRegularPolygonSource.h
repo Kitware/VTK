@@ -22,7 +22,7 @@
  * also specify the number of sides of the polygon ranging from [3,N].
  *
  * This object can be used for seeding streamlines or defining regions for clipping/cutting.
-*/
+ */
 
 #ifndef vtkRegularPolygonSource_h
 #define vtkRegularPolygonSource_h
@@ -37,8 +37,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type and printing instance values.
    */
-  static vtkRegularPolygonSource *New();
-  vtkTypeMacro(vtkRegularPolygonSource,vtkPolyDataAlgorithm);
+  static vtkRegularPolygonSource* New();
+  vtkTypeMacro(vtkRegularPolygonSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -47,8 +47,8 @@ public:
    * Set/Get the number of sides of the polygon. By default, the number of sides
    * is set to six.
    */
-  vtkSetClampMacro(NumberOfSides,int,3,VTK_INT_MAX);
-  vtkGetMacro(NumberOfSides,int);
+  vtkSetClampMacro(NumberOfSides, int, 3, VTK_INT_MAX);
+  vtkGetMacro(NumberOfSides, int);
   //@}
 
   //@{
@@ -56,8 +56,8 @@ public:
    * Set/Get the center of the polygon. By default, the center is set at the
    * origin (0,0,0).
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
   //@}
 
   //@{
@@ -66,34 +66,34 @@ public:
    * counter-clockwise around the normal (i.e., using the right-hand rule).
    * By default, the normal is set to (0,0,1).
    */
-  vtkSetVector3Macro(Normal,double);
-  vtkGetVectorMacro(Normal,double,3);
+  vtkSetVector3Macro(Normal, double);
+  vtkGetVectorMacro(Normal, double, 3);
   //@}
 
   //@{
   /**
    * Set/Get the radius of the polygon. By default, the radius is set to 0.5.
    */
-  vtkSetMacro(Radius,double);
-  vtkGetMacro(Radius,double);
+  vtkSetMacro(Radius, double);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
   /**
    * Control whether a polygon is produced. By default, GeneratePolygon is enabled.
    */
-  vtkSetMacro(GeneratePolygon,vtkTypeBool);
-  vtkGetMacro(GeneratePolygon,vtkTypeBool);
-  vtkBooleanMacro(GeneratePolygon,vtkTypeBool);
+  vtkSetMacro(GeneratePolygon, vtkTypeBool);
+  vtkGetMacro(GeneratePolygon, vtkTypeBool);
+  vtkBooleanMacro(GeneratePolygon, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Control whether a polyline is produced. By default, GeneratePolyline is enabled.
    */
-  vtkSetMacro(GeneratePolyline,vtkTypeBool);
-  vtkGetMacro(GeneratePolyline,vtkTypeBool);
-  vtkBooleanMacro(GeneratePolyline,vtkTypeBool);
+  vtkSetMacro(GeneratePolyline, vtkTypeBool);
+  vtkGetMacro(GeneratePolyline, vtkTypeBool);
+  vtkBooleanMacro(GeneratePolyline, vtkTypeBool);
   //@}
 
   //@{
@@ -102,23 +102,23 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
   vtkRegularPolygonSource();
   ~vtkRegularPolygonSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int    NumberOfSides;
+  int NumberOfSides;
   double Center[3];
   double Normal[3];
   double Radius;
-  vtkTypeBool    GeneratePolygon;
-  vtkTypeBool    GeneratePolyline;
-  int    OutputPointsPrecision;
+  vtkTypeBool GeneratePolygon;
+  vtkTypeBool GeneratePolyline;
+  int OutputPointsPrecision;
 
 private:
   vtkRegularPolygonSource(const vtkRegularPolygonSource&) = delete;

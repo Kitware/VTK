@@ -39,7 +39,7 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayExtentsList_h
 #define vtkArrayExtentsList_h
@@ -74,7 +74,8 @@ public:
   /**
    * Creates a collection containing four slices.
    */
-  vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k, const vtkArrayExtents& l);
+  vtkArrayExtentsList(const vtkArrayExtents& i, const vtkArrayExtents& j, const vtkArrayExtents& k,
+    const vtkArrayExtents& l);
 
   /**
    * Returns the number of slices stored in this collection.
@@ -88,7 +89,6 @@ public:
    */
   void SetCount(vtkIdType count);
 
-
   /**
    * Accesses the i-th slice.
    */
@@ -100,9 +100,7 @@ public:
   const vtkArrayExtents& operator[](vtkIdType i) const;
 
 private:
-
   std::vector<vtkArrayExtents> Storage;
-
 };
 
 #endif

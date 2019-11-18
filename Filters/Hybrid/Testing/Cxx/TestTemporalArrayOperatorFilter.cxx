@@ -32,9 +32,8 @@ public:
 protected:
   vtkTemporalRTAnalyticSource() = default;
 
-  int RequestInformation(vtkInformation* request,
-                         vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) override
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     double range[2] = { 0, 5 };
@@ -96,8 +95,8 @@ int TestTemporalArrayOperatorFilter(int, char*[])
 
   operatorFilter->SetFirstTimeStepIndex(3);
   operatorFilter->SetSecondTimeStepIndex(0);
-  operatorFilter->SetInputArrayToProcess(0, 0, 0,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, "timeData");
+  operatorFilter->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "timeData");
   operatorFilter->SetOperator(vtkTemporalArrayOperatorFilter::ADD);
 
   operatorFilter->UpdateInformation();
@@ -105,8 +104,7 @@ int TestTemporalArrayOperatorFilter(int, char*[])
     vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), 2);
   operatorFilter->Update();
 
-  vtkDataSet* diff =
-    vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
+  vtkDataSet* diff = vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
 
   double range[2];
   diff->GetPointData()->GetArray("timeData")->GetRange(range);

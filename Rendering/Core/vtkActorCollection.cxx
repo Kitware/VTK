@@ -19,17 +19,17 @@
 
 vtkStandardNewMacro(vtkActorCollection);
 
-void vtkActorCollection::ApplyProperties(vtkProperty *p)
+void vtkActorCollection::ApplyProperties(vtkProperty* p)
 {
-  vtkActor *actor;
+  vtkActor* actor;
 
-  if ( p == nullptr )
+  if (p == nullptr)
   {
     return;
   }
 
   vtkCollectionSimpleIterator ait;
-  for ( this->InitTraversal(ait); (actor=this->GetNextActor(ait)); )
+  for (this->InitTraversal(ait); (actor = this->GetNextActor(ait));)
   {
     actor->GetProperty()->DeepCopy(p);
   }
@@ -38,5 +38,5 @@ void vtkActorCollection::ApplyProperties(vtkProperty *p)
 //----------------------------------------------------------------------------
 void vtkActorCollection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

@@ -34,7 +34,7 @@ vtkContextPolygon::vtkContextPolygon()
 }
 
 //-----------------------------------------------------------------------------
-vtkContextPolygon::vtkContextPolygon(const vtkContextPolygon &polygon)
+vtkContextPolygon::vtkContextPolygon(const vtkContextPolygon& polygon)
   : d(new vtkContextPolygonPrivate)
 {
   d->points = polygon.d->points;
@@ -47,7 +47,7 @@ vtkContextPolygon::~vtkContextPolygon()
 }
 
 //-----------------------------------------------------------------------------
-void vtkContextPolygon::AddPoint(const vtkVector2f &point)
+void vtkContextPolygon::AddPoint(const vtkVector2f& point)
 {
   d->points.push_back(point);
 }
@@ -77,7 +77,7 @@ void vtkContextPolygon::Clear()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkContextPolygon::Contains(const vtkVector2f &point) const
+bool vtkContextPolygon::Contains(const vtkVector2f& point) const
 {
   float x = point.GetX();
   float y = point.GetY();
@@ -86,19 +86,19 @@ bool vtkContextPolygon::Contains(const vtkVector2f &point) const
   // shooting the ray along the x axis
   bool inside = false;
   float xintersection;
-  for(size_t i = 0; i < d->points.size(); i++)
+  for (size_t i = 0; i < d->points.size(); i++)
   {
-    const vtkVector2f &p1 = d->points[i];
-    const vtkVector2f &p2 = d->points[(i+1) % d->points.size()];
+    const vtkVector2f& p1 = d->points[i];
+    const vtkVector2f& p2 = d->points[(i + 1) % d->points.size()];
 
-    if (y > std::min(p1.GetY(), p2.GetY()) &&
-        y <= std::max(p1.GetY(),p2.GetY()) &&
-        p1.GetY() != p2.GetY())
+    if (y > std::min(p1.GetY(), p2.GetY()) && y <= std::max(p1.GetY(), p2.GetY()) &&
+      p1.GetY() != p2.GetY())
     {
-      if (x <= std::max(p1.GetX(), p2.GetX()) )
+      if (x <= std::max(p1.GetX(), p2.GetX()))
       {
-        xintersection = (y - p1.GetY())*(p2.GetX() - p1.GetX())/(p2.GetY() - p1.GetY()) + p1.GetX();
-        if ( p1.GetX() == p2.GetX() || x <= xintersection)
+        xintersection =
+          (y - p1.GetY()) * (p2.GetX() - p1.GetX()) / (p2.GetY() - p1.GetY()) + p1.GetX();
+        if (p1.GetX() == p2.GetX() || x <= xintersection)
         {
           // each time we intersect we switch if we are in side or not
           inside = !inside;
@@ -111,20 +111,19 @@ bool vtkContextPolygon::Contains(const vtkVector2f &point) const
 }
 
 //-----------------------------------------------------------------------------
-vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D *transform) const
+vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D* transform) const
 {
   vtkContextPolygon transformed;
   transformed.d->points.resize(d->points.size());
-  transform->TransformPoints(reinterpret_cast<float *>(&d->points[0]),
-                             reinterpret_cast<float *>(&transformed.d->points[0]),
-                             static_cast<int>(d->points.size()));
+  transform->TransformPoints(reinterpret_cast<float*>(&d->points[0]),
+    reinterpret_cast<float*>(&transformed.d->points[0]), static_cast<int>(d->points.size()));
   return transformed;
 }
 
 //-----------------------------------------------------------------------------
-vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon &other)
+vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon& other)
 {
-  if(this != &other)
+  if (this != &other)
   {
     d->points = other.d->points;
   }

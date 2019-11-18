@@ -20,7 +20,7 @@
  *
  *
  * The main functionality supported here is the point location inside vtkOverlappingAMR data set.
-*/
+ */
 
 #ifndef vtkAMRInterpolatedVelocityField_h
 #define vtkAMRInterpolatedVelocityField_h
@@ -35,25 +35,23 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkAMRInterpolatedVelocityField
   : public vtkAbstractInterpolatedVelocityField
 {
 public:
-  vtkTypeMacro( vtkAMRInterpolatedVelocityField,
-                vtkAbstractInterpolatedVelocityField );
+  vtkTypeMacro(vtkAMRInterpolatedVelocityField, vtkAbstractInterpolatedVelocityField);
 
-  static vtkAMRInterpolatedVelocityField * New();
+  static vtkAMRInterpolatedVelocityField* New();
 
-  vtkGetMacro(AmrDataSet,vtkOverlappingAMR*);
+  vtkGetMacro(AmrDataSet, vtkOverlappingAMR*);
   void SetAMRData(vtkOverlappingAMR* amr);
 
   bool GetLastDataSetLocation(unsigned int& level, unsigned int& id);
 
   bool SetLastDataSet(int level, int id);
 
-  void SetLastCellId( vtkIdType c, int dataindex ) override;
+  void SetLastCellId(vtkIdType c, int dataindex) override;
 
   /**
    * Set the cell id cached by the last evaluation.
    */
-  void SetLastCellId( vtkIdType c ) override
-    { this->Superclass::SetLastCellId( c ); }
+  void SetLastCellId(vtkIdType c) override { this->Superclass::SetLastCellId(c); }
 
   using Superclass::FunctionValues;
   /**
@@ -67,13 +65,14 @@ public:
    * still valid
    */
 
-  int FunctionValues( double * x, double * f ) override;
+  int FunctionValues(double* x, double* f) override;
 
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Descriptino:
   // Point location routine.
-  static bool FindGrid(double q[3],vtkOverlappingAMR *amrds, unsigned int& level, unsigned int& gridId);
+  static bool FindGrid(
+    double q[3], vtkOverlappingAMR* amrds, unsigned int& level, unsigned int& gridId);
 
 protected:
   vtkOverlappingAMR* AmrDataSet;
@@ -82,13 +81,14 @@ protected:
 
   vtkAMRInterpolatedVelocityField();
   ~vtkAMRInterpolatedVelocityField() override;
-  int FunctionValues( vtkDataSet * ds, double * x, double * f ) override
-    { return this->Superclass::FunctionValues( ds, x, f ); }
+  int FunctionValues(vtkDataSet* ds, double* x, double* f) override
+  {
+    return this->Superclass::FunctionValues(ds, x, f);
+  }
 
 private:
   vtkAMRInterpolatedVelocityField(const vtkAMRInterpolatedVelocityField&) = delete;
-  void operator = ( const vtkAMRInterpolatedVelocityField& ) = delete;
-
+  void operator=(const vtkAMRInterpolatedVelocityField&) = delete;
 };
 
 #endif

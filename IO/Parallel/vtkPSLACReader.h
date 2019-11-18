@@ -30,7 +30,7 @@
  * each process in a parallel job simultaneously attempts to read the piece
  * corresponding to the local process id.
  *
-*/
+ */
 
 #ifndef vtkPSLACReader_h
 #define vtkPSLACReader_h
@@ -44,8 +44,8 @@ class VTKIOPARALLEL_EXPORT vtkPSLACReader : public vtkSLACReader
 {
 public:
   vtkTypeMacro(vtkPSLACReader, vtkSLACReader);
-  static vtkPSLACReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  static vtkPSLACReader* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -55,42 +55,34 @@ public:
    * ProcessRequests of this filter simultaneously.
    */
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  virtual void SetController(vtkMultiProcessController *);
+  virtual void SetController(vtkMultiProcessController*);
   //@}
 
 protected:
   vtkPSLACReader();
   ~vtkPSLACReader() override;
 
-  vtkMultiProcessController *Controller;
+  vtkMultiProcessController* Controller;
 
-  int RequestInformation(vtkInformation *request,
-                                 vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int CheckTetrahedraWinding(int meshFD) override;
-  int ReadConnectivity(int meshFD, vtkMultiBlockDataSet *surfaceOutput,
-                               vtkMultiBlockDataSet *volumeOutput) override;
-  int ReadCoordinates(int meshFD, vtkMultiBlockDataSet *output) override;
-  int ReadMidpointCoordinates(int meshFD, vtkMultiBlockDataSet *output,
-                                      MidpointCoordinateMap &map) override;
-  int ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
-                               MidpointIdMap &map) override;
-  int RestoreMeshCache(vtkMultiBlockDataSet *surfaceOutput,
-                               vtkMultiBlockDataSet *volumeOutput,
-                               vtkMultiBlockDataSet *compositeOutput) override;
-  int ReadFieldData(const int *modeFDArray,
-                            int numModeFDs,
-                            vtkMultiBlockDataSet *output) override;
+  int ReadConnectivity(
+    int meshFD, vtkMultiBlockDataSet* surfaceOutput, vtkMultiBlockDataSet* volumeOutput) override;
+  int ReadCoordinates(int meshFD, vtkMultiBlockDataSet* output) override;
+  int ReadMidpointCoordinates(
+    int meshFD, vtkMultiBlockDataSet* output, MidpointCoordinateMap& map) override;
+  int ReadMidpointData(int meshFD, vtkMultiBlockDataSet* output, MidpointIdMap& map) override;
+  int RestoreMeshCache(vtkMultiBlockDataSet* surfaceOutput, vtkMultiBlockDataSet* volumeOutput,
+    vtkMultiBlockDataSet* compositeOutput) override;
+  int ReadFieldData(const int* modeFDArray, int numModeFDs, vtkMultiBlockDataSet* output) override;
 
-  int ReadTetrahedronInteriorArray(int meshFD,
-                                           vtkIdTypeArray *connectivity) override;
-  int ReadTetrahedronExteriorArray(int meshFD,
-                                           vtkIdTypeArray *connectivity) override;
+  int ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* connectivity) override;
+  int ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* connectivity) override;
 
   int MeshUpToDate() override;
 
@@ -100,7 +92,7 @@ protected:
   vtkSmartPointer<vtkDataArray> ReadPointDataArray(int ncFD, int varId) override;
 
   class vtkInternal;
-  vtkInternal *PInternal;
+  vtkInternal* PInternal;
 
   //@{
   /**
@@ -125,12 +117,15 @@ protected:
   /**
    * The start/end points read by the given process.
    */
-  vtkIdType StartPointRead(int process) {
-    return process*(this->NumberOfGlobalPoints/this->NumberOfPieces + 1);
+  vtkIdType StartPointRead(int process)
+  {
+    return process * (this->NumberOfGlobalPoints / this->NumberOfPieces + 1);
   }
-  vtkIdType EndPointRead(int process) {
-    vtkIdType result = this->StartPointRead(process+1);
-    if (result > this->NumberOfGlobalPoints) result=this->NumberOfGlobalPoints;
+  vtkIdType EndPointRead(int process)
+  {
+    vtkIdType result = this->StartPointRead(process + 1);
+    if (result > this->NumberOfGlobalPoints)
+      result = this->NumberOfGlobalPoints;
     return result;
   }
   //@}
@@ -144,8 +139,8 @@ protected:
   //@}
 
 private:
-  vtkPSLACReader(const vtkPSLACReader &) = delete;
-  void operator=(const vtkPSLACReader &) = delete;
+  vtkPSLACReader(const vtkPSLACReader&) = delete;
+  void operator=(const vtkPSLACReader&) = delete;
 };
 
-#endif //vtkPSLACReader_h
+#endif // vtkPSLACReader_h

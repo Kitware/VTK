@@ -42,7 +42,7 @@
  *
  * @sa
  * vtkDataObject vtkFieldData vtkDataObjectToDataSetFilter
-*/
+ */
 
 #ifndef vtkDataSetToDataObjectFilter_h
 #define vtkDataSetToDataObjectFilter_h
@@ -55,30 +55,30 @@ class vtkDataSet;
 class VTKFILTERSCORE_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectAlgorithm
 {
 public:
-  vtkTypeMacro(vtkDataSetToDataObjectFilter,vtkDataObjectAlgorithm);
+  vtkTypeMacro(vtkDataSetToDataObjectFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate the object to transform all data into a data object.
    */
-  static vtkDataSetToDataObjectFilter *New();
+  static vtkDataSetToDataObjectFilter* New();
 
   //@{
   /**
    * Turn on/off the conversion of dataset geometry to a data object.
    */
-  vtkSetMacro(Geometry,vtkTypeBool);
-  vtkGetMacro(Geometry,vtkTypeBool);
-  vtkBooleanMacro(Geometry,vtkTypeBool);
+  vtkSetMacro(Geometry, vtkTypeBool);
+  vtkGetMacro(Geometry, vtkTypeBool);
+  vtkBooleanMacro(Geometry, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset topology to a data object.
    */
-  vtkSetMacro(Topology,vtkTypeBool);
-  vtkGetMacro(Topology,vtkTypeBool);
-  vtkBooleanMacro(Topology,vtkTypeBool);
+  vtkSetMacro(Topology, vtkTypeBool);
+  vtkGetMacro(Topology, vtkTypeBool);
+  vtkBooleanMacro(Topology, vtkTypeBool);
   //@}
 
   //@{
@@ -86,9 +86,9 @@ public:
    * If LegacyTopology and Topology are both true, print out the legacy topology
    * arrays. Default is true.
    */
-  vtkSetMacro(LegacyTopology,vtkTypeBool);
-  vtkGetMacro(LegacyTopology,vtkTypeBool);
-  vtkBooleanMacro(LegacyTopology,vtkTypeBool);
+  vtkSetMacro(LegacyTopology, vtkTypeBool);
+  vtkGetMacro(LegacyTopology, vtkTypeBool);
+  vtkBooleanMacro(LegacyTopology, vtkTypeBool);
   //@}
 
   //@{
@@ -96,46 +96,45 @@ public:
    * If ModernTopology and Topology are both true, print out the modern topology
    * arrays. Default is true.
    */
-  vtkSetMacro(ModernTopology,vtkTypeBool);
-  vtkGetMacro(ModernTopology,vtkTypeBool);
-  vtkBooleanMacro(ModernTopology,vtkTypeBool);
+  vtkSetMacro(ModernTopology, vtkTypeBool);
+  vtkGetMacro(ModernTopology, vtkTypeBool);
+  vtkBooleanMacro(ModernTopology, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset field data to a data object.
    */
-  vtkSetMacro(FieldData,vtkTypeBool);
-  vtkGetMacro(FieldData,vtkTypeBool);
-  vtkBooleanMacro(FieldData,vtkTypeBool);
+  vtkSetMacro(FieldData, vtkTypeBool);
+  vtkGetMacro(FieldData, vtkTypeBool);
+  vtkBooleanMacro(FieldData, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset point data to a data object.
    */
-  vtkSetMacro(PointData,vtkTypeBool);
-  vtkGetMacro(PointData,vtkTypeBool);
-  vtkBooleanMacro(PointData,vtkTypeBool);
+  vtkSetMacro(PointData, vtkTypeBool);
+  vtkGetMacro(PointData, vtkTypeBool);
+  vtkBooleanMacro(PointData, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset cell data to a data object.
    */
-  vtkSetMacro(CellData,vtkTypeBool);
-  vtkGetMacro(CellData,vtkTypeBool);
-  vtkBooleanMacro(CellData,vtkTypeBool);
+  vtkSetMacro(CellData, vtkTypeBool);
+  vtkGetMacro(CellData, vtkTypeBool);
+  vtkBooleanMacro(CellData, vtkTypeBool);
   //@}
 
 protected:
   vtkDataSetToDataObjectFilter();
   ~vtkDataSetToDataObjectFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override; //generate output data
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**,
+    vtkInformationVector*) override; // generate output data
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 

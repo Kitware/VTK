@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkGenericCellIterator.h"
 
-
 //----------------------------------------------------------------------------
 vtkGenericCellIterator::vtkGenericCellIterator() = default;
 
@@ -24,7 +23,5 @@ vtkGenericCellIterator::~vtkGenericCellIterator() = default;
 //----------------------------------------------------------------------------
 void vtkGenericCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os, indent);
 }
-

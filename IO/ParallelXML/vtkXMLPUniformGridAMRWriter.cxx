@@ -21,10 +21,7 @@
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPUniformGridAMRWriter);
 
-vtkCxxSetObjectMacro(vtkXMLPUniformGridAMRWriter,
-                     Controller,
-                     vtkMultiProcessController);
-
+vtkCxxSetObjectMacro(vtkXMLPUniformGridAMRWriter, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkXMLPUniformGridAMRWriter::vtkXMLPUniformGridAMRWriter()
@@ -62,9 +59,9 @@ void vtkXMLPUniformGridAMRWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkXMLPUniformGridAMRWriter::SetWriteMetaFile(int flag)
 {
   this->Modified();
-  if(this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0)
+  if (this->Controller == nullptr || this->Controller->GetLocalProcessId() == 0)
   {
-    if(this->WriteMetaFile != flag)
+    if (this->WriteMetaFile != flag)
     {
       this->WriteMetaFile = flag;
     }
@@ -76,12 +73,11 @@ void vtkXMLPUniformGridAMRWriter::SetWriteMetaFile(int flag)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPUniformGridAMRWriter::FillDataTypes(
-  vtkCompositeDataSet* cdInput)
+void vtkXMLPUniformGridAMRWriter::FillDataTypes(vtkCompositeDataSet* cdInput)
 {
   this->Superclass::FillDataTypes(cdInput);
 
-  if (!this->Controller )
+  if (!this->Controller)
   {
     return;
   }
@@ -100,23 +96,20 @@ void vtkXMLPUniformGridAMRWriter::FillDataTypes(
     // Collect information about data-types from all satellites and the
     // "combine" the information. Only the root-node needs to have the
     // combined information, since only the root-node writes the XML.
-    int *gathered_data_types = new int [numLeafNodes*numProcs];
-    for (unsigned int cc=0; cc < numProcs*numLeafNodes; cc++)
+    int* gathered_data_types = new int[numLeafNodes * numProcs];
+    for (unsigned int cc = 0; cc < numProcs * numLeafNodes; cc++)
     {
       gathered_data_types[cc] = -1;
     }
-    this->Controller->Gather(myDataTypes,
-      gathered_data_types, numLeafNodes, 0);
+    this->Controller->Gather(myDataTypes, gathered_data_types, numLeafNodes, 0);
 
-    for (int procNo=1; procNo<numProcs; procNo++)
+    for (int procNo = 1; procNo < numProcs; procNo++)
     {
-      for (unsigned int pieceNo=0; pieceNo<numLeafNodes; pieceNo++)
+      for (unsigned int pieceNo = 0; pieceNo < numLeafNodes; pieceNo++)
       {
-        if (myDataTypes[pieceNo] == -1 &&
-          gathered_data_types[procNo*numLeafNodes+pieceNo] >= 0)
+        if (myDataTypes[pieceNo] == -1 && gathered_data_types[procNo * numLeafNodes + pieceNo] >= 0)
         {
-          myDataTypes[pieceNo] =
-            gathered_data_types[procNo*numLeafNodes + pieceNo];
+          myDataTypes[pieceNo] = gathered_data_types[procNo * numLeafNodes + pieceNo];
         }
       }
     }

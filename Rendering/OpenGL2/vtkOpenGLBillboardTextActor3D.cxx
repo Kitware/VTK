@@ -21,19 +21,18 @@
 
 #include <string>
 
-vtkStandardNewMacro(vtkOpenGLBillboardTextActor3D)
+vtkStandardNewMacro(vtkOpenGLBillboardTextActor3D);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLBillboardTextActor3D::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenGLBillboardTextActor3D::
-RenderTranslucentPolygonalGeometry(vtkViewport *vp)
+int vtkOpenGLBillboardTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
 {
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  vtkOpenGLGL2PSHelper* gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   if (gl2ps)
   {
     switch (gl2ps->GetActiveState())
@@ -57,23 +56,21 @@ vtkOpenGLBillboardTextActor3D::vtkOpenGLBillboardTextActor3D() = default;
 vtkOpenGLBillboardTextActor3D::~vtkOpenGLBillboardTextActor3D() = default;
 
 //------------------------------------------------------------------------------
-int vtkOpenGLBillboardTextActor3D::RenderGL2PS(vtkViewport *viewport,
-                                               vtkOpenGLGL2PSHelper *gl2ps)
+int vtkOpenGLBillboardTextActor3D::RenderGL2PS(vtkViewport* viewport, vtkOpenGLGL2PSHelper* gl2ps)
 {
   if (!this->InputIsValid() || !this->IsValid())
   {
     return 0;
   }
 
-  vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
   if (!ren)
   {
     vtkWarningMacro("Viewport is not a renderer?");
     return 0;
   }
 
-  gl2ps->DrawString(this->Input, this->TextProperty, this->AnchorDC,
-                    this->AnchorDC[2] + 1e-6, ren);
+  gl2ps->DrawString(this->Input, this->TextProperty, this->AnchorDC, this->AnchorDC[2] + 1e-6, ren);
 
   return 1;
 }

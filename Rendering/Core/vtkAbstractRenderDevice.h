@@ -23,7 +23,7 @@ class vtkRecti;
 class VTKRENDERINGCORE_EXPORT vtkAbstractRenderDevice : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractRenderDevice, vtkObject)
+  vtkTypeMacro(vtkAbstractRenderDevice, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -46,8 +46,7 @@ public:
    * @param geometry The geometry in screen coordinates for the window.
    * @return True on success, false on failure.
    */
-  virtual bool CreateNewWindow(const vtkRecti &geometry,
-                               const std::string &name) = 0;
+  virtual bool CreateNewWindow(const vtkRecti& geometry, const std::string& name) = 0;
 
   /**
    * @brief Make the context current so that it can be used by OpenGL. This is

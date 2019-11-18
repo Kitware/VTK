@@ -17,7 +17,7 @@
  * @brief   X3D Exporter XML Writer
  *
  * vtkX3DExporterXMLWriter
-*/
+ */
 
 #ifndef vtkX3DExporterXMLWriter_h
 #define vtkX3DExporterXMLWriter_h
@@ -32,7 +32,7 @@ class VTKIOEXPORT_EXPORT vtkX3DExporterXMLWriter : public vtkX3DExporterWriter
 {
 
 public:
-  static vtkX3DExporterXMLWriter *New();
+  static vtkX3DExporterXMLWriter* New();
   vtkTypeMacro(vtkX3DExporterXMLWriter, vtkX3DExporterWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -73,20 +73,17 @@ protected:
   ~vtkX3DExporterXMLWriter() override;
 
 private:
-
-  const char* GetNewline() { return "\n"; };
+  const char* GetNewline() { return "\n"; }
   void AddDepth();
   void SubDepth();
 
   std::string ActTab;
   int Depth;
-  ostream *OutputStream;
+  ostream* OutputStream;
   vtkX3DExporterXMLNodeInfoStack* InfoStack;
 
   vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&) = delete;
   void operator=(const vtkX3DExporterXMLWriter&) = delete;
-
 };
 
 #endif
-

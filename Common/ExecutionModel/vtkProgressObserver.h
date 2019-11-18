@@ -25,7 +25,7 @@
  * handle this situation by routing progress from each thread to a
  * thread local vtkProgressObserver, which will invoke events separately
  * for each thread.
-*/
+ */
 
 #ifndef vtkProgressObserver_h
 #define vtkProgressObserver_h
@@ -36,8 +36,8 @@
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkProgressObserver : public vtkObject
 {
 public:
-  static vtkProgressObserver *New();
-  vtkTypeMacro(vtkProgressObserver,vtkObject);
+  static vtkProgressObserver* New();
+  vtkTypeMacro(vtkProgressObserver, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

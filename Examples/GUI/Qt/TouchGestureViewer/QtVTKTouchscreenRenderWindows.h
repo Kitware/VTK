@@ -15,13 +15,11 @@ class QtVTKTouchscreenRenderWindows : public QMainWindow
 {
   Q_OBJECT
 public:
-
   // Constructor/Destructor
   QtVTKTouchscreenRenderWindows(int argc, char* argv[]);
   ~QtVTKTouchscreenRenderWindows() override {}
 
 private:
-
   // Designer form
   Ui_QtVTKTouchscreenRenderWindows* ui;
 };

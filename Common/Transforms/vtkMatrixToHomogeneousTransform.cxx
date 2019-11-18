@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
-vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform,Input,vtkMatrix4x4);
+vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform, Input, vtkMatrix4x4);
 
 //----------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::vtkMatrixToHomogeneousTransform()
@@ -68,11 +68,10 @@ void vtkMatrixToHomogeneousTransform::InternalUpdate()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
-                                                vtkAbstractTransform *gtrans)
+void vtkMatrixToHomogeneousTransform::InternalDeepCopy(vtkAbstractTransform* gtrans)
 {
-  vtkMatrixToHomogeneousTransform *transform =
-    static_cast<vtkMatrixToHomogeneousTransform *>(gtrans);
+  vtkMatrixToHomogeneousTransform* transform =
+    static_cast<vtkMatrixToHomogeneousTransform*>(gtrans);
 
   this->SetInput(transform->Input);
 
@@ -83,7 +82,7 @@ void vtkMatrixToHomogeneousTransform::InternalDeepCopy(
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractTransform *vtkMatrixToHomogeneousTransform::MakeTransform()
+vtkAbstractTransform* vtkMatrixToHomogeneousTransform::MakeTransform()
 {
   return vtkMatrixToHomogeneousTransform::New();
 }

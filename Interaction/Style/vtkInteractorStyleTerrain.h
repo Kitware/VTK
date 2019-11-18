@@ -44,7 +44,7 @@
  *
  * @sa
  * vtkInteractorObserver vtkInteractorStyle vtk3DWidget
-*/
+ */
 
 #ifndef vtkInteractorStyleTerrain_h
 #define vtkInteractorStyleTerrain_h
@@ -62,9 +62,9 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkInteractorStyleTerrain *New();
+  static vtkInteractorStyleTerrain* New();
 
-  vtkTypeMacro(vtkInteractorStyleTerrain,vtkInteractorStyle);
+  vtkTypeMacro(vtkInteractorStyleTerrain, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -96,9 +96,9 @@ public:
   /**
    * Turn on/off the latitude/longitude lines.
    */
-  vtkSetMacro(LatLongLines,vtkTypeBool);
-  vtkGetMacro(LatLongLines,vtkTypeBool);
-  vtkBooleanMacro(LatLongLines,vtkTypeBool);
+  vtkSetMacro(LatLongLines, vtkTypeBool);
+  vtkGetMacro(LatLongLines, vtkTypeBool);
+  vtkBooleanMacro(LatLongLines, vtkTypeBool);
   //@}
 
 protected:
@@ -108,10 +108,10 @@ protected:
   // Internal helper attributes
   vtkTypeBool LatLongLines;
 
-  vtkSphereSource *LatLongSphere;
-  vtkPolyDataMapper *LatLongMapper;
-  vtkActor *LatLongActor;
-  vtkExtractEdges *LatLongExtractEdges;
+  vtkSphereSource* LatLongSphere;
+  vtkPolyDataMapper* LatLongMapper;
+  vtkActor* LatLongActor;
+  vtkExtractEdges* LatLongExtractEdges;
 
   void SelectRepresentation();
   void CreateLatLong();
@@ -121,8 +121,6 @@ protected:
 private:
   vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&) = delete;
   void operator=(const vtkInteractorStyleTerrain&) = delete;
-
 };
 
 #endif
-

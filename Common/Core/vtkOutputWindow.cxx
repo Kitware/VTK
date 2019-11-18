@@ -14,10 +14,10 @@
 =========================================================================*/
 #include "vtkOutputWindow.h"
 #include "vtkToolkits.h"
-#if defined( _WIN32 ) && !defined( VTK_USE_X )
+#if defined(_WIN32) && !defined(VTK_USE_X)
 #include "vtkWin32OutputWindow.h"
 #endif
-#if defined (ANDROID)
+#if defined(ANDROID)
 #include "vtkAndroidOutputWindow.h"
 #endif
 
@@ -111,8 +111,8 @@ void vtkOutputWindowDisplayDebugText(const char* message)
   }
 }
 
-void vtkOutputWindowDisplayErrorText(const char* fname,
-  int lineno, const char* message, vtkObject* sourceObj)
+void vtkOutputWindowDisplayErrorText(
+  const char* fname, int lineno, const char* message, vtkObject* sourceObj)
 {
   vtkLogger::Log(vtkLogger::VERBOSITY_ERROR, fname, lineno, message);
 
@@ -129,8 +129,8 @@ void vtkOutputWindowDisplayErrorText(const char* fname,
   }
 }
 
-void vtkOutputWindowDisplayWarningText(const char* fname,
-  int lineno, const char* message, vtkObject* sourceObj)
+void vtkOutputWindowDisplayWarningText(
+  const char* fname, int lineno, const char* message, vtkObject* sourceObj)
 {
   vtkLogger::Log(vtkLogger::VERBOSITY_WARNING, fname, lineno, message);
 
@@ -160,8 +160,8 @@ void vtkOutputWindowDisplayGenericWarningText(const char* fname, int lineno, con
   }
 }
 
-void vtkOutputWindowDisplayDebugText(const char* fname,
-  int lineno, const char* message, vtkObject* vtkNotUsed(sourceObj))
+void vtkOutputWindowDisplayDebugText(
+  const char* fname, int lineno, const char* message, vtkObject* vtkNotUsed(sourceObj))
 {
   vtkLogger::Log(vtkLogger::VERBOSITY_INFO, fname, lineno, message);
 
@@ -203,10 +203,8 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "vtkOutputWindow Single instance = "
-     << (void*)vtkOutputWindow::Instance << endl;
-  os << indent << "Prompt User: "
-     << (this->PromptUser ? "On\n" : "Off\n");
+  os << indent << "vtkOutputWindow Single instance = " << (void*)vtkOutputWindow::Instance << endl;
+  os << indent << "Prompt User: " << (this->PromptUser ? "On\n" : "Off\n");
   os << indent << "DisplayMode: ";
   switch (this->DisplayMode)
   {
@@ -329,17 +327,17 @@ void vtkOutputWindow::DisplayDebugText(const char* txt)
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
-  if(!vtkOutputWindow::Instance)
+  if (!vtkOutputWindow::Instance)
   {
     // Try the factory first
-    vtkOutputWindow::Instance = (vtkOutputWindow*)
-      vtkObjectFactory::CreateInstance("vtkOutputWindow");
+    vtkOutputWindow::Instance =
+      (vtkOutputWindow*)vtkObjectFactory::CreateInstance("vtkOutputWindow");
     // if the factory did not provide one, then create it here
-    if(!vtkOutputWindow::Instance)
+    if (!vtkOutputWindow::Instance)
     {
-#if defined( _WIN32 ) && !defined( VTK_USE_X )
+#if defined(_WIN32) && !defined(VTK_USE_X)
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
-#elif defined( ANDROID )
+#elif defined(ANDROID)
       vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
 #else
       vtkOutputWindow::Instance = vtkOutputWindow::New();
@@ -352,7 +350,7 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
-  if (vtkOutputWindow::Instance==instance)
+  if (vtkOutputWindow::Instance == instance)
   {
     return;
   }

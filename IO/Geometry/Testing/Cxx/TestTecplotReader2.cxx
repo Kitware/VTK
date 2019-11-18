@@ -51,7 +51,8 @@ public:
     ErrorMessage.clear();
   }
 
-  static void OnError(vtkObject* vtkNotUsed(caller), unsigned long int vtkNotUsed(eventId), void* vtkNotUsed(clientData), void* callData)
+  static void OnError(vtkObject* vtkNotUsed(caller), unsigned long int vtkNotUsed(eventId),
+    void* vtkNotUsed(clientData), void* callData)
   {
     HasError = true;
     char* pString = (char*)callData;
@@ -68,7 +69,7 @@ public:
 bool vtkErrorObserver::HasError = false;
 string vtkErrorObserver::ErrorMessage = string();
 
-int TestTecplotReader2( int argc, char *argv[] )
+int TestTecplotReader2(int argc, char* argv[])
 {
   char* dataRoot = vtkTestUtilities::GetDataRoot(argc, argv);
   string tecplotDir = string(dataRoot) + "/Data/TecPlot/";

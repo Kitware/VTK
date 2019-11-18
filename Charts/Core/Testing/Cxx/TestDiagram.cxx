@@ -34,14 +34,14 @@
 class APIDiagram : public vtkContextItem
 {
 public:
-  static APIDiagram *New();
+  static APIDiagram* New();
   vtkTypeMacro(APIDiagram, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 };
 
 //----------------------------------------------------------------------------
-int TestDiagram(int, char * [])
+int TestDiagram(int, char*[])
 {
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
   vtkNew<vtkContextActor> actor;
@@ -65,7 +65,7 @@ int TestDiagram(int, char * [])
 // Make our new derived class to draw a diagram
 vtkStandardNewMacro(APIDiagram);
 // This function draws our API diagram
-bool APIDiagram::Paint(vtkContext2D *painter)
+bool APIDiagram::Paint(vtkContext2D* painter)
 {
   // Drawing a hard wired diagram 800x600 as a demonstration of the 2D API
   painter->GetTextProp()->SetVerticalJustificationToCentered();

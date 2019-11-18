@@ -30,29 +30,28 @@ class vtkExtentTranslator;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkMinimalStandardRandomSequence;
 
-class VTKFILTERSSOURCES_EXPORT vtkRandomHyperTreeGridSource
-    : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkRandomHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
 {
 public:
   static vtkRandomHyperTreeGridSource* New();
-  vtkTypeMacro(vtkRandomHyperTreeGridSource, vtkHyperTreeGridAlgorithm)
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkRandomHyperTreeGridSource, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The Dimensions of the output vtkHyperTreeGrid.
    * Default is 5x5x2.
    * @{
    */
-  vtkGetVector3Macro(Dimensions, unsigned int)
-  vtkSetVector3Macro(Dimensions, unsigned int)
+  vtkGetVector3Macro(Dimensions, unsigned int);
+  vtkSetVector3Macro(Dimensions, unsigned int);
   /**@}*/
 
   /**
    * The bounds of the output vtkHyperTreeGrid.
    * The default is {-10, 10, -10, 10, -10, 10}.
    */
-  vtkGetVector6Macro(OutputBounds, double)
-  vtkSetVector6Macro(OutputBounds, double)
+  vtkGetVector6Macro(OutputBounds, double);
+  vtkSetVector6Macro(OutputBounds, double);
 
   /**
    * A seed for the random number generator used to construct the output
@@ -60,8 +59,8 @@ public:
    * The default is 0.
    * @{
    */
-  vtkGetMacro(Seed, vtkTypeUInt32)
-  vtkSetMacro(Seed, vtkTypeUInt32)
+  vtkGetMacro(Seed, vtkTypeUInt32);
+  vtkSetMacro(Seed, vtkTypeUInt32);
   /**@}*/
 
   /**
@@ -69,8 +68,8 @@ public:
    * The default is 5.
    * @{
    */
-  vtkGetMacro(MaxDepth, vtkIdType)
-  vtkSetClampMacro(MaxDepth, vtkIdType, 1, VTK_ID_MAX)
+  vtkGetMacro(MaxDepth, vtkIdType);
+  vtkSetClampMacro(MaxDepth, vtkIdType, 1, VTK_ID_MAX);
   /**@}*/
 
   /**
@@ -78,28 +77,26 @@ public:
    * Valid range is [0., 1.]. The default is 0.5.
    * @{
    */
-  vtkGetMacro(SplitFraction, double)
-  vtkSetClampMacro(SplitFraction, double, 0., 1.)
+  vtkGetMacro(SplitFraction, double);
+  vtkSetClampMacro(SplitFraction, double, 0., 1.);
   /**@}*/
 
 protected:
   vtkRandomHyperTreeGridSource();
   ~vtkRandomHyperTreeGridSource() override;
 
-  int RequestInformation(vtkInformation *req,
-                         vtkInformationVector **inInfo,
-                         vtkInformationVector *outInfo) override;
+  int RequestInformation(
+    vtkInformation* req, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
-  int RequestData(vtkInformation *req,
-                  vtkInformationVector **inInfo,
-                  vtkInformationVector *outInfo) override;
+  int RequestData(
+    vtkInformation* req, vtkInformationVector** inInfo, vtkInformationVector* outInfo) override;
 
   // We just do the work in RequestData.
-  int ProcessTrees(vtkHyperTreeGrid *, vtkDataObject *) final { return 1; }
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) final { return 1; }
 
-  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
-  void SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor *cursor, vtkIdType treeId);
+  void SubdivideLeaves(vtkHyperTreeGridNonOrientedCursor* cursor, vtkIdType treeId);
 
   bool ShouldRefine(vtkIdType level);
 
@@ -115,7 +112,7 @@ private:
 
   vtkNew<vtkMinimalStandardRandomSequence> RNG;
   vtkNew<vtkExtentTranslator> ExtentTranslator;
-  vtkDoubleArray *Levels;
+  vtkDoubleArray* Levels;
 };
 
 #endif // vtkRandomHyperTreeGridSource_h

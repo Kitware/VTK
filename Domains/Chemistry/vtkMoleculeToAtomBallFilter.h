@@ -29,7 +29,7 @@
  *
  * @sa
  * vtkMoleculeMapper vtkMoleculeToBondStickFilter
-*/
+ */
 
 #ifndef vtkMoleculeToAtomBallFilter_h
 #define vtkMoleculeToAtomBallFilter_h
@@ -39,16 +39,16 @@
 
 class vtkMolecule;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter
-  : public vtkMoleculeToPolyDataFilter
+class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToAtomBallFilter : public vtkMoleculeToPolyDataFilter
 {
- public:
-  vtkTypeMacro(vtkMoleculeToAtomBallFilter,vtkMoleculeToPolyDataFilter);
+public:
+  vtkTypeMacro(vtkMoleculeToAtomBallFilter, vtkMoleculeToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkMoleculeToAtomBallFilter *New();
+  static vtkMoleculeToAtomBallFilter* New();
 
-  enum {
+  enum
+  {
     CovalentRadius = 0,
     VDWRadius,
     UnitRadius
@@ -67,8 +67,7 @@ protected:
   vtkMoleculeToAtomBallFilter();
   ~vtkMoleculeToAtomBallFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int Resolution;
   double RadiusScale;

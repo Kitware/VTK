@@ -872,11 +872,11 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
       normal_polys->InitTraversal();
 
       vtkIdType n_pts;
-      const vtkIdType *pts;
+      const vtkIdType* pts;
       vtkIdType n_tcoord_pts;
-      const vtkIdType *tcoord_pts;
+      const vtkIdType* tcoord_pts;
       vtkIdType n_normal_pts;
-      const vtkIdType *normal_pts;
+      const vtkIdType* normal_pts;
 
       vtkNew<vtkIdList> tmpCell;
 
@@ -931,8 +931,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
             }
             // copy the vertex into the new structure and update
             // the vertex index in the polys structure (pts is a pointer into it)
-            tmpCell->SetId(pointi,
-                           new_points->InsertNextPoint(points->GetPoint(pts[pointi])));
+            tmpCell->SetId(pointi, new_points->InsertNextPoint(points->GetPoint(pts[pointi])));
           }
           polys->ReplaceCellAtId(celli, tmpCell);
           // copy this poly (pointing at the new points) into the new polys list

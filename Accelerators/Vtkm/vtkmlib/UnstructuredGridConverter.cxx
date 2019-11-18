@@ -38,7 +38,8 @@
 #include <vtkm/cont/DataSetBuilderUniform.h>
 #include <vtkm/cont/Field.h>
 
-namespace tovtkm {
+namespace tovtkm
+{
 
 //------------------------------------------------------------------------------
 // convert an unstructured grid type
@@ -58,16 +59,13 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
   if (input->IsHomogeneous())
   {
     int cellType = input->GetCellType(0); // get the celltype
-    vtkm::cont::DynamicCellSet cells =
-        ConvertSingleType(input->GetCells(), cellType, numPoints);
+    vtkm::cont::DynamicCellSet cells = ConvertSingleType(input->GetCells(), cellType, numPoints);
     dataset.SetCellSet(cells);
   }
   else
   {
     vtkm::cont::DynamicCellSet cells =
-        Convert(input->GetCellTypesArray(),
-                input->GetCells(),
-                numPoints);
+      Convert(input->GetCellTypesArray(), input->GetCells(), numPoints);
     dataset.SetCellSet(cells);
   }
 
@@ -78,11 +76,11 @@ vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
 
 } // namespace tovtkm
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 
 //------------------------------------------------------------------------------
-bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output,
-             vtkDataSet* input)
+bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
   // If this fails, it's likely a missing entry in tovtkm::PointListOutVTK:
@@ -99,9 +97,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output,
   vtkNew<vtkUnsignedCharArray> types;
   vtkm::cont::DynamicCellSet outCells = voutput.GetCellSet();
 
-  const bool cellsConverted = fromvtkm::Convert(outCells,
-                                                cells.GetPointer(),
-                                                types.GetPointer());
+  const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), types.GetPointer());
 
   if (!cellsConverted)
   {
@@ -116,17 +112,14 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output,
   const bool arraysConverted = fromvtkm::ConvertArrays(voutput, output);
 
   // Pass information about attributes.
-  for (int attributeType = 0;
-       attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; attributeType++)
   {
-    vtkDataArray* attribute =
-        input->GetPointData()->GetAttribute(attributeType);
+    vtkDataArray* attribute = input->GetPointData()->GetAttribute(attributeType);
     if (attribute == nullptr)
     {
       continue;
     }
-    output->GetPointData()->SetActiveAttribute(attribute->GetName(),
-                                               attributeType);
+    output->GetPointData()->SetActiveAttribute(attribute->GetName(), attributeType);
   }
 
   return arraysConverted;

@@ -23,7 +23,7 @@
  * A vertex selection preserves the edges that connect selected vertices.
  * An edge selection perserves the vertices that are adjacent to at least one
  * selected edges.
-*/
+ */
 
 #ifndef vtkExtractSelectedTree_h
 #define vtkExtractSelectedTree_h
@@ -39,7 +39,7 @@ class VTKINFOVISCORE_EXPORT vtkExtractSelectedTree : public vtkTreeAlgorithm
 {
 public:
   static vtkExtractSelectedTree* New();
-  vtkTypeMacro(vtkExtractSelectedTree,vtkTreeAlgorithm);
+  vtkTypeMacro(vtkExtractSelectedTree, vtkTreeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -48,17 +48,14 @@ public:
   void SetSelectionConnection(vtkAlgorithmOutput* in);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
 protected:
   vtkExtractSelectedTree();
   ~vtkExtractSelectedTree() override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int BuildTree(vtkTree * inputTree, vtkIdTypeArray * list, vtkMutableDirectedGraph * builder);
-
+  int BuildTree(vtkTree* inputTree, vtkIdTypeArray* list, vtkMutableDirectedGraph* builder);
 
 private:
   vtkExtractSelectedTree(const vtkExtractSelectedTree&) = delete;

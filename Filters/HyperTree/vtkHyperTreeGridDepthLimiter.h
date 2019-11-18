@@ -36,7 +36,7 @@
  * by DepthLimiter directly manadged by HyperTreeGrid and (super)cursors.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridDepthLimiter_h
 #define vtkHyperTreeGridDepthLimiter_h

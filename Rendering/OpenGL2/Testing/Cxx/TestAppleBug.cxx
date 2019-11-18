@@ -116,7 +116,8 @@ int TestAppleBug(int argc, char* argv[])
     int offRetVal = vtkRegressionTestImage(renderWindow);
     if (offRetVal == vtkRegressionTester::PASSED)
     {
-      cerr << "FIX!!!! This system is using the AppleBug (rdar://20747550) code but does not need it\n\n";
+      cerr << "FIX!!!! This system is using the AppleBug (rdar://20747550) code but does not need "
+              "it\n\n";
       return !vtkRegressionTester::FAILED;
     }
   }
@@ -130,7 +131,8 @@ int TestAppleBug(int argc, char* argv[])
       retVal = vtkRegressionTestImage(renderWindow);
       if (retVal == vtkRegressionTester::PASSED)
       {
-        cerr << "FIX!!! This system needs the AppleBug (rdar://20747550) code but doesn't have it\n\n";
+        cerr
+          << "FIX!!! This system needs the AppleBug (rdar://20747550) code but doesn't have it\n\n";
         return !vtkRegressionTester::FAILED;
       }
     }

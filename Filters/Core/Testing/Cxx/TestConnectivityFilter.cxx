@@ -23,10 +23,10 @@
 
 namespace
 {
-void InitializeUnstructuredGrid(vtkUnstructuredGrid *unstructuredGrid, int dataType)
+void InitializeUnstructuredGrid(vtkUnstructuredGrid* unstructuredGrid, int dataType)
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -34,15 +34,15 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid *unstructuredGrid, int dataT
   cells->InsertNextCell(4);
   vtkSmartPointer<vtkFloatArray> scalars = vtkSmartPointer<vtkFloatArray>::New();
 
-  if(dataType == VTK_DOUBLE)
+  if (dataType == VTK_DOUBLE)
   {
     points->SetDataType(VTK_DOUBLE);
-    for(unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
       randomSequence->Next();
       scalars->InsertNextValue(randomSequence->GetValue());
       double point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = randomSequence->GetValue();
@@ -53,12 +53,12 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid *unstructuredGrid, int dataT
   else
   {
     points->SetDataType(VTK_FLOAT);
-    for(unsigned int i = 0; i < 4; ++i)
+    for (unsigned int i = 0; i < 4; ++i)
     {
       randomSequence->Next();
       scalars->InsertNextValue(randomSequence->GetValue());
       float point[3];
-      for(unsigned int j = 0; j < 3; ++j)
+      for (unsigned int j = 0; j < 3; ++j)
       {
         randomSequence->Next();
         point[j] = static_cast<float>(randomSequence->GetValue());
@@ -77,12 +77,12 @@ void InitializeUnstructuredGrid(vtkUnstructuredGrid *unstructuredGrid, int dataT
 
 int FilterUnstructuredGridConnectivity(int dataType, int outputPointsPrecision)
 {
-  vtkSmartPointer<vtkUnstructuredGrid> inputUnstructuredGrid
-    = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  vtkSmartPointer<vtkUnstructuredGrid> inputUnstructuredGrid =
+    vtkSmartPointer<vtkUnstructuredGrid>::New();
   InitializeUnstructuredGrid(inputUnstructuredGrid, dataType);
 
-  vtkSmartPointer<vtkConnectivityFilter> connectivityFilter
-    = vtkSmartPointer<vtkConnectivityFilter>::New();
+  vtkSmartPointer<vtkConnectivityFilter> connectivityFilter =
+    vtkSmartPointer<vtkConnectivityFilter>::New();
   connectivityFilter->SetOutputPointsPrecision(outputPointsPrecision);
   connectivityFilter->ScalarConnectivityOn();
   connectivityFilter->SetScalarRange(0.25, 0.75);
@@ -97,46 +97,46 @@ int FilterUnstructuredGridConnectivity(int dataType, int outputPointsPrecision)
 }
 }
 
-int TestConnectivityFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestConnectivityFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::DEFAULT_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::SINGLE_PRECISION);
 
-  if(dataType != VTK_FLOAT)
+  if (dataType != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_FLOAT, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }
 
   dataType = FilterUnstructuredGridConnectivity(VTK_DOUBLE, vtkAlgorithm::DOUBLE_PRECISION);
 
-  if(dataType != VTK_DOUBLE)
+  if (dataType != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

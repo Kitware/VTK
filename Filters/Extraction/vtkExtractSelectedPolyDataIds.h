@@ -20,7 +20,7 @@
  * vtkPolyData.
  * @sa
  * vtkSelection
-*/
+ */
 
 #ifndef vtkExtractSelectedPolyDataIds_h
 #define vtkExtractSelectedPolyDataIds_h
@@ -33,9 +33,9 @@ class vtkSelection;
 class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedPolyDataIds : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeMacro(vtkExtractSelectedPolyDataIds,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkExtractSelectedPolyDataIds, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkExtractSelectedPolyDataIds *New();
+  static vtkExtractSelectedPolyDataIds* New();
 
 protected:
   vtkExtractSelectedPolyDataIds();
@@ -44,9 +44,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkExtractSelectedPolyDataIds(const vtkExtractSelectedPolyDataIds&) = delete;

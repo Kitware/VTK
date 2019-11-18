@@ -46,7 +46,7 @@
  *
  * @sa
  * vtkRenderWindowInteractor3D
-*/
+ */
 
 #ifndef vtkInteractorStyle3D_h
 #define vtkInteractorStyle3D_h
@@ -66,17 +66,17 @@ class vtkTransform;
 class VTKRENDERINGCORE_EXPORT vtkInteractorStyle3D : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyle3D *New();
-  vtkTypeMacro(vtkInteractorStyle3D,vtkInteractorStyle);
+  static vtkInteractorStyle3D* New();
+  vtkTypeMacro(vtkInteractorStyle3D, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This method handles updating the prop based on changes in the devices
   // pose. We use rotate as the state to mean adjusting-the-actor-pose
-  virtual void PositionProp(vtkEventData *);
+  virtual void PositionProp(vtkEventData*);
 
   // This method handles updating the camera based on changes in the devices
   // pose. We use Dolly as the state to mean moving the camera forward
-  virtual void Dolly3D(vtkEventData *);
+  virtual void Dolly3D(vtkEventData*);
 
   //@{
   /**
@@ -93,15 +93,12 @@ public:
    * In VR when we set it to a new value we also adjust the
    * HMD position to maintain the same relative position.
    */
-  virtual void SetScale(vtkCamera *cam, double newScale);
+  virtual void SetScale(vtkCamera* cam, double newScale);
 
   /**
-  * Get the interaction picker
-  */
-  vtkPropPicker* GetInteractionPicker()
-  {
-    return this->InteractionPicker;
-  };
+   * Get the interaction picker
+   */
+  vtkPropPicker* GetInteractionPicker() { return this->InteractionPicker; };
 
 protected:
   vtkInteractorStyle3D();
@@ -109,26 +106,23 @@ protected:
 
   void FindPickedActor(double pos[3], double orient[4]);
 
-  void Prop3DTransform(vtkProp3D *prop3D,
-                       double *boxCenter,
-                       int NumRotation,
-                       double **rotate,
-                       double *scale);
+  void Prop3DTransform(
+    vtkProp3D* prop3D, double* boxCenter, int NumRotation, double** rotate, double* scale);
 
-  vtkPropPicker *InteractionPicker;
-  vtkProp3D *InteractionProp;
-  vtkMatrix3x3 *TempMatrix3;
-  vtkMatrix4x4 *TempMatrix4;
+  vtkPropPicker* InteractionPicker;
+  vtkProp3D* InteractionProp;
+  vtkMatrix3x3* TempMatrix3;
+  vtkMatrix4x4* TempMatrix4;
 
-  vtkTransform *TempTransform;
+  vtkTransform* TempTransform;
   double AppliedTranslation[3];
 
   double DollyPhysicalSpeed;
   vtkNew<vtkTimerLog> LastDolly3DEventTime;
 
 private:
-  vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete;  // Not implemented.
-  void operator=(const vtkInteractorStyle3D&) = delete;  // Not implemented.
+  vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete; // Not implemented.
+  void operator=(const vtkInteractorStyle3D&) = delete;       // Not implemented.
 };
 
 #endif

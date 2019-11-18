@@ -31,7 +31,7 @@ vtkBitArrayIterator::vtkBitArrayIterator()
 vtkBitArrayIterator::~vtkBitArrayIterator()
 {
   this->SetArray(nullptr);
-  delete [] this->Tuple;
+  delete[] this->Tuple;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,8 +64,8 @@ int* vtkBitArrayIterator::GetTuple(vtkIdType id)
   if (this->TupleSize < numComps)
   {
     this->TupleSize = static_cast<int>(numComps);
-    delete [] this->Tuple;
-    this->Tuple = new int [this->TupleSize];
+    delete[] this->Tuple;
+    this->Tuple = new int[this->TupleSize];
   }
   vtkIdType loc = id * numComps;
   for (int j = 0; j < numComps; j++)

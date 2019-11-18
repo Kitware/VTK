@@ -20,7 +20,7 @@
  * that will use vtkGarbageCollector or that implements the singleton
  * pattern.  It makes sure that the vtkGarbageCollector singleton is created
  * before and destroyed after it is used.
-*/
+ */
 
 #ifndef vtkGarbageCollectorManager_h
 #define vtkGarbageCollectorManager_h
@@ -36,10 +36,10 @@ class VTKCOMMONCORE_EXPORT vtkGarbageCollectorManager
 public:
   vtkGarbageCollectorManager();
   ~vtkGarbageCollectorManager();
+
 private:
   vtkGarbageCollectorManager(const vtkGarbageCollectorManager&);
-  vtkGarbageCollectorManager& operator=(
-    const vtkGarbageCollectorManager&);
+  vtkGarbageCollectorManager& operator=(const vtkGarbageCollectorManager&);
 };
 
 // This instance will show up in any translation unit that uses

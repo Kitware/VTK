@@ -61,15 +61,15 @@
  * vtkOpenGLBufferObject* buffer2 = culling->GetLODBuffer(2);
  *
  * @endcode
-*/
+ */
 
 #ifndef vtkOpenGLInstanceCulling_h
 #define vtkOpenGLInstanceCulling_h
 
 #include "vtkObject.h"
-#include "vtkOpenGLHelper.h" // For vtkOpenGLHelper
+#include "vtkOpenGLHelper.h"           // For vtkOpenGLHelper
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkSmartPointer.h" // For smart pointer
+#include "vtkSmartPointer.h"           // For smart pointer
 
 #include <vector>
 
@@ -81,8 +81,8 @@ class vtkOpenGLShaderCache;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLInstanceCulling : public vtkObject
 {
 public:
-  static vtkOpenGLInstanceCulling *New();
-  vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject)
+  static vtkOpenGLInstanceCulling* New();
+  vtkTypeMacro(vtkOpenGLInstanceCulling, vtkObject);
 
   struct InstanceLOD
   {
@@ -94,10 +94,7 @@ public:
     int NumberOfInstances;
 
     // used for sorting
-    bool operator < (const InstanceLOD& other) const
-    {
-        return this->Distance < other.Distance;
-    }
+    bool operator<(const InstanceLOD& other) const { return this->Distance < other.Distance; }
   };
 
   /**
@@ -142,10 +139,8 @@ public:
   /**
    * Run the culling program and generate LOD buffers.
    */
-  void RunCullingShaders(vtkIdType numInstances,
-    vtkOpenGLBufferObject* matrixBuffer,
-    vtkOpenGLBufferObject* colorBuffer,
-    vtkOpenGLBufferObject* normalBuffer);
+  void RunCullingShaders(vtkIdType numInstances, vtkOpenGLBufferObject* matrixBuffer,
+    vtkOpenGLBufferObject* colorBuffer, vtkOpenGLBufferObject* normalBuffer);
 
   //@{
   /**
@@ -163,8 +158,8 @@ protected:
   void UploadCurrentState(InstanceLOD& lod, vtkPolyData* pd);
 
 private:
-  vtkOpenGLInstanceCulling(const vtkOpenGLInstanceCulling &) = delete;
-  void operator=(const vtkOpenGLInstanceCulling &) = delete;
+  vtkOpenGLInstanceCulling(const vtkOpenGLInstanceCulling&) = delete;
+  void operator=(const vtkOpenGLInstanceCulling&) = delete;
 
   vtkOpenGLHelper CullingHelper;
   std::vector<InstanceLOD> LODList;

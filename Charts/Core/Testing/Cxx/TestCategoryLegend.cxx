@@ -60,7 +60,7 @@ int TestCategoryLegend(int argc, char* argv[])
   vtkNew<vtkContextView> contextView;
   contextView->GetScene()->AddItem(trans);
   contextView->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  contextView->GetRenderWindow()->SetSize(300,200);
+  contextView->GetRenderWindow()->SetSize(300, 200);
   contextView->GetRenderWindow()->SetMultiSamples(0);
   contextView->GetRenderWindow()->Render();
 

@@ -18,14 +18,14 @@
 #include <vtkParametricFunctionSource.h>
 #include <vtkSmartPointer.h>
 
-int TestParametricFunctionSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestParametricFunctionSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence
-    = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =
+    vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
   randomSequence->SetSeed(1);
 
-  vtkSmartPointer<vtkParametricFunctionSource> parametricFunctionSource
-    = vtkSmartPointer<vtkParametricFunctionSource>::New();
+  vtkSmartPointer<vtkParametricFunctionSource> parametricFunctionSource =
+    vtkSmartPointer<vtkParametricFunctionSource>::New();
   parametricFunctionSource->SetUResolution(64);
   parametricFunctionSource->SetVResolution(64);
   parametricFunctionSource->SetWResolution(64);
@@ -34,8 +34,8 @@ int TestParametricFunctionSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   parametricFunctionSource->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
-  vtkSmartPointer<vtkParametricEllipsoid> parametricEllipsoid
-    = vtkSmartPointer<vtkParametricEllipsoid>::New();
+  vtkSmartPointer<vtkParametricEllipsoid> parametricEllipsoid =
+    vtkSmartPointer<vtkParametricEllipsoid>::New();
 
   randomSequence->Next();
   double xRadius = randomSequence->GetValue();
@@ -56,7 +56,7 @@ int TestParametricFunctionSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPolyData> polyData = parametricFunctionSource->GetOutput();
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_FLOAT)
+  if (points->GetDataType() != VTK_FLOAT)
   {
     return EXIT_FAILURE;
   }
@@ -82,7 +82,7 @@ int TestParametricFunctionSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   polyData = parametricFunctionSource->GetOutput();
   points = polyData->GetPoints();
 
-  if(points->GetDataType() != VTK_DOUBLE)
+  if (points->GetDataType() != VTK_DOUBLE)
   {
     return EXIT_FAILURE;
   }

@@ -137,32 +137,28 @@ void vtkResourceFileLocator::PrintSelf(ostream& os, vtkIndent indent)
 #if !defined(VTK_LEGACY_REMOVE)
 void vtkResourceFileLocator::SetPrintDebugInformation(bool val)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::SetPrintDebugInformation,
-    "VTK 8.3",
+  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::SetPrintDebugInformation, "VTK 8.3",
     vtkResourceFileLocator::SetLogVerbosity);
   this->SetLogVerbosity(val ? vtkLogger::VERBOSITY_INFO : vtkLogger::VERBOSITY_TRACE);
 }
 
 bool vtkResourceFileLocator::GetPrintDebugInformation()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::GetPrintDebugInformation,
-    "VTK 8.3",
+  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::GetPrintDebugInformation, "VTK 8.3",
     vtkResourceFileLocator::GetLogVerbosity);
   return (this->GetLogVerbosity() == vtkLogger::VERBOSITY_INFO);
 }
 
 void vtkResourceFileLocator::PrintDebugInformationOn()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::PrintDebugInformationOn,
-    "VTK 8.3",
+  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::PrintDebugInformationOn, "VTK 8.3",
     vtkResourceFileLocator::SetLogVerbosity);
   this->SetLogVerbosity(vtkLogger::VERBOSITY_INFO);
 }
 
 void vtkResourceFileLocator::PrintDebugInformationOff()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::PrintDebugInformationOff,
-    "VTK 8.3",
+  VTK_LEGACY_REPLACED_BODY(vtkResourceFileLocator::PrintDebugInformationOff, "VTK 8.3",
     vtkResourceFileLocator::SetLogVerbosity);
   this->SetLogVerbosity(vtkLogger::VERBOSITY_TRACE);
 }

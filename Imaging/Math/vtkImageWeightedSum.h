@@ -23,7 +23,7 @@
  *
  * @par Thanks:
  * The original author of this class is Lauren O'Donnell (MIT) for Slicer
-*/
+ */
 
 #ifndef vtkImageWeightedSum_h
 #define vtkImageWeightedSum_h
@@ -35,8 +35,8 @@ class vtkDoubleArray;
 class VTKIMAGINGMATH_EXPORT vtkImageWeightedSum : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageWeightedSum *New();
-  vtkTypeMacro(vtkImageWeightedSum,vtkThreadedImageAlgorithm);
+  static vtkImageWeightedSum* New();
+  vtkTypeMacro(vtkImageWeightedSum, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -75,20 +75,17 @@ protected:
   ~vtkImageWeightedSum() override;
 
   // Array to hold all the weights
-  vtkDoubleArray *Weights;
+  vtkDoubleArray* Weights;
 
   // Boolean flag to divide by sum or not
   vtkTypeBool NormalizeByWeight;
 
-  int RequestInformation (vtkInformation * vtkNotUsed(request),
-    vtkInformationVector** vtkNotUsed( inputVector ),
-    vtkInformationVector *outputVector) override;
+  int RequestInformation(vtkInformation* vtkNotUsed(request),
+    vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector) override;
 
-  void ThreadedRequestData (vtkInformation* request,
-                            vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector,
-                            vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],
+    int id) override;
   int FillInputPortInformation(int i, vtkInformation* info) override;
 
 private:
@@ -97,4 +94,3 @@ private:
 };
 
 #endif
-

@@ -23,29 +23,28 @@
 #include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 
-#if!defined(_WIN32) || defined(__CYGWIN__)
-# include <unistd.h> /* unlink */
+#if !defined(_WIN32) || defined(__CYGWIN__)
+#include <unistd.h> /* unlink */
 #else
-# include <io.h> /* unlink */
+#include <io.h> /* unlink */
 #endif
 
 vtkStandardNewMacro(vtkGraphWriter);
 
 void vtkGraphWriter::WriteData()
 {
-  ostream *fp;
+  ostream* fp;
   vtkGraph* const input = this->GetInput();
 
-  vtkDebugMacro(<<"Writing vtk graph data...");
+  vtkDebugMacro(<< "Writing vtk graph data...");
 
-  if( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+  if (!(fp = this->OpenVTKFile()) || !this->WriteHeader(fp))
   {
-    if(fp)
+    if (fp)
     {
-      if(this->FileName)
+      if (this->FileName)
       {
-        vtkErrorMacro("Ran out of disk space; deleting file: "
-                      << this->FileName);
+        vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
         this->CloseVTKFile(fp);
         unlink(this->FileName);
       }
@@ -58,7 +57,7 @@ void vtkGraphWriter::WriteData()
     return;
   }
 
-  vtkMolecule *mol = vtkMolecule::SafeDownCast(input);
+  vtkMolecule* mol = vtkMolecule::SafeDownCast(input);
   if (mol) // molecule is most derived, test first
   {
     *fp << "DATASET MOLECULE\n";
@@ -75,15 +74,15 @@ void vtkGraphWriter::WriteData()
 
   int error_occurred = 0;
 
-  if(!this->WriteFieldData(fp, input->GetFieldData()))
+  if (!this->WriteFieldData(fp, input->GetFieldData()))
   {
     error_occurred = 1;
   }
-  if(!error_occurred && !this->WritePoints(fp, input->GetPoints()))
+  if (!error_occurred && !this->WritePoints(fp, input->GetPoints()))
   {
     error_occurred = 1;
   }
-  if(!error_occurred)
+  if (!error_occurred)
   {
     const vtkIdType vertex_count = input->GetNumberOfVertices();
     *fp << "VERTICES " << vertex_count << "\n";
@@ -94,18 +93,18 @@ void vtkGraphWriter::WriteData()
       *fp << input->GetSourceVertex(e) << " " << input->GetTargetVertex(e) << "\n";
     }
   }
-  if(!error_occurred && !this->WriteEdgeData(fp, input))
+  if (!error_occurred && !this->WriteEdgeData(fp, input))
   {
     error_occurred = 1;
   }
-  if(!error_occurred && !this->WriteVertexData(fp, input))
+  if (!error_occurred && !this->WriteVertexData(fp, input))
   {
     error_occurred = 1;
   }
 
-  if(error_occurred)
+  if (error_occurred)
   {
-    if(this->FileName)
+    if (this->FileName)
     {
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
@@ -121,7 +120,7 @@ void vtkGraphWriter::WriteData()
   this->CloseVTKFile(fp);
 }
 
-void vtkGraphWriter::WriteMoleculeData(std::ostream *fp, vtkMolecule *m)
+void vtkGraphWriter::WriteMoleculeData(std::ostream* fp, vtkMolecule* m)
 {
   if (m->HasLattice())
   {
@@ -133,12 +132,11 @@ void vtkGraphWriter::WriteMoleculeData(std::ostream *fp, vtkMolecule *m)
     *fp << "LATTICE_A " << a[0] << " " << a[1] << " " << a[2] << "\n";
     *fp << "LATTICE_B " << b[0] << " " << b[1] << " " << b[2] << "\n";
     *fp << "LATTICE_C " << c[0] << " " << c[1] << " " << c[2] << "\n";
-    *fp << "LATTICE_ORIGIN " << origin[0] << " " << origin[1] << " "
-        << origin[2] << "\n";
+    *fp << "LATTICE_ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
   }
 }
 
-int vtkGraphWriter::FillInputPortInformation(int, vtkInformation *info)
+int vtkGraphWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
   return 1;
@@ -156,5 +154,5 @@ vtkGraph* vtkGraphWriter::GetInput(int port)
 
 void vtkGraphWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

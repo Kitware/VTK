@@ -31,13 +31,13 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
-int ArrayTableToSparseArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArrayTableToSparseArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
@@ -127,10 +127,9 @@ int ArrayTableToSparseArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     std::cerr << e.what() << endl;
     return 1;
   }
 }
-

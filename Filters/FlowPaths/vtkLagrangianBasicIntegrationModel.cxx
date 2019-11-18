@@ -1514,7 +1514,8 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayTypes()
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
 {
   this->SurfaceArrayNames->SetNumberOfValues(0);
-  for (auto it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end(); ++it)
+  for (auto it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
+       ++it)
   {
     this->SurfaceArrayNames->InsertNextValue(it->first.c_str());
   }
@@ -1590,9 +1591,8 @@ bool vtkLagrangianBasicIntegrationModel::ManualIntegration(
   vtkInitialValueProblemSolver* vtkNotUsed(integrator), double* vtkNotUsed(xcur),
   double* vtkNotUsed(xnext), double vtkNotUsed(t), double& vtkNotUsed(delT),
   double& vtkNotUsed(delTActual), double vtkNotUsed(minStep), double vtkNotUsed(maxStep),
-  double vtkNotUsed(maxError), double vtkNotUsed(cellLength),
-  double& vtkNotUsed(error), int& vtkNotUsed(integrationResult),
-  vtkLagrangianParticle* vtkNotUsed(particle))
+  double vtkNotUsed(maxError), double vtkNotUsed(cellLength), double& vtkNotUsed(error),
+  int& vtkNotUsed(integrationResult), vtkLagrangianParticle* vtkNotUsed(particle))
 {
   return false;
 }
@@ -1607,7 +1607,8 @@ void vtkLagrangianBasicIntegrationModel::ComputeSurfaceDefaultValues(
 }
 
 //---------------------------------------------------------------------------
-void vtkLagrangianBasicIntegrationModel::InitializeParticleData(vtkFieldData* particleData, int maxTuple)
+void vtkLagrangianBasicIntegrationModel::InitializeParticleData(
+  vtkFieldData* particleData, int maxTuple)
 {
   vtkNew<vtkIntArray> particleStepNumArray;
   particleStepNumArray->SetName("StepNumber");

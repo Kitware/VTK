@@ -16,9 +16,9 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkObjectFactory.h"
 
-vtkStandardNewMacro(vtkCellArrayIterator)
+vtkStandardNewMacro(vtkCellArrayIterator);
 
-void vtkCellArrayIterator::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkCellArrayIterator::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

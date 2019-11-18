@@ -48,46 +48,45 @@ vtkTable* vtkTableReader::GetOutput(int idx)
 }
 
 //----------------------------------------------------------------------------
-void vtkTableReader::SetOutput(vtkTable *output)
+void vtkTableReader::SetOutput(vtkTable* output)
 {
   this->GetExecutive()->SetOutputData(0, output);
 }
 
 //-----------------------------------------------------------------------------
-int vtkTableReader::ReadMeshSimple(
-  const std::string& fname, vtkDataObject* doOutput)
+int vtkTableReader::ReadMeshSimple(const std::string& fname, vtkDataObject* doOutput)
 {
-  vtkDebugMacro(<<"Reading vtk table...");
+  vtkDebugMacro(<< "Reading vtk table...");
 
-  if(!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader())
+  if (!this->OpenVTKFile(fname.c_str()) || !this->ReadHeader())
   {
     return 1;
   }
 
   // Read table-specific stuff
   char line[256];
-  if(!this->ReadString(line))
+  if (!this->ReadString(line))
   {
-    vtkErrorMacro(<<"Data file ends prematurely!");
+    vtkErrorMacro(<< "Data file ends prematurely!");
     this->CloseVTKFile();
     return 1;
   }
 
-  if(strncmp(this->LowerCase(line),"dataset", (unsigned long)7))
+  if (strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
   {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     this->CloseVTKFile();
     return 1;
   }
 
-  if(!this->ReadString(line))
+  if (!this->ReadString(line))
   {
-    vtkErrorMacro(<<"Data file ends prematurely!");
-    this->CloseVTKFile ();
+    vtkErrorMacro(<< "Data file ends prematurely!");
+    this->CloseVTKFile();
     return 1;
   }
 
-  if(strncmp(this->LowerCase(line),"table", 5))
+  if (strncmp(this->LowerCase(line), "table", 5))
   {
     vtkErrorMacro(<< "Cannot read dataset type: " << line);
     this->CloseVTKFile();
@@ -96,14 +95,14 @@ int vtkTableReader::ReadMeshSimple(
 
   vtkTable* const output = vtkTable::SafeDownCast(doOutput);
 
-  while(true)
+  while (true)
   {
-    if(!this->ReadString(line))
+    if (!this->ReadString(line))
     {
       break;
     }
 
-    if(!strncmp(this->LowerCase(line), "field", 5))
+    if (!strncmp(this->LowerCase(line), "field", 5))
     {
       vtkFieldData* const field_data = this->ReadFieldData();
       output->SetFieldData(field_data);
@@ -111,16 +110,15 @@ int vtkTableReader::ReadMeshSimple(
       continue;
     }
 
-    if(!strncmp(this->LowerCase(line), "row_data", 8))
+    if (!strncmp(this->LowerCase(line), "row_data", 8))
     {
       vtkIdType row_count = 0;
-      if(!this->Read(&row_count))
+      if (!this->Read(&row_count))
       {
-        vtkErrorMacro(<<"Cannot read number of rows!");
+        vtkErrorMacro(<< "Cannot read number of rows!");
         this->CloseVTKFile();
         return 1;
       }
-
 
       this->ReadRowData(output, row_count);
       continue;
@@ -129,10 +127,10 @@ int vtkTableReader::ReadMeshSimple(
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
   }
 
-  vtkDebugMacro(<< "Read " << output->GetNumberOfRows() <<" rows in "
-                << output->GetNumberOfColumns() <<" columns.\n");
+  vtkDebugMacro(<< "Read " << output->GetNumberOfRows() << " rows in "
+                << output->GetNumberOfColumns() << " columns.\n");
 
-  this->CloseVTKFile ();
+  this->CloseVTKFile();
 
   return 1;
 }
@@ -147,5 +145,5 @@ int vtkTableReader::FillOutputPortInformation(int, vtkInformation* info)
 //----------------------------------------------------------------------------
 void vtkTableReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

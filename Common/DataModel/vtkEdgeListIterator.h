@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkGraph
-*/
+ */
 
 #ifndef vtkEdgeListIterator_h
 #define vtkEdgeListIterator_h
@@ -50,12 +50,12 @@ struct vtkOutEdgeType;
 class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 {
 public:
-  static vtkEdgeListIterator *New();
+  static vtkEdgeListIterator* New();
   vtkTypeMacro(vtkEdgeListIterator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetObjectMacro(Graph, vtkGraph);
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
   /**
    * Returns the next edge in the graph.
@@ -69,7 +69,7 @@ public:
    * The graph edge is owned by this iterator, and changes
    * after each call to NextGraphEdge().
    */
-  vtkGraphEdge *NextGraphEdge();
+  vtkGraphEdge* NextGraphEdge();
 
   /**
    * Whether this iterator has more edges.
@@ -82,12 +82,12 @@ protected:
 
   void Increment();
 
-  vtkGraph *Graph;
-  const vtkOutEdgeType *Current;
-  const vtkOutEdgeType *End;
-  vtkIdType             Vertex;
-  bool                  Directed;
-  vtkGraphEdge        *GraphEdge;
+  vtkGraph* Graph;
+  const vtkOutEdgeType* Current;
+  const vtkOutEdgeType* End;
+  vtkIdType Vertex;
+  bool Directed;
+  vtkGraphEdge* GraphEdge;
 
 private:
   vtkEdgeListIterator(const vtkEdgeListIterator&) = delete;

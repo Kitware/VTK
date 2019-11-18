@@ -21,7 +21,7 @@
  * Id 'fieldId' of the mesh's vtkPointData.
  * If this field does not exist, the filter will use the vtkElevationFilter to
  * generate a default scalar field.
-*/
+ */
 
 #ifndef vtkUnstructuredGridToReebGraphFilter_h
 #define vtkUnstructuredGridToReebGraphFilter_h
@@ -31,13 +31,12 @@
 
 class vtkReebGraph;
 
-class VTKFILTERSREEBGRAPH_EXPORT vtkUnstructuredGridToReebGraphFilter :
-  public vtkDirectedGraphAlgorithm
+class VTKFILTERSREEBGRAPH_EXPORT vtkUnstructuredGridToReebGraphFilter
+  : public vtkDirectedGraphAlgorithm
 {
 public:
   static vtkUnstructuredGridToReebGraphFilter* New();
-  vtkTypeMacro(vtkUnstructuredGridToReebGraphFilter,
-    vtkDirectedGraphAlgorithm);
+  vtkTypeMacro(vtkUnstructuredGridToReebGraphFilter, vtkDirectedGraphAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -50,19 +49,16 @@ public:
 
   vtkReebGraph* GetOutput();
 
-
 protected:
   vtkUnstructuredGridToReebGraphFilter();
   ~vtkUnstructuredGridToReebGraphFilter();
 
   int FieldId;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *) override;
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int FillInputPortInformation(int portNumber, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(vtkInformation*,
-                  vtkInformationVector**,
-                  vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&) = delete;

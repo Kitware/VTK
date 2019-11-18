@@ -29,15 +29,13 @@
 
 #include <cassert>
 
-int TestExtractSelection( int argc, char* argv[] )
+int TestExtractSelection(int argc, char* argv[])
 {
   vtkSelection* sel = vtkSelection::New();
   vtkSelectionNode* node = vtkSelectionNode::New();
   sel->AddNode(node);
-  node->GetProperties()->Set(
-    vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
-  node->GetProperties()->Set(
-    vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
+  node->GetProperties()->Set(vtkSelectionNode::CONTENT_TYPE(), vtkSelectionNode::INDICES);
+  node->GetProperties()->Set(vtkSelectionNode::FIELD_TYPE(), vtkSelectionNode::CELL);
 
   // Get types as strings
   assert(strcmp(vtkSelectionNode::GetContentTypeAsString(node->GetContentType()), "INDICES") == 0);
@@ -58,10 +56,9 @@ int TestExtractSelection( int argc, char* argv[] )
 
   vtkSphereSource* sphere = vtkSphereSource::New();
 
-  vtkExtractSelectedPolyDataIds* selFilter =
-    vtkExtractSelectedPolyDataIds::New();
+  vtkExtractSelectedPolyDataIds* selFilter = vtkExtractSelectedPolyDataIds::New();
   selFilter->SetInputData(1, sel);
-  selFilter->SetInputConnection(0,sphere->GetOutputPort());
+  selFilter->SetInputConnection(0, sphere->GetOutputPort());
   sel->Delete();
   node->Delete();
 
@@ -84,8 +81,8 @@ int TestExtractSelection( int argc, char* argv[] )
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

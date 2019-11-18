@@ -35,7 +35,7 @@
 #include <vtkm/filter/ExternalFaces.h>
 #include <vtkm/filter/ExternalFaces.hxx>
 
-vtkStandardNewMacro(vtkmExternalFaces)
+vtkStandardNewMacro(vtkmExternalFaces);
 
 //------------------------------------------------------------------------------
 vtkmExternalFaces::vtkmExternalFaces()
@@ -46,9 +46,7 @@ vtkmExternalFaces::vtkmExternalFaces()
 }
 
 //------------------------------------------------------------------------------
-vtkmExternalFaces::~vtkmExternalFaces()
-{
-}
+vtkmExternalFaces::~vtkmExternalFaces() {}
 
 //------------------------------------------------------------------------------
 void vtkmExternalFaces::PrintSelf(ostream& os, vtkIndent indent)
@@ -79,17 +77,15 @@ int vtkmExternalFaces::FillInputPortInformation(int, vtkInformation* info)
 }
 
 //------------------------------------------------------------------------------
-int vtkmExternalFaces::FillOutputPortInformation(int vtkNotUsed(port),
-                                                 vtkInformation* info)
+int vtkmExternalFaces::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }
 
 //------------------------------------------------------------------------------
-vtkTypeBool vtkmExternalFaces::ProcessRequest(vtkInformation* request,
-                                      vtkInformationVector** inputVector,
-                                      vtkInformationVector* outputVector)
+vtkTypeBool vtkmExternalFaces::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -102,14 +98,12 @@ vtkTypeBool vtkmExternalFaces::ProcessRequest(vtkInformation* request,
 
 //------------------------------------------------------------------------------
 int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkDataSet* input =
-    vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid* output =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 

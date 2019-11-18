@@ -147,21 +147,22 @@
 #include <string> // needed for std::string
 
 #if defined(_MSC_VER)
-#include <sal.h>	// Needed for _In_z_ etc annotations
+#include <sal.h> // Needed for _In_z_ etc annotations
 #endif
 
 // this is copied from `loguru.hpp`
 #if defined(__clang__) || defined(__GNUC__)
-  // Helper macro for declaring functions as having similar signature to printf.
-  // This allows the compiler to catch format errors at compile-time.
-  #define VTK_PRINTF_LIKE(fmtarg, firstvararg) __attribute__((__format__ (__printf__, fmtarg, firstvararg)))
-  #define VTK_FORMAT_STRING_TYPE const char*
+// Helper macro for declaring functions as having similar signature to printf.
+// This allows the compiler to catch format errors at compile-time.
+#define VTK_PRINTF_LIKE(fmtarg, firstvararg)                                                       \
+  __attribute__((__format__(__printf__, fmtarg, firstvararg)))
+#define VTK_FORMAT_STRING_TYPE const char*
 #elif defined(_MSC_VER)
-  #define VTK_PRINTF_LIKE(fmtarg, firstvararg)
-  #define VTK_FORMAT_STRING_TYPE _In_z_ _Printf_format_string_ const char*
+#define VTK_PRINTF_LIKE(fmtarg, firstvararg)
+#define VTK_FORMAT_STRING_TYPE _In_z_ _Printf_format_string_ const char*
 #else
-  #define VTK_PRINTF_LIKE(fmtarg, firstvararg)
-  #define VTK_FORMAT_STRING_TYPE const char*
+#define VTK_PRINTF_LIKE(fmtarg, firstvararg)
+#define VTK_FORMAT_STRING_TYPE const char*
 #endif
 
 class VTKCOMMONCORE_EXPORT vtkLogger : public vtkObjectBase
@@ -320,11 +321,8 @@ public:
    * Note that if logging is disabled at compile time, then these callback will
    * never be called.
    */
-  static void AddCallback(const char* id,
-    LogHandlerCallbackT callback,
-    void* user_data,
-    Verbosity verbosity,
-    CloseHandlerCallbackT on_close = nullptr,
+  static void AddCallback(const char* id, LogHandlerCallbackT callback, void* user_data,
+    Verbosity verbosity, CloseHandlerCallbackT on_close = nullptr,
     FlushHandlerCallbackT on_flush = nullptr);
 
   /**
@@ -373,7 +371,7 @@ public:
   static void EndScope(const char* id);
 #if !defined(__WRAP__)
   static void LogF(Verbosity verbosity, const char* fname, unsigned int lineno,
-      VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
+    VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(4, 5);
   static void StartScopeF(Verbosity verbosity, const char* id, const char* fname,
     unsigned int lineno, VTK_FORMAT_STRING_TYPE format, ...) VTK_PRINTF_LIKE(5, 6);
 
@@ -386,7 +384,8 @@ public:
     ~LogScopeRAII();
 #if defined(_MSC_VER) && _MSC_VER > 1800
     // see loguru.hpp for the reason why this is needed on MSVC
-    LogScopeRAII(LogScopeRAII&& other) : Internals(other.Internals)
+    LogScopeRAII(LogScopeRAII&& other)
+      : Internals(other.Internals)
     {
       other.Internals = nullptr;
     }

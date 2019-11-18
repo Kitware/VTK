@@ -37,23 +37,14 @@
 class vtkOSPRayPassInternals : public vtkRenderPass
 {
 public:
-  static vtkOSPRayPassInternals *New();
-  vtkTypeMacro(vtkOSPRayPassInternals,vtkRenderPass);
-  vtkOSPRayPassInternals()
-  {
-    this->Factory = 0;
-  }
-  ~vtkOSPRayPassInternals()
-  {
-    this->Factory->Delete();
-  }
-  void Render(const vtkRenderState *s) override
-  {
-    this->Parent->RenderInternal(s);
-  }
+  static vtkOSPRayPassInternals* New();
+  vtkTypeMacro(vtkOSPRayPassInternals, vtkRenderPass);
+  vtkOSPRayPassInternals() { this->Factory = 0; }
+  ~vtkOSPRayPassInternals() { this->Factory->Delete(); }
+  void Render(const vtkRenderState* s) override { this->Parent->RenderInternal(s); }
 
-  vtkOSPRayViewNodeFactory *Factory;
-  vtkOSPRayPass *Parent;
+  vtkOSPRayViewNodeFactory* Factory;
+  vtkOSPRayPass* Parent;
 
   // OpenGL-based display
   GLuint fullscreenQuadProgram = 0;
@@ -77,7 +68,7 @@ vtkOSPRayPass::vtkOSPRayPass()
 
   vtkOSPRayPass::RTInit();
 
-  vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
+  vtkOSPRayViewNodeFactory* vnf = vtkOSPRayViewNodeFactory::New();
   this->Internal = vtkOSPRayPassInternals::New();
   this->Internal->Factory = vnf;
   this->Internal->Parent = this;
@@ -161,16 +152,16 @@ void vtkOSPRayPass::RTShutdown()
 // ----------------------------------------------------------------------------
 void vtkOSPRayPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 // ----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode)
+vtkCxxSetObjectMacro(vtkOSPRayPass, SceneGraph, vtkOSPRayRendererNode);
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayPass::Render(const vtkRenderState *s)
+void vtkOSPRayPass::Render(const vtkRenderState* s)
 {
-  vtkRenderer *ren = s->GetRenderer();
+  vtkRenderer* ren = s->GetRenderer();
   if (ren)
   {
     std::string type = vtkOSPRayRendererNode::GetRendererType(ren);
@@ -181,8 +172,8 @@ void vtkOSPRayPass::Render(const vtkRenderState *s)
     }
     if (!this->SceneGraph)
     {
-      this->SceneGraph = vtkOSPRayRendererNode::SafeDownCast
-        (this->Internal->Factory->CreateNode(ren));
+      this->SceneGraph =
+        vtkOSPRayRendererNode::SafeDownCast(this->Internal->Factory->CreateNode(ren));
     }
     this->PreviousType = type;
   }
@@ -191,23 +182,23 @@ void vtkOSPRayPass::Render(const vtkRenderState *s)
 }
 
 // ----------------------------------------------------------------------------
-void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
+void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 {
-  this->NumberOfRenderedProps=0;
+  this->NumberOfRenderedProps = 0;
 
   if (this->SceneGraph)
   {
 
     this->SceneGraph->TraverseAllPasses();
 
-    vtkRenderer *ren = s->GetRenderer();
-    vtkOSPRayRendererNode* oren = vtkOSPRayRendererNode::SafeDownCast(this->SceneGraph->GetViewNodeFor(ren));
+    vtkRenderer* ren = s->GetRenderer();
+    vtkOSPRayRendererNode* oren =
+      vtkOSPRayRendererNode::SafeDownCast(this->SceneGraph->GetViewNodeFor(ren));
     if (oren->GetBackend() == nullptr)
-        return;
+      return;
     // copy the result to the window
 
-    vtkRenderWindow *rwin =
-      vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
+    vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
     int viewportX, viewportY;
     int viewportWidth, viewportHeight;
     int right = 0;
@@ -217,7 +208,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
       {
         if (rwin->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
         {
-          vtkCamera *camera = ren->GetActiveCamera();
+          vtkCamera* camera = ren->GetActiveCamera();
           if (camera)
           {
             if (!camera->GetLeftEye())
@@ -228,143 +219,125 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
         }
       }
     }
-    ren->GetTiledSizeAndOrigin(&viewportWidth,&viewportHeight, &viewportX,&viewportY);
-
+    ren->GetTiledSizeAndOrigin(&viewportWidth, &viewportHeight, &viewportX, &viewportY);
 
     int layer = ren->GetLayer();
     if (layer == 0)
     {
-        const int colorTexGL = this->SceneGraph->GetColorBufferTextureGL();
-        const int depthTexGL = this->SceneGraph->GetDepthBufferTextureGL();
+      const int colorTexGL = this->SceneGraph->GetColorBufferTextureGL();
+      const int depthTexGL = this->SceneGraph->GetDepthBufferTextureGL();
 
-        vtkOpenGLRenderWindow* windowOpenGL = vtkOpenGLRenderWindow::SafeDownCast(rwin);
+      vtkOpenGLRenderWindow* windowOpenGL = vtkOpenGLRenderWindow::SafeDownCast(rwin);
 
-        if (colorTexGL != 0 && depthTexGL != 0 && windowOpenGL != nullptr)
+      if (colorTexGL != 0 && depthTexGL != 0 && windowOpenGL != nullptr)
+      {
+        windowOpenGL->MakeCurrent();
+
+        // Init OpenGL display resources
+        if (!this->Internal->fullscreenVAO)
+          glGenVertexArrays(1, &this->Internal->fullscreenVAO);
+
+        if (!this->Internal->fullscreenQuadProgram)
         {
-            windowOpenGL->MakeCurrent();
+          const GLchar* vertexShader = "#version 330\n"
+                                       "void main() {}";
 
-            // Init OpenGL display resources
-            if (!this->Internal->fullscreenVAO)
-                glGenVertexArrays(1, &this->Internal->fullscreenVAO);
+          const GLchar* geometryShader =
+            "#version 330 core\n"
+            "layout(points) in;"
+            "layout(triangle_strip, max_vertices = 4) out;"
+            "out vec2 texcoord;"
+            "void main() {"
+            "gl_Position = vec4( 1.0, 1.0, 0.0, 1.0 ); texcoord = vec2( 1.0, 1.0 ); EmitVertex();"
+            "gl_Position = vec4(-1.0, 1.0, 0.0, 1.0 ); texcoord = vec2( 0.0, 1.0 ); EmitVertex();"
+            "gl_Position = vec4( 1.0,-1.0, 0.0, 1.0 ); texcoord = vec2( 1.0, 0.0 ); EmitVertex();"
+            "gl_Position = vec4(-1.0,-1.0, 0.0, 1.0 ); texcoord = vec2( 0.0, 0.0 ); EmitVertex();"
+            "EndPrimitive();"
+            "}";
 
-            if (!this->Internal->fullscreenQuadProgram)
-            {
-                const GLchar* vertexShader =
-                    "#version 330\n"
-                    "void main() {}";
+          const GLchar* fragmentShader = "#version 330\n"
+                                         "uniform sampler2D colorTexture;"
+                                         "uniform sampler2D depthTexture;"
+                                         "in vec2 texcoord;"
+                                         "out vec4 color;"
+                                         "void main() {"
+                                         "	color = texture(colorTexture, texcoord);"
+                                         "   gl_FragDepth = texture(depthTexture, texcoord).r;"
+                                         "}";
 
-                const GLchar* geometryShader =
-                    "#version 330 core\n"
-                    "layout(points) in;"
-                    "layout(triangle_strip, max_vertices = 4) out;"
-                    "out vec2 texcoord;"
-                    "void main() {"
-                    "gl_Position = vec4( 1.0, 1.0, 0.0, 1.0 ); texcoord = vec2( 1.0, 1.0 ); EmitVertex();"
-                    "gl_Position = vec4(-1.0, 1.0, 0.0, 1.0 ); texcoord = vec2( 0.0, 1.0 ); EmitVertex();"
-                    "gl_Position = vec4( 1.0,-1.0, 0.0, 1.0 ); texcoord = vec2( 1.0, 0.0 ); EmitVertex();"
-                    "gl_Position = vec4(-1.0,-1.0, 0.0, 1.0 ); texcoord = vec2( 0.0, 0.0 ); EmitVertex();"
-                    "EndPrimitive();"
-                    "}";
+          GLuint vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
+          glShaderSource(vertexShaderHandle, 1, &vertexShader, 0);
+          glCompileShader(vertexShaderHandle);
 
-                const GLchar* fragmentShader =
-                    "#version 330\n"
-                    "uniform sampler2D colorTexture;"
-                    "uniform sampler2D depthTexture;"
-                    "in vec2 texcoord;"
-                    "out vec4 color;"
-                    "void main() {"
-                    "	color = texture(colorTexture, texcoord);"
-                    "   gl_FragDepth = texture(depthTexture, texcoord).r;"
-                    "}";
+          GLuint geometryShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
+          glShaderSource(geometryShaderHandle, 1, &geometryShader, 0);
+          glCompileShader(geometryShaderHandle);
 
-                GLuint vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-                glShaderSource(vertexShaderHandle, 1, &vertexShader, 0);
-                glCompileShader(vertexShaderHandle);
+          GLuint fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
+          glShaderSource(fragmentShaderHandle, 1, &fragmentShader, 0);
+          glCompileShader(fragmentShaderHandle);
 
-                GLuint geometryShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
-                glShaderSource(geometryShaderHandle, 1, &geometryShader, 0);
-                glCompileShader(geometryShaderHandle);
+          this->Internal->fullscreenQuadProgram = glCreateProgram();
+          glAttachShader(this->Internal->fullscreenQuadProgram, vertexShaderHandle);
+          glAttachShader(this->Internal->fullscreenQuadProgram, geometryShaderHandle);
+          glAttachShader(this->Internal->fullscreenQuadProgram, fragmentShaderHandle);
+          glLinkProgram(this->Internal->fullscreenQuadProgram);
 
-                GLuint fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
-                glShaderSource(fragmentShaderHandle, 1, &fragmentShader, 0);
-                glCompileShader(fragmentShaderHandle);
-
-                this->Internal->fullscreenQuadProgram = glCreateProgram();
-                glAttachShader(this->Internal->fullscreenQuadProgram, vertexShaderHandle);
-                glAttachShader(this->Internal->fullscreenQuadProgram, geometryShaderHandle);
-                glAttachShader(this->Internal->fullscreenQuadProgram, fragmentShaderHandle);
-                glLinkProgram(this->Internal->fullscreenQuadProgram);
-
-                this->Internal->fullscreenColorTextureLocation = glGetUniformLocation(this->Internal->fullscreenQuadProgram, "colorTexture");
-                this->Internal->fullscreenDepthTextureLocation = glGetUniformLocation(this->Internal->fullscreenQuadProgram, "depthTexture");
-            }
-
-            // Set viewport
-            glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
-
-            // Save previous program
-            int program;
-            glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-            // Display texture
-            glUseProgram(this->Internal->fullscreenQuadProgram);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, colorTexGL);
-            glUniform1i(this->Internal->fullscreenColorTextureLocation, 0);
-
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, depthTexGL);
-            glUniform1i(this->Internal->fullscreenDepthTextureLocation, 1);
-
-            glBindVertexArray(this->Internal->fullscreenVAO);
-            glDrawArrays(GL_POINTS, 0, 1);
-
-            // Restore state
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUseProgram(program);
-            glBindVertexArray(0);
+          this->Internal->fullscreenColorTextureLocation =
+            glGetUniformLocation(this->Internal->fullscreenQuadProgram, "colorTexture");
+          this->Internal->fullscreenDepthTextureLocation =
+            glGetUniformLocation(this->Internal->fullscreenQuadProgram, "depthTexture");
         }
-        else
-        {
-            rwin->SetZbufferData(
-                viewportX, viewportY,
-                viewportX + viewportWidth - 1,
-                viewportY + viewportHeight - 1,
-                this->SceneGraph->GetZBuffer());
-            rwin->SetRGBACharPixelData(
-                viewportX, viewportY,
-                viewportX + viewportWidth - 1,
-                viewportY + viewportHeight - 1,
-                this->SceneGraph->GetBuffer(),
-                0, vtkOSPRayRendererNode::GetCompositeOnGL(ren), right);
-        }
+
+        // Set viewport
+        glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+
+        // Save previous program
+        int program;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+        // Display texture
+        glUseProgram(this->Internal->fullscreenQuadProgram);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, colorTexGL);
+        glUniform1i(this->Internal->fullscreenColorTextureLocation, 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, depthTexGL);
+        glUniform1i(this->Internal->fullscreenDepthTextureLocation, 1);
+
+        glBindVertexArray(this->Internal->fullscreenVAO);
+        glDrawArrays(GL_POINTS, 0, 1);
+
+        // Restore state
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(program);
+        glBindVertexArray(0);
+      }
+      else
+      {
+        rwin->SetZbufferData(viewportX, viewportY, viewportX + viewportWidth - 1,
+          viewportY + viewportHeight - 1, this->SceneGraph->GetZBuffer());
+        rwin->SetRGBACharPixelData(viewportX, viewportY, viewportX + viewportWidth - 1,
+          viewportY + viewportHeight - 1, this->SceneGraph->GetBuffer(), 0,
+          vtkOSPRayRendererNode::GetCompositeOnGL(ren), right);
+      }
     }
     else
     {
-      float *ontoZ = rwin->GetZbufferData
-        (viewportX,  viewportY,
-         viewportX+viewportWidth-1,
-         viewportY+viewportHeight-1);
-      unsigned char *ontoRGBA = rwin->GetRGBACharPixelData
-        (viewportX,  viewportY,
-         viewportX+viewportWidth-1,
-         viewportY+viewportHeight-1,
-         0, right);
+      float* ontoZ = rwin->GetZbufferData(
+        viewportX, viewportY, viewportX + viewportWidth - 1, viewportY + viewportHeight - 1);
+      unsigned char* ontoRGBA = rwin->GetRGBACharPixelData(viewportX, viewportY,
+        viewportX + viewportWidth - 1, viewportY + viewportHeight - 1, 0, right);
       oren->WriteLayer(ontoRGBA, ontoZ, viewportWidth, viewportHeight, layer);
       rwin->SetZbufferData(
-         viewportX,  viewportY,
-         viewportX+viewportWidth-1,
-         viewportY+viewportHeight-1,
-         ontoZ);
-      rwin->SetRGBACharPixelData(
-         viewportX,  viewportY,
-         viewportX+viewportWidth-1,
-         viewportY+viewportHeight-1,
-         ontoRGBA,
-         0, vtkOSPRayRendererNode::GetCompositeOnGL(ren), right);
+        viewportX, viewportY, viewportX + viewportWidth - 1, viewportY + viewportHeight - 1, ontoZ);
+      rwin->SetRGBACharPixelData(viewportX, viewportY, viewportX + viewportWidth - 1,
+        viewportY + viewportHeight - 1, ontoRGBA, 0, vtkOSPRayRendererNode::GetCompositeOnGL(ren),
+        right);
       delete[] ontoZ;
       delete[] ontoRGBA;
     }
@@ -372,7 +345,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
 }
 
 // ----------------------------------------------------------------------------
-bool vtkOSPRayPass::IsBackendAvailable(const char *choice)
+bool vtkOSPRayPass::IsBackendAvailable(const char* choice)
 {
   std::set<RTWBackendType> bends = rtwGetAvailableBackends();
   if (!strcmp(choice, "OSPRay raycaster"))

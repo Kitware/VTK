@@ -30,11 +30,10 @@
  *
  * @sa
  * vtkImageExtractComponenents
-*/
+ */
 
 #ifndef vtkImageRFFT_h
 #define vtkImageRFFT_h
-
 
 #include "vtkImageFourierFilter.h"
 #include "vtkImagingFourierModule.h" // For export macro
@@ -42,40 +41,25 @@
 class VTKIMAGINGFOURIER_EXPORT vtkImageRFFT : public vtkImageFourierFilter
 {
 public:
-  static vtkImageRFFT *New();
-  vtkTypeMacro(vtkImageRFFT,vtkImageFourierFilter);
+  static vtkImageRFFT* New();
+  vtkTypeMacro(vtkImageRFFT, vtkImageFourierFilter);
 
 protected:
   vtkImageRFFT() {}
   ~vtkImageRFFT() override {}
 
-  int IterativeRequestInformation(vtkInformation* in,
-                                          vtkInformation* out) override;
-  int IterativeRequestUpdateExtent(vtkInformation* in,
-                                           vtkInformation* out) override;
+  int IterativeRequestInformation(vtkInformation* in, vtkInformation* out) override;
+  int IterativeRequestUpdateExtent(vtkInformation* in, vtkInformation* out) override;
 
-  void ThreadedRequestData(
-    vtkInformation* vtkNotUsed( request ),
-    vtkInformationVector** inputVector,
-    vtkInformationVector* vtkNotUsed( outputVector ),
-    vtkImageData ***inDataVec,
-    vtkImageData **outDataVec,
-    int outExt[6],
-    int threadId) override;
+  void ThreadedRequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+    vtkInformationVector* vtkNotUsed(outputVector), vtkImageData*** inDataVec,
+    vtkImageData** outDataVec, int outExt[6], int threadId) override;
+
 private:
   vtkImageRFFT(const vtkImageRFFT&) = delete;
   void operator=(const vtkImageRFFT&) = delete;
 };
 
 #endif
-
-
-
-
-
-
-
-
-
 
 // VTK-HeaderTest-Exclude: vtkImageRFFT.h

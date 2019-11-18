@@ -17,7 +17,7 @@
  * @brief   Internal class vtkGPUInfoList.
  *
  * vtkGPUInfoListArray is just a PIMPL mechanism for vtkGPUInfoList.
-*/
+ */
 
 #ifndef vtkGPUInfoListArray_h
 #define vtkGPUInfoListArray_h
@@ -28,7 +28,7 @@
 class vtkGPUInfoListArray
 {
 public:
-  std::vector<vtkGPUInfo *> v;
+  std::vector<vtkGPUInfo*> v;
 };
 
 #endif

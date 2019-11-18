@@ -23,7 +23,7 @@
  *
  *
  * Uses vtkAssignCoordinates to use values from arrays as the x, y, and z coordinates.
-*/
+ */
 
 #ifndef vtkAssignCoordinatesLayoutStrategy_h
 #define vtkAssignCoordinatesLayoutStrategy_h
@@ -37,7 +37,7 @@ class vtkAssignCoordinates;
 class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGraphLayoutStrategy
 {
 public:
-  static vtkAssignCoordinatesLayoutStrategy *New();
+  static vtkAssignCoordinatesLayoutStrategy* New();
   vtkTypeMacro(vtkAssignCoordinatesLayoutStrategy, vtkGraphLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -82,4 +82,3 @@ private:
 };
 
 #endif
-

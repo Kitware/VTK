@@ -33,5 +33,5 @@ vtkDoubleArray::~vtkDoubleArray() = default;
 //----------------------------------------------------------------------------
 void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->RealSuperclass::PrintSelf(os,indent);
+  this->RealSuperclass::PrintSelf(os, indent);
 }

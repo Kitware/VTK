@@ -31,7 +31,7 @@
  *
  * @sa
  * vtkGAMBITReader
-*/
+ */
 
 #ifndef vtkAVSucdReader_h
 #define vtkAVSucdReader_h
@@ -47,8 +47,8 @@ class vtkDataArraySelection;
 class VTKIOGEOMETRY_EXPORT vtkAVSucdReader : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkAVSucdReader *New();
-  vtkTypeMacro(vtkAVSucdReader,vtkUnstructuredGridAlgorithm);
+  static vtkAVSucdReader* New();
+  vtkTypeMacro(vtkAVSucdReader, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -72,28 +72,28 @@ public:
   /**
    * Get the total number of cells.
    */
-  vtkGetMacro(NumberOfCells,int);
+  vtkGetMacro(NumberOfCells, int);
   //@}
 
   //@{
   /**
    * Get the total number of nodes.
    */
-  vtkGetMacro(NumberOfNodes,int);
+  vtkGetMacro(NumberOfNodes, int);
   //@}
 
   //@{
   /**
    * Get the number of data fields at the nodes.
    */
-  vtkGetMacro(NumberOfNodeFields,int);
+  vtkGetMacro(NumberOfNodeFields, int);
   //@}
 
   //@{
   /**
    * Get the number of data fields at the cell centers.
    */
-  vtkGetMacro(NumberOfCellFields,int);
+  vtkGetMacro(NumberOfCellFields, int);
   //@}
 
   //@{
@@ -101,15 +101,15 @@ public:
    * Get the number of data fields for the model. Unused because VTK
    * has no methods for it.
    */
-  vtkGetMacro(NumberOfFields,int);
+  vtkGetMacro(NumberOfFields, int);
   //@}
 
   //@{
   /**
    * Get the number of data components at the nodes and cells.
    */
-  vtkGetMacro(NumberOfNodeComponents,int);
-  vtkGetMacro(NumberOfCellComponents,int);
+  vtkGetMacro(NumberOfNodeComponents, int);
+  vtkGetMacro(NumberOfCellComponents, int);
   //@}
 
   //@{
@@ -118,7 +118,7 @@ public:
    */
   void SetByteOrderToBigEndian();
   void SetByteOrderToLittleEndian();
-  const char *GetByteOrderAsString();
+  const char* GetByteOrderAsString();
   //@}
 
   vtkSetMacro(ByteOrder, int);
@@ -147,19 +147,19 @@ public:
 
   // get min and max value for the index-th value of a cell component
   // index varies from 0 to (veclen - 1)
-  void GetCellDataRange(int cellComp, int index, float *min, float *max);
+  void GetCellDataRange(int cellComp, int index, float* min, float* max);
 
   // get min and max value for the index-th value of a node component
   // index varies from 0 to (veclen - 1)
-  void GetNodeDataRange(int nodeComp, int index, float *min, float *max);
+  void GetNodeDataRange(int nodeComp, int index, float* min, float* max);
 
 protected:
   vtkAVSucdReader();
   ~vtkAVSucdReader() override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *FileName;
+  char* FileName;
   vtkTypeBool BinaryFile;
 
   int NumberOfNodes;
@@ -171,60 +171,56 @@ protected:
   int NumberOfFields;
   int NlistNodes;
 
-  ifstream *FileStream;
+  ifstream* FileStream;
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
   int ByteOrder;
-  int GetLabel(char *string, int number, char *label);
+  int GetLabel(char* string, int number, char* label);
 
   enum
   {
-    FILE_BIG_ENDIAN=0,
-    FILE_LITTLE_ENDIAN=1
+    FILE_BIG_ENDIAN = 0,
+    FILE_LITTLE_ENDIAN = 1
   };
   enum UCDCell_type
   {
-    PT    = 0,
-    LINE  = 1,
-    TRI   = 2,
-    QUAD  = 3,
-    TET   = 4,
-    PYR   = 5,
+    PT = 0,
+    LINE = 1,
+    TRI = 2,
+    QUAD = 3,
+    TET = 4,
+    PYR = 5,
     PRISM = 6,
-    HEX   = 7
+    HEX = 7
   };
 
-  struct DataInfo {
+  struct DataInfo
+  {
     long foffset; // offset in binary file
-    int  veclen;  // number of components in the node or cell variable
+    int veclen;   // number of components in the node or cell variable
     float min[3]; // pre-calculated data minima (max size 3 for vectors)
     float max[3]; // pre-calculated data maxima (max size 3 for vectors)
   };
 
-  DataInfo *NodeDataInfo;
-  DataInfo *CellDataInfo;
+  DataInfo* NodeDataInfo;
+  DataInfo* CellDataInfo;
 
 private:
   struct idMapping;
 
-  void ReadFile(vtkUnstructuredGrid *output);
-  void ReadGeometry(vtkUnstructuredGrid *output,
-                    idMapping& nodeMap,
-                    idMapping& cellMap);
-  void ReadNodeData(vtkUnstructuredGrid *output, const idMapping& nodeMap);
-  void ReadCellData(vtkUnstructuredGrid *output, const idMapping& cellMap);
+  void ReadFile(vtkUnstructuredGrid* output);
+  void ReadGeometry(vtkUnstructuredGrid* output, idMapping& nodeMap, idMapping& cellMap);
+  void ReadNodeData(vtkUnstructuredGrid* output, const idMapping& nodeMap);
+  void ReadCellData(vtkUnstructuredGrid* output, const idMapping& cellMap);
 
-  int ReadFloatBlock(int n, float *block);
-  int ReadIntBlock(int n, int *block);
-  void ReadXYZCoords(vtkFloatArray *coords, idMapping& nodeMap);
-  void ReadBinaryCellTopology(vtkIntArray *material, int *types,
-                              vtkIdTypeArray *listcells);
-  void ReadASCIICellTopology(vtkIntArray *material,
-                             vtkUnstructuredGrid *output,
-                             const idMapping& nodeMap,
-                             idMapping& cellMap);
+  int ReadFloatBlock(int n, float* block);
+  int ReadIntBlock(int n, int* block);
+  void ReadXYZCoords(vtkFloatArray* coords, idMapping& nodeMap);
+  void ReadBinaryCellTopology(vtkIntArray* material, int* types, vtkIdTypeArray* listcells);
+  void ReadASCIICellTopology(vtkIntArray* material, vtkUnstructuredGrid* output,
+    const idMapping& nodeMap, idMapping& cellMap);
 
   vtkAVSucdReader(const vtkAVSucdReader&) = delete;
   void operator=(const vtkAVSucdReader&) = delete;

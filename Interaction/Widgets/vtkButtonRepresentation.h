@@ -33,14 +33,13 @@
  *
  * @sa
  * vtkButtonWidget
-*/
+ */
 
 #ifndef vtkButtonRepresentation_h
 #define vtkButtonRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"
-
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkButtonRepresentation : public vtkWidgetRepresentation
 {
@@ -49,7 +48,7 @@ public:
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkButtonRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkButtonRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -57,14 +56,14 @@ public:
   /**
    * Retrieve the current button state.
    */
-  vtkSetClampMacro(NumberOfStates,int,1,VTK_INT_MAX);
+  vtkSetClampMacro(NumberOfStates, int, 1, VTK_INT_MAX);
   //@}
 
   //@{
   /**
    * Retrieve the current button state.
    */
-  vtkGetMacro(State,int);
+  vtkGetMacro(State, int);
   //@}
 
   //@{
@@ -81,7 +80,7 @@ public:
 
   enum _InteractionState
   {
-    Outside=0,
+    Outside = 0,
     Inside
   };
 
@@ -94,15 +93,20 @@ public:
    * Otherwise, the HighlightNormal is used. The Highlight() method will throw
    * a vtkCommand::HighlightEvent.
    */
-  enum _HighlightState {HighlightNormal,HighlightHovering,HighlightSelecting};
+  enum _HighlightState
+  {
+    HighlightNormal,
+    HighlightHovering,
+    HighlightSelecting
+  };
   void Highlight(int) override;
-  vtkGetMacro(HighlightState,int);
+  vtkGetMacro(HighlightState, int);
   //@}
 
   /**
    * Satisfy some of vtkProp's API.
    */
-  void ShallowCopy(vtkProp *prop) override;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkButtonRepresentation();

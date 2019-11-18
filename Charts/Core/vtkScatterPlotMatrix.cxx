@@ -52,14 +52,18 @@
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
-  PIMPL() : VisibleColumnsModified(true), BigChart(nullptr), BigChartPos(0, 0),
-    ResizingBigChart(false), AnimationCallbackInitialized(false), TimerId(0),
-    TimerCallbackInitialized(false)
+  PIMPL()
+    : VisibleColumnsModified(true)
+    , BigChart(nullptr)
+    , BigChartPos(0, 0)
+    , ResizingBigChart(false)
+    , AnimationCallbackInitialized(false)
+    , TimerId(0)
+    , TimerCallbackInitialized(false)
   {
     pimplChartSetting* scatterplotSettings = new pimplChartSetting();
     scatterplotSettings->BackgroundBrush->SetColor(255, 255, 255, 255);
-    this->ChartSettings[vtkScatterPlotMatrix::SCATTERPLOT] =
-        scatterplotSettings;
+    this->ChartSettings[vtkScatterPlotMatrix::SCATTERPLOT] = scatterplotSettings;
     pimplChartSetting* histogramSettings = new pimplChartSetting();
     histogramSettings->BackgroundBrush->SetColor(127, 127, 127, 102);
     histogramSettings->PlotPen->SetColor(255, 255, 255, 255);
@@ -86,13 +90,17 @@ public:
   class ColumnSetting
   {
   public:
-    ColumnSetting() : min(0), max(0), nTicks(0), title("?!?")
+    ColumnSetting()
+      : min(0)
+      , max(0)
+      , nTicks(0)
+      , title("?!?")
     {
     }
 
     double min;
     double max;
-    int    nTicks;
+    int nTicks;
     std::string title;
   };
 
@@ -136,25 +144,23 @@ public:
     vtkNew<vtkBrush> PlotBrush;
   };
 
-  void UpdateAxis(vtkAxis* axis, pimplChartSetting* setting,
-                  bool updateLabel = true)
+  void UpdateAxis(vtkAxis* axis, pimplChartSetting* setting, bool updateLabel = true)
   {
-    if(axis && setting)
+    if (axis && setting)
     {
       axis->GetPen()->SetColor(setting->AxisColor);
       axis->GetGridPen()->SetColor(setting->GridColor);
       axis->SetGridVisible(setting->ShowGrid);
       if (updateLabel)
       {
-        vtkTextProperty *prop = setting->LabelFont;
+        vtkTextProperty* prop = setting->LabelFont;
         axis->SetNotation(setting->LabelNotation);
         axis->SetPrecision(setting->LabelPrecision);
         axis->SetLabelsVisible(setting->ShowAxisLabels);
         axis->GetLabelProperties()->SetFontSize(prop->GetFontSize());
         axis->GetLabelProperties()->SetColor(prop->GetColor());
         axis->GetLabelProperties()->SetOpacity(prop->GetOpacity());
-        axis->GetLabelProperties()->SetFontFamilyAsString(
-          prop->GetFontFamilyAsString());
+        axis->GetLabelProperties()->SetFontFamilyAsString(prop->GetFontFamilyAsString());
         axis->GetLabelProperties()->SetBold(prop->GetBold());
         axis->GetLabelProperties()->SetItalic(prop->GetItalic());
       }
@@ -163,9 +169,9 @@ public:
 
   void UpdateChart(vtkChart* chart, pimplChartSetting* setting)
   {
-    if(chart && setting)
+    if (chart && setting)
     {
-      vtkPlot *plot = chart->GetPlot(0);
+      vtkPlot* plot = chart->GetPlot(0);
       if (plot)
       {
         plot->SetTooltipNotation(setting->TooltipNotation);
@@ -190,21 +196,21 @@ public:
 
   vtkNew<vtkBrush> SelectedRowColumnBGBrush;
   vtkNew<vtkBrush> SelectedChartBGBrush;
-  std::vector<vtkVector2i>           AnimationPath;
+  std::vector<vtkVector2i> AnimationPath;
   std::vector<vtkVector2i>::iterator AnimationIter;
   vtkRenderWindowInteractor* Interactor;
   vtkNew<vtkCallbackCommand> AnimationCallback;
-  bool                       AnimationCallbackInitialized;
-  unsigned long int          TimerId;
-  bool                       TimerCallbackInitialized;
-  int                        AnimationPhase;
-  float                      CurrentAngle;
-  float                      IncAngle;
-  float                      FinalAngle;
-  vtkVector2i                NextActivePlot;
+  bool AnimationCallbackInitialized;
+  unsigned long int TimerId;
+  bool TimerCallbackInitialized;
+  int AnimationPhase;
+  float CurrentAngle;
+  float IncAngle;
+  float FinalAngle;
+  vtkVector2i NextActivePlot;
 
   vtkNew<vtkChartXYZ> BigChart3D;
-  vtkNew<vtkAxis>     TestAxis;   // Used to get ranges/number of ticks
+  vtkNew<vtkAxis> TestAxis; // Used to get ranges/number of ticks
   vtkSmartPointer<vtkTooltipItem> TooltipItem;
   vtkSmartPointer<vtkStringArray> IndexedLabelsArray;
 };
@@ -213,8 +219,7 @@ namespace
 {
 
 // This is just here for now - quick and dirty historgram calculations...
-bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
-                        int NumberOfBins)
+bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, int NumberOfBins)
 {
   // The output table will have the twice the number of columns, they will be
   // the x and y for input column. This is the bin centers, and the population.
@@ -222,8 +227,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
   {
     double minmax[2] = { 0.0, 0.0 };
     vtkStdString name(s->GetValue(i));
-    vtkDataArray *in =
-        vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(name.c_str()));
+    vtkDataArray* in = vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(name.c_str()));
     if (in)
     {
       // The bin values are the centers, extending +/- half an inc either side
@@ -232,33 +236,31 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
       {
         minmax[1] = minmax[0] + 1.0;
       }
-      double inc = (minmax[1] - minmax[0]) / (NumberOfBins) * 1.001;
+      double inc = (minmax[1] - minmax[0]) / (NumberOfBins)*1.001;
       double halfInc = inc / 2.0;
-      vtkSmartPointer<vtkFloatArray> extents =
-          vtkArrayDownCast<vtkFloatArray>(
-            output->GetColumnByName(vtkStdString(name + "_extents").c_str()));
+      vtkSmartPointer<vtkFloatArray> extents = vtkArrayDownCast<vtkFloatArray>(
+        output->GetColumnByName(vtkStdString(name + "_extents").c_str()));
       if (!extents)
       {
         extents = vtkSmartPointer<vtkFloatArray>::New();
         extents->SetName(vtkStdString(name + "_extents").c_str());
       }
       extents->SetNumberOfTuples(NumberOfBins);
-      float *centers = static_cast<float *>(extents->GetVoidPointer(0));
+      float* centers = static_cast<float*>(extents->GetVoidPointer(0));
       double min = minmax[0] - 0.0005 * inc + halfInc;
       for (int j = 0; j < NumberOfBins; ++j)
       {
         extents->SetValue(j, min + j * inc);
       }
-      vtkSmartPointer<vtkIntArray> populations =
-          vtkArrayDownCast<vtkIntArray>(
-            output->GetColumnByName(vtkStdString(name + "_pops").c_str()));
+      vtkSmartPointer<vtkIntArray> populations = vtkArrayDownCast<vtkIntArray>(
+        output->GetColumnByName(vtkStdString(name + "_pops").c_str()));
       if (!populations)
       {
         populations = vtkSmartPointer<vtkIntArray>::New();
         populations->SetName(vtkStdString(name + "_pops").c_str());
       }
       populations->SetNumberOfTuples(NumberOfBins);
-      int *pops = static_cast<int *>(populations->GetVoidPointer(0));
+      int* pops = static_cast<int*>(populations->GetVoidPointer(0));
       for (int k = 0; k < NumberOfBins; ++k)
       {
         pops[k] = 0;
@@ -285,24 +287,24 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
 
 bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
 {
-  if(!visCols || visCols->GetNumberOfTuples() == 0
-    || fromCol == toCol || fromCol == (toCol-1) || fromCol < 0 || toCol < 0)
+  if (!visCols || visCols->GetNumberOfTuples() == 0 || fromCol == toCol || fromCol == (toCol - 1) ||
+    fromCol < 0 || toCol < 0)
   {
     return false;
   }
   int numCols = visCols->GetNumberOfTuples();
-  if( fromCol >= numCols || toCol > numCols)
+  if (fromCol >= numCols || toCol > numCols)
   {
     return false;
   }
 
   std::vector<vtkStdString> newVisCols;
   vtkIdType c;
-  if(toCol == numCols)
+  if (toCol == numCols)
   {
-    for(c=0; c<numCols; c++)
+    for (c = 0; c < numCols; c++)
     {
-      if(c!=fromCol)
+      if (c != fromCol)
       {
         newVisCols.push_back(visCols->GetValue(c));
       }
@@ -311,16 +313,16 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
     newVisCols.push_back(visCols->GetValue(fromCol));
   }
   // insert the fromCol before toCol
-  else if(fromCol < toCol)
+  else if (fromCol < toCol)
   {
     // move Cols in the middle up
-    for(c=0; c<fromCol; c++)
+    for (c = 0; c < fromCol; c++)
     {
       newVisCols.push_back(visCols->GetValue(c));
     }
-    for(c=fromCol+1; c<numCols; c++)
+    for (c = fromCol + 1; c < numCols; c++)
     {
-      if(c == toCol)
+      if (c == toCol)
       {
         newVisCols.push_back(visCols->GetValue(fromCol));
       }
@@ -329,14 +331,14 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
   }
   else
   {
-    for(c=0; c<toCol; c++)
+    for (c = 0; c < toCol; c++)
     {
       newVisCols.push_back(visCols->GetValue(c));
     }
     newVisCols.push_back(visCols->GetValue(fromCol));
-    for(c=toCol; c<numCols; c++)
+    for (c = toCol; c < numCols; c++)
     {
-      if(c != fromCol)
+      if (c != fromCol)
       {
         newVisCols.push_back(visCols->GetValue(c));
       }
@@ -344,9 +346,9 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
   }
 
   // repopulate the visCols
-  vtkIdType visId=0;
+  vtkIdType visId = 0;
   std::vector<vtkStdString>::iterator arrayIt;
-  for(arrayIt=newVisCols.begin(); arrayIt!=newVisCols.end(); ++arrayIt)
+  for (arrayIt = newVisCols.begin(); arrayIt != newVisCols.end(); ++arrayIt)
   {
     visCols->SetValue(visId++, *arrayIt);
   }
@@ -354,11 +356,12 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
 }
 } // End of anonymous namespace
 
-vtkObjectFactoryNewMacro(vtkScatterPlotMatrix)
+vtkObjectFactoryNewMacro(vtkScatterPlotMatrix);
 
 vtkScatterPlotMatrix::vtkScatterPlotMatrix()
-  : NumberOfBins(10), NumberOfFrames(25),
-  LayoutUpdatedTime(0)
+  : NumberOfBins(10)
+  , NumberOfFrames(25)
+  , LayoutUpdatedTime(0)
 {
   this->Private = new PIMPL;
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
@@ -380,10 +383,8 @@ void vtkScatterPlotMatrix::Update()
   {
     // We need to handle layout changes due to modified visibility.
     // Build up our histograms data before updating the layout.
-    PopulateHistograms(this->Input,
-                       this->Private->Histogram,
-                       this->VisibleColumns,
-                       this->NumberOfBins);
+    PopulateHistograms(
+      this->Input, this->Private->Histogram, this->VisibleColumns, this->NumberOfBins);
     this->UpdateLayout();
     this->Private->VisibleColumnsModified = false;
   }
@@ -393,7 +394,7 @@ void vtkScatterPlotMatrix::Update()
   }
 }
 
-bool vtkScatterPlotMatrix::Paint(vtkContext2D *painter)
+bool vtkScatterPlotMatrix::Paint(vtkContext2D* painter)
 {
   this->CurrentPainter = painter;
   this->Update();
@@ -414,7 +415,7 @@ bool vtkScatterPlotMatrix::Paint(vtkContext2D *painter)
   return ret;
 }
 
-void vtkScatterPlotMatrix::SetScene(vtkContextScene *scene)
+void vtkScatterPlotMatrix::SetScene(vtkContextScene* scene)
 {
   // The internal axis shouldn't be a child as it isn't rendered with the
   // chart, but it does need access to the scene.
@@ -423,10 +424,10 @@ void vtkScatterPlotMatrix::SetScene(vtkContextScene *scene)
   this->Superclass::SetScene(scene);
 }
 
-bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
+bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i& pos)
 {
   if (pos.GetX() + pos.GetY() + 1 < this->Size.GetX() && pos.GetX() < this->Size.GetX() &&
-      pos.GetY() < this->Size.GetY())
+    pos.GetY() < this->Size.GetY())
   {
     // The supplied index is valid (in the lower quadrant).
     this->ActivePlot = pos;
@@ -445,28 +446,23 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
         {
           if (this->GetPlotType(i, j) == SCATTERPLOT)
           {
-            vtkChartXY *chart =
-                vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
+            vtkChartXY* chart = vtkChartXY::SafeDownCast(this->GetChart(vtkVector2i(i, j)));
 
             if (pos[0] == i && pos[1] == j)
             {
               // set the new active chart background color to light green
-              chart->SetBackgroundBrush(
-                    this->Private->SelectedChartBGBrush);
+              chart->SetBackgroundBrush(this->Private->SelectedChartBGBrush);
             }
             else if (pos[0] == i || pos[1] == j)
             {
               // set background color for all other charts in the selected
               // chart's row and column to light red
-              chart->SetBackgroundBrush(
-                    this->Private->SelectedRowColumnBGBrush);
+              chart->SetBackgroundBrush(this->Private->SelectedRowColumnBGBrush);
             }
             else
             {
               // set all else to white
-              chart->SetBackgroundBrush(
-                    this->Private->ChartSettings[SCATTERPLOT]
-                    ->BackgroundBrush);
+              chart->SetBackgroundBrush(this->Private->ChartSettings[SCATTERPLOT]->BackgroundBrush);
             }
           }
         }
@@ -474,14 +470,14 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
     }
     if (this->Private->BigChart)
     {
-      vtkPlot *plot = this->Private->BigChart->GetPlot(0);
+      vtkPlot* plot = this->Private->BigChart->GetPlot(0);
       vtkStdString column = this->GetColumnName(pos.GetX());
       vtkStdString row = this->GetRowName(pos.GetY());
       if (!plot)
       {
         plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
-        vtkChart *active = this->GetChart(this->ActivePlot);
-        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
+        vtkChart* active = this->GetChart(this->ActivePlot);
+        vtkChartXY* xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
         if (xy)
         {
           // Set plot corner, and axis visibility
@@ -499,64 +495,60 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i &pos)
           xy->GetAxis(vtkAxis::LEFT)->SetVisible(true);
 
           // set labels array
-          if(this->Private->IndexedLabelsArray)
+          if (this->Private->IndexedLabelsArray)
           {
-              plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
-              plot->SetTooltipLabelFormat("%i");
+            plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
+            plot->SetTooltipLabelFormat("%i");
           }
         }
         if (xy && active)
         {
-          vtkAxis *a = active->GetAxis(vtkAxis::BOTTOM);
-          xy->GetAxis(vtkAxis::TOP)->SetUnscaledRange(
-            a->GetUnscaledMinimum(), a->GetUnscaledMaximum());
+          vtkAxis* a = active->GetAxis(vtkAxis::BOTTOM);
+          xy->GetAxis(vtkAxis::TOP)
+            ->SetUnscaledRange(a->GetUnscaledMinimum(), a->GetUnscaledMaximum());
           a = active->GetAxis(vtkAxis::LEFT);
-          xy->GetAxis(vtkAxis::RIGHT)->SetUnscaledRange(
-            a->GetUnscaledMinimum(), a->GetUnscaledMaximum());
+          xy->GetAxis(vtkAxis::RIGHT)
+            ->SetUnscaledRange(a->GetUnscaledMinimum(), a->GetUnscaledMaximum());
         }
       }
       else
       {
         this->Private->BigChart->ClearPlots();
         plot = this->Private->BigChart->AddPlot(vtkChart::POINTS);
-        vtkChartXY *xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
+        vtkChartXY* xy = vtkChartXY::SafeDownCast(this->Private->BigChart);
         if (xy)
         {
           xy->SetPlotCorner(plot, 2);
         }
 
         // set labels array
-        if(this->Private->IndexedLabelsArray)
+        if (this->Private->IndexedLabelsArray)
         {
           plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
           plot->SetTooltipLabelFormat("%i");
         }
       }
       plot->SetInputData(this->Input, column, row);
-      plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]
-                   ->PlotPen);
+      plot->SetPen(this->Private->ChartSettings[ACTIVEPLOT]->PlotPen);
       this->ApplyAxisSetting(this->Private->BigChart, column, row);
 
       // Set marker size and style.
-      vtkPlotPoints *plotPoints = vtkPlotPoints::SafeDownCast(plot);
-      plotPoints->SetMarkerSize(this->Private->ChartSettings[ACTIVEPLOT]
-                                ->MarkerSize);
-      plotPoints->SetMarkerStyle(this->Private->ChartSettings[ACTIVEPLOT]
-                                 ->MarkerStyle);
+      vtkPlotPoints* plotPoints = vtkPlotPoints::SafeDownCast(plot);
+      plotPoints->SetMarkerSize(this->Private->ChartSettings[ACTIVEPLOT]->MarkerSize);
+      plotPoints->SetMarkerStyle(this->Private->ChartSettings[ACTIVEPLOT]->MarkerStyle);
 
       // Add supplementary plot if any
       this->AddSupplementaryPlot(this->Private->BigChart, ACTIVEPLOT, row, column, 2);
 
       // Set background color.
       this->Private->BigChart->SetBackgroundBrush(
-            this->Private->ChartSettings[ACTIVEPLOT]
-            ->BackgroundBrush);
-      this->Private->BigChart->GetAxis(vtkAxis::TOP)->SetTitle(
-            this->VisibleColumns->GetValue(pos.GetX()));
-      this->Private->BigChart->GetAxis(vtkAxis::RIGHT)->SetTitle(
-            this->VisibleColumns->GetValue(this->GetSize().GetX() - pos.GetY() - 1));
+        this->Private->ChartSettings[ACTIVEPLOT]->BackgroundBrush);
+      this->Private->BigChart->GetAxis(vtkAxis::TOP)
+        ->SetTitle(this->VisibleColumns->GetValue(pos.GetX()));
+      this->Private->BigChart->GetAxis(vtkAxis::RIGHT)
+        ->SetTitle(this->VisibleColumns->GetValue(this->GetSize().GetX() - pos.GetY() - 1));
       // Calculate the ideal range.
-      //this->Private->BigChart->RecalculateBounds();
+      // this->Private->BigChart->RecalculateBounds();
     }
     return true;
   }
@@ -574,26 +566,23 @@ vtkVector2i vtkScatterPlotMatrix::GetActivePlot()
 void vtkScatterPlotMatrix::UpdateAnimationPath(const vtkVector2i& newActivePos)
 {
   this->Private->AnimationPath.clear();
-  if (newActivePos[0] != this->ActivePlot[0] ||
-      newActivePos[1] != this->ActivePlot[1])
+  if (newActivePos[0] != this->ActivePlot[0] || newActivePos[1] != this->ActivePlot[1])
   {
     if (newActivePos[1] >= this->ActivePlot[1])
     {
       // x direction first
-      if (this->ActivePlot[0]>newActivePos[0])
+      if (this->ActivePlot[0] > newActivePos[0])
       {
-        for(int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
+        for (int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r,
-                                                             this->ActivePlot[1]));
+          this->Private->AnimationPath.push_back(vtkVector2i(r, this->ActivePlot[1]));
         }
       }
       else
       {
         for (int r = this->ActivePlot[0] + 1; r <= newActivePos[0]; r++)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r,
-                                                             this->ActivePlot[1]));
+          this->Private->AnimationPath.push_back(vtkVector2i(r, this->ActivePlot[1]));
         }
       }
       // then y direction
@@ -607,16 +596,14 @@ void vtkScatterPlotMatrix::UpdateAnimationPath(const vtkVector2i& newActivePos)
       // y direction first
       for (int c = this->ActivePlot[1] - 1; c >= newActivePos[1]; c--)
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0],
-                                                           c));
+        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0], c));
       }
       // then x direction
-      if (this->ActivePlot[0]>newActivePos[0])
+      if (this->ActivePlot[0] > newActivePos[0])
       {
         for (int r = this->ActivePlot[0] - 1; r >= newActivePos[0]; r--)
         {
-          this->Private->AnimationPath.push_back(vtkVector2i(r,
-                                                             newActivePos[1]));
+          this->Private->AnimationPath.push_back(vtkVector2i(r, newActivePos[1]));
         }
       }
       else
@@ -639,11 +626,8 @@ void vtkScatterPlotMatrix::StartAnimation(vtkRenderWindowInteractor* interactor)
     if (!this->Private->AnimationCallbackInitialized)
     {
       this->Private->AnimationCallback->SetClientData(this);
-      this->Private->AnimationCallback->SetCallback(
-            vtkScatterPlotMatrix::ProcessEvents);
-      interactor->AddObserver(vtkCommand::TimerEvent,
-                              this->Private->AnimationCallback,
-                              0);
+      this->Private->AnimationCallback->SetCallback(vtkScatterPlotMatrix::ProcessEvents);
+      interactor->AddObserver(vtkCommand::TimerEvent, this->Private->AnimationCallback, 0);
       this->Private->Interactor = interactor;
       this->Private->AnimationCallbackInitialized = true;
     }
@@ -670,147 +654,145 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
   this->InvokeEvent(vtkCommand::AnimationCueTickEvent);
   switch (this->Private->AnimationPhase)
   {
-  case 0: // Remove decoration from the big chart, load up the 3D chart
-  {
-    this->Private->NextActivePlot = *this->Private->AnimationIter;
-    vtkChartXYZ *chart = this->Private->BigChart3D;
-    chart->SetVisible(false);
-    chart->SetAutoRotate(true);
-    chart->SetDecorateAxes(false);
-    chart->SetFitToScene(false);
-
-    int yColumn = this->GetSize().GetY() - this->ActivePlot.GetY() - 1;
-    bool isX = false;
-    int zColumn = 0;
-
-    vtkRectf size = this->Private->BigChart->GetSize();
-    float zSize;
-    this->Private->FinalAngle = 90.0;
-    this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
-
-    if (this->Private->NextActivePlot.GetY() == this->ActivePlot.GetY())
+    case 0: // Remove decoration from the big chart, load up the 3D chart
     {
-      // Horizontal move.
-      zColumn = this->Private->NextActivePlot.GetX();
-      isX = false;
-      if (this->ActivePlot.GetX() < zColumn)
+      this->Private->NextActivePlot = *this->Private->AnimationIter;
+      vtkChartXYZ* chart = this->Private->BigChart3D;
+      chart->SetVisible(false);
+      chart->SetAutoRotate(true);
+      chart->SetDecorateAxes(false);
+      chart->SetFitToScene(false);
+
+      int yColumn = this->GetSize().GetY() - this->ActivePlot.GetY() - 1;
+      bool isX = false;
+      int zColumn = 0;
+
+      vtkRectf size = this->Private->BigChart->GetSize();
+      float zSize;
+      this->Private->FinalAngle = 90.0;
+      this->Private->IncAngle = this->Private->FinalAngle / this->NumberOfFrames;
+
+      if (this->Private->NextActivePlot.GetY() == this->ActivePlot.GetY())
       {
-        this->Private->IncAngle *= 1.0;
-        zSize = size.GetWidth();
+        // Horizontal move.
+        zColumn = this->Private->NextActivePlot.GetX();
+        isX = false;
+        if (this->ActivePlot.GetX() < zColumn)
+        {
+          this->Private->IncAngle *= 1.0;
+          zSize = size.GetWidth();
+        }
+        else
+        {
+          this->Private->IncAngle *= -1.0;
+          zSize = -size.GetWidth();
+        }
       }
       else
       {
-        this->Private->IncAngle *= -1.0;
-        zSize = -size.GetWidth();
+        // Vertical move.
+        zColumn = this->GetSize().GetY() - this->Private->NextActivePlot.GetY() - 1;
+        isX = true;
+        if (this->GetSize().GetY() - this->ActivePlot.GetY() - 1 < zColumn)
+        {
+          this->Private->IncAngle *= -1.0;
+          zSize = size.GetHeight();
+        }
+        else
+        {
+          this->Private->IncAngle *= 1.0;
+          zSize = -size.GetHeight();
+        }
       }
-    }
-    else
-    {
-      // Vertical move.
-      zColumn = this->GetSize().GetY() - this->Private->NextActivePlot.GetY() - 1;
-      isX = true;
-      if (this->GetSize().GetY() - this->ActivePlot.GetY() - 1 < zColumn)
+      chart->SetAroundX(isX);
+      chart->SetGeometry(size);
+
+      vtkStdString names[3];
+      names[0] = this->VisibleColumns->GetValue(this->ActivePlot.GetX());
+      names[1] = this->VisibleColumns->GetValue(yColumn);
+      names[2] = this->VisibleColumns->GetValue(zColumn);
+
+      // Setup the 3D chart
+      this->Private->BigChart3D->ClearPlots();
+      vtkNew<vtkPlotPoints3D> scatterPlot3D;
+      scatterPlot3D->SetInputData(this->Input, names[0], names[1], names[2]);
+      this->Private->BigChart3D->AddPlot(scatterPlot3D);
+
+      // Set the z axis up so that it ends in the right orientation.
+      chart->GetAxis(2)->SetPoint2(0, zSize);
+      // Now set the ranges for the three axes.
+      for (int i = 0; i < 3; ++i)
       {
-        this->Private->IncAngle *= -1.0;
-        zSize = size.GetHeight();
+        PIMPL::ColumnSetting& settings = this->Private->ColumnSettings[names[i]];
+        chart->GetAxis(i)->SetUnscaledRange(settings.min, settings.max);
       }
-      else
-      {
-        this->Private->IncAngle *= 1.0;
-        zSize = -size.GetHeight();
-      }
-    }
-    chart->SetAroundX(isX);
-    chart->SetGeometry(size);
-
-    vtkStdString names[3];
-    names[0] = this->VisibleColumns->GetValue(this->ActivePlot.GetX());
-    names[1] = this->VisibleColumns->GetValue(yColumn);
-    names[2] = this->VisibleColumns->GetValue(zColumn);
-
-    // Setup the 3D chart
-    this->Private->BigChart3D->ClearPlots();
-    vtkNew<vtkPlotPoints3D> scatterPlot3D;
-    scatterPlot3D->SetInputData(
-      this->Input, names[0], names[1], names[2]);
-    this->Private->BigChart3D->AddPlot(scatterPlot3D);
-
-    // Set the z axis up so that it ends in the right orientation.
-    chart->GetAxis(2)->SetPoint2(0, zSize);
-    // Now set the ranges for the three axes.
-    for (int i = 0; i < 3; ++i)
-    {
-      PIMPL::ColumnSetting &settings = this->Private->ColumnSettings[names[i]];
-      chart->GetAxis(i)->SetUnscaledRange(settings.min, settings.max);
-    }
-    chart->RecalculateTransform();
-    this->GetScene()->SetDirty(true);
-    ++this->Private->AnimationPhase;
-    return;
-  }
-  case 1: // Make BigChart invisible, and BigChart3D visible.
-    this->Private->BigChart->SetVisible(false);
-    this->AddItem(this->Private->BigChart3D);
-    this->Private->BigChart3D->SetVisible(true);
-    this->GetScene()->SetDirty(true);
-    ++this->Private->AnimationPhase;
-    this->Private->CurrentAngle = 0.0;
-    return;
-  case 2: // Rotation of the 3D chart from start to end angle.
-    if (fabs(this->Private->CurrentAngle) < (this->Private->FinalAngle - 0.001))
-    {
-      this->Private->CurrentAngle += this->Private->IncAngle;
-      this->Private->BigChart3D->SetAngle(this->Private->CurrentAngle);
-    }
-    else
-    {
+      chart->RecalculateTransform();
+      this->GetScene()->SetDirty(true);
       ++this->Private->AnimationPhase;
+      return;
     }
-    this->GetScene()->SetDirty(true);
-    return;
-  case 3: // Transition to new dimensionality, update the big chart.
-    this->SetActivePlot(this->Private->NextActivePlot);
-    this->Private->BigChart->Update();
-    this->GetScene()->SetDirty(true);
-    ++this->Private->AnimationPhase;
-    break;
-  case 4:
-    this->GetScene()->SetDirty(true);
-    ++this->Private->AnimationIter;
-    // Clean up - we are done.
-    this->Private->AnimationPhase = 0;
-    if (this->Private->AnimationIter == this->Private->AnimationPath.end())
-    {
-      this->Private->BigChart->SetVisible(true);
-      this->RemoveItem(this->Private->BigChart3D);
-      this->Private->BigChart3D->SetVisible(false);
-      this->Private->Interactor->DestroyTimer(this->Private->TimerId);
-      this->Private->TimerId = 0;
-      this->Private->TimerCallbackInitialized = false;
-      this->Animating = false;
+    case 1: // Make BigChart invisible, and BigChart3D visible.
+      this->Private->BigChart->SetVisible(false);
+      this->AddItem(this->Private->BigChart3D);
+      this->Private->BigChart3D->SetVisible(true);
+      this->GetScene()->SetDirty(true);
+      ++this->Private->AnimationPhase;
+      this->Private->CurrentAngle = 0.0;
+      return;
+    case 2: // Rotation of the 3D chart from start to end angle.
+      if (fabs(this->Private->CurrentAngle) < (this->Private->FinalAngle - 0.001))
+      {
+        this->Private->CurrentAngle += this->Private->IncAngle;
+        this->Private->BigChart3D->SetAngle(this->Private->CurrentAngle);
+      }
+      else
+      {
+        ++this->Private->AnimationPhase;
+      }
+      this->GetScene()->SetDirty(true);
+      return;
+    case 3: // Transition to new dimensionality, update the big chart.
+      this->SetActivePlot(this->Private->NextActivePlot);
+      this->Private->BigChart->Update();
+      this->GetScene()->SetDirty(true);
+      ++this->Private->AnimationPhase;
+      break;
+    case 4:
+      this->GetScene()->SetDirty(true);
+      ++this->Private->AnimationIter;
+      // Clean up - we are done.
+      this->Private->AnimationPhase = 0;
+      if (this->Private->AnimationIter == this->Private->AnimationPath.end())
+      {
+        this->Private->BigChart->SetVisible(true);
+        this->RemoveItem(this->Private->BigChart3D);
+        this->Private->BigChart3D->SetVisible(false);
+        this->Private->Interactor->DestroyTimer(this->Private->TimerId);
+        this->Private->TimerId = 0;
+        this->Private->TimerCallbackInitialized = false;
+        this->Animating = false;
 
-      // Make sure the active plot is redrawn completely after the animation
-      this->Modified();
-      this->ActivePlotValid = false;
-      this->Update();
-    }
+        // Make sure the active plot is redrawn completely after the animation
+        this->Modified();
+        this->ActivePlotValid = false;
+        this->Update();
+      }
   }
 }
 
-void vtkScatterPlotMatrix::ProcessEvents(vtkObject *, unsigned long event,
-                                         void *clientData, void *callerData)
+void vtkScatterPlotMatrix::ProcessEvents(
+  vtkObject*, unsigned long event, void* clientData, void* callerData)
 {
-  vtkScatterPlotMatrix *self =
-      reinterpret_cast<vtkScatterPlotMatrix *>(clientData);
+  vtkScatterPlotMatrix* self = reinterpret_cast<vtkScatterPlotMatrix*>(clientData);
   switch (event)
   {
     case vtkCommand::TimerEvent:
     {
       // We must filter the events to ensure we actually get the timer event we
       // created. I would love signals and slots...
-      int timerId = *reinterpret_cast<int *>(callerData);   // Seems to work.
+      int timerId = *reinterpret_cast<int*>(callerData); // Seems to work.
       if (self->Private->TimerCallbackInitialized &&
-          timerId == static_cast<int>(self->Private->TimerId))
+        timerId == static_cast<int>(self->Private->TimerId))
       {
         self->AdvanceAnimation();
       }
@@ -826,9 +808,9 @@ vtkAnnotationLink* vtkScatterPlotMatrix::GetAnnotationLink()
   return this->Private->Link;
 }
 
-void vtkScatterPlotMatrix::SetInput(vtkTable *table)
+void vtkScatterPlotMatrix::SetInput(vtkTable* table)
 {
-  if(table && table->GetNumberOfRows() == 0)
+  if (table && table->GetNumberOfRows() == 0)
   {
     // do nothing if the table is empty
     return;
@@ -853,8 +835,7 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
   }
 }
 
-void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
-                                               bool visible)
+void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString& name, bool visible)
 {
   if (visible)
   {
@@ -868,13 +849,13 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
     }
     // Add the column to the end of the list if it is a numeric column
     if (this->Input && this->Input->GetColumnByName(name.c_str()) &&
-        vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str())))
+      vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str())))
     {
       this->VisibleColumns->InsertNextValue(name);
       this->Private->VisibleColumnsModified = true;
       this->SetSize(vtkVector2i(0, 0));
-      this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
-                                this->VisibleColumns->GetNumberOfTuples()));
+      this->SetSize(vtkVector2i(
+        this->VisibleColumns->GetNumberOfTuples(), this->VisibleColumns->GetNumberOfTuples()));
       this->Modified();
     }
   }
@@ -888,17 +869,15 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
         // Move all the later elements down by one, and reduce the size
         while (i < this->VisibleColumns->GetNumberOfTuples() - 1)
         {
-          this->VisibleColumns->SetValue(i,
-                                         this->VisibleColumns->GetValue(i + 1));
+          this->VisibleColumns->SetValue(i, this->VisibleColumns->GetValue(i + 1));
           ++i;
         }
-        this->VisibleColumns->SetNumberOfTuples(
-            this->VisibleColumns->GetNumberOfTuples() - 1);
+        this->VisibleColumns->SetNumberOfTuples(this->VisibleColumns->GetNumberOfTuples() - 1);
         this->SetSize(vtkVector2i(0, 0));
-        this->SetSize(vtkVector2i(this->VisibleColumns->GetNumberOfTuples(),
-                                  this->VisibleColumns->GetNumberOfTuples()));
+        this->SetSize(vtkVector2i(
+          this->VisibleColumns->GetNumberOfTuples(), this->VisibleColumns->GetNumberOfTuples()));
         if (this->ActivePlot.GetX() + this->ActivePlot.GetY() + 1 >=
-            this->VisibleColumns->GetNumberOfTuples())
+          this->VisibleColumns->GetNumberOfTuples())
         {
           this->ActivePlot.Set(0, this->VisibleColumns->GetNumberOfTuples() - 1);
         }
@@ -909,10 +888,9 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
   }
 }
 
-void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
-                                               int index)
+void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString& name, int index)
 {
-  if(!this->Input || !this->Input->GetColumnByName(name.c_str()))
+  if (!this->Input || !this->Input->GetColumnByName(name.c_str()))
   {
     return;
   }
@@ -930,16 +908,16 @@ void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
     }
   }
 
-  if(currIdx > 0 && currIdx == index)
+  if (currIdx > 0 && currIdx == index)
   {
-    //This column is already there.
+    // This column is already there.
     return;
   }
 
-  if(currIdx < 0)
+  if (currIdx < 0)
   {
-    this->VisibleColumns->SetNumberOfTuples(numCols+1);
-    if(index >= numCols)
+    this->VisibleColumns->SetNumberOfTuples(numCols + 1);
+    if (index >= numCols)
     {
       this->VisibleColumns->SetValue(numCols, name);
     }
@@ -949,8 +927,7 @@ void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
       vtkIdType idx = (index < 0) ? 0 : index;
       while (startidx > idx)
       {
-        this->VisibleColumns->SetValue(startidx,
-          this->VisibleColumns->GetValue(startidx-1));
+        this->VisibleColumns->SetValue(startidx, this->VisibleColumns->GetValue(startidx - 1));
         startidx--;
       }
       this->VisibleColumns->SetValue(idx, name);
@@ -960,14 +937,13 @@ void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
   else // need to rearrange table columns
   {
     vtkIdType toIdx = (index < 0) ? 0 : index;
-    toIdx = toIdx>numCols ? numCols : toIdx;
-    this->Private->VisibleColumnsModified =
-      MoveColumn(this->VisibleColumns, currIdx, toIdx);
+    toIdx = toIdx > numCols ? numCols : toIdx;
+    this->Private->VisibleColumnsModified = MoveColumn(this->VisibleColumns, currIdx, toIdx);
   }
   this->LayoutIsDirty = true;
 }
 
-bool vtkScatterPlotMatrix::GetColumnVisibility(const vtkStdString &name)
+bool vtkScatterPlotMatrix::GetColumnVisibility(const vtkStdString& name)
 {
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
   {
@@ -1006,15 +982,14 @@ vtkStringArray* vtkScatterPlotMatrix::GetVisibleColumns()
 
 void vtkScatterPlotMatrix::SetVisibleColumns(vtkStringArray* visColumns)
 {
-  if(!visColumns || visColumns->GetNumberOfTuples() == 0)
+  if (!visColumns || visColumns->GetNumberOfTuples() == 0)
   {
     this->SetSize(vtkVector2i(0, 0));
     this->VisibleColumns->SetNumberOfTuples(0);
   }
   else
   {
-    this->VisibleColumns->SetNumberOfTuples(
-      visColumns->GetNumberOfTuples());
+    this->VisibleColumns->SetNumberOfTuples(visColumns->GetNumberOfTuples());
     this->VisibleColumns->DeepCopy(visColumns);
   }
   this->Private->VisibleColumnsModified = true;
@@ -1028,10 +1003,8 @@ void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
     this->NumberOfBins = numberOfBins;
     if (this->Input)
     {
-      PopulateHistograms(this->Input,
-                         this->Private->Histogram,
-                         this->VisibleColumns,
-                         this->NumberOfBins);
+      PopulateHistograms(
+        this->Input, this->Private->Histogram, this->VisibleColumns, this->NumberOfBins);
     }
     this->Modified();
   }
@@ -1039,7 +1012,7 @@ void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
 
 void vtkScatterPlotMatrix::SetPlotColor(int plotType, const vtkColor4ub& color)
 {
-  if(plotType >= 0 && plotType < NOPLOT)
+  if (plotType >= 0 && plotType < NOPLOT)
   {
     if (plotType == ACTIVEPLOT || plotType == SCATTERPLOT)
     {
@@ -1055,17 +1028,17 @@ void vtkScatterPlotMatrix::SetPlotColor(int plotType, const vtkColor4ub& color)
 
 void vtkScatterPlotMatrix::SetPlotMarkerStyle(int plotType, int style)
 {
-  if(plotType >= 0 && plotType < NOPLOT &&
-     style != this->Private->ChartSettings[plotType]->MarkerStyle)
+  if (plotType >= 0 && plotType < NOPLOT &&
+    style != this->Private->ChartSettings[plotType]->MarkerStyle)
   {
     this->Private->ChartSettings[plotType]->MarkerStyle = style;
 
     if (plotType == ACTIVEPLOT)
     {
-      vtkChart *chart = this->Private->BigChart;
+      vtkChart* chart = this->Private->BigChart;
       if (chart)
       {
-        vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+        vtkPlotPoints* plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
         if (plot)
         {
           plot->SetMarkerStyle(style);
@@ -1078,13 +1051,12 @@ void vtkScatterPlotMatrix::SetPlotMarkerStyle(int plotType, int style)
       int plotCount = this->GetSize().GetX();
       for (int i = 0; i < plotCount - 1; ++i)
       {
-        for(int j = 0; j < plotCount - 1; ++j)
+        for (int j = 0; j < plotCount - 1; ++j)
         {
-          if(this->GetPlotType(i, j) == SCATTERPLOT &&
-             this->GetChart(vtkVector2i(i, j)))
+          if (this->GetPlotType(i, j) == SCATTERPLOT && this->GetChart(vtkVector2i(i, j)))
           {
-            vtkChart *chart = this->GetChart(vtkVector2i(i, j));
-            vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+            vtkChart* chart = this->GetChart(vtkVector2i(i, j));
+            vtkPlotPoints* plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
             if (plot)
             {
               plot->SetMarkerStyle(style);
@@ -1099,18 +1071,18 @@ void vtkScatterPlotMatrix::SetPlotMarkerStyle(int plotType, int style)
 
 void vtkScatterPlotMatrix::SetPlotMarkerSize(int plotType, float size)
 {
-  if(plotType >= 0 && plotType < NOPLOT &&
-     size != this->Private->ChartSettings[plotType]->MarkerSize)
+  if (plotType >= 0 && plotType < NOPLOT &&
+    size != this->Private->ChartSettings[plotType]->MarkerSize)
   {
     this->Private->ChartSettings[plotType]->MarkerSize = size;
 
     if (plotType == ACTIVEPLOT)
     {
       // update marker size on current active plot
-      vtkChart *chart = this->Private->BigChart;
-      if(chart)
+      vtkChart* chart = this->Private->BigChart;
+      if (chart)
       {
-        vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
+        vtkPlotPoints* plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
         if (plot)
         {
           plot->SetMarkerSize(size);
@@ -1122,16 +1094,14 @@ void vtkScatterPlotMatrix::SetPlotMarkerSize(int plotType, float size)
     {
       int plotCount = this->GetSize().GetX();
 
-      for(int i = 0; i < plotCount - 1; i++)
+      for (int i = 0; i < plotCount - 1; i++)
       {
-        for(int j = 0; j < plotCount - 1; j++)
+        for (int j = 0; j < plotCount - 1; j++)
         {
-          if(this->GetPlotType(i, j) == SCATTERPLOT &&
-             this->GetChart(vtkVector2i(i, j)))
+          if (this->GetPlotType(i, j) == SCATTERPLOT && this->GetChart(vtkVector2i(i, j)))
           {
-            vtkChart *chart = this->GetChart(vtkVector2i(i, j));
-            vtkPlotPoints *plot = vtkPlotPoints::SafeDownCast(chart
-                                                              ->GetPlot(0));
+            vtkChart* chart = this->GetChart(vtkVector2i(i, j));
+            vtkPlotPoints* plot = vtkPlotPoints::SafeDownCast(chart->GetPlot(0));
             if (plot)
             {
               plot->SetMarkerSize(size);
@@ -1144,24 +1114,23 @@ void vtkScatterPlotMatrix::SetPlotMarkerSize(int plotType, float size)
   }
 }
 
-bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent &)
+bool vtkScatterPlotMatrix::Hit(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-bool vtkScatterPlotMatrix::MouseMoveEvent(const vtkContextMouseEvent &)
+bool vtkScatterPlotMatrix::MouseMoveEvent(const vtkContextMouseEvent&)
 {
   // Eat the event, don't do anything for now...
   return true;
 }
 
-bool vtkScatterPlotMatrix::MouseButtonPressEvent(const vtkContextMouseEvent &)
+bool vtkScatterPlotMatrix::MouseButtonPressEvent(const vtkContextMouseEvent&)
 {
   return true;
 }
 
-bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
-    const vtkContextMouseEvent &mouse)
+bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 {
   // Check we are not currently already animating
   if (this->Private->TimerCallbackInitialized)
@@ -1172,7 +1141,7 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
   // Work out which scatter plot was clicked - make that one the active plot.
   vtkVector2i pos = this->GetChartIndex(mouse.GetPos());
 
-  if(pos.GetX() == -1 || pos.GetX() + pos.GetY() + 1 >= this->Size.GetX())
+  if (pos.GetX() == -1 || pos.GetX() + pos.GetY() + 1 >= this->Size.GetX())
   {
     // We didn't click a chart in the bottom-left triangle of the matrix.
     return true;
@@ -1192,21 +1161,18 @@ bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
     {
       if (pos[0] != this->ActivePlot[0])
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(pos[0],
-                                                           this->ActivePlot[1]));
+        this->Private->AnimationPath.push_back(vtkVector2i(pos[0], this->ActivePlot[1]));
       }
     }
     else
     {
       if (pos[1] != this->ActivePlot[1])
       {
-        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0],
-                                                           pos[1]));
+        this->Private->AnimationPath.push_back(vtkVector2i(this->ActivePlot[0], pos[1]));
       }
     }
-    if ((this->Private->AnimationPath.size() == 1 &&
-         this->Private->AnimationPath.back() != pos) ||
-        (this->Private->AnimationPath.empty() && this->ActivePlot != pos))
+    if ((this->Private->AnimationPath.size() == 1 && this->Private->AnimationPath.back() != pos) ||
+      (this->Private->AnimationPath.empty() && this->ActivePlot != pos))
     {
       this->Private->AnimationPath.push_back(pos);
     }
@@ -1263,7 +1229,7 @@ vtkVector2i vtkScatterPlotMatrix::GetAnimationPathElement(vtkIdType i)
   return this->Private->AnimationPath.at(i);
 }
 
-bool vtkScatterPlotMatrix::AddAnimationPath(const vtkVector2i &move)
+bool vtkScatterPlotMatrix::AddAnimationPath(const vtkVector2i& move)
 {
   vtkVector2i pos = this->ActivePlot;
   if (!this->Private->AnimationPath.empty())
@@ -1295,26 +1261,26 @@ bool vtkScatterPlotMatrix::BeginAnimationPath(vtkRenderWindowInteractor* interac
   }
 }
 
-int vtkScatterPlotMatrix::GetPlotType(const vtkVector2i &pos)
+int vtkScatterPlotMatrix::GetPlotType(const vtkVector2i& pos)
 {
   int plotCount = this->GetSize().GetX();
 
-  if(pos.GetX() + pos.GetY() + 1 < plotCount)
+  if (pos.GetX() + pos.GetY() + 1 < plotCount)
   {
     return SCATTERPLOT;
   }
-  else if(pos.GetX() + pos.GetY() + 1 == plotCount)
+  else if (pos.GetX() + pos.GetY() + 1 == plotCount)
   {
     return HISTOGRAM;
   }
-  else if(pos.GetX() == pos.GetY() &&
-          pos.GetX() == static_cast<int>(plotCount / 2.0) + plotCount % 2)
+  else if (pos.GetX() == pos.GetY() &&
+    pos.GetX() == static_cast<int>(plotCount / 2.0) + plotCount % 2)
   {
     return ACTIVEPLOT;
   }
   else
   {
-      return NOPLOT;
+    return NOPLOT;
   }
 }
 
@@ -1330,15 +1296,14 @@ void vtkScatterPlotMatrix::UpdateAxes()
     return;
   }
   // We need to iterate through all visible columns and set up the axis ranges.
-  vtkAxis *axis(this->Private->TestAxis);
+  vtkAxis* axis(this->Private->TestAxis);
   axis->SetPoint1(0, 0);
   axis->SetPoint2(0, 200);
   for (vtkIdType i = 0; i < this->VisibleColumns->GetNumberOfTuples(); ++i)
   {
     double range[2] = { 0, 0 };
     std::string name(this->VisibleColumns->GetValue(i));
-    vtkDataArray *arr =
-        vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str()));
+    vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str()));
     if (arr)
     {
       PIMPL::ColumnSetting settings;
@@ -1373,13 +1338,12 @@ vtkStdString vtkScatterPlotMatrix::GetRowName(int row)
   return this->VisibleColumns->GetValue(this->Size.GetY() - row - 1);
 }
 
-void vtkScatterPlotMatrix::ApplyAxisSetting(vtkChart *chart,
-                                            const vtkStdString &x,
-                                            const vtkStdString &y)
+void vtkScatterPlotMatrix::ApplyAxisSetting(
+  vtkChart* chart, const vtkStdString& x, const vtkStdString& y)
 {
-  PIMPL::ColumnSetting &xSettings = this->Private->ColumnSettings[x];
-  PIMPL::ColumnSetting &ySettings = this->Private->ColumnSettings[y];
-  vtkAxis *axis = chart->GetAxis(vtkAxis::BOTTOM);
+  PIMPL::ColumnSetting& xSettings = this->Private->ColumnSettings[x];
+  PIMPL::ColumnSetting& ySettings = this->Private->ColumnSettings[y];
+  vtkAxis* axis = chart->GetAxis(vtkAxis::BOTTOM);
   axis->SetUnscaledRange(xSettings.min, xSettings.max);
   axis->SetBehavior(vtkAxis::FIXED);
   axis = chart->GetAxis(vtkAxis::TOP);
@@ -1412,14 +1376,14 @@ void vtkScatterPlotMatrix::UpdateLayout()
   this->UpdateAxes();
   this->Private->BigChart3D->SetAnnotationLink(this->Private->Link);
   for (int i = 0; i < n; ++i)
-    {
+  {
     vtkStdString column = this->GetColumnName(i);
     for (int j = 0; j < n; ++j)
-      {
+    {
       vtkStdString row = this->GetRowName(j);
       vtkVector2i pos(i, j);
       if (this->GetPlotType(pos) == SCATTERPLOT)
-        {
+      {
         vtkChart* chart = this->GetChart(pos);
         this->ApplyAxisSetting(chart, column, row);
         chart->ClearPlots();
@@ -1429,34 +1393,28 @@ void vtkScatterPlotMatrix::UpdateLayout()
         chart->SetActionToButton(vtkChart::PAN, -1);
         chart->SetActionToButton(vtkChart::ZOOM, -1);
         chart->SetActionToButton(vtkChart::SELECT, -1);
-        vtkPlot *plot = chart->AddPlot(vtkChart::POINTS);
+        vtkPlot* plot = chart->AddPlot(vtkChart::POINTS);
         plot->SetInputData(this->Input, column, row);
-        plot->SetPen(this->Private->ChartSettings[SCATTERPLOT]
-                     ->PlotPen);
+        plot->SetPen(this->Private->ChartSettings[SCATTERPLOT]->PlotPen);
         // set plot marker size and style
-        vtkPlotPoints *plotPoints = vtkPlotPoints::SafeDownCast(plot);
-        plotPoints->SetMarkerSize(this->Private->ChartSettings[SCATTERPLOT]
-                                  ->MarkerSize);
-        plotPoints->SetMarkerStyle(this->Private->ChartSettings[SCATTERPLOT]
-                                   ->MarkerStyle);
+        vtkPlotPoints* plotPoints = vtkPlotPoints::SafeDownCast(plot);
+        plotPoints->SetMarkerSize(this->Private->ChartSettings[SCATTERPLOT]->MarkerSize);
+        plotPoints->SetMarkerStyle(this->Private->ChartSettings[SCATTERPLOT]->MarkerStyle);
         this->AddSupplementaryPlot(chart, SCATTERPLOT, row, column);
-        }
+      }
       else if (this->GetPlotType(pos) == HISTOGRAM)
-        {
+      {
         // We are on the diagonal - need a histogram plot.
         vtkChart* chart = this->GetChart(pos);
         chart->SetInteractive(false);
         this->ApplyAxisSetting(chart, column, row);
         chart->ClearPlots();
-        vtkPlot *plot = chart->AddPlot(vtkChart::BAR);
-        plot->SetPen(this->Private->ChartSettings[HISTOGRAM]
-                     ->PlotPen);
-        plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]
-                       ->PlotBrush);
+        vtkPlot* plot = chart->AddPlot(vtkChart::BAR);
+        plot->SetPen(this->Private->ChartSettings[HISTOGRAM]->PlotPen);
+        plot->SetBrush(this->Private->ChartSettings[HISTOGRAM]->PlotBrush);
         vtkStdString name(this->VisibleColumns->GetValue(i));
-        plot->SetInputData(this->Private->Histogram,
-                           name + "_extents", name + "_pops");
-        vtkAxis *axis = chart->GetAxis(vtkAxis::TOP);
+        plot->SetInputData(this->Private->Histogram, name + "_extents", name + "_pops");
+        vtkAxis* axis = chart->GetAxis(vtkAxis::TOP);
         axis->SetTitle(name);
         axis->SetLabelsVisible(false);
         // Show the labels on the right for populations of bins.
@@ -1465,35 +1423,31 @@ void vtkScatterPlotMatrix::UpdateLayout()
         axis->SetBehavior(vtkAxis::AUTO);
         axis->AutoScale();
         // Set the plot corner to the top-right
-        vtkChartXY *xy = vtkChartXY::SafeDownCast(chart);
+        vtkChartXY* xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
-          {
+        {
           xy->SetBarWidthFraction(1.0);
           xy->SetPlotCorner(plot, 2);
-          }
+        }
 
         // set background color to light gray
-        xy->SetBackgroundBrush(this->Private->ChartSettings[HISTOGRAM]
-                               ->BackgroundBrush);
-        }
+        xy->SetBackgroundBrush(this->Private->ChartSettings[HISTOGRAM]->BackgroundBrush);
+      }
       else if (this->GetPlotType(pos) == ACTIVEPLOT)
-        {
+      {
         // This big plot in the top-right
         this->Private->BigChart = this->GetChart(pos);
         this->Private->BigChartPos = pos;
-        this->Private->BigChart->SetAnnotationLink(
-              this->Private->Link);
-        this->Private->BigChart->AddObserver(
-          vtkCommand::SelectionChangedEvent, this,
+        this->Private->BigChart->SetAnnotationLink(this->Private->Link);
+        this->Private->BigChart->AddObserver(vtkCommand::SelectionChangedEvent, this,
           &vtkScatterPlotMatrix::BigChartSelectionCallback);
 
         // set tooltip item
-        vtkChartXY *chartXY =
-          vtkChartXY::SafeDownCast(this->Private->BigChart);
-        if(chartXY)
-          {
+        vtkChartXY* chartXY = vtkChartXY::SafeDownCast(this->Private->BigChart);
+        if (chartXY)
+        {
           chartXY->SetTooltip(this->Private->TooltipItem);
-          }
+        }
 
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         if (!this->ActivePlotValid)
@@ -1504,56 +1458,56 @@ void vtkScatterPlotMatrix::UpdateLayout()
           }
           this->SetActivePlot(this->ActivePlot);
         }
-        }
+      }
       // Only show bottom axis label for bottom plots
       if (j > 0)
-        {
-        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
+      {
+        vtkAxis* axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
         axis->SetTitle("");
         axis->SetLabelsVisible(false);
         axis->SetBehavior(vtkAxis::FIXED);
-        }
+      }
       else
-        {
-        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
+      {
+        vtkAxis* axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
         axis->SetTitle(this->VisibleColumns->GetValue(i));
         axis->SetLabelsVisible(false);
         this->AttachAxisRangeListener(axis);
-        }
+      }
       // Only show the left axis labels for left-most plots
       if (i > 0)
-        {
-        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
+      {
+        vtkAxis* axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
         axis->SetTitle("");
         axis->SetLabelsVisible(false);
         axis->SetBehavior(vtkAxis::FIXED);
-        }
+      }
       else
-        {
-        vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
+      {
+        vtkAxis* axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
         axis->SetTitle(this->VisibleColumns->GetValue(n - j - 1));
         axis->SetLabelsVisible(false);
         this->AttachAxisRangeListener(axis);
-        }
       }
     }
+  }
 }
 
 void vtkScatterPlotMatrix::ResizeBigChart()
 {
   if (!this->Private->ResizingBigChart)
-    {
+  {
     this->ClearSpecificResizes();
     int n = this->Size.GetX();
     // The big chart need to be resized only when it is
     // "between" the histograms, ie. when n is even.
-    if (n%2 == 0)
-      {
+    if (n % 2 == 0)
+    {
       // 30*30 is an acceptable default size to resize with
       int resizeX = 30;
       int resizeY = 30;
       if (this->CurrentPainter)
-        {
+      {
         // Try to use painter to resize the big plot
         int i = this->Private->BigChartPos.GetX();
         int j = this->Private->BigChartPos.GetY();
@@ -1562,81 +1516,70 @@ void vtkScatterPlotMatrix::ResizeBigChart()
         vtkChart* leftChart = this->GetChart(posLeft);
         vtkChart* bottomChart = this->GetChart(posLeft);
         if (leftChart)
-          {
+        {
           vtkAxis* leftAxis = leftChart->GetAxis(vtkAxis::RIGHT);
           if (leftAxis)
-            {
-            resizeX = std::max(leftAxis->GetBoundingRect(
-              this->CurrentPainter).GetWidth() - this->Gutter.GetX(), this->Gutter.GetX());
-            }
-          }
-        if (bottomChart)
           {
-          vtkAxis* bottomAxis = bottomChart->GetAxis(vtkAxis::TOP);
-          if (bottomAxis)
-            {
-            resizeY = std::max(bottomAxis->GetBoundingRect(
-              this->CurrentPainter).GetHeight() - this->Gutter.GetY(), this->Gutter.GetY());
-            }
+            resizeX = std::max(
+              leftAxis->GetBoundingRect(this->CurrentPainter).GetWidth() - this->Gutter.GetX(),
+              this->Gutter.GetX());
           }
         }
+        if (bottomChart)
+        {
+          vtkAxis* bottomAxis = bottomChart->GetAxis(vtkAxis::TOP);
+          if (bottomAxis)
+          {
+            resizeY = std::max(
+              bottomAxis->GetBoundingRect(this->CurrentPainter).GetHeight() - this->Gutter.GetY(),
+              this->Gutter.GetY());
+          }
+        }
+      }
 
       // Move big plot bottom left point to avoid overlap
       vtkVector2f resize(resizeX, resizeY);
       this->SetSpecificResize(this->Private->BigChartPos, resize);
       if (this->LayoutIsDirty)
-        {
+      {
         this->Private->ResizingBigChart = true;
         this->GetScene()->SetDirty(true);
-        }
       }
     }
+  }
   else
-    {
+  {
     this->Private->ResizingBigChart = false;
-    }
+  }
 }
 
 void vtkScatterPlotMatrix::AttachAxisRangeListener(vtkAxis* axis)
 {
-  axis->AddObserver(vtkChart::UpdateRange, this,
-                    &vtkScatterPlotMatrix::AxisRangeForwarderCallback);
+  axis->AddObserver(vtkChart::UpdateRange, this, &vtkScatterPlotMatrix::AxisRangeForwarderCallback);
 }
 
-void vtkScatterPlotMatrix::AxisRangeForwarderCallback(vtkObject*,
-                                                      unsigned long, void*)
+void vtkScatterPlotMatrix::AxisRangeForwarderCallback(vtkObject*, unsigned long, void*)
 {
   // Only set on the end axes, and propagated to all other matching axes.
   double r[2];
   int n = this->GetSize().GetX() - 1;
   for (int i = 0; i < n; ++i)
   {
-    this->GetChart(vtkVector2i(i, 0))
-      ->GetAxis(vtkAxis::BOTTOM)
-      ->GetUnscaledRange(r);
+    this->GetChart(vtkVector2i(i, 0))->GetAxis(vtkAxis::BOTTOM)->GetUnscaledRange(r);
     for (int j = 1; j < n - i; ++j)
     {
-      this->GetChart(vtkVector2i(i, j))
-        ->GetAxis(vtkAxis::BOTTOM)
-        ->SetUnscaledRange(r);
+      this->GetChart(vtkVector2i(i, j))->GetAxis(vtkAxis::BOTTOM)->SetUnscaledRange(r);
     }
-    this->GetChart(vtkVector2i(i, n-i))
-      ->GetAxis(vtkAxis::TOP)
-      ->SetUnscaledRange(r);
-    this->GetChart(vtkVector2i(0, i))
-      ->GetAxis(vtkAxis::LEFT)
-      ->GetUnscaledRange(r);
+    this->GetChart(vtkVector2i(i, n - i))->GetAxis(vtkAxis::TOP)->SetUnscaledRange(r);
+    this->GetChart(vtkVector2i(0, i))->GetAxis(vtkAxis::LEFT)->GetUnscaledRange(r);
     for (int j = 1; j < n - i; ++j)
     {
-      this->GetChart(vtkVector2i(j, i))
-        ->GetAxis(vtkAxis::LEFT)
-        ->SetUnscaledRange(r);
+      this->GetChart(vtkVector2i(j, i))->GetAxis(vtkAxis::LEFT)->SetUnscaledRange(r);
     }
   }
 }
 
-void vtkScatterPlotMatrix::BigChartSelectionCallback(vtkObject*,
-  unsigned long event, void*)
+void vtkScatterPlotMatrix::BigChartSelectionCallback(vtkObject*, unsigned long event, void*)
 {
   // forward the SelectionChangedEvent from the Big Chart plot
   this->InvokeEvent(event);
@@ -1656,7 +1599,7 @@ vtkStdString vtkScatterPlotMatrix::GetTitle()
   return this->Title;
 }
 
-void vtkScatterPlotMatrix::SetTitleProperties(vtkTextProperty *prop)
+void vtkScatterPlotMatrix::SetTitleProperties(vtkTextProperty* prop)
 {
   if (this->TitleProperties != prop)
   {
@@ -1670,11 +1613,10 @@ vtkTextProperty* vtkScatterPlotMatrix::GetTitleProperties()
   return this->TitleProperties;
 }
 
-void vtkScatterPlotMatrix::SetAxisLabelProperties(int plotType,
-                                                  vtkTextProperty *prop)
+void vtkScatterPlotMatrix::SetAxisLabelProperties(int plotType, vtkTextProperty* prop)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT &&
-      this->Private->ChartSettings[plotType]->LabelFont != prop)
+    this->Private->ChartSettings[plotType]->LabelFont != prop)
   {
     this->Private->ChartSettings[plotType]->LabelFont = prop;
     this->Modified();
@@ -1691,8 +1633,7 @@ vtkTextProperty* vtkScatterPlotMatrix::GetAxisLabelProperties(int plotType)
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetBackgroundColor(int plotType,
-                                              const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetBackgroundColor(int plotType, const vtkColor4ub& color)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
   {
@@ -1702,8 +1643,7 @@ void vtkScatterPlotMatrix::SetBackgroundColor(int plotType,
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetAxisColor(int plotType,
-                                        const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetAxisColor(int plotType, const vtkColor4ub& color)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
   {
@@ -1715,7 +1655,7 @@ void vtkScatterPlotMatrix::SetAxisColor(int plotType,
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetGridVisibility(int plotType, bool visible)
 {
-  if(plotType!= NOPLOT)
+  if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->ShowGrid = visible;
     // How to update
@@ -1724,8 +1664,7 @@ void vtkScatterPlotMatrix::SetGridVisibility(int plotType, bool visible)
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetGridColor(int plotType,
-                                        const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetGridColor(int plotType, const vtkColor4ub& color)
 {
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
   {
@@ -1738,7 +1677,7 @@ void vtkScatterPlotMatrix::SetGridColor(int plotType,
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisLabelVisibility(int plotType, bool visible)
 {
-  if(plotType!= NOPLOT)
+  if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->ShowAxisLabels = visible;
     // How to update
@@ -1749,7 +1688,7 @@ void vtkScatterPlotMatrix::SetAxisLabelVisibility(int plotType, bool visible)
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisLabelNotation(int plotType, int notation)
 {
-  if(plotType!= NOPLOT)
+  if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->LabelNotation = notation;
     // How to update
@@ -1760,7 +1699,7 @@ void vtkScatterPlotMatrix::SetAxisLabelNotation(int plotType, int notation)
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetAxisLabelPrecision(int plotType, int precision)
 {
-  if(plotType!= NOPLOT)
+  if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->LabelPrecision = precision;
     // How to update
@@ -1771,7 +1710,7 @@ void vtkScatterPlotMatrix::SetAxisLabelPrecision(int plotType, int precision)
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetTooltipNotation(int plotType, int notation)
 {
-  if(plotType!= NOPLOT)
+  if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->TooltipNotation = notation;
     // How to update
@@ -1782,7 +1721,7 @@ void vtkScatterPlotMatrix::SetTooltipNotation(int plotType, int notation)
 //----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetTooltipPrecision(int plotType, int precision)
 {
-  if(plotType!= NOPLOT)
+  if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->TooltipPrecision = precision;
     // How to update
@@ -1791,16 +1730,14 @@ void vtkScatterPlotMatrix::SetTooltipPrecision(int plotType, int precision)
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetScatterPlotSelectedRowColumnColor(
-    const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetScatterPlotSelectedRowColumnColor(const vtkColor4ub& color)
 {
   this->Private->SelectedRowColumnBGBrush->SetColor(color);
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetScatterPlotSelectedActiveColor(
-    const vtkColor4ub& color)
+void vtkScatterPlotMatrix::SetScatterPlotSelectedActiveColor(const vtkColor4ub& color)
 {
   this->Private->SelectedChartBGBrush->SetColor(color);
   this->Modified();
@@ -1813,13 +1750,13 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
   {
     int plotCount = this->GetSize().GetX();
 
-    for(int i = 0; i < plotCount; i++)
+    for (int i = 0; i < plotCount; i++)
     {
-      vtkChart *chart = this->GetChart(vtkVector2i(i, plotCount - i - 1));
-      this->Private->UpdateAxis(chart->GetAxis(vtkAxis::TOP),
-                                this->Private->ChartSettings[HISTOGRAM]);
-      this->Private->UpdateAxis(chart->GetAxis(vtkAxis::RIGHT),
-                                this->Private->ChartSettings[HISTOGRAM]);
+      vtkChart* chart = this->GetChart(vtkVector2i(i, plotCount - i - 1));
+      this->Private->UpdateAxis(
+        chart->GetAxis(vtkAxis::TOP), this->Private->ChartSettings[HISTOGRAM]);
+      this->Private->UpdateAxis(
+        chart->GetAxis(vtkAxis::RIGHT), this->Private->ChartSettings[HISTOGRAM]);
       this->Private->UpdateChart(chart, this->Private->ChartSettings[HISTOGRAM]);
     }
   }
@@ -1833,11 +1770,11 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
       {
         if (this->GetPlotType(i, j) == SCATTERPLOT)
         {
-          vtkChart *chart = this->GetChart(vtkVector2i(i, j));
-          bool updateleft = i==0 ? true : false;
-          bool updatebottom = j==0 ? true : false;
-          this->Private->UpdateAxis(chart->GetAxis(vtkAxis::LEFT),
-            this->Private->ChartSettings[SCATTERPLOT], updateleft);
+          vtkChart* chart = this->GetChart(vtkVector2i(i, j));
+          bool updateleft = i == 0 ? true : false;
+          bool updatebottom = j == 0 ? true : false;
+          this->Private->UpdateAxis(
+            chart->GetAxis(vtkAxis::LEFT), this->Private->ChartSettings[SCATTERPLOT], updateleft);
           this->Private->UpdateAxis(chart->GetAxis(vtkAxis::BOTTOM),
             this->Private->ChartSettings[SCATTERPLOT], updatebottom);
         }
@@ -1846,12 +1783,11 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
   }
   else if (plotType == ACTIVEPLOT && this->Private->BigChart)
   {
-    this->Private->UpdateAxis(this->Private->BigChart->GetAxis(vtkAxis::TOP),
-                              this->Private->ChartSettings[ACTIVEPLOT]);
-    this->Private->UpdateAxis(this->Private->BigChart->GetAxis(vtkAxis::RIGHT),
-                              this->Private->ChartSettings[ACTIVEPLOT]);
-    this->Private->UpdateChart(this->Private->BigChart,
-                               this->Private->ChartSettings[ACTIVEPLOT]);
+    this->Private->UpdateAxis(
+      this->Private->BigChart->GetAxis(vtkAxis::TOP), this->Private->ChartSettings[ACTIVEPLOT]);
+    this->Private->UpdateAxis(
+      this->Private->BigChart->GetAxis(vtkAxis::RIGHT), this->Private->ChartSettings[ACTIVEPLOT]);
+    this->Private->UpdateChart(this->Private->BigChart, this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->BigChart->SetSelectionMode(this->SelectionMode);
   }
   this->Modified();
@@ -1859,14 +1795,13 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
 //-----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
 {
-  if (this->SelectionMode == selMode ||
-      selMode < vtkContextScene::SELECTION_NONE ||
-      selMode > vtkContextScene::SELECTION_TOGGLE)
+  if (this->SelectionMode == selMode || selMode < vtkContextScene::SELECTION_NONE ||
+    selMode > vtkContextScene::SELECTION_TOGGLE)
   {
     return;
   }
   this->SelectionMode = selMode;
-  if(this->Private->BigChart)
+  if (this->Private->BigChart)
   {
     this->Private->BigChart->SetSelectionMode(selMode);
   }
@@ -1875,7 +1810,7 @@ void vtkScatterPlotMatrix::SetSelectionMode(int selMode)
 }
 
 //-----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetSize(const vtkVector2i &size)
+void vtkScatterPlotMatrix::SetSize(const vtkVector2i& size)
 {
   if (this->Size.GetX() != size.GetX() || this->Size.GetY() != size.GetY())
   {
@@ -1889,7 +1824,7 @@ void vtkScatterPlotMatrix::SetSize(const vtkVector2i &size)
 void vtkScatterPlotMatrix::UpdateSettings()
 {
 
-// TODO: Should update the Scatter plot title
+  // TODO: Should update the Scatter plot title
 
   this->UpdateChartSettings(ACTIVEPLOT);
   this->UpdateChartSettings(HISTOGRAM);
@@ -1907,8 +1842,7 @@ bool vtkScatterPlotMatrix::GetGridVisibility(int plotType)
 vtkColor4ub vtkScatterPlotMatrix::GetBackgroundColor(int plotType)
 {
   assert(plotType != NOPLOT);
-  return this->Private->ChartSettings[plotType]->BackgroundBrush
-      ->GetColorObject();
+  return this->Private->ChartSettings[plotType]->BackgroundBrush->GetColorObject();
 }
 
 //----------------------------------------------------------------------------
@@ -1960,17 +1894,16 @@ int vtkScatterPlotMatrix::GetTooltipPrecision(int plotType)
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetTooltip(vtkTooltipItem *tooltip)
+void vtkScatterPlotMatrix::SetTooltip(vtkTooltipItem* tooltip)
 {
-  if(tooltip != this->Private->TooltipItem)
+  if (tooltip != this->Private->TooltipItem)
   {
     this->Private->TooltipItem = tooltip;
     this->Modified();
 
-    vtkChartXY *chartXY =
-      vtkChartXY::SafeDownCast(this->Private->BigChart);
+    vtkChartXY* chartXY = vtkChartXY::SafeDownCast(this->Private->BigChart);
 
-    if(chartXY)
+    if (chartXY)
     {
       chartXY->SetTooltip(tooltip);
     }
@@ -1984,18 +1917,18 @@ vtkTooltipItem* vtkScatterPlotMatrix::GetTooltip() const
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::SetIndexedLabels(vtkStringArray *labels)
+void vtkScatterPlotMatrix::SetIndexedLabels(vtkStringArray* labels)
 {
-  if(labels != this->Private->IndexedLabelsArray)
+  if (labels != this->Private->IndexedLabelsArray)
   {
     this->Private->IndexedLabelsArray = labels;
     this->Modified();
 
-    if(this->Private->BigChart)
+    if (this->Private->BigChart)
     {
-      vtkPlot *plot = this->Private->BigChart->GetPlot(0);
+      vtkPlot* plot = this->Private->BigChart->GetPlot(0);
 
-      if(plot)
+      if (plot)
       {
         plot->SetIndexedLabels(labels);
       }
@@ -2022,13 +1955,13 @@ vtkColor4ub vtkScatterPlotMatrix::GetScatterPlotSelectedActiveColor()
 }
 
 //----------------------------------------------------------------------------
-vtkChart * vtkScatterPlotMatrix::GetMainChart()
+vtkChart* vtkScatterPlotMatrix::GetMainChart()
 {
   return this->Private->BigChart;
 }
 
 //----------------------------------------------------------------------------
-void vtkScatterPlotMatrix::PrintSelf(ostream &os, vtkIndent indent)
+void vtkScatterPlotMatrix::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
 

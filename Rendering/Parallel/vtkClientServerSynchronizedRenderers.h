@@ -17,7 +17,7 @@
  *
  * vtkClientServerSynchronizedRenderers is a vtkSynchronizedRenderers subclass
  * designed to be used in 2 processes, client-server mode.
-*/
+ */
 
 #ifndef vtkClientServerSynchronizedRenderers_h
 #define vtkClientServerSynchronizedRenderers_h
@@ -25,8 +25,8 @@
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"
 
-class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers :
-  public vtkSynchronizedRenderers
+class VTKRENDERINGPARALLEL_EXPORT vtkClientServerSynchronizedRenderers
+  : public vtkSynchronizedRenderers
 {
 public:
   static vtkClientServerSynchronizedRenderers* New();
@@ -43,7 +43,6 @@ protected:
 private:
   vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) = delete;
   void operator=(const vtkClientServerSynchronizedRenderers&) = delete;
-
 };
 
 #endif

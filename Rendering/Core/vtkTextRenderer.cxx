@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 // The singleton, and the singleton cleanup
-vtkTextRenderer *vtkTextRenderer::Instance = nullptr;
+vtkTextRenderer* vtkTextRenderer::Instance = nullptr;
 vtkTextRendererCleanup vtkTextRenderer::Cleanup;
 
 //----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ vtkTextRendererCleanup::~vtkTextRendererCleanup()
 }
 
 //----------------------------------------------------------------------------
-void vtkTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
+void vtkTextRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -50,9 +50,9 @@ void vtkTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkTextRenderer *vtkTextRenderer::New()
+vtkTextRenderer* vtkTextRenderer::New()
 {
-  vtkTextRenderer *instance = vtkTextRenderer::GetInstance();
+  vtkTextRenderer* instance = vtkTextRenderer::GetInstance();
   if (instance)
   {
     instance->Register(nullptr);
@@ -61,21 +61,21 @@ vtkTextRenderer *vtkTextRenderer::New()
 }
 
 //----------------------------------------------------------------------------
-vtkTextRenderer *vtkTextRenderer::GetInstance()
+vtkTextRenderer* vtkTextRenderer::GetInstance()
 {
   if (vtkTextRenderer::Instance)
   {
     return vtkTextRenderer::Instance;
   }
 
-  vtkTextRenderer::Instance = static_cast<vtkTextRenderer*>(
-        vtkObjectFactory::CreateInstance("vtkTextRenderer"));
+  vtkTextRenderer::Instance =
+    static_cast<vtkTextRenderer*>(vtkObjectFactory::CreateInstance("vtkTextRenderer"));
 
   return vtkTextRenderer::Instance;
 }
 
 //----------------------------------------------------------------------------
-void vtkTextRenderer::SetInstance(vtkTextRenderer *instance)
+void vtkTextRenderer::SetInstance(vtkTextRenderer* instance)
 {
   if (vtkTextRenderer::Instance == instance)
   {
@@ -97,9 +97,9 @@ void vtkTextRenderer::SetInstance(vtkTextRenderer *instance)
 
 //----------------------------------------------------------------------------
 vtkTextRenderer::vtkTextRenderer()
-  : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.*[^\\]\\$")),
-    MathTextRegExp2(new vtksys::RegularExpression("^\\$.*[^\\]\\$")),
-    DefaultBackend(Detect)
+  : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.*[^\\]\\$"))
+  , MathTextRegExp2(new vtksys::RegularExpression("^\\$.*[^\\]\\$"))
+  , DefaultBackend(Detect)
 {
 }
 
@@ -111,7 +111,7 @@ vtkTextRenderer::~vtkTextRenderer()
 }
 
 //----------------------------------------------------------------------------
-int vtkTextRenderer::DetectBackend(const vtkStdString &str)
+int vtkTextRenderer::DetectBackend(const vtkStdString& str)
 {
   if (!str.empty())
   {
@@ -122,8 +122,7 @@ int vtkTextRenderer::DetectBackend(const vtkStdString &str)
     //   MathTextRegExp  = "[^\\]\\$.*[^\\]\\$"
     // Find unescaped "$...$" patterns where "$" is the first character:
     //   MathTextRegExp2 = "^\\$.*[^\\]\\$"
-    if ((str[0] == '$' && this->MathTextRegExp2->find(str)) ||
-        this->MathTextRegExp->find(str))
+    if ((str[0] == '$' && this->MathTextRegExp2->find(str)) || this->MathTextRegExp->find(str))
     {
       return static_cast<int>(MathText);
     }
@@ -132,7 +131,7 @@ int vtkTextRenderer::DetectBackend(const vtkStdString &str)
 }
 
 //----------------------------------------------------------------------------
-int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
+int vtkTextRenderer::DetectBackend(const vtkUnicodeString& str)
 {
   if (!str.empty())
   {
@@ -144,7 +143,7 @@ int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
     // Find unescaped "$...$" patterns where "$" is the first character:
     //   MathTextRegExp2 = "^\\$.*[^\\]\\$"
     if ((str[0] == '$' && this->MathTextRegExp2->find(str.utf8_str())) ||
-        this->MathTextRegExp->find(str.utf8_str()))
+      this->MathTextRegExp->find(str.utf8_str()))
     {
       return static_cast<int>(MathText);
     }
@@ -153,7 +152,7 @@ int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
 }
 
 //----------------------------------------------------------------------------
-void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString &str)
+void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString& str)
 {
   size_t ind = str.find("\\$");
   while (ind != std::string::npos)
@@ -164,7 +163,7 @@ void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkStdString &str)
 }
 
 //----------------------------------------------------------------------------
-void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString &str)
+void vtkTextRenderer::CleanUpFreeTypeEscapes(vtkUnicodeString& str)
 {
   // vtkUnicodeString has only a subset of the std::string API available, so
   // this method is more complex than the std::string overload.

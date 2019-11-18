@@ -51,7 +51,7 @@ void vtkPBRPrefilterTexture::PrintSelf(ostream& os, vtkIndent indent)
 
 // ---------------------------------------------------------------------------
 // Release the graphics resources used by this texture.
-void vtkPBRPrefilterTexture::ReleaseGraphicsResources(vtkWindow *win)
+void vtkPBRPrefilterTexture::ReleaseGraphicsResources(vtkWindow* win)
 {
   if (this->InputCubeMap)
   {
@@ -147,7 +147,8 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
 
     if (this->ConvertToLinear)
     {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
+      vtkShaderProgram::Substitute(
+        FSSource, "//VTK::COLORSPACE::Decl", "return pow(col, vec3(2.2));");
     }
     else
     {

@@ -26,7 +26,7 @@ enum
   VTK_MARKER_CIRCLE,
   VTK_MARKER_DIAMOND,
 
-  VTK_MARKER_UNKNOWN  // Must be last.
+  VTK_MARKER_UNKNOWN // Must be last.
 };
 
 #endif // vtkRenderingCoreEnums_h

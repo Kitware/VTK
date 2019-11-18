@@ -21,7 +21,7 @@
  * determines whether the data will be written in one or multiple files.
  * This class is used as the superclass of most image writing classes
  * such as vtkBMPWriter etc. It supports streaming.
-*/
+ */
 
 #ifndef vtkImageWriter_h
 #define vtkImageWriter_h
@@ -32,8 +32,8 @@
 class VTKIOIMAGE_EXPORT vtkImageWriter : public vtkImageAlgorithm
 {
 public:
-  static vtkImageWriter *New();
-  vtkTypeMacro(vtkImageWriter,vtkImageAlgorithm);
+  static vtkImageWriter* New();
+  vtkTypeMacro(vtkImageWriter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -77,7 +77,7 @@ public:
   /**
    * Set/Get the input object from the image pipeline.
    */
-  vtkImageData *GetInput();
+  vtkImageData* GetInput();
 
   /**
    * The main interface which triggers the writer to start.
@@ -91,28 +91,20 @@ protected:
   ~vtkImageWriter() override;
 
   int FileDimensionality;
-  char *FilePrefix;
-  char *FilePattern;
-  char *FileName;
+  char* FilePrefix;
+  char* FilePattern;
+  char* FileName;
   int FileNumber;
   int FileLowerLeft;
-  char *InternalFileName;
+  char* InternalFileName;
   size_t InternalFileNameSize;
 
-  virtual void RecursiveWrite(int dim,
-                              vtkImageData *region,
-                              vtkInformation*inInfo,
-                              ostream *file);
-  virtual void RecursiveWrite(int dim,
-                              vtkImageData *cache,
-                              vtkImageData *data,
-                              vtkInformation* inInfo,
-                              ostream *file);
-  virtual void WriteFile(ostream *file, vtkImageData *data,
-                         int extent[6], int wExtent[6]);
-  virtual void WriteFileHeader(ostream *, vtkImageData *, int [6]) {}
-  virtual void WriteFileTrailer(ostream *, vtkImageData *) {}
-
+  virtual void RecursiveWrite(int dim, vtkImageData* region, vtkInformation* inInfo, ostream* file);
+  virtual void RecursiveWrite(
+    int dim, vtkImageData* cache, vtkImageData* data, vtkInformation* inInfo, ostream* file);
+  virtual void WriteFile(ostream* file, vtkImageData* data, int extent[6], int wExtent[6]);
+  virtual void WriteFileHeader(ostream*, vtkImageData*, int[6]) {}
+  virtual void WriteFileTrailer(ostream*, vtkImageData*) {}
 
   // Required for subclasses that need to prevent the writer
   // from touching the file system. The getter/setter are only
@@ -121,16 +113,12 @@ protected:
 
   // subclasses that do write to memory can override this
   // to implement the simple case
-  virtual void MemoryWrite(int,
-                           vtkImageData *,
-                           int [6],
-                           vtkInformation*) {};
+  virtual void MemoryWrite(int, vtkImageData*, int[6], vtkInformation*) {}
 
   // This is called by the superclass.
   // This is the method you should override.
-  int RequestData(vtkInformation *request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   int MinimumFileNumber;
   int MaximumFileNumber;

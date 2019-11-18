@@ -23,7 +23,7 @@
  *
  * Simply passes existing edge layout information from the input to the
  * output without making changes.
-*/
+ */
 
 #ifndef vtkPassThroughEdgeStrategy_h
 #define vtkPassThroughEdgeStrategy_h
@@ -35,7 +35,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkPassThroughEdgeStrategy : public vtkEdgeLayoutS
 {
 public:
   static vtkPassThroughEdgeStrategy* New();
-  vtkTypeMacro(vtkPassThroughEdgeStrategy,vtkEdgeLayoutStrategy);
+  vtkTypeMacro(vtkPassThroughEdgeStrategy, vtkEdgeLayoutStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -54,4 +54,3 @@ private:
 };
 
 #endif
-

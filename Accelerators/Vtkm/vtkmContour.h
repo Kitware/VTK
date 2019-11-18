@@ -28,7 +28,7 @@
  * contouring other types of data, use the general vtkContourFilter. If you
  * want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
  *
-*/
+ */
 
 #ifndef vtkmContour_h
 #define vtkmContour_h
@@ -39,7 +39,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmContour : public vtkContourFilter
 {
 public:
-  vtkTypeMacro(vtkmContour,vtkContourFilter)
+  vtkTypeMacro(vtkmContour, vtkContourFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmContour* New();
 
@@ -47,8 +47,7 @@ protected:
   vtkmContour();
   ~vtkmContour();
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmContour(const vtkmContour&) = delete;

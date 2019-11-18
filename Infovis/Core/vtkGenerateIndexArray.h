@@ -40,7 +40,7 @@
  * useful when generating tensors, since it allows us to "map"
  * from an array with arbitrary contents to an index that can
  * be used as tensor coordinates.
-*/
+ */
 
 #ifndef vtkGenerateIndexArray_h
 #define vtkGenerateIndexArray_h
@@ -51,7 +51,7 @@
 class VTKINFOVISCORE_EXPORT vtkGenerateIndexArray : public vtkDataObjectAlgorithm
 {
 public:
-  static vtkGenerateIndexArray *New();
+  static vtkGenerateIndexArray* New();
 
   vtkTypeMacro(vtkGenerateIndexArray, vtkDataObjectAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -102,20 +102,13 @@ protected:
   vtkGenerateIndexArray();
   ~vtkGenerateIndexArray() override;
 
-  vtkTypeBool ProcessRequest(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestDataObject(
-    vtkInformation* request,
-    vtkInformationVector** inputVector,
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   char* ArrayName;
   int FieldType;
@@ -128,4 +121,3 @@ private:
 };
 
 #endif
-

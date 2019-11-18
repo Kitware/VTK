@@ -35,7 +35,7 @@
  * vtkFiltersPointsFilter vtkRadiusOutlierRemoval vtkStatisticalOutlierRemoval
  * vtkThresholdPoints vtkImplicitFunction vtkExtractGeometry
  * vtkFitImplicitFunction
-*/
+ */
 
 #ifndef vtkExtractHierarchicalBins_h
 #define vtkExtractHierarchicalBins_h
@@ -46,7 +46,6 @@
 class vtkHierarchicalBinningFilter;
 class vtkPointSet;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkExtractHierarchicalBins : public vtkPointCloudFilter
 {
 public:
@@ -55,8 +54,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkExtractHierarchicalBins *New();
-  vtkTypeMacro(vtkExtractHierarchicalBins,vtkPointCloudFilter);
+  static vtkExtractHierarchicalBins* New();
+  vtkTypeMacro(vtkExtractHierarchicalBins, vtkPointCloudFilter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -71,8 +70,8 @@ public:
    * vtkHierarchicalBinningFilter will clamp the level to the maximum
    * possible level of the binning filter.
    */
-  vtkSetMacro(Level,int);
-  vtkGetMacro(Level,int);
+  vtkSetMacro(Level, int);
+  vtkGetMacro(Level, int);
   //@}
 
   //@{
@@ -85,8 +84,8 @@ public:
    * greater than the associated vtkHierarchicalBinningFilter will clamp the
    * bin to the maximum possible bin of the binning filter.
    */
-  vtkSetMacro(Bin,int);
-  vtkGetMacro(Bin,int);
+  vtkSetMacro(Bin, int);
+  vtkGetMacro(Bin, int);
   //@}
 
   //@{
@@ -96,9 +95,8 @@ public:
    * this filter. (This is generally a safe bet if connected in a pipeline.)
    */
   virtual void SetBinningFilter(vtkHierarchicalBinningFilter*);
-  vtkGetObjectMacro(BinningFilter,vtkHierarchicalBinningFilter);
+  vtkGetObjectMacro(BinningFilter, vtkHierarchicalBinningFilter);
   //@}
-
 
 protected:
   vtkExtractHierarchicalBins();
@@ -107,20 +105,18 @@ protected:
   // Users can extract points from a particular level or bin.
   int Level;
   int Bin;
-  vtkHierarchicalBinningFilter *BinningFilter;
+  vtkHierarchicalBinningFilter* BinningFilter;
 
   // for the binning filter
   void ReportReferences(vtkGarbageCollector*) override;
 
-
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) override;
+  int FilterPoints(vtkPointSet* input) override;
 
 private:
   vtkExtractHierarchicalBins(const vtkExtractHierarchicalBins&) = delete;
   void operator=(const vtkExtractHierarchicalBins&) = delete;
-
 };
 
 #endif

@@ -27,7 +27,7 @@
 #include <string>
 
 //----------------------------------------------------------------------------
-int TestFontDPIScaling(int argc, char *argv[])
+int TestFontDPIScaling(int argc, char* argv[])
 {
   if (argc < 2)
   {

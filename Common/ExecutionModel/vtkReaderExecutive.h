@@ -24,7 +24,7 @@
  * vtkReaderAlgorithm for the API.
  *
  * Note that this executive assumes that the reader has one output port.
-*/
+ */
 
 #ifndef vtkReaderExecutive_h
 #define vtkReaderExecutive_h
@@ -32,21 +32,19 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkReaderExecutive :
-  public vtkStreamingDemandDrivenPipeline
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkReaderExecutive : public vtkStreamingDemandDrivenPipeline
 {
 public:
   static vtkReaderExecutive* New();
-  vtkTypeMacro(vtkReaderExecutive,vtkStreamingDemandDrivenPipeline);
+  vtkTypeMacro(vtkReaderExecutive, vtkStreamingDemandDrivenPipeline);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Overwritten to call the vtkReaderAlgorithm API instead of
    * ProcessRequest().
    */
-  virtual int CallAlgorithm(vtkInformation* request, int direction,
-                            vtkInformationVector** inInfo,
-                            vtkInformationVector* outInfo) override;
+  virtual int CallAlgorithm(vtkInformation* request, int direction, vtkInformationVector** inInfo,
+    vtkInformationVector* outInfo) override;
 
 protected:
   vtkReaderExecutive();

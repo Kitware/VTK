@@ -33,7 +33,7 @@
  * Guenole Harel and Jerome Dubois, 2018.
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridNonOrientedMooreSuperCursorLight_h
 #define vtkHyperTreeGridNonOrientedMooreSuperCursorLight_h
@@ -46,18 +46,20 @@ class vtkIdList;
 class vtkHyperTree;
 class vtkHyperTreeGrid;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedMooreSuperCursorLight : public vtkHyperTreeGridNonOrientedSuperCursorLight
+class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGridNonOrientedMooreSuperCursorLight
+  : public vtkHyperTreeGridNonOrientedSuperCursorLight
 {
 public:
-  vtkTypeMacro(vtkHyperTreeGridNonOrientedMooreSuperCursorLight, vtkHyperTreeGridNonOrientedSuperCursorLight);
-  void PrintSelf( ostream& os, vtkIndent indent ) override;
+  vtkTypeMacro(
+    vtkHyperTreeGridNonOrientedMooreSuperCursorLight, vtkHyperTreeGridNonOrientedSuperCursorLight);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHyperTreeGridNonOrientedMooreSuperCursorLight* New();
 
   /**
    * Initialize cursor at root of given tree index in grid.
    * JB Le create ne s'applique que sur le HT central.
    */
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false ) override;
+  void Initialize(vtkHyperTreeGrid* grid, vtkIdType treeIndex, bool create = false) override;
 
   /**
    * Return the list of cursors pointing to the leaves touching a
@@ -65,14 +67,13 @@ public:
    * Return whether the considered cell is the owner of said corner.
    * JB Utilise aujourd'hui dans les filtres vtkHyperTreeGridContour et vtkHyperTreeGridPlaneCutter.
    */
-  bool GetCornerCursors( unsigned int, unsigned int, vtkIdList* );
+  bool GetCornerCursors(unsigned int, unsigned int, vtkIdList*);
 
 protected:
-
   /**
    * Constructor
    */
-  vtkHyperTreeGridNonOrientedMooreSuperCursorLight() {};
+  vtkHyperTreeGridNonOrientedMooreSuperCursorLight(){};
 
   /**
    * Destructor
@@ -80,7 +81,8 @@ protected:
   ~vtkHyperTreeGridNonOrientedMooreSuperCursorLight() override;
 
 private:
-  vtkHyperTreeGridNonOrientedMooreSuperCursorLight(const vtkHyperTreeGridNonOrientedMooreSuperCursorLight&) = delete;
+  vtkHyperTreeGridNonOrientedMooreSuperCursorLight(
+    const vtkHyperTreeGridNonOrientedMooreSuperCursorLight&) = delete;
   void operator=(const vtkHyperTreeGridNonOrientedMooreSuperCursorLight&) = delete;
 };
 

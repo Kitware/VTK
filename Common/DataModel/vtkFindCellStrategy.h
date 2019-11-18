@@ -55,7 +55,7 @@ public:
   /**
    * Standard methdos for type information and printing.
    */
-  vtkTypeMacro(vtkFindCellStrategy,vtkObject);
+  vtkTypeMacro(vtkFindCellStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -65,30 +65,27 @@ public:
    * and associated locator(s). A return value==0 means the initialization
    * process failed.
    */
-  virtual int Initialize(vtkPointSet *ps);
+  virtual int Initialize(vtkPointSet* ps);
 
   /**
    * Virtual method for finding a cell. Subclasses must satisfy this API.
    * This method is of the same signature as vtkDataSet::FindCell().
    */
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell,
-                             vtkGenericCell *gencell, vtkIdType cellId,
-                             double tol2, int& subId, double pcoords[3],
-                             double *weights) = 0;
+  virtual vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) = 0;
 
 protected:
   vtkFindCellStrategy();
   ~vtkFindCellStrategy() override;
 
-  vtkPointSet *PointSet; // vtkPointSet which this strategy is associated with
-  double Bounds[6]; // bounding box of vtkPointSet
+  vtkPointSet* PointSet; // vtkPointSet which this strategy is associated with
+  double Bounds[6];      // bounding box of vtkPointSet
 
-  vtkTimeStamp InitializeTime;  // time at which strategy was initialized
+  vtkTimeStamp InitializeTime; // time at which strategy was initialized
 
 private:
   vtkFindCellStrategy(const vtkFindCellStrategy&) = delete;
   void operator=(const vtkFindCellStrategy&) = delete;
 };
-
 
 #endif

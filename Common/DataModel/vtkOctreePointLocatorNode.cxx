@@ -29,12 +29,15 @@
 vtkStandardNewMacro(vtkOctreePointLocatorNode);
 
 //----------------------------------------------------------------------------
-vtkOctreePointLocatorNode::vtkOctreePointLocatorNode() :
-  NumberOfPoints(0), Children(nullptr), ID(-1), MinID(-1)
+vtkOctreePointLocatorNode::vtkOctreePointLocatorNode()
+  : NumberOfPoints(0)
+  , Children(nullptr)
+  , ID(-1)
+  , MinID(-1)
 {
   // set the min and max data value and bounds since we won't know it
   // for a while
-  for(int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
   {
     this->MinDataBounds[i] = VTK_DOUBLE_MAX;
     this->MaxDataBounds[i] = VTK_DOUBLE_MIN;
@@ -52,22 +55,22 @@ vtkOctreePointLocatorNode::~vtkOctreePointLocatorNode()
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::CreateChildNodes()
 {
-  if(!this->Children)
+  if (!this->Children)
   {
     int i;
     double midpoint[3];
-    for(i=0;i<3;i++)
+    for (i = 0; i < 3; i++)
     {
-      midpoint[i] = (this->MinBounds[i]+this->MaxBounds[i])*.5;
+      midpoint[i] = (this->MinBounds[i] + this->MaxBounds[i]) * .5;
     }
     this->Children = new vtkOctreePointLocatorNode*[8];
-    for(i=0;i<8;i++)
+    for (i = 0; i < 8; i++)
     {
       this->Children[i] = vtkOctreePointLocatorNode::New();
       double NewMin[3], NewMax[3];
-      for(int j=0;j<3;j++)
+      for (int j = 0; j < 3; j++)
       {
-        if(!((i>>j) & 1))
+        if (!((i >> j) & 1))
         {
           NewMin[j] = this->MinBounds[j];
           NewMax[j] = midpoint[j];
@@ -87,13 +90,13 @@ void vtkOctreePointLocatorNode::CreateChildNodes()
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::DeleteChildNodes()
 {
-  if(this->Children)
+  if (this->Children)
   {
-    for(int i=0;i<8;i++)
+    for (int i = 0; i < 8; i++)
     {
       this->Children[i]->Delete();
     }
-    delete []this->Children;
+    delete[] this->Children;
     this->Children = nullptr;
   }
 }
@@ -101,7 +104,7 @@ void vtkOctreePointLocatorNode::DeleteChildNodes()
 //----------------------------------------------------------------------------
 vtkOctreePointLocatorNode* vtkOctreePointLocatorNode::GetChild(int i)
 {
-  if(this->Children)
+  if (this->Children)
   {
     return this->Children[i];
   }
@@ -109,24 +112,23 @@ vtkOctreePointLocatorNode* vtkOctreePointLocatorNode::GetChild(int i)
 }
 
 //----------------------------------------------------------------------------
-int vtkOctreePointLocatorNode::GetSubOctantIndex(
-  double* point, int CheckContainment)
+int vtkOctreePointLocatorNode::GetSubOctantIndex(double* point, int CheckContainment)
 {
   int i, index = 0;
-  if(CheckContainment)
+  if (CheckContainment)
   {
-    for(i=0;i<3;i++)
+    for (i = 0; i < 3; i++)
     {
-      if(point[i] <= this->MinBounds[i] || point[i] > this->MaxBounds[i])
+      if (point[i] <= this->MinBounds[i] || point[i] > this->MaxBounds[i])
       {
         return -1;
       }
     }
   }
 
-  for(i=0;i<3;i++)
+  for (i = 0; i < 3; i++)
   {
-    if(point[i] > (this->MinBounds[i]+this->MaxBounds[i])*.5)
+    if (point[i] > (this->MinBounds[i] + this->MaxBounds[i]) * .5)
     {
       index += 1 << i;
     }
@@ -136,33 +138,31 @@ int vtkOctreePointLocatorNode::GetSubOctantIndex(
 
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
-  vtkOctreePointLocatorNode* Parent, int & NextLeafId, int & NextMinId,
-  float* coordinates)
+  vtkOctreePointLocatorNode* Parent, int& NextLeafId, int& NextMinId, float* coordinates)
 {
   this->MinID = NextMinId;
-  if(this->Children)
+  if (this->Children)
   {
     int i;
-    for(i=0;i<8;i++)
+    for (i = 0; i < 8; i++)
     {
-      this->Children[i]->ComputeOctreeNodeInformation(
-        this, NextLeafId, NextMinId, coordinates);
+      this->Children[i]->ComputeOctreeNodeInformation(this, NextLeafId, NextMinId, coordinates);
     }
     // a non-leaf region can get its data bounds from its children...
     this->SetMinDataBounds(this->Children[0]->GetMinDataBounds());
     this->SetMaxDataBounds(this->Children[0]->GetMaxDataBounds());
 
-    for(i=1;i<8;i++)
+    for (i = 1; i < 8; i++)
     {
       double* min = this->Children[i]->GetMinDataBounds();
       double* max = this->Children[i]->GetMaxDataBounds();
-      for(int j=0;j<3;j++)
+      for (int j = 0; j < 3; j++)
       {
-        if(min[j] < this->MinDataBounds[j])
+        if (min[j] < this->MinDataBounds[j])
         {
           this->MinDataBounds[j] = min[j];
         }
-        if(max[j] > this->MaxDataBounds[j])
+        if (max[j] > this->MaxDataBounds[j])
         {
           this->MaxDataBounds[j] = max[j];
         }
@@ -173,8 +173,8 @@ void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
   {
     this->ID = NextLeafId;
     NextLeafId++;
-    NextMinId = this->MinID+this->NumberOfPoints;
-    if(this->NumberOfPoints == 0)
+    NextMinId = this->MinID + this->NumberOfPoints;
+    if (this->NumberOfPoints == 0)
     {
       // since there are no points in this, set the data bounds
       // such that they won't affect anything else
@@ -184,21 +184,21 @@ void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
     else
     {
       int i;
-      float* coordptr = coordinates+3*this->MinID;
-      for(i=0;i<3;i++)
+      float* coordptr = coordinates + 3 * this->MinID;
+      for (i = 0; i < 3; i++)
       {
         this->MinDataBounds[i] = this->MaxDataBounds[i] = coordptr[i];
       }
-      for(i=1;i<this->NumberOfPoints;i++)
+      for (i = 1; i < this->NumberOfPoints; i++)
       {
         coordptr += 3;
-        for(int j=0;j<3;j++)
+        for (int j = 0; j < 3; j++)
         {
-          if(coordptr[j] < this->MinDataBounds[j])
+          if (coordptr[j] < this->MinDataBounds[j])
           {
             this->MinDataBounds[j] = coordptr[j];
           }
-          else if(coordptr[j] > this->MaxDataBounds[j])
+          else if (coordptr[j] > this->MaxDataBounds[j])
           {
             this->MaxDataBounds[j] = coordptr[j];
           }
@@ -210,44 +210,55 @@ void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
 
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::SetBounds(
-  double xMin,double xMax,double yMin,double yMax,double zMin,double zMax)
+  double xMin, double xMax, double yMin, double yMax, double zMin, double zMax)
 {
-   this->MinBounds[0] = xMin; this->MaxBounds[0] = xMax;
-   this->MinBounds[1] = yMin; this->MaxBounds[1] = yMax;
-   this->MinBounds[2] = zMin; this->MaxBounds[2] = zMax;
+  this->MinBounds[0] = xMin;
+  this->MaxBounds[0] = xMax;
+  this->MinBounds[1] = yMin;
+  this->MaxBounds[1] = yMax;
+  this->MinBounds[2] = zMin;
+  this->MaxBounds[2] = zMax;
 }
 
 //----------------------------------------------------------------------------
-void vtkOctreePointLocatorNode::GetBounds(double *b) const
+void vtkOctreePointLocatorNode::GetBounds(double* b) const
 {
-   b[0] = this->MinBounds[0]; b[1] = this->MaxBounds[0];
-   b[2] = this->MinBounds[1]; b[3] = this->MaxBounds[1];
-   b[4] = this->MinBounds[2]; b[5] = this->MaxBounds[2];
+  b[0] = this->MinBounds[0];
+  b[1] = this->MaxBounds[0];
+  b[2] = this->MinBounds[1];
+  b[3] = this->MaxBounds[1];
+  b[4] = this->MinBounds[2];
+  b[5] = this->MaxBounds[2];
 }
 
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::SetDataBounds(
-  double xMin,double xMax,double yMin,double yMax,double zMin,double zMax)
+  double xMin, double xMax, double yMin, double yMax, double zMin, double zMax)
 {
-   this->MinDataBounds[0] = xMin; this->MaxDataBounds[0] = xMax;
-   this->MinDataBounds[1] = yMin; this->MaxDataBounds[1] = yMax;
-   this->MinDataBounds[2] = zMin; this->MaxDataBounds[2] = zMax;
+  this->MinDataBounds[0] = xMin;
+  this->MaxDataBounds[0] = xMax;
+  this->MinDataBounds[1] = yMin;
+  this->MaxDataBounds[1] = yMax;
+  this->MinDataBounds[2] = zMin;
+  this->MaxDataBounds[2] = zMax;
 }
 
 //----------------------------------------------------------------------------
-void vtkOctreePointLocatorNode::GetDataBounds(double *b) const
+void vtkOctreePointLocatorNode::GetDataBounds(double* b) const
 {
-   b[0] = this->MinDataBounds[0]; b[1] = this->MaxDataBounds[0];
-   b[2] = this->MinDataBounds[1]; b[3] = this->MaxDataBounds[1];
-   b[4] = this->MinDataBounds[2]; b[5] = this->MaxDataBounds[2];
+  b[0] = this->MinDataBounds[0];
+  b[1] = this->MaxDataBounds[0];
+  b[2] = this->MinDataBounds[1];
+  b[3] = this->MaxDataBounds[1];
+  b[4] = this->MinDataBounds[2];
+  b[5] = this->MaxDataBounds[2];
 }
 
 //----------------------------------------------------------------------------
 // Squared distance from any point anywhere to the boundary of spatial region
 //
 double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
-  double x, double y, double z, vtkOctreePointLocatorNode* top,
-  int useDataBounds=0)
+  double x, double y, double z, vtkOctreePointLocatorNode* top, int useDataBounds = 0)
 {
   return this->_GetDistance2ToBoundary(x, y, z, nullptr, 0, top, useDataBounds);
 }
@@ -257,8 +268,7 @@ double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
 // and give me the point on the boundary closest to this point.
 //
 double vtkOctreePointLocatorNode::GetDistance2ToBoundary(
-  double x, double y, double z, double *p,
-  vtkOctreePointLocatorNode* top, int useDataBounds=0)
+  double x, double y, double z, double* p, vtkOctreePointLocatorNode* top, int useDataBounds = 0)
 {
   return this->_GetDistance2ToBoundary(x, y, z, p, 0, top, useDataBounds);
 }
@@ -275,12 +285,12 @@ double vtkOctreePointLocatorNode::GetDistance2ToInnerBoundary(
 }
 
 //----------------------------------------------------------------------------
-double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
-  double x, double y, double z,  // from this point
-  double *p,              // set to point on boundary that is closest
-  int innerBoundaryOnly, // ignore boundaries on "outside"
-  vtkOctreePointLocatorNode* top,    // the top of the octree
-  int useDataBounds=0)   // use bounds of data within region instead
+double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(double x, double y,
+  double z,                       // from this point
+  double* p,                      // set to point on boundary that is closest
+  int innerBoundaryOnly,          // ignore boundaries on "outside"
+  vtkOctreePointLocatorNode* top, // the top of the octree
+  int useDataBounds = 0)          // use bounds of data within region instead
 {
   double minDistance, dist;
   double edgePt[3];
@@ -291,15 +301,17 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 
   if (useDataBounds)
   {
-    min = this->MinDataBounds; max = this->MaxDataBounds;  // data inside region
+    min = this->MinDataBounds;
+    max = this->MaxDataBounds; // data inside region
   }
   else
   {
-    min = this->MinBounds; max = this->MaxBounds;   // region itself
+    min = this->MinBounds;
+    max = this->MaxBounds; // region itself
   }
 
-  double *outerBoundaryMin=nullptr;
-  double *outerBoundaryMax=nullptr;
+  double* outerBoundaryMin = nullptr;
+  double* outerBoundaryMax = nullptr;
 
   if (innerBoundaryOnly)
   {
@@ -308,12 +320,16 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
     // the other side.  This option only makes sense when the point supplied
     // is inside this node (region).
 
-    outerBoundaryMin = (useDataBounds? top->MinDataBounds : top->MinBounds);
-    outerBoundaryMax = (useDataBounds? top->MaxDataBounds : top->MaxBounds);
+    outerBoundaryMin = (useDataBounds ? top->MinDataBounds : top->MinBounds);
+    outerBoundaryMax = (useDataBounds ? top->MaxDataBounds : top->MaxBounds);
   }
 
-  double xmax = max[0]; double ymax = max[1]; double zmax = max[2];
-  double xmin = min[0]; double ymin = min[1]; double zmin = min[2];
+  double xmax = max[0];
+  double ymax = max[1];
+  double zmax = max[2];
+  double xmin = min[0];
+  double ymin = min[1];
+  double zmin = min[2];
 
   int xless = (x < xmin);
   int xmore = (x > xmax);
@@ -326,9 +342,9 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
   int withinY = !yless && !ymore;
   int withinZ = !zless && !zmore;
 
-  int mindim=0;
+  int mindim = 0;
 
-  if (withinX && withinY && withinZ)  // point is inside the box
+  if (withinX && withinY && withinZ) // point is inside the box
   {
     if (!innerBoundaryOnly)
     {
@@ -367,48 +383,42 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       minDistance = VTK_FLOAT_MAX; // Suppresses warning message.
 
       dist = x - xmin;
-      if ((xmin != outerBoundaryMin[0]) &&
-          ((dist < minDistance) || first))
+      if ((xmin != outerBoundaryMin[0]) && ((dist < minDistance) || first))
       {
         mindim = 0;
         minDistance = dist;
         first = 0;
       }
       dist = xmax - x;
-      if ((xmax != outerBoundaryMax[0]) &&
-          ((dist < minDistance) || first))
+      if ((xmax != outerBoundaryMax[0]) && ((dist < minDistance) || first))
       {
         mindim = 1;
         minDistance = dist;
         first = 0;
       }
       dist = y - ymin;
-      if ((ymin != outerBoundaryMin[1]) &&
-          ((dist < minDistance) || first))
+      if ((ymin != outerBoundaryMin[1]) && ((dist < minDistance) || first))
       {
         mindim = 2;
         minDistance = dist;
         first = 0;
       }
       dist = ymax - y;
-      if ((ymax != outerBoundaryMax[1]) &&
-          ((dist < minDistance) || first))
+      if ((ymax != outerBoundaryMax[1]) && ((dist < minDistance) || first))
       {
         mindim = 3;
         minDistance = dist;
         first = 0;
       }
       dist = z - zmin;
-      if ((zmin != outerBoundaryMin[2]) &&
-          ((dist < minDistance) || first))
+      if ((zmin != outerBoundaryMin[2]) && ((dist < minDistance) || first))
       {
         mindim = 4;
         minDistance = dist;
         first = 0;
       }
       dist = zmax - z;
-      if ((zmax != outerBoundaryMax[2]) &&
-          ((dist < minDistance) || first))
+      if ((zmax != outerBoundaryMax[2]) && ((dist < minDistance) || first))
       {
         mindim = 5;
         minDistance = dist;
@@ -416,15 +426,16 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
     }
 
     // if there are no inner boundaries we don't want to square.
-    if(minDistance != VTK_FLOAT_MAX)
+    if (minDistance != VTK_FLOAT_MAX)
     {
       minDistance *= minDistance;
     }
 
     if (p)
     {
-      p[0] = x; p[1] = y; p[2] = z;
-
+      p[0] = x;
+      p[1] = y;
+      p[2] = z;
 
       if (mindim == 0)
       {
@@ -452,14 +463,15 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
       }
     }
   }
-  else if (withinX && withinY)  // point projects orthogonally to a face
+  else if (withinX && withinY) // point projects orthogonally to a face
   {
     minDistance = (zless ? zmin - z : z - zmax);
     minDistance *= minDistance;
 
     if (p)
     {
-      p[0] = x; p[1] = y;
+      p[0] = x;
+      p[1] = y;
       p[2] = (zless ? zmin : zmax);
     }
   }
@@ -470,7 +482,8 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 
     if (p)
     {
-      p[0] = x; p[2] = z;
+      p[0] = x;
+      p[2] = z;
       p[1] = (yless ? ymin : ymax);
     }
   }
@@ -481,38 +494,47 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 
     if (p)
     {
-      p[1] = y; p[2] = z;
-      p[0] = (xless ? xmin: xmax);
+      p[1] = y;
+      p[2] = z;
+      p[0] = (xless ? xmin : xmax);
     }
   }
-  else if (withinX || withinY || withinZ)   // point is closest to an edge
+  else if (withinX || withinY || withinZ) // point is closest to an edge
   {
     edgePt[0] = (withinX ? x : (xless ? xmin : xmax));
     edgePt[1] = (withinY ? y : (yless ? ymin : ymax));
     edgePt[2] = (withinZ ? z : (zless ? zmin : zmax));
 
-    pt3[0] = x; pt3[1] = y; pt3[2] = z;
+    pt3[0] = x;
+    pt3[1] = y;
+    pt3[2] = z;
 
     minDistance = vtkMath::Distance2BetweenPoints(pt3, edgePt);
 
     if (p)
     {
-      p[0] = edgePt[0]; p[1] = edgePt[1]; p[2] = edgePt[2];
+      p[0] = edgePt[0];
+      p[1] = edgePt[1];
+      p[2] = edgePt[2];
     }
   }
-  else                        // point is closest to a corner
+  else // point is closest to a corner
   {
     cornerPt[0] = (xless ? xmin : xmax);
     cornerPt[1] = (yless ? ymin : ymax);
     cornerPt[2] = (zless ? zmin : zmax);
 
-    pt3[0] = x; pt3[1] = y; pt3[2] = z;
+    pt3[0] = x;
+    pt3[1] = y;
+    pt3[2] = z;
 
     minDistance = vtkMath::Distance2BetweenPoints(pt3, cornerPt);
 
     if (p)
     {
-      p[0] = cornerPt[0]; p[1] = cornerPt[1]; p[2] = cornerPt[2];
+      p[0] = cornerPt[0];
+      p[1] = cornerPt[1];
+      p[2] = cornerPt[2];
     }
   }
 
@@ -520,8 +542,8 @@ double vtkOctreePointLocatorNode::_GetDistance2ToBoundary(
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double z,
-                                 int useDataBounds=0)
+vtkTypeBool vtkOctreePointLocatorNode::ContainsPoint(
+  double x, double y, double z, int useDataBounds = 0)
 {
   double *min, *max;
 
@@ -536,12 +558,8 @@ vtkTypeBool vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double 
     max = this->MaxBounds;
   }
 
-  if( (min[0] >= x) ||
-      (max[0] < x) ||
-      (min[1] >= y) ||
-      (max[1] < y) ||
-      (min[2] >= z) ||
-      (max[2] < z))
+  if ((min[0] >= x) || (max[0] < x) || (min[1] >= y) || (max[1] < y) || (min[2] >= z) ||
+    (max[2] < z))
   {
     return 0;
   }
@@ -552,11 +570,10 @@ vtkTypeBool vtkOctreePointLocatorNode::ContainsPoint(double x, double y, double 
 }
 
 //----------------------------------------------------------------------------
-int vtkOctreePointLocatorNode::IntersectsRegion(
-  vtkPlanesIntersection *pi, int useDataBounds)
+int vtkOctreePointLocatorNode::IntersectsRegion(vtkPlanesIntersection* pi, int useDataBounds)
 {
   double xMin, xMax, yMin, yMax, zMin, zMax;
-  vtkPoints *box = vtkPoints::New();
+  vtkPoints* box = vtkPoints::New();
 
   box->SetNumberOfPoints(8);
 
@@ -573,9 +590,12 @@ int vtkOctreePointLocatorNode::IntersectsRegion(
     max = this->MaxBounds;
   }
 
-  xMin = min[0]; xMax = max[0];
-  yMin = min[1]; yMax = max[1];
-  zMin = min[2]; zMax = max[2];
+  xMin = min[0];
+  xMax = max[0];
+  yMin = min[1];
+  yMax = max[1];
+  zMin = min[2];
+  zMax = max[2];
 
   box->SetPoint(0, xMax, yMin, zMax);
   box->SetPoint(1, xMax, yMin, zMin);
@@ -596,18 +616,18 @@ int vtkOctreePointLocatorNode::IntersectsRegion(
 //----------------------------------------------------------------------------
 void vtkOctreePointLocatorNode::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
   os << indent << "Children: " << this->Children << endl;
   os << indent << "ID: " << this->ID << endl;
   os << indent << "MinID: " << this->MinID << endl;
-  os << indent << "MinBounds: " << this->MinBounds[0] << " "
-     << this->MinBounds[1] << " " << this->MinBounds[2] << endl;
-  os << indent << "MaxBounds: " << this->MaxBounds[0] << " "
-     << this->MaxBounds[1] << " " << this->MaxBounds[2] << endl;
-  os << indent << "MinDataBounds: " << this->MinDataBounds[0] << " "
-     << this->MinDataBounds[1] << " " << this->MinDataBounds[2] << endl;
-  os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " "
-     << this->MaxDataBounds[1] << " " << this->MaxDataBounds[2] << endl;
+  os << indent << "MinBounds: " << this->MinBounds[0] << " " << this->MinBounds[1] << " "
+     << this->MinBounds[2] << endl;
+  os << indent << "MaxBounds: " << this->MaxBounds[0] << " " << this->MaxBounds[1] << " "
+     << this->MaxBounds[2] << endl;
+  os << indent << "MinDataBounds: " << this->MinDataBounds[0] << " " << this->MinDataBounds[1]
+     << " " << this->MinDataBounds[2] << endl;
+  os << indent << "MaxDataBounds: " << this->MaxDataBounds[0] << " " << this->MaxDataBounds[1]
+     << " " << this->MaxDataBounds[2] << endl;
 }

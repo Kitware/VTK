@@ -37,7 +37,7 @@
  *
  * @sa
  * vtkPointDensityFilter vtkPointMaskFilter
-*/
+ */
 
 #ifndef vtkPointOccupancyFilter_h
 #define vtkPointOccupancyFilter_h
@@ -53,8 +53,8 @@ public:
    * Standard methods for instantiating, obtaining type information, and
    * printing information.
    */
-  static vtkPointOccupancyFilter *New();
-  vtkTypeMacro(vtkPointOccupancyFilter,vtkImageAlgorithm);
+  static vtkPointOccupancyFilter* New();
+  vtkTypeMacro(vtkPointOccupancyFilter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -65,7 +65,7 @@ public:
    */
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);
-  vtkGetVectorMacro(SampleDimensions,int,3);
+  vtkGetVectorMacro(SampleDimensions, int, 3);
   //@}
 
   //@{
@@ -75,8 +75,8 @@ public:
    * min >= max, then the bounds will be computed automatically from the input
    * data. Otherwise, the user-specified bounds will be used.
    */
-  vtkSetVector6Macro(ModelBounds,double);
-  vtkGetVectorMacro(ModelBounds,double,6);
+  vtkSetVector6Macro(ModelBounds, double);
+  vtkGetVectorMacro(ModelBounds, double, 6);
   //@}
 
   //@{
@@ -85,32 +85,27 @@ public:
    * contain any points) or occupied. By default, an empty voxel has a zero
    * value; an occupied voxel has a value of one.
    */
-  vtkSetMacro(EmptyValue,unsigned char);
-  vtkGetMacro(EmptyValue,unsigned char);
-  vtkSetMacro(OccupiedValue,unsigned char);
-  vtkGetMacro(OccupiedValue,unsigned char);
+  vtkSetMacro(EmptyValue, unsigned char);
+  vtkGetMacro(EmptyValue, unsigned char);
+  vtkSetMacro(OccupiedValue, unsigned char);
+  vtkGetMacro(OccupiedValue, unsigned char);
   //@}
 
 protected:
   vtkPointOccupancyFilter();
   ~vtkPointOccupancyFilter() override;
 
-  int SampleDimensions[3]; // dimensions of volume over which to compute occupancy
-  double ModelBounds[6]; // bounding box defining image
+  int SampleDimensions[3];      // dimensions of volume over which to compute occupancy
+  double ModelBounds[6];        // bounding box defining image
   double Origin[3], Spacing[3]; // output geometry
-  unsigned char EmptyValue; // what value indicates a voxel is empty
-  unsigned char OccupiedValue; // what value indicates a voxel is occupied
+  unsigned char EmptyValue;     // what value indicates a voxel is empty
+  unsigned char OccupiedValue;  // what value indicates a voxel is occupied
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
-                          vtkInformation *outInfo);
+  void ComputeModelBounds(vtkDataSet* input, vtkImageData* output, vtkInformation* outInfo);
 
 private:
   vtkPointOccupancyFilter(const vtkPointOccupancyFilter&) = delete;

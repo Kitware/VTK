@@ -17,7 +17,7 @@
  * @class   vtkPiecewiseFunctionShiftScale
  *
  *
-*/
+ */
 
 #ifndef vtkPiecewiseFunctionShiftScale_h
 #define vtkPiecewiseFunctionShiftScale_h
@@ -27,10 +27,11 @@
 
 class vtkPiecewiseFunction;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionShiftScale : public vtkPiecewiseFunctionAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionShiftScale
+  : public vtkPiecewiseFunctionAlgorithm
 {
 public:
-  static vtkPiecewiseFunctionShiftScale *New();
+  static vtkPiecewiseFunctionShiftScale* New();
   vtkTypeMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -48,8 +49,7 @@ protected:
   vtkPiecewiseFunctionShiftScale();
   ~vtkPiecewiseFunctionShiftScale() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double PositionShift;
   double PositionScale;

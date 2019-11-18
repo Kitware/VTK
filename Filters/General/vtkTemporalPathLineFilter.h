@@ -45,7 +45,7 @@ class vtkMergePoints;
 class vtkFloatArray;
 
 #include "vtkSmartPointer.h" // for memory safety
-#include <set>        // Because we want to use it
+#include <set>               // Because we want to use it
 class ParticleTrail;
 class vtkTemporalPathLineFilterInternals;
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
@@ -57,8 +57,8 @@ public:
   /**
    * Standard Type-Macro
    */
-  static vtkTemporalPathLineFilter *New();
-  vtkTypeMacro(vtkTemporalPathLineFilter,vtkPolyDataAlgorithm);
+  static vtkTemporalPathLineFilter* New();
+  vtkTypeMacro(vtkTemporalPathLineFilter, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -67,8 +67,8 @@ public:
    * Set the number of particles to track as a ratio of the input
    * example: setting MaskPoints to 10 will track every 10th point
    */
-  vtkSetMacro(MaskPoints,int);
-  vtkGetMacro(MaskPoints,int);
+  vtkSetMacro(MaskPoints, int);
+  vtkGetMacro(MaskPoints, int);
   //@}
 
   //@{
@@ -80,8 +80,8 @@ public:
    * and the trace will appear like a snake of fixed length
    * which progresses as the particle moves
    */
-  vtkSetMacro(MaxTrackLength,unsigned int);
-  vtkGetMacro(MaxTrackLength,unsigned int);
+  vtkSetMacro(MaxTrackLength, unsigned int);
+  vtkGetMacro(MaxTrackLength, unsigned int);
   //@}
 
   //@{
@@ -106,8 +106,8 @@ public:
    * be dropped and restarted after the step. (ie the part before the wrap
    * around will be dropped and the newer part kept).
    */
-  vtkSetVector3Macro(MaxStepDistance,double);
-  vtkGetVector3Macro(MaxStepDistance,double);
+  vtkSetVector3Macro(MaxStepDistance, double);
+  vtkGetVector3Macro(MaxStepDistance, double);
   //@}
 
   //@{
@@ -117,8 +117,8 @@ public:
    * until the next time the list is cleared. Use carefully as it may cause
    * excessive memory consumption if left on by mistake.
    */
-  vtkSetMacro(KeepDeadTrails,int);
-  vtkGetMacro(KeepDeadTrails,int);
+  vtkSetMacro(KeepDeadTrails, int);
+  vtkGetMacro(KeepDeadTrails, int);
   //@}
 
   /**
@@ -132,62 +132,58 @@ public:
    * Id in the selection as the primary input will be chosen for pathlines
    * Note that you must have the same IdChannelArray in the selection as the input
    */
-  void SetSelectionConnection(vtkAlgorithmOutput *algOutput);
+  void SetSelectionConnection(vtkAlgorithmOutput* algOutput);
 
   /**
    * Set a second input which is a selection. Particles with the same
    * Id in the selection as the primary input will be chosen for pathlines
    * Note that you must have the same IdChannelArray in the selection as the input
    */
-  void SetSelectionData(vtkDataSet *input);
+  void SetSelectionData(vtkDataSet* input);
 
 protected:
-   vtkTemporalPathLineFilter();
+  vtkTemporalPathLineFilter();
   ~vtkTemporalPathLineFilter() override;
 
   //
   // Make sure the pipeline knows what type we expect as input
   //
-  int FillInputPortInformation (int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   //@{
   /**
    * The necessary parts of the standard pipeline update mechanism
    */
-  int RequestInformation (vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   //
-  int RequestData(vtkInformation *request,
-                  vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   //@}
 
   TrailPointer GetTrail(vtkIdType i);
-  void IncrementTrail(
-    TrailPointer trail, vtkDataSet *input, vtkIdType i);
+  void IncrementTrail(TrailPointer trail, vtkDataSet* input, vtkIdType i);
 
   // internal data variables
-  int           NumberOfTimeSteps;
-  int           MaskPoints;
-  unsigned int  MaxTrackLength;
-  unsigned int  LastTrackLength;
-  int           FirstTime;
-  char         *IdChannelArray;
-  double        MaxStepDistance[3];
-  double        LatestTime;
-  int           KeepDeadTrails;
-  int           UsingSelection;
+  int NumberOfTimeSteps;
+  int MaskPoints;
+  unsigned int MaxTrackLength;
+  unsigned int LastTrackLength;
+  int FirstTime;
+  char* IdChannelArray;
+  double MaxStepDistance[3];
+  double LatestTime;
+  int KeepDeadTrails;
+  int UsingSelection;
   //
 
-  vtkSmartPointer<vtkCellArray>                       PolyLines;
-  vtkSmartPointer<vtkCellArray>                       Vertices;
-  vtkSmartPointer<vtkPoints>                          LineCoordinates;
-  vtkSmartPointer<vtkPoints>                          VertexCoordinates;
-  vtkSmartPointer<vtkFloatArray>                      TrailId;
+  vtkSmartPointer<vtkCellArray> PolyLines;
+  vtkSmartPointer<vtkCellArray> Vertices;
+  vtkSmartPointer<vtkPoints> LineCoordinates;
+  vtkSmartPointer<vtkPoints> VertexCoordinates;
+  vtkSmartPointer<vtkFloatArray> TrailId;
   vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
-  std::set<vtkIdType>                              SelectionIds;
+  std::set<vtkIdType> SelectionIds;
 
   //
 private:

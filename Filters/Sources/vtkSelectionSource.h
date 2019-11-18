@@ -34,8 +34,8 @@ class vtkSelectionSourceInternals;
 class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 {
 public:
-  static vtkSelectionSource *New();
-  vtkTypeMacro(vtkSelectionSource,vtkSelectionAlgorithm);
+  static vtkSelectionSource* New();
+  vtkTypeMacro(vtkSelectionSource, vtkSelectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -61,7 +61,7 @@ public:
   /**
    * Set a frustum to choose within.
    */
-  void SetFrustum(double *vertices);
+  void SetFrustum(double* vertices);
 
   /**
    * Add the flat-index/composite index for a block.
@@ -185,12 +185,10 @@ protected:
   vtkSelectionSource();
   ~vtkSelectionSource() override;
 
-  int RequestInformation(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   vtkSelectionSourceInternals* Internal;
 
@@ -202,9 +200,9 @@ protected:
   int CompositeIndex;
   int HierarchicalLevel;
   int HierarchicalIndex;
-  char *ArrayName;
+  char* ArrayName;
   int ArrayComponent;
-  char *QueryString;
+  char* QueryString;
   int NumberOfLayers;
 
 private:

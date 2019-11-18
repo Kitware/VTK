@@ -44,7 +44,7 @@ vtkCompositePolyDataMapper::vtkCompositePolyDataMapper()
 
 vtkCompositePolyDataMapper::~vtkCompositePolyDataMapper()
 {
-  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
+  for (unsigned int i = 0; i < this->Internal->Mappers.size(); i++)
   {
     this->Internal->Mappers[i]->UnRegister(this);
   }
@@ -59,8 +59,7 @@ vtkCompositePolyDataMapper::~vtkCompositePolyDataMapper()
 // vtkCompositeDataSet is required, and we'll check when
 // building our structure whether all the part of the composite
 // data set are polydata.
-int vtkCompositePolyDataMapper::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkCompositePolyDataMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;
@@ -72,30 +71,29 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
 {
   int warnOnce = 0;
 
-  //Delete pdmappers if they already exist.
-  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
+  // Delete pdmappers if they already exist.
+  for (unsigned int i = 0; i < this->Internal->Mappers.size(); i++)
   {
     this->Internal->Mappers[i]->UnRegister(this);
   }
   this->Internal->Mappers.clear();
 
-  //Get the composite dataset from the input
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
-  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // Get the composite dataset from the input
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  vtkCompositeDataSet* input =
+    vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If it isn't hierarchical, maybe it is just a plain vtkPolyData
-  if(!input)
+  if (!input)
   {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(
-      this->GetExecutive()->GetInputData(0, 0));
-    if ( pd )
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+    if (pd)
     {
       // Make a copy of the data to break the pipeline here
-      vtkPolyData *newpd = vtkPolyData::New();
+      vtkPolyData* newpd = vtkPolyData::New();
       newpd->ShallowCopy(pd);
-      vtkPolyDataMapper *pdmapper = this->MakeAMapper();
-      pdmapper->Register( this );
+      vtkPolyDataMapper* pdmapper = this->MakeAMapper();
+      pdmapper->Register(this);
       pdmapper->SetInputData(newpd);
       this->Internal->Mappers.push_back(pdmapper);
       newpd->Delete();
@@ -104,25 +102,24 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
     else
     {
       vtkDataObject* tmpInp = this->GetExecutive()->GetInputData(0, 0);
-      vtkErrorMacro("This mapper cannot handle input of type: "
-                    << (tmpInp?tmpInp->GetClassName():"(none)"));
+      vtkErrorMacro("This mapper cannot handle input of type: " << (tmpInp ? tmpInp->GetClassName()
+                                                                           : "(none)"));
     }
   }
   else
   {
-    //for each data set build a vtkPolyDataMapper
+    // for each data set build a vtkPolyDataMapper
     vtkCompositeDataIterator* iter = input->NewIterator();
     iter->GoToFirstItem();
     while (!iter->IsDoneWithTraversal())
     {
-      vtkPolyData* pd =
-        vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
+      vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
       if (pd)
       {
         // Make a copy of the data to break the pipeline here
-        vtkPolyData *newpd = vtkPolyData::New();
+        vtkPolyData* newpd = vtkPolyData::New();
         newpd->ShallowCopy(pd);
-        vtkPolyDataMapper *pdmapper = this->MakeAMapper();
+        vtkPolyDataMapper* pdmapper = this->MakeAMapper();
         pdmapper->Register(this);
         pdmapper->SetInputData(newpd);
         this->Internal->Mappers.push_back(pdmapper);
@@ -133,7 +130,7 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
       // parts to this data set which will not be rendered by this mapper
       else
       {
-        if ( !warnOnce )
+        if (!warnOnce)
         {
           vtkErrorMacro("All data in the hierarchical dataset must be polydata.");
           warnOnce = 1;
@@ -145,66 +142,58 @@ void vtkCompositePolyDataMapper::BuildPolyDataMapper()
   }
 
   this->InternalMappersBuildTime.Modified();
-
 }
 
-void vtkCompositePolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
+void vtkCompositePolyDataMapper::Render(vtkRenderer* ren, vtkActor* a)
 {
-  //If the PolyDataMappers are not up-to-date then rebuild them
-  vtkCompositeDataPipeline * executive =
+  // If the PolyDataMappers are not up-to-date then rebuild them
+  vtkCompositeDataPipeline* executive =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
 
-  if(executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
+  if (executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
   {
     this->BuildPolyDataMapper();
   }
 
   this->TimeToDraw = 0;
-  //Call Render() on each of the PolyDataMappers
-  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
+  // Call Render() on each of the PolyDataMappers
+  for (unsigned int i = 0; i < this->Internal->Mappers.size(); i++)
   {
     // skip if we have a mismatch in opaque and translucent
     if (a->IsRenderingTranslucentPolygonalGeometry() ==
-        this->Internal->Mappers[i]->HasOpaqueGeometry())
+      this->Internal->Mappers[i]->HasOpaqueGeometry())
     {
       continue;
     }
 
-    if ( this->ClippingPlanes !=
-         this->Internal->Mappers[i]->GetClippingPlanes() )
+    if (this->ClippingPlanes != this->Internal->Mappers[i]->GetClippingPlanes())
     {
-      this->Internal->Mappers[i]->SetClippingPlanes( this->ClippingPlanes );
+      this->Internal->Mappers[i]->SetClippingPlanes(this->ClippingPlanes);
     }
 
-    this->Internal->Mappers[i]->SetLookupTable(
-      this->GetLookupTable());
-    this->Internal->Mappers[i]->SetScalarVisibility(
-      this->GetScalarVisibility());
-    this->Internal->Mappers[i]->SetUseLookupTableScalarRange(
-      this->GetUseLookupTableScalarRange());
-    this->Internal->Mappers[i]->SetScalarRange(
-      this->GetScalarRange());
+    this->Internal->Mappers[i]->SetLookupTable(this->GetLookupTable());
+    this->Internal->Mappers[i]->SetScalarVisibility(this->GetScalarVisibility());
+    this->Internal->Mappers[i]->SetUseLookupTableScalarRange(this->GetUseLookupTableScalarRange());
+    this->Internal->Mappers[i]->SetScalarRange(this->GetScalarRange());
     this->Internal->Mappers[i]->SetColorMode(this->GetColorMode());
     this->Internal->Mappers[i]->SetInterpolateScalarsBeforeMapping(
       this->GetInterpolateScalarsBeforeMapping());
 
     this->Internal->Mappers[i]->SetScalarMode(this->GetScalarMode());
-    if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
-         this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+    if (this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
+      this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
-      if ( this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID )
+      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
       {
-        this->Internal->Mappers[i]->ColorByArrayComponent(
-          this->ArrayId,ArrayComponent);
+        this->Internal->Mappers[i]->ColorByArrayComponent(this->ArrayId, ArrayComponent);
       }
       else
       {
-        this->Internal->Mappers[i]->ColorByArrayComponent(
-          this->ArrayName,ArrayComponent);
+        this->Internal->Mappers[i]->ColorByArrayComponent(this->ArrayName, ArrayComponent);
       }
     }
 
-    this->Internal->Mappers[i]->Render(ren,a);
+    this->Internal->Mappers[i]->Render(ren, a);
     this->TimeToDraw += this->Internal->Mappers[i]->GetTimeToDraw();
   }
 }
@@ -213,25 +202,24 @@ vtkExecutive* vtkCompositePolyDataMapper::CreateDefaultExecutive()
   return vtkCompositeDataPipeline::New();
 }
 
-//Looks at each DataSet and finds the union of all the bounds
+// Looks at each DataSet and finds the union of all the bounds
 void vtkCompositePolyDataMapper::ComputeBounds()
 {
   vtkMath::UninitializeBounds(this->Bounds);
 
-  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
-  vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  vtkCompositeDataSet* input =
+    vtkCompositeDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If we don't have hierarchical data, test to see if we have
   // plain old polydata. In this case, the bounds are simply
   // the bounds of the input polydata.
-  if(!input)
+  if (!input)
   {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(
-      this->GetExecutive()->GetInputData(0, 0));
-    if ( pd )
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
+    if (pd)
     {
-      pd->GetBounds( this->Bounds );
+      pd->GetBounds(this->Bounds);
     }
     this->BoundsMTime.Modified();
     return;
@@ -246,25 +234,24 @@ void vtkCompositePolyDataMapper::ComputeBounds()
 
   while (!iter->IsDoneWithTraversal())
   {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
+    vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
     if (pd)
     {
       // If this isn't the first time through, expand bounds
       // we've compute so far based on the bounds of this
       // block
-      if ( vtkMath::AreBoundsInitialized(this->Bounds) )
+      if (vtkMath::AreBoundsInitialized(this->Bounds))
       {
         pd->GetBounds(bounds);
-        if ( vtkMath::AreBoundsInitialized(bounds) )
+        if (vtkMath::AreBoundsInitialized(bounds))
         {
-          for(i=0; i<3; i++)
+          for (i = 0; i < 3; i++)
           {
-            this->Bounds[i*2] =
-                (bounds[i*2]<this->Bounds[i*2])?
-                  (bounds[i*2]):(this->Bounds[i*2]);
-            this->Bounds[i*2+1] =
-                (bounds[i*2+1]>this->Bounds[i*2+1])?
-                  (bounds[i*2+1]):(this->Bounds[i*2+1]);
+            this->Bounds[i * 2] =
+              (bounds[i * 2] < this->Bounds[i * 2]) ? (bounds[i * 2]) : (this->Bounds[i * 2]);
+            this->Bounds[i * 2 + 1] = (bounds[i * 2 + 1] > this->Bounds[i * 2 + 1])
+              ? (bounds[i * 2 + 1])
+              : (this->Bounds[i * 2 + 1]);
           }
         }
       }
@@ -281,9 +268,9 @@ void vtkCompositePolyDataMapper::ComputeBounds()
   this->BoundsMTime.Modified();
 }
 
-double *vtkCompositePolyDataMapper::GetBounds()
+double* vtkCompositePolyDataMapper::GetBounds()
 {
-  if ( ! this->GetExecutive()->GetInputData(0, 0) )
+  if (!this->GetExecutive()->GetInputData(0, 0))
   {
     vtkMath::UninitializeBounds(this->Bounds);
     return this->Bounds;
@@ -292,9 +279,10 @@ double *vtkCompositePolyDataMapper::GetBounds()
   {
     this->Update();
 
-    //only compute bounds when the input data has changed
-    vtkCompositeDataPipeline * executive = vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
-    if( executive->GetPipelineMTime() > this->BoundsMTime.GetMTime() )
+    // only compute bounds when the input data has changed
+    vtkCompositeDataPipeline* executive =
+      vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
+    if (executive->GetPipelineMTime() > this->BoundsMTime.GetMTime())
     {
       this->ComputeBounds();
     }
@@ -303,24 +291,24 @@ double *vtkCompositePolyDataMapper::GetBounds()
   }
 }
 
-void vtkCompositePolyDataMapper::ReleaseGraphicsResources( vtkWindow *win )
+void vtkCompositePolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
+  for (unsigned int i = 0; i < this->Internal->Mappers.size(); i++)
   {
-    this->Internal->Mappers[i]->ReleaseGraphicsResources( win );
+    this->Internal->Mappers[i]->ReleaseGraphicsResources(win);
   }
 }
 
 void vtkCompositePolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
-vtkPolyDataMapper *vtkCompositePolyDataMapper::MakeAMapper()
+vtkPolyDataMapper* vtkCompositePolyDataMapper::MakeAMapper()
 {
   vtkPolyDataMapper* m = vtkPolyDataMapper::New();
   // Copy our vtkMapper properties to the delegate
-  m->vtkMapper::ShallowCopy( this );
+  m->vtkMapper::ShallowCopy(this);
   return m;
 }
 
@@ -328,17 +316,17 @@ vtkPolyDataMapper *vtkCompositePolyDataMapper::MakeAMapper()
 // look at children
 bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
 {
-  //If the PolyDataMappers are not up-to-date then rebuild them
-  vtkCompositeDataPipeline * executive =
+  // If the PolyDataMappers are not up-to-date then rebuild them
+  vtkCompositeDataPipeline* executive =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
 
-  if(executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
+  if (executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
   {
     this->BuildPolyDataMapper();
   }
 
   bool hasOpaque = false;
-  for(unsigned int i=0; !hasOpaque && i < this->Internal->Mappers.size(); i++)
+  for (unsigned int i = 0; !hasOpaque && i < this->Internal->Mappers.size(); i++)
   {
     hasOpaque = hasOpaque || this->Internal->Mappers[i]->HasOpaqueGeometry();
   }
@@ -349,17 +337,17 @@ bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
 // look at children
 bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
 {
-  //If the PolyDataMappers are not up-to-date then rebuild them
-  vtkCompositeDataPipeline * executive =
+  // If the PolyDataMappers are not up-to-date then rebuild them
+  vtkCompositeDataPipeline* executive =
     vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive());
 
-  if(executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
+  if (executive->GetPipelineMTime() > this->InternalMappersBuildTime.GetMTime())
   {
     this->BuildPolyDataMapper();
   }
 
   bool hasTrans = false;
-  for(unsigned int i=0; !hasTrans && i < this->Internal->Mappers.size(); i++)
+  for (unsigned int i = 0; !hasTrans && i < this->Internal->Mappers.size(); i++)
   {
     hasTrans = hasTrans || this->Internal->Mappers[i]->HasTranslucentPolygonalGeometry();
   }

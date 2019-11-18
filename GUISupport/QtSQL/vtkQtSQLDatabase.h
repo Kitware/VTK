@@ -23,7 +23,7 @@
  *
  *
  * Implements a vtkSQLDatabase using an underlying Qt QSQLDatabase.
-*/
+ */
 
 #ifndef vtkQtSQLDatabase_h
 #define vtkQtSQLDatabase_h
@@ -77,7 +77,7 @@ public:
   /**
    * Get the list of fields for a particular table
    */
-  vtkStringArray* GetRecord(const char *table) override;
+  vtkStringArray* GetRecord(const char* table) override;
 
   /**
    * Returns a list of columns for a particular table.
@@ -112,10 +112,7 @@ public:
   /**
    * String representing Qt database type (e.g. "mysql").
    */
-  const char* GetDatabaseType() override
-  {
-    return this->DatabaseType;
-  }
+  const char* GetDatabaseType() override { return this->DatabaseType; }
   vtkSetStringMacro(DatabaseType);
   //@}
 
@@ -164,7 +161,7 @@ public:
    * The URL format for SQL databases is a true URL of the form:
    * 'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
    */
-  static vtkSQLDatabase* CreateFromURL( const char* URL );
+  static vtkSQLDatabase* CreateFromURL(const char* URL);
 
   /**
    * Get the URL of the database.
@@ -192,22 +189,22 @@ protected:
    * Look at CreateFromURL() for details about the URL format.
    */
   bool ParseURL(const char* url) override;
-private:
 
+private:
   // Storing the tables in the database, this array
   // is accessible through GetTables() method
-  vtkStringArray *myTables;
+  vtkStringArray* myTables;
 
   // Storing the correct record list from any one
   // of the tables in the database, this array is
   // accessible through GetRecord(const char *table)
-  vtkStringArray *currentRecord;
+  vtkStringArray* currentRecord;
 
   // Used to assign unique identifiers for database instances
   static int id;
 
-  vtkQtSQLDatabase(const vtkQtSQLDatabase &) = delete;
-  void operator=(const vtkQtSQLDatabase &) = delete;
+  vtkQtSQLDatabase(const vtkQtSQLDatabase&) = delete;
+  void operator=(const vtkQtSQLDatabase&) = delete;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

@@ -29,7 +29,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkBoostLogWeighting_h
 #define vtkBoostLogWeighting_h
@@ -71,10 +71,7 @@ protected:
   vtkBoostLogWeighting();
   ~vtkBoostLogWeighting();
 
-  int RequestData(
-    vtkInformation*,
-    vtkInformationVector**,
-    vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkBoostLogWeighting(const vtkBoostLogWeighting&) = delete;
@@ -82,8 +79,6 @@ private:
 
   int Base;
   bool EmitProgress;
-
 };
 
 #endif
-

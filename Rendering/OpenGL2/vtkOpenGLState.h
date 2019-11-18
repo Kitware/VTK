@@ -65,9 +65,9 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include <array> // for ivar
-#include <list> // for ivar
-#include <map>   // for ivar
+#include <array>                       // for ivar
+#include <list>                        // for ivar
+#include <map>                         // for ivar
 
 class vtkOpenGLFramebufferObject;
 class vtkOpenGLRenderWindow;
@@ -79,7 +79,7 @@ class vtkTextureUnitManager;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLState : public vtkObject
 {
 public:
-  static vtkOpenGLState *New();
+  static vtkOpenGLState* New();
   vtkTypeMacro(vtkOpenGLState, vtkObject);
 
   //@{
@@ -96,7 +96,8 @@ public:
   void vtkglScissor(int x, int y, int width, int height);
   void vtkglEnable(unsigned int cap);
   void vtkglDisable(unsigned int cap);
-  void vtkglBlendFunc(unsigned int sfactor, unsigned int dfactor) {
+  void vtkglBlendFunc(unsigned int sfactor, unsigned int dfactor)
+  {
     this->vtkglBlendFuncSeparate(sfactor, dfactor, sfactor, dfactor);
   }
   void vtkglBlendFuncSeparate(unsigned int sfactorRGB, unsigned int dfactorRGB,
@@ -108,12 +109,12 @@ public:
 
   void vtkglBindFramebuffer(unsigned int target, unsigned int fb);
   void vtkglDrawBuffer(unsigned int);
-  void vtkglDrawBuffers(unsigned int n, unsigned int *);
+  void vtkglDrawBuffers(unsigned int n, unsigned int*);
   void vtkglReadBuffer(unsigned int);
 
-  void vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject *fo);
-  void vtkDrawBuffers(unsigned int n, unsigned int *, vtkOpenGLFramebufferObject *);
-  void vtkReadBuffer(unsigned int, vtkOpenGLFramebufferObject *);
+  void vtkBindFramebuffer(unsigned int target, vtkOpenGLFramebufferObject* fo);
+  void vtkDrawBuffers(unsigned int n, unsigned int*, vtkOpenGLFramebufferObject*);
+  void vtkReadBuffer(unsigned int, vtkOpenGLFramebufferObject*);
   //@}
 
   //@{
@@ -140,18 +141,17 @@ public:
   void vtkglClear(unsigned int mask);
   //@}
 
-
   //@{
   // Get methods that can be used to query state if the state is not cached
   // they fall through and call the underlying opengl functions
-  void vtkglGetBooleanv(unsigned int pname, unsigned char *params);
-  void vtkglGetIntegerv(unsigned int pname, int *params);
-  void vtkglGetDoublev(unsigned int pname, double *params);
-  void vtkglGetFloatv(unsigned int pname, float *params);
+  void vtkglGetBooleanv(unsigned int pname, unsigned char* params);
+  void vtkglGetIntegerv(unsigned int pname, int* params);
+  void vtkglGetDoublev(unsigned int pname, double* params);
+  void vtkglGetFloatv(unsigned int pname, float* params);
   //@}
 
   // convenience to get all 4 values at once
-  void GetBlendFuncState(int *);
+  void GetBlendFuncState(int*);
 
   // convenience to return a bool
   // as opposed to a unsigned char
@@ -169,31 +169,32 @@ public:
   template <typename T>
   class VTKRENDERINGOPENGL2_EXPORT ScopedValue
   {
-    public:
-      ~ScopedValue() // restore value
-      {
-        ((*this->State).*(this->Method))(this->Value);
-      }
-    protected:
-      vtkOpenGLState *State;
-      T Value;
-      void (vtkOpenGLState::*Method)(T);
+  public:
+    ~ScopedValue() // restore value
+    {
+      ((*this->State).*(this->Method))(this->Value);
+    }
+
+  protected:
+    vtkOpenGLState* State;
+    T Value;
+    void (vtkOpenGLState::*Method)(T);
   };
 
   /**
    * Activate a texture unit for this texture
    */
-  void ActivateTexture(vtkTextureObject *);
+  void ActivateTexture(vtkTextureObject*);
 
   /**
    * Deactivate a previously activated texture
    */
-  void DeactivateTexture(vtkTextureObject *);
+  void DeactivateTexture(vtkTextureObject*);
 
   /**
    * Get the texture unit for a given texture object
    */
-  int GetTextureUnitForTexture(vtkTextureObject *);
+  int GetTextureUnitForTexture(vtkTextureObject*);
 
   /**
    * Check to make sure no textures have been left active
@@ -204,14 +205,16 @@ public:
   /**
    * Store/Restore the current framebuffer bindings and buffers.
    */
-  void PushFramebufferBindings() {
+  void PushFramebufferBindings()
+  {
     this->PushDrawFramebufferBinding();
     this->PushReadFramebufferBinding();
   }
   void PushDrawFramebufferBinding();
   void PushReadFramebufferBinding();
 
-  void PopFramebufferBindings() {
+  void PopFramebufferBindings()
+  {
     this->PopReadFramebufferBinding();
     this->PopDrawFramebufferBinding();
   }
@@ -222,50 +225,69 @@ public:
   //@}
 
   // Scoped classes you can use to save state
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthMask
-    : public ScopedValue<unsigned char> {
-    public: ScopedglDepthMask(vtkOpenGLState *state); };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglClearColor
-    : public ScopedValue<std::array<float, 4> > {
-    public: ScopedglClearColor(vtkOpenGLState *state); };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthMask : public ScopedValue<unsigned char>
+  {
+  public:
+    ScopedglDepthMask(vtkOpenGLState* state);
+  };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglClearColor : public ScopedValue<std::array<float, 4> >
+  {
+  public:
+    ScopedglClearColor(vtkOpenGLState* state);
+  };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglColorMask
-    : public ScopedValue<std::array<unsigned char, 4> > {
-    public: ScopedglColorMask(vtkOpenGLState *state); };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglScissor
-    : public ScopedValue<std::array<int, 4> > {
-    public: ScopedglScissor(vtkOpenGLState *state); };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglViewport
-    : public ScopedValue<std::array<int, 4> > {
-    public: ScopedglViewport(vtkOpenGLState *state); };
+    : public ScopedValue<std::array<unsigned char, 4> >
+  {
+  public:
+    ScopedglColorMask(vtkOpenGLState* state);
+  };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglScissor : public ScopedValue<std::array<int, 4> >
+  {
+  public:
+    ScopedglScissor(vtkOpenGLState* state);
+  };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglViewport : public ScopedValue<std::array<int, 4> >
+  {
+  public:
+    ScopedglViewport(vtkOpenGLState* state);
+  };
   class VTKRENDERINGOPENGL2_EXPORT ScopedglBlendFuncSeparate
-    : public ScopedValue<std::array<unsigned int, 4> > {
-    public: ScopedglBlendFuncSeparate(vtkOpenGLState *state); };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthFunc
-    : public ScopedValue<unsigned int> {
-    public: ScopedglDepthFunc(vtkOpenGLState *state); };
-  class VTKRENDERINGOPENGL2_EXPORT ScopedglActiveTexture
-    : public ScopedValue<unsigned int> {
-    public: ScopedglActiveTexture(vtkOpenGLState *state); };
+    : public ScopedValue<std::array<unsigned int, 4> >
+  {
+  public:
+    ScopedglBlendFuncSeparate(vtkOpenGLState* state);
+  };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglDepthFunc : public ScopedValue<unsigned int>
+  {
+  public:
+    ScopedglDepthFunc(vtkOpenGLState* state);
+  };
+  class VTKRENDERINGOPENGL2_EXPORT ScopedglActiveTexture : public ScopedValue<unsigned int>
+  {
+  public:
+    ScopedglActiveTexture(vtkOpenGLState* state);
+  };
 
   class ScopedglEnableDisable
   {
-    public:
-      ScopedglEnableDisable(vtkOpenGLState *state, unsigned int name)
-      {
-        this->State = state;
-        this->Name = name;
-        unsigned char val;
-        this->State->vtkglGetBooleanv(name, &val);
-        this->Value = val == 1;
-      }
-      ~ScopedglEnableDisable() // restore value
-      {
-        this->State->SetEnumState(this->Name, this->Value);
-      }
-    protected:
-      vtkOpenGLState *State;
-      unsigned int Name;
-      bool Value;
+  public:
+    ScopedglEnableDisable(vtkOpenGLState* state, unsigned int name)
+    {
+      this->State = state;
+      this->Name = name;
+      unsigned char val;
+      this->State->vtkglGetBooleanv(name, &val);
+      this->Value = val == 1;
+    }
+    ~ScopedglEnableDisable() // restore value
+    {
+      this->State->SetEnumState(this->Name, this->Value);
+    }
+
+  protected:
+    vtkOpenGLState* State;
+    unsigned int Name;
+    bool Value;
   };
 
   /**
@@ -276,13 +298,13 @@ public:
   /**
    * Set the texture unit manager.
    */
-  void SetTextureUnitManager(vtkTextureUnitManager *textureUnitManager);
+  void SetTextureUnitManager(vtkTextureUnitManager* textureUnitManager);
 
   /**
    * Returns its texture unit manager object. A new one will be created if one
    * hasn't already been set up.
    */
-  vtkTextureUnitManager *GetTextureUnitManager();
+  vtkTextureUnitManager* GetTextureUnitManager();
 
   // get the shader program cache for this context
   vtkGetObjectMacro(ShaderCache, vtkOpenGLShaderCache);
@@ -294,7 +316,7 @@ public:
   // this allows two contexts to share VBOs
   // basically this is OPenGL's support for shared
   // lists
-  void SetVBOCache(vtkOpenGLVertexBufferObjectCache *val);
+  void SetVBOCache(vtkOpenGLVertexBufferObjectCache* val);
 
   /**
    * Get a mapping of vtk data types to native texture formats for this window
@@ -302,8 +324,7 @@ public:
    * build these structures themselves
    */
   int GetDefaultTextureInternalFormat(
-    int vtktype, int numComponents,
-    bool needInteger, bool needFloat, bool needSRGB);
+    int vtktype, int numComponents, bool needInteger, bool needFloat, bool needSRGB);
 
 protected:
   vtkOpenGLState(); // set initial values
@@ -318,8 +339,8 @@ protected:
   int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
   void InitializeTextureInternalFormats();
 
-  vtkTextureUnitManager *TextureUnitManager;
-  std::map<const vtkTextureObject *, int> TextureResourceIds;
+  vtkTextureUnitManager* TextureUnitManager;
+  std::map<const vtkTextureObject*, int> TextureResourceIds;
 
   /**
    * Check that this OpenGL state has consistent values
@@ -336,7 +357,7 @@ protected:
     BufferBindingState();
     // bool operator==(const BufferBindingState& a, const BufferBindingState& b);
     // either this holds a vtkOpenGLFramebufferObject
-    vtkOpenGLFramebufferObject *Framebuffer;
+    vtkOpenGLFramebufferObject* Framebuffer;
     // or the handle to an unknown OpenGL FO
     unsigned int Binding;
     unsigned int ReadBuffer;
@@ -350,38 +371,37 @@ protected:
 
   class VTKRENDERINGOPENGL2_EXPORT GLState
   {
-    public:
-      double ClearDepth;
-      unsigned char DepthMask;
-      unsigned int DepthFunc;
-      unsigned int BlendEquationValue1;
-      unsigned int BlendEquationValue2;
-      unsigned int CullFaceMode;
-      unsigned int ActiveTexture;
-      std::array<float, 4> ClearColor;
-      std::array<unsigned char, 4> ColorMask;
-      std::array<int, 4> Viewport;
-      std::array<int, 4> Scissor;
-      std::array<unsigned int, 4> BlendFunc;
-      bool DepthTest;
-      bool CullFace;
-      bool ScissorTest;
-      bool StencilTest;
-      bool Blend;
-      bool MultiSample;
-      int MaxTextureSize;
-      int MajorVersion;
-      int MinorVersion;
-      BufferBindingState DrawBinding;
-      BufferBindingState ReadBinding;
-      GLState() {
-      }
+  public:
+    double ClearDepth;
+    unsigned char DepthMask;
+    unsigned int DepthFunc;
+    unsigned int BlendEquationValue1;
+    unsigned int BlendEquationValue2;
+    unsigned int CullFaceMode;
+    unsigned int ActiveTexture;
+    std::array<float, 4> ClearColor;
+    std::array<unsigned char, 4> ColorMask;
+    std::array<int, 4> Viewport;
+    std::array<int, 4> Scissor;
+    std::array<unsigned int, 4> BlendFunc;
+    bool DepthTest;
+    bool CullFace;
+    bool ScissorTest;
+    bool StencilTest;
+    bool Blend;
+    bool MultiSample;
+    int MaxTextureSize;
+    int MajorVersion;
+    int MinorVersion;
+    BufferBindingState DrawBinding;
+    BufferBindingState ReadBinding;
+    GLState() {}
   };
 
   GLState CurrentState;
 
-  vtkOpenGLVertexBufferObjectCache *VBOCache;
-  vtkOpenGLShaderCache *ShaderCache;
+  vtkOpenGLVertexBufferObjectCache* VBOCache;
+  vtkOpenGLShaderCache* ShaderCache;
 
 private:
   vtkOpenGLState(const vtkOpenGLState&) = delete;

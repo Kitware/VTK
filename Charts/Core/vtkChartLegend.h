@@ -21,15 +21,15 @@
  * The vtkChartLegend is drawn in screen coordinates. It is usually one of the
  * last elements of a chart to be drawn. It renders the mark/line for each
  * plot, and the plot labels.
-*/
+ */
 
 #ifndef vtkChartLegend_h
 #define vtkChartLegend_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
-#include "vtkNew.h"         // For vtkNew
-#include "vtkRect.h"        // For vtkRectf return value
+#include "vtkNew.h"  // For vtkNew
+#include "vtkRect.h" // For vtkRectf return value
 
 class vtkChart;
 class vtkPen;
@@ -40,12 +40,12 @@ class VTKCHARTSCORE_EXPORT vtkChartLegend : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChartLegend, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Chart object.
    */
-  static vtkChartLegend *New();
+  static vtkChartLegend* New();
 
   //@{
   /**
@@ -61,7 +61,8 @@ public:
   vtkGetVector2Macro(Point, float);
   //@}
 
-  enum {
+  enum
+  {
     LEFT = 0,
     CENTER,
     RIGHT,
@@ -73,7 +74,7 @@ public:
   /**
    * Set point the legend box is anchored to.
    */
-  void SetPoint(const vtkVector2f &point);
+  void SetPoint(const vtkVector2f& point);
 
   /**
    * Get point the legend box is anchored to.
@@ -188,7 +189,7 @@ public:
   /**
    * Paint event for the axis, called whenever the axis needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Request the space the legend requires to be drawn. This is returned as a
@@ -201,17 +202,17 @@ public:
   /**
    * Get the pen used to draw the legend outline.
    */
-  vtkPen * GetPen();
+  vtkPen* GetPen();
 
   /**
    * Get the brush used to draw the legend background.
    */
-  vtkBrush * GetBrush();
+  vtkBrush* GetBrush();
 
   /**
    * Get the vtkTextProperty for the legend's labels.
    */
-  vtkTextProperty * GetLabelProperties();
+  vtkTextProperty* GetLabelProperties();
 
   //@{
   /**
@@ -230,30 +231,30 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
 protected:
   vtkChartLegend();
   ~vtkChartLegend() override;
 
-  float* Point;  // The point the legend is anchored to.
+  float* Point;            // The point the legend is anchored to.
   int HorizontalAlignment; // Alignment of the legend to the point it is anchored to.
-  int VerticalAlignment; // Alignment of the legend to the point it is anchored to.
+  int VerticalAlignment;   // Alignment of the legend to the point it is anchored to.
 
   /**
    * The pen used to draw the legend box.
@@ -311,8 +312,8 @@ protected:
   Private* Storage;
 
 private:
-  vtkChartLegend(const vtkChartLegend &) = delete;
-  void operator=(const vtkChartLegend &) = delete;
+  vtkChartLegend(const vtkChartLegend&) = delete;
+  void operator=(const vtkChartLegend&) = delete;
 };
 
-#endif //vtkChartLegend_h
+#endif // vtkChartLegend_h

@@ -25,14 +25,13 @@
  * Input and Source.
  * @sa
  * vtkCompositeDataProbeFilter vtkResampleToImage
-*/
+ */
 
 #ifndef vtkResampleWithDataSet_h
 #define vtkResampleWithDataSet_h
 
-
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkNew.h" // For vtkCompositeDataProbeFilter member variable
+#include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkAbstractCellLocator;
@@ -45,7 +44,7 @@ public:
   vtkTypeMacro(vtkResampleWithDataSet, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkResampleWithDataSet *New();
+  static vtkResampleWithDataSet* New();
 
   /**
    * Specify the data set that will be probed at the input points.
@@ -53,7 +52,7 @@ public:
    * while the Source is probed (interpolated) to generate the scalars,
    * vectors, etc. for the output points based on the point locations.
    */
-  void SetSourceData(vtkDataObject *source);
+  void SetSourceData(vtkDataObject* source);
 
   /**
    * Specify the data set that will be probed at the input points.
@@ -139,8 +138,8 @@ public:
    * Set/Get the prototype cell locator to use for probing the source dataset.
    * The value is forwarded to the underlying probe filter.
    */
-   virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
-   virtual vtkAbstractCellLocator* GetCellLocatorPrototype() const;
+  virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
+  virtual vtkAbstractCellLocator* GetCellLocatorPrototype() const;
   //@}
 
   vtkMTimeType GetMTime() override;
@@ -150,14 +149,11 @@ protected:
   ~vtkResampleWithDataSet() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
-  int FillInputPortInformation(int, vtkInformation *) override;
-  int FillOutputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Get the name of the valid-points mask array.
@@ -167,7 +163,7 @@ protected:
   /**
    * Mark invalid points and cells of output DataSet as hidden
    */
-  void SetBlankPointsAndCells(vtkDataSet *data);
+  void SetBlankPointsAndCells(vtkDataSet* data);
 
   vtkNew<vtkCompositeDataProbeFilter> Prober;
   bool MarkBlankPointsAndCells;

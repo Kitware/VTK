@@ -92,8 +92,7 @@ vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
 int vtkXMLDataObjectWriter::WriteInternal()
 {
   // Create a writer based on the data set type.
-  vtkXMLWriter* writer =
-    vtkXMLDataObjectWriter::NewWriter(this->GetInput()->GetDataObjectType());
+  vtkXMLWriter* writer = vtkXMLDataObjectWriter::NewWriter(this->GetInput()->GetDataObjectType());
   if (writer)
   {
     writer->SetInputConnection(this->GetInputConnection(0, 0));
@@ -121,8 +120,7 @@ int vtkXMLDataObjectWriter::WriteInternal()
 
   // Make sure we got a valid writer for the data set.
   vtkErrorMacro("Cannot write dataset type: "
-                << this->GetInput()->GetDataObjectType() << " which is a "
-                << this->GetInput()->GetClassName());
+    << this->GetInput()->GetDataObjectType() << " which is a " << this->GetInput()->GetClassName());
   return 0;
 }
 
@@ -139,9 +137,8 @@ const char* vtkXMLDataObjectWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataObjectWriter::ProgressCallbackFunction(vtkObject* caller,
-                                                   unsigned long,
-                                                   void* clientdata, void*)
+void vtkXMLDataObjectWriter::ProgressCallbackFunction(
+  vtkObject* caller, unsigned long, void* clientdata, void*)
 {
   vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
   if (w)
@@ -155,7 +152,7 @@ void vtkXMLDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
 {
   float width = this->ProgressRange[1] - this->ProgressRange[0];
   float internalProgress = w->GetProgress();
-  float progress = this->ProgressRange[0] + internalProgress*width;
+  float progress = this->ProgressRange[0] + internalProgress * width;
   this->UpdateProgressDiscrete(progress);
   if (this->AbortExecute)
   {
@@ -164,8 +161,7 @@ void vtkXMLDataObjectWriter::ProgressCallback(vtkAlgorithm* w)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataObjectWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkXMLDataObjectWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   return 1;

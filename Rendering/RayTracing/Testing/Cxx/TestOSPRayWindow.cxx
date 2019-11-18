@@ -38,7 +38,7 @@
 
 #include "vtkTestUtilities.h"
 
-int TestOSPRayWindow( int argc, char *argv[] )
+int TestOSPRayWindow(int argc, char* argv[])
 {
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(8);
@@ -54,8 +54,7 @@ int TestOSPRayWindow( int argc, char *argv[] )
   vtkSmartPointer<vtkLight> light1 = vtkSmartPointer<vtkLight>::New();
 
   // Create the RenderWindow, Renderer and all Actors
-  vtkSmartPointer<vtkRenderer> ren1 =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
   ren1->AddLight(light1);
 
   for (int i = 0; i < argc; ++i)
@@ -67,25 +66,24 @@ int TestOSPRayWindow( int argc, char *argv[] )
     }
   }
 
-  vtkSmartPointer<vtkRenderWindow> renWin =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  renWin->AddRenderer( ren1 );
+  vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  renWin->AddRenderer(ren1);
 
   // Add the actors to the renderer, set the background and size
   //
-  ren1->AddActor( sphereActor );
-  ren1->SetBackground( .2,.3,.4 );
+  ren1->AddActor(sphereActor);
+  ren1->SetBackground(.2, .3, .4);
 
   // render the image
-  renWin->SetWindowName( "VTK - Scalar Bar options" );
-  renWin->SetSize( 600, 500 );
+  renWin->SetWindowName("VTK - Scalar Bar options");
+  renWin->SetSize(600, 500);
 
   vtkNew<vtkOSPRayWindowNode> owindow;
   owindow->SetRenderable(renWin);
   owindow->TraverseAllPasses();
 
   // now get the result and display it
-  int *size = owindow->GetSize();
+  int* size = owindow->GetSize();
   vtkNew<vtkImageData> image;
   image->SetDimensions(size[0], size[1], 1);
   image->GetPointData()->SetScalars(owindow->GetColorBuffer());

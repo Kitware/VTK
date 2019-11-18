@@ -35,19 +35,19 @@
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
+int TestGPURayCastRenderDepthToImage(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
   vtkNew<vtkVolume16Reader> reader;
-  reader->SetDataDimensions( 64, 64);
+  reader->SetDataDimensions(64, 64);
   reader->SetDataByteOrderToLittleEndian();
-  reader->SetImageRange( 1, 93);
-  reader->SetDataSpacing( 3.2, 3.2, 1.5);
-  reader->SetFilePrefix( fname );
-  reader->SetDataMask( 0x7fff);
+  reader->SetImageRange(1, 93);
+  reader->SetDataSpacing(3.2, 3.2, 1.5);
+  reader->SetFilePrefix(fname);
+  reader->SetDataMask(0x7fff);
 
   delete[] fname;
 
@@ -56,7 +56,7 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
   volumeMapper->RenderToImageOn();
 
   vtkNew<vtkColorTransferFunction> colorFunction;
-  colorFunction->AddRGBPoint(900.0, 198/255.0, 134/255.0, 66/255.0);
+  colorFunction->AddRGBPoint(900.0, 198 / 255.0, 134 / 255.0, 66 / 255.0);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(0, 0.0);
@@ -131,8 +131,8 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin );
-  if( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

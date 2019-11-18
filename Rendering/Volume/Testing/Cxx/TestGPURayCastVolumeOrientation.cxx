@@ -32,7 +32,7 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastVolumeOrientation(int argc, char *argv[])
+int TestGPURayCastVolumeOrientation(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   double scalarRange[2];
@@ -42,8 +42,7 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/vase_1comp.vti");
+  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
   delete[] volumeFile;
@@ -100,8 +99,7 @@ int TestGPURayCastVolumeOrientation(int argc, char *argv[])
   ren->AddActor(outlineActor);
   ren->ResetCamera();
 
-  int valid = volumeMapper->IsRenderSupported(renWin,
-                                              volumeProperty);
+  int valid = volumeMapper->IsRenderSupported(renWin, volumeProperty);
   int retVal;
   if (valid)
   {

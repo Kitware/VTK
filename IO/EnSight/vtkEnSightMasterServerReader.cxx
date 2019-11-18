@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
 {
-  if ( !str1 || !str2 || strlen(str1) < strlen(str2) )
+  if (!str1 || !str2 || strlen(str1) < strlen(str2))
   {
     return 0;
   }
@@ -37,7 +37,7 @@ vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
 {
   this->PieceCaseFileName = nullptr;
   this->MaxNumberOfPieces = 0;
-  this->CurrentPiece      = -1;
+  this->CurrentPiece = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -48,46 +48,41 @@ vtkEnSightMasterServerReader::~vtkEnSightMasterServerReader()
 
 //----------------------------------------------------------------------------
 int vtkEnSightMasterServerReader::RequestData(
-  vtkInformation *request,
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  if ( !this->MaxNumberOfPieces )
+  if (!this->MaxNumberOfPieces)
   {
     vtkErrorMacro("No pieces to read");
     return 0;
   }
 
-  if ( this->CurrentPiece < 0 ||
-       this->CurrentPiece >= this->MaxNumberOfPieces )
+  if (this->CurrentPiece < 0 || this->CurrentPiece >= this->MaxNumberOfPieces)
   {
     vtkErrorMacro("Current piece has to be set before reading the file");
     return 0;
   }
-  if ( this->DetermineFileName(this->CurrentPiece) != VTK_OK )
+  if (this->DetermineFileName(this->CurrentPiece) != VTK_OK)
   {
     vtkErrorMacro("Cannot update piece: " << this->CurrentPiece);
     return 0;
   }
-  if ( !this->Reader )
+  if (!this->Reader)
   {
     this->Reader = vtkGenericEnSightReader::New();
   }
   this->Reader->SetCaseFileName(this->PieceCaseFileName);
-  if ( !this->Reader->GetFilePath() )
+  if (!this->Reader->GetFilePath())
   {
-    this->Reader->SetFilePath( this->GetFilePath() );
+    this->Reader->SetFilePath(this->GetFilePath());
   }
   return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightMasterServerReader::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector))
+int vtkEnSightMasterServerReader::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if ( this->DetermineFileName(-1) != VTK_OK )
+  if (this->DetermineFileName(-1) != VTK_OK)
   {
     vtkErrorMacro("Problem parsing the case file");
     return 0;
@@ -107,7 +102,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
   if (this->FilePath)
   {
     sfilename = this->FilePath;
-    if (sfilename.at(sfilename.length()-1) != '/')
+    if (sfilename.at(sfilename.length() - 1) != '/')
     {
       sfilename += "/";
     }
@@ -130,38 +125,36 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 
   char result[1024];
 
-  int servers       = 0;
+  int servers = 0;
   int numberservers = 0;
   int currentserver = 0;
 
-  while ( this->ReadNextDataLine(result) )
+  while (this->ReadNextDataLine(result))
   {
-    if ( strcmp(result, "FORMAT") == 0 )
+    if (strcmp(result, "FORMAT") == 0)
     {
       // Format
     }
-    else if ( strcmp(result, "SERVERS") == 0 )
+    else if (strcmp(result, "SERVERS") == 0)
     {
       servers = 1;
     }
-    else if ( servers &&
-              vtkEnSightMasterServerReaderStartsWith(result, "number of servers:") )
+    else if (servers && vtkEnSightMasterServerReaderStartsWith(result, "number of servers:"))
     {
       sscanf(result, "number of servers: %i", &numberservers);
-      if ( !numberservers )
+      if (!numberservers)
       {
         vtkErrorMacro("The case file is corrupted");
         break;
       }
     }
-    else if ( servers &&
-              vtkEnSightMasterServerReaderStartsWith(result, "casefile:") )
+    else if (servers && vtkEnSightMasterServerReaderStartsWith(result, "casefile:"))
     {
-      if ( currentserver == piece )
+      if (currentserver == piece)
       {
         char filename[VTK_MAXPATH] = "";
         sscanf(result, "casefile: %s", filename);
-        if ( filename[0] == 0 )
+        if (filename[0] == 0)
         {
           vtkErrorMacro("Problem parsing file name from: " << result);
           return VTK_ERROR;
@@ -169,12 +162,12 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
         this->SetPieceCaseFileName(filename);
         break;
       }
-      currentserver ++;
+      currentserver++;
     }
   }
-  if ( piece == -1 && currentserver != numberservers )
+  if (piece == -1 && currentserver != numberservers)
   {
-    //cout << "Number of servers (" << numberservers
+    // cout << "Number of servers (" << numberservers
     // << ") is not equal to the actual number of servers ("
     // << currentserver << ")" << endl;
     return VTK_ERROR;
@@ -192,11 +185,11 @@ int vtkEnSightMasterServerReader::CanReadFile(const char* fname)
   // We may have to read quite a few lines of the file to do this test
   // for real.  Just check the extension.
   size_t len = strlen(fname);
-  if((len >= 4) && (strcmp(fname+len-4, ".sos") == 0))
+  if ((len >= 4) && (strcmp(fname + len - 4, ".sos") == 0))
   {
     return 1;
   }
-  else if((len >= 5) && (strcmp(fname+len-5, ".case") == 0))
+  else if ((len >= 5) && (strcmp(fname + len - 5, ".case") == 0))
   {
     return 1;
   }
@@ -206,10 +199,10 @@ int vtkEnSightMasterServerReader::CanReadFile(const char* fname)
 //----------------------------------------------------------------------------
 void vtkEnSightMasterServerReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Current piece: " << this->CurrentPiece << endl;
-  os << indent << "Piece Case File name: "
-     << (this->PieceCaseFileName?this->PieceCaseFileName:"<none>") << endl;
-  os << indent << "Maximum numbe of pieces: " << this->MaxNumberOfPieces
+  os << indent
+     << "Piece Case File name: " << (this->PieceCaseFileName ? this->PieceCaseFileName : "<none>")
      << endl;
+  os << indent << "Maximum numbe of pieces: " << this->MaxNumberOfPieces << endl;
 }

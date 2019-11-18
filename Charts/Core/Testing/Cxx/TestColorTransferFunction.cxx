@@ -28,11 +28,10 @@
 #include "vtkSmartPointer.h"
 
 //----------------------------------------------------------------------------
-int TestColorTransferFunction(int ,  char * [])
+int TestColorTransferFunction(int, char*[])
 {
   // Set up a 2D scene, add an XY chart to it
-  vtkSmartPointer<vtkContextView> view =
-      vtkSmartPointer<vtkContextView>::New();
+  vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
   vtkSmartPointer<vtkChartXY> chart = vtkSmartPointer<vtkChartXY>::New();
@@ -41,9 +40,9 @@ int TestColorTransferFunction(int ,  char * [])
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     vtkSmartPointer<vtkColorTransferFunction>::New();
-  colorTransferFunction->AddHSVSegment(50.,0.,1.,1.,85.,0.3333,1.,1.);
-  colorTransferFunction->AddHSVSegment(85.,0.3333,1.,1.,170.,0.6666,1.,1.);
-  colorTransferFunction->AddHSVSegment(170.,0.6666,1.,1.,200.,0.,1.,1.);
+  colorTransferFunction->AddHSVSegment(50., 0., 1., 1., 85., 0.3333, 1., 1.);
+  colorTransferFunction->AddHSVSegment(85., 0.3333, 1., 1., 170., 0.6666, 1., 1.);
+  colorTransferFunction->AddHSVSegment(170., 0.6666, 1., 1., 200., 0., 1., 1.);
 
   colorTransferFunction->Build();
 

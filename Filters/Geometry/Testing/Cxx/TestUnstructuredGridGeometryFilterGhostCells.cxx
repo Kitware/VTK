@@ -23,7 +23,7 @@
 
 int TestUnstructuredGridGeometryFilterGhostCells(int argc, char* argv[])
 {
-  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ghost_cells.vtu");
+  char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ghost_cells.vtu");
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName(cfname);
@@ -34,13 +34,12 @@ int TestUnstructuredGridGeometryFilterGhostCells(int argc, char* argv[])
   ugridFilter->SetInputConnection(reader->GetOutputPort());
   ugridFilter->Update();
 
-  vtkUnstructuredGrid* ugrid =
-    vtkUnstructuredGrid::SafeDownCast(ugridFilter->GetOutput());
+  vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(ugridFilter->GetOutput());
   int withoutGhostCells = ugrid->GetNumberOfCells();
   if (withoutGhostCells != 4)
   {
-    std::cerr << "Expected 4 cells with ghost cell clipping on, got "
-              << withoutGhostCells << std::endl;
+    std::cerr << "Expected 4 cells with ghost cell clipping on, got " << withoutGhostCells
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -52,8 +51,8 @@ int TestUnstructuredGridGeometryFilterGhostCells(int argc, char* argv[])
   int withGhostCells = ugrid->GetNumberOfCells();
   if (withGhostCells != 8)
   {
-    std::cerr << "Expected 8 cells with ghost cell clipping off, got "
-              << withGhostCells << std::endl;
+    std::cerr << "Expected 8 cells with ghost cell clipping off, got " << withGhostCells
+              << std::endl;
     return EXIT_FAILURE;
   }
 

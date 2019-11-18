@@ -21,7 +21,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLUnstructuredDataWriter.h"
 
-
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataWriter::vtkXMLPUnstructuredDataWriter() = default;
 

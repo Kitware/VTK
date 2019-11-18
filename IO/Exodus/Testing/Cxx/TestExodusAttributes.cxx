@@ -8,8 +8,7 @@
 
 int TestExodusAttributes(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/edgeFaceElem.exii");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/edgeFaceElem.exii");
   if (!fname)
   {
     cout << "Could not obtain filename for test data.\n";
@@ -26,17 +25,14 @@ int TestExodusAttributes(int argc, char* argv[])
   delete[] fname;
 
   rdr->UpdateInformation();
-  rdr->SetObjectAttributeStatus(vtkExodusIIReader::ELEM_BLOCK,0,"SPAGHETTI",1);
-  rdr->SetObjectAttributeStatus(vtkExodusIIReader::ELEM_BLOCK,0,"WESTERN",1);
+  rdr->SetObjectAttributeStatus(vtkExodusIIReader::ELEM_BLOCK, 0, "SPAGHETTI", 1);
+  rdr->SetObjectAttributeStatus(vtkExodusIIReader::ELEM_BLOCK, 0, "WESTERN", 1);
   rdr->Update();
-  vtkCellData* cd =
-    vtkDataSet::SafeDownCast(
-      vtkMultiBlockDataSet::SafeDownCast(
-        vtkMultiBlockDataSet::SafeDownCast(
-          rdr->GetOutputDataObject(0))
-        ->GetBlock(0))
+  vtkCellData* cd = vtkDataSet::SafeDownCast(
+    vtkMultiBlockDataSet::SafeDownCast(
+      vtkMultiBlockDataSet::SafeDownCast(rdr->GetOutputDataObject(0))->GetBlock(0))
       ->GetBlock(0))
-    ->GetCellData();
+                      ->GetCellData();
   if (!cd)
   {
     cout << "Could not obtain cell data\n";
@@ -54,9 +50,8 @@ int TestExodusAttributes(int argc, char* argv[])
   }
   vtkDataArray* spaghetti = cd->GetArray("SPAGHETTI");
   vtkDataArray* western = cd->GetArray("WESTERN");
-  if (
-    !spaghetti || !western ||
-    spaghetti->GetNumberOfTuples() != 2 || western->GetNumberOfTuples() != 2)
+  if (!spaghetti || !western || spaghetti->GetNumberOfTuples() != 2 ||
+    western->GetNumberOfTuples() != 2)
   {
     cout << "Attribute arrays not read or are wrong length.\n";
     return 1;

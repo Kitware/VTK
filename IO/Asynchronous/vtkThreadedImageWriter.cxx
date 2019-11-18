@@ -196,8 +196,7 @@ void vtkThreadedImageWriter::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image,
-                                            const char* fileName)
+void vtkThreadedImageWriter::EncodeAndWrite(vtkImageData* image, const char* fileName)
 {
   // Error checking
   if (image == nullptr)

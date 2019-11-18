@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTableBasedClipCases.h
+  Module:    vtkTableBasedClipCases.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#ifndef vtkTableBasedClipCases_h
-#define vtkTableBasedClipCases_h
-
 
 /*****************************************************************************
 *
@@ -8994,5 +8990,3 @@ static unsigned char ClipShapesVtx[] = {
 // ============================================================================
 // ============================= ClipCases ( end ) ============================
 // ============================================================================
-#endif
-// VTK-HeaderTest-Exclude: vtkTableBasedClipCases.h

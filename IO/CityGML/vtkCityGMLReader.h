@@ -16,7 +16,7 @@
  * @class   vtkCityGMLReader
  * @brief   read CityGML data file
  *
-*/
+ */
 
 #ifndef vtkCityGMLReader_h
 #define vtkCityGMLReader_h
@@ -53,8 +53,8 @@
 class VTKIOCITYGML_EXPORT vtkCityGMLReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  static vtkCityGMLReader *New();
-  vtkTypeMacro(vtkCityGMLReader,vtkMultiBlockDataSetAlgorithm);
+  static vtkCityGMLReader* New();
+  vtkTypeMacro(vtkCityGMLReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -74,7 +74,6 @@ public:
   vtkGetMacro(LOD, int);
   //@}
 
-
   //@{
   /**
    * Certain input files use app:transparency as opacity. Set this field true
@@ -89,11 +88,9 @@ protected:
   vtkCityGMLReader();
   ~vtkCityGMLReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-
-  char *FileName;
+  char* FileName;
   int LOD;
   int UseTransparencyAsOpacity;
 

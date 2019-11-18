@@ -19,7 +19,7 @@
  * This class allows polydata and unstructured grids to be aggregated
  * over a smaller set of processes. The derived vtkDIYAggregateDataSetFilter
  * will operate on image data, rectilinear grids and structured grids.
-*/
+ */
 
 #ifndef vtkAggregateDataSetFilter_h
 #define vtkAggregateDataSetFilter_h

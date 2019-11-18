@@ -1338,19 +1338,19 @@ void vtkPolarAxesActor::BuildRadialAxes()
   int nAxes;
 
   // Delta angle to big, only last radial axis
-   if (this->DeltaAngleRadialAxes >= angleSection)
-   {
-     nAxes = 1;
-     alphaStart = angleSection + this->MinimumAngle;
-   }
-   else if (this->RequestedNumberOfRadialAxes == 0)
-   {
-     nAxes = std::ceil(angleSection / dAlpha);
-   }
-   else
-   {
-     nAxes = this->RequestedNumberOfRadialAxes - 1;
-   }
+  if (this->DeltaAngleRadialAxes >= angleSection)
+  {
+    nAxes = 1;
+    alphaStart = angleSection + this->MinimumAngle;
+  }
+  else if (this->RequestedNumberOfRadialAxes == 0)
+  {
+    nAxes = std::ceil(angleSection / dAlpha);
+  }
+  else
+  {
+    nAxes = this->RequestedNumberOfRadialAxes - 1;
+  }
 
   // init radial axis. Does nothing if number of radial axes doesn't change
   this->CreateRadialAxes(nAxes);
@@ -1361,8 +1361,7 @@ void vtkPolarAxesActor::BuildRadialAxes()
   {
     currentAlpha = alphaDeg;
 
-    if (currentAlpha > angleSection + this->MinimumAngle ||
-      (i == this->NumberOfRadialAxes - 1))
+    if (currentAlpha > angleSection + this->MinimumAngle || (i == this->NumberOfRadialAxes - 1))
     {
       currentAlpha = angleSection + this->MinimumAngle;
     }

@@ -30,7 +30,7 @@
  * The cylinder is infinite in extent. To truncate the cylinder in
  * modeling operations use the vtkImplicitBoolean in combination with
  * clipping planes.
-*/
+ */
 
 #ifndef vtkCylinder_h
 #define vtkCylinder_h
@@ -41,14 +41,14 @@
 class VTKCOMMONDATAMODEL_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkCylinder,vtkImplicitFunction);
+  vtkTypeMacro(vtkCylinder, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct cylinder radius of 0.5; centered at origin with axis
    * along y coordinate axis.
    */
-  static vtkCylinder *New();
+  static vtkCylinder* New();
 
   //@{
   /**
@@ -67,16 +67,16 @@ public:
   /**
    * Set/Get the cylinder radius.
    */
-  vtkSetMacro(Radius,double);
-  vtkGetMacro(Radius,double);
+  vtkSetMacro(Radius, double);
+  vtkGetMacro(Radius, double);
   //@}
 
   //@{
   /**
    * Set/Get the cylinder center.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVector3Macro(Center,double);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
   //@}
 
   //@{
@@ -87,7 +87,7 @@ public:
    */
   void SetAxis(double ax, double ay, double az);
   void SetAxis(double a[3]);
-  vtkGetVector3Macro(Axis,double);
+  vtkGetVector3Macro(Axis, double);
   //@}
 
 protected:

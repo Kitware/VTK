@@ -21,7 +21,7 @@
  * GPUs to be zero. Useful when an OS specific implementation is not available.
  * @sa
  * vtkGPUInfo vtkGPUInfoList
-*/
+ */
 
 #ifndef vtkDummyGPUInfoList_h
 #define vtkDummyGPUInfoList_h

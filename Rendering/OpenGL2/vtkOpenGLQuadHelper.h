@@ -57,9 +57,9 @@ class vtkWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLQuadHelper
 {
 public:
-  vtkShaderProgram *Program;
+  vtkShaderProgram* Program;
   vtkTimeStamp ShaderSourceTime;
-  vtkOpenGLVertexArrayObject *VAO;
+  vtkOpenGLVertexArrayObject* VAO;
   unsigned int ShaderChangeValue;
 
   // create a quadhelper with the provided shaders
@@ -67,8 +67,7 @@ public:
   // then the default is used. Note that this
   // class should be destroyed upon
   // ReleaseGraphicsResources
-  vtkOpenGLQuadHelper(vtkOpenGLRenderWindow *,
-    const char *vs, const char *fs, const char *gs);
+  vtkOpenGLQuadHelper(vtkOpenGLRenderWindow*, const char* vs, const char* fs, const char* gs);
 
   ~vtkOpenGLQuadHelper();
 

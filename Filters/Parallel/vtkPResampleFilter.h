@@ -16,7 +16,7 @@
  * @class   vtkPResampleFilter
  * @brief   probe dataset in parallel using a vtkImageData
  *
-*/
+ */
 
 #ifndef vtkPResampleFilter_h
 #define vtkPResampleFilter_h
@@ -29,10 +29,10 @@ class vtkMultiProcessController;
 class VTKFILTERSPARALLEL_EXPORT vtkPResampleFilter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeMacro(vtkPResampleFilter,vtkImageAlgorithm);
+  vtkTypeMacro(vtkPResampleFilter, vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkPResampleFilter *New();
+  static vtkPResampleFilter* New();
 
   //@{
   /**
@@ -74,10 +74,10 @@ protected:
   ~vtkPResampleFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double* CalculateBounds(vtkDataSet* input);
 
@@ -90,7 +90,6 @@ protected:
 private:
   vtkPResampleFilter(const vtkPResampleFilter&) = delete;
   void operator=(const vtkPResampleFilter&) = delete;
-
 };
 
 #endif

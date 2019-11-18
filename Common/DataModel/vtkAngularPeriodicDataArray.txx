@@ -21,26 +21,26 @@
 
 //------------------------------------------------------------------------------
 // Can't use vtkStandardNewMacro on a templated class.
-template <class Scalar> vtkAngularPeriodicDataArray<Scalar>*
-vtkAngularPeriodicDataArray<Scalar>::New()
+template <class Scalar>
+vtkAngularPeriodicDataArray<Scalar>* vtkAngularPeriodicDataArray<Scalar>::New()
 {
   VTK_STANDARD_NEW_BODY(vtkAngularPeriodicDataArray<Scalar>);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
-::PrintSelf(ostream &os, vtkIndent indent)
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkAngularPeriodicDataArray<Scalar>::Superclass::PrintSelf(os, indent);
   os << indent << "Axis: " << this->Axis << "\n";
   os << indent << "Angle: " << this->Angle << "\n";
-  os << indent << "Center: " <<
-    this->Center[0] << " " << this->Center[1] << " " << this->Center[2] << "\n";
+  os << indent << "Center: " << this->Center[0] << " " << this->Center[1] << " " << this->Center[2]
+     << "\n";
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
-::InitializeArray(vtkAOSDataArrayTemplate<Scalar>* data)
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::InitializeArray(vtkAOSDataArrayTemplate<Scalar>* data)
 {
   this->Initialize();
   if (!data)
@@ -52,8 +52,8 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
   if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 6 &&
     data->GetNumberOfComponents() != 9)
   {
-    vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents() <<
-                    " components, Expecting 3 or 9.");
+    vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents()
+                    << " components, Expecting 3 or 9.");
     return;
   }
 
@@ -61,8 +61,8 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
-SetAngle(double angle)
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::SetAngle(double angle)
 {
   if (this->Angle != angle)
   {
@@ -75,8 +75,8 @@ SetAngle(double angle)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
-SetAxis(int axis)
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::SetAxis(int axis)
 {
   if (this->Axis != axis)
   {
@@ -88,8 +88,8 @@ SetAxis(int axis)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
-SetCenter(double* center)
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::SetCenter(double* center)
 {
   if (center)
   {
@@ -111,8 +111,8 @@ SetCenter(double* center)
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
-Transform(Scalar* pos) const
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::Transform(Scalar* pos) const
 {
   if (this->NumberOfComponents == 3)
   {
@@ -151,8 +151,8 @@ Transform(Scalar* pos) const
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
-UpdateRotationMatrix()
+template <class Scalar>
+void vtkAngularPeriodicDataArray<Scalar>::UpdateRotationMatrix()
 {
   int axis0 = (this->Axis + 1) % 3;
   int axis1 = (this->Axis + 2) % 3;
@@ -165,8 +165,8 @@ UpdateRotationMatrix()
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkAngularPeriodicDataArray<Scalar>
-::vtkAngularPeriodicDataArray()
+template <class Scalar>
+vtkAngularPeriodicDataArray<Scalar>::vtkAngularPeriodicDataArray()
 {
   this->Axis = VTK_PERIODIC_ARRAY_AXIS_X;
   this->Angle = 0.0;
@@ -180,8 +180,8 @@ template <class Scalar> vtkAngularPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> vtkAngularPeriodicDataArray<Scalar>
-::~vtkAngularPeriodicDataArray()
+template <class Scalar>
+vtkAngularPeriodicDataArray<Scalar>::~vtkAngularPeriodicDataArray()
 {
   this->RotationMatrix->Delete();
 }

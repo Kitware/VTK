@@ -30,15 +30,13 @@
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMethodDescriptor_Type;
 
-#define PyVTKMethodDescriptor_Check(obj) \
-  (Py_TYPE(obj) == &PyVTKMethodDescriptor_Type)
+#define PyVTKMethodDescriptor_Check(obj) (Py_TYPE(obj) == &PyVTKMethodDescriptor_Type)
 
 extern "C"
 {
-// Create a new method descriptor from a PyMethodDef.
-VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKMethodDescriptor_New(
-  PyTypeObject *cls, PyMethodDef *meth);
+  // Create a new method descriptor from a PyMethodDef.
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyObject* PyVTKMethodDescriptor_New(PyTypeObject* cls, PyMethodDef* meth);
 }
 
 #endif

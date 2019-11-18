@@ -5,8 +5,7 @@
 #include "vtkTableToGraph.h"
 #include "vtkTestUtilities.h"
 
-#define VTK_CREATE(type,name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestKCoreLayout(int argc, char* argv[])
 {
@@ -15,10 +14,10 @@ int TestKCoreLayout(int argc, char* argv[])
   VTK_CREATE(vtkTableToGraph, tbl2graph);
   VTK_CREATE(vtkKCoreLayout, kcoreLayout);
 
-  char * file_verts = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                           "Data/Infovis/kcore_verts.csv");
-  char * file_edges = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                           "Data/Infovis/kcore_edges.csv");
+  char* file_verts =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/kcore_verts.csv");
+  char* file_edges =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/kcore_edges.csv");
 
   csv_vert_source->SetFieldDelimiterCharacters(",");
   csv_vert_source->DetectNumericColumnsOn();
@@ -37,7 +36,7 @@ int TestKCoreLayout(int argc, char* argv[])
   tbl2graph->AddLinkVertex("target", "vertex id", false);
   tbl2graph->AddLinkEdge("source", "target");
 
-  kcoreLayout->SetGraphConnection( tbl2graph->GetOutputPort() );
+  kcoreLayout->SetGraphConnection(tbl2graph->GetOutputPort());
   kcoreLayout->SetCartesian(true);
   kcoreLayout->SetEpsilon(0.2);
   kcoreLayout->SetUnitRadius(1.0);
@@ -46,8 +45,8 @@ int TestKCoreLayout(int argc, char* argv[])
 
   // TODO: Add some tests on this graph to check validity
 
-  delete []file_verts;
-  delete []file_edges;
+  delete[] file_verts;
+  delete[] file_edges;
 
   return EXIT_SUCCESS;
 }

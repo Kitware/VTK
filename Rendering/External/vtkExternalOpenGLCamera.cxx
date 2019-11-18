@@ -37,19 +37,19 @@ vtkExternalOpenGLCamera::vtkExternalOpenGLCamera()
 
 //----------------------------------------------------------------------------
 // Implement base class method.
-void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
+void vtkExternalOpenGLCamera::Render(vtkRenderer* ren)
 {
   vtkOpenGLClearErrorMacro();
 
-  int  lowerLeft[2];
+  int lowerLeft[2];
   int usize, vsize;
 
-  vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  vtkOpenGLState *ostate = win->GetState();
+  vtkOpenGLRenderWindow* win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  vtkOpenGLState* ostate = win->GetState();
 
   // find out if we should stereo render
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
-  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft + 1);
 
   // Take the window position into account
   for (int i = 0; i < 2; ++i)
@@ -78,11 +78,11 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
         }
         else
         {
-           if (ren->GetRenderWindow()->GetDoubleBuffer())
-           {
+          if (ren->GetRenderWindow()->GetDoubleBuffer())
+          {
             ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
             ostate->vtkglReadBuffer(static_cast<GLenum>(win->GetBackRightBuffer()));
-           }
+          }
           else
           {
             ostate->vtkglDrawBuffer(static_cast<GLenum>(win->GetFrontRightBuffer()));
@@ -135,8 +135,7 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkExternalOpenGLCamera::SetViewTransformMatrix(
-  const double elements[16])
+void vtkExternalOpenGLCamera::SetViewTransformMatrix(const double elements[16])
 {
   if (!elements)
   {
@@ -153,8 +152,7 @@ void vtkExternalOpenGLCamera::SetViewTransformMatrix(
 }
 
 //----------------------------------------------------------------------------
-void vtkExternalOpenGLCamera::SetProjectionTransformMatrix(
-  const double elements[16])
+void vtkExternalOpenGLCamera::SetProjectionTransformMatrix(const double elements[16])
 {
   if (!elements)
   {
@@ -187,5 +185,5 @@ void vtkExternalOpenGLCamera::ComputeViewTransform()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

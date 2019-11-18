@@ -87,7 +87,7 @@ public:
    * Standard methods for instantiation, type information, and printing.
    */
   static vtkMersenneTwister* New();
-  vtkTypeMacro(vtkMersenneTwister,vtkRandomSequence);
+  vtkTypeMacro(vtkMersenneTwister, vtkRandomSequence);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -95,8 +95,7 @@ public:
    * Satisfy general API of vtkRandomSequence superclass. Initialize the
    * sequence with a seed.
    */
-  void Initialize(vtkTypeUInt32 seed) override
-  {this->InitializeSequence(0,seed);}
+  void Initialize(vtkTypeUInt32 seed) override { this->InitializeSequence(0, seed); }
 
   /**
    * Initialize a new Mersenne Twister sequence, given a) a <seed> and b) a
@@ -105,7 +104,7 @@ public:
    * The return value is the id for the generated sequence, which is used as a
    * key to access values of the sequence.
    */
-  SequenceId InitializeNewSequence(vtkTypeUInt32 seed, int p=521);
+  SequenceId InitializeNewSequence(vtkTypeUInt32 seed, int p = 521);
 
   /**
    * Initialize a sequence as in InitializeNewSequence(), but additionally pass
@@ -113,7 +112,7 @@ public:
    * associated with this id, a warning is given and the sequence is reset using
    * the given parameters.
    */
-  void InitializeSequence(SequenceId id, vtkTypeUInt32 seed, int p=521);
+  void InitializeSequence(SequenceId id, vtkTypeUInt32 seed, int p = 521);
 
   /**
    * Current value

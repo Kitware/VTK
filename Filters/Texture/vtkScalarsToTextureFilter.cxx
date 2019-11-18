@@ -59,8 +59,7 @@ int vtkScalarsToTextureFilter::FillOutputPortInformation(int port, vtkInformatio
 
 //-----------------------------------------------------------------------------
 int vtkScalarsToTextureFilter::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -148,9 +147,8 @@ int vtkScalarsToTextureFilter::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 // ----------------------------------------------------------------------------
-int vtkScalarsToTextureFilter::RequestInformation(vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkScalarsToTextureFilter::RequestInformation(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(1);
 

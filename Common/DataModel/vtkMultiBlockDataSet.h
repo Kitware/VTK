@@ -34,7 +34,7 @@
  *   * (null)
  *   * ds 1
  * @endverbatim
-*/
+ */
 
 #ifndef vtkMultiBlockDataSet_h
 #define vtkMultiBlockDataSet_h
@@ -53,7 +53,7 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override {return VTK_MULTIBLOCK_DATA_SET;}
+  int GetDataObjectType() override { return VTK_MULTIBLOCK_DATA_SET; }
 
   /**
    * Set the number of blocks. This will cause allocation if the new number of
@@ -87,8 +87,7 @@ public:
   /**
    * Returns true if meta-data is available for a given block.
    */
-  int HasMetaData(unsigned int blockno)
-    { return this->Superclass::HasChildMetaData(blockno); }
+  int HasMetaData(unsigned int blockno) { return this->Superclass::HasChildMetaData(blockno); }
 
   /**
    * Returns the meta-data for the block. If none is already present, a new
@@ -96,27 +95,33 @@ public:
    * allocating vtkInformation objects.
    */
   vtkInformation* GetMetaData(unsigned int blockno)
-    { return this->Superclass::GetChildMetaData(blockno); }
+  {
+    return this->Superclass::GetChildMetaData(blockno);
+  }
 
   //@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkMultiBlockDataSet* GetData(vtkInformation* info);
-  static vtkMultiBlockDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkMultiBlockDataSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
    * Unhiding superclass method.
    */
   vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) override
-    { return this->Superclass::GetMetaData(iter); }
+  {
+    return this->Superclass::GetMetaData(iter);
+  }
 
   /**
    * Unhiding superclass method.
    */
   int HasMetaData(vtkCompositeDataIterator* iter) override
-    { return this->Superclass::HasMetaData(iter); }
+  {
+    return this->Superclass::HasMetaData(iter);
+  }
 
 protected:
   vtkMultiBlockDataSet();
@@ -125,9 +130,6 @@ protected:
 private:
   vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) = delete;
   void operator=(const vtkMultiBlockDataSet&) = delete;
-
 };
 
 #endif
-
-

@@ -39,7 +39,7 @@
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
  * Laboratories.
-*/
+ */
 
 #ifndef vtkArrayInterpolate_h
 #define vtkArrayInterpolate_h
@@ -52,12 +52,9 @@ class vtkArrayWeights;
 
 //
 
-template<typename T>
-void vtkInterpolate(
-  vtkTypedArray<T>* source_array,
-  const vtkArraySlices& source_slices,
-  const vtkArrayWeights& source_weights,
-  const vtkArrayExtents& target_slice,
+template <typename T>
+void vtkInterpolate(vtkTypedArray<T>* source_array, const vtkArraySlices& source_slices,
+  const vtkArrayWeights& source_weights, const vtkArrayExtents& target_slice,
   vtkTypedArray<T>* target_array);
 
 #include "vtkArrayInterpolate.txx"

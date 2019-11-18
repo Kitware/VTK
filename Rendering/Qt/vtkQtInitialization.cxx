@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkQtInitialization);
 vtkQtInitialization::vtkQtInitialization()
 {
   this->Application = nullptr;
-  if(!QApplication::instance())
+  if (!QApplication::instance())
   {
     int argc = 0;
     this->Application = new QApplication(argc, nullptr);
@@ -40,7 +40,7 @@ vtkQtInitialization::~vtkQtInitialization()
   delete this->Application;
 }
 
-void vtkQtInitialization::PrintSelf(ostream &os, vtkIndent indent)
+void vtkQtInitialization::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "QApplication: " << QApplication::instance() << endl;

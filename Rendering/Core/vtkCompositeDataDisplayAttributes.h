@@ -22,17 +22,16 @@
  *
  * @warning It is considered unsafe to dereference key pointers at any time,
  * they should only serve as keys to access the internal map.
-*/
+ */
 
 #ifndef vtkCompositeDataDisplayAttributes_h
 #define vtkCompositeDataDisplayAttributes_h
-#include <functional>               // for std::function
-#include <unordered_map>            // for std::unordered_map
+#include <functional>    // for std::function
+#include <unordered_map> // for std::unordered_map
 
-#include "vtkColor.h"               // for vtkColor3d
+#include "vtkColor.h" // for vtkColor3d
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // for export macro
-
 
 class vtkBoundingBox;
 class vtkDataObject;
@@ -41,7 +40,7 @@ class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributes : public vtkObje
 {
 public:
   static vtkCompositeDataDisplayAttributes* New();
-  vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject)
+  vtkTypeMacro(vtkCompositeDataDisplayAttributes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -199,16 +198,14 @@ public:
    * to compute the \a bounds.
    */
   static void ComputeVisibleBounds(
-    vtkCompositeDataDisplayAttributes* cda,
-    vtkDataObject *dobj,
-    double bounds[6]);
+    vtkCompositeDataDisplayAttributes* cda, vtkDataObject* dobj, double bounds[6]);
 
   /**
    * Get the DataObject corresponding to the node with index flat_index under
    * parent_obj. Traverses the entire hierarchy recursively.
    */
-  static vtkDataObject* DataObjectFromIndex(const unsigned int flat_index,
-    vtkDataObject* parent_obj, unsigned int& current_flat_index);
+  static vtkDataObject* DataObjectFromIndex(
+    const unsigned int flat_index, vtkDataObject* parent_obj, unsigned int& current_flat_index);
 
   void VisitVisibilities(std::function<bool(vtkDataObject*, bool)> visitor)
   {
@@ -220,6 +217,7 @@ public:
       }
     }
   }
+
 protected:
   vtkCompositeDataDisplayAttributes();
   ~vtkCompositeDataDisplayAttributes() override;
@@ -236,11 +234,8 @@ private:
    * result bounds will be set to the vtkBoundingBox \a bbox. The \a parentVisible
    * is the visibility for the starting block.
    */
-  static void ComputeVisibleBoundsInternal(
-    vtkCompositeDataDisplayAttributes* cda,
-    vtkDataObject *dobj,
-    vtkBoundingBox* bbox,
-    bool parentVisible = true);
+  static void ComputeVisibleBoundsInternal(vtkCompositeDataDisplayAttributes* cda,
+    vtkDataObject* dobj, vtkBoundingBox* bbox, bool parentVisible = true);
 
   using BoolMap = std::unordered_map<vtkDataObject*, bool>;
   using DoubleMap = std::unordered_map<vtkDataObject*, double>;

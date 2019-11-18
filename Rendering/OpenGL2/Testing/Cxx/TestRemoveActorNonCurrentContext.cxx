@@ -29,26 +29,22 @@
 #include "vtkTesting.h"
 
 //-----------------------------------------------------------------------------
-class TestRemoveActorNonCurrentContextCallback: public vtkCommand
+class TestRemoveActorNonCurrentContextCallback : public vtkCommand
 {
 public:
-
-  static TestRemoveActorNonCurrentContextCallback *New()
+  static TestRemoveActorNonCurrentContextCallback* New()
   {
     return new TestRemoveActorNonCurrentContextCallback;
   }
 
-  void Execute(vtkObject* caller,
-                       unsigned long eventId,
-                       void* vtkNotUsed(callData)) override
+  void Execute(vtkObject* caller, unsigned long eventId, void* vtkNotUsed(callData)) override
   {
     if (eventId != vtkCommand::KeyPressEvent)
     {
       return;
     }
 
-    vtkRenderWindowInteractor* interactor =
-      static_cast<vtkRenderWindowInteractor*>(caller);
+    vtkRenderWindowInteractor* interactor = static_cast<vtkRenderWindowInteractor*>(caller);
     if (interactor == nullptr)
     {
       return;
@@ -131,8 +127,7 @@ int TestRemoveActorNonCurrentContext(int argc, char* argv[])
   renderWindow1->MakeCurrent();
   interactor1->SetKeyEventInformation(0, 0, 0, 0, "9");
   interactor1->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
-  int retval = vtkTesting::Test(argc, argv,
-                                renderWindow1, 10);
+  int retval = vtkTesting::Test(argc, argv, renderWindow1, 10);
   if (retval == vtkRegressionTester::DO_INTERACTOR)
   {
     interactor1->Start();

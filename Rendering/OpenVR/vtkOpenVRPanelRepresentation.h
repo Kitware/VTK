@@ -13,17 +13,17 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 /**
-* @class   vtkOpenVRPanelRepresentation
-* @brief   Widget representation for vtkOpenVRPanelWidget
-* Implementation of the popup panel representation for the
-* vtkOpenVRPanelWidget.
-* This representation is rebuilt every time the hovered prop changes.
-* Its position is set according to the camera orientation and is placed at a
-* distance defined in meters in the BuildRepresentation() method.
-*
-* WARNING: The panel might be occluded by other props.
-*   TODO: Improve placement method.
-**/
+ * @class   vtkOpenVRPanelRepresentation
+ * @brief   Widget representation for vtkOpenVRPanelWidget
+ * Implementation of the popup panel representation for the
+ * vtkOpenVRPanelWidget.
+ * This representation is rebuilt every time the hovered prop changes.
+ * Its position is set according to the camera orientation and is placed at a
+ * distance defined in meters in the BuildRepresentation() method.
+ *
+ * WARNING: The panel might be occluded by other props.
+ *   TODO: Improve placement method.
+ **/
 
 #ifndef vtkOpenVRPanelRepresentation_h
 #define vtkOpenVRPanelRepresentation_h
@@ -39,14 +39,14 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRPanelRepresentation : public vtkWidgetR
 {
 public:
   /**
-  * Instantiate the class.
-  */
-  static vtkOpenVRPanelRepresentation *New();
+   * Instantiate the class.
+   */
+  static vtkOpenVRPanelRepresentation* New();
 
   //@{
   /**
-  * Standard methods for the class.
-  */
+   * Standard methods for the class.
+   */
   vtkTypeMacro(vtkOpenVRPanelRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
@@ -55,30 +55,26 @@ public:
   // position. Used by ComputeInteractionState() to communicate with the
   // widget. Note that ComputeInteractionState() and several other methods
   // must be implemented by subclasses.
-  enum _InteractionState { Outside=0, Moving };
+  enum _InteractionState
+  {
+    Outside = 0,
+    Moving
+  };
 
   //@{
   /**
-  * Methods to interface with the vtkOpenVRPanelWidget.
-  */
+   * Methods to interface with the vtkOpenVRPanelWidget.
+   */
   void BuildRepresentation() override;
   void PlaceWidget(double bounds[6]) override;
-  void StartComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  void ComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
-  int ComputeComplexInteractionState(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) override;
-  void EndComplexInteraction(
-    vtkRenderWindowInteractor *iren,
-    vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) override;
+  void StartComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  void ComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
+  int ComputeComplexInteractionState(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata, int modify = 0) override;
+  void EndComplexInteraction(vtkRenderWindowInteractor* iren, vtkAbstractWidget* widget,
+    unsigned long event, void* calldata) override;
   //@}
 
   // Place the widget with a few more options
@@ -103,13 +99,13 @@ public:
   // and scaling is done based on the current text.
   //
   // All vectors will be normalized prior to use.
-  void PlaceWidgetExtended(const double *bounds,
-    const double *normal, const double *upvec, double scale);
+  void PlaceWidgetExtended(
+    const double* bounds, const double* normal, const double* upvec, double scale);
 
   //@{
   /**
-  * Methods supporting the rendering process.
-  */
+   * Methods supporting the rendering process.
+   */
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
@@ -118,8 +114,8 @@ public:
 
   //@{
   /**
-  * Set panel text
-  */
+   * Set panel text
+   */
   void SetText(const char* str);
   //@}
 
@@ -155,12 +151,12 @@ protected:
 
   bool AllowAdjustment;
 
-  void UpdatePose(double *p1, double *d1, double *p2, double *d2);
+  void UpdatePose(double* p1, double* d1, double* p2, double* d2);
 
+  void ComputeMatrix(vtkRenderer* ren);
 
-  void ComputeMatrix(vtkRenderer *ren);
-
-  enum CoordinateSystems {
+  enum CoordinateSystems
+  {
     World = 0,
     HMD = 1,
     LeftController = 2,
@@ -170,7 +166,7 @@ protected:
   CoordinateSystems CoordinateSystem;
 
   // The text
-  vtkTextActor3D *TextActor;
+  vtkTextActor3D* TextActor;
   std::string Text;
 
 private:

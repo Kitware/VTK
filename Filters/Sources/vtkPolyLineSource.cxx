@@ -31,22 +31,17 @@ vtkPolyLineSource::vtkPolyLineSource()
 }
 
 //----------------------------------------------------------------------------
-vtkPolyLineSource::~vtkPolyLineSource()
-{
-}
+vtkPolyLineSource::~vtkPolyLineSource() {}
 
 //----------------------------------------------------------------------------
-int vtkPolyLineSource::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkPolyLineSource::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the output
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType numPoints = this->GetNumberOfPoints();
   vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();

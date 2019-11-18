@@ -109,8 +109,9 @@ void vtkHyperTreeGrid::SetMask(vtkBitArray* _arg)
 
 // Helper macros to quickly fetch a HT at a given index or iterator
 #define GetHyperTreeFromOtherMacro(_obj_, _index_)                                                 \
-  (static_cast<vtkHyperTree*>(                                                                     \
-    _obj_->HyperTrees.find(_index_) != _obj_->HyperTrees.end() ? _obj_->HyperTrees[_index_] : nullptr))
+  (static_cast<vtkHyperTree*>(_obj_->HyperTrees.find(_index_) != _obj_->HyperTrees.end()           \
+      ? _obj_->HyperTrees[_index_]                                                                 \
+      : nullptr))
 #define GetHyperTreeFromThisMacro(_index_) GetHyperTreeFromOtherMacro(this, _index_)
 
 //-----------------------------------------------------------------------------
@@ -203,7 +204,7 @@ void vtkHyperTreeGrid::Initialize()
   // Delete existing trees
   this->HyperTrees.clear();
 
-   // Default state
+  // Default state
   this->ModeSqueeze = nullptr;
   this->FreezeState = false;
 
@@ -220,7 +221,7 @@ void vtkHyperTreeGrid::Initialize()
 
   // Masked primal leaves
   vtkBitArray* mask = vtkBitArray::New();
-  this->SetMask (mask);
+  this->SetMask(mask);
   mask->FastDelete();
 
   // No interface by default
@@ -296,7 +297,6 @@ void vtkHyperTreeGrid::Initialize()
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
   this->Center[2] = 0.0;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -580,7 +580,7 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
   assert("pre: valid_extent_3" && extent[3] >= -1); // -1 is the unset extent
   assert("pre: valid_extent_4" && extent[4] == 0);
   assert("pre: valid_extent_5" && extent[5] >= -1); // -1 is the unset extent
-  int description = vtkStructuredData::SetExtent(const_cast<int *>(extent), this->Extent);
+  int description = vtkStructuredData::SetExtent(const_cast<int*>(extent), this->Extent);
   // why vtkStructuredData::SetExtent don't take const int* ?
 
   if (description < 0) // improperly specified
@@ -640,15 +640,15 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
       // We swap them to have a direct frame spanning the HTG
       if (this->Orientation == 1)
       {
-        std::swap (this->Axis[0], this->Axis[1]);
+        std::swap(this->Axis[0], this->Axis[1]);
       }
       break;
   }
 
   assert("post: valid_axis" &&
-    (this->Dimension != 2 || (this->Axis[0] == (this->Orientation + 1) % 3 &&
-                               this->Axis[1] == (this->Orientation + 2) % 3)));
-
+    (this->Dimension != 2 ||
+      (this->Axis[0] == (this->Orientation + 1) % 3 &&
+        this->Axis[1] == (this->Orientation + 2) % 3)));
 
   // Make sure that number of children is factor^dimension
   this->NumberOfChildren = this->BranchFactor;
@@ -1512,7 +1512,7 @@ void vtkHyperTreeGrid::InitializeLocalIndexNode()
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::vtkHyperTreeGridIterator::Initialize(vtkHyperTreeGrid* grid)
 {
-  assert (grid != nullptr);
+  assert(grid != nullptr);
   this->Grid = grid;
   this->Iterator = grid->HyperTrees.begin();
 }
@@ -1632,4 +1632,4 @@ void vtkHyperTreeGrid::GetCenter(double* octr)
 vtkPointData* vtkHyperTreeGrid::GetPointData()
 {
   return this->PointData.GetPointer();
-};
+}

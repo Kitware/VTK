@@ -22,13 +22,13 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkImageSeparableConvolution);
-vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
-vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
-vtkCxxSetObjectMacro(vtkImageSeparableConvolution,ZKernel,vtkFloatArray);
-
+vtkCxxSetObjectMacro(vtkImageSeparableConvolution, XKernel, vtkFloatArray);
+vtkCxxSetObjectMacro(vtkImageSeparableConvolution, YKernel, vtkFloatArray);
+vtkCxxSetObjectMacro(vtkImageSeparableConvolution, ZKernel, vtkFloatArray);
 
 // Actually do the convolution
-static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
+static void ExecuteConvolve(
+  float* kernel, int kernelSize, float* image, float* outImage, int imageSize)
 {
 
   // Consider the kernel to be centered at (int) ( (kernelSize - 1 ) / 2.0 )
@@ -36,26 +36,26 @@ static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float*
   int center = static_cast<int>((kernelSize - 1) / 2.0);
   int i, j, k, kStart, iStart, iEnd, count;
 
-  for ( i = 0; i < imageSize; ++i )
+  for (i = 0; i < imageSize; ++i)
   {
     outImage[i] = 0.0;
 
-//    iStart = i - center;
-//    if ( iStart < 0 )
-//      {
-//      iStart = 0;
-//      }
+    //    iStart = i - center;
+    //    if ( iStart < 0 )
+    //      {
+    //      iStart = 0;
+    //      }
 
-//    iEnd = i + center;
-//    if ( iEnd > imageSize - 1 )
-//      {
-//      iEnd = imageSize - 1;
-//      }
+    //    iEnd = i + center;
+    //    if ( iEnd > imageSize - 1 )
+    //      {
+    //      iEnd = imageSize - 1;
+    //      }
 
     // Handle padding
     iStart = i - center;
     k = kernelSize - 1;
-    while ( iStart < 0 )
+    while (iStart < 0)
     {
       outImage[i] += image[0] * kernel[k];
       ++iStart;
@@ -64,23 +64,22 @@ static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float*
 
     iEnd = i + center;
     k = 0;
-    while ( iEnd > imageSize - 1 )
+    while (iEnd > imageSize - 1)
     {
       outImage[i] += image[imageSize - 1] * kernel[k];
       ++k;
       --iEnd;
     }
 
-
     kStart = center + i;
-    if ( kStart > kernelSize - 1 )
+    if (kStart > kernelSize - 1)
     {
       kStart = kernelSize - 1;
     }
     count = iEnd - iStart + 1;
-    for ( j = 0; j < count; ++j )
+    for (j = 0; j < count; ++j)
     {
-      outImage[i] += image[j+iStart] * kernel[kStart-j];
+      outImage[i] += image[j + iStart] * kernel[kStart - j];
     }
   }
 }
@@ -90,27 +89,26 @@ static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float*
 // then this object is modified as well.
 vtkMTimeType vtkImageSeparableConvolution::GetMTime()
 {
-  vtkMTimeType mTime=this->vtkImageDecomposeFilter::GetMTime();
+  vtkMTimeType mTime = this->vtkImageDecomposeFilter::GetMTime();
   vtkMTimeType kTime;
 
-  if ( this->XKernel )
+  if (this->XKernel)
   {
     kTime = this->XKernel->GetMTime();
     mTime = kTime > mTime ? kTime : mTime;
   }
-  if ( this->YKernel )
+  if (this->YKernel)
   {
     kTime = this->YKernel->GetMTime();
     mTime = kTime > mTime ? kTime : mTime;
   }
-  if ( this->YKernel )
+  if (this->YKernel)
   {
     kTime = this->YKernel->GetMTime();
     mTime = kTime > mTime ? kTime : mTime;
   }
   return mTime;
 }
-
 
 //----------------------------------------------------------------------------
 vtkImageSeparableConvolution::~vtkImageSeparableConvolution()
@@ -151,11 +149,10 @@ int vtkImageSeparableConvolution::IterativeRequestInformation(
 int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   vtkInformation* input, vtkInformation* output)
 {
-  int *wholeExtent =
-    input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* wholeExtent = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   vtkFloatArray* KernelArray = nullptr;
-  switch ( this->GetIteration() )
+  switch (this->GetIteration())
   {
     case 0:
       KernelArray = this->GetXKernel();
@@ -168,7 +165,7 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
       break;
   }
   int kernelSize = 0;
-  if ( KernelArray )
+  if (KernelArray)
   {
     kernelSize = KernelArray->GetNumberOfTuples();
     kernelSize = static_cast<int>((kernelSize - 1) / 2.0);
@@ -180,30 +177,25 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[this->Iteration * 2] = outExt[this->Iteration * 2] - kernelSize;
-  if ( inExt[this->Iteration * 2] < wholeExtent[this->Iteration * 2] )
+  if (inExt[this->Iteration * 2] < wholeExtent[this->Iteration * 2])
   {
     inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
   }
 
-  inExt[this->Iteration * 2 + 1] =
-    outExt[this->Iteration * 2 + 1] + kernelSize;
-  if ( inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1] )
+  inExt[this->Iteration * 2 + 1] = outExt[this->Iteration * 2 + 1] + kernelSize;
+  if (inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1])
   {
     inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
   }
 
-  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 
   return 1;
 }
 
 template <class T>
-void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
-                                           vtkImageData* inData,
-                                           vtkImageData* outData,
-                                           T* vtkNotUsed ( dummy ),
-                                           int* inExt,
-                                           int* outExt)
+void vtkImageSeparableConvolutionExecute(vtkImageSeparableConvolution* self, vtkImageData* inData,
+  vtkImageData* outData, T* vtkNotUsed(dummy), int* inExt, int* outExt)
 {
   T *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
@@ -223,12 +215,11 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   self->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);
   self->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
 
-  target = static_cast<unsigned long>(
-    (inMax2-inMin2+1)*(inMax1-inMin1+1)/50.0);
+  target = static_cast<unsigned long>((inMax2 - inMin2 + 1) * (inMax1 - inMin1 + 1) / 50.0);
   target++;
 
   vtkFloatArray* KernelArray = nullptr;
-  switch ( self->GetIteration() )
+  switch (self->GetIteration())
   {
     case 0:
       KernelArray = self->GetXKernel();
@@ -243,15 +234,15 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   int kernelSize = 0;
   float* kernel = nullptr;
 
-  if ( KernelArray )
+  if (KernelArray)
   {
     // Allocate the arrays
     kernelSize = KernelArray->GetNumberOfTuples();
     kernel = new float[kernelSize];
     // Copy the kernel
-    for ( i = 0; i < kernelSize; i++ )
+    for (i = 0; i < kernelSize; i++)
     {
-      kernel[i] = KernelArray->GetValue ( i );
+      kernel[i] = KernelArray->GetValue(i);
     }
   }
 
@@ -260,19 +251,18 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   float* outImage = new float[imageSize];
   float* imagePtr;
 
-
   // loop over all the extra axes
-  inPtr2 = static_cast<T *>(inData->GetScalarPointerForExtent(inExt));
-  outPtr2 = static_cast<float *>(outData->GetScalarPointerForExtent(outExt));
+  inPtr2 = static_cast<T*>(inData->GetScalarPointerForExtent(inExt));
+  outPtr2 = static_cast<float*>(outData->GetScalarPointerForExtent(outExt));
   for (idx2 = inMin2; idx2 <= inMax2; ++idx2)
   {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = inMin1; !self->AbortExecute && idx1 <= inMax1; ++idx1)
     {
-      if (!(count%target))
+      if (!(count % target))
       {
-        self->UpdateProgress(count/(50.0*target));
+        self->UpdateProgress(count / (50.0 * target));
       }
       count++;
       inPtr0 = inPtr1;
@@ -285,9 +275,9 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
       }
 
       // Call the method that performs the convolution
-      if ( kernel )
+      if (kernel)
       {
-        ExecuteConvolve ( kernel, kernelSize, image, outImage, imageSize );
+        ExecuteConvolve(kernel, kernelSize, image, outImage, imageSize);
         imagePtr = outImage;
       }
       else
@@ -312,56 +302,48 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
     outPtr2 += outInc2;
   }
 
-  delete [] image;
-  delete [] outImage;
-  delete [] kernel;
+  delete[] image;
+  delete[] outImage;
+  delete[] kernel;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // This is written as a 1D execute method, but is called several times.
-int vtkImageSeparableConvolution::IterativeRequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkImageSeparableConvolution::IterativeRequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkImageData *outData = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* inData = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* outData = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  outData->SetExtent(outInfo->Get(
-                       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  outData->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   outData->AllocateScalars(outInfo);
 
-  if ( XKernel )
+  if (XKernel)
   {
     // Check for a filter of odd length
-    if ( 1 - ( XKernel->GetNumberOfTuples() % 2 ) )
+    if (1 - (XKernel->GetNumberOfTuples() % 2))
     {
-      vtkErrorMacro ( << "Execute:  XKernel must have odd length" );
+      vtkErrorMacro(<< "Execute:  XKernel must have odd length");
       return 1;
     }
   }
-  if ( YKernel )
+  if (YKernel)
   {
     // Check for a filter of odd length
-    if ( 1 - ( YKernel->GetNumberOfTuples() % 2 ) )
+    if (1 - (YKernel->GetNumberOfTuples() % 2))
     {
-      vtkErrorMacro ( << "Execute:  YKernel must have odd length" );
+      vtkErrorMacro(<< "Execute:  YKernel must have odd length");
       return 1;
     }
   }
-  if ( ZKernel )
+  if (ZKernel)
   {
     // Check for a filter of odd length
-    if ( 1 - ( ZKernel->GetNumberOfTuples() % 2 ) )
+    if (1 - (ZKernel->GetNumberOfTuples() % 2))
     {
-      vtkErrorMacro ( << "Execute:  ZKernel must have odd length" );
+      vtkErrorMacro(<< "Execute:  ZKernel must have odd length");
       return 1;
     }
   }
@@ -382,11 +364,9 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   // choose which templated function to call.
   switch (inData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageSeparableConvolutionExecute(
-        this, inData, outData, static_cast<VTK_TT*>(nullptr),
-        inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
-        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())));
+    vtkTemplateMacro(vtkImageSeparableConvolutionExecute(this, inData, outData,
+      static_cast<VTK_TT*>(nullptr), inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
@@ -397,30 +377,30 @@ int vtkImageSeparableConvolution::IterativeRequestData(
 
 void vtkImageSeparableConvolution::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->XKernel )
+  if (this->XKernel)
   {
     os << indent << "XKernel:\n";
-    this->XKernel->PrintSelf ( os, indent.GetNextIndent() );
+    this->XKernel->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "XKernel: (not defined)\n";
   }
-  if ( this->YKernel )
+  if (this->YKernel)
   {
     os << indent << "YKernel:\n";
-    this->YKernel->PrintSelf ( os, indent.GetNextIndent() );
+    this->YKernel->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
     os << indent << "YKernel: (not defined)\n";
   }
-  if ( this->ZKernel )
+  if (this->ZKernel)
   {
     os << indent << "ZKernel:\n";
-    this->ZKernel->PrintSelf ( os, indent.GetNextIndent() );
+    this->ZKernel->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

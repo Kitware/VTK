@@ -18,7 +18,7 @@
 #include "vtkPath.h"
 #include "vtkPoints.h"
 
-int TestPath(int,char *[])
+int TestPath(int, char*[])
 {
   vtkNew<vtkPath> path;
 
@@ -32,16 +32,14 @@ int TestPath(int,char *[])
   path->InsertNextPoint(0.0, 1.0, 0.0, vtkPath::CUBIC_CURVE);
   path->InsertNextPoint(path->GetPoint(0), vtkPath::CUBIC_CURVE);
 
-  if (path->GetCodes()->GetNumberOfTuples() != 7 ||
-      path->GetPoints()->GetNumberOfPoints() != 7)
+  if (path->GetCodes()->GetNumberOfTuples() != 7 || path->GetPoints()->GetNumberOfPoints() != 7)
   {
     return EXIT_FAILURE;
   }
 
   path->Reset();
 
-  if (path->GetCodes()->GetNumberOfTuples() != 0 ||
-      path->GetPoints()->GetNumberOfPoints() != 0)
+  if (path->GetCodes()->GetNumberOfTuples() != 0 || path->GetPoints()->GetNumberOfPoints() != 0)
   {
     return EXIT_FAILURE;
   }

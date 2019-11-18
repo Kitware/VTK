@@ -29,7 +29,7 @@
  *
  * @sa
  * vtkPolygonalSurfacePointPlacer
-*/
+ */
 
 #ifndef vtkPolyDataPointPlacer_h
 #define vtkPolyDataPointPlacer_h
@@ -48,24 +48,24 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkPolyDataPointPlacer *New();
+  static vtkPolyDataPointPlacer* New();
 
   //@{
   /**
    * Standard methods for instances of this class.
    */
-  vtkTypeMacro(vtkPolyDataPointPlacer,vtkPointPlacer);
+  vtkTypeMacro(vtkPolyDataPointPlacer, vtkPointPlacer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Descuription:
   // Add an actor (that represents a terrain in a rendererd scene) to the
   // list. Only props in this list are considered by the PointPlacer
-  virtual void AddProp( vtkProp * );
-  virtual void RemoveViewProp(vtkProp *prop);
+  virtual void AddProp(vtkProp*);
+  virtual void RemoveViewProp(vtkProp* prop);
   virtual void RemoveAllProps();
-  int          HasProp( vtkProp * );
-  int          GetNumberOfProps();
+  int HasProp(vtkProp*);
+  int GetNumberOfProps();
 
   /**
    * Given a renderer and a display position in pixel coordinates,
@@ -75,10 +75,8 @@ public:
    * For the Terrain point placer this computes world points that
    * lie at the specified height above the terrain.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2],
-                                    double worldPos[3],
-                                    double worldOrient[9] ) override;
+  int ComputeWorldPosition(
+    vtkRenderer* ren, double displayPos[2], double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Given a renderer, a display position, and a reference world
@@ -86,35 +84,31 @@ public:
    * of this point. This method is typically used by the
    * representation to move the point.
    */
-  int ComputeWorldPosition( vtkRenderer *ren,
-                                    double displayPos[2],
-                                    double refWorldPos[3],
-                                    double worldPos[3],
-                                    double worldOrient[9] ) override;
+  int ComputeWorldPosition(vtkRenderer* ren, double displayPos[2], double refWorldPos[3],
+    double worldPos[3], double worldOrient[9]) override;
 
   /**
    * Given a world position check the validity of this
    * position according to the constraints of the placer
    */
-  int ValidateWorldPosition( double worldPos[3] ) override;
+  int ValidateWorldPosition(double worldPos[3]) override;
 
   /**
    * Given a display position, check the validity of this position.
    */
-  int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] ) override;
+  int ValidateDisplayPosition(vtkRenderer*, double displayPos[2]) override;
 
   /**
    * Given a world position and a world orientation,
    * validate it according to the constraints of the placer.
    */
-  int ValidateWorldPosition( double worldPos[3],
-                                     double worldOrient[9] ) override;
+  int ValidateWorldPosition(double worldPos[3], double worldOrient[9]) override;
 
   //@{
   /**
    * Get the Prop picker.
    */
-  vtkGetObjectMacro( PropPicker, vtkPropPicker );
+  vtkGetObjectMacro(PropPicker, vtkPropPicker);
   //@}
 
 protected:
@@ -123,8 +117,8 @@ protected:
 
   // The props that represents the terrain data (one or more) in a rendered
   // scene
-  vtkPropCollection  *SurfaceProps;
-  vtkPropPicker      *PropPicker;
+  vtkPropCollection* SurfaceProps;
+  vtkPropPicker* PropPicker;
 
 private:
   vtkPolyDataPointPlacer(const vtkPolyDataPointPlacer&) = delete;
@@ -132,4 +126,3 @@ private:
 };
 
 #endif
-

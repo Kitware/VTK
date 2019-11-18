@@ -24,7 +24,7 @@
  * @sa
  * vtkInteractorStyleJoystickActor vtkInteractorStyleJoystickCamera
  * vtkInteractorStyleTrackballActor vtkInteractorStyleTrackballCamera
-*/
+ */
 
 #ifndef vtkInteractorStyleSwitch_h
 #define vtkInteractorStyleSwitch_h
@@ -32,11 +32,11 @@
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleSwitchBase.h"
 
-#define VTKIS_JOYSTICK  0
+#define VTKIS_JOYSTICK 0
 #define VTKIS_TRACKBALL 1
 
-#define VTKIS_CAMERA    0
-#define VTKIS_ACTOR     1
+#define VTKIS_CAMERA 0
+#define VTKIS_ACTOR 1
 
 class vtkInteractorStyleJoystickActor;
 class vtkInteractorStyleJoystickCamera;
@@ -44,24 +44,23 @@ class vtkInteractorStyleTrackballActor;
 class vtkInteractorStyleTrackballCamera;
 class vtkInteractorStyleMultiTouchCamera;
 
-class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleSwitch
-  : public vtkInteractorStyleSwitchBase
+class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleSwitch : public vtkInteractorStyleSwitchBase
 {
 public:
-  static vtkInteractorStyleSwitch *New();
+  static vtkInteractorStyleSwitch* New();
   vtkTypeMacro(vtkInteractorStyleSwitch, vtkInteractorStyleSwitchBase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The sub styles need the interactor too.
    */
-  void SetInteractor(vtkRenderWindowInteractor *iren) override;
+  void SetInteractor(vtkRenderWindowInteractor* iren) override;
 
   /**
    * We must override this method in order to pass the setting down to
    * the underlying styles
    */
-  void SetAutoAdjustCameraClippingRange( vtkTypeBool value ) override;
+  void SetAutoAdjustCameraClippingRange(vtkTypeBool value) override;
 
   //@{
   /**
@@ -96,11 +95,11 @@ protected:
 
   void SetCurrentStyle();
 
-  vtkInteractorStyleJoystickActor *JoystickActor;
-  vtkInteractorStyleJoystickCamera *JoystickCamera;
-  vtkInteractorStyleTrackballActor *TrackballActor;
-  vtkInteractorStyleTrackballCamera *TrackballCamera;
-  vtkInteractorStyleMultiTouchCamera *MultiTouchCamera;
+  vtkInteractorStyleJoystickActor* JoystickActor;
+  vtkInteractorStyleJoystickCamera* JoystickCamera;
+  vtkInteractorStyleTrackballActor* TrackballActor;
+  vtkInteractorStyleTrackballCamera* TrackballCamera;
+  vtkInteractorStyleMultiTouchCamera* MultiTouchCamera;
   vtkInteractorStyle* CurrentStyle;
 
   int JoystickOrTrackball;

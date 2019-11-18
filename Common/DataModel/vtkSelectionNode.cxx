@@ -34,9 +34,7 @@
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
 
-const char vtkSelectionNode
-::ContentTypeNames[vtkSelectionNode::NUM_CONTENT_TYPES][14] =
-{
+const char vtkSelectionNode ::ContentTypeNames[vtkSelectionNode::NUM_CONTENT_TYPES][14] = {
   "SELECTIONS", // deprecated
   "GLOBALIDS",
   "PEDIGREEIDS",
@@ -47,38 +45,36 @@ const char vtkSelectionNode
   "THRESHOLDS",
   "BLOCKS",
   "QUERY",
-  "USER"
+  "USER",
 };
 
-const char vtkSelectionNode
-::FieldTypeNames[vtkSelectionNode::NUM_FIELD_TYPES][8] =
-{
+const char vtkSelectionNode ::FieldTypeNames[vtkSelectionNode::NUM_FIELD_TYPES][8] = {
   "CELL",
   "POINT",
   "FIELD",
   "VERTEX",
   "EDGE",
-  "ROW"
+  "ROW",
 };
 
-vtkInformationKeyMacro(vtkSelectionNode,CONTENT_TYPE,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,SOURCE,ObjectBase);
-vtkInformationKeyMacro(vtkSelectionNode,SOURCE_ID,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,PROP,ObjectBase);
-vtkInformationKeyMacro(vtkSelectionNode,PROP_ID,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,PROCESS_ID,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,COMPOSITE_INDEX,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,HIERARCHICAL_LEVEL,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,HIERARCHICAL_INDEX,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,FIELD_TYPE,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,EPSILON,Double);
-vtkInformationKeyMacro(vtkSelectionNode,ZBUFFER_VALUE,Double);
-vtkInformationKeyMacro(vtkSelectionNode,CONTAINING_CELLS,Integer);
+vtkInformationKeyMacro(vtkSelectionNode, CONTENT_TYPE, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, SOURCE, ObjectBase);
+vtkInformationKeyMacro(vtkSelectionNode, SOURCE_ID, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, PROP, ObjectBase);
+vtkInformationKeyMacro(vtkSelectionNode, PROP_ID, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, PROCESS_ID, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, COMPOSITE_INDEX, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, HIERARCHICAL_LEVEL, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, HIERARCHICAL_INDEX, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, FIELD_TYPE, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, EPSILON, Double);
+vtkInformationKeyMacro(vtkSelectionNode, ZBUFFER_VALUE, Double);
+vtkInformationKeyMacro(vtkSelectionNode, CONTAINING_CELLS, Integer);
 vtkInformationKeyMacro(vtkSelectionNode, CONNECTED_LAYERS, Integer);
-vtkInformationKeyMacro(vtkSelectionNode,PIXEL_COUNT,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,INVERSE,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,INDEXED_VERTICES,Integer);
-vtkInformationKeyMacro(vtkSelectionNode,COMPONENT_NUMBER,Integer);
+vtkInformationKeyMacro(vtkSelectionNode, PIXEL_COUNT, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, INVERSE, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, INDEXED_VERTICES, Integer);
+vtkInformationKeyMacro(vtkSelectionNode, COMPONENT_NUMBER, Integer);
 
 //----------------------------------------------------------------------------
 vtkSelectionNode::vtkSelectionNode()
@@ -244,40 +240,33 @@ const char* vtkSelectionNode::GetFieldTypeAsString(int type)
 }
 
 //----------------------------------------------------------------------------
-bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
-  bool fullcompare/*=true*/)
+bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other, bool fullcompare /*=true*/)
 {
   if (!other)
   {
     return false;
   }
 
-  vtkSmartPointer<vtkInformationIterator> iterSelf =
-    vtkSmartPointer<vtkInformationIterator>::New();
+  vtkSmartPointer<vtkInformationIterator> iterSelf = vtkSmartPointer<vtkInformationIterator>::New();
 
   iterSelf->SetInformation(this->Properties);
 
   vtkInformation* otherProperties = other->GetProperties();
-  for (iterSelf->InitTraversal(); !iterSelf->IsDoneWithTraversal();
-    iterSelf->GoToNextItem())
+  for (iterSelf->InitTraversal(); !iterSelf->IsDoneWithTraversal(); iterSelf->GoToNextItem())
   {
     vtkInformationKey* key = iterSelf->GetCurrentKey();
-    vtkInformationIntegerKey* ikey =
-      vtkInformationIntegerKey::SafeDownCast(key);
-    vtkInformationObjectBaseKey* okey =
-      vtkInformationObjectBaseKey::SafeDownCast(key);
+    vtkInformationIntegerKey* ikey = vtkInformationIntegerKey::SafeDownCast(key);
+    vtkInformationObjectBaseKey* okey = vtkInformationObjectBaseKey::SafeDownCast(key);
     if (ikey)
     {
-      if (!otherProperties->Has(ikey) ||
-        this->Properties->Get(ikey) != otherProperties->Get(ikey))
+      if (!otherProperties->Has(ikey) || this->Properties->Get(ikey) != otherProperties->Get(ikey))
       {
         return false;
       }
     }
     if (okey)
     {
-      if (!otherProperties->Has(okey) ||
-        this->Properties->Get(okey) != otherProperties->Get(okey))
+      if (!otherProperties->Has(okey) || this->Properties->Get(okey) != otherProperties->Get(okey))
       {
         return false;
       }
@@ -288,8 +277,8 @@ bool vtkSelectionNode::EqualProperties(vtkSelectionNode* other,
   // For VALUES and THRESHOLDS, names represent array where values come from.
   // For PEDIGREEIDS, names represent the domain of the selection.
   if (this->GetContentType() == vtkSelectionNode::VALUES ||
-      this->GetContentType() == vtkSelectionNode::PEDIGREEIDS ||
-      this->GetContentType() == vtkSelectionNode::THRESHOLDS)
+    this->GetContentType() == vtkSelectionNode::PEDIGREEIDS ||
+    this->GetContentType() == vtkSelectionNode::THRESHOLDS)
   {
     int numArrays = other->SelectionData->GetNumberOfArrays();
     if (this->SelectionData->GetNumberOfArrays() != numArrays)
@@ -329,14 +318,14 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
   int type = this->Properties->Get(CONTENT_TYPE());
   switch (type)
   {
-  case GLOBALIDS:
-  case PEDIGREEIDS:
-  case VALUES:
-  case INDICES:
-  case LOCATIONS:
-  case THRESHOLDS:
-  case BLOCKS:
-  {
+    case GLOBALIDS:
+    case PEDIGREEIDS:
+    case VALUES:
+    case INDICES:
+    case LOCATIONS:
+    case THRESHOLDS:
+    case BLOCKS:
+    {
       vtkDataSetAttributes* fd1 = this->GetSelectionData();
       vtkDataSetAttributes* fd2 = other->GetSelectionData();
       if (fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
@@ -357,20 +346,20 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
         }
         if (!aa2)
         {
-          vtkErrorMacro(<< "Could not find array with name "
-                        << aa1->GetName() << " in other selection.");
+          vtkErrorMacro(<< "Could not find array with name " << aa1->GetName()
+                        << " in other selection.");
           return;
         }
         if (aa1->GetDataType() != aa2->GetDataType())
         {
           vtkErrorMacro(<< "Cannot take the union where selection list types "
-            << "do not match.");
+                        << "do not match.");
           return;
         }
         if (aa1->GetNumberOfComponents() != aa2->GetNumberOfComponents())
         {
           vtkErrorMacro(<< "Cannot take the union where selection list number "
-            << "of components do not match.");
+                        << "of components do not match.");
           return;
         }
         // If it is the same array, we are done.
@@ -390,15 +379,14 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
         }
       }
       break;
-  }
-  case FRUSTUM:
-  case USER:
-  default:
-  {
-      vtkErrorMacro(<< "Do not know how to take the union of content type "
-        << type << ".");
+    }
+    case FRUSTUM:
+    case USER:
+    default:
+    {
+      vtkErrorMacro(<< "Do not know how to take the union of content type " << type << ".");
       return;
-  }
+    }
   }
 }
 
@@ -406,53 +394,53 @@ void vtkSelectionNode::UnionSelectionList(vtkSelectionNode* other)
 void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
 {
   int type = this->Properties->Get(CONTENT_TYPE());
-  switch(type)
+  switch (type)
   {
     case GLOBALIDS:
     case INDICES:
     case PEDIGREEIDS:
     {
-      vtkDataSetAttributes * fd1 = this->GetSelectionData();
-      vtkDataSetAttributes * fd2 = other->GetSelectionData();
-      if(fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
+      vtkDataSetAttributes* fd1 = this->GetSelectionData();
+      vtkDataSetAttributes* fd2 = other->GetSelectionData();
+      if (fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
       {
         vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
       }
-        if( fd1->GetNumberOfArrays() != 1 || fd2->GetNumberOfArrays() != 1)
-        {
-          vtkErrorMacro(<<"Cannot subtract selections with more than one array.");
-          return;
-        }
+      if (fd1->GetNumberOfArrays() != 1 || fd2->GetNumberOfArrays() != 1)
+      {
+        vtkErrorMacro(<< "Cannot subtract selections with more than one array.");
+        return;
+      }
 
-        if( fd1->GetArray(0)->GetDataType() != VTK_ID_TYPE || fd2->GetArray(0)->GetDataType() != VTK_ID_TYPE )
-        {
-          vtkErrorMacro(<<"Can only subtract selections with vtkIdTypeArray lists.");
-        }
+      if (fd1->GetArray(0)->GetDataType() != VTK_ID_TYPE ||
+        fd2->GetArray(0)->GetDataType() != VTK_ID_TYPE)
+      {
+        vtkErrorMacro(<< "Can only subtract selections with vtkIdTypeArray lists.");
+      }
 
-          vtkIdTypeArray * fd1_array = (vtkIdTypeArray*)fd1->GetArray(0);
-          vtkIdTypeArray * fd2_array = (vtkIdTypeArray*)fd2->GetArray(0);
+      vtkIdTypeArray* fd1_array = (vtkIdTypeArray*)fd1->GetArray(0);
+      vtkIdTypeArray* fd2_array = (vtkIdTypeArray*)fd2->GetArray(0);
 
-          vtkIdType fd1_N = fd1_array->GetNumberOfTuples();
-          vtkIdType fd2_N = fd2_array->GetNumberOfTuples();
+      vtkIdType fd1_N = fd1_array->GetNumberOfTuples();
+      vtkIdType fd2_N = fd2_array->GetNumberOfTuples();
 
-          vtkIdType * fd1_P = (vtkIdType*)fd1_array->GetVoidPointer(0);
-          vtkIdType * fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
+      vtkIdType* fd1_P = (vtkIdType*)fd1_array->GetVoidPointer(0);
+      vtkIdType* fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
 
-          // make sure both arrays are sorted
-          std::sort( fd1_P, fd1_P + fd1_N );
-          std::sort( fd2_P, fd2_P + fd2_N );
+      // make sure both arrays are sorted
+      std::sort(fd1_P, fd1_P + fd1_N);
+      std::sort(fd2_P, fd2_P + fd2_N);
 
-          std::set<vtkIdType> result;
+      std::set<vtkIdType> result;
 
-          std::set_difference(fd1_P, fd1_P + fd1_N,
-                                 fd2_P, fd2_P + fd2_N,
-                                 std::inserter(result, result.end()));
+      std::set_difference(
+        fd1_P, fd1_P + fd1_N, fd2_P, fd2_P + fd2_N, std::inserter(result, result.end()));
 
-          fd1_array->Reset();
-          for(std::set<vtkIdType>::const_iterator p = result.begin(); p!=result.end(); ++p)
-          {
-            fd1_array->InsertNextValue( *p );
-          }
+      fd1_array->Reset();
+      for (std::set<vtkIdType>::const_iterator p = result.begin(); p != result.end(); ++p)
+      {
+        fd1_array->InsertNextValue(*p);
+      }
       break;
     }
     case BLOCKS:
@@ -487,27 +475,26 @@ vtkMTimeType vtkSelectionNode::GetMTime()
   return mTime;
 }
 
-
 //----------------------------------------------------------------------------
 int vtkSelectionNode::ConvertSelectionFieldToAttributeType(int selectionField)
 {
   switch (selectionField)
   {
-  case vtkSelectionNode::CELL:
-    return vtkDataObject::CELL;
-  case vtkSelectionNode::POINT:
-    return vtkDataObject::POINT;
-  case vtkSelectionNode::FIELD:
-    return vtkDataObject::FIELD;
-  case vtkSelectionNode::VERTEX:
-    return vtkDataObject::VERTEX;
-  case vtkSelectionNode::EDGE:
-    return vtkDataObject::EDGE;
-  case vtkSelectionNode::ROW:
-    return vtkDataObject::ROW;
-  default:
-    vtkGenericWarningMacro("Invalid selection field type: " << selectionField);
-    return vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
+    case vtkSelectionNode::CELL:
+      return vtkDataObject::CELL;
+    case vtkSelectionNode::POINT:
+      return vtkDataObject::POINT;
+    case vtkSelectionNode::FIELD:
+      return vtkDataObject::FIELD;
+    case vtkSelectionNode::VERTEX:
+      return vtkDataObject::VERTEX;
+    case vtkSelectionNode::EDGE:
+      return vtkDataObject::EDGE;
+    case vtkSelectionNode::ROW:
+      return vtkDataObject::ROW;
+    default:
+      vtkGenericWarningMacro("Invalid selection field type: " << selectionField);
+      return vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES;
   }
 }
 
@@ -516,20 +503,20 @@ int vtkSelectionNode::ConvertAttributeTypeToSelectionField(int attrType)
 {
   switch (attrType)
   {
-  case vtkDataObject::CELL:
-    return vtkSelectionNode::CELL;
-  case vtkDataObject::POINT:
-    return vtkSelectionNode::POINT;
-  case vtkDataObject::FIELD:
-    return vtkSelectionNode::FIELD;
-  case vtkDataObject::VERTEX:
-    return vtkSelectionNode::VERTEX;
-  case vtkDataObject::EDGE:
-    return vtkSelectionNode::EDGE;
-  case vtkDataObject::ROW:
-    return vtkSelectionNode::ROW;
-  default:
-    vtkGenericWarningMacro("Invalid attribute type: " << attrType);
-    return vtkSelectionNode::CELL;
+    case vtkDataObject::CELL:
+      return vtkSelectionNode::CELL;
+    case vtkDataObject::POINT:
+      return vtkSelectionNode::POINT;
+    case vtkDataObject::FIELD:
+      return vtkSelectionNode::FIELD;
+    case vtkDataObject::VERTEX:
+      return vtkSelectionNode::VERTEX;
+    case vtkDataObject::EDGE:
+      return vtkSelectionNode::EDGE;
+    case vtkDataObject::ROW:
+      return vtkSelectionNode::ROW;
+    default:
+      vtkGenericWarningMacro("Invalid attribute type: " << attrType);
+      return vtkSelectionNode::CELL;
   }
 }

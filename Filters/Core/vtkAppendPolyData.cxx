@@ -47,12 +47,11 @@ vtkAppendPolyData::~vtkAppendPolyData() = default;
 
 //----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
-void vtkAppendPolyData::AddInputData(vtkPolyData *ds)
+void vtkAppendPolyData::AddInputData(vtkPolyData* ds)
 {
   if (this->UserManagedInputs)
   {
-    vtkErrorMacro(<<
-      "AddInput is not supported if UserManagedInputs is true");
+    vtkErrorMacro(<< "AddInput is not supported if UserManagedInputs is true");
     return;
   }
   this->Superclass::AddInputData(ds);
@@ -60,12 +59,11 @@ void vtkAppendPolyData::AddInputData(vtkPolyData *ds)
 
 //----------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
-void vtkAppendPolyData::RemoveInputData(vtkPolyData *ds)
+void vtkAppendPolyData::RemoveInputData(vtkPolyData* ds)
 {
   if (this->UserManagedInputs)
   {
-    vtkErrorMacro(<<
-      "RemoveInput is not supported if UserManagedInputs is true");
+    vtkErrorMacro(<< "RemoveInput is not supported if UserManagedInputs is true");
     return;
   }
 
@@ -74,12 +72,11 @@ void vtkAppendPolyData::RemoveInputData(vtkPolyData *ds)
     return;
   }
   int numCons = this->GetNumberOfInputConnections(0);
-  for(int i=0; i<numCons; i++)
+  for (int i = 0; i < numCons; i++)
   {
     if (this->GetInput(i) == ds)
     {
-      this->RemoveInputConnection(0,
-        this->GetInputConnection(0, i));
+      this->RemoveInputConnection(0, this->GetInputConnection(0, i));
     }
   }
 }
@@ -91,8 +88,7 @@ void vtkAppendPolyData::SetNumberOfInputs(int num)
 {
   if (!this->UserManagedInputs)
   {
-    vtkErrorMacro(<<
-      "SetNumberOfInputs is not supported if UserManagedInputs is false");
+    vtkErrorMacro(<< "SetNumberOfInputs is not supported if UserManagedInputs is false");
     return;
   }
 
@@ -111,13 +107,11 @@ void vtkAppendPolyData::SetInputDataByNumber(int num, vtkPolyData* input)
 
 //----------------------------------------------------------------------------
 // Set Nth input, should only be used when UserManagedInputs is true.
-void vtkAppendPolyData::SetInputConnectionByNumber(int num,
-                                                   vtkAlgorithmOutput *input)
+void vtkAppendPolyData::SetInputConnectionByNumber(int num, vtkAlgorithmOutput* input)
 {
   if (!this->UserManagedInputs)
   {
-    vtkErrorMacro(<<
-      "SetInputConnectionByNumber is not supported if UserManagedInputs is false");
+    vtkErrorMacro(<< "SetInputConnectionByNumber is not supported if UserManagedInputs is false");
     return;
   }
 
@@ -126,33 +120,32 @@ void vtkAppendPolyData::SetInputConnectionByNumber(int num,
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
-    vtkPolyData* inputs[], int numInputs)
+int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[], int numInputs)
 {
   int idx;
-  vtkPolyData *ds;
-  vtkPoints  *inPts;
-  vtkPoints *newPts;
+  vtkPolyData* ds;
+  vtkPoints* inPts;
+  vtkPoints* newPts;
   vtkCellArray *inVerts, *newVerts;
   vtkCellArray *inLines, *newLines;
   vtkCellArray *inPolys, *newPolys;
   vtkIdType sizePolys, numPolys;
   vtkCellArray *inStrips, *newStrips;
   vtkIdType numPts, numCells;
-  vtkPointData *inPD = nullptr;
-  vtkCellData *inCD = nullptr;
-  vtkPointData *outputPD = output->GetPointData();
-  vtkCellData *outputCD = output->GetCellData();
+  vtkPointData* inPD = nullptr;
+  vtkCellData* inCD = nullptr;
+  vtkPointData* outputPD = output->GetPointData();
+  vtkCellData* outputCD = output->GetCellData();
 
-  vtkDebugMacro(<<"Appending polydata");
+  vtkDebugMacro(<< "Appending polydata");
 
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;
   numCells = 0;
   sizePolys = numPolys = 0;
 
-  int countPD=0;
-  int countCD=0;
+  int countPD = 0;
+  int countCD = 0;
 
   vtkIdType numVerts = 0, numLines = 0, numStrips = 0;
   vtkIdType sizeLines = 0, sizeStrips = 0, sizeVerts = 0;
@@ -172,8 +165,8 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       {
         ++countCD;
       } // for a data set that has cells
-    } // for a non nullptr input
-  } // for each input
+    }   // for a non nullptr input
+  }     // for each input
 
   // These are used to determine which fields are available for appending
   vtkDataSetAttributes::FieldList ptList(countPD);
@@ -233,7 +226,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         numStrips += ds->GetNumberOfStrips();
 
         inCD = ds->GetCellData();
-        if ( countCD == 0 )
+        if (countCD == 0)
         {
           cellList.InitializeFieldList(inCD);
         }
@@ -243,12 +236,12 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         }
         ++countCD;
       } // for a data set that has cells
-    } // for a non nullptr input
-  } // for each input
+    }   // for a non nullptr input
+  }     // for each input
 
   if (numPts < 1 && numCells < 1)
   {
-    vtkDebugMacro(<<"No data to append!");
+    vtkDebugMacro(<< "No data to append!");
     return 1;
   }
   this->UpdateProgress(0.10);
@@ -256,16 +249,16 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   // Examine the points and check if they're the same type. If not,
   // use highest (double probably), otherwise the type of the first
   // array (float no doubt). Depends on defs in vtkSetGet.h - Warning.
-  int ttype, firstType=1;
+  int ttype, firstType = 1;
   int pointtype = 0;
 
   // Keep track of types for fast point append
   for (idx = 0; idx < numInputs; ++idx)
   {
     ds = inputs[idx];
-    if (ds != nullptr && ds->GetNumberOfPoints()>0)
+    if (ds != nullptr && ds->GetNumberOfPoints() > 0)
     {
-      if ( firstType )
+      if (firstType)
       {
         firstType = 0;
         pointtype = ds->GetPoints()->GetData()->GetDataType();
@@ -279,15 +272,15 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   newPts = vtkPoints::New();
 
   // Set the desired precision for the points in the output.
-  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
     newPts->SetDataType(pointtype);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
     newPts->SetDataType(VTK_FLOAT);
   }
-  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
     newPts->SetDataType(VTK_DOUBLE);
   }
@@ -299,7 +292,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 
   if (sizeVerts > 0 && !allocated)
   {
-    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    vtkErrorMacro(<< "Memory allocation failed in append filter");
     return 0;
   }
 
@@ -308,7 +301,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 
   if (sizeLines > 0 && !allocated)
   {
-    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    vtkErrorMacro(<< "Memory allocation failed in append filter");
     return 0;
   }
 
@@ -317,7 +310,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 
   if (sizePolys > 0 && !allocated)
   {
-    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    vtkErrorMacro(<< "Memory allocation failed in append filter");
     return 0;
   }
 
@@ -326,7 +319,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 
   if (sizeStrips > 0 && !allocated)
   {
-    vtkErrorMacro(<<"Memory allocation failed in append filter");
+    vtkErrorMacro(<< "Memory allocation failed in append filter");
     return 0;
   }
 
@@ -336,28 +329,28 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   outputCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
 
   // Allocate the point and cell data
-  outputPD->CopyAllocate(ptList,numPts);
-  outputCD->CopyAllocate(cellList,numCells);
+  outputPD->CopyAllocate(ptList, numPts);
+  outputCD->CopyAllocate(cellList, numCells);
 
   // loop over all input sets
   vtkIdType ptOffset = 0;
   vtkIdType vertOffset = 0;
   vtkIdType linesOffset = numVerts;
-  vtkIdType polysOffset = numVerts+numLines;
-  vtkIdType stripsOffset = numVerts+numLines+numPolys;
+  vtkIdType polysOffset = numVerts + numLines;
+  vtkIdType stripsOffset = numVerts + numLines + numPolys;
   countPD = countCD = 0;
   for (idx = 0; idx < numInputs; ++idx)
   {
-    this->UpdateProgress(0.2 + 0.8*idx/numInputs);
+    this->UpdateProgress(0.2 + 0.8 * idx / numInputs);
     ds = inputs[idx];
     // this check is not necessary, but I'll put it in anyway
     if (ds != nullptr)
     {
       numPts = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
-      if ( numPts <= 0 && numCells <= 0 )
+      if (numPts <= 0 && numCells <= 0)
       {
-        continue; //no input, just skip
+        continue; // no input, just skip
       }
 
       inPD = ds->GetPointData();
@@ -394,11 +387,14 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         // copy cell data
         outputCD->CopyData(cellList, inCD, countCD, vertOffset, ds->GetNumberOfVerts(), vertsIndex);
         vertOffset += ds->GetNumberOfVerts();
-        outputCD->CopyData(cellList, inCD, countCD, linesOffset, ds->GetNumberOfLines(), linesIndex);
+        outputCD->CopyData(
+          cellList, inCD, countCD, linesOffset, ds->GetNumberOfLines(), linesIndex);
         linesOffset += ds->GetNumberOfLines();
-        outputCD->CopyData(cellList, inCD, countCD, polysOffset, ds->GetNumberOfPolys(), polysIndex);
+        outputCD->CopyData(
+          cellList, inCD, countCD, polysOffset, ds->GetNumberOfPolys(), polysIndex);
         polysOffset += ds->GetNumberOfPolys();
-        outputCD->CopyData(cellList, inCD, countCD, stripsOffset, ds->GetNumberOfStrips(), stripsIndex);
+        outputCD->CopyData(
+          cellList, inCD, countCD, stripsOffset, ds->GetNumberOfStrips(), stripsIndex);
         stripsOffset += ds->GetNumberOfStrips();
         ++countCD;
       }
@@ -411,25 +407,25 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   output->SetPoints(newPts);
   newPts->Delete();
 
-  if ( newVerts->GetNumberOfCells() > 0 )
+  if (newVerts->GetNumberOfCells() > 0)
   {
     output->SetVerts(newVerts);
   }
   newVerts->Delete();
 
-  if ( newLines->GetNumberOfCells() > 0 )
+  if (newLines->GetNumberOfCells() > 0)
   {
     output->SetLines(newLines);
   }
   newLines->Delete();
 
-  if ( newPolys->GetNumberOfCells() > 0 )
+  if (newPolys->GetNumberOfCells() > 0)
   {
     output->SetPolys(newPolys);
   }
   newPolys->Delete();
 
-  if ( newStrips->GetNumberOfCells() > 0 )
+  if (newStrips->GetNumberOfCells() > 0)
   {
     output->SetStrips(newStrips);
   }
@@ -445,13 +441,12 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 //----------------------------------------------------------------------------
 // This method is much too long, and has to be broken up!
 // Append data sets into single polygonal data set.
-int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector)
+int vtkAppendPolyData::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info object
   // get the output
-  vtkPolyData *output = vtkPolyData::GetData(outputVector, 0);
+  vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
 
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   if (numInputs == 1)
@@ -466,17 +461,16 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
     inputs[idx] = vtkPolyData::GetData(inputVector[0], idx);
   }
   int retVal = this->ExecuteAppend(output, inputs, numInputs);
-  delete [] inputs;
+  delete[] inputs;
   return retVal;
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
-                                           vtkInformationVector **inputVector,
-                                           vtkInformationVector *outputVector)
+int vtkAppendPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the output info object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int piece, numPieces, ghostLevel;
   int idx;
@@ -498,7 +492,7 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
     numPieces = numPieces * numInputs;
   }
 
-  vtkInformation *inInfo;
+  vtkInformation* inInfo;
   // just copy the Update extent as default behavior.
   for (idx = 0; idx < numInputs; ++idx)
   {
@@ -507,21 +501,15 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
     {
       if (this->ParallelStreaming)
       {
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                    piece + idx);
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                    numPieces);
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                    ghostLevel);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece + idx);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
       }
       else
       {
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                    piece);
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                    numPieces);
-        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                    ghostLevel);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+        inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
       }
     }
   }
@@ -529,7 +517,7 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
   // send their WHOLE_EXTENT as UPDATE_EXTENT.
   for (idx = 1; idx < numInputs; ++idx)
   {
-    vtkInformation * inputInfo = inputVector[0]->GetInformationObject(idx);
+    vtkInformation* inputInfo = inputVector[0]->GetInformationObject(idx);
     if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
     {
       int ext[6];
@@ -542,33 +530,35 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-vtkPolyData *vtkAppendPolyData::GetInput(int idx)
+vtkPolyData* vtkAppendPolyData::GetInput(int idx)
 {
-  return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, idx));
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, idx));
 }
 
 //----------------------------------------------------------------------------
 void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << "ParallelStreaming:" << (this->ParallelStreaming?"On":"Off") << endl;
-  os << "UserManagedInputs:" << (this->UserManagedInputs?"On":"Off") << endl;
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
-     << endl;
+  os << "ParallelStreaming:" << (this->ParallelStreaming ? "On" : "Off") << endl;
+  os << "UserManagedInputs:" << (this->UserManagedInputs ? "On" : "Off") << endl;
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << endl;
 }
 
 //----------------------------------------------------------------------------
-namespace {
+namespace
+{
 struct AppendDataWorker
 {
   vtkIdType Offset;
 
-  AppendDataWorker(vtkIdType offset) : Offset(offset) {}
+  AppendDataWorker(vtkIdType offset)
+    : Offset(offset)
+  {
+  }
 
   template <typename Array1T, typename Array2T>
-  void operator()(Array1T *dest, Array2T *src)
+  void operator()(Array1T* dest, Array2T* src)
   {
     vtkDataArrayAccessor<Array1T> d(dest);
     vtkDataArrayAccessor<Array2T> s(src);
@@ -589,13 +579,12 @@ struct AppendDataWorker
 } // end anon namespace
 
 //----------------------------------------------------------------------------
-void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
-                                   vtkIdType offset)
+void vtkAppendPolyData::AppendData(vtkDataArray* dest, vtkDataArray* src, vtkIdType offset)
 {
   assert("Arrays have same number of components." &&
-         src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+    src->GetNumberOfComponents() == dest->GetNumberOfComponents());
   assert("Destination array has enough tuples." &&
-         src->GetNumberOfTuples() + offset <= dest->GetNumberOfTuples());
+    src->GetNumberOfTuples() + offset <= dest->GetNumberOfTuples());
 
   AppendDataWorker worker(offset);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dest, src, worker))
@@ -606,14 +595,13 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
 }
 
 //----------------------------------------------------------------------------
-void vtkAppendPolyData::AppendCells(vtkCellArray *dst, vtkCellArray *src,
-                                    vtkIdType offset)
+void vtkAppendPolyData::AppendCells(vtkCellArray* dst, vtkCellArray* src, vtkIdType offset)
 {
   dst->Append(src, offset);
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation *info)
+int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
   {

@@ -17,7 +17,7 @@
  * @brief   Bar class for vtk
  *
  * None.
-*/
+ */
 
 #ifndef vtkBar_h
 #define vtkBar_h
@@ -28,12 +28,13 @@
 class VTK_MY_COMMON_EXPORT vtkBar : public vtkObject
 {
 public:
-  static vtkBar *New();
-  vtkTypeMacro(vtkBar,vtkObject);
+  static vtkBar* New();
+  vtkTypeMacro(vtkBar, vtkObject);
 
 protected:
   vtkBar() {}
   ~vtkBar() override {}
+
 private:
   vtkBar(const vtkBar&) = delete;
   void operator=(const vtkBar&) = delete;

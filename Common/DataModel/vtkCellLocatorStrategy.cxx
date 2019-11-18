@@ -21,10 +21,10 @@
 #include "vtkPointSet.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro( vtkCellLocatorStrategy );
+vtkStandardNewMacro(vtkCellLocatorStrategy);
 
 //----------------------------------------------------------------------------
-vtkCellLocatorStrategy::vtkCellLocatorStrategy ()
+vtkCellLocatorStrategy::vtkCellLocatorStrategy()
 {
   // You may ask, why this OwnsLocator rigamarole. The reason is because the
   // reference counting garbage collecter gets confused when the locator,
@@ -35,9 +35,9 @@ vtkCellLocatorStrategy::vtkCellLocatorStrategy ()
 }
 
 //----------------------------------------------------------------------------
-vtkCellLocatorStrategy::~vtkCellLocatorStrategy ()
+vtkCellLocatorStrategy::~vtkCellLocatorStrategy()
 {
-  if ( this->OwnsLocator && this->CellLocator != nullptr )
+  if (this->OwnsLocator && this->CellLocator != nullptr)
   {
     this->CellLocator->Delete();
     this->CellLocator = nullptr;
@@ -45,18 +45,18 @@ vtkCellLocatorStrategy::~vtkCellLocatorStrategy ()
 }
 
 //-----------------------------------------------------------------------------
-void vtkCellLocatorStrategy::SetCellLocator(vtkAbstractCellLocator *cL)
+void vtkCellLocatorStrategy::SetCellLocator(vtkAbstractCellLocator* cL)
 {
-  if ( cL != this->CellLocator )
+  if (cL != this->CellLocator)
   {
-    if ( this->CellLocator != nullptr && this->OwnsLocator )
+    if (this->CellLocator != nullptr && this->OwnsLocator)
     {
       this->CellLocator->Delete();
     }
 
     this->CellLocator = cL;
 
-    if ( cL != nullptr )
+    if (cL != nullptr)
     {
       cL->Register(this);
     }
@@ -67,17 +67,16 @@ void vtkCellLocatorStrategy::SetCellLocator(vtkAbstractCellLocator *cL)
 }
 
 //-----------------------------------------------------------------------------
-int vtkCellLocatorStrategy::Initialize(vtkPointSet *ps)
+int vtkCellLocatorStrategy::Initialize(vtkPointSet* ps)
 {
   // See whether anything has changed. If not, just return.
-  if ( this->PointSet != nullptr && ps == this->PointSet &&
-       this->MTime < this->InitializeTime )
+  if (this->PointSet != nullptr && ps == this->PointSet && this->MTime < this->InitializeTime)
   {
     return 1;
   }
 
   // Set up the point set; return on failure.
-  if ( this->Superclass::Initialize(ps) == 0 )
+  if (this->Superclass::Initialize(ps) == 0)
   {
     return 0;
   }
@@ -86,10 +85,10 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet *ps)
   // then we need to create one. If one is specified here in the strategy,
   // use that. If not, then used the point set's default build cell locator
   // method.
-  vtkAbstractCellLocator *psCL = ps->GetCellLocator();
-  if ( psCL == nullptr )
+  vtkAbstractCellLocator* psCL = ps->GetCellLocator();
+  if (psCL == nullptr)
   {
-    if ( this->CellLocator != nullptr && this->OwnsLocator )
+    if (this->CellLocator != nullptr && this->OwnsLocator)
     {
       this->CellLocator->SetDataSet(ps);
       this->CellLocator->BuildLocator();
@@ -114,33 +113,30 @@ int vtkCellLocatorStrategy::Initialize(vtkPointSet *ps)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkCellLocatorStrategy::
-FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
-         vtkIdType cellId, double tol2, int& subId,
-         double pcoords[3], double *weights)
+vtkIdType vtkCellLocatorStrategy::FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell,
+  vtkIdType cellId, double tol2, int& subId, double pcoords[3], double* weights)
 {
   // If we are given a starting cell, try that.
   if (cell && (cellId >= 0))
   {
     double closestPoint[3];
     double dist2;
-    if (   (cell->EvaluatePosition(x, closestPoint, subId,
-                                   pcoords, dist2, weights) == 1)
-        && (dist2 <= tol2) )
+    if ((cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1) &&
+      (dist2 <= tol2))
     {
       return cellId;
     }
   }
 
   // Okay cache miss, try the cell locator
-  subId = 0; //The cell locator FindCell API should return subId.
-  return this->CellLocator->FindCell( x, tol2, gencell, pcoords, weights );
+  subId = 0; // The cell locator FindCell API should return subId.
+  return this->CellLocator->FindCell(x, tol2, gencell, pcoords, weights);
 }
 
 //----------------------------------------------------------------------------
 void vtkCellLocatorStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "CellLocator: " << this->CellLocator << "\n";
 }

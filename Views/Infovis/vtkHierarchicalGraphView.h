@@ -36,7 +36,7 @@
  * @par Thanks:
  * Thanks to the turtle with jets for feet, without you this class wouldn't
  * have been possible.
-*/
+ */
 
 #ifndef vtkHierarchicalGraphView_h
 #define vtkHierarchicalGraphView_h
@@ -49,7 +49,7 @@ class vtkRenderedHierarchyRepresentation;
 class VTKVIEWSINFOVIS_EXPORT vtkHierarchicalGraphView : public vtkGraphLayoutView
 {
 public:
-  static vtkHierarchicalGraphView *New();
+  static vtkHierarchicalGraphView* New();
   vtkTypeMacro(vtkHierarchicalGraphView, vtkGraphLayoutView);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

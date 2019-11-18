@@ -24,8 +24,7 @@
 #include "vtkRandomGraphSource.h"
 #include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
@@ -40,14 +39,14 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkGraph* g = source->GetOutput();
   if (g->GetNumberOfVertices() != 100)
   {
-    cerr << "ERROR: Wrong number of vertices ("
-         << g->GetNumberOfVertices() << " != " << 100 << ")" << endl;
+    cerr << "ERROR: Wrong number of vertices (" << g->GetNumberOfVertices() << " != " << 100 << ")"
+         << endl;
     errors++;
   }
   if (g->GetNumberOfEdges() != 200)
   {
-    cerr << "ERROR: Wrong number of edges ("
-         << g->GetNumberOfEdges() << " != " << 200 << ")" << endl;
+    cerr << "ERROR: Wrong number of edges (" << g->GetNumberOfEdges() << " != " << 200 << ")"
+         << endl;
     errors++;
   }
   cerr << "...done." << endl;
@@ -58,14 +57,14 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   g = source->GetOutput();
   if (g->GetNumberOfVertices() != 100)
   {
-    cerr << "ERROR: Wrong number of vertices ("
-         << g->GetNumberOfVertices() << " != " << 100 << ")" << endl;
+    cerr << "ERROR: Wrong number of vertices (" << g->GetNumberOfVertices() << " != " << 100 << ")"
+         << endl;
     errors++;
   }
   if (g->GetNumberOfEdges() != 299)
   {
-    cerr << "ERROR: Wrong number of edges ("
-         << g->GetNumberOfEdges() << " != " << 299 << ")" << endl;
+    cerr << "ERROR: Wrong number of edges (" << g->GetNumberOfEdges() << " != " << 299 << ")"
+         << endl;
     errors++;
   }
   VTK_CREATE(vtkBitArray, visited);
@@ -103,8 +102,8 @@ int TestRandomGraphSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (numVisited != g->GetNumberOfVertices())
   {
     cerr << "ERROR: Starting with tree was not connected."
-         << "Only " << numVisited << " of "
-         << g->GetNumberOfVertices() << " were connected." << endl;
+         << "Only " << numVisited << " of " << g->GetNumberOfVertices() << " were connected."
+         << endl;
     errors++;
   }
   cerr << "...done." << endl;

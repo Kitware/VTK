@@ -30,7 +30,7 @@
  * @sa
  * vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
  * vtkInteractorStyleJoystickActor
-*/
+ */
 
 #ifndef vtkInteractorStyleTrackballCamera_h
 #define vtkInteractorStyleTrackballCamera_h
@@ -41,8 +41,8 @@
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
 {
 public:
-  static vtkInteractorStyleTrackballCamera *New();
-  vtkTypeMacro(vtkInteractorStyleTrackballCamera,vtkInteractorStyle);
+  static vtkInteractorStyleTrackballCamera* New();
+  vtkTypeMacro(vtkInteractorStyleTrackballCamera, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -74,8 +74,8 @@ public:
   /**
    * Set the apparent sensitivity of the interactor style to mouse motion.
    */
-  vtkSetMacro(MotionFactor,double);
-  vtkGetMacro(MotionFactor,double);
+  vtkSetMacro(MotionFactor, double);
+  vtkGetMacro(MotionFactor, double);
   //@}
 
 protected:

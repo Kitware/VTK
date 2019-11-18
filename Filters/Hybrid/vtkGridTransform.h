@@ -23,7 +23,7 @@
  * and is several times more expensive than the forward transform.
  * @sa
  * vtkThinPlateSplineTransform vtkGeneralTransform vtkTransformToGrid
-*/
+ */
 
 #ifndef vtkGridTransform_h
 #define vtkGridTransform_h
@@ -42,8 +42,8 @@ class vtkImageData;
 class VTKFILTERSHYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 {
 public:
-  static vtkGridTransform *New();
-  vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
+  static vtkGridTransform* New();
+  vtkTypeMacro(vtkGridTransform, vtkWarpTransform);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -65,8 +65,8 @@ public:
    * This is used primarily for grids which contain integer
    * data types.  Default: 1
    */
-  vtkSetMacro(DisplacementScale,double);
-  vtkGetMacro(DisplacementScale,double);
+  vtkSetMacro(DisplacementScale, double);
+  vtkGetMacro(DisplacementScale, double);
   //@}
 
   //@{
@@ -75,8 +75,8 @@ public:
    * is applied after the scale, i.e. x = scale*y + shift.
    * Default: 0
    */
-  vtkSetMacro(DisplacementShift,double);
-  vtkGetMacro(DisplacementShift,double);
+  vtkSetMacro(DisplacementShift, double);
+  vtkGetMacro(DisplacementShift, double);
   //@}
 
   //@{
@@ -86,20 +86,20 @@ public:
    * Default: Linear.
    */
   void SetInterpolationMode(int mode);
-  vtkGetMacro(InterpolationMode,int);
+  vtkGetMacro(InterpolationMode, int);
   void SetInterpolationModeToNearestNeighbor()
-    { this->SetInterpolationMode(VTK_NEAREST_INTERPOLATION); };
-  void SetInterpolationModeToLinear()
-    { this->SetInterpolationMode(VTK_LINEAR_INTERPOLATION); };
-  void SetInterpolationModeToCubic()
-    { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); };
-  const char *GetInterpolationModeAsString();
+  {
+    this->SetInterpolationMode(VTK_NEAREST_INTERPOLATION);
+  }
+  void SetInterpolationModeToLinear() { this->SetInterpolationMode(VTK_LINEAR_INTERPOLATION); }
+  void SetInterpolationModeToCubic() { this->SetInterpolationMode(VTK_CUBIC_INTERPOLATION); }
+  const char* GetInterpolationModeAsString();
   //@}
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() override;
+  vtkAbstractTransform* MakeTransform() override;
 
   /**
    * Get the MTime.
@@ -118,7 +118,7 @@ protected:
   /**
    * Copy this transform from another of the same type.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) override;
+  void InternalDeepCopy(vtkAbstractTransform* transform) override;
 
   //@{
   /**
@@ -128,29 +128,25 @@ protected:
   void ForwardTransformPoint(const double in[3], double out[3]) override;
   //@}
 
-  void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) override;
-  void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) override;
+  void ForwardTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
+  void ForwardTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
 
   void InverseTransformPoint(const float in[3], float out[3]) override;
   void InverseTransformPoint(const double in[3], double out[3]) override;
 
-  void InverseTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) override;
-  void InverseTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) override;
+  void InverseTransformDerivative(const float in[3], float out[3], float derivative[3][3]) override;
+  void InverseTransformDerivative(
+    const double in[3], double out[3], double derivative[3][3]) override;
 
-  void (*InterpolationFunction)(double point[3], double displacement[3],
-                                double derivatives[3][3],
-                                void *gridPtr, int gridType,
-                                int inExt[6], vtkIdType inInc[3]);
+  void (*InterpolationFunction)(double point[3], double displacement[3], double derivatives[3][3],
+    void* gridPtr, int gridType, int inExt[6], vtkIdType inInc[3]);
 
   int InterpolationMode;
   double DisplacementScale;
   double DisplacementShift;
 
-  void *GridPointer;
+  void* GridPointer;
   int GridScalarType;
   double GridSpacing[3];
   double GridOrigin[3];
@@ -165,7 +161,7 @@ private:
 };
 
 //----------------------------------------------------------------------------
-inline const char *vtkGridTransform::GetInterpolationModeAsString()
+inline const char* vtkGridTransform::GetInterpolationModeAsString()
 {
   switch (this->InterpolationMode)
   {
@@ -181,8 +177,3 @@ inline const char *vtkGridTransform::GetInterpolationModeAsString()
 }
 
 #endif
-
-
-
-
-

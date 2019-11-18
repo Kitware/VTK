@@ -21,7 +21,7 @@
  * mouse and keyboard events into vtk Events.   By calling the methods on
  * this class, vtk events will be invoked.   This will allow scripting
  * languages to use vtkInteractorStyles and 3D widgets.
-*/
+ */
 
 #ifndef vtkGenericRenderWindowInteractor_h
 #define vtkGenericRenderWindowInteractor_h
@@ -32,8 +32,8 @@
 class VTKRENDERINGCORE_EXPORT vtkGenericRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkGenericRenderWindowInteractor *New();
-  vtkTypeMacro(vtkGenericRenderWindowInteractor,vtkRenderWindowInteractor);
+  static vtkGenericRenderWindowInteractor* New();
+  vtkTypeMacro(vtkGenericRenderWindowInteractor, vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

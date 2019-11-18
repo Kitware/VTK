@@ -34,12 +34,12 @@
 #include "vtkTextProperty.h"
 
 //----------------------------------------------------------------------------
-int TestCubeAxesWithZLines( int argc, char * argv [] )
+int TestCubeAxesWithZLines(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   fohe->SetGeometryFileName(fname);
-  delete [] fname;
+  delete[] fname;
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(fohe->GetOutputPort());
@@ -59,7 +59,7 @@ int TestCubeAxesWithZLines( int argc, char * argv [] )
 
   vtkNew<vtkActor> outlineActor;
   outlineActor->SetMapper(mapOutline);
-  outlineActor->GetProperty()->SetColor(0.0 ,0.0 ,0.0);
+  outlineActor->GetProperty()->SetColor(0.0, 0.0, 0.0);
 
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange(1.0, 100.0);
@@ -86,9 +86,9 @@ int TestCubeAxesWithZLines( int argc, char * argv [] )
 
   ren2->AddViewProp(foheActor);
   ren2->AddViewProp(outlineActor);
-  ren2->SetGradientBackground( true );
-  ren2->SetBackground(.1,.1,.1);
-  ren2->SetBackground2(.8,.8,.8);
+  ren2->SetGradientBackground(true);
+  ren2->SetBackground(.1, .1, .1);
+  ren2->SetBackground2(.8, .8, .8);
 
   normals->Update();
 
@@ -116,8 +116,8 @@ int TestCubeAxesWithZLines( int argc, char * argv [] )
   ren2->AddViewProp(axes2);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin, 0.2 );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.2);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

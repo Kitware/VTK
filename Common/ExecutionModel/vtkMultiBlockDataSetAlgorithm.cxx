@@ -43,8 +43,7 @@ vtkMultiBlockDataSet* vtkMultiBlockDataSetAlgorithm::GetOutput()
 vtkMultiBlockDataSet* vtkMultiBlockDataSetAlgorithm::GetOutput(int port)
 {
   vtkDataObject* output =
-    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
-    GetCompositeOutputData(port);
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->GetCompositeOutputData(port);
   return vtkMultiBlockDataSet::SafeDownCast(output);
 }
 
@@ -72,32 +71,29 @@ vtkDataObject* vtkMultiBlockDataSetAlgorithm::GetInput(int port)
 
 //----------------------------------------------------------------------------
 vtkTypeBool vtkMultiBlockDataSetAlgorithm::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
 
   // generate the data
-  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
+  if (request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
   {
     int retVal = this->RequestData(request, inputVector, outputVector);
     return retVal;
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
 
   // set update extent
-  if(request->Has(
-       vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
@@ -131,5 +127,5 @@ vtkExecutive* vtkMultiBlockDataSetAlgorithm::CreateDefaultExecutive()
 //----------------------------------------------------------------------------
 void vtkMultiBlockDataSetAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

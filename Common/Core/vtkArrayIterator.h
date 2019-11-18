@@ -38,7 +38,7 @@
  *   }
  * iter->Delete();
  * \endcode
-*/
+ */
 
 #ifndef vtkArrayIterator_h
 #define vtkArrayIterator_h
@@ -65,7 +65,7 @@ public:
    * Get the data type from the underlying array. Returns 0 if
    * no underlying array is present.
    */
-  virtual int GetDataType()=0;
+  virtual int GetDataType() = 0;
 
 protected:
   vtkArrayIterator();
@@ -76,6 +76,4 @@ private:
   void operator=(const vtkArrayIterator&) = delete;
 };
 
-
 #endif
-

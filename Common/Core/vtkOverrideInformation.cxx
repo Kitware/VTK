@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkOverrideInformation);
-vtkCxxSetObjectMacro(vtkOverrideInformation,ObjectFactory,vtkObjectFactory);
+vtkCxxSetObjectMacro(vtkOverrideInformation, ObjectFactory, vtkObjectFactory);
 
 vtkOverrideInformation::vtkOverrideInformation()
 {
@@ -29,25 +29,23 @@ vtkOverrideInformation::vtkOverrideInformation()
 
 vtkOverrideInformation::~vtkOverrideInformation()
 {
-  delete [] this->ClassOverrideName;
-  delete [] this->ClassOverrideWithName;
-  delete [] this->Description;
-  if(this->ObjectFactory)
+  delete[] this->ClassOverrideName;
+  delete[] this->ClassOverrideWithName;
+  delete[] this->Description;
+  if (this->ObjectFactory)
   {
     this->ObjectFactory->Delete();
   }
 }
 
-void vtkOverrideInformation::PrintSelf(ostream& os,
-                                       vtkIndent indent)
+void vtkOverrideInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Override: ";
-  if(this->ClassOverrideName && this->ClassOverrideWithName && this->Description)
+  if (this->ClassOverrideName && this->ClassOverrideWithName && this->Description)
   {
-    os << this->ClassOverrideName
-       << "\nWith: " << this->ClassOverrideWithName
+    os << this->ClassOverrideName << "\nWith: " << this->ClassOverrideWithName
        << "\nDescription: " << this->Description;
   }
   else
@@ -56,7 +54,7 @@ void vtkOverrideInformation::PrintSelf(ostream& os,
   }
 
   os << indent << "From Factory:\n";
-  if(this->ObjectFactory)
+  if (this->ObjectFactory)
   {
     this->ObjectFactory->PrintSelf(os, indent.GetNextIndent());
   }

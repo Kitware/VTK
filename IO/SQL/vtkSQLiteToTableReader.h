@@ -18,7 +18,7 @@
  *
  * vtkSQLiteToTableReader reads a table from an SQLite database and
  * outputs it as a vtkTable.
-*/
+ */
 
 #ifndef vtkSQLiteToTableReader_h
 #define vtkSQLiteToTableReader_h
@@ -28,19 +28,18 @@
 
 class vtkSQLiteDatabase;
 
-class VTKIOSQL_EXPORT vtkSQLiteToTableReader :
-  public vtkDatabaseToTableReader
+class VTKIOSQL_EXPORT vtkSQLiteToTableReader : public vtkDatabaseToTableReader
 {
 public:
-  static vtkSQLiteToTableReader *New();
-  vtkTypeMacro(vtkSQLiteToTableReader,vtkDatabaseToTableReader);
+  static vtkSQLiteToTableReader* New();
+  vtkTypeMacro(vtkSQLiteToTableReader, vtkDatabaseToTableReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-   vtkSQLiteToTableReader();
+  vtkSQLiteToTableReader();
   ~vtkSQLiteToTableReader() override;
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkSQLiteToTableReader(const vtkSQLiteToTableReader&) = delete;
   void operator=(const vtkSQLiteToTableReader&) = delete;

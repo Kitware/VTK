@@ -35,7 +35,7 @@
  * @sa
  * vtkImplicitFunction vtkImplicitDataSet vtkClipPolyData vtkCutter
  * vtkImplicitWindowFunction
-*/
+ */
 
 #ifndef vtkImplicitVolume_h
 #define vtkImplicitVolume_h
@@ -49,14 +49,14 @@ class vtkImageData;
 class VTKCOMMONDATAMODEL_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkImplicitVolume,vtkImplicitFunction);
+  vtkTypeMacro(vtkImplicitVolume, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct an vtkImplicitVolume with no initial volume; the OutValue
    * set to a large negative number; and the OutGradient set to (0,0,1).
    */
-  static vtkImplicitVolume *New();
+  static vtkImplicitVolume* New();
 
   /**
    * Returns the mtime also considering the volume.  This also calls Update
@@ -84,34 +84,34 @@ public:
    * Specify the volume for the implicit function.
    */
   virtual void SetVolume(vtkImageData*);
-  vtkGetObjectMacro(Volume,vtkImageData);
+  vtkGetObjectMacro(Volume, vtkImageData);
   //@}
 
   //@{
   /**
    * Set the function value to use for points outside of the dataset.
    */
-  vtkSetMacro(OutValue,double);
-  vtkGetMacro(OutValue,double);
+  vtkSetMacro(OutValue, double);
+  vtkGetMacro(OutValue, double);
   //@}
 
   //@{
   /**
    * Set the function gradient to use for points outside of the dataset.
    */
-  vtkSetVector3Macro(OutGradient,double);
-  vtkGetVector3Macro(OutGradient,double);
+  vtkSetVector3Macro(OutGradient, double);
+  vtkGetVector3Macro(OutGradient, double);
   //@}
 
 protected:
   vtkImplicitVolume();
   ~vtkImplicitVolume() override;
 
-  vtkImageData *Volume; // the structured points
+  vtkImageData* Volume; // the structured points
   double OutValue;
   double OutGradient[3];
   // to replace a static
-  vtkIdList *PointIds;
+  vtkIdList* PointIds;
 
 private:
   vtkImplicitVolume(const vtkImplicitVolume&) = delete;
@@ -119,5 +119,3 @@ private:
 };
 
 #endif
-
-

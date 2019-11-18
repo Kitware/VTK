@@ -474,7 +474,7 @@ vtkIdType vtkExtractCells::ReMapPointIds(vtkDataSet* grid)
       }
 
       vtkIdType npts;
-      const vtkIdType *pts;
+      const vtkIdType* pts;
       ugrid->GetCellPoints(cellId, npts, pts);
 
       this->SubSetUGridCellArraySize += (1 + npts);
@@ -492,7 +492,7 @@ vtkIdType vtkExtractCells::ReMapPointIds(vtkDataSet* grid)
       if (ugrid->GetCellType(cellId) == VTK_POLYHEDRON)
       {
         vtkIdType nfaces;
-        const vtkIdType *ptids;
+        const vtkIdType* ptids;
         ugrid->GetFaceStream(cellId, nfaces, ptids);
         this->SubSetUGridFacesArraySize += 1;
         for (vtkIdType j = 0; j < nfaces; j++)
@@ -620,7 +620,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkDataSet* input, vtkUnstructur
     typeArray->SetValue(nextCellId, cellType);
 
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     ugrid->GetCellPoints(oldCellId, npts, pts);
 
     newcells->SetValue(cellArrayIdx++, npts);
@@ -637,7 +637,7 @@ void vtkExtractCells::CopyCellsUnstructuredGrid(vtkDataSet* input, vtkUnstructur
     {
       havePolyhedron = true;
       vtkIdType nfaces;
-      const vtkIdType *ptids;
+      const vtkIdType* ptids;
       ugrid->GetFaceStream(oldCellId, nfaces, ptids);
 
       facesLocationArray->SetValue(nextCellId, nextFaceId);

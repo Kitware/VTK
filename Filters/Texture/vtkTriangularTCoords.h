@@ -27,7 +27,7 @@
  * @sa
  * vtkTriangularTexture vtkThresholdPoints vtkTextureMapToPlane
  * vtkTextureMapToSphere vtkTextureMapToCylinder
-*/
+ */
 
 #ifndef vtkTriangularTCoords_h
 #define vtkTriangularTCoords_h
@@ -38,8 +38,8 @@
 class VTKFILTERSTEXTURE_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkTriangularTCoords *New();
-  vtkTypeMacro(vtkTriangularTCoords,vtkPolyDataAlgorithm);
+  static vtkTriangularTCoords* New();
+  vtkTypeMacro(vtkTriangularTCoords, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -47,7 +47,8 @@ protected:
   ~vtkTriangularTCoords() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkTriangularTCoords(const vtkTriangularTCoords&) = delete;
   void operator=(const vtkTriangularTCoords&) = delete;

@@ -22,8 +22,10 @@
  * vtkBridgeCellIteratorOnCellBoundaries,
  * vtkBridgeCellIteratorOnCellNeighbors,
  * @sa
- * vtkGenericCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet, vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries, vtkBridgeCellIteratorOnCellNeighbors
-*/
+ * vtkGenericCellIterator, vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorOnDataSet,
+ * vtkBridgeCellIteratorOnDataSetBoundaries, vtkBridgeCellIteratorOnCellBoundaries,
+ * vtkBridgeCellIteratorOnCellNeighbors
+ */
 
 #ifndef vtkBridgeCellIteratorStrategy_h
 #define vtkBridgeCellIteratorStrategy_h
@@ -39,14 +41,14 @@ class vtkIdList;
 class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCellIteratorStrategy : public vtkGenericCellIterator
 {
 public:
-  vtkTypeMacro(vtkBridgeCellIteratorStrategy,vtkGenericCellIterator);
+  vtkTypeMacro(vtkBridgeCellIteratorStrategy, vtkGenericCellIterator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an empty cell. NOT USED
    * \post result_exists: result!=0
    */
-  vtkGenericAdaptorCell *NewCell() override;
+  vtkGenericAdaptorCell* NewCell() override;
 
 protected:
   vtkBridgeCellIteratorStrategy() {}

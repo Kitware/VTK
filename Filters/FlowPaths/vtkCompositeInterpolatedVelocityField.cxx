@@ -36,10 +36,10 @@ vtkCompositeInterpolatedVelocityField::~vtkCompositeInterpolatedVelocityField()
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )
+void vtkCompositeInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf( os, indent );
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "DataSets: "           << this->DataSets         << endl;
+  os << indent << "DataSets: " << this->DataSets << endl;
   os << indent << "Last Dataset Index: " << this->LastDataSetIndex << endl;
 }

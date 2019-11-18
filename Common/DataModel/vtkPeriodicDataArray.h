@@ -24,21 +24,21 @@
  * around the specified point. Lookup is not implemented.
  * Creating the array is virtually free, accessing a tuple require some
  * computation.
-*/
+ */
 
 #ifndef vtkPeriodicDataArray_h
 #define vtkPeriodicDataArray_h
 
 #include "vtkAOSDataArrayTemplate.h" // Template
-#include "vtkGenericDataArray.h"   // Parent
+#include "vtkGenericDataArray.h"     // Parent
 
 template <class Scalar>
-class vtkPeriodicDataArray:
-    public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>
+class vtkPeriodicDataArray : public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>
 {
   typedef vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar> GenericBase;
+
 public:
-  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase)
+  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase);
   typedef typename Superclass::ValueType ValueType;
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
@@ -56,12 +56,12 @@ public:
   /**
    * Copy tuples values, selected by ptIds into provided array
    */
-  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output) override;
+  void GetTuples(vtkIdList* ptIds, vtkAbstractArray* output) override;
 
   /**
    * Copy tuples from id p1 to id p2 included into provided array
    */
-  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) override;
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* output) override;
 
   /**
    * No effect
@@ -71,7 +71,7 @@ public:
   /**
    * Not implemented
    */
-  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() override;
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
   /**
    * Not implemented
@@ -81,7 +81,7 @@ public:
   /**
    * Not implemented
    */
-  void LookupValue(vtkVariant value, vtkIdList *ids) override;
+  void LookupValue(vtkVariant value, vtkIdList* ids) override;
 
   /**
    * Not implemented
@@ -102,7 +102,7 @@ public:
   /**
    * Copy tuple at location i into user provided array
    */
-  void GetTuple(vtkIdType i, double *tuple) override;
+  void GetTuple(vtkIdType i, double* tuple) override;
 
   /**
    * Not implemented
@@ -112,14 +112,14 @@ public:
   /**
    * Not implemented
    */
-  void LookupTypedValue(Scalar value, vtkIdList *ids) override;
+  void LookupTypedValue(Scalar value, vtkIdList* ids) override;
 
   /**
    * Get value at index idx.
    * Warning, it internally call GetTypedTuple,
    * so it is an inneficcient way if reading all data
    */
-  ValueType GetValue(vtkIdType idx) const ;
+  ValueType GetValue(vtkIdType idx) const;
 
   /**
    * Get value at index idx as reference.
@@ -131,7 +131,7 @@ public:
   /**
    * Copy tuple value at location idx into provided array
    */
-  void GetTypedTuple(vtkIdType idx, Scalar *t) const;
+  void GetTypedTuple(vtkIdType idx, Scalar* t) const;
 
   /**
    * Return the requested component of the specified tuple.
@@ -163,81 +163,80 @@ public:
   /**
    * Read only container, not supported.
    */
-  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) override;
+  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetTuple(vtkIdType i, const float *source) override;
+  void SetTuple(vtkIdType i, const float* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetTuple(vtkIdType i, const double *source) override;
+  void SetTuple(vtkIdType i, const double* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) override;
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuple(vtkIdType i, const float *source) override;
+  void InsertTuple(vtkIdType i, const float* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuple(vtkIdType i, const double *source) override;
+  void InsertTuple(vtkIdType i, const double* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) override;
+  void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) override;
+  void InsertTuples(
+    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
 
   /**
    * Read only container, error.
    */
-  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source) override;
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) override;
 
   /**
    * Read only container, not supported.
    */
-  vtkIdType InsertNextTuple(const float *source) override;
+  vtkIdType InsertNextTuple(const float* source) override;
 
   /**
    * Read only container, not supported.
    */
-  vtkIdType InsertNextTuple(const double *source) override;
+  vtkIdType InsertNextTuple(const double* source) override;
 
   /**
    * Read only container, not supported.
    */
-  void DeepCopy(vtkAbstractArray *aa) override;
+  void DeepCopy(vtkAbstractArray* aa) override;
 
   /**
    * Read only container, not supported.
    */
-  void DeepCopy(vtkDataArray *da) override;
+  void DeepCopy(vtkDataArray* da) override;
 
   /**
    * Read only container, not supported.
    */
-  void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-                        vtkAbstractArray* source, double* weights) override;
+  void InterpolateTuple(
+    vtkIdType i, vtkIdList* ptIndices, vtkAbstractArray* source, double* weights) override;
 
   /**
    * Read only container, not supported.
    */
-  void InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray *source1,
-                        vtkIdType id2, vtkAbstractArray *source2, double t) override;
+  void InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray* source1, vtkIdType id2,
+    vtkAbstractArray* source2, double t) override;
 
   /**
    * Read only container, not supported.
@@ -267,7 +266,7 @@ public:
   /**
    * Read only container, not supported.
    */
-  void SetTypedTuple(vtkIdType i, const Scalar *t);
+  void SetTypedTuple(vtkIdType i, const Scalar* t);
 
   /**
    * Read only container, not supported.
@@ -277,12 +276,12 @@ public:
   /**
    * Read only container, not supported.
    */
-  void InsertTypedTuple(vtkIdType i, const Scalar *t);
+  void InsertTypedTuple(vtkIdType i, const Scalar* t);
 
   /**
    * Read only container, not supported.
    */
-  vtkIdType InsertNextTypedTuple(const Scalar *t);
+  vtkIdType InsertNextTypedTuple(const Scalar* t);
 
   /**
    * Read only container, not supported.
@@ -347,14 +346,14 @@ protected:
   bool Normalize; // If transformed vector must be normalized
 
 private:
-  vtkPeriodicDataArray(const vtkPeriodicDataArray &) = delete;
-  void operator=(const vtkPeriodicDataArray &) = delete;
+  vtkPeriodicDataArray(const vtkPeriodicDataArray&) = delete;
+  void operator=(const vtkPeriodicDataArray&) = delete;
 
   friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
 
-  Scalar* TempScalarArray; // Temporary array used by GetTypedTuple methods
-  double* TempDoubleArray; // Temporary array used by GetTuple vethods
-  vtkIdType TempTupleIdx;  // Location of currently stored Temp Tuple to use as cache
+  Scalar* TempScalarArray;               // Temporary array used by GetTypedTuple methods
+  double* TempDoubleArray;               // Temporary array used by GetTuple vethods
+  vtkIdType TempTupleIdx;                // Location of currently stored Temp Tuple to use as cache
   vtkAOSDataArrayTemplate<Scalar>* Data; // Original data
 
   bool InvalidRange;
@@ -363,5 +362,5 @@ private:
 
 #include "vtkPeriodicDataArray.txx"
 
-#endif //vtkPeriodicDataArray_h
+#endif // vtkPeriodicDataArray_h
 // VTK-HeaderTest-Exclude: vtkPeriodicDataArray.h

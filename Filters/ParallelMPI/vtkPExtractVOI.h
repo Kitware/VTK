@@ -26,7 +26,7 @@
  *
  * @sa
  *  vtkExtractVOI
-*/
+ */
 
 #ifndef vtkPExtractVOI_h
 #define vtkPExtractVOI_h
@@ -43,7 +43,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractVOI : public vtkExtractVOI
 {
 public:
   static vtkPExtractVOI* New();
-  vtkTypeMacro(vtkPExtractVOI,vtkExtractVOI);
+  vtkTypeMacro(vtkPExtractVOI, vtkExtractVOI);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -51,12 +51,11 @@ protected:
   virtual ~vtkPExtractVOI();
 
   // Standard VTK Pipeline methods
-  virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+    vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMPIController* Controller;
 

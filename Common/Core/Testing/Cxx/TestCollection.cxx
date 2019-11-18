@@ -24,7 +24,7 @@
 bool TestRegister();
 bool TestRemoveItem(int index, bool removeIndex);
 
-int TestCollection(int,char *[])
+int TestCollection(int, char*[])
 {
   bool res = true;
   res = TestRegister() && res;
@@ -41,8 +41,8 @@ int TestCollection(int,char *[])
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static bool IsEqualRange(vtkCollection* collection,
-                         const std::vector<vtkSmartPointer<vtkIntArray> >& v)
+static bool IsEqualRange(
+  vtkCollection* collection, const std::vector<vtkSmartPointer<vtkIntArray> >& v)
 {
   const auto range = vtk::Range(collection);
   if (range.size() != static_cast<int>(v.size()))
@@ -76,7 +76,7 @@ static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer
   vtkCollectionSimpleIterator it;
   int i = 0;
   for (collection->InitTraversal(it);
-       (dataArray = vtkIntArray::SafeDownCast(collection->GetNextItemAsObject(it))) ; ++i)
+       (dataArray = vtkIntArray::SafeDownCast(collection->GetNextItemAsObject(it))); ++i)
   {
     if (v[i] != dataArray)
     {

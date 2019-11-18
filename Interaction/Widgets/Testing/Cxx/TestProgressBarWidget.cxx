@@ -77,7 +77,8 @@ int TestProgressBarWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkProgressBarWidget> widget2;
   widget2->SetInteractor(iren);
   widget2->CreateDefaultRepresentation();
-  vtkProgressBarRepresentation* rep2 = vtkProgressBarRepresentation::SafeDownCast(widget2->GetRepresentation());
+  vtkProgressBarRepresentation* rep2 =
+    vtkProgressBarRepresentation::SafeDownCast(widget2->GetRepresentation());
 
   // Add the actors to the renderer, set the background and size
   //
@@ -109,5 +110,4 @@ int TestProgressBarWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   iren->Start();
 
   return EXIT_SUCCESS;
-
 }

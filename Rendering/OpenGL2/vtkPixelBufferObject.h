@@ -28,14 +28,14 @@
  * @warning
  * Since most PBO mapped don't support double format all double data is converted to
  * float and then uploaded.
-*/
+ */
 
 #ifndef vtkPixelBufferObject_h
 #define vtkPixelBufferObject_h
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWeakPointer.h" // needed for vtkWeakPointer.
+#include "vtkWeakPointer.h"            // needed for vtkWeakPointer.
 
 class vtkRenderWindow;
 class vtkOpenGLExtensionManager;
@@ -43,11 +43,10 @@ class vtkOpenGLExtensionManager;
 class VTKRENDERINGOPENGL2_EXPORT vtkPixelBufferObject : public vtkObject
 {
 public:
-
   // Usage values.
   enum
   {
-    StreamDraw=0,
+    StreamDraw = 0,
     StreamRead,
     StreamCopy,
     StaticDraw,
@@ -93,8 +92,8 @@ public:
    * R: reading data from the GL
    * Initial value is StaticDraw, as in OpenGL spec.
    */
-  vtkGetMacro(Usage,int);
-  vtkSetMacro(Usage,int);
+  vtkGetMacro(Usage, int);
+  vtkSetMacro(Usage, int);
   //@}
 
   //@{
@@ -107,8 +106,7 @@ public:
    * Look at the documentation for ContinuousIncrements in vtkImageData for
    * details about how increments are specified.
    */
-  bool Upload1D(int type, void* data,
-    unsigned int numtuples, int comps, vtkIdType increment)
+  bool Upload1D(int type, void* data, unsigned int numtuples, int comps, vtkIdType increment)
   {
     unsigned int newdims[3];
     newdims[0] = numtuples;
@@ -118,7 +116,7 @@ public:
     newinc[0] = increment;
     newinc[1] = 0;
     newinc[2] = 0;
-    return this->Upload3D(type, data, newdims, comps, newinc,0,nullptr);
+    return this->Upload3D(type, data, newdims, comps, newinc, 0, nullptr);
   }
   //@}
 
@@ -131,10 +129,7 @@ public:
    * Look at the documentation for ContinuousIncrements in vtkImageData for
    * details about how increments are specified.
    */
-  bool Upload2D(int type, void* data,
-    unsigned int dims[2],
-    int comps,
-    vtkIdType increments[2])
+  bool Upload2D(int type, void* data, unsigned int dims[2], int comps, vtkIdType increments[2])
   {
     unsigned int newdims[3];
     newdims[0] = dims[0];
@@ -144,7 +139,7 @@ public:
     newinc[0] = increments[0];
     newinc[1] = increments[1];
     newinc[2] = 0;
-    return this->Upload3D(type, data, newdims, comps, newinc,0,nullptr);
+    return this->Upload3D(type, data, newdims, comps, newinc, 0, nullptr);
   }
   //@}
 
@@ -156,11 +151,8 @@ public:
    * Look at the documentation for ContinuousIncrements in vtkImageData for
    * details about how increments are specified.
    */
-  bool Upload3D(int type, void* data,
-                unsigned int dims[3], int comps,
-                vtkIdType increments[3],
-                int components,
-                int *componentList);
+  bool Upload3D(int type, void* data, unsigned int dims[3], int comps, vtkIdType increments[3],
+    int components, int* componentList);
 
   //@{
   /**
@@ -202,10 +194,7 @@ public:
    * Download data from pixel buffer to the 1D array. The length of the array
    * must be equal to the size of the data in the memory.
    */
-  bool Download1D(
-    int type, void* data,
-    unsigned int dim,
-    int numcomps, vtkIdType increment)
+  bool Download1D(int type, void* data, unsigned int dim, int numcomps, vtkIdType increment)
   {
     unsigned int newdims[3];
     newdims[0] = dim;
@@ -224,10 +213,7 @@ public:
    * Download data from pixel buffer to the 2D array. (lengthx * lengthy)
    * must be equal to the size of the data in the memory.
    */
-  bool Download2D(
-    int type, void* data,
-    unsigned int dims[2],
-    int numcomps, vtkIdType increments[2])
+  bool Download2D(int type, void* data, unsigned int dims[2], int numcomps, vtkIdType increments[2])
   {
     unsigned int newdims[3];
     newdims[0] = dims[0];
@@ -236,7 +222,7 @@ public:
     vtkIdType newincrements[3];
     newincrements[0] = increments[0];
     newincrements[1] = increments[1];
-    newincrements[2] =  0;
+    newincrements[2] = 0;
     return this->Download3D(type, data, newdims, numcomps, newincrements);
   }
   //@}
@@ -246,18 +232,15 @@ public:
    * (lengthx * lengthy * lengthz) must be equal to the size of the data in
    * the memory.
    */
-  bool Download3D(int type, void* data,
-    unsigned int dims[3],
-    int numcomps, vtkIdType increments[3]);
+  bool Download3D(
+    int type, void* data, unsigned int dims[3], int numcomps, vtkIdType increments[3]);
 
   /**
    * Convenience methods for binding.
    */
-  void BindToPackedBuffer()
-    { this->Bind(PACKED_BUFFER); }
+  void BindToPackedBuffer() { this->Bind(PACKED_BUFFER); }
 
-  void BindToUnPackedBuffer()
-    { this->Bind(UNPACKED_BUFFER); }
+  void BindToUnPackedBuffer() { this->Bind(UNPACKED_BUFFER); }
 
   /**
    * Deactivate the buffer.
@@ -268,38 +251,40 @@ public:
    * Convenience api for mapping buffers to app address space.
    * See also MapBuffer.
    */
-  void *MapPackedBuffer()
-    { return this->MapBuffer(PACKED_BUFFER); }
+  void* MapPackedBuffer() { return this->MapBuffer(PACKED_BUFFER); }
 
-  void *MapPackedBuffer(int type, unsigned int numtuples, int comps)
-    { return this->MapBuffer(type, numtuples, comps, PACKED_BUFFER); }
+  void* MapPackedBuffer(int type, unsigned int numtuples, int comps)
+  {
+    return this->MapBuffer(type, numtuples, comps, PACKED_BUFFER);
+  }
 
-  void *MapPackedBuffer(unsigned int numbytes)
-    { return this->MapBuffer(numbytes, PACKED_BUFFER); }
+  void* MapPackedBuffer(unsigned int numbytes) { return this->MapBuffer(numbytes, PACKED_BUFFER); }
 
-  void *MapUnpackedBuffer()
-    { return this->MapBuffer(UNPACKED_BUFFER); }
+  void* MapUnpackedBuffer() { return this->MapBuffer(UNPACKED_BUFFER); }
 
-  void *MapUnpackedBuffer(int type, unsigned int numtuples, int comps)
-    { return this->MapBuffer(type, numtuples, comps, UNPACKED_BUFFER); }
+  void* MapUnpackedBuffer(int type, unsigned int numtuples, int comps)
+  {
+    return this->MapBuffer(type, numtuples, comps, UNPACKED_BUFFER);
+  }
 
-  void *MapUnpackedBuffer(unsigned int numbytes)
-    { return this->MapBuffer(numbytes, UNPACKED_BUFFER); }
+  void* MapUnpackedBuffer(unsigned int numbytes)
+  {
+    return this->MapBuffer(numbytes, UNPACKED_BUFFER);
+  }
 
   /**
    * Convenience api for unmapping buffers from app address space.
    * See also UnmapBuffer.
    */
-  void UnmapUnpackedBuffer()
-    { this->UnmapBuffer(UNPACKED_BUFFER); }
+  void UnmapUnpackedBuffer() { this->UnmapBuffer(UNPACKED_BUFFER); }
 
-  void UnmapPackedBuffer()
-    { this->UnmapBuffer(PACKED_BUFFER); }
+  void UnmapPackedBuffer() { this->UnmapBuffer(PACKED_BUFFER); }
 
   // PACKED_BUFFER for download APP<-PBO
   // UNPACKED_BUFFER for upload APP->PBO
-  enum BufferType{
-    UNPACKED_BUFFER=0,
+  enum BufferType
+  {
+    UNPACKED_BUFFER = 0,
     PACKED_BUFFER
   };
 
@@ -315,9 +300,9 @@ public:
    * data will be allocated, else the current allocation is mapped. When finished
    * call UnmapBuffer.
    */
-  void *MapBuffer(int type, unsigned int numtuples, int comps, BufferType mode);
-  void *MapBuffer(unsigned int numbytes, BufferType mode);
-  void *MapBuffer(BufferType mode);
+  void* MapBuffer(int type, unsigned int numtuples, int comps, BufferType mode);
+  void* MapBuffer(unsigned int numbytes, BufferType mode);
+  void* MapBuffer(BufferType mode);
   //@}
 
   /**
@@ -329,18 +314,12 @@ public:
   /**
    * Allocate PACKED/UNPACKED memory to hold numTuples*numComponents of vtkType.
    */
-  void Allocate(
-        int vtkType,
-        unsigned int numtuples,
-        int comps,
-        BufferType mode);
+  void Allocate(int vtkType, unsigned int numtuples, int comps, BufferType mode);
 
   /**
    * Allocate PACKED/UNPACKED memory to hold nBytes of data.
    */
-  void Allocate(
-        unsigned int nbytes,
-        BufferType mode);
+  void Allocate(unsigned int nbytes, BufferType mode);
 
   /**
    * Release the memory allocated without destroying the PBO handle.
@@ -380,6 +359,7 @@ protected:
   unsigned int Size;
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
+
 private:
   vtkPixelBufferObject(const vtkPixelBufferObject&) = delete;
   void operator=(const vtkPixelBufferObject&) = delete;

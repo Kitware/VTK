@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #ifdef _MSC_VER
-#pragma warning(disable:4018)
+#pragma warning(disable : 4018)
 #endif
 
 #include "vtkMetaImageReader.h"
@@ -73,31 +73,30 @@ vtkMetaImageReader::~vtkMetaImageReader()
 //----------------------------------------------------------------------------
 void vtkMetaImageReader::ExecuteInformation()
 {
-  if(!this->FileName)
+  if (!this->FileName)
   {
-    vtkErrorMacro( << "A filename was not specified." );
+    vtkErrorMacro(<< "A filename was not specified.");
     return;
   }
 
-  if(!this->MetaImagePtr->Read(this->FileName, false))
+  if (!this->MetaImagePtr->Read(this->FileName, false))
   {
-    vtkErrorMacro( << "MetaImage cannot parse file." );
+    vtkErrorMacro(<< "MetaImage cannot parse file.");
     return;
   }
 
   this->SetFileDimensionality(this->MetaImagePtr->NDims());
-  if ( FileDimensionality <= 0 || FileDimensionality >= 4)
+  if (FileDimensionality <= 0 || FileDimensionality >= 4)
   {
-    vtkErrorMacro(
-        << "Only understands image data of 1, 2, and 3 dimensions. "
-        << "This image has " << FileDimensionality << " dimensions");
+    vtkErrorMacro(<< "Only understands image data of 1, 2, and 3 dimensions. "
+                  << "This image has " << FileDimensionality << " dimensions");
     return;
   }
   vtkDebugMacro(<< "* This image has " << FileDimensionality << " dimensions");
 
   int i;
 
-  switch(this->MetaImagePtr->ElementType())
+  switch (this->MetaImagePtr->ElementType())
   {
     case vtkmetaio::MET_NONE:
     case vtkmetaio::MET_ASCII_CHAR:
@@ -111,8 +110,7 @@ void vtkMetaImageReader::ExecuteInformation()
     case vtkmetaio::MET_FLOAT_MATRIX:
     case vtkmetaio::MET_OTHER:
     default:
-      vtkErrorMacro(<< "Unknown data type: "
-                    << this->MetaImagePtr->ElementType());
+      vtkErrorMacro(<< "Unknown data type: " << this->MetaImagePtr->ElementType());
       return;
     case vtkmetaio::MET_CHAR:
     case vtkmetaio::MET_CHAR_ARRAY:
@@ -154,25 +152,24 @@ void vtkMetaImageReader::ExecuteInformation()
       break;
   }
 
-  int extent[6]={0,0,0,0,0,0};
-  double spacing[3]={1.0, 1.0, 1.0};
-  double origin[3]={0.0, 0.0, 0.0};
-  for(i=0; i<FileDimensionality; i++)
+  int extent[6] = { 0, 0, 0, 0, 0, 0 };
+  double spacing[3] = { 1.0, 1.0, 1.0 };
+  double origin[3] = { 0.0, 0.0, 0.0 };
+  for (i = 0; i < FileDimensionality; i++)
   {
-    extent[2*i] = 0;
-    extent[2*i+1] = this->MetaImagePtr->DimSize(i)-1;
+    extent[2 * i] = 0;
+    extent[2 * i + 1] = this->MetaImagePtr->DimSize(i) - 1;
     spacing[i] = fabs(this->MetaImagePtr->ElementSpacing(i));
     origin[i] = this->MetaImagePtr->Position(i);
   }
-  this->SetNumberOfScalarComponents(
-                         this->MetaImagePtr->ElementNumberOfChannels());
+  this->SetNumberOfScalarComponents(this->MetaImagePtr->ElementNumberOfChannels());
   this->SetDataExtent(extent);
   this->SetDataSpacing(spacing);
   this->SetDataOrigin(origin);
   this->SetHeaderSize(this->MetaImagePtr->HeaderSize());
   this->FileLowerLeftOn();
 
-  switch(this->MetaImagePtr->DistanceUnits())
+  switch (this->MetaImagePtr->DistanceUnits())
   {
     default:
     case vtkmetaio::MET_DISTANCE_UNITS_UNKNOWN:
@@ -193,19 +190,18 @@ void vtkMetaImageReader::ExecuteInformation()
     }
   }
 
-  strcpy(AnatomicalOrientation,
-         this->MetaImagePtr->AnatomicalOrientationAcronym());
+  strcpy(AnatomicalOrientation, this->MetaImagePtr->AnatomicalOrientationAcronym());
 
   vtkmetaio::MET_SizeOfType(this->MetaImagePtr->ElementType(), &BitsAllocated);
 
   RescaleSlope = this->MetaImagePtr->ElementToIntensityFunctionSlope();
   RescaleOffset = this->MetaImagePtr->ElementToIntensityFunctionOffset();
 
-  if(this->MetaImagePtr->Modality() == vtkmetaio::MET_MOD_CT)
+  if (this->MetaImagePtr->Modality() == vtkmetaio::MET_MOD_CT)
   {
     strcpy(Modality, "CT");
   }
-  else if(this->MetaImagePtr->Modality() == vtkmetaio::MET_MOD_MR)
+  else if (this->MetaImagePtr->Modality() == vtkmetaio::MET_MOD_MR)
   {
     strcpy(Modality, "MR");
   }
@@ -213,18 +209,16 @@ void vtkMetaImageReader::ExecuteInformation()
   {
     strcpy(Modality, "?");
   }
-
 }
 
-void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject * output,
-                                                    vtkInformation *outInfo)
+void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformation* outInfo)
 {
 
-  vtkImageData * data = this->AllocateOutputData(output, outInfo);
+  vtkImageData* data = this->AllocateOutputData(output, outInfo);
 
-  if(!this->FileName)
+  if (!this->FileName)
   {
-    vtkErrorMacro( << "A filename was not specified." );
+    vtkErrorMacro(<< "A filename was not specified.");
     return;
   }
 
@@ -232,34 +226,29 @@ void vtkMetaImageReader::ExecuteDataWithInformation(vtkDataObject * output,
 
   this->ComputeDataIncrements();
 
-  if(!this->MetaImagePtr->Read(this->FileName, true, data->GetScalarPointer()))
+  if (!this->MetaImagePtr->Read(this->FileName, true, data->GetScalarPointer()))
   {
-    vtkErrorMacro( << "MetaImage cannot read data from file." );
+    vtkErrorMacro(<< "MetaImage cannot read data from file.");
     return;
   }
 
   this->MetaImagePtr->ElementByteOrderFix();
-
 }
 
-int vtkMetaImageReader::RequestInformation(vtkInformation *,
-                               vtkInformationVector **,
-                               vtkInformationVector * outputVector )
+int vtkMetaImageReader::RequestInformation(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
 
   this->ExecuteInformation();
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               this->DataExtent, 6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
-  outInfo->Set(vtkDataObject::ORIGIN(),  this->DataOrigin, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
 
   vtkDataObject::SetPointDataActiveScalarInfo(
-                    outInfo,
-                    this->DataScalarType,
-                    this->NumberOfScalarComponents);
+    outInfo, this->DataScalarType, this->NumberOfScalarComponents);
 
   return 1;
 }
@@ -269,25 +258,23 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
 {
 
   std::string filename = fname;
-  if( filename.empty() )
+  if (filename.empty())
   {
     return false;
   }
 
   bool extensionFound = false;
   std::string::size_type mhaPos = filename.rfind(".mha");
-  if ((mhaPos != std::string::npos)
-      && (mhaPos == filename.length() - 4))
+  if ((mhaPos != std::string::npos) && (mhaPos == filename.length() - 4))
   {
     extensionFound = true;
   }
   std::string::size_type mhdPos = filename.rfind(".mhd");
-  if ((mhdPos != std::string::npos)
-      && (mhdPos == filename.length() - 4))
+  if ((mhdPos != std::string::npos) && (mhdPos == filename.length() - 4))
   {
     extensionFound = true;
   }
-  if( !extensionFound )
+  if (!extensionFound)
   {
     return false;
   }
@@ -295,9 +282,9 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
   // Now check the file content
   ifstream inputStream;
 
-  inputStream.open( fname, ios::in | ios::binary );
+  inputStream.open(fname, ios::in | ios::binary);
 
-  if( inputStream.fail() )
+  if (inputStream.fail())
   {
     return false;
   }
@@ -306,53 +293,53 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
 
   inputStream >> key;
 
-  if( inputStream.eof() )
+  if (inputStream.eof())
   {
     inputStream.close();
     return false;
   }
 
-  if( strcmp(key,"NDims")==0 )
+  if (strcmp(key, "NDims") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"ObjectType")==0 )
+  if (strcmp(key, "ObjectType") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"TransformType")==0 )
+  if (strcmp(key, "TransformType") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"ID")==0 )
+  if (strcmp(key, "ID") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"ParentID")==0 )
+  if (strcmp(key, "ParentID") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"BinaryData")==0 )
+  if (strcmp(key, "BinaryData") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"Comment")==0 )
+  if (strcmp(key, "Comment") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"AcquisitionDate")==0 )
+  if (strcmp(key, "AcquisitionDate") == 0)
   {
     inputStream.close();
     return 3;
   }
-  if( strcmp(key,"Modality")==0 )
+  if (strcmp(key, "Modality") == 0)
   {
     inputStream.close();
     return 3;
@@ -371,7 +358,7 @@ int vtkMetaImageReader::GetDataByteOrder()
 //----------------------------------------------------------------------------
 void vtkMetaImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "RescaleSlope: " << this->RescaleSlope << endl;
   os << indent << "RescaleOffset: " << this->RescaleOffset << endl;
 

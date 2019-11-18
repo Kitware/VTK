@@ -19,7 +19,7 @@
  * vtkReferenceCount functionality has now been moved into vtkObject
  * @sa
  * vtkObject
-*/
+ */
 
 #ifndef vtkReferenceCount_h
 #define vtkReferenceCount_h
@@ -30,9 +30,9 @@
 class VTKCOMMONCORE_EXPORT vtkReferenceCount : public vtkObject
 {
 public:
-  static vtkReferenceCount *New();
+  static vtkReferenceCount* New();
 
-  vtkTypeMacro(vtkReferenceCount,vtkObject);
+  vtkTypeMacro(vtkReferenceCount, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -44,6 +44,4 @@ private:
   void operator=(const vtkReferenceCount&) = delete;
 };
 
-
 #endif
-

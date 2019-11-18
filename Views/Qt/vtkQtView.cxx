@@ -17,23 +17,16 @@
 #include <QPixmap>
 #include <QWidget>
 
+//----------------------------------------------------------------------------
+vtkQtView::vtkQtView() {}
 
 //----------------------------------------------------------------------------
-vtkQtView::vtkQtView()
-{
-
-}
-
-//----------------------------------------------------------------------------
-vtkQtView::~vtkQtView()
-{
-
-}
+vtkQtView::~vtkQtView() {}
 
 //----------------------------------------------------------------------------
 void vtkQtView::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------

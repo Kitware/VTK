@@ -16,7 +16,6 @@
 // This example...
 //
 
-
 #include "vtkGraphLayoutView.h"
 #include "vtkRandomGraphSource.h"
 #include "vtkRenderWindow.h"
@@ -28,8 +27,7 @@ int main(int, char*[])
   vtkRandomGraphSource* source = vtkRandomGraphSource::New();
 
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
-  view->SetRepresentationFromInputConnection(
-    source->GetOutputPort());
+  view->SetRepresentationFromInputConnection(source->GetOutputPort());
 
   vtkViewTheme* theme = vtkViewTheme::CreateMellowTheme();
   view->ApplyViewTheme(theme);

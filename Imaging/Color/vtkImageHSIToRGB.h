@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkImageRGBToHSI
-*/
+ */
 
 #ifndef vtkImageHSIToRGB_h
 #define vtkImageHSIToRGB_h
@@ -33,8 +33,8 @@
 class VTKIMAGINGCOLOR_EXPORT vtkImageHSIToRGB : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageHSIToRGB *New();
-  vtkTypeMacro(vtkImageHSIToRGB,vtkThreadedImageAlgorithm);
+  static vtkImageHSIToRGB* New();
+  vtkTypeMacro(vtkImageHSIToRGB, vtkThreadedImageAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -45,8 +45,8 @@ public:
    * is expected as input.
    * Maximum also specifies the maximum of the Saturation, and R, G, B.
    */
-  vtkSetMacro(Maximum,double);
-  vtkGetMacro(Maximum,double);
+  vtkSetMacro(Maximum, double);
+  vtkGetMacro(Maximum, double);
   //@}
 
 protected:
@@ -55,14 +55,11 @@ protected:
 
   double Maximum;
 
-  void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) override;
+  void ThreadedExecute(vtkImageData* inData, vtkImageData* outData, int ext[6], int id) override;
+
 private:
   vtkImageHSIToRGB(const vtkImageHSIToRGB&) = delete;
   void operator=(const vtkImageHSIToRGB&) = delete;
 };
 
 #endif
-
-
-

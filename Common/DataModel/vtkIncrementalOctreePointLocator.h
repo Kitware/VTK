@@ -43,7 +43,7 @@
  * @sa
  *  vtkAbstractPointLocator, vtkIncrementalPointLocator, vtkPointLocator,
  *  vtkMergePoints
-*/
+ */
 
 #ifndef vtkIncrementalOctreePointLocator_h
 #define vtkIncrementalOctreePointLocator_h
@@ -60,11 +60,10 @@ class vtkIncrementalOctreeNode;
 class VTKCOMMONDATAMODEL_EXPORT vtkIncrementalOctreePointLocator : public vtkIncrementalPointLocator
 {
 public:
+  vtkTypeMacro(vtkIncrementalOctreePointLocator, vtkIncrementalPointLocator);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkTypeMacro( vtkIncrementalOctreePointLocator, vtkIncrementalPointLocator );
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
-
-  static vtkIncrementalOctreePointLocator * New();
+  static vtkIncrementalOctreePointLocator* New();
 
   //@{
   /**
@@ -77,17 +76,17 @@ public:
    * would cause endless node sub-division. Thus this threshold is broken, but
    * only in case of such situations.
    */
-  vtkSetClampMacro( MaxPointsPerLeaf, int, 16, 256 );
-  vtkGetMacro( MaxPointsPerLeaf, int );
+  vtkSetClampMacro(MaxPointsPerLeaf, int, 16, 256);
+  vtkGetMacro(MaxPointsPerLeaf, int);
   //@}
 
   //@{
   /**
    * Set/Get whether the search octree is built as a cubic shape or not.
    */
-  vtkSetMacro( BuildCubicOctree, vtkTypeBool );
-  vtkGetMacro( BuildCubicOctree, vtkTypeBool );
-  vtkBooleanMacro( BuildCubicOctree, vtkTypeBool );
+  vtkSetMacro(BuildCubicOctree, vtkTypeBool);
+  vtkGetMacro(BuildCubicOctree, vtkTypeBool);
+  vtkBooleanMacro(BuildCubicOctree, vtkTypeBool);
   //@}
 
   //@{
@@ -95,7 +94,7 @@ public:
    * Get access to the vtkPoints object in which point coordinates are stored
    * for either point location or point insertion.
    */
-  vtkGetObjectMacro( LocatorPoints, vtkPoints );
+  vtkGetObjectMacro(LocatorPoints, vtkPoints);
   //@}
 
   /**
@@ -111,13 +110,16 @@ public:
   /**
    * Get the spatial bounding box of the octree.
    */
-  void GetBounds( double * bounds ) override;
+  void GetBounds(double* bounds) override;
 
   /**
    * Get the spatial bounding box of the octree.
    */
-  double * GetBounds() override
-    { this->GetBounds( this->Bounds );  return this->Bounds; }
+  double* GetBounds() override
+  {
+    this->GetBounds(this->Bounds);
+    return this->Bounds;
+  }
 
   /**
    * Get the number of points maintained by the octree.
@@ -131,13 +133,13 @@ public:
    * is used when performing incremental point insertion. Note -1 indicates that
    * no point is found. InitPointInsertion() should have been called in advance.
    */
-  vtkIdType FindClosestInsertedPoint( const double x[3] ) override;
+  vtkIdType FindClosestInsertedPoint(const double x[3]) override;
 
   /**
    * Create a polygonal representation of the octree boundary (from the root
    * node to a specified level).
    */
-  void GenerateRepresentation( int nodeLevel, vtkPolyData * polysData ) override;
+  void GenerateRepresentation(int nodeLevel, vtkPolyData* polysData) override;
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point  Location ----------------------------
@@ -154,7 +156,7 @@ public:
    * have been called prior to this function. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread first.
    */
-  vtkIdType FindClosestPoint( const double x[3] ) override;
+  vtkIdType FindClosestPoint(const double x[3]) override;
 
   /**
    * Given a point (x, y, z), return the id of the closest point. Note that
@@ -162,7 +164,7 @@ public:
    * is thread safe if BuildLocator() is directly or indirectly called from a
    * single thread first.
    */
-  virtual vtkIdType FindClosestPoint( double x, double y, double z );
+  virtual vtkIdType FindClosestPoint(double x, double y, double z);
 
   /**
    * Given a point x, return the id of the closest point and the associated
@@ -170,7 +172,7 @@ public:
    * been called prior to this function. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread first.
    */
-  virtual vtkIdType FindClosestPoint( const double x[3], double * miniDist2 );
+  virtual vtkIdType FindClosestPoint(const double x[3], double* miniDist2);
 
   /**
    * Given a point (x, y, z), return the id of the closest point and the
@@ -178,7 +180,7 @@ public:
    * have been called prior to this function. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread first.
    */
-  virtual vtkIdType FindClosestPoint( double x, double y, double z, double * miniDist2 );
+  virtual vtkIdType FindClosestPoint(double x, double y, double z, double* miniDist2);
 
   /**
    * Given a point x and a radius, return the id of the closest point within
@@ -188,8 +190,7 @@ public:
    * is thread safe if BuildLocator() is directly or indirectly called from a
    * single thread first.
    */
-  vtkIdType FindClosestPointWithinRadius
-    ( double radius, const double x[3], double & dist2 ) override;
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], double& dist2) override;
 
   /**
    * Given a point x and a squared radius radius2, return the id of the closest
@@ -199,8 +200,7 @@ public:
    * method is thread safe if BuildLocator() is directly or indirectly called
    * from a single thread first.
    */
-  vtkIdType FindClosestPointWithinSquaredRadius
-    ( double radius2, const double x[3], double & dist2 );
+  vtkIdType FindClosestPointWithinSquaredRadius(double radius2, const double x[3], double& dist2);
 
   /**
    * Find all points within a radius R relative to a given point x. The returned
@@ -208,8 +208,7 @@ public:
    * have been called prior to this function. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread first.
    */
-  void FindPointsWithinRadius
-    ( double R, const double x[3], vtkIdList * result ) override;
+  void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result) override;
 
   /**
    * Find all points within a squared radius R2 relative to a given point x. The
@@ -217,8 +216,7 @@ public:
    * should have been called prior to this function. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread first.
    */
-  void FindPointsWithinSquaredRadius
-    ( double R2, const double x[3], vtkIdList * result );
+  void FindPointsWithinSquaredRadius(double R2, const double x[3], vtkIdList* result);
 
   /**
    * Find the closest N points to a given point. The returned point ids (via
@@ -226,8 +224,7 @@ public:
    * been called prior to this function. This method is thread safe if
    * BuildLocator() is directly or indirectly called from a single thread first.
    */
-  void FindClosestNPoints
-    ( int N, const double x[3], vtkIdList * result ) override;
+  void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point Insertion ----------------------------
@@ -242,8 +239,7 @@ public:
    * make sure no any point (to be inserted) falls outside the octree. This
    * function is not thread safe.
    */
-  int InitPointInsertion
-    ( vtkPoints * points, const double bounds[6] ) override;
+  int InitPointInsertion(vtkPoints* points, const double bounds[6]) override;
 
   /**
    * Initialize the point insertion process. points is an object, storing 3D
@@ -255,22 +251,21 @@ public:
    * estSize specifies the initial estimated size of the vtkPoints object. This
    * function is not thread safe.
    */
-  int InitPointInsertion( vtkPoints * points, const double bounds[6],
-                          vtkIdType estSize ) override;
+  int InitPointInsertion(vtkPoints* points, const double bounds[6], vtkIdType estSize) override;
 
   /**
    * Determine whether or not a given point has been inserted into the octree.
    * Return the id of the already inserted point if true, otherwise return -1.
    * InitPointInsertion() should have been called in advance.
    */
-  vtkIdType IsInsertedPoint( const double x[3] ) override;
+  vtkIdType IsInsertedPoint(const double x[3]) override;
 
   /**
    * Determine whether or not a given point has been inserted into the octree.
    * Return the id of the already inserted point if true, otherwise return -1.
    * InitPointInsertion() should have been called in advance.
    */
-  vtkIdType IsInsertedPoint( double x, double y, double z ) override;
+  vtkIdType IsInsertedPoint(double x, double y, double z) override;
 
   /**
    * Insert a point to the octree unless there has been a duplicate point.
@@ -280,7 +275,7 @@ public:
    * should have been called prior to this function. vtkPoints::InsertNextPoint()
    * is invoked. This method is not thread safe.
    */
-  int InsertUniquePoint( const double point[3], vtkIdType & pntId ) override;
+  int InsertUniquePoint(const double point[3], vtkIdType& pntId) override;
 
   /**
    * Insert a given point into the octree with a specified point index ptId.
@@ -290,7 +285,7 @@ public:
    * allowed (Note that in this case, this function involves a repeated leaf
    * container location). vtkPoints::InsertPoint() is invoked.
    */
-  void InsertPoint( vtkIdType ptId, const double x[3] ) override;
+  void InsertPoint(vtkIdType ptId, const double x[3]) override;
 
   /**
    * Insert a given point into the octree and return the point index. Note that
@@ -300,7 +295,7 @@ public:
    * allowed (in this case, this function invovles a repeated leaf container
    * location). vtkPoints::InsertNextPoint() is invoked.
    */
-  vtkIdType InsertNextPoint( const double x[3] ) override;
+  vtkIdType InsertNextPoint(const double x[3]) override;
 
   /**
    * "Insert" a point to the octree without any checking. Argument insert means
@@ -310,42 +305,37 @@ public:
    * specified via pntId. For case 1, the actual point index is returned via
    * pntId. InitPointInsertion() should have been called.
    */
-  void InsertPointWithoutChecking
-    ( const double point[3], vtkIdType  & pntId, int insert );
+  void InsertPointWithoutChecking(const double point[3], vtkIdType& pntId, int insert);
 
 protected:
-
   vtkIncrementalOctreePointLocator();
   ~vtkIncrementalOctreePointLocator() override;
 
 private:
-
-  vtkTypeBool         BuildCubicOctree;
-  int         MaxPointsPerLeaf;
-  double      InsertTolerance2;
-  double      OctreeMaxDimSize;
-  double      FudgeFactor;
-  vtkPoints * LocatorPoints;
-  vtkIncrementalOctreeNode * OctreeRootNode;
+  vtkTypeBool BuildCubicOctree;
+  int MaxPointsPerLeaf;
+  double InsertTolerance2;
+  double OctreeMaxDimSize;
+  double FudgeFactor;
+  vtkPoints* LocatorPoints;
+  vtkIncrementalOctreeNode* OctreeRootNode;
 
   /**
    * Delete all descendants of a node.
    */
-  static void DeleteAllDescendants( vtkIncrementalOctreeNode * node );
+  static void DeleteAllDescendants(vtkIncrementalOctreeNode* node);
 
   /**
    * Add the polygonal representation of a given node to the allocated vtkPoints
    * and vtkCellArray objects.
    */
-  static void AddPolys( vtkIncrementalOctreeNode * node,
-                        vtkPoints * points, vtkCellArray * polygs );
+  static void AddPolys(vtkIncrementalOctreeNode* node, vtkPoints* points, vtkCellArray* polygs);
 
   /**
    * Given a point and a reference node, find the leaf containing the point.
    * Note the point is assumed to be inside or under the reference node.
    */
-  vtkIncrementalOctreeNode * GetLeafContainer( vtkIncrementalOctreeNode * node,
-    const double pnt[3] );
+  vtkIncrementalOctreeNode* GetLeafContainer(vtkIncrementalOctreeNode* node, const double pnt[3]);
 
   /**
    * Given a point (under check, either inside or outside the octree) and a leaf
@@ -354,8 +344,8 @@ private:
    * the point index as well as the associated minimum squared distance (via dist2).
    * InitPointInsertion() or BuildLocator() should have been called.
    */
-  vtkIdType FindClosestPointInLeafNode( vtkIncrementalOctreeNode * leafNode,
-                                        const double point[3], double * dist2 );
+  vtkIdType FindClosestPointInLeafNode(
+    vtkIncrementalOctreeNode* leafNode, const double point[3], double* dist2);
 
   /**
    * This function may not be directly called. Please use the following two ones:
@@ -369,10 +359,8 @@ private:
    * scope. Returned are the point index and the associated minimum squared
    * distance. InitPointInsertion() or BuildLocator() should have been called.
    */
-  vtkIdType FindClosestPointInSphere
-    ( const double point[3], double radius2, vtkIncrementalOctreeNode * maskNode,
-      double * minDist2, const double * refDist2 );
-
+  vtkIdType FindClosestPointInSphere(const double point[3], double radius2,
+    vtkIncrementalOctreeNode* maskNode, double* minDist2, const double* refDist2);
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point  Location ----------------------------
@@ -388,16 +376,16 @@ private:
    * point index and the associated minimum squared distance (via minDist2). Note
    * that BuildLocator() should have been called.
    */
-  vtkIdType FindClosestPointInSphereWithoutTolerance( const double point[3],
-    double radius2, vtkIncrementalOctreeNode * maskNode, double * minDist2 );
+  vtkIdType FindClosestPointInSphereWithoutTolerance(
+    const double point[3], double radius2, vtkIncrementalOctreeNode* maskNode, double* minDist2);
 
   /**
    * Find all points, inside a given node, within a squared radius relative to
    * a given point. Returned are the associated un-sorted point indices (idList).
    * Note that BuildLocator() should have been called prior to this function.
    */
-  void FindPointsWithinSquaredRadius( vtkIncrementalOctreeNode * node,
-    double radius2, const double point[3], vtkIdList * idList );
+  void FindPointsWithinSquaredRadius(
+    vtkIncrementalOctreeNode* node, double radius2, const double point[3], vtkIdList* idList);
 
   // -------------------------------------------------------------------------
   // ---------------------------- Point Insertion ----------------------------
@@ -414,8 +402,8 @@ private:
    * index and the associated minimum squared distance (via minDist2). Note that
    * InitPointInsertion() should have been called.
    */
-  vtkIdType FindClosestPointInSphereWithTolerance( const double point[3],
-    double radius2, vtkIncrementalOctreeNode * maskNode, double * minDist2 );
+  vtkIdType FindClosestPointInSphereWithTolerance(
+    const double point[3], double radius2, vtkIncrementalOctreeNode* maskNode, double* minDist2);
 
   /**
    * Determine whether or not a given point has been inserted into the octree.
@@ -426,8 +414,7 @@ private:
    * tolerance insertion or IsInsertedPointForNonZeroTolerance() for non-zero
    * tolerance insertion. InitPointInsertion() should have been called.
    */
-  vtkIdType IsInsertedPoint( const double x[3],
-                             vtkIncrementalOctreeNode ** leafContainer );
+  vtkIdType IsInsertedPoint(const double x[3], vtkIncrementalOctreeNode** leafContainer);
 
   /**
    * Determine whether or not a given point has been inserted into the octree.
@@ -437,8 +424,8 @@ private:
    * This variant is invoked by IsInsertedPoint(x, vtkIncrementalOctreeNode **)
    * for zero tolerance insertion. InitPointInsertion() should have been called.
    */
-  vtkIdType IsInsertedPointForZeroTolerance
-    ( const double x[3], vtkIncrementalOctreeNode ** leafContainer );
+  vtkIdType IsInsertedPointForZeroTolerance(
+    const double x[3], vtkIncrementalOctreeNode** leafContainer);
 
   /**
    * Determine whether or not a given point has been inserted into the octree.
@@ -449,8 +436,8 @@ private:
    * for non-zero tolerance insertion. InitPointInsertion() should have been
    * called in advance.
    */
-  vtkIdType IsInsertedPointForNonZeroTolerance
-    ( const double x[3], vtkIncrementalOctreeNode ** leafContainer );
+  vtkIdType IsInsertedPointForNonZeroTolerance(
+    const double x[3], vtkIncrementalOctreeNode** leafContainer);
 
   /**
    * Given a point (under check for zero tolerance insertion) and a leaf node,
@@ -459,8 +446,7 @@ private:
    * point, is the container of the point under check. InitPointInsertion()
    * should have been called.
    */
-  vtkIdType FindDuplicatePointInLeafNode( vtkIncrementalOctreeNode * leafNode,
-                                          const double point[3] );
+  vtkIdType FindDuplicatePointInLeafNode(vtkIncrementalOctreeNode* leafNode, const double point[3]);
 
   /**
    * Given a point (under check for zero tolerance insertion) and a leaf node,
@@ -469,8 +455,8 @@ private:
    * point, is the container of the point under check. This function is invoked
    * for type VTK_FLOAT. InitPointInsertion() should have been called.
    */
-  vtkIdType FindDuplicateFloatTypePointInVisitedLeafNode
-    ( vtkIncrementalOctreeNode * leafNode, const double point[3] );
+  vtkIdType FindDuplicateFloatTypePointInVisitedLeafNode(
+    vtkIncrementalOctreeNode* leafNode, const double point[3]);
 
   /**
    * Given a point (under check for zero tolerance insertion) and a leaf node,
@@ -479,12 +465,10 @@ private:
    * point, is the container of the point under check. This function is invoked
    * for type VTK_DOUBLE. InitPointInsertion() should have been called.
    */
-  vtkIdType FindDuplicateDoubleTypePointInVisitedLeafNode
-    ( vtkIncrementalOctreeNode * leafNode, const double point[3] );
+  vtkIdType FindDuplicateDoubleTypePointInVisitedLeafNode(
+    vtkIncrementalOctreeNode* leafNode, const double point[3]);
 
-  vtkIncrementalOctreePointLocator
-    ( const vtkIncrementalOctreePointLocator & ) = delete;
-  void operator = ( const vtkIncrementalOctreePointLocator & ) = delete;
-
+  vtkIncrementalOctreePointLocator(const vtkIncrementalOctreePointLocator&) = delete;
+  void operator=(const vtkIncrementalOctreePointLocator&) = delete;
 };
 #endif

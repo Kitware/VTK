@@ -21,7 +21,7 @@ int TestMultiBlockXMLIOWithPartialArraysTable(int argc, char* argv[])
   arrS->SetName("Sine");
   table->AddColumn(arrS);
   int numPoints = 69;
-  float inc = 7.5 / (numPoints-1);
+  float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
   {
@@ -42,7 +42,8 @@ int TestMultiBlockXMLIOWithPartialArraysTable(int argc, char* argv[])
   testing->AddArguments(argc, argv);
 
   std::ostringstream filename_stream;
-  filename_stream << testing->GetTempDirectory() << "/TestMultiBlockXMLIOWithPartialArraysTable.vtm";
+  filename_stream << testing->GetTempDirectory()
+                  << "/TestMultiBlockXMLIOWithPartialArraysTable.vtm";
 
   vtkNew<vtkXMLMultiBlockDataWriter> writer;
   writer->SetFileName(filename_stream.str().c_str());
@@ -54,13 +55,12 @@ int TestMultiBlockXMLIOWithPartialArraysTable(int argc, char* argv[])
   reader->Update();
 
   auto inMB = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
-  if (inMB->GetNumberOfBlocks() != 2 ||
-      vtkTable::SafeDownCast(inMB->GetBlock(0)) == nullptr ||
-      vtkTable::SafeDownCast(inMB->GetBlock(0))->GetRowData()->GetArray("Sine") == nullptr ||
-      vtkTable::SafeDownCast(inMB->GetBlock(0))->GetRowData()->GetArray("NewSine") != nullptr ||
-      vtkTable::SafeDownCast(inMB->GetBlock(1)) == nullptr ||
-      vtkTable::SafeDownCast(inMB->GetBlock(1))->GetRowData()->GetArray("Sine") != nullptr ||
-      vtkTable::SafeDownCast(inMB->GetBlock(1))->GetRowData()->GetArray("NewSine") == nullptr)
+  if (inMB->GetNumberOfBlocks() != 2 || vtkTable::SafeDownCast(inMB->GetBlock(0)) == nullptr ||
+    vtkTable::SafeDownCast(inMB->GetBlock(0))->GetRowData()->GetArray("Sine") == nullptr ||
+    vtkTable::SafeDownCast(inMB->GetBlock(0))->GetRowData()->GetArray("NewSine") != nullptr ||
+    vtkTable::SafeDownCast(inMB->GetBlock(1)) == nullptr ||
+    vtkTable::SafeDownCast(inMB->GetBlock(1))->GetRowData()->GetArray("Sine") != nullptr ||
+    vtkTable::SafeDownCast(inMB->GetBlock(1))->GetRowData()->GetArray("NewSine") == nullptr)
   {
     cerr << "ERROR: In/out data mismatched!" << endl;
     return EXIT_FAILURE;

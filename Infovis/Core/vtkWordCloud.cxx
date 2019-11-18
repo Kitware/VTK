@@ -66,74 +66,70 @@ vtkStandardNewMacro(vtkWordCloud);
 namespace
 {
 // Declaring the type of Predicate that accepts 2 pairs and return a bool
-typedef std::function<bool(
-    std::pair<std::string, int>,
-    std::pair<std::string, int>)> Comparator;
+typedef std::function<bool(std::pair<std::string, int>, std::pair<std::string, int>)> Comparator;
 
-std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequency(std::string &, vtkWordCloud *);
+std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequency(
+  std::string&, vtkWordCloud*);
 struct ExtentOffset
 {
-   ExtentOffset(int _x = 0.0, int _y = 0.0) : x(_x), y(_y) {}
-   int x,y;
+  ExtentOffset(int _x = 0.0, int _y = 0.0)
+    : x(_x)
+    , y(_y)
+  {
+  }
+  int x, y;
 };
 struct ArchimedesValue
 {
-   ArchimedesValue(double _x = 0.0, double _y = 0.0) : x(_x), y(_y) {}
-   double x,y;
+  ArchimedesValue(double _x = 0.0, double _y = 0.0)
+    : x(_x)
+    , y(_y)
+  {
+  }
+  double x, y;
 };
-void AddReplacementPairsToStopList(vtkWordCloud *,
-                                   vtkWordCloud::StopWordsContainer &);
-bool AddWordToFinal(vtkWordCloud *,
-                    const std::string,
-                    const int,
-                    std::mt19937_64 &,
-                    double orientation,
-                    std::vector<ExtentOffset> &,
-                    vtkImageBlend *,
-                    std::string &);
+void AddReplacementPairsToStopList(vtkWordCloud*, vtkWordCloud::StopWordsContainer&);
+bool AddWordToFinal(vtkWordCloud*, const std::string, const int, std::mt19937_64&,
+  double orientation, std::vector<ExtentOffset>&, vtkImageBlend*, std::string&);
 
-
-void ArchimedesSpiral (std::vector<ExtentOffset>&,
-                       vtkWordCloud::SizesContainer&);
-void ReplaceMaskColorWithBackgroundColor(vtkImageData*, vtkWordCloud* );
-void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &StopList);
-void CreateStopListFromFile(std::string,
-                            vtkWordCloud::StopWordsContainer &);
-void ExtractWordsFromString(std::string &str,
-                            std::vector<std::string> &words);
+void ArchimedesSpiral(std::vector<ExtentOffset>&, vtkWordCloud::SizesContainer&);
+void ReplaceMaskColorWithBackgroundColor(vtkImageData*, vtkWordCloud*);
+void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer& StopList);
+void CreateStopListFromFile(std::string, vtkWordCloud::StopWordsContainer&);
+void ExtractWordsFromString(std::string& str, std::vector<std::string>& words);
 void ShowColorSeriesNames(ostream& os);
 }
 
 //----------------------------------------------------------------------------
-vtkWordCloud::vtkWordCloud() :
-  BackgroundColorName("MidnightBlue"),
-  BWMask(false),
-  ColorDistribution({{.6, 1.0}}),
-  ColorSchemeName(""),
-  DPI(200),
-  FileName(""),
-  FontFileName(""),
-  FontMultiplier(6),
-  Gap(2),
-  MaskColorName("black"),
-  MaskFileName(""),
-  MaxFontSize(48),
-  MinFontSize(12),
-  MinFrequency(1),
-  OrientationDistribution({{-20,20}}),
-  Sizes({{640,480}}),
-  StopListFileName(""),
-  Title(""),
-  WordColorName("")
+vtkWordCloud::vtkWordCloud()
+  : BackgroundColorName("MidnightBlue")
+  , BWMask(false)
+  , ColorDistribution({ { .6, 1.0 } })
+  , ColorSchemeName("")
+  , DPI(200)
+  , FileName("")
+  , FontFileName("")
+  , FontMultiplier(6)
+  , Gap(2)
+  , MaskColorName("black")
+  , MaskFileName("")
+  , MaxFontSize(48)
+  , MinFontSize(12)
+  , MinFrequency(1)
+  , OrientationDistribution({ { -20, 20 } })
+  , Sizes({ { 640, 480 } })
+  , StopListFileName("")
+  , Title("")
+  , WordColorName("")
 {
   this->SetNumberOfInputPorts(0);
 
   this->OffsetDistribution[0] = -this->Sizes[0] / 100.0;
-  this->OffsetDistribution[1] =  this->Sizes[1] / 100.0;
+  this->OffsetDistribution[1] = this->Sizes[1] / 100.0;
 
   this->ImageData = vtkSmartPointer<vtkImageData>::New();
   this->ImageData->SetDimensions(640, 480, 1);
-  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR,3);
+  this->ImageData->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   this->WholeExtent[0] = 0;
   this->WholeExtent[1] = 0;
@@ -144,65 +140,58 @@ vtkWordCloud::vtkWordCloud() :
 }
 
 //--------------------------------------------------------------------------
-int vtkWordCloud::RequestInformation (vtkInformation * vtkNotUsed(request),
-                                      vtkInformationVector** vtkNotUsed( inputVector ),
-                                      vtkInformationVector *outputVector)
+int vtkWordCloud::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               this->WholeExtent,6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
 
   outInfo->Set(vtkDataObject::SPACING(), 1.0, 1.0, 1.0);
-  outInfo->Set(vtkDataObject::ORIGIN(),  0.0, 0.0, 0.0);
+  outInfo->Set(vtkDataObject::ORIGIN(), 0.0, 0.0, 0.0);
 
-  vtkDataObject::SetPointDataActiveScalarInfo
-    (outInfo, this->ImageData->GetScalarType(),
-     this->ImageData->GetNumberOfScalarComponents());
+  vtkDataObject::SetPointDataActiveScalarInfo(
+    outInfo, this->ImageData->GetScalarType(), this->ImageData->GetNumberOfScalarComponents());
   return 1;
 }
 
 //--------------------------------------------------------------------------
-int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
-                               vtkInformationVector** vtkNotUsed( inputVector ),
-                               vtkInformationVector *outputVector)
+int vtkWordCloud::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   // Get the data object
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkImageData *output = vtkImageData::SafeDownCast
-    (outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  vtkImageData* output = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Check some parameters before we start
   if (this->FileName.size() == 0)
   {
-    vtkErrorMacro (<< "No FileName is set. Use SetFileName to set a file.");
+    vtkErrorMacro(<< "No FileName is set. Use SetFileName to set a file.");
     return 0;
   }
   if (!vtksys::SystemTools::FileExists(this->FileName, true))
-    {
-      vtkErrorMacro( << "FileName " << this->FileName << " does not exist");
-      return 0;
-    }
-  if (this->FontFileName.size() > 0 &&
-      !vtksys::SystemTools::FileExists(this->FontFileName, true))
-    {
-      vtkErrorMacro( << "FontFileName " << this->FontFileName << " does not exist");
-      return 0;
-    }
-  if (this->MaskFileName.size() > 0 &&
-      !vtksys::SystemTools::FileExists(this->MaskFileName, true))
-    {
-      vtkErrorMacro( << "MaskFileName " << this->MaskFileName << " does not exist");
-      return 0;
-    }
+  {
+    vtkErrorMacro(<< "FileName " << this->FileName << " does not exist");
+    return 0;
+  }
+  if (this->FontFileName.size() > 0 && !vtksys::SystemTools::FileExists(this->FontFileName, true))
+  {
+    vtkErrorMacro(<< "FontFileName " << this->FontFileName << " does not exist");
+    return 0;
+  }
+  if (this->MaskFileName.size() > 0 && !vtksys::SystemTools::FileExists(this->MaskFileName, true))
+  {
+    vtkErrorMacro(<< "MaskFileName " << this->MaskFileName << " does not exist");
+    return 0;
+  }
   if (this->StopListFileName.size() > 0 &&
-      !vtksys::SystemTools::FileExists(this->StopListFileName, true))
-    {
-      vtkErrorMacro( << "StopListFileName " << this->StopListFileName << " does not exist");
-      return 0;
-    }
+    !vtksys::SystemTools::FileExists(this->StopListFileName, true))
+  {
+    vtkErrorMacro(<< "StopListFileName " << this->StopListFileName << " does not exist");
+    return 0;
+  }
   // Open the text file
   std::ifstream t(this->FileName);
   std::stringstream buffer;
@@ -215,12 +204,12 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
   this->SkippedWords.resize(0);
 
   // Generate a path for placement of words
-  std::vector<::ExtentOffset> offset;
+  std::vector< ::ExtentOffset> offset;
   ::ArchimedesSpiral(offset, this->Sizes);
 
   // Sort the word by frequency
   std::multiset<std::pair<std::string, int>, ::Comparator> sortedWords =
-            ::FindWordsSortedByFrequency(s, this);
+    ::FindWordsSortedByFrequency(s, this);
 
   // Create a mask image
   auto colors = vtkSmartPointer<vtkNamedColors>::New();
@@ -233,12 +222,9 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
     auto defaultMask = vtkSmartPointer<vtkImageCanvasSource2D>::New();
     defaultMask->SetScalarTypeToUnsignedChar();
     defaultMask->SetNumberOfScalarComponents(3);
-    defaultMask->SetExtent(0, this->Sizes[0] - 1,
-                           0, this->Sizes[1] - 1,
-                           0, 0);
-    defaultMask->SetDrawColor(maskColor.GetData()[0],
-                              maskColor.GetData()[1],
-                              maskColor.GetData()[2]);
+    defaultMask->SetExtent(0, this->Sizes[0] - 1, 0, this->Sizes[1] - 1, 0, 0);
+    defaultMask->SetDrawColor(
+      maskColor.GetData()[0], maskColor.GetData()[1], maskColor.GetData()[2]);
     defaultMask->FillBox(0, this->Sizes[0] - 1, 0, this->Sizes[1] - 1);
     defaultMask->Update();
     maskImage = defaultMask->GetOutput();
@@ -248,12 +234,10 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
   else
   {
     // Read the mask file
-    auto readerFactory =
-      vtkSmartPointer<vtkImageReader2Factory>::New();
+    auto readerFactory = vtkSmartPointer<vtkImageReader2Factory>::New();
     vtkSmartPointer<vtkImageReader2> reader;
-    reader.TakeReference(
-      readerFactory->CreateImageReader2(this->MaskFileName.c_str()));
-      reader->SetFileName(this->MaskFileName.c_str());
+    reader.TakeReference(readerFactory->CreateImageReader2(this->MaskFileName.c_str()));
+    reader->SetFileName(this->MaskFileName.c_str());
     reader->Update();
     int dimensions[3];
     reader->GetOutput()->GetDimensions(dimensions);
@@ -262,14 +246,11 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
     auto resize = vtkSmartPointer<vtkImageResize>::New();
     resize->SetInputData(reader->GetOutput());
     resize->InterpolateOff();
-    double aspect =
-      static_cast<double>(dimensions[1]) / static_cast<double>(dimensions[0]) *
+    double aspect = static_cast<double>(dimensions[1]) / static_cast<double>(dimensions[0]) *
       static_cast<double>(this->Sizes[0]) / static_cast<double>(this->Sizes[1]);
     this->AdjustedSizes[0] = this->Sizes[0];
     this->AdjustedSizes[1] = aspect * this->Sizes[1];
-    resize->SetOutputDimensions(this->AdjustedSizes[0],
-                                this->AdjustedSizes[1],
-                                1);
+    resize->SetOutputDimensions(this->AdjustedSizes[0], this->AdjustedSizes[1], 1);
     // If the mask file has a single channel, create a 3-channel mask
     // image
     if (this->BWMask)
@@ -304,7 +285,7 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
 
   bool added;
   // Create a vector of orientations to try.
-  std::mt19937_64 mt(4355412); //Standard mersenne twister engine
+  std::mt19937_64 mt(4355412); // Standard mersenne twister engine
   for (auto element : sortedWords)
   {
     std::vector<double> orientations;
@@ -323,18 +304,11 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
     std::shuffle(std::begin(orientations), std::end(orientations), mt);
     for (auto o : orientations)
     {
-      added = ::AddWordToFinal(
-        this,
-        element.first,
-        element.second,
-        mt,
-        o,
-        offset,
-        final,
-        errorMessage);
+      added =
+        ::AddWordToFinal(this, element.first, element.second, mt, o, offset, final, errorMessage);
       if (errorMessage.size() != 0)
       {
-        vtkErrorMacro( << errorMessage);
+        vtkErrorMacro(<< errorMessage);
         return 0;
       }
       if (added)
@@ -346,10 +320,8 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
       {
         std::string skippedWord;
         skippedWord.resize((element.first).size());
-        std::transform((element.first).begin(),
-                       (element.first).end(),
-                       skippedWord.begin(),
-                       ::tolower);
+        std::transform(
+          (element.first).begin(), (element.first).end(), skippedWord.begin(), ::tolower);
 
         this->GetSkippedWords().push_back(skippedWord);
       }
@@ -363,17 +335,14 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
 
   // Remove duplicates in generated word vectors.
   std::sort(this->StoppedWords.begin(), this->StoppedWords.end());
-  this->StoppedWords.erase(std::unique(this->StoppedWords.begin(),
-                                       this->StoppedWords.end()),
-                           this->StoppedWords.end());
+  this->StoppedWords.erase(
+    std::unique(this->StoppedWords.begin(), this->StoppedWords.end()), this->StoppedWords.end());
   std::sort(this->SkippedWords.begin(), this->SkippedWords.end());
-  this->SkippedWords.erase(std::unique(this->SkippedWords.begin(),
-                                       this->SkippedWords.end()),
-                           this->SkippedWords.end());
+  this->SkippedWords.erase(
+    std::unique(this->SkippedWords.begin(), this->SkippedWords.end()), this->SkippedWords.end());
   std::sort(this->KeptWords.begin(), this->KeptWords.end());
-  this->KeptWords.erase(std::unique(this->KeptWords.begin(),
-                                    this->KeptWords.end()),
-                           this->KeptWords.end());
+  this->KeptWords.erase(
+    std::unique(this->KeptWords.begin(), this->KeptWords.end()), this->KeptWords.end());
 
   return 1;
 }
@@ -381,12 +350,13 @@ int vtkWordCloud::RequestData (vtkInformation * vtkNotUsed(request),
 //--------------------------------------------------------------------------
 void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << "  BackgroundColorName: " << this->GetBackgroundColorName() << std::endl;
   os << "  BWMask: " << (this->GetBWMask() ? "true" : "false") << std::endl;
-  os << "  ColorDistribution: " << this->GetColorDistribution()[0] << " " << this->GetColorDistribution()[1] << std::endl;
-  os << "  ColorSchemeName: " <<  this->GetColorSchemeName() << std::endl;
+  os << "  ColorDistribution: " << this->GetColorDistribution()[0] << " "
+     << this->GetColorDistribution()[1] << std::endl;
+  os << "  ColorSchemeName: " << this->GetColorSchemeName() << std::endl;
   os << "  DPI: " << this->GetDPI() << std::endl;
   os << "  FontFileName: " << this->GetFontFileName() << std::endl;
   os << "  FontMultiplier: " << this->GetFontMultiplier() << std::endl;
@@ -396,11 +366,9 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
   os << "  MinFontSize: " << this->GetMinFontSize() << std::endl;
   os << "  MaxFontSize: " << this->GetMaxFontSize() << std::endl;
   os << "  MinFrequency: " << this->GetMinFrequency() << std::endl;
-  os << "  OffsetDistribution: "
-     << this->GetOffsetDistribution()[0] << " "
+  os << "  OffsetDistribution: " << this->GetOffsetDistribution()[0] << " "
      << this->GetOffsetDistribution()[1] << std::endl;
-  os << "  OrientationDistribution: "
-     << this->GetOrientationDistribution()[0] << " "
+  os << "  OrientationDistribution: " << this->GetOrientationDistribution()[0] << " "
      << this->GetOrientationDistribution()[1] << std::endl;
   os << "  Orientations: ";
   for (auto o : this->Orientations)
@@ -414,9 +382,7 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
     os << std::get<0>(p) << "->" << std::get<1>(p) << " ";
   }
   os << std::endl;
-  os << "  Sizes: "
-     << this->GetSizes()[0] << " "
-     << this->GetSizes()[1] << std::endl;
+  os << "  Sizes: " << this->GetSizes()[0] << " " << this->GetSizes()[1] << std::endl;
   os << "  StopWords: ";
   for (auto s : this->GetStopWords())
   {
@@ -431,7 +397,8 @@ void vtkWordCloud::PrintSelf(ostream& os, vtkIndent indent)
 
 namespace
 {
-std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequency(std::string &s, vtkWordCloud *wordCloud)
+std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequency(
+  std::string& s, vtkWordCloud* wordCloud)
 {
   // Create a stop list
   vtkWordCloud::StopWordsContainer stopList;
@@ -502,23 +469,21 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
     if (w.size() > N)
     {
       // Raise the case of the first letter in the word
-      std::transform(w.begin(), w.begin() + 1,
-                     w.begin(), ::toupper);
+      std::transform(w.begin(), w.begin() + 1, w.begin(), ::toupper);
       wordContainer[w]++;
     }
   }
 
   // Defining a lambda function to compare two pairs. It will compare
   // two pairs using second field
-  Comparator compFunctor =
-    [](const std::pair<std::string, int>& elem1 ,const std::pair<std::string, int>& elem2)
+  Comparator compFunctor = [](const std::pair<std::string, int>& elem1,
+                             const std::pair<std::string, int>& elem2) {
+    if (elem1.second == elem2.second)
     {
-      if (elem1.second == elem2.second)
-      {
-        return elem1.first.length() > elem2.first.length();
-      }
-      return elem1.second  > elem2.second;
-    };
+      return elem1.first.length() > elem2.first.length();
+    }
+    return elem1.second > elem2.second;
+  };
 
   // Declaring a multiset that will store the pairs using above
   // comparison logic
@@ -528,8 +493,7 @@ std::multiset<std::pair<std::string, int>, Comparator > FindWordsSortedByFrequen
 }
 
 void AddReplacementPairsToStopList(
-  vtkWordCloud * wordCloud,
-  vtkWordCloud::StopWordsContainer & stopList)
+  vtkWordCloud* wordCloud, vtkWordCloud::StopWordsContainer& stopList)
 {
   for (auto p : wordCloud->GetReplacementPairs())
   {
@@ -552,14 +516,9 @@ void AddReplacementPairsToStopList(
   }
 }
 
-bool AddWordToFinal(vtkWordCloud *wordCloud,
-                    const std::string word,
-                    const int frequency,
-                    std::mt19937_64 &mt,
-                    double orientation,
-                    std::vector<ExtentOffset> &offset,
-                    vtkImageBlend *final,
-                    std::string &errorMessage)
+bool AddWordToFinal(vtkWordCloud* wordCloud, const std::string word, const int frequency,
+  std::mt19937_64& mt, double orientation, std::vector<ExtentOffset>& offset, vtkImageBlend* final,
+  std::string& errorMessage)
 {
   // Skip words below MinFrequency
   if (frequency < wordCloud->GetMinFrequency())
@@ -585,20 +544,16 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
     vtkColor3ub color =
       colorScheme->GetColorRepeating(static_cast<int>(wordCloud->GetKeptWords().size()));
     if (color.Compare(colors->GetColor3ub("black"), 1) && wordCloud->GetKeptWords().size() == 0)
-      {
-        std::ostringstream validNames;
-        ShowColorSeriesNames(validNames);
-        std::ostringstream message;
-        message << "The color scheme "
-                << wordCloud->GetColorSchemeName()
-                << " does not exist.\n"
-                << validNames.str();
-        errorMessage = message.str();
-      }
-    textProperty->SetColor(
-      static_cast<double>(color.GetRed()) / 255.0,
-      static_cast<double>(color.GetGreen()) /  255.0,
-      static_cast<double>(color.GetBlue()) /  255.0);
+    {
+      std::ostringstream validNames;
+      ShowColorSeriesNames(validNames);
+      std::ostringstream message;
+      message << "The color scheme " << wordCloud->GetColorSchemeName() << " does not exist.\n"
+              << validNames.str();
+      errorMessage = message.str();
+    }
+    textProperty->SetColor(static_cast<double>(color.GetRed()) / 255.0,
+      static_cast<double>(color.GetGreen()) / 255.0, static_cast<double>(color.GetBlue()) / 255.0);
   }
   else
   {
@@ -631,7 +586,8 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
   }
   if (frequency == 1000)
   {
-    fontSize *= 1.2;;
+    fontSize *= 1.2;
+    ;
   }
   textProperty->SetFontSize(fontSize);
   textProperty->SetOrientation(orientation);
@@ -646,29 +602,23 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
   // For each string, create an image and see if it overlaps with other images,
   // if so, skip it
   // Create an image of the string
-  vtkFreeTypeTools *freeType = vtkFreeTypeTools::GetInstance();
+  vtkFreeTypeTools* freeType = vtkFreeTypeTools::GetInstance();
   freeType->ScaleToPowerTwoOff();
 
   auto textImage = vtkSmartPointer<vtkImageData>::New();
-  freeType->RenderString(textProperty,
-                         spaces + word + spaces,
-                         wordCloud->GetDPI(),
-                         textImage.GetPointer());
+  freeType->RenderString(
+    textProperty, spaces + word + spaces, wordCloud->GetDPI(), textImage.GetPointer());
 
   // Set the extent of the text image
   std::array<int, 4> bb;
-  freeType->GetBoundingBox(textProperty,
-                           spaces + word + spaces,
-                           wordCloud->GetDPI(),
-                           bb.data());
+  freeType->GetBoundingBox(textProperty, spaces + word + spaces, wordCloud->GetDPI(), bb.data());
   vtkColor3ub maskColor = colors->GetColor3ub(wordCloud->GetMaskColorName().c_str());
   unsigned char maskR = maskColor.GetData()[0];
   unsigned char maskG = maskColor.GetData()[1];
   unsigned char maskB = maskColor.GetData()[2];
 
   std::uniform_real_distribution<> offsetDist(
-    wordCloud->GetOffsetDistribution()[0],
-    wordCloud->GetOffsetDistribution()[1]);
+    wordCloud->GetOffsetDistribution()[0], wordCloud->GetOffsetDistribution()[1]);
 
   for (auto of : offset)
   {
@@ -676,23 +626,21 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
     int offsetY = of.y + offsetDist(mt);
     // Make sure the text image will fit on the final image
     if (offsetX + bb[1] - bb[0] < wordCloud->GetAdjustedSizes()[0] - 1 &&
-        offsetY + bb[3] - bb[2] < wordCloud->GetAdjustedSizes()[1] - 1 &&
-        offsetX >= 0 && offsetY >= 0)
+      offsetY + bb[3] - bb[2] < wordCloud->GetAdjustedSizes()[1] - 1 && offsetX >= 0 &&
+      offsetY >= 0)
     {
-      textImage->SetExtent(offsetX, offsetX + bb[1] - bb[0],
-                           offsetY, offsetY + bb[3] - bb[2],
-                           0, 0);
+      textImage->SetExtent(
+        offsetX, offsetX + bb[1] - bb[0], offsetY, offsetY + bb[3] - bb[2], 0, 0);
       auto image = vtkSmartPointer<vtkImageData>::New();
       final->Update();
 
       // Does the text image overlap with images on the final image
-      vtkImageIterator<unsigned char> finalIt(final->GetOutput(),
-                                              textImage->GetExtent());
+      vtkImageIterator<unsigned char> finalIt(final->GetOutput(), textImage->GetExtent());
       bool good = true;
-      while( !finalIt.IsAtEnd())
+      while (!finalIt.IsAtEnd())
       {
         auto finalSpan = finalIt.BeginSpan();
-        while(finalSpan != finalIt.EndSpan())
+        while (finalSpan != finalIt.EndSpan())
         {
           unsigned char R, G, B;
           R = *finalSpan++;
@@ -722,66 +670,61 @@ bool AddWordToFinal(vtkWordCloud *wordCloud,
   return false;
 }
 
-void ArchimedesSpiral(std::vector<ExtentOffset> &offset, vtkWordCloud::SizesContainer &sizes)
+void ArchimedesSpiral(std::vector<ExtentOffset>& offset, vtkWordCloud::SizesContainer& sizes)
 {
-   const int centerX = sizes[0] / 2.0;
-   const int centerY = sizes[1] / 2.0;
+  const int centerX = sizes[0] / 2.0;
+  const int centerY = sizes[1] / 2.0;
 
-   const std::size_t N = 10000;
-   constexpr auto pi = 3.141592653589793238462643383279502884L; /* pi */
-   const double deltaAngle = pi * 20 / N;
-   double maxX = -1000.0;
-   double minX = 1000.0;
-   double maxY = -1000.0;
-   double minY = 1000.0;
-   double range = -1000;
-   double e = sizes[0] / sizes[1];
-   std::vector<ArchimedesValue> archimedes;
-   for (std::size_t i = 0; i < N; i += 10)
-   {
-     double x, y;
-     double angle = deltaAngle * i;
-     x = e * angle * std::cos(angle);
-     y = e * angle * std::sin(angle);
-     archimedes.push_back(ArchimedesValue(x, y));
-     maxX = std::max(maxX, x);
-     minX = std::min(minX, x);
-     maxY = std::max(maxY, y);
-     minY = std::min(minY, y);
-     range = std::max(maxX - minX, maxY - minY);
-   }
-   double scaleX = 1.0 / range * sizes[0];
-   for (auto ar : archimedes)
-   {
-     if (ar.x * scaleX + centerX - 50 < 0
-         || ar.y * scaleX + centerY  < 0) continue;
-     offset.push_back(ExtentOffset(ar.x * scaleX + centerX - 50,
-                                   ar.y * scaleX + centerY));
-   }
+  const std::size_t N = 10000;
+  constexpr auto pi = 3.141592653589793238462643383279502884L; /* pi */
+  const double deltaAngle = pi * 20 / N;
+  double maxX = -1000.0;
+  double minX = 1000.0;
+  double maxY = -1000.0;
+  double minY = 1000.0;
+  double range = -1000;
+  double e = sizes[0] / sizes[1];
+  std::vector<ArchimedesValue> archimedes;
+  for (std::size_t i = 0; i < N; i += 10)
+  {
+    double x, y;
+    double angle = deltaAngle * i;
+    x = e * angle * std::cos(angle);
+    y = e * angle * std::sin(angle);
+    archimedes.push_back(ArchimedesValue(x, y));
+    maxX = std::max(maxX, x);
+    minX = std::min(minX, x);
+    maxY = std::max(maxY, y);
+    minY = std::min(minY, y);
+    range = std::max(maxX - minX, maxY - minY);
+  }
+  double scaleX = 1.0 / range * sizes[0];
+  for (auto ar : archimedes)
+  {
+    if (ar.x * scaleX + centerX - 50 < 0 || ar.y * scaleX + centerY < 0)
+      continue;
+    offset.push_back(ExtentOffset(ar.x * scaleX + centerX - 50, ar.y * scaleX + centerY));
+  }
 }
-void ReplaceMaskColorWithBackgroundColor(
-  vtkImageData* finalImage, vtkWordCloud* wordCloud)
+void ReplaceMaskColorWithBackgroundColor(vtkImageData* finalImage, vtkWordCloud* wordCloud)
 {
   auto colors = vtkSmartPointer<vtkNamedColors>::New();
 
-  vtkColor3ub backgroundColor =
-    colors->GetColor3ub(wordCloud->GetBackgroundColorName().c_str());
+  vtkColor3ub backgroundColor = colors->GetColor3ub(wordCloud->GetBackgroundColorName().c_str());
   unsigned char bkgR = backgroundColor.GetData()[0];
   unsigned char bkgG = backgroundColor.GetData()[1];
   unsigned char bkgB = backgroundColor.GetData()[2];
 
-  vtkColor3ub maskColor =
-    colors->GetColor3ub(wordCloud->GetMaskColorName().c_str());
+  vtkColor3ub maskColor = colors->GetColor3ub(wordCloud->GetMaskColorName().c_str());
   unsigned char maskR = maskColor.GetData()[0];
   unsigned char maskG = maskColor.GetData()[1];
   unsigned char maskB = maskColor.GetData()[2];
 
-  vtkImageIterator<unsigned char> finalIt(finalImage,
-                                          finalImage->GetExtent());
-  while( !finalIt.IsAtEnd())
+  vtkImageIterator<unsigned char> finalIt(finalImage, finalImage->GetExtent());
+  while (!finalIt.IsAtEnd())
   {
     auto finalSpan = finalIt.BeginSpan();
-    while(finalSpan != finalIt.EndSpan())
+    while (finalSpan != finalIt.EndSpan())
     {
       unsigned char R, G, B;
       R = *finalSpan;
@@ -802,7 +745,7 @@ void ReplaceMaskColorWithBackgroundColor(
       }
       finalSpan += 3;
     }
-  finalIt.NextSpan();
+    finalIt.NextSpan();
   }
 }
 
@@ -817,7 +760,7 @@ void ShowColorSeriesNames(ostream& os)
   }
 }
 
-void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContainer &stopList)
+void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContainer& stopList)
 {
   std::ifstream t(fileName);
   std::stringstream buffer;
@@ -834,13 +777,11 @@ void CreateStopListFromFile(std::string fileName, vtkWordCloud::StopWordsContain
   }
 }
 
-void ExtractWordsFromString(std::string &str,
-                            std::vector<std::string> &words)
+void ExtractWordsFromString(std::string& str, std::vector<std::string>& words)
 {
 #ifdef HAS_STD_REGEX
   std::regex wordRegex("(\\w+)");
-  auto wordsBegin =
-    std::sregex_iterator(str.begin(), str.end(), wordRegex);
+  auto wordsBegin = std::sregex_iterator(str.begin(), str.end(), wordRegex);
   auto wordsEnd = std::sregex_iterator();
   for (auto i = wordsBegin; i != wordsEnd; ++i)
   {
@@ -851,15 +792,15 @@ void ExtractWordsFromString(std::string &str,
   vtksys::RegularExpression re("([0-9A-Za-z]+)");
   size_t next = 0;
   while (re.find(str.substr(next)))
-    {
+  {
     words.push_back(str.substr(next + re.start(), re.end() - re.start()));
-    next +=  re.end();
-    }
+    next += re.end();
+  }
   return;
 #endif
 }
 
-void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer &stopList)
+void CreateBuiltInStopList(vtkWordCloud::StopWordsContainer& stopList)
 {
   stopList.insert("a");
   stopList.insert("able");

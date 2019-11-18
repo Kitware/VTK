@@ -23,7 +23,7 @@
  * only handles one output window per process.  If the window is destroyed,
  * the vtkObject::GlobalWarningDisplayOff() function is called.  The
  * window is created the next time text is written to the window.
-*/
+ */
 
 #ifndef vtkAndroidOutputWindow_h
 #define vtkAndroidOutputWindow_h
@@ -31,12 +31,11 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"
 
-
 class VTKCOMMONCORE_EXPORT vtkAndroidOutputWindow : public vtkOutputWindow
 {
 public:
-// Methods from vtkObject
-  vtkTypeMacro(vtkAndroidOutputWindow,vtkOutputWindow);
+  // Methods from vtkObject
+  vtkTypeMacro(vtkAndroidOutputWindow, vtkOutputWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -64,6 +63,5 @@ private:
   vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) = delete;
   void operator=(const vtkAndroidOutputWindow&) = delete;
 };
-
 
 #endif

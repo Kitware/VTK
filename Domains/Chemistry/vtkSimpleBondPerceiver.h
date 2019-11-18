@@ -29,7 +29,7 @@
  * This algorithm does not consider valences, hybridization, aromaticity, or
  * anything other than atomic separations. It will not produce anything other
  * than single bonds.
-*/
+ */
 
 #ifndef vtkSimpleBondPerceiver_h
 #define vtkSimpleBondPerceiver_h
@@ -41,12 +41,11 @@ class vtkDataSet;
 class vtkMolecule;
 class vtkPeriodicTable;
 
-class VTKDOMAINSCHEMISTRY_EXPORT vtkSimpleBondPerceiver :
-    public vtkMoleculeAlgorithm
+class VTKDOMAINSCHEMISTRY_EXPORT vtkSimpleBondPerceiver : public vtkMoleculeAlgorithm
 {
 public:
-  static vtkSimpleBondPerceiver *New();
-  vtkTypeMacro(vtkSimpleBondPerceiver,vtkMoleculeAlgorithm);
+  static vtkSimpleBondPerceiver* New();
+  vtkTypeMacro(vtkSimpleBondPerceiver, vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -70,9 +69,8 @@ protected:
   vtkSimpleBondPerceiver();
   ~vtkSimpleBondPerceiver() override;
 
-  int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   /**
    * Compute the bonds of input molecule.

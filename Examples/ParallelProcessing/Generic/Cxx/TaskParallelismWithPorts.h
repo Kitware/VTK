@@ -33,13 +33,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-
 typedef void (*taskFunction)(double data);
-
 
 void task3(double data);
 void task4(double data);
-
 
 static const double EXTENT = 20;
 

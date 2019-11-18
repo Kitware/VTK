@@ -19,7 +19,7 @@
  *
  * vtkTableToPolyData is a filter used to convert a vtkTable  to a vtkPolyData
  * consisting of vertices.
-*/
+ */
 
 #ifndef vtkTableToPolyData_h
 #define vtkTableToPolyData_h
@@ -145,8 +145,8 @@ protected:
   /**
    * Convert input vtkTable to vtkPolyData.
    */
-  int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
   char* XColumn;
   char* YColumn;
@@ -159,12 +159,10 @@ protected:
   int ZComponent;
   bool Create2DPoints;
   bool PreserveCoordinateColumnsAsDataArrays;
+
 private:
   vtkTableToPolyData(const vtkTableToPolyData&) = delete;
   void operator=(const vtkTableToPolyData&) = delete;
-
 };
 
 #endif
-
-

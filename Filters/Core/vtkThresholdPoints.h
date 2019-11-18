@@ -23,7 +23,7 @@
  *
  * @sa
  * vtkThreshold vtkSelectEnclosedPoints vtkExtractEnclosedPoints
-*/
+ */
 
 #ifndef vtkThresholdPoints_h
 #define vtkThresholdPoints_h
@@ -34,8 +34,8 @@
 class VTKFILTERSCORE_EXPORT vtkThresholdPoints : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkThresholdPoints *New();
-  vtkTypeMacro(vtkThresholdPoints,vtkPolyDataAlgorithm);
+  static vtkThresholdPoints* New();
+  vtkTypeMacro(vtkThresholdPoints, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -58,16 +58,16 @@ public:
   /**
    * Set/Get the upper threshold.
    */
-  vtkSetMacro(UpperThreshold,double);
-  vtkGetMacro(UpperThreshold,double);
+  vtkSetMacro(UpperThreshold, double);
+  vtkGetMacro(UpperThreshold, double);
   //@}
 
   //@{
   /**
    * Set/Get the lower threshold.
    */
-  vtkSetMacro(LowerThreshold,double);
-  vtkGetMacro(LowerThreshold,double);
+  vtkSetMacro(LowerThreshold, double);
+  vtkGetMacro(LowerThreshold, double);
   //@}
 
   //@{
@@ -76,8 +76,8 @@ public:
    * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
    * the available precision settings.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
@@ -85,9 +85,9 @@ protected:
   ~vtkThresholdPoints() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   double LowerThreshold;
   double UpperThreshold;
@@ -95,10 +95,13 @@ protected:
 
   int (vtkThresholdPoints::*ThresholdFunction)(double s);
 
-  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(double s) {return ( s >= this->LowerThreshold ?
-                               ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+  int Lower(double s) { return (s <= this->LowerThreshold ? 1 : 0); }
+  int Upper(double s) { return (s >= this->UpperThreshold ? 1 : 0); }
+  int Between(double s)
+  {
+    return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);
+  }
+
 private:
   vtkThresholdPoints(const vtkThresholdPoints&) = delete;
   void operator=(const vtkThresholdPoints&) = delete;

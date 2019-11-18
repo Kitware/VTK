@@ -44,7 +44,7 @@ PURPOSE.  See the above copyright notice for more information.
  * Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
  * for implementing this class.
  * Updated by Philippe Pebay, Kitware SAS 2012
-*/
+ */
 
 #ifndef vtkDescriptiveStatistics_h
 #define vtkDescriptiveStatistics_h
@@ -71,9 +71,9 @@ public:
    * the population variance will be calculated.
    * The default is that the unbiased estimator will be used.
    */
-  vtkSetMacro(UnbiasedVariance,vtkTypeBool);
-  vtkGetMacro(UnbiasedVariance,vtkTypeBool);
-  vtkBooleanMacro(UnbiasedVariance,vtkTypeBool);
+  vtkSetMacro(UnbiasedVariance, vtkTypeBool);
+  vtkGetMacro(UnbiasedVariance, vtkTypeBool);
+  vtkBooleanMacro(UnbiasedVariance, vtkTypeBool);
   //@}
 
   //@{
@@ -82,9 +82,9 @@ public:
    * the g1 skewness will be calculated.
    * The default is that the g1 skewness estimator will be used.
    */
-  vtkSetMacro(G1Skewness,vtkTypeBool);
-  vtkGetMacro(G1Skewness,vtkTypeBool);
-  vtkBooleanMacro(G1Skewness,vtkTypeBool);
+  vtkSetMacro(G1Skewness, vtkTypeBool);
+  vtkGetMacro(G1Skewness, vtkTypeBool);
+  vtkBooleanMacro(G1Skewness, vtkTypeBool);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * the g2 kurtosis will be calculated.
    * The default is that the g2 kurtosis estimator will be used.
    */
-  vtkSetMacro(G2Kurtosis,vtkTypeBool);
-  vtkGetMacro(G2Kurtosis,vtkTypeBool);
-  vtkBooleanMacro(G2Kurtosis,vtkTypeBool);
+  vtkSetMacro(G2Kurtosis, vtkTypeBool);
+  vtkGetMacro(G2Kurtosis, vtkTypeBool);
+  vtkBooleanMacro(G2Kurtosis, vtkTypeBool);
   //@}
 
   //@{
@@ -104,16 +104,15 @@ public:
    * only have their magnitude reported.
    * The default is that signed deviations will be computed.
    */
-  vtkSetMacro(SignedDeviations,vtkTypeBool);
-  vtkGetMacro(SignedDeviations,vtkTypeBool);
-  vtkBooleanMacro(SignedDeviations,vtkTypeBool);
+  vtkSetMacro(SignedDeviations, vtkTypeBool);
+  vtkGetMacro(SignedDeviations, vtkTypeBool);
+  vtkBooleanMacro(SignedDeviations, vtkTypeBool);
   //@}
 
   /**
    * Given a collection of models, calculate aggregate model
    */
-  void Aggregate( vtkDataObjectCollection*,
-                  vtkMultiBlockDataSet* ) override;
+  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override;
 
 protected:
   vtkDescriptiveStatistics();
@@ -123,29 +122,25 @@ protected:
    * Execute the calculations required by the Learn option, given some input Data
    * NB: input parameters are unused.
    */
-  void Learn( vtkTable*,
-              vtkTable*,
-              vtkMultiBlockDataSet* ) override;
+  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) override;
+  void Derive(vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test( vtkTable*,
-             vtkMultiBlockDataSet*,
-             vtkTable* ) override;
+  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess( vtkTable* inData,
-               vtkMultiBlockDataSet* inMeta,
-               vtkTable* outData ) override
-  { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
+  void Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData) override
+  {
+    this->Superclass::Assess(inData, inMeta, outData, 1);
+  }
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -156,10 +151,8 @@ protected:
   /**
    * Provide the appropriate assessment functor.
    */
-  void SelectAssessFunctor( vtkTable* outData,
-                            vtkDataObject* inMeta,
-                            vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) override;
+  void SelectAssessFunctor(vtkTable* outData, vtkDataObject* inMeta, vtkStringArray* rowNames,
+    AssessFunctor*& dfunc) override;
 
   vtkTypeBool UnbiasedVariance;
   vtkTypeBool G1Skewness;
@@ -167,8 +160,8 @@ protected:
   vtkTypeBool SignedDeviations;
 
 private:
-  vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ) = delete;
-  void operator = ( const vtkDescriptiveStatistics& ) = delete;
+  vtkDescriptiveStatistics(const vtkDescriptiveStatistics&) = delete;
+  void operator=(const vtkDescriptiveStatistics&) = delete;
 };
 
 #endif

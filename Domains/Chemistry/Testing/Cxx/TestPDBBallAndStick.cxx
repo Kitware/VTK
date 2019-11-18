@@ -30,17 +30,16 @@
 #include "vtkCamera.h"
 #include "vtkTimerLog.h"
 
-int TestPDBBallAndStick(int argc, char *argv[])
+int TestPDBBallAndStick(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
 
   // read protein from pdb
   vtkNew<vtkPDBReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
@@ -81,23 +80,23 @@ int TestPDBBallAndStick(int argc, char *argv[])
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
 
-/*
-  int numRenders = 500;
-  timer->StartTimer();
-  for (int i = 0; i < numRenders; ++i)
-    {
-    ren->GetActiveCamera()->Azimuth(85.0/numRenders);
-    ren->GetActiveCamera()->Elevation(85.0/numRenders);
-    win->Render();
-    }
-  timer->StopTimer();
-  double elapsed = timer->GetElapsedTime();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
-*/
+  /*
+    int numRenders = 500;
+    timer->StartTimer();
+    for (int i = 0; i < numRenders; ++i)
+      {
+      ren->GetActiveCamera()->Azimuth(85.0/numRenders);
+      ren->GetActiveCamera()->Elevation(85.0/numRenders);
+      win->Render();
+      }
+    timer->StopTimer();
+    double elapsed = timer->GetElapsedTime();
+    cerr << "interactive render time: " << elapsed / numRenders << endl;
+  */
 
-  ren->GetActiveCamera()->SetPosition(0,0,1);
-  ren->GetActiveCamera()->SetFocalPoint(0,0,0);
-  ren->GetActiveCamera()->SetViewUp(0,1,0);
+  ren->GetActiveCamera()->SetPosition(0, 0, 1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
 

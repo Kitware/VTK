@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkActor2D
-*/
+ */
 
 #ifndef vtkMapper2D_h
 #define vtkMapper2D_h

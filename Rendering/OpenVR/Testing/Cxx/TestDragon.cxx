@@ -48,11 +48,11 @@
 #include "vtkWin32RenderWindowInteractor.h"
 
 //----------------------------------------------------------------------------
-int TestDragon(int argc, char *argv[])
+int TestDragon(int argc, char* argv[])
 {
   vtkNew<vtkOpenVRRenderer> renderer;
   vtkNew<vtkOpenVRRenderWindow> renderWindow;
-  vtkNew<vtkOpenVRRenderWindowInteractor>  iren;
+  vtkNew<vtkOpenVRRenderWindowInteractor> iren;
   vtkNew<vtkOpenVRCamera> cam;
   renderer->SetShowFloor(true);
 
@@ -63,7 +63,7 @@ int TestDragon(int argc, char *argv[])
   iren->SetRenderWindow(renderWindow);
   renderer->SetActiveCamera(cam);
 
-  //renderer->UseShadowsOn();
+  // renderer->UseShadowsOn();
 
   // crazy frame rate requirement
   // need to look into that at some point
@@ -78,14 +78,13 @@ int TestDragon(int argc, char *argv[])
   light->SetPosition(1.0, 1.0, 1.0);
   renderer->AddLight(light);
 
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                               "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
 
   vtkNew<vtkTransform> trans;
-  trans->Translate(10.0,20.0,30.0);
-  //trans->Scale(10.0,10.0,10.0);
+  trans->Translate(10.0, 20.0, 30.0);
+  // trans->Scale(10.0,10.0,10.0);
   vtkNew<vtkTransformPolyDataFilter> tf;
   tf->SetTransform(trans);
   tf->SetInputConnection(reader->GetOutputPort());
@@ -111,8 +110,8 @@ int TestDragon(int argc, char *argv[])
     renderer->ResetCamera();
     renderWindow->Render();
 
-    int retVal = vtkRegressionTestImage( renderWindow.Get() );
-    if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    int retVal = vtkRegressionTestImage(renderWindow.Get());
+    if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();
     }

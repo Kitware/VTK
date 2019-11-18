@@ -71,7 +71,8 @@ struct vtkLocalDataType
   vtkIdList* PolyCellOffsets;
   vtkIdList* PolyConnOffsets;
 
-  vtkLocalDataType() : Output(nullptr)
+  vtkLocalDataType()
+    : Output(nullptr)
   {
   }
 };
@@ -104,17 +105,14 @@ public:
   int NumValues;
   double* Values;
 
-  vtkContourGridFunctor(vtkSMPContourGrid* filter,
-                        vtkUnstructuredGrid* input,
-                        vtkDataArray* inScalars,
-                        int numValues,
-                        double* values,
-                        vtkDataObject* output) : Filter(filter),
-                                                 Input(input),
-                                                 InScalars(inScalars),
-                                                 Output(output),
-                                                 NumValues(numValues),
-                                                 Values(values)
+  vtkContourGridFunctor(vtkSMPContourGrid* filter, vtkUnstructuredGrid* input,
+    vtkDataArray* inScalars, int numValues, double* values, vtkDataObject* output)
+    : Filter(filter)
+    , Input(input)
+    , InScalars(inScalars)
+    , Output(output)
+    , NumValues(numValues)
+    , Values(values)
   {
   }
 
@@ -122,17 +120,15 @@ public:
   {
     // Cleanup all temporaries
 
-    vtkSMPThreadLocal<vtkDataArray*>::iterator cellScalarsIter =
-      this->CellScalars.begin();
-    while(cellScalarsIter != this->CellScalars.end())
+    vtkSMPThreadLocal<vtkDataArray*>::iterator cellScalarsIter = this->CellScalars.begin();
+    while (cellScalarsIter != this->CellScalars.end())
     {
       (*cellScalarsIter)->Delete();
       ++cellScalarsIter;
     }
 
-    vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter =
-      this->LocalData.begin();
-    while(dataIter != this->LocalData.end())
+    vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter = this->LocalData.begin();
+    while (dataIter != this->LocalData.end())
     {
       (*dataIter).Output->Delete();
       (*dataIter).Locator->Delete();
@@ -186,15 +182,15 @@ public:
     vtkPoints*& newPts = this->NewPts.Local();
 
     // set precision for the points in the output
-    if(this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION)
+    if (this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION)
     {
       newPts->SetDataType(this->Input->GetPoints()->GetDataType());
     }
-    else if(this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::SINGLE_PRECISION)
+    else if (this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::SINGLE_PRECISION)
     {
       newPts->SetDataType(VTK_FLOAT);
     }
-    else if(this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
+    else if (this->Filter->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION)
     {
       newPts->SetDataType(VTK_DOUBLE);
     }
@@ -203,9 +199,8 @@ public:
 
     vtkIdType numCells = this->Input->GetNumberOfCells();
 
-    vtkIdType estimatedSize=static_cast<vtkIdType>(
-      pow(static_cast<double>(numCells),.75));
-    estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+    vtkIdType estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75));
+    estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
     if (estimatedSize < 1024)
     {
       estimatedSize = 1024;
@@ -220,27 +215,25 @@ public:
     polyCellOffsets->Allocate(estimatedSize);
     polyConnOffsets->Allocate(estimatedSize);
 
-    //locator->SetPoints(newPts);
-    locator->InitPointInsertion (newPts,
-                                 this->Input->GetBounds(),
-                                 this->Input->GetNumberOfPoints());
+    // locator->SetPoints(newPts);
+    locator->InitPointInsertion(newPts, this->Input->GetBounds(), this->Input->GetNumberOfPoints());
 
     vtkCellArray*& newVerts = this->NewVerts.Local();
-    newVerts->AllocateExact(estimatedSize,estimatedSize);
+    newVerts->AllocateExact(estimatedSize, estimatedSize);
     output->SetVerts(newVerts);
 
     vtkCellArray*& newLines = this->NewLines.Local();
-    newLines->AllocateExact(estimatedSize,estimatedSize);
+    newLines->AllocateExact(estimatedSize, estimatedSize);
     output->SetLines(newLines);
 
     vtkCellArray*& newPolys = this->NewPolys.Local();
-    newPolys->AllocateExact(estimatedSize,estimatedSize);
+    newPolys->AllocateExact(estimatedSize, estimatedSize);
     output->SetPolys(newPolys);
 
     vtkDataArray*& cellScalars = this->CellScalars.Local();
     cellScalars = this->InScalars->NewInstance();
     cellScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-    cellScalars->Allocate(VTK_CELL_SIZE*this->InScalars->GetNumberOfComponents());
+    cellScalars->Allocate(VTK_CELL_SIZE * this->InScalars->GetNumberOfComponents());
 
     vtkPointData* outPd = output->GetPointData();
     vtkCellData* outCd = output->GetCellData();
@@ -290,50 +283,47 @@ public:
 
     // If UseScalarTree is enabled at this point, we assume that a scalar
     // tree has been computed and thus the way cells are traversed changes.
-    if ( ! this->Filter->GetUseScalarTree() )
+    if (!this->Filter->GetUseScalarTree())
     {
       // This code assumes no scalar tree, thus it checks scalar range prior
       // to invoking contour.
-      for ( cellid=begin; cellid < end; cellid++)
+      for (cellid = begin; cellid < end; cellid++)
       {
         this->Input->GetCellPoints(cellid, pids);
         cs->SetNumberOfTuples(pids->GetNumberOfIds());
         this->InScalars->GetTuples(pids, cs);
-        int numCellScalars = cs->GetNumberOfComponents() *
-          cs->GetNumberOfTuples();
+        int numCellScalars = cs->GetNumberOfComponents() * cs->GetNumberOfTuples();
         T* cellScalarPtr = static_cast<T*>(cs->GetVoidPointer(0));
 
-        //find min and max values in scalar data
+        // find min and max values in scalar data
         range[0] = range[1] = cellScalarPtr[0];
 
-        for (T *it = cellScalarPtr + 1, *itEnd = cellScalarPtr + numCellScalars;
-             it != itEnd;
-             ++it)
+        for (T *it = cellScalarPtr + 1, *itEnd = cellScalarPtr + numCellScalars; it != itEnd; ++it)
         {
           if (*it < range[0])
           {
             range[0] = *it;
-          } //if scalar <= min range value
+          } // if scalar <= min range value
           if (*it > range[1])
           {
             range[1] = *it;
-          } //if scalar >= max range value
-        } // for all cellScalars
+          } // if scalar >= max range value
+        }   // for all cellScalars
 
         bool needCell = false;
         for (int i = 0; i < numValues; i++)
         {
           if ((values[i] >= range[0]) && (values[i] <= range[1]))
           {
-             needCell = true;
+            needCell = true;
           } // if contour value in range for this cell
-        } // end for numContours
+        }   // end for numContours
 
         if (needCell)
         {
           this->Input->GetCell(cellid, cell);
 
-          for (int i=0; i < numValues; i++)
+          for (int i = 0; i < numValues; i++)
           {
             if ((values[i] >= range[0]) && (values[i] <= range[1]))
             {
@@ -343,17 +333,8 @@ public:
               vtkIdType begLineConnSize = lines->GetNumberOfConnectivityIds();
               vtkIdType begPolyCellSize = polys->GetNumberOfCells();
               vtkIdType begPolyConnSize = polys->GetNumberOfConnectivityIds();
-              cell->Contour(values[i],
-                            cs,
-                            loc,
-                            vrts,
-                            lines,
-                            polys,
-                            inPd,
-                            outPd,
-                            inCd,
-                            cellid,
-                            outCd);
+              cell->Contour(
+                values[i], cs, loc, vrts, lines, polys, inPd, outPd, inCd, cellid, outCd);
               // We keep track of the insertion point of verts, lines and polys.
               // This is later used when merging these data structures in parallel.
               // The reason this is needed is that vtkCellArray is not normally
@@ -387,28 +368,28 @@ public:
               }
             }
           }
-        }//if cell need be contoured
-      }//for all cells
-    }//if no scalar tree requested
+        } // if cell need be contoured
+      }   // for all cells
+    }     // if no scalar tree requested
     else
-    {//scalar tree provided
+    { // scalar tree provided
       // The begin / end parameters to this function represent batches of candidate
       // cells.
-      vtkIdType numCellsContoured=0;
-      vtkScalarTree *scalarTree = this->Filter->GetScalarTree();
-      const vtkIdType *cellIds;
+      vtkIdType numCellsContoured = 0;
+      vtkScalarTree* scalarTree = this->Filter->GetScalarTree();
+      const vtkIdType* cellIds;
       vtkIdType numCells;
-      for ( vtkIdType batchNum=begin; batchNum < end; ++batchNum)
+      for (vtkIdType batchNum = begin; batchNum < end; ++batchNum)
       {
-        cellIds = scalarTree->GetCellBatch(batchNum,numCells);
-        for (vtkIdType idx=0; idx < numCells; ++idx)
+        cellIds = scalarTree->GetCellBatch(batchNum, numCells);
+        for (vtkIdType idx = 0; idx < numCells; ++idx)
         {
           cellid = cellIds[idx];
           this->Input->GetCellPoints(cellid, pids);
           cs->SetNumberOfTuples(pids->GetNumberOfIds());
           this->InScalars->GetTuples(pids, cs);
 
-          //Okay let's grab the cell and contour it
+          // Okay let's grab the cell and contour it
           numCellsContoured++;
           this->Input->GetCell(cellid, cell);
           vtkIdType begVertCellSize = vrts->GetNumberOfCells();
@@ -417,17 +398,8 @@ public:
           vtkIdType begLineConnSize = lines->GetNumberOfConnectivityIds();
           vtkIdType begPolyCellSize = polys->GetNumberOfCells();
           vtkIdType begPolyConnSize = polys->GetNumberOfConnectivityIds();
-          cell->Contour(scalarTree->GetScalarValue(),
-                        cs,
-                        loc,
-                        vrts,
-                        lines,
-                        polys,
-                        inPd,
-                        outPd,
-                        inCd,
-                        cellid,
-                        outCd);
+          cell->Contour(scalarTree->GetScalarValue(), cs, loc, vrts, lines, polys, inPd, outPd,
+            inCd, cellid, outCd);
           // We keep track of the insertion point of verts, lines and polys.
           // This is later used when merging these data structures in parallel.
           // The reason this is needed is that vtkCellArray is not normally
@@ -459,11 +431,11 @@ public:
           {
             polyConnOffsets->InsertNextId(begPolyConnSize);
           }
-        }//for all cells in this batch
-      }//for this batch of cells
-    }//using scalar tree
+        } // for all cells in this batch
+      }   // for this batch of cells
+    }     // using scalar tree
 
-  }//operator()
+  } // operator()
 
   void Reduce()
   {
@@ -472,9 +444,8 @@ public:
     vtkNew<vtkMultiPieceDataSet> mp;
     int count = 0;
 
-    vtkSMPThreadLocal<vtkLocalDataType>::iterator outIter =
-      this->LocalData.begin();
-    while(outIter != this->LocalData.end())
+    vtkSMPThreadLocal<vtkLocalDataType>::iterator outIter = this->LocalData.begin();
+    while (outIter != this->LocalData.end())
     {
       vtkPolyData* output = (*outIter).Output;
 
@@ -512,13 +483,8 @@ public:
 
 //-----------------------------------------------------------------------------
 template <typename T>
-void DoContour(vtkSMPContourGrid* filter,
-               vtkUnstructuredGrid* input,
-               vtkIdType numCells,
-               vtkDataArray* inScalars,
-               int numContours,
-               double* values,
-               vtkDataObject* output)
+void DoContour(vtkSMPContourGrid* filter, vtkUnstructuredGrid* input, vtkIdType numCells,
+  vtkDataArray* inScalars, int numContours, double* values, vtkDataObject* output)
 {
   // Contour in parallel; create the processing functor
   vtkContourGridFunctor<T> functor(filter, input, inScalars, numContours, values, output);
@@ -526,21 +492,21 @@ void DoContour(vtkSMPContourGrid* filter,
   // If a scalar tree is used, then the way in which cells are iterated over changes.
   // With a scalar tree, batches of candidate cells are provided. Without one, then all
   // cells are iterated over one by one.
-  if ( filter->GetUseScalarTree() )
-  {//process in threaded using scalar tree
-    vtkScalarTree *scalarTree = filter->GetScalarTree();
+  if (filter->GetUseScalarTree())
+  { // process in threaded using scalar tree
+    vtkScalarTree* scalarTree = filter->GetScalarTree();
     vtkIdType numBatches;
-    for (int i=0; i < numContours; ++i)
+    for (int i = 0; i < numContours; ++i)
     {
       numBatches = scalarTree->GetNumberOfCellBatches(values[i]);
-      if ( numBatches > 0 )
+      if (numBatches > 0)
       {
         vtkSMPTools::For(0, numBatches, functor);
       }
     }
   }
   else
-  {//process all cells in parallel manner
+  { // process all cells in parallel manner
     vtkSMPTools::For(0, numCells, functor);
   }
 
@@ -553,17 +519,11 @@ void DoContour(vtkSMPContourGrid* filter,
     vtkSMPThreadLocal<vtkLocalDataType>::iterator end = functor.LocalData.end();
 
     std::vector<vtkSMPMergePolyDataHelper::InputData> mpData;
-    while(itr != end)
+    while (itr != end)
     {
-      mpData.push_back(vtkSMPMergePolyDataHelper::InputData(
-                         (*itr).Output,
-                         (*itr).Locator,
-                         (*itr).VertCellOffsets,
-                         (*itr).VertConnOffsets,
-                         (*itr).LineCellOffsets,
-                         (*itr).LineConnOffsets,
-                         (*itr).PolyCellOffsets,
-                         (*itr).PolyConnOffsets));
+      mpData.push_back(vtkSMPMergePolyDataHelper::InputData((*itr).Output, (*itr).Locator,
+        (*itr).VertCellOffsets, (*itr).VertConnOffsets, (*itr).LineCellOffsets,
+        (*itr).LineConnOffsets, (*itr).PolyCellOffsets, (*itr).PolyConnOffsets));
       ++itr;
     }
 
@@ -573,18 +533,16 @@ void DoContour(vtkSMPContourGrid* filter,
   }
 }
 
-}//end namespace
+} // end namespace
 
 //-----------------------------------------------------------------------------
 int vtkSMPContourGrid::RequestDataObject(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation* vtkNotUsed(request), vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
   if (this->MergePieces)
   {
-    vtkPolyData *output = vtkPolyData::GetData(info);
+    vtkPolyData* output = vtkPolyData::GetData(info);
     if (!output)
     {
       vtkPolyData* newOutput = vtkPolyData::New();
@@ -594,7 +552,7 @@ int vtkSMPContourGrid::RequestDataObject(
   }
   else
   {
-    vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(info);
+    vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(info);
     if (!output)
     {
       vtkMultiBlockDataSet* newOutput = vtkMultiBlockDataSet::New();
@@ -606,21 +564,19 @@ int vtkSMPContourGrid::RequestDataObject(
 }
 
 //-----------------------------------------------------------------------------
-int vtkSMPContourGrid::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkSMPContourGrid::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the input and output
-  vtkUnstructuredGrid *input = vtkUnstructuredGrid::GetData(inputVector[0]);
-  vtkDataObject *output = vtkDataObject::GetData(outputVector);
+  vtkUnstructuredGrid* input = vtkUnstructuredGrid::GetData(inputVector[0]);
+  vtkDataObject* output = vtkDataObject::GetData(outputVector);
 
   if (input->GetNumberOfCells() == 0)
   {
     return 1;
   }
 
-  vtkDataArray* inScalars = this->GetInputArrayToProcess(0,inputVector);
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (!inScalars)
   {
     return 1;
@@ -635,15 +591,15 @@ int vtkSMPContourGrid::RequestData(
     return 1;
   }
 
-  double *values=this->GetValues();
+  double* values = this->GetValues();
 
   vtkIdType numCells = input->GetNumberOfCells();
 
   // Create scalar tree if necessary and if requested
   int useScalarTree = this->GetUseScalarTree();
-  if ( useScalarTree )
+  if (useScalarTree)
   {
-    if ( this->ScalarTree == nullptr )
+    if (this->ScalarTree == nullptr)
     {
       this->ScalarTree = vtkSpanSpace::New();
     }
@@ -656,7 +612,7 @@ int vtkSMPContourGrid::RequestData(
   {
     DoContour<float>(this, input, numCells, inScalars, numContours, values, output);
   }
-  else if(inScalars->GetDataType() == VTK_DOUBLE)
+  else if (inScalars->GetDataType() == VTK_DOUBLE)
   {
     DoContour<double>(this, input, numCells, inScalars, numContours, values, output);
   }
@@ -665,20 +621,18 @@ int vtkSMPContourGrid::RequestData(
 }
 
 //-----------------------------------------------------------------------------
-int vtkSMPContourGrid::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkSMPContourGrid::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
 //-----------------------------------------------------------------------------
-vtkTypeBool vtkSMPContourGrid::ProcessRequest(vtkInformation* request,
-                                      vtkInformationVector** inputVector,
-                                      vtkInformationVector* outputVector)
+vtkTypeBool vtkSMPContourGrid::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
   {
     return this->RequestDataObject(request, inputVector, outputVector);
   }
@@ -689,8 +643,7 @@ vtkTypeBool vtkSMPContourGrid::ProcessRequest(vtkInformation* request,
 //-----------------------------------------------------------------------------
 void vtkSMPContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Merge Pieces: "
-     << (this->MergePieces ? "On\n" : "Off\n");
+  os << indent << "Merge Pieces: " << (this->MergePieces ? "On\n" : "Off\n");
 }

@@ -20,10 +20,11 @@
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
-template<typename value_t>
-void TestValue(const value_t& Value, const value_t& ExpectedValue, const vtkStdString& ValueDescription, int& ErrorCount)
+template <typename value_t>
+void TestValue(const value_t& Value, const value_t& ExpectedValue,
+  const vtkStdString& ValueDescription, int& ErrorCount)
 {
-  if(Value == ExpectedValue)
+  if (Value == ExpectedValue)
     return;
 
   cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]" << endl;
@@ -62,11 +63,17 @@ int TestISIReader(int argc, char* argv[])
 
   // Test a sampling of the table values ...
   TestValue(table->GetValue(0, 0).ToString(), vtkStdString("J"), "Value 0, 0", error_count);
-  TestValue(table->GetValue(0, 1).ToString(), vtkStdString("Arantes, GM;Chaimovich, H"), "Value 0, 1", error_count);
-  TestValue(table->GetValue(0, 2).ToString(), vtkStdString("Thiolysis and alcoholysis of phosphate tri- and monoesters with alkyl;and aryl leaving groups. An ab initio study in the gas phase"), "Value 0, 2", error_count);
+  TestValue(table->GetValue(0, 1).ToString(), vtkStdString("Arantes, GM;Chaimovich, H"),
+    "Value 0, 1", error_count);
+  TestValue(table->GetValue(0, 2).ToString(),
+    vtkStdString("Thiolysis and alcoholysis of phosphate tri- and monoesters with alkyl;and aryl "
+                 "leaving groups. An ab initio study in the gas phase"),
+    "Value 0, 2", error_count);
 
-  TestValue(table->GetValue(499, 20).ToString(), vtkStdString("JAN 30"), "value 499, 20", error_count);
-  TestValue(table->GetValue(499, 21).ToString(), vtkStdString("1996"), "value 499, 21", error_count);
+  TestValue(
+    table->GetValue(499, 20).ToString(), vtkStdString("JAN 30"), "value 499, 20", error_count);
+  TestValue(
+    table->GetValue(499, 21).ToString(), vtkStdString("1996"), "value 499, 21", error_count);
   TestValue(table->GetValue(499, 22).ToString(), vtkStdString("17"), "value 499, 22", error_count);
 
   return error_count;

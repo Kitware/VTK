@@ -33,7 +33,7 @@
  * and put the value into vtkFieldData arrays named with the corresponding cell
  * data array name. For composite datasets the total sum over all blocks will
  * also be added to the top-level block's field data for the summation.
-*/
+ */
 
 #ifndef vtkCellSizeFilter_h
 #define vtkCellSizeFilter_h
@@ -160,7 +160,7 @@ protected:
   /**
    * Method to compute the global sum information. For serial operation this is a no-op.
    */
-  virtual void ComputeGlobalSum(double sum[4]) {(void)sum;};
+  virtual void ComputeGlobalSum(double sum[4]) { (void)sum; }
   //@}
 
 private:

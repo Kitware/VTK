@@ -49,7 +49,7 @@ vtkPiecewiseFunctionItem::~vtkPiecewiseFunctionItem()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPiecewiseFunctionItem::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPiecewiseFunctionItem::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PiecewiseFunction: ";
@@ -100,11 +100,10 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
 {
   double bounds[4];
   this->GetBounds(bounds);
-   if (bounds[0] == bounds[1]
-       || !this->PiecewiseFunction)
-   {
+  if (bounds[0] == bounds[1] || !this->PiecewiseFunction)
+  {
     return;
-   }
+  }
   if (this->Texture == nullptr)
   {
     this->Texture = vtkImageData::New();
@@ -113,14 +112,11 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
   const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
   // should depends on the true size on screen
-  this->Texture->SetExtent(0, dimension-1,
-                           0, 0,
-                           0, 0);
+  this->Texture->SetExtent(0, dimension - 1, 0, 0, 0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
-  this->PiecewiseFunction->GetTable(bounds[0], bounds[1], dimension,  values);
-  unsigned char* ptr =
-    reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
+  this->PiecewiseFunction->GetTable(bounds[0], bounds[1], dimension, values);
+  unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
   if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
   {
     this->Shape->SetNumberOfPoints(dimension);
@@ -131,7 +127,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255 + 0.5);
       assert(values[i] <= 1. && values[i] >= 0.);
       this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
-      ptr+=4;
+      ptr += 4;
     }
     this->Shape->Modified();
   }
@@ -142,7 +138,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
       this->Pen->GetColor(ptr);
       ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255 + 0.5);
       assert(values[i] <= 1. && values[i] >= 0.);
-      ptr+=4;
+      ptr += 4;
     }
   }
   delete[] values;

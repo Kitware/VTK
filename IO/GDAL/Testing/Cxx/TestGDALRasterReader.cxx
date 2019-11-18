@@ -45,15 +45,16 @@
 // Main program
 int TestGDALRasterReader(int argc, char** argv)
 {
-  const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/GIS/raster.tif");
+  const char* rasterFileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/raster.tif");
 
   // Create reader to read shape file.
   vtkNew<vtkGDALRasterReader> reader;
   reader->SetFileName(rasterFileName);
   reader->UpdateInformation();
   // extent in points
-  int* extent = reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int* extent =
+    reader->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   std::ostream_iterator<int> out_it(std::cout, " ");
   std::cout << "Point extents: ";
   std::copy(extent, extent + 6, out_it);
@@ -63,8 +64,7 @@ int TestGDALRasterReader(int argc, char** argv)
   std::cout << "Cell dimensions: ";
   std::copy(rasterdims, rasterdims + 2, out_it);
   std::cout << std::endl;
-  if (extent[1] - extent[0] != rasterdims[0] ||
-      extent[3] - extent[2] != rasterdims[1])
+  if (extent[1] - extent[0] != rasterdims[0] || extent[3] - extent[2] != rasterdims[1])
   {
     std::cerr << "Error: Number of cells should be one less than the number of points\n";
     return 1;
@@ -94,7 +94,7 @@ int TestGDALRasterReader(int argc, char** argv)
   reader->SetCollateBands(1);
   reader->SetCellArrayStatus(reader->GetCellArrayName(0), 1);
   reader->Update();
-  delete [] rasterFileName;
+  delete[] rasterFileName;
 
   // We need a renderer
   vtkNew<vtkRenderer> renderer;
@@ -103,7 +103,6 @@ int TestGDALRasterReader(int argc, char** argv)
   vtkNew<vtkCellDataToPointData> c2p;
   c2p->SetInputDataObject(reader->GetOutput());
   c2p->Update();
-
 
   vtkNew<vtkImageActor> actor;
   actor->SetInputData(vtkUniformGrid::SafeDownCast(c2p->GetOutput()));
@@ -115,7 +114,7 @@ int TestGDALRasterReader(int argc, char** argv)
   renderWindow->AddRenderer(renderer);
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  //Add the actor to the scene
+  // Add the actor to the scene
   renderer->SetBackground(1.0, 1.0, 1.0);
   renderWindow->SetSize(400, 400);
   renderWindow->Render();

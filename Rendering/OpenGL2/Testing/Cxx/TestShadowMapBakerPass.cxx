@@ -38,9 +38,8 @@
 #include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 
-
 //----------------------------------------------------------------------------
-int TestShadowMapBakerPass(int argc, char *argv[])
+int TestShadowMapBakerPass(int argc, char* argv[])
 {
   vtkNew<vtkActor> actor;
   vtkNew<vtkRenderer> renderer;
@@ -50,21 +49,20 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   renderWindow->SetSize(600, 600);
   renderWindow->AddRenderer(renderer);
   renderer->AddActor(actor);
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer);
 
-  const char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
+  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   mapper->SetInputConnection(reader->GetOutputPort());
-  //mapper->SetInputConnection(norms->GetOutputPort());
+  // mapper->SetInputConnection(norms->GetOutputPort());
   actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
@@ -74,15 +72,14 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   actor->GetProperty()->SetAmbient(0.5);
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
-  //actor->GetProperty()->SetRepresentationToWireframe();
+  // actor->GetProperty()->SetRepresentationToWireframe();
 
   renderWindow->SetMultiSamples(0);
 
   vtkNew<vtkShadowMapBakerPass> bakerPass;
 
   // tell the renderer to use our render pass pipeline
-  vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer);
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
   glrenderer->SetPass(bakerPass);
 
   vtkNew<vtkTimerLog> timer;
@@ -93,7 +90,7 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   cerr << "baking time: " << firstRender << endl;
 
   // get a shadow map
-  vtkTextureObject *to = (*bakerPass->GetShadowMaps())[2];
+  vtkTextureObject* to = (*bakerPass->GetShadowMaps())[2];
   // by default the textures have depth comparison on
   // but for simple display we need to turn it off
   to->SetDepthTextureCompare(false);
@@ -116,8 +113,8 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   renderer->GetActiveCamera()->Zoom(2.0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }

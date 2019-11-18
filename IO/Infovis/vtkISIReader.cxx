@@ -37,10 +37,10 @@ static istream& my_getline(istream& input, std::string& output, char delimiter =
 
 // ----------------------------------------------------------------------
 
-vtkISIReader::vtkISIReader() :
-  FileName(nullptr),
-  Delimiter(nullptr),
-  MaxRecords(0)
+vtkISIReader::vtkISIReader()
+  : FileName(nullptr)
+  , Delimiter(nullptr)
+  , MaxRecords(0)
 {
   this->SetDelimiter(";");
 
@@ -61,20 +61,15 @@ vtkISIReader::~vtkISIReader()
 void vtkISIReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(none)") << endl;
-  os << indent << "Delimiter: "
-     << (this->Delimiter ? this->Delimiter : "(none)") << endl;
-  os << indent << "MaxRecords: " << this->MaxRecords
-     << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "Delimiter: " << (this->Delimiter ? this->Delimiter : "(none)") << endl;
+  os << indent << "MaxRecords: " << this->MaxRecords << endl;
 }
 
 // ----------------------------------------------------------------------
 
 int vtkISIReader::RequestData(
-  vtkInformation*,
-  vtkInformationVector**,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Check that the filename has been specified
   if (!this->FileName)
@@ -85,7 +80,7 @@ int vtkISIReader::RequestData(
 
   // Open the file
   ifstream file(this->FileName, ios::in | ios::binary);
-  if(!file)
+  if (!file)
   {
     vtkErrorMacro(<< "vtkISIReader could not open file " << this->FileName);
     return 0;
@@ -107,14 +102,14 @@ int vtkISIReader::RequestData(
   // Get header information from the first two lines of the file ...
   std::string line_buffer;
   my_getline(file, line_buffer);
-  if(line_buffer != "FN ISI Export Format")
+  if (line_buffer != "FN ISI Export Format")
   {
     vtkErrorMacro(<< "File " << this->FileName << " is not an ISI file");
     return 0;
   }
 
   my_getline(file, line_buffer);
-  if(line_buffer != "VR 1.0")
+  if (line_buffer != "VR 1.0")
   {
     vtkErrorMacro(<< "File " << this->FileName << " is not an ISI version 1.0 file");
     return 0;
@@ -124,15 +119,14 @@ int vtkISIReader::RequestData(
   int record_count = 0;
 
   // For each record in the file ...
-  for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
+  for (my_getline(file, line_buffer); file; my_getline(file, line_buffer))
   {
     // Stop if we exceed the maximum number of records ...
-    if(this->MaxRecords && record_count >= this->MaxRecords)
+    if (this->MaxRecords && record_count >= this->MaxRecords)
       break;
 
-    double progress = total_bytes
-      ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes)
-      : 0.5;
+    double progress =
+      total_bytes ? static_cast<double>(file.tellg()) / static_cast<double>(total_bytes) : 0.5;
 
     this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
 
@@ -140,30 +134,33 @@ int vtkISIReader::RequestData(
     table->InsertNextBlankRow();
 
     // For each field in the record ...
-    for(; file; )
+    for (; file;)
     {
-      const std::string tag_type = line_buffer.size() >= 2 ? line_buffer.substr(0, 2) : std::string();
-      if(tag_type == "ER")
+      const std::string tag_type =
+        line_buffer.size() >= 2 ? line_buffer.substr(0, 2) : std::string();
+      if (tag_type == "ER")
         break;
-      if(tag_type == "EF")
+      if (tag_type == "EF")
         break;
 
       std::string tag_value = line_buffer.size() > 3 ? line_buffer.substr(3) : std::string();
 
       // For each line in the field ...
-      for(my_getline(file, line_buffer); file; my_getline(file, line_buffer))
+      for (my_getline(file, line_buffer); file; my_getline(file, line_buffer))
       {
-        const std::string next_tag_type = line_buffer.size() >= 2 ? line_buffer.substr(0, 2) : std::string();
-        if(next_tag_type != "  ")
+        const std::string next_tag_type =
+          line_buffer.size() >= 2 ? line_buffer.substr(0, 2) : std::string();
+        if (next_tag_type != "  ")
           break;
 
-        const std::string next_tag_value = line_buffer.size() > 3 ? line_buffer.substr(3) : std::string();
+        const std::string next_tag_value =
+          line_buffer.size() > 3 ? line_buffer.substr(3) : std::string();
 
         tag_value += delimiter + next_tag_value;
       }
 
       // If necessary, add a new column to the table to store this value ...
-      if(!columns.count(tag_type))
+      if (!columns.count(tag_type))
       {
         vtkStringArray* const new_column = vtkStringArray::New();
         new_column->SetName(tag_type.c_str());
@@ -193,8 +190,7 @@ static istream& my_getline(istream& input, std::string& output, char delimiter)
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 
-  while ((nextValue = input.get()) != EOF &&
-         numCharactersRead < output.max_size())
+  while ((nextValue = input.get()) != EOF && numCharactersRead < output.max_size())
   {
     ++numCharactersRead;
 

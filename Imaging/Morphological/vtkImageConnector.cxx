@@ -37,7 +37,7 @@ vtkImageConnector::~vtkImageConnector()
 //----------------------------------------------------------------------------
 void vtkImageConnector::RemoveAllSeeds()
 {
-  vtkImageConnectorSeed *temp;
+  vtkImageConnectorSeed* temp;
 
   while (this->Seeds)
   {
@@ -48,11 +48,10 @@ void vtkImageConnector::RemoveAllSeeds()
   this->LastSeed = nullptr;
 }
 
-
 //----------------------------------------------------------------------------
-vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
+vtkImageConnectorSeed* vtkImageConnector::NewSeed(int index[3], void* ptr)
 {
-  vtkImageConnectorSeed *seed = vtkImageConnectorSeed::New();
+  vtkImageConnectorSeed* seed = vtkImageConnectorSeed::New();
   int idx;
 
   for (idx = 0; idx < 3; ++idx)
@@ -67,7 +66,7 @@ vtkImageConnectorSeed *vtkImageConnector::NewSeed(int index[3], void *ptr)
 
 //----------------------------------------------------------------------------
 // Add a new seed to the end of the seed list.
-void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed *seed)
+void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed* seed)
 {
   // Add the seed to the end of the list
   if (this->LastSeed == nullptr)
@@ -83,11 +82,11 @@ void vtkImageConnector::AddSeedToEnd(vtkImageConnectorSeed *seed)
 
 //----------------------------------------------------------------------------
 // Add a new seed to the start of the seed list.
-void vtkImageConnector::AddSeed(vtkImageConnectorSeed *seed)
+void vtkImageConnector::AddSeed(vtkImageConnectorSeed* seed)
 {
   seed->Next = this->Seeds;
   this->Seeds = seed;
-  if ( ! this->LastSeed)
+  if (!this->LastSeed)
   {
     this->LastSeed = seed;
   }
@@ -95,9 +94,9 @@ void vtkImageConnector::AddSeed(vtkImageConnectorSeed *seed)
 
 //----------------------------------------------------------------------------
 // Removes a seed from the start of the seed list, and returns the seed.
-vtkImageConnectorSeed *vtkImageConnector::PopSeed()
+vtkImageConnectorSeed* vtkImageConnector::PopSeed()
 {
-  vtkImageConnectorSeed *seed;
+  vtkImageConnectorSeed* seed;
 
   seed = this->Seeds;
   this->Seeds = seed->Next;
@@ -113,12 +112,12 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 // used to find connected pixels.
 // All pixels connected to seeds are set to ConnectedValue.
 // The data has to be unsigned char.
-void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int extent[6])
+void vtkImageConnector::MarkData(vtkImageData* data, int numberOfAxes, int extent[6])
 {
   vtkIdType incs[3], *pIncs;
-  int *pExtent;
-  vtkImageConnectorSeed *seed;
-  unsigned char *ptr;
+  int* pExtent;
+  vtkImageConnectorSeed* seed;
+  unsigned char* ptr;
   int newIndex[3], *pIndex, idx;
   long count = 0;
 
@@ -128,7 +127,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
     ++count;
     seed = this->PopSeed();
     // just in case the seed has not been marked visited.
-    *(static_cast<unsigned char *>(seed->Pointer)) = this->ConnectedValue;
+    *(static_cast<unsigned char*>(seed->Pointer)) = this->ConnectedValue;
     // Add neighbors
     newIndex[0] = seed->Index[0];
     newIndex[1] = seed->Index[1];
@@ -141,7 +140,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
       // check pixel below
       if (*pExtent < *pIndex)
       {
-        ptr = static_cast<unsigned char *>(seed->Pointer) - *pIncs;
+        ptr = static_cast<unsigned char*>(seed->Pointer) - *pIncs;
         if (*ptr == this->UnconnectedValue)
         { // add a new seed
           --(*pIndex);
@@ -154,7 +153,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
       // check above pixel
       if (*pExtent > *pIndex)
       {
-        ptr = static_cast<unsigned char *>(seed->Pointer) + *pIncs;
+        ptr = static_cast<unsigned char*>(seed->Pointer) + *pIncs;
         if (*ptr == this->UnconnectedValue)
         { // add a new seed
           ++(*pIndex);
@@ -177,10 +176,8 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
 
 void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "ConnectedValue: " << this->ConnectedValue << "\n";
   os << indent << "UnconnectedValue: " << this->UnconnectedValue << "\n";
-
 }
-

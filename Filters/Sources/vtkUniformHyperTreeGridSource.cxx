@@ -24,14 +24,10 @@ PURPOSE.  See the above copyright notice for more information.
 vtkStandardNewMacro(vtkUniformHyperTreeGridSource);
 
 //----------------------------------------------------------------------------
-vtkUniformHyperTreeGridSource::vtkUniformHyperTreeGridSource()
-{
-}
+vtkUniformHyperTreeGridSource::vtkUniformHyperTreeGridSource() {}
 
 //----------------------------------------------------------------------------
-vtkUniformHyperTreeGridSource::~vtkUniformHyperTreeGridSource()
-{
-}
+vtkUniformHyperTreeGridSource::~vtkUniformHyperTreeGridSource() {}
 
 //-----------------------------------------------------------------------------
 void vtkUniformHyperTreeGridSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -47,17 +43,15 @@ int vtkUniformHyperTreeGridSource::FillOutputPortInformation(int, vtkInformation
 }
 
 //----------------------------------------------------------------------------
-int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
-                                         vtkInformationVector**,
-                                         vtkInformationVector* outputVector)
+int vtkUniformHyperTreeGridSource::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   // Retrieve the output
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
   vtkUniformHyperTreeGrid* output = vtkUniformHyperTreeGrid::SafeDownCast(outputDO);
-  if (! output)
+  if (!output)
   {
-    vtkErrorMacro( "pre: output_not_uniformHyperTreeGrid: "
-                   << outputDO->GetClassName() );
+    vtkErrorMacro("pre: output_not_uniformHyperTreeGrid: " << outputDO->GetClassName());
     return 0;
   }
 
@@ -73,16 +67,16 @@ int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
   {
     // Calculate refined block size
     this->BlockSize = this->BranchFactor;
-    for (unsigned int i = 1; i < this->Dimension; ++ i)
+    for (unsigned int i = 1; i < this->Dimension; ++i)
     {
       this->BlockSize *= this->BranchFactor;
     }
 
-    if (! this->DescriptorBits && ! this->InitializeFromStringDescriptor())
+    if (!this->DescriptorBits && !this->InitializeFromStringDescriptor())
     {
       return 0;
     }
-    else if (this->DescriptorBits && ! this->InitializeFromBitsDescriptor())
+    else if (this->DescriptorBits && !this->InitializeFromBitsDescriptor())
     {
       return 0;
     }
@@ -117,8 +111,8 @@ int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
           output->SetGridScale(0., 0., this->GridScale[axis]);
           break;
       } // switch (axis)
-    } // case 1
-      break;
+    }   // case 1
+    break;
     case 2:
     {
       // Set grid size depending on orientation
@@ -143,8 +137,8 @@ int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
           output->SetGridScale(this->GridScale[axis1], this->GridScale[axis2], 0.);
           break;
       } // switch (this->Orientation)
-    } // case 2
-      break;
+    }   // case 2
+    break;
     case 3:
     {
       // Set grid size
@@ -153,9 +147,7 @@ int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
       break;
     } // case 3
     default:
-      vtkErrorMacro(<<"Unsupported dimension: "
-                    << this->Dimension
-                    << ".");
+      vtkErrorMacro(<< "Unsupported dimension: " << this->Dimension << ".");
       return 0;
   } // switch (this->Dimension)
 
@@ -179,7 +171,7 @@ int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
     outData->AddArray(interceptsArray);
   }
 
-  if (! this->UseDescriptor)
+  if (!this->UseDescriptor)
   {
     // Prepare array of doubles for quadric values
     vtkNew<vtkDoubleArray> quadricArray;
@@ -189,13 +181,13 @@ int vtkUniformHyperTreeGridSource::RequestData(vtkInformation*,
   }
 
   // Iterate over constituting hypertrees
-  if (! this->ProcessTrees(nullptr, outputDO))
+  if (!this->ProcessTrees(nullptr, outputDO))
   {
     return 0;
   }
 
   // Squeeze output data arrays
-  for (int a = 0; a < outData->GetNumberOfArrays(); ++ a)
+  for (int a = 0; a < outData->GetNumberOfArrays(); ++a)
   {
     outData->GetArray(a)->Squeeze();
   }

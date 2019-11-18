@@ -23,7 +23,7 @@
  * values of all points used by particular cell. This filter will also
  * pass through any existing point and cell arrays.
  *
-*/
+ */
 
 #ifndef vtkmAverageToCells_h
 #define vtkmAverageToCells_h
@@ -34,7 +34,7 @@
 class VTKACCELERATORSVTKM_EXPORT vtkmAverageToCells : public vtkDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm)
+  vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToCells* New();
 
@@ -42,8 +42,7 @@ protected:
   vtkmAverageToCells();
   ~vtkmAverageToCells();
 
-  virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkmAverageToCells(const vtkmAverageToCells&) = delete;

@@ -31,58 +31,70 @@
 #include "vtkTextProperty.h"
 #include "vtkXMLPolyDataWriter.h"
 
-#define VTK_CREATE(type, var) \
-  vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-int TestDensifyPolyData(int, char *[])
+int TestDensifyPolyData(int, char*[])
 {
 
   VTK_CREATE(vtkPoints, boxPoints);
-  boxPoints->InsertNextPoint(-0.5,-0.5,-0.5);
-  boxPoints->InsertNextPoint(-0.5,-0.5,0.5);
-  boxPoints->InsertNextPoint(-0.5,0.5,0.5);
-  boxPoints->InsertNextPoint(-0.5,0.5,-0.5);
-  boxPoints->InsertNextPoint(0.5,-0.5,-0.5);
-  boxPoints->InsertNextPoint(0.5,0.5,-0.5);
-  boxPoints->InsertNextPoint(0.5,-0.5,0.5);
-  boxPoints->InsertNextPoint(0.5,0.5,0.023809850216);
-  boxPoints->InsertNextPoint(0.5,0.072707727551,0.5);
-  boxPoints->InsertNextPoint(-0.014212930575,0.5,0.5);
+  boxPoints->InsertNextPoint(-0.5, -0.5, -0.5);
+  boxPoints->InsertNextPoint(-0.5, -0.5, 0.5);
+  boxPoints->InsertNextPoint(-0.5, 0.5, 0.5);
+  boxPoints->InsertNextPoint(-0.5, 0.5, -0.5);
+  boxPoints->InsertNextPoint(0.5, -0.5, -0.5);
+  boxPoints->InsertNextPoint(0.5, 0.5, -0.5);
+  boxPoints->InsertNextPoint(0.5, -0.5, 0.5);
+  boxPoints->InsertNextPoint(0.5, 0.5, 0.023809850216);
+  boxPoints->InsertNextPoint(0.5, 0.072707727551, 0.5);
+  boxPoints->InsertNextPoint(-0.014212930575, 0.5, 0.5);
 
   VTK_CREATE(vtkPolyData, boxPolydata);
   VTK_CREATE(vtkCellArray, polys);
   boxPolydata->SetPolys(polys);
   boxPolydata->SetPoints(boxPoints);
-  { vtkIdType ids[] = {0,1,2,3};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 4, ids ); }
-  { vtkIdType ids[] = {4,5,7,8,6};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 5, ids ); }
-  { vtkIdType ids[] = {0,4,6,1};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 4, ids ); }
-  { vtkIdType ids[] = {3,2,9,7,5};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 5, ids ); }
-  { vtkIdType ids[] = {0,3,5,4};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 4, ids ); }
-  { vtkIdType ids[] = {1,6,8,9,2};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 5, ids ); }
-  { vtkIdType ids[] = {7,9,8};
-    boxPolydata->InsertNextCell(VTK_POLYGON, 3, ids ); }
+  {
+    vtkIdType ids[] = { 0, 1, 2, 3 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 4, ids);
+  }
+  {
+    vtkIdType ids[] = { 4, 5, 7, 8, 6 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 5, ids);
+  }
+  {
+    vtkIdType ids[] = { 0, 4, 6, 1 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 4, ids);
+  }
+  {
+    vtkIdType ids[] = { 3, 2, 9, 7, 5 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 5, ids);
+  }
+  {
+    vtkIdType ids[] = { 0, 3, 5, 4 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 4, ids);
+  }
+  {
+    vtkIdType ids[] = { 1, 6, 8, 9, 2 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 5, ids);
+  }
+  {
+    vtkIdType ids[] = { 7, 9, 8 };
+    boxPolydata->InsertNextCell(VTK_POLYGON, 3, ids);
+  }
 
-  VTK_CREATE( vtkDensifyPolyData, densifyFilter );
+  VTK_CREATE(vtkDensifyPolyData, densifyFilter);
   densifyFilter->SetInputData(boxPolydata);
   densifyFilter->SetNumberOfSubdivisions(2);
 
-  VTK_CREATE( vtkXMLPolyDataWriter, writer);
+  VTK_CREATE(vtkXMLPolyDataWriter, writer);
   writer->SetInputConnection(densifyFilter->GetOutputPort());
   writer->SetFileName("tessellatedBox.vtp");
   writer->SetDataModeToAscii();
   writer->Update();
 
-  VTK_CREATE( vtkSphereSource, sphere );
-  VTK_CREATE( vtkDensifyPolyData, densifyFilter2 );
+  VTK_CREATE(vtkSphereSource, sphere);
+  VTK_CREATE(vtkDensifyPolyData, densifyFilter2);
   densifyFilter2->SetInputConnection(sphere->GetOutputPort());
   densifyFilter2->SetNumberOfSubdivisions(1);
-
 
   // Throw the stuff on the screen.
   VTK_CREATE(vtkRenderWindow, renwin);
@@ -153,4 +165,3 @@ int TestDensifyPolyData(int, char *[])
 
   return EXIT_SUCCESS;
 }
-

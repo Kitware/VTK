@@ -48,9 +48,8 @@ Sample* vtkOTUtilities::SingleDimArraysToSample(vtkDataArrayCollection* arrays)
     {
       // TODO nullptr Object
       vtkErrorWithObjectMacro(arrays,
-        "An array has not the expected number of tuples. Expecting: " << numTuples << " , got: "
-                                                                      << array->GetNumberOfTuples()
-                                                                      << " , dropping it");
+        "An array has not the expected number of tuples. Expecting: "
+          << numTuples << " , got: " << array->GetNumberOfTuples() << " , dropping it");
       continue;
     }
     for (int i = 0; i < numTuples; ++i)

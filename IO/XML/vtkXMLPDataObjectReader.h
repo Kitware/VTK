@@ -18,7 +18,7 @@
  *
  * vtkXMLPDataObjectReader provides functionality common to all PVTK XML
  * file readers. Concrete subclasses call upon this functionality when needed.
-*/
+ */
 
 #ifndef vtkXMLPDataObjectReader_h
 #define vtkXMLPDataObjectReader_h
@@ -57,8 +57,8 @@ protected:
   virtual void SetupPieces(int numPieces);
 
   /**
-  * Pipeline execute information driver.  Called by vtkXMLReader.
-  */
+   * Pipeline execute information driver.  Called by vtkXMLReader.
+   */
   int ReadXMLInformation() override;
 
   /**
@@ -86,31 +86,31 @@ protected:
 
   //@{
   /**
-  * Callback registered with the PieceProgressObserver.
-  */
+   * Callback registered with the PieceProgressObserver.
+   */
   static void PieceProgressCallbackFunction(vtkObject*, unsigned long, void*, void*);
   virtual void PieceProgressCallback() = 0;
   //@}
 
   /**
-  * Pieces from the input summary file.
-  */
+   * Pieces from the input summary file.
+   */
   int NumberOfPieces;
 
   /**
-  * The piece currently being read.
-  */
+   * The piece currently being read.
+   */
   int Piece;
 
   /**
-  * The path to the input file without the file name.
-  */
+   * The path to the input file without the file name.
+   */
   char* PathName;
 
   //@{
   /**
-  * Information per-piece.
-  */
+   * Information per-piece.
+   */
   vtkXMLDataElement** PieceElements;
   int* CanReadPieceFlag;
   //@}

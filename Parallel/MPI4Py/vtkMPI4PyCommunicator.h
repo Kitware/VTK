@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkMPICommunicator
-*/
+ */
 
 #ifndef vtkMPI4PyCommunicator_h
 #define vtkMPI4PyCommunicator_h
@@ -37,7 +37,6 @@ class vtkMPICommunicator;
 class VTKPARALLELMPI4PY_EXPORT vtkMPI4PyCommunicator : public vtkObject
 {
 public:
-
   vtkTypeMacro(vtkMPI4PyCommunicator, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 

@@ -22,36 +22,34 @@
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
-int TestOBJReaderMaterials( int argc, char *argv[] )
+int TestOBJReaderMaterials(int argc, char* argv[])
 {
   int retVal = 0;
 
   // Create the reader.
-  char* fname = vtkTestUtilities::ExpandDataFileName(
-    argc, argv, "Data/obj_with_materials.obj");
-  vtkSmartPointer<vtkOBJReader> reader =
-    vtkSmartPointer<vtkOBJReader>::New();
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/obj_with_materials.obj");
+  vtkSmartPointer<vtkOBJReader> reader = vtkSmartPointer<vtkOBJReader>::New();
   reader->SetFileName(fname);
   reader->Update();
-  delete [] fname;
+  delete[] fname;
 
-  vtkPolyData *data = reader->GetOutput();
+  vtkPolyData* data = reader->GetOutput();
 
-  if(!data)
+  if (!data)
   {
     std::cerr << "Could not read data" << std::endl;
     return 1;
   }
-  vtkStringArray *mna = vtkStringArray::SafeDownCast(
-    data->GetFieldData()->GetAbstractArray("MaterialNames"));
-  if(!mna)
+  vtkStringArray* mna =
+    vtkStringArray::SafeDownCast(data->GetFieldData()->GetAbstractArray("MaterialNames"));
+  if (!mna)
   {
     std::cerr << "missing material names array" << std::endl;
     return 1;
   }
-  vtkIntArray *mia = vtkIntArray::SafeDownCast(
-    data->GetCellData()->GetAbstractArray("MaterialIds"));
-  if(!mia)
+  vtkIntArray* mia =
+    vtkIntArray::SafeDownCast(data->GetCellData()->GetAbstractArray("MaterialIds"));
+  if (!mia)
   {
     std::cerr << "missing material id array" << std::endl;
     return 1;
@@ -68,7 +66,6 @@ int TestOBJReaderMaterials( int argc, char *argv[] )
     std::cerr << "wrong material for" << std::endl;
     return 1;
   }
-
 
   return retVal;
 }

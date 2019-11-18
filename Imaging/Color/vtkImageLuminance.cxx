@@ -34,13 +34,10 @@ vtkImageLuminance::vtkImageLuminance()
 
 //----------------------------------------------------------------------------
 // This method overrides information set by parent's ExecuteInformation.
-int vtkImageLuminance::RequestInformation (
-  vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector * outputVector)
+int vtkImageLuminance::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkDataObject::SetPointDataActiveScalarInfo(
-    outputVector->GetInformationObject(0), -1, 1);
+  vtkDataObject::SetPointDataActiveScalarInfo(outputVector->GetInformationObject(0), -1, 1);
   return 1;
 }
 
@@ -49,9 +46,8 @@ int vtkImageLuminance::RequestInformation (
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
 template <class T>
-void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
-                              vtkImageData *outData,
-                              int outExt[6], int id, T *)
+void vtkImageLuminanceExecute(
+  vtkImageLuminance* self, vtkImageData* inData, vtkImageData* outData, int outExt[6], int id, T*)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -66,7 +62,7 @@ void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
     while (outSI != outSIEnd)
     {
       // now process the components
-      luminance =  0.30 * *inSI++;
+      luminance = 0.30 * *inSI++;
       luminance += 0.59 * *inSI++;
       luminance += 0.11 * *inSI++;
       *outSI = static_cast<T>(luminance);
@@ -77,17 +73,14 @@ void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
   }
 }
 
-
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageLuminance::ThreadedExecute (vtkImageData *inData,
-                                        vtkImageData *outData,
-                                        int outExt[6], int id)
+void vtkImageLuminance::ThreadedExecute(
+  vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
 {
-  vtkDebugMacro(<< "Execute: inData = " << inData
-  << ", outData = " << outData);
+  vtkDebugMacro(<< "Execute: inData = " << inData << ", outData = " << outData);
 
   // this filter expects that input is the same type as output.
   if (inData->GetNumberOfScalarComponents() != 3)
@@ -101,27 +94,16 @@ void vtkImageLuminance::ThreadedExecute (vtkImageData *inData,
   if (inData->GetScalarType() != outData->GetScalarType())
   {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
   }
 
   switch (inData->GetScalarType())
   {
     vtkTemplateMacro(
-      vtkImageLuminanceExecute( this, inData, outData,
-                                outExt, id, static_cast<VTK_TT *>(nullptr)));
+      vtkImageLuminanceExecute(this, inData, outData, outExt, id, static_cast<VTK_TT*>(nullptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
   }
 }
-
-
-
-
-
-
-
-
-
-

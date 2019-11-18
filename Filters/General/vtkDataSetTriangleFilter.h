@@ -29,7 +29,7 @@
  *
  * @sa
  * vtkOrderedTriangulator vtkTriangleFilter
-*/
+ */
 
 #ifndef vtkDataSetTriangleFilter_h
 #define vtkDataSetTriangleFilter_h
@@ -42,8 +42,8 @@ class vtkOrderedTriangulator;
 class VTKFILTERSGENERAL_EXPORT vtkDataSetTriangleFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
-  static vtkDataSetTriangleFilter *New();
-  vtkTypeMacro(vtkDataSetTriangleFilter,vtkUnstructuredGridAlgorithm);
+  static vtkDataSetTriangleFilter* New();
+  vtkTypeMacro(vtkDataSetTriangleFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -61,16 +61,16 @@ protected:
   ~vtkDataSetTriangleFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Used to triangulate 3D cells
-  vtkOrderedTriangulator *Triangulator;
+  vtkOrderedTriangulator* Triangulator;
 
   // Different execute methods depending on whether input is structured or not
-  void StructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
-  void UnstructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
+  void StructuredExecute(vtkDataSet*, vtkUnstructuredGrid*);
+  void UnstructuredExecute(vtkDataSet*, vtkUnstructuredGrid*);
 
   vtkTypeBool TetrahedraOnly;
 
@@ -80,5 +80,3 @@ private:
 };
 
 #endif
-
-

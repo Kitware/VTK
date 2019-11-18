@@ -31,7 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 
 // Needed to let vtkPDistributedDataFilter be instantiated when available
-vtkObjectFactoryNewMacro(vtkDistributedDataFilter)
+vtkObjectFactoryNewMacro(vtkDistributedDataFilter);
 
 //----------------------------------------------------------------------------
 vtkDistributedDataFilter::vtkDistributedDataFilter()
@@ -72,13 +72,13 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
 
   this->SetController(nullptr);
 
-  delete [] this->Target;
-  this->Target= nullptr;
+  delete[] this->Target;
+  this->Target = nullptr;
 
-  delete [] this->Source;
-  this->Source= nullptr;
+  delete[] this->Source;
+  this->Source = nullptr;
 
-  delete [] this->ConvexSubRegionBounds;
+  delete[] this->ConvexSubRegionBounds;
   this->ConvexSubRegionBounds = nullptr;
 
   if (this->UserCuts)
@@ -89,7 +89,7 @@ vtkDistributedDataFilter::~vtkDistributedDataFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkDistributedDataFilter::SetController(vtkMultiProcessController *c)
+void vtkDistributedDataFilter::SetController(vtkMultiProcessController* c)
 {
   if (this->Kdtree)
   {
@@ -124,11 +124,11 @@ void vtkDistributedDataFilter::SetController(vtkMultiProcessController *c)
 
   c->Register(this);
   this->NumProcesses = c->GetNumberOfProcesses();
-  this->MyId    = c->GetLocalProcessId();
+  this->MyId = c->GetLocalProcessId();
 }
 
 //-------------------------------------------------------------------------
-vtkPKdTree *vtkDistributedDataFilter::GetKdtree()
+vtkPKdTree* vtkDistributedDataFilter::GetKdtree()
 {
   if (this->Kdtree == nullptr)
   {
@@ -190,14 +190,12 @@ int vtkDistributedDataFilter::GetBoundaryMode()
 
 //-------------------------------------------------------------------------
 
-int vtkDistributedDataFilter::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDistributedDataFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int piece, numPieces, ghostLevels;
 
@@ -208,10 +206,8 @@ int vtkDistributedDataFilter::RequestUpdateExtent(
   ghostLevels = 0;
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              numPieces);
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              ghostLevels);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevels);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
   return 1;
@@ -243,12 +239,11 @@ void vtkDistributedDataFilter::SetCuts(vtkBSPCuts* cuts)
 }
 
 //----------------------------------------------------------------------------
-void vtkDistributedDataFilter::SetUserRegionAssignments(
-  const int *map, int numRegions)
+void vtkDistributedDataFilter::SetUserRegionAssignments(const int* map, int numRegions)
 {
   std::vector<int> copy(this->UserRegionAssignments);
   this->UserRegionAssignments.resize(numRegions);
-  for (int cc=0; cc < numRegions; cc++)
+  for (int cc = 0; cc < numRegions; cc++)
   {
     this->UserRegionAssignments[cc] = map[cc];
   }
@@ -258,37 +253,30 @@ void vtkDistributedDataFilter::SetUserRegionAssignments(
   }
 }
 
-
 //----------------------------------------------------------------------------
-int vtkDistributedDataFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDistributedDataFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
-               6);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkDistributedDataFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkDistributedDataFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output.
-  vtkDataObject* input =
-    vtkDataObject::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject* input = vtkDataObject::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid* outputUG =
     vtkUnstructuredGrid::SafeDownCast(outInfo->Get(vtkUnstructuredGrid::DATA_OBJECT()));
   vtkCompositeDataSet* outputCD =
@@ -299,7 +287,6 @@ int vtkDistributedDataFilter::RequestData(
     vtkErrorMacro("No input data!");
     return 0;
   }
-
 
   if (outputCD)
   {
@@ -320,9 +307,8 @@ int vtkDistributedDataFilter::RequestData(
 }
 
 //-------------------------------------------------------------------------
-int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkDistributedDataFilter::RequestDataObject(
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
@@ -330,16 +316,15 @@ int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
     return 0;
   }
 
-  vtkDataObject *input = vtkDataObject::GetData(inInfo);
+  vtkDataObject* input = vtkDataObject::GetData(inInfo);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (input)
   {
-    vtkDataObject *output = vtkDataObject::GetData(outInfo);
+    vtkDataObject* output = vtkDataObject::GetData(outInfo);
     // If input is composite dataset, output is a vtkMultiBlockDataSet of
     // unstructrued grids.
     // If input is a dataset, output is an unstructured grid.
-    if (!output ||
-      (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
+    if (!output || (input->IsA("vtkCompositeDataSet") && !output->IsA("vtkMultiBlockDataSet")) ||
       (input->IsA("vtkDataSet") && !output->IsA("vtkUnstructuredGrid")))
     {
       vtkDataObject* newOutput = nullptr;
@@ -361,7 +346,7 @@ int vtkDistributedDataFilter::RequestDataObject(vtkInformation*,
 }
 
 //-------------------------------------------------------------------------
-int vtkDistributedDataFilter::FillInputPortInformation(int, vtkInformation *info)
+int vtkDistributedDataFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
@@ -372,5 +357,5 @@ int vtkDistributedDataFilter::FillInputPortInformation(int, vtkInformation *info
 //-------------------------------------------------------------------------
 void vtkDistributedDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

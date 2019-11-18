@@ -83,7 +83,7 @@
  *
  * @sa
  * vtk3DWidget vtkImplicitPlaneWidget
-*/
+ */
 
 #ifndef vtkImplicitCylinderWidget_h
 #define vtkImplicitCylinderWidget_h
@@ -99,13 +99,13 @@ public:
   /**
    * Instantiate the object.
    */
-  static vtkImplicitCylinderWidget *New();
+  static vtkImplicitCylinderWidget* New();
 
   //@{
   /**
    * Standard vtkObject methods
    */
-  vtkTypeMacro(vtkImplicitCylinderWidget,vtkAbstractWidget);
+  vtkTypeMacro(vtkImplicitCylinderWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -114,13 +114,15 @@ public:
    * widget in the scene. Note that the representation is a subclass of vtkProp
    * so it can be added to the renderer independent of the widget.
    */
-  void SetRepresentation( vtkImplicitCylinderRepresentation *rep );
+  void SetRepresentation(vtkImplicitCylinderRepresentation* rep);
 
   /**
    * Return the representation as a vtkImplicitCylinderRepresentation.
    */
-  vtkImplicitCylinderRepresentation *GetCylinderRepresentation()
-    {return reinterpret_cast<vtkImplicitCylinderRepresentation*>(this->WidgetRep);}
+  vtkImplicitCylinderRepresentation* GetCylinderRepresentation()
+  {
+    return reinterpret_cast<vtkImplicitCylinderRepresentation*>(this->WidgetRep);
+  }
 
   /**
    * Create the default widget representation if one is not set.
@@ -133,7 +135,11 @@ protected:
 
   // Manage the state of the widget
   int WidgetState;
-  enum _WidgetState {Start=0,Active};
+  enum _WidgetState
+  {
+    Start = 0,
+    Active
+  };
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);
@@ -149,8 +155,7 @@ protected:
    * Update the cursor shape based on the interaction state. Returns 1
    * if the cursor shape requested is different from the existing one.
    */
-  int UpdateCursorShape( int interactionState );
-
+  int UpdateCursorShape(int interactionState);
 
 private:
   vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) = delete;

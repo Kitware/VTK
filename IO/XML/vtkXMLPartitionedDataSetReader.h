@@ -24,7 +24,7 @@
  * for that block. If the number of sub-blocks is larger than the
  * number of processors, each processor will possibly have more than
  * 1 sub-block.
-*/
+ */
 
 #ifndef vtkXMLPartitionedDataSetReader_h
 #define vtkXMLPartitionedDataSetReader_h
@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPartitionedDataSetReader : public vtkXMLCompositeDat
 {
 public:
   static vtkXMLPartitionedDataSetReader* New();
-  vtkTypeMacro(vtkXMLPartitionedDataSetReader,vtkXMLCompositeDataReader);
+  vtkTypeMacro(vtkXMLPartitionedDataSetReader, vtkXMLCompositeDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -47,9 +47,8 @@ protected:
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
-  void ReadComposite(vtkXMLDataElement* element,
-    vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex) override;
+  void ReadComposite(vtkXMLDataElement* element, vtkCompositeDataSet* composite,
+    const char* filePath, unsigned int& dataSetIndex) override;
 
   // Get the name of the data set being read.
   const char* GetDataSetName() override;

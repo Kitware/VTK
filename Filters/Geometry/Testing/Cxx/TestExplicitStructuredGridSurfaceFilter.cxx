@@ -31,12 +31,12 @@
 #include "vtkUnstructuredGridToExplicitStructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-int TestExplicitStructuredGridSurfaceFilter(int argc, char *argv[])
+int TestExplicitStructuredGridSurfaceFilter(int argc, char* argv[])
 {
   vtkNew<vtkXMLUnstructuredGridReader> reader;
-  char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/explicitStructuredGrid.vtu");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/explicitStructuredGrid.vtu");
   reader->SetFileName(fname);
-  delete [] fname;
+  delete[] fname;
   reader->Update();
 
   vtkNew<vtkUnstructuredGridToExplicitStructuredGrid> esgConvertor;

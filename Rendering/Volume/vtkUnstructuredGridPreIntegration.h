@@ -39,7 +39,7 @@
  * Due to table size limitations, a table can only be indexed by
  * independent scalars.  Thus, dependent scalars are not supported.
  *
-*/
+ */
 
 #ifndef vtkUnstructuredGridPreIntegration_h
 #define vtkUnstructuredGridPreIntegration_h
@@ -49,20 +49,18 @@
 
 class vtkVolumeProperty;
 
-class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridPreIntegration : public vtkUnstructuredGridVolumeRayIntegrator
+class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridPreIntegration
+  : public vtkUnstructuredGridVolumeRayIntegrator
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridPreIntegration,
-                       vtkUnstructuredGridVolumeRayIntegrator);
-  static vtkUnstructuredGridPreIntegration *New();
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkUnstructuredGridPreIntegration, vtkUnstructuredGridVolumeRayIntegrator);
+  static vtkUnstructuredGridPreIntegration* New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Initialize(vtkVolume *volume, vtkDataArray *scalars) override;
+  void Initialize(vtkVolume* volume, vtkDataArray* scalars) override;
 
-  void Integrate(vtkDoubleArray *intersectionLengths,
-                         vtkDataArray *nearIntersections,
-                         vtkDataArray *farIntersections,
-                         float color[4]) override;
+  void Integrate(vtkDoubleArray* intersectionLengths, vtkDataArray* nearIntersections,
+    vtkDataArray* farIntersections, float color[4]) override;
 
   //@{
   /**
@@ -70,7 +68,7 @@ public:
    * vtkUnstructuredGridPartialPreIntegration is built.
    */
   vtkGetObjectMacro(Integrator, vtkUnstructuredGridVolumeRayIntegrator);
-  virtual void SetIntegrator(vtkUnstructuredGridVolumeRayIntegrator *);
+  virtual void SetIntegrator(vtkUnstructuredGridVolumeRayIntegrator*);
   //@}
 
   //@{
@@ -115,38 +113,37 @@ public:
    * + (sf * \c IntegrationTableScalarScale + \c
    * IntegrationTableScalarShift)).
    */
-  virtual float *GetPreIntegrationTable(int component = 0);
+  virtual float* GetPreIntegrationTable(int component = 0);
 
   /**
    * Get an entry (RGBA) in one of the pre-integration tables.  The tables
    * are built when Initialize is called.
    */
-  float *GetTableEntry(double scalar_front, double scalar_back, double length,
-                       int component = 0);
+  float* GetTableEntry(double scalar_front, double scalar_back, double length, int component = 0);
 
   /**
    * Like GetTableEntry, except the inputs are scaled indices into the table
    * rather than than the actual scalar and length values.  Use GetTableEntry
    * unless you are really sure you know what you are doing.
    */
-  float *GetIndexedTableEntry(int scalar_front_index, int scalar_back_index,
-                              int length_index, int component = 0);
+  float* GetIndexedTableEntry(
+    int scalar_front_index, int scalar_back_index, int length_index, int component = 0);
 
 protected:
   vtkUnstructuredGridPreIntegration();
   ~vtkUnstructuredGridPreIntegration() override;
 
-  vtkUnstructuredGridVolumeRayIntegrator *Integrator;
+  vtkUnstructuredGridVolumeRayIntegrator* Integrator;
 
-  vtkVolume *Volume;
-  vtkVolumeProperty *Property;
+  vtkVolume* Volume;
+  vtkVolumeProperty* Property;
   double MaxLength;
 
-  int      NumComponents;
-  float  **IntegrationTable;
-  double  *IntegrationTableScalarShift;
-  double  *IntegrationTableScalarScale;
-  double   IntegrationTableLengthScale;
+  int NumComponents;
+  float** IntegrationTable;
+  double* IntegrationTableScalarShift;
+  double* IntegrationTableScalarScale;
+  double IntegrationTableLengthScale;
   vtkTimeStamp IntegrationTableBuilt;
 
   int IntegrationTableScalarResolution;
@@ -154,49 +151,48 @@ protected:
 
   vtkTypeBool IncrementalPreIntegration;
 
-  virtual void BuildPreIntegrationTables(vtkDataArray *scalars);
+  virtual void BuildPreIntegrationTables(vtkDataArray* scalars);
 
 private:
   vtkUnstructuredGridPreIntegration(const vtkUnstructuredGridPreIntegration&) = delete;
   void operator=(const vtkUnstructuredGridPreIntegration&) = delete;
 };
 
-inline float *vtkUnstructuredGridPreIntegration::GetIndexedTableEntry(
-                                                         int scalar_front_index,
-                                                         int scalar_back_index,
-                                                         int length_index,
-                                                         int component)
+inline float* vtkUnstructuredGridPreIntegration::GetIndexedTableEntry(
+  int scalar_front_index, int scalar_back_index, int length_index, int component)
 {
   // Snap entries to bounds.  I don't really want to spend cycles doing
   // this, but I've had the ray caster give me values that are noticeably
   // out of bounds.
-  if (scalar_front_index < 0) scalar_front_index = 0;
+  if (scalar_front_index < 0)
+    scalar_front_index = 0;
   if (scalar_front_index >= this->IntegrationTableScalarResolution)
     scalar_front_index = this->IntegrationTableScalarResolution - 1;
-  if (scalar_back_index < 0) scalar_back_index = 0;
+  if (scalar_back_index < 0)
+    scalar_back_index = 0;
   if (scalar_back_index >= this->IntegrationTableScalarResolution)
     scalar_back_index = this->IntegrationTableScalarResolution - 1;
-  if (length_index < 0) length_index = 0;
+  if (length_index < 0)
+    length_index = 0;
   if (length_index >= this->IntegrationTableLengthResolution)
     length_index = this->IntegrationTableLengthResolution - 1;
 
-  return (  this->IntegrationTable[component]
-          + 4*(  (  (  length_index*this->IntegrationTableScalarResolution
-                     + scalar_back_index)
-                  * this->IntegrationTableScalarResolution)
-               + scalar_front_index));
+  return (this->IntegrationTable[component] +
+    4 *
+      (((length_index * this->IntegrationTableScalarResolution + scalar_back_index) *
+         this->IntegrationTableScalarResolution) +
+        scalar_front_index));
 }
 
-inline float *vtkUnstructuredGridPreIntegration::GetTableEntry(
+inline float* vtkUnstructuredGridPreIntegration::GetTableEntry(
   double scalar_front, double scalar_back, double length, int component)
 {
-  int sfi = static_cast<int>(  scalar_front
-                    *this->IntegrationTableScalarScale[component]
-                  + this->IntegrationTableScalarShift[component] + 0.5);
-  int sbi =  static_cast<int>(  scalar_back*this->IntegrationTableScalarScale[component]
-                  + this->IntegrationTableScalarShift[component] + 0.5);
-  int li =  static_cast<int>(length*this->IntegrationTableLengthScale + 0.5);
+  int sfi = static_cast<int>(scalar_front * this->IntegrationTableScalarScale[component] +
+    this->IntegrationTableScalarShift[component] + 0.5);
+  int sbi = static_cast<int>(scalar_back * this->IntegrationTableScalarScale[component] +
+    this->IntegrationTableScalarShift[component] + 0.5);
+  int li = static_cast<int>(length * this->IntegrationTableLengthScale + 0.5);
   return this->GetIndexedTableEntry(sfi, sbi, li, component);
 }
 
-#endif //vtkUnstructuredGridPreIntegration_h
+#endif // vtkUnstructuredGridPreIntegration_h

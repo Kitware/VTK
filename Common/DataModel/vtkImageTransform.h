@@ -59,8 +59,8 @@ public:
   /**
    * Standard methods for construction, type information, printing.
    */
-  static vtkImageTransform *New();
-  vtkTypeMacro(vtkImageTransform,vtkObject);
+  static vtkImageTransform* New();
+  vtkTypeMacro(vtkImageTransform, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -73,7 +73,7 @@ public:
    * TransformVectors() as appropriate. Note that both the normals and
    * vectors associated with the point and cell data are transformed.
    */
-  static void TransformPointSet(vtkImageData *im, vtkPointSet *ps);
+  static void TransformPointSet(vtkImageData* im, vtkPointSet* ps);
 
   /**
    * Given x-y-z points represented by a vtkDataArray,
@@ -81,34 +81,29 @@ public:
    * method is useful if there is no orientation or
    * spacing to apply.
    */
-  static void TranslatePoints(double *t, vtkDataArray *da);
+  static void TranslatePoints(double* t, vtkDataArray* da);
 
   /**
    * Given x-y-z points represented by a vtkDataArray,
    * transform the points using the matrix provided.
    */
-  static void TransformPoints(vtkMatrix4x4 *m4, vtkDataArray *da);
+  static void TransformPoints(vtkMatrix4x4* m4, vtkDataArray* da);
 
   /**
    * Given three-component normals represented by a vtkDataArray,
    * transform the normals using the matrix provided.
    */
-  static void TransformNormals(vtkMatrix3x3 *m3,
-                               double spacing[3],
-                               vtkDataArray *da);
+  static void TransformNormals(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da);
 
   /**
    * Given three-component vectors represented by a vtkDataArray,
    * transform the vectors using the matrix provided.
    */
-  static void TransformVectors(vtkMatrix3x3 *m3,
-                               double spacing[3],
-                               vtkDataArray *da);
-
+  static void TransformVectors(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da);
 
 protected:
-  vtkImageTransform() {};
-  ~vtkImageTransform() override {};
+  vtkImageTransform() {}
+  ~vtkImageTransform() override {}
 
 private:
   vtkImageTransform(const vtkImageTransform&) = delete;

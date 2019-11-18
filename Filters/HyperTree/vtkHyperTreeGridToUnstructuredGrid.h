@@ -50,12 +50,13 @@ class vtkPoints;
 class vtkUnstructuredGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid
+  : public vtkHyperTreeGridAlgorithm
 {
 public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
-  vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
@@ -64,22 +65,22 @@ protected:
   /**
    * For this algorithm the output is a vtkUnstructuredGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Main routine to convert the grid of tree into an unstructured grid
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree( vtkHyperTreeGridNonOrientedGeometryCursor* );
+  void RecursivelyProcessTree(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
   /**
    * Helper method to generate a 2D or 3D cell
    */
-  void AddCell( vtkIdType, double*, double* );
+  void AddCell(vtkIdType, double*, double*);
 
   /**
    * Storage for points of output unstructured mesh

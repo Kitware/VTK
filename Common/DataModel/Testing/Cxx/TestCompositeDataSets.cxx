@@ -26,12 +26,10 @@
 #include <iostream>
 #include <vector>
 
-
 //------------------------------------------------------------------------------
-int TestCompositeDataSets(int , char *[])
+int TestCompositeDataSets(int, char*[])
 {
   int errors = 0;
 
-
-  return( errors );
+  return (errors);
 }

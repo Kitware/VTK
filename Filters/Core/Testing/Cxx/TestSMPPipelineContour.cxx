@@ -28,7 +28,7 @@
 #include "vtkXMLMultiBlockDataWriter.h"
 
 const int EXTENT = 100;
-static int WholeExtent[] = {-EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT};
+static int WholeExtent[] = { -EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT };
 const int NUMBER_OF_PIECES = 50;
 static vtkImageData* Pieces[NUMBER_OF_PIECES];
 
@@ -48,16 +48,11 @@ public:
   {
     vtkRTAnalyticSource*& source = this->ImageSources.Local();
 
-    for (vtkIdType i=begin; i<end; i++)
+    for (vtkIdType i = begin; i < end; i++)
     {
       int extent[6];
-      this->Translator->PieceToExtentThreadSafe(i,
-                                                NUMBER_OF_PIECES,
-                                                0,
-                                                WholeExtent,
-                                                extent,
-                                                vtkExtentTranslator::BLOCK_MODE,
-                                                0);
+      this->Translator->PieceToExtentThreadSafe(
+        i, NUMBER_OF_PIECES, 0, WholeExtent, extent, vtkExtentTranslator::BLOCK_MODE, 0);
       source->UpdateExtent(extent);
       vtkImageData* piece = vtkImageData::New();
       piece->ShallowCopy(source->GetOutput());
@@ -65,12 +60,10 @@ public:
     }
   }
 
-  void Reduce()
-  {
-  }
+  void Reduce() {}
 };
 
-int TestSMPPipelineContour(int, char *[])
+int TestSMPPipelineContour(int, char*[])
 {
   vtkSMPTools::Initialize(2);
 
@@ -84,7 +77,7 @@ int TestSMPPipelineContour(int, char *[])
   cout << "Creation time: " << tl->GetElapsedTime() << endl;
 
   vtkNew<vtkMultiBlockDataSet> mbds;
-  for (int i=0; i<NUMBER_OF_PIECES; i++)
+  for (int i = 0; i < NUMBER_OF_PIECES; i++)
   {
     mbds->SetBlock(i, Pieces[i]);
     Pieces[i]->Delete();
@@ -107,7 +100,7 @@ int TestSMPPipelineContour(int, char *[])
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(static_cast<vtkCompositeDataSet*>(cf->GetOutputDataObject(0))->NewIterator());
   iter->InitTraversal();
-  while(!iter->IsDoneWithTraversal())
+  while (!iter->IsDoneWithTraversal())
   {
     vtkPolyData* piece = static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
     numCells += piece->GetNumberOfCells();
@@ -138,7 +131,6 @@ int TestSMPPipelineContour(int, char *[])
     cout << "Number of cells did not match." << endl;
     return EXIT_FAILURE;
   }
-
 
 #if 0
   vtkNew<vtkXMLMultiBlockDataWriter> writer;

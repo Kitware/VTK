@@ -124,26 +124,27 @@ public:
     // that to this method.
     this->Surface = this->Context->surface();
 
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::WindowMakeCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::WindowIsCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::WindowFrameEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::WindowMakeCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::WindowIsCurrentEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::WindowFrameEvent, this, &QVTKInternals::renderWindowEventHandler));
     this->RenderWindowObserverIds.push_back(
       renWin->AddObserver(vtkCommand::StartEvent, this, &QVTKInternals::renderWindowEventHandler));
     this->RenderWindowObserverIds.push_back(
       renWin->AddObserver(vtkCommand::EndEvent, this, &QVTKInternals::renderWindowEventHandler));
-    this->RenderWindowObserverIds.push_back(
-      renWin->AddObserver(vtkCommand::CursorChangedEvent, this, &QVTKInternals::renderWindowEventHandler));
+    this->RenderWindowObserverIds.push_back(renWin->AddObserver(
+      vtkCommand::CursorChangedEvent, this, &QVTKInternals::renderWindowEventHandler));
 
     // First and foremost, make sure vtkRenderWindow is not using offscreen
     // buffers as that throws off all logic to render in the buffers we're
     // building and frankly unnecessary.
     if (this->RenderWindow->GetUseOffScreenBuffers())
     {
-      vtkGenericWarningMacro("disabling `UseOffScreenBuffers` since QVTKRenderWindowAdapter already "
-          "uses offscreen buffers (FBO) for rendering");
+      vtkGenericWarningMacro(
+        "disabling `UseOffScreenBuffers` since QVTKRenderWindowAdapter already "
+        "uses offscreen buffers (FBO) for rendering");
       this->RenderWindow->SetUseOffScreenBuffers(false);
     }
 
@@ -300,11 +301,13 @@ public:
       // if we're using double buffer, but explicitly rendering to back buffer,
       // means that we don't want the thing we rendered displayed on the screen.
       // in which case, we ignore this frame result.
-      vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d -- ignored", using_double_buffer, this->RenderWindow->GetSwapBuffers());
+      vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d -- ignored",
+        using_double_buffer, this->RenderWindow->GetSwapBuffers());
       return;
     }
 
-    vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d", using_double_buffer, this->RenderWindow->GetSwapBuffers());
+    vtkLogF(TRACE, "frame using_double_buffer=%d, swap_buffers=%d", using_double_buffer,
+      this->RenderWindow->GetSwapBuffers());
     if (using_double_buffer)
     {
       SWAP_BUFFER_IDS(this->RenderWindow, FrontLeftBuffer, BackLeftBuffer);
@@ -739,7 +742,7 @@ QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
   fmt.setAlphaBufferSize(8);
   fmt.setStencilBufferSize(0);
   fmt.setStereo(stereo_capable);
-  fmt.setSamples(0); // we never need multisampling in the context since the FBO can support multisamples
-                     // independently
+  fmt.setSamples(0); // we never need multisampling in the context since the FBO can support
+                     // multisamples independently
   return fmt;
 }

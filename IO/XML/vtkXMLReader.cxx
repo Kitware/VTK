@@ -54,36 +54,36 @@
 #include <sstream>
 #include <vector>
 
-vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
-vtkCxxSetObjectMacro(vtkXMLReader,ParserErrorObserver,vtkCommand);
+vtkCxxSetObjectMacro(vtkXMLReader, ReaderErrorObserver, vtkCommand);
+vtkCxxSetObjectMacro(vtkXMLReader, ParserErrorObserver, vtkCommand);
 
 //-----------------------------------------------------------------------------
-#define CaseIdTypeMacro(type, size) \
-case type: \
-  if (size == VTK_SIZEOF_ID_TYPE) \
-  { \
-    dataType = VTK_ID_TYPE; \
-  } \
-  else \
-  { \
-    if (size > VTK_SIZEOF_ID_TYPE) \
-    { \
-      vtkWarningMacro("An array named " \
-        << da->GetAttribute("Name") << " was tagged as an IdType array with a type size of " \
-        << size \
-        << " which is bigger then the IdType size on this VTK " \
-        "build. The IdType tag has been ignored."); \
-    } \
-    else \
-    { \
-      vtkDebugMacro("An array named " << da->GetAttribute("Name") \
-        << " was tagged as an IdType array with a type size of " \
-        << size \
-        << " which is smaller then the IdType size on this VTK " \
-        "build. The IdType tag has been ignored."); \
-    } \
-  } \
-  break;
+#define CaseIdTypeMacro(type, size)                                                                \
+  case type:                                                                                       \
+    if (size == VTK_SIZEOF_ID_TYPE)                                                                \
+    {                                                                                              \
+      dataType = VTK_ID_TYPE;                                                                      \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      if (size > VTK_SIZEOF_ID_TYPE)                                                               \
+      {                                                                                            \
+        vtkWarningMacro("An array named " << da->GetAttribute("Name")                              \
+                                          << " was tagged as an IdType array with a type size of " \
+                                          << size                                                  \
+                                          << " which is bigger then the IdType size on this VTK "  \
+                                             "build. The IdType tag has been ignored.");           \
+      }                                                                                            \
+      else                                                                                         \
+      {                                                                                            \
+        vtkDebugMacro("An array named " << da->GetAttribute("Name")                                \
+                                        << " was tagged as an IdType array with a type size of "   \
+                                        << size                                                    \
+                                        << " which is smaller then the IdType size on this VTK "   \
+                                           "build. The IdType tag has been ignored.");             \
+      }                                                                                            \
+    }                                                                                              \
+    break
 
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
@@ -108,7 +108,7 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
   if (s > begin)
   {
     std::stringstream str;
-    str.write(begin, s-begin);
+    str.write(begin, s - begin);
     str >> major;
     if (!str)
     {
@@ -118,7 +118,7 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
   if (++s < end)
   {
     std::stringstream str;
-    str.write(s, end-s);
+    str.write(s, end - s);
     str >> minor;
     if (!str)
     {
@@ -153,12 +153,9 @@ vtkXMLReader::vtkXMLReader()
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback(&vtkXMLReader::SelectionModifiedCallback);
   this->SelectionObserver->SetClientData(this);
-  this->PointDataArraySelection->AddObserver(
-    vtkCommand::ModifiedEvent, this->SelectionObserver);
-  this->CellDataArraySelection->AddObserver(
-    vtkCommand::ModifiedEvent, this->SelectionObserver);
-  this->ColumnArraySelection->AddObserver(
-    vtkCommand::ModifiedEvent, this->SelectionObserver);
+  this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+  this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
+  this->ColumnArraySelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
@@ -214,14 +211,10 @@ vtkXMLReader::~vtkXMLReader()
 void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: "
-     << (this->FileName? this->FileName:"(none)") << "\n";
-  os << indent << "CellDataArraySelection: " << this->CellDataArraySelection
-     << "\n";
-  os << indent << "PointDataArraySelection: " << this->PointDataArraySelection
-     << "\n";
-  os << indent << "ColumnArraySelection: " << this->PointDataArraySelection
-     << "\n";
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "CellDataArraySelection: " << this->CellDataArraySelection << "\n";
+  os << indent << "PointDataArraySelection: " << this->PointDataArraySelection << "\n";
+  os << indent << "ColumnArraySelection: " << this->PointDataArraySelection << "\n";
   if (this->Stream)
   {
     os << indent << "Stream: " << this->Stream << "\n";
@@ -232,8 +225,8 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "TimeStep:" << this->TimeStep << "\n";
   os << indent << "NumberOfTimeSteps:" << this->NumberOfTimeSteps << "\n";
-  os << indent << "TimeStepRange:(" << this->TimeStepRange[0] << ","
-                                    << this->TimeStepRange[1] << ")\n";
+  os << indent << "TimeStepRange:(" << this->TimeStepRange[0] << "," << this->TimeStepRange[1]
+     << ")\n";
 }
 
 //----------------------------------------------------------------------------
@@ -323,19 +316,19 @@ int vtkXMLReader::OpenVTKFile()
 //----------------------------------------------------------------------------
 int vtkXMLReader::OpenVTKString()
 {
-  if(this->StringStream)
+  if (this->StringStream)
   {
     vtkErrorMacro("string already open.");
     return 1;
   }
 
-  if(!this->Stream && this->InputString.compare("") == 0)
+  if (!this->Stream && this->InputString.compare("") == 0)
   {
     vtkErrorMacro("Input string not specified");
     return 0;
   }
 
-  if(this->Stream)
+  if (this->Stream)
   {
     // Use user-provided stream.
     return 1;
@@ -343,7 +336,7 @@ int vtkXMLReader::OpenVTKString()
 
   // Open the string stream
   this->StringStream = new std::istringstream(this->InputString);
-  if(!this->StringStream || !(*this->StringStream))
+  if (!this->StringStream || !(*this->StringStream))
   {
     vtkErrorMacro("Error opening string stream");
     delete this->StringStream;
@@ -394,12 +387,12 @@ void vtkXMLReader::CloseVTKFile()
 //----------------------------------------------------------------------------
 void vtkXMLReader::CloseVTKString()
 {
-  if(!this->Stream)
+  if (!this->Stream)
   {
     vtkErrorMacro("String not open.");
     return;
   }
-  if(this->Stream == this->StringStream)
+  if (this->Stream == this->StringStream)
   {
     // We opened the string.  Close it.
     delete this->StringStream;
@@ -485,7 +478,7 @@ int vtkXMLReader::ReadXMLInformation()
 
     // Open the input file.  If it fails, the error was already
     // reported by OpenStream.
-    if(!this->OpenStream())
+    if (!this->OpenStream())
     {
       return 0;
     }
@@ -538,7 +531,7 @@ int vtkXMLReader::ReadXMLInformation()
             double val = da->GetComponent(0, 0);
             vtkInformation* info = this->GetCurrentOutputInformation();
             info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
-            double range[2] = {val, val};
+            double range[2] = { val, val };
             info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
           }
           array->Delete();
@@ -555,16 +548,14 @@ int vtkXMLReader::ReadXMLInformation()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::RequestInformation(vtkInformation *request,
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *outputVector)
+int vtkXMLReader::RequestInformation(vtkInformation* request,
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   if (this->ReadXMLInformation())
   {
     this->InformationError = 0;
     // Let the subclasses read the information they want.
-    int outputPort =
-      request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
+    int outputPort = request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
     outputPort = outputPort >= 0 ? outputPort : 0;
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     this->SetupOutputInformation(outInfo);
@@ -575,7 +566,7 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
       // this->ReadXMLInformation()
       int numTimesteps = this->GetNumberOfTimeSteps();
       this->TimeStepRange[0] = 0;
-      this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps-1 : 0);
+      this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps - 1 : 0);
       if (numTimesteps != 0)
       {
         std::vector<double> timeSteps(numTimesteps);
@@ -583,14 +574,11 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
         {
           timeSteps[i] = i;
         }
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                     &timeSteps[0],
-                     numTimesteps);
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &timeSteps[0], numTimesteps);
         double timeRange[2];
         timeRange[0] = timeSteps[0];
-        timeRange[1] = timeSteps[numTimesteps-1];
-        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
-                     timeRange, 2);
+        timeRange[1] = timeSteps[numTimesteps - 1];
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
       }
     }
   }
@@ -603,9 +591,8 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
-                              vtkInformationVector **vtkNotUsed(inputVector),
-                              vtkInformationVector *outputVector)
+int vtkXMLReader::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   this->CurrentTimeStep = this->TimeStep;
 
@@ -615,25 +602,21 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
   this->CurrentOutput = output;
 
   // Save the time value in the output data information.
-  double* steps =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  double* steps = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
   // Check if a particular time was requested.
-  if (steps &&
-     outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  if (steps && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     // Get the requested time step. We only support requests of a single time
     // step in this reader right now
-    double requestedTimeStep =
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    double requestedTimeStep = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
-    int length =
-      outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    int length = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
 
     // find the first time value larger than requested time value
     // this logic could be improved
     int cnt = 0;
-    while (cnt < length-1 && steps[cnt] < requestedTimeStep)
+    while (cnt < length - 1 && steps[cnt] < requestedTimeStep)
     {
       cnt++;
     }
@@ -649,13 +632,12 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
       this->CurrentTimeStep = this->TimeStepRange[1];
     }
 
-    output->GetInformation()->Set(
-      vtkDataObject::DATA_TIME_STEP(), steps[this->CurrentTimeStep]);
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), steps[this->CurrentTimeStep]);
   }
 
   // Re-open the input file.  If it fails, the error was already
   // reported by OpenStream.
-  if(!this->OpenStream())
+  if (!this->OpenStream())
   {
     this->SetupEmptyOutput();
     this->CurrentOutput = nullptr;
@@ -705,7 +687,7 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Close the input stream to prevent resource leaks.
   this->CloseStream();
-  if( this->TimeSteps )
+  if (this->TimeSteps)
   {
     // The SetupOutput should not reallocate this should be done only in a TimeStep case
     this->TimeStepWasReadOnce = 1;
@@ -721,9 +703,8 @@ namespace
 {
 //----------------------------------------------------------------------------
 template <class iterT>
-int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
-  vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
-  iterT* iter, vtkIdType startIndex, vtkIdType numValues)
+int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
+  vtkIdType arrayIndex, iterT* iter, vtkIdType startIndex, vtkIdType numValues)
 {
   if (!iter)
   {
@@ -731,16 +712,15 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
   }
   vtkAbstractArray* array = iter->GetArray();
   // Number of expected words:
-  size_t numWords = array->GetDataType() != VTK_BIT ? numValues
-                                                    : ((numValues + 7) / 8);
+  size_t numWords = array->GetDataType() != VTK_BIT ? numValues : ((numValues + 7) / 8);
   int result;
   void* data = array->GetVoidPointer(arrayIndex);
   if (da->GetAttribute("offset"))
   {
     vtkTypeInt64 offset = 0;
     da->GetScalarAttribute("offset", offset);
-    result = (xmlparser->ReadAppendedData(offset, data, startIndex,
-        numWords, array->GetDataType()) == numWords);
+    result = (xmlparser->ReadAppendedData(
+                offset, data, startIndex, numWords, array->GetDataType()) == numWords);
   }
   else
   {
@@ -750,18 +730,17 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
     {
       isAscii = 0;
     }
-    result = (xmlparser->ReadInlineData(da, isAscii, data,
-        startIndex, numWords, array->GetDataType()) == numWords);
+    result = (xmlparser->ReadInlineData(
+                da, isAscii, data, startIndex, numWords, array->GetDataType()) == numWords);
   }
   return result;
 }
 
 //----------------------------------------------------------------------------
-template<>
-int vtkXMLDataReaderReadArrayValues(
-  vtkXMLDataElement* da,
-  vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,
-  vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType startIndex, vtkIdType numValues)
+template <>
+int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xmlparser,
+  vtkIdType arrayIndex, vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType startIndex,
+  vtkIdType numValues)
 {
   // now, for strings, we have to read from the start, as we don't have
   // support for index array yet.
@@ -773,7 +752,7 @@ int vtkXMLDataReaderReadArrayValues(
 
   int size = 1024;
   char* buffer = new char[size + 1 + 7]; // +7 is leeway.
-  buffer[1024] = 0; // to avoid string reads beyond buffer size.
+  buffer[1024] = 0;                      // to avoid string reads beyond buffer size.
 
   int inline_data = (da->GetAttribute("offset") == nullptr);
 
@@ -801,13 +780,11 @@ int vtkXMLDataReaderReadArrayValues(
     size_t chars_read = 0;
     if (inline_data)
     {
-      chars_read = xmlparser->ReadInlineData(da, isAscii, buffer,
-        bufstart, size, VTK_CHAR);
+      chars_read = xmlparser->ReadInlineData(da, isAscii, buffer, bufstart, size, VTK_CHAR);
     }
     else
     {
-      chars_read = xmlparser->ReadAppendedData(offset, buffer, bufstart,
-        size, VTK_CHAR);
+      chars_read = xmlparser->ReadAppendedData(offset, buffer, bufstart, size, VTK_CHAR);
     }
     if (!chars_read)
     {
@@ -849,19 +826,16 @@ int vtkXMLDataReaderReadArrayValues(
         inIndex++;
       }
     }
-
   }
-  delete [] buffer;
+  delete[] buffer;
   return result;
 }
 
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::ReadArrayValues(
-  vtkXMLDataElement* da, vtkIdType arrayIndex,
-  vtkAbstractArray* array, vtkIdType startIndex,
-  vtkIdType numValues, FieldType fieldType)
+int vtkXMLReader::ReadArrayValues(vtkXMLDataElement* da, vtkIdType arrayIndex,
+  vtkAbstractArray* array, vtkIdType startIndex, vtkIdType numValues, FieldType fieldType)
 {
   // Skip real read if aborting.
   if (this->AbortExecute)
@@ -873,11 +847,10 @@ int vtkXMLReader::ReadArrayValues(
   vtkArrayIterator* iter = array->NewIterator();
   switch (array->GetDataType())
   {
-    vtkArrayIteratorTemplateMacro(
-      result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
-        arrayIndex, static_cast<VTK_TT*>(iter), startIndex, numValues));
-  default:
-    result = 0;
+    vtkArrayIteratorTemplateMacro(result = vtkXMLDataReaderReadArrayValues(da, this->XMLParser,
+                                    arrayIndex, static_cast<VTK_TT*>(iter), startIndex, numValues));
+    default:
+      result = 0;
   }
   if (iter)
   {
@@ -914,9 +887,11 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
   const char* version = eVTKFile->GetAttribute("version");
   if (version && !this->CanReadFileVersionString(version))
   {
-    vtkWarningMacro("File version: " << version << " is higher than "
-                    "this reader supports " << vtkXMLReaderMajorVersion << "."
-                    << vtkXMLReaderMinorVersion);
+    vtkWarningMacro("File version: " << version
+                                     << " is higher than "
+                                        "this reader supports "
+                                     << vtkXMLReaderMajorVersion << "."
+                                     << vtkXMLReaderMinorVersion);
   }
 
   ::ReadStringVersion(version, this->FileMajorVersion, this->FileMinorVersion);
@@ -954,10 +929,8 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
 int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   int numTimeSteps =
-    ePrimary->GetVectorAttribute("TimeValues",
-                                 VTK_INT_MAX,
-                                 static_cast<double*>(nullptr));
-  this->SetNumberOfTimeSteps( numTimeSteps );
+    ePrimary->GetVectorAttribute("TimeValues", VTK_INT_MAX, static_cast<double*>(nullptr));
+  this->SetNumberOfTimeSteps(numTimeSteps);
 
   // See if there is a FieldData element
   int numNested = ePrimary->GetNumberOfNestedElements();
@@ -988,9 +961,9 @@ void vtkXMLReader::ReadFieldData()
   if (this->FieldDataElement) // read the field data information
   {
     vtkIdType numTuples;
-    vtkFieldData *fieldData = this->GetCurrentOutput()->GetFieldData();
-    for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements() &&
-             !this->AbortExecute; i++)
+    vtkFieldData* fieldData = this->GetCurrentOutput()->GetFieldData();
+    for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements() && !this->AbortExecute;
+         i++)
     {
       vtkXMLDataElement* eNested = this->FieldDataElement->GetNestedElement(i);
       vtkAbstractArray* array = this->CreateArray(eNested);
@@ -1006,8 +979,9 @@ void vtkXMLReader::ReadFieldData()
         }
         fieldData->AddArray(array);
         array->Delete();
-        if (!this->ReadArrayValues(eNested, 0, array, 0, numTuples*array->GetNumberOfComponents())
-            && numTuples)
+        if (!this->ReadArrayValues(
+              eNested, 0, array, 0, numTuples * array->GetNumberOfComponents()) &&
+          numTuples)
         {
           this->DataError = 1;
         }
@@ -1018,25 +992,21 @@ void vtkXMLReader::ReadFieldData()
 
 //----------------------------------------------------------------------------
 // Methods used for deserializing vtkInformation. ----------------------------
-namespace {
-
-void ltrim(std::string &s)
+namespace
 {
-    s.erase(s.begin(),
-            std::find_if(s.begin(),
-                         s.end(),
-                         [] (int ch) { return !std::isspace(ch); }));
+
+void ltrim(std::string& s)
+{
+  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) { return !std::isspace(ch); }));
 }
 
-void rtrim(std::string &s)
+void rtrim(std::string& s)
 {
-  s.erase(std::find_if(s.rbegin(),
-                       s.rend(),
-                       [] (int ch) { return !std::isspace(ch); }).base(),
-          s.end());
+  s.erase(
+    std::find_if(s.rbegin(), s.rend(), [](int ch) { return !std::isspace(ch); }).base(), s.end());
 }
 
-void trim(std::string &s)
+void trim(std::string& s)
 {
   ltrim(s);
   rtrim(s);
@@ -1044,7 +1014,7 @@ void trim(std::string &s)
 
 // Handle type extraction where needed, but trim and pass-through strings.
 template <class ValueType>
-bool extractValue(const char *valueStr, ValueType &value)
+bool extractValue(const char* valueStr, ValueType& value)
 {
   if (!valueStr)
   {
@@ -1056,7 +1026,7 @@ bool extractValue(const char *valueStr, ValueType &value)
   str >> value;
   return !str.fail();
 }
-bool extractValue(const char *valueStr, std::string &value)
+bool extractValue(const char* valueStr, std::string& value)
 {
   value = std::string(valueStr ? valueStr : "");
   trim(value); // vtkXMLDataElement adds newlines before/after character data.
@@ -1064,10 +1034,9 @@ bool extractValue(const char *valueStr, std::string &value)
 }
 
 template <class ValueType, class KeyType>
-bool readScalarInfo(KeyType *key, vtkInformation *info,
-                    vtkXMLDataElement *element)
+bool readScalarInfo(KeyType* key, vtkInformation* info, vtkXMLDataElement* element)
 {
-  const char *valueStr = element->GetCharacterData();
+  const char* valueStr = element->GetCharacterData();
 
   // backwards-compat: Old versions of the writer used to store data in
   // a 'value' attribute, but this causes problems with strings (e.g. the
@@ -1092,10 +1061,9 @@ bool readScalarInfo(KeyType *key, vtkInformation *info,
 // Generic vector key reader. Stores in a temporary vector and calls Set to
 // make sure that keys with RequiredLength work properly.
 template <class ValueType, class KeyType>
-bool readVectorInfo(KeyType *key, vtkInformation *info,
-                    vtkXMLDataElement *element)
+bool readVectorInfo(KeyType* key, vtkInformation* info, vtkXMLDataElement* element)
 {
-  const char *lengthData = element->GetAttribute("length");
+  const char* lengthData = element->GetAttribute("length");
   int length;
   if (!extractValue(lengthData, length))
   {
@@ -1112,15 +1080,14 @@ bool readVectorInfo(KeyType *key, vtkInformation *info,
   {
     std::ostringstream indexStr;
     indexStr << i;
-    vtkXMLDataElement *valueElement =
-        element->FindNestedElementWithNameAndAttribute("Value", "index",
-                                                       indexStr.str().c_str());
+    vtkXMLDataElement* valueElement =
+      element->FindNestedElementWithNameAndAttribute("Value", "index", indexStr.str().c_str());
     if (!valueElement)
     {
       return false;
     }
 
-    const char *valueData = valueElement->GetCharacterData();
+    const char* valueData = valueElement->GetCharacterData();
     ValueType value;
     if (!extractValue(valueData, value))
     {
@@ -1137,10 +1104,10 @@ bool readVectorInfo(KeyType *key, vtkInformation *info,
 // so we'll need to use Append (which can't work with RequiredLength vector
 // keys, hence the need for a specialization).
 template <typename ValueType>
-bool readVectorInfo(vtkInformationStringVectorKey *key, vtkInformation *info,
-                    vtkXMLDataElement *element)
+bool readVectorInfo(
+  vtkInformationStringVectorKey* key, vtkInformation* info, vtkXMLDataElement* element)
 {
-  const char *lengthData = element->GetAttribute("length");
+  const char* lengthData = element->GetAttribute("length");
   int length;
   if (!extractValue(lengthData, length))
   {
@@ -1151,15 +1118,14 @@ bool readVectorInfo(vtkInformationStringVectorKey *key, vtkInformation *info,
   {
     std::ostringstream indexStr;
     indexStr << i;
-    vtkXMLDataElement *valueElement =
-        element->FindNestedElementWithNameAndAttribute("Value", "index",
-                                                       indexStr.str().c_str());
+    vtkXMLDataElement* valueElement =
+      element->FindNestedElementWithNameAndAttribute("Value", "index", indexStr.str().c_str());
     if (!valueElement)
     {
       return false;
     }
 
-    const char *valueData = valueElement->GetCharacterData();
+    const char* valueData = valueElement->GetCharacterData();
     ValueType value;
     if (!extractValue(valueData, value))
     {
@@ -1176,11 +1142,10 @@ bool readVectorInfo(vtkInformationStringVectorKey *key, vtkInformation *info,
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
-                                       vtkInformation *info)
+int vtkXMLReader::CreateInformationKey(vtkXMLDataElement* element, vtkInformation* info)
 {
-  const char *name = element->GetAttribute("name");
-  const char *location = element->GetAttribute("location");
+  const char* name = element->GetAttribute("name");
+  const char* location = element->GetAttribute("location");
   if (!name || !location)
   {
     vtkWarningMacro("InformationKey element missing name and/or location "
@@ -1188,30 +1153,30 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
     return 0;
   }
 
-  vtkInformationKey *key = vtkInformationKeyLookup::Find(name, location);
+  vtkInformationKey* key = vtkInformationKeyLookup::Find(name, location);
   if (!key)
   {
     vtkWarningMacro("Could not locate key " << location << "::" << name
-                    << ". Is the module in which it is defined linked?");
+                                            << ". Is the module in which it is defined linked?");
     return 0;
   }
 
-  vtkInformationDoubleKey *dKey = nullptr;
-  vtkInformationDoubleVectorKey *dvKey = nullptr;
-  vtkInformationIdTypeKey *idKey = nullptr;
-  vtkInformationIntegerKey *iKey = nullptr;
-  vtkInformationIntegerVectorKey *ivKey = nullptr;
-  vtkInformationStringKey *sKey = nullptr;
-  vtkInformationStringVectorKey *svKey = nullptr;
-  vtkInformationUnsignedLongKey *ulKey = nullptr;
+  vtkInformationDoubleKey* dKey = nullptr;
+  vtkInformationDoubleVectorKey* dvKey = nullptr;
+  vtkInformationIdTypeKey* idKey = nullptr;
+  vtkInformationIntegerKey* iKey = nullptr;
+  vtkInformationIntegerVectorKey* ivKey = nullptr;
+  vtkInformationStringKey* sKey = nullptr;
+  vtkInformationStringVectorKey* svKey = nullptr;
+  vtkInformationUnsignedLongKey* ulKey = nullptr;
   typedef vtkInformationQuadratureSchemeDefinitionVectorKey QuadDictKey;
-  QuadDictKey *qdKey = nullptr;
+  QuadDictKey* qdKey = nullptr;
   if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
   {
     if (!readScalarInfo<double>(dKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                      << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1220,8 +1185,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readVectorInfo<double>(dvKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1230,8 +1195,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readScalarInfo<vtkIdType>(idKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1240,8 +1205,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readScalarInfo<int>(iKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1250,8 +1215,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readVectorInfo<int>(ivKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1260,8 +1225,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readScalarInfo<std::string>(sKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1270,8 +1235,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readVectorInfo<std::string>(svKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1280,8 +1245,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   {
     if (!readScalarInfo<unsigned long>(ulKey, info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1290,8 +1255,8 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   { // Special case:
     if (!qdKey->RestoreState(info, element))
     {
-      vtkErrorMacro("Error reading InformationKey element for " << location
-                    << "::" << name << " of type " << key->GetClassName());
+      vtkErrorMacro("Error reading InformationKey element for "
+        << location << "::" << name << " of type " << key->GetClassName());
       info->Remove(key);
       return 0;
     }
@@ -1299,9 +1264,10 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
   else
   {
     vtkErrorMacro("Could not deserialize information with key "
-                  << key->GetLocation() << "::" << key->GetName() << ": "
-                  "key type '" << key->GetClassName()
-                  << "' is not serializable.");
+      << key->GetLocation() << "::" << key->GetName()
+      << ": "
+         "key type '"
+      << key->GetClassName() << "' is not serializable.");
     return 0;
   }
 
@@ -1309,13 +1275,12 @@ int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
 }
 
 //----------------------------------------------------------------------------
-bool vtkXMLReader::ReadInformation(vtkXMLDataElement *infoRoot,
-                                   vtkInformation *info)
+bool vtkXMLReader::ReadInformation(vtkXMLDataElement* infoRoot, vtkInformation* info)
 {
   int numChildren = infoRoot->GetNumberOfNestedElements();
   for (int child = 0; child < numChildren; ++child)
   {
-    vtkXMLDataElement *element = infoRoot->GetNestedElement(child);
+    vtkXMLDataElement* element = infoRoot->GetNestedElement(child);
     if (strncmp("InformationKey", element->GetName(), 14) != 0)
     { // Not an element we care about.
       continue;
@@ -1348,8 +1313,8 @@ int vtkXMLReader::GetLocalDataType(vtkXMLDataElement* da, int dataType)
       CaseIdTypeMacro(VTK_LONG_LONG, VTK_SIZEOF_LONG_LONG);
       default:
         vtkWarningMacro("An array named " << da->GetAttribute("Name")
-          << " was tagged as an IdType array with an invalid type."
-          "The IdType tag has been ignored.");
+                                          << " was tagged as an IdType array with an invalid type."
+                                             "The IdType tag has been ignored.");
         break;
     }
   }
@@ -1370,7 +1335,7 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 
   array->SetName(da->GetAttribute("Name"));
 
-  //if NumberOfComponents fails, we have 1 component
+  // if NumberOfComponents fails, we have 1 component
   int components = 1;
 
   if (da->GetScalarAttribute("NumberOfComponents", components))
@@ -1378,17 +1343,17 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
     array->SetNumberOfComponents(components);
   }
 
-  //determine what component names have been saved in the file.
+  // determine what component names have been saved in the file.
   const char* compName = nullptr;
   std::ostringstream buff;
   for (int i = 0; i < components && i < 10; ++i)
   {
-    //get the component names
+    // get the component names
     buff << "ComponentName" << i;
     compName = da->GetAttribute(buff.str().c_str());
     if (compName)
     {
-      //detected a component name, add it
+      // detected a component name, add it
       array->SetComponentName(i, compName);
       compName = nullptr;
     }
@@ -1398,12 +1363,12 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 
   // Scan/load for vtkInformationKey data.
   int nElements = da->GetNumberOfNestedElements();
-  for (int i = 0; i<nElements; ++i)
+  for (int i = 0; i < nElements; ++i)
   {
-    vtkXMLDataElement *eInfoKeyData = da->GetNestedElement(i);
+    vtkXMLDataElement* eInfoKeyData = da->GetNestedElement(i);
     if (strcmp(eInfoKeyData->GetName(), "InformationKey") == 0)
     {
-      vtkInformation *info=array->GetInformation();
+      vtkInformation* info = array->GetInformation();
       this->CreateInformationKey(eInfoKeyData, info);
     }
   }
@@ -1458,9 +1423,8 @@ int vtkXMLReader::CanReadFileVersionString(const char* version)
 //----------------------------------------------------------------------------
 int vtkXMLReader::IntersectExtents(int* extent1, int* extent2, int* result)
 {
-  if ((extent1[0] > extent2[1]) || (extent1[2] > extent2[3]) ||
-    (extent1[4] > extent2[5]) || (extent1[1] < extent2[0]) ||
-    (extent1[3] < extent2[2]) || (extent1[5] < extent2[4]))
+  if ((extent1[0] > extent2[1]) || (extent1[2] > extent2[3]) || (extent1[4] > extent2[5]) ||
+    (extent1[1] < extent2[0]) || (extent1[3] < extent2[2]) || (extent1[5] < extent2[4]))
   {
     // No intersection of extents.
     return 0;
@@ -1513,13 +1477,13 @@ void vtkXMLReader::ComputeCellDimensions(int* extent, int* dimensions)
   // dimensions lower than 3.
   for (int a = 0; a < 3; ++a)
   {
-    if (this->AxesEmpty[a] && extent[2*a+1] == extent[2*a])
+    if (this->AxesEmpty[a] && extent[2 * a + 1] == extent[2 * a])
     {
       dimensions[a] = 1;
     }
     else
     {
-      dimensions[a] = extent[2*a+1] - extent[2*a];
+      dimensions[a] = extent[2 * a + 1] - extent[2 * a];
     }
   }
 }
@@ -1532,21 +1496,20 @@ void vtkXMLReader::ComputeCellIncrements(int* extent, vtkIdType* increments)
   vtkIdType nextIncrement = 1;
   for (int a = 0; a < 3; ++a)
   {
-    if (this->AxesEmpty[a] && extent[2*a+1] == extent[2*a])
+    if (this->AxesEmpty[a] && extent[2 * a + 1] == extent[2 * a])
     {
       increments[a] = 0;
     }
     else
     {
       increments[a] = nextIncrement;
-      nextIncrement *= extent[2*a+1] - extent[2*a];
+      nextIncrement *= extent[2 * a + 1] - extent[2 * a];
     }
   }
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkXMLReader::GetStartTuple(
-  int* extent, vtkIdType* increments, int i, int j, int k)
+vtkIdType vtkXMLReader::GetStartTuple(int* extent, vtkIdType* increments, int i, int j, int k)
 {
   vtkIdType offset = (i - extent[0]) * increments[0];
   offset += (j - extent[2]) * increments[1];
@@ -1555,11 +1518,10 @@ vtkIdType vtkXMLReader::GetStartTuple(
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::ReadAttributeIndices(
-  vtkXMLDataElement* eDSA, vtkDataSetAttributes* dsa)
+void vtkXMLReader::ReadAttributeIndices(vtkXMLDataElement* eDSA, vtkDataSetAttributes* dsa)
 {
   // Setup attribute indices.
-  for (int i = 0;i < vtkDataSetAttributes::NUM_ATTRIBUTES;++i)
+  for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
   {
     const char* attrName = vtkDataSetAttributes::GetAttributeTypeAsString(i);
     if (eDSA && eDSA->GetAttribute(attrName))
@@ -1591,8 +1553,7 @@ void vtkXMLReader::DestroyStringArray(int numStrings, char** strings)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::SetDataArraySelections(
-  vtkXMLDataElement* eDSA, vtkDataArraySelection* sel)
+void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA, vtkDataArraySelection* sel)
 {
   if (!eDSA)
   {
@@ -1613,7 +1574,7 @@ void vtkXMLReader::SetDataArraySelections(
     const char* name = eNested->GetAttribute("Name");
     if (name)
     {
-      sel->AddArray( name );
+      sel->AddArray(name);
     }
     else
     {
@@ -1625,15 +1586,15 @@ void vtkXMLReader::SetDataArraySelections(
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
-  int association, vtkIdType numTuples, vtkInformationVector *(&infoVector))
+int vtkXMLReader::SetFieldDataInfo(
+  vtkXMLDataElement* eDSA, int association, vtkIdType numTuples, vtkInformationVector*(&infoVector))
 {
   if (!eDSA)
   {
     return 1;
   }
 
-  char *attributeName[vtkDataSetAttributes::NUM_ATTRIBUTES];
+  char* attributeName[vtkDataSetAttributes::NUM_ATTRIBUTES];
 
   for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
   {
@@ -1641,7 +1602,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
     const char* name = eDSA->GetAttribute(attrName);
     if (name)
     {
-      attributeName[i] = new char[strlen(name)+1];
+      attributeName[i] = new char[strlen(name) + 1];
       strcpy(attributeName[i], name);
     }
     else
@@ -1655,7 +1616,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
     infoVector = vtkInformationVector::New();
   }
 
-  vtkInformation *info = nullptr;
+  vtkInformation* info = nullptr;
 
   // Cycle through each data array
   for (int i = 0; i < eDSA->GetNumberOfNestedElements(); i++)
@@ -1705,7 +1666,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
 
     double range[2];
     if (eNested->GetScalarAttribute("RangeMin", range[0]) &&
-        eNested->GetScalarAttribute("RangeMax", range[1]))
+      eNested->GetScalarAttribute("RangeMax", range[1]))
     {
       info->Set(vtkDataObject::FIELD_RANGE(), range, 2);
     }
@@ -1746,8 +1707,7 @@ int vtkXMLReader::CellDataArrayIsEnabled(vtkXMLDataElement* eCDA)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::SelectionModifiedCallback(
-  vtkObject*, unsigned long, void* clientdata, void*)
+void vtkXMLReader::SelectionModifiedCallback(vtkObject*, unsigned long, void* clientdata, void*)
 {
   static_cast<vtkXMLReader*>(clientdata)->Modified();
 }
@@ -1856,18 +1816,17 @@ void vtkXMLReader::GetProgressRange(float* range)
 void vtkXMLReader::SetProgressRange(const float range[2], int curStep, int numSteps)
 {
   float stepSize = (range[1] - range[0]) / numSteps;
-  this->ProgressRange[0] = range[0] + stepSize*curStep;
-  this->ProgressRange[1] = range[0] + stepSize*(curStep + 1);
+  this->ProgressRange[0] = range[0] + stepSize * curStep;
+  this->ProgressRange[1] = range[0] + stepSize * (curStep + 1);
   this->UpdateProgressDiscrete(this->ProgressRange[0]);
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::SetProgressRange(const float range[2], int curStep,
-                                    const float* fractions)
+void vtkXMLReader::SetProgressRange(const float range[2], int curStep, const float* fractions)
 {
   float width = range[1] - range[0];
-  this->ProgressRange[0] = range[0] + fractions[curStep]*width;
-  this->ProgressRange[1] = range[0] + fractions[curStep+1]*width;
+  this->ProgressRange[0] = range[0] + fractions[curStep] * width;
+  this->ProgressRange[1] = range[0] + fractions[curStep + 1] * width;
   this->UpdateProgressDiscrete(this->ProgressRange[0]);
 }
 
@@ -1886,8 +1845,8 @@ void vtkXMLReader::UpdateProgressDiscrete(float progress)
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkXMLReader::ProcessRequest(vtkInformation* request,
- vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+vtkTypeBool vtkXMLReader::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   this->CurrentOutputInformation = outputVector->GetInformationObject(0);
   // FIXME This piece of code should be rewritten to handle at the same
@@ -1929,8 +1888,7 @@ vtkTypeBool vtkXMLReader::ProcessRequest(vtkInformation* request,
     return retVal;
   }
 
-  int retVal =
-    this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  int retVal = this->Superclass::ProcessRequest(request, inputVector, outputVector);
   this->CurrentOutputInformation = nullptr;
   return retVal;
 }

@@ -37,7 +37,7 @@
  *
  * @sa
  * vtkGenericProbeFilter vtkProbeFilter vtkGenericDataSet
-*/
+ */
 
 #ifndef vtkGenericProbeFilter_h
 #define vtkGenericProbeFilter_h
@@ -51,8 +51,8 @@ class vtkGenericDataSet;
 class VTKFILTERSGENERIC_EXPORT vtkGenericProbeFilter : public vtkDataSetAlgorithm
 {
 public:
-  static vtkGenericProbeFilter *New();
-  vtkTypeMacro(vtkGenericProbeFilter,vtkDataSetAlgorithm);
+  static vtkGenericProbeFilter* New();
+  vtkTypeMacro(vtkGenericProbeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -60,8 +60,8 @@ public:
    * Specify the point locations used to probe input. A generic dataset
    * type is assumed.
    */
-  void SetSourceData(vtkGenericDataSet *source);
-  vtkGenericDataSet *GetSource();
+  void SetSourceData(vtkGenericDataSet* source);
+  vtkGenericDataSet* GetSource();
   //@}
 
   //@{
@@ -76,12 +76,12 @@ protected:
   vtkGenericProbeFilter();
   ~vtkGenericProbeFilter() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  vtkIdTypeArray *ValidPoints;
+  vtkIdTypeArray* ValidPoints;
 
 private:
   vtkGenericProbeFilter(const vtkGenericProbeFilter&) = delete;

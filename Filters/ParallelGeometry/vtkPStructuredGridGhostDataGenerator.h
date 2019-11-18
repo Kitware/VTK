@@ -45,7 +45,7 @@
  * @sa
  * vtkDataSetGhostGenerator, vtkStructuredGridGhostDataGenerator,
  * vtkPDataSetGhostGenerator, vtkPUniformGridGhostDataGenerator
-*/
+ */
 
 #ifndef vtkPStructuredGridGhostDataGenerator_h
 #define vtkPStructuredGridGhostDataGenerator_h
@@ -57,12 +57,12 @@ class vtkMultiBlockDataSet;
 class vtkIndent;
 class vtkPStructuredGridConnectivity;
 
-class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPStructuredGridGhostDataGenerator:
-  public vtkPDataSetGhostGenerator
+class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPStructuredGridGhostDataGenerator
+  : public vtkPDataSetGhostGenerator
 {
 public:
   static vtkPStructuredGridGhostDataGenerator* New();
-  vtkTypeMacro(vtkPStructuredGridGhostDataGenerator,vtkPDataSetGhostGenerator);
+  vtkTypeMacro(vtkPStructuredGridGhostDataGenerator, vtkPDataSetGhostGenerator);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
@@ -72,21 +72,20 @@ protected:
   /**
    * Registers the grid associated with this instance of multi-block.
    */
-  void RegisterGrids(vtkMultiBlockDataSet *in);
+  void RegisterGrids(vtkMultiBlockDataSet* in);
 
   /**
    * Creates the output.
    */
-  void CreateGhostedDataSet(
-      vtkMultiBlockDataSet *in,vtkMultiBlockDataSet *out );
+  void CreateGhostedDataSet(vtkMultiBlockDataSet* in, vtkMultiBlockDataSet* out);
 
   /**
    * Generates ghost layers.
    */
-  void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) override;
+  void GenerateGhostLayers(vtkMultiBlockDataSet* in, vtkMultiBlockDataSet* out) override;
 
-  vtkPStructuredGridConnectivity *GridConnectivity;
+  vtkPStructuredGridConnectivity* GridConnectivity;
+
 private:
   vtkPStructuredGridGhostDataGenerator(const vtkPStructuredGridGhostDataGenerator&) = delete;
   void operator=(const vtkPStructuredGridGhostDataGenerator&) = delete;

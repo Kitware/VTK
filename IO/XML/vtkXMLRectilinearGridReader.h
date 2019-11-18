@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkXMLPRectilinearGridReader
-*/
+ */
 
 #ifndef vtkXMLRectilinearGridReader_h
 #define vtkXMLRectilinearGridReader_h
@@ -37,16 +37,16 @@ class vtkRectilinearGrid;
 class VTKIOXML_EXPORT vtkXMLRectilinearGridReader : public vtkXMLStructuredDataReader
 {
 public:
-  vtkTypeMacro(vtkXMLRectilinearGridReader,vtkXMLStructuredDataReader);
+  vtkTypeMacro(vtkXMLRectilinearGridReader, vtkXMLStructuredDataReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkXMLRectilinearGridReader *New();
+  static vtkXMLRectilinearGridReader* New();
 
   //@{
   /**
    * Get the reader's output.
    */
-  vtkRectilinearGrid *GetOutput();
-  vtkRectilinearGrid *GetOutput(int idx);
+  vtkRectilinearGrid* GetOutput();
+  vtkRectilinearGrid* GetOutput(int idx);
   //@}
 
 protected:
@@ -61,8 +61,8 @@ protected:
   void SetupOutputData() override;
   int ReadPiece(vtkXMLDataElement* ePiece) override;
   int ReadPieceData() override;
-  int ReadSubCoordinates(int* inBounds, int* outBounds, int* subBounds,
-                         vtkXMLDataElement* da, vtkDataArray* array);
+  int ReadSubCoordinates(
+    int* inBounds, int* outBounds, int* subBounds, vtkXMLDataElement* da, vtkDataArray* array);
   int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The elements representing the coordinate arrays for each piece.

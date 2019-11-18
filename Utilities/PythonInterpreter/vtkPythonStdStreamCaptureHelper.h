@@ -15,7 +15,7 @@
 /**
  * @class   vtkPythonStdStreamCaptureHelper
  *
-*/
+ */
 
 #ifndef vtkPythonStdStreamCaptureHelper_h
 #define vtkPythonStdStreamCaptureHelper_h
@@ -25,8 +25,7 @@
 
 struct vtkPythonStdStreamCaptureHelper
 {
-  PyObject_HEAD
-  int softspace; // Used by print to keep track of its state.
+  PyObject_HEAD int softspace; // Used by print to keep track of its state.
   bool DumpToError;
 
   void Write(const char* string)

@@ -34,10 +34,11 @@
 
 #include <sstream>
 
-namespace vtkTestGL2PSTextActor {
-void setupTextActor(vtkTextActor *actor, vtkPolyData *anchor)
+namespace vtkTestGL2PSTextActor
 {
-  vtkTextProperty *p = actor->GetTextProperty();
+void setupTextActor(vtkTextActor* actor, vtkPolyData* anchor)
+{
+  vtkTextProperty* p = actor->GetTextProperty();
   std::ostringstream label;
   label << "TProp Angle: " << p->GetOrientation() << "\n"
         << "Actor Angle: " << actor->GetOrientation() << "\n"
@@ -46,26 +47,25 @@ void setupTextActor(vtkTextActor *actor, vtkPolyData *anchor)
   actor->SetInput(label.str().c_str());
 
   // Add the anchor point:
-  double *pos = actor->GetPosition();
-  double *col = p->GetColor();
+  double* pos = actor->GetPosition();
+  double* col = p->GetColor();
   vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], 0.);
   anchor->GetVerts()->InsertNextCell(1, &ptId);
-  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
-                                                        col[1] * 255,
-                                                        col[2] * 255, 255);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(
+    col[0] * 255, col[1] * 255, col[2] * 255, 255);
 }
 } // end namespace vtkTestGL2PSTextActor
 
 //----------------------------------------------------------------------------
-int TestGL2PSTextActor(int, char *[])
+int TestGL2PSTextActor(int, char*[])
 {
   using namespace vtkTestGL2PSTextActor;
   vtkNew<vtkRenderer> ren;
 
   int width = 600;
   int height = 600;
-  int x[3] = {100, 300, 500};
-  int y[4] = {100, 233, 366, 500};
+  int x[3] = { 100, 300, 500 };
+  int y[4] = { 100, 233, 366, 500 };
 
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
@@ -113,9 +113,7 @@ int TestGL2PSTextActor(int, char *[])
           break;
       }
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
-      actor->GetTextProperty()->SetBackgroundColor(0.0,
-                                                   0.8 - col * .26,
-                                                   .8 - row * .2);
+      actor->GetTextProperty()->SetBackgroundColor(0.0, 0.8 - col * .26, .8 - row * .2);
       actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row]);
       setupTextActor(actor, anchors);
@@ -151,8 +149,7 @@ int TestGL2PSTextActor(int, char *[])
   exp->TextAsPathOn();
   exp->DrawBackgroundOn();
 
-  std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestGL2PSTextActor");
+  std::string fileprefix = vtkTestingInteractor::TempDirectory + std::string("/TestGL2PSTextActor");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();

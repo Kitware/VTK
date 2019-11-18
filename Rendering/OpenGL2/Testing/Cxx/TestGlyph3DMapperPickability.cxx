@@ -41,12 +41,9 @@
 #include <functional>
 #include <set>
 
-template<typename T, typename U, typename V>
+template <typename T, typename U, typename V>
 void prepareDisplayAttribute(
-  T& expected,
-  U attr,
-  V mbds,
-  std::function<std::pair<bool,bool>(int)> config)
+  T& expected, U attr, V mbds, std::function<std::pair<bool, bool>(int)> config)
 {
   expected.clear();
   auto bit = mbds->NewTreeIterator();
@@ -73,7 +70,7 @@ void prepareDisplayAttribute(
   bit->Delete();
 }
 
-template<typename T>
+template <typename T>
 void addCompositeIndex(T mbds, int& nextIndex)
 {
   int nblk = static_cast<int>(mbds->GetNumberOfBlocks());
@@ -98,7 +95,7 @@ void addCompositeIndex(T mbds, int& nextIndex)
   }
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 int checkSelection(T seln, const U& expected, int& tt)
 {
   std::cout << "Test " << tt << "\n";
@@ -157,9 +154,9 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
     double ll[2];
     ll[0] = -0.5 + 1.0 * (ii % 2);
     ll[1] = -0.5 + 1.0 * (ii / 2);
-    plane->SetOrigin(ll[0],       ll[1],       ii);
-    plane->SetPoint1(ll[0] + 1.0, ll[1],       ii);
-    plane->SetPoint2(ll[0],       ll[1] + 1.0, ii);
+    plane->SetOrigin(ll[0], ll[1], ii);
+    plane->SetPoint1(ll[0] + 1.0, ll[1], ii);
+    plane->SetPoint2(ll[0], ll[1] + 1.0, ii);
     plane->Update();
     vtkNew<vtkPolyData> pblk;
     pblk->DeepCopy(plane->GetOutputDataObject(0));
@@ -170,17 +167,12 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
   mp->SetSourceConnection(ss->GetOutputPort());
   ac->SetMapper(mp);
   rr->AddActor(ac);
-  rw->SetSize(400,400);
+  rw->SetSize(400, 400);
   rr->RemoveCuller(rr->GetCullers()->GetLastItem());
   rr->ResetCamera();
-  rw->Render();  // get the window up
+  rw->Render(); // get the window up
 
-  double rgb[4][3] = {
-    { .5, .5, .5 },
-    { 0., 1., 1. },
-    { 1., 1., 0. },
-    { 1., 0., 1. }
-  };
+  double rgb[4][3] = { { .5, .5, .5 }, { 0., 1., 1. }, { 1., 1., 0. }, { 1., 0., 1. } };
 
   auto it = mb->NewIterator();
   int ii = 0;
@@ -200,42 +192,42 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
   int testNum = 0;
   std::set<int> expected;
 
-
   // Nothing visible, but everything pickable.
-  prepareDisplayAttribute(
-    expected, da, mb, [](int) { return std::pair<bool,bool>(false, true); });
+  prepareDisplayAttribute(expected, da, mb, [](int) { return std::pair<bool, bool>(false, true); });
   mp->Modified();
   auto sel = hw->Select();
   int retVal = checkSelection(sel, expected, testNum);
   sel->Delete();
 
   // Everything visible, but nothing pickable.
-  prepareDisplayAttribute(
-    expected, da, mb, [](int) { return std::pair<bool,bool>(true, false); });
+  prepareDisplayAttribute(expected, da, mb, [](int) { return std::pair<bool, bool>(true, false); });
   mp->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);
   sel->Delete();
 
   // One block in every possible state.
-  prepareDisplayAttribute(
-    expected, da, mb, [](int nn) { --nn; return std::pair<bool,bool>(!!(nn / 2), !!(nn % 2)); });
+  prepareDisplayAttribute(expected, da, mb, [](int nn) {
+    --nn;
+    return std::pair<bool, bool>(!!(nn / 2), !!(nn % 2));
+  });
   mp->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);
   sel->Delete();
 
   // One block in every possible state (but different).
-  prepareDisplayAttribute(
-    expected, da, mb, [](int nn) { --nn; return std::pair<bool,bool>(!(nn / 2), !(nn % 2)); });
+  prepareDisplayAttribute(expected, da, mb, [](int nn) {
+    --nn;
+    return std::pair<bool, bool>(!(nn / 2), !(nn % 2));
+  });
   mp->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);
   sel->Delete();
 
   // Everything visible and pickable..
-  prepareDisplayAttribute(
-    expected, da, mb, [](int) { return std::pair<bool,bool>(true, true); });
+  prepareDisplayAttribute(expected, da, mb, [](int) { return std::pair<bool, bool>(true, true); });
   mp->Modified();
   rw->Render();
   sel = hw->Select();

@@ -25,11 +25,10 @@
 
 /* -------------------------------------------------------------------- */
 /* check whether an enum type will be wrapped */
-int vtkWrapPython_IsEnumWrapped(
-  HierarchyInfo *hinfo, const char *enumname)
+int vtkWrapPython_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
 {
   int rval = 0;
-  HierarchyEntry *entry;
+  HierarchyEntry* entry;
 
   if (hinfo && enumname)
   {
@@ -45,13 +44,12 @@ int vtkWrapPython_IsEnumWrapped(
 
 /* -------------------------------------------------------------------- */
 /* find and mark all enum parameters by setting IsEnum=1 */
-void vtkWrapPython_MarkAllEnums(
-  NamespaceInfo *contents, HierarchyInfo *hinfo)
+void vtkWrapPython_MarkAllEnums(NamespaceInfo* contents, HierarchyInfo* hinfo)
 {
-  FunctionInfo *currentFunction;
+  FunctionInfo* currentFunction;
   int i, j, n, m, ii, nn;
-  ClassInfo *data;
-  ValueInfo *val;
+  ClassInfo* data;
+  ValueInfo* val;
 
   nn = contents->NumberOfClasses;
   for (ii = 0; ii < nn; ii++)
@@ -61,8 +59,7 @@ void vtkWrapPython_MarkAllEnums(
     for (i = 0; i < n; i++)
     {
       currentFunction = data->Functions[i];
-      if (!currentFunction->IsExcluded &&
-          currentFunction->Access == VTK_ACCESS_PUBLIC)
+      if (!currentFunction->IsExcluded && currentFunction->Access == VTK_ACCESS_PUBLIC)
       {
         /* we start with the return value */
         val = currentFunction->ReturnValue;
@@ -76,8 +73,7 @@ void vtkWrapPython_MarkAllEnums(
             val = currentFunction->Parameters[j];
           }
 
-          if (vtkWrap_IsEnumMember(data, val) ||
-              vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
+          if (vtkWrap_IsEnumMember(data, val) || vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
           {
             val->IsEnum = 1;
           }
@@ -89,93 +85,83 @@ void vtkWrapPython_MarkAllEnums(
 
 /* -------------------------------------------------------------------- */
 /* generate a wrapped enum type (no anonymous enums, only named enums) */
-void vtkWrapPython_AddEnumType(
-  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
-  const char *scope, EnumInfo *cls)
+void vtkWrapPython_AddEnumType(FILE* fp, const char* indent, const char* dictvar,
+  const char* objvar, const char* scope, EnumInfo* cls)
 {
-  ValueInfo *val;
+  ValueInfo* val;
   int j;
 
-  fprintf(fp,
-          "%sPyType_Ready(&Py%s%s%s_Type);\n",
-          indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
+  fprintf(fp, "%sPyType_Ready(&Py%s%s%s_Type);\n", indent, (scope ? scope : ""), (scope ? "_" : ""),
+    cls->Name);
 
   if (cls->NumberOfConstants)
   {
     fprintf(fp,
-            "%s// members of %s%s%s\n"
-            "%s{\n"
-            "%s  PyObject *enumval;\n"
-            "%s  PyObject *enumdict = PyDict_New();\n"
-            "%s  Py%s%s%s_Type.tp_dict = enumdict;\n"
-            "\n",
-            indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name,
-            indent, indent, indent,
-            indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
+      "%s// members of %s%s%s\n"
+      "%s{\n"
+      "%s  PyObject *enumval;\n"
+      "%s  PyObject *enumdict = PyDict_New();\n"
+      "%s  Py%s%s%s_Type.tp_dict = enumdict;\n"
+      "\n",
+      indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name, indent, indent, indent, indent,
+      (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
 
     fprintf(fp,
-            "%s  typedef %s%s%s cxx_enum_type;\n"
-            "%s  static const struct {\n"
-            "%s    const char *name; cxx_enum_type value;\n"
-            "%s  } constants[%d] = {\n",
-            indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name,
-            indent, indent, indent, cls->NumberOfConstants);
+      "%s  typedef %s%s%s cxx_enum_type;\n"
+      "%s  static const struct {\n"
+      "%s    const char *name; cxx_enum_type value;\n"
+      "%s  } constants[%d] = {\n",
+      indent, (scope ? scope : ""), (scope ? "::" : ""), cls->Name, indent, indent, indent,
+      cls->NumberOfConstants);
 
     for (j = 0; j < cls->NumberOfConstants; j++)
     {
       val = cls->Constants[j];
-      fprintf(fp,
-            "%s    { \"%s\", cxx_enum_type::%s },\n",
-            indent, val->Name, val->Name);
+      fprintf(fp, "%s    { \"%s\", cxx_enum_type::%s },\n", indent, val->Name, val->Name);
     }
 
     fprintf(fp,
-            "%s  };\n"
-            "\n",
-            indent);
+      "%s  };\n"
+      "\n",
+      indent);
 
     fprintf(fp,
-            "%s  for (int c = 0; c < %d; c++)\n"
-            "%s  {\n"
-            "%s    enumval = Py%s%s%s_FromEnum(constants[c].value);\n"
-            "%s    if (enumval)\n"
-            "%s    {\n"
-            "%s      PyDict_SetItemString(enumdict, constants[c].name, enumval);\n"
-            "%s      Py_DECREF(enumval);\n"
-            "%s    }\n"
-            "%s  }\n",
-            indent, cls->NumberOfConstants, indent,
-            indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
-            indent, indent, indent, indent, indent, indent);
+      "%s  for (int c = 0; c < %d; c++)\n"
+      "%s  {\n"
+      "%s    enumval = Py%s%s%s_FromEnum(constants[c].value);\n"
+      "%s    if (enumval)\n"
+      "%s    {\n"
+      "%s      PyDict_SetItemString(enumdict, constants[c].name, enumval);\n"
+      "%s      Py_DECREF(enumval);\n"
+      "%s    }\n"
+      "%s  }\n",
+      indent, cls->NumberOfConstants, indent, indent, (scope ? scope : ""), (scope ? "_" : ""),
+      cls->Name, indent, indent, indent, indent, indent, indent);
 
     fprintf(fp,
-            "%s}\n"
-            "\n",
-            indent);
+      "%s}\n"
+      "\n",
+      indent);
   }
 
   fprintf(fp,
-          "%sPyVTKEnum_Add(&Py%s%s%s_Type);\n"
-          "\n",
-          indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
+    "%sPyVTKEnum_Add(&Py%s%s%s_Type);\n"
+    "\n",
+    indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
   fprintf(fp,
-          "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
-          "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
-          "%s{\n"
-          "%s  Py_DECREF(%s);\n"
-          "%s}\n",
-          indent, objvar,
-          (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
-          indent, dictvar, cls->Name, objvar,
-          indent,
-          indent, objvar,
-          indent);
+    "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
+    "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
+    "%s{\n"
+    "%s  Py_DECREF(%s);\n"
+    "%s}\n",
+    indent, objvar, (scope ? scope : ""), (scope ? "_" : ""), cls->Name, indent, dictvar, cls->Name,
+    objvar, indent, indent, objvar, indent);
 }
 
 /* -------------------------------------------------------------------- */
 /* write out an enum type object */
 void vtkWrapPython_GenerateEnumType(
-  FILE *fp, const char *module, const char *classname, EnumInfo *data)
+  FILE* fp, const char* module, const char* classname, EnumInfo* data)
 {
   char enumname[512];
   char tpname[512];
@@ -270,11 +256,10 @@ void vtkWrapPython_GenerateEnumType(
 
 /* generate code that adds all public enum types to a python dict */
 void vtkWrapPython_AddPublicEnumTypes(
-  FILE *fp, const char *indent, const char *dictvar, const char *objvar,
-  NamespaceInfo *data)
+  FILE* fp, const char* indent, const char* dictvar, const char* objvar, NamespaceInfo* data)
 {
   char text[1024];
-  const char *pythonname = data->Name;
+  const char* pythonname = data->Name;
   int i;
 
   if (data->Name)
@@ -286,11 +271,9 @@ void vtkWrapPython_AddPublicEnumTypes(
 
   for (i = 0; i < data->NumberOfEnums; i++)
   {
-    if (!data->Enums[i]->IsExcluded &&
-        data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
+    if (!data->Enums[i]->IsExcluded && data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
     {
-      vtkWrapPython_AddEnumType(
-        fp, indent, dictvar, objvar, pythonname, data->Enums[i]);
+      vtkWrapPython_AddEnumType(fp, indent, dictvar, objvar, pythonname, data->Enums[i]);
       fprintf(fp, "\n");
     }
   }

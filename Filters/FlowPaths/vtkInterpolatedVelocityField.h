@@ -69,15 +69,14 @@ public:
    * Construct a vtkInterpolatedVelocityField without an initial dataset.
    * Caching is set on and LastCellId is set to -1.
    */
-  static vtkInterpolatedVelocityField * New();
+  static vtkInterpolatedVelocityField* New();
 
   //@{
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro( vtkInterpolatedVelocityField,
-                        vtkCompositeInterpolatedVelocityField );
-  void PrintSelf( ostream & os, vtkIndent indent ) override;
+  vtkTypeMacro(vtkInterpolatedVelocityField, vtkCompositeInterpolatedVelocityField);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -86,13 +85,13 @@ public:
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
    * DATASET FOR THREAD SAFETY REASONS.
    */
-  void AddDataSet( vtkDataSet * dataset ) override;
+  void AddDataSet(vtkDataSet* dataset) override;
 
   using Superclass::FunctionValues;
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
-  int FunctionValues( double * x, double * f ) override;
+  int FunctionValues(double* x, double* f) override;
 
   /**
    * Project the provided point on current cell, current dataset.
@@ -102,17 +101,16 @@ public:
   /**
    * Set the cell id cached by the last evaluation within a specified dataset.
    */
-  void SetLastCellId( vtkIdType c, int dataindex ) override;
+  void SetLastCellId(vtkIdType c, int dataindex) override;
 
   /**
    * Set the cell id cached by the last evaluation.
    */
-  void SetLastCellId( vtkIdType c ) override
-    { this->Superclass::SetLastCellId( c ); }
+  void SetLastCellId(vtkIdType c) override { this->Superclass::SetLastCellId(c); }
 
 protected:
-  vtkInterpolatedVelocityField() { }
-  ~vtkInterpolatedVelocityField() override { }
+  vtkInterpolatedVelocityField() {}
+  ~vtkInterpolatedVelocityField() override {}
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
@@ -121,14 +119,14 @@ protected:
    * invoking vtkImageData/vtkRectilinearGrid::FindCell() to fulfill the same
    * task if the point is outside the current cell.
    */
-  int FunctionValues( vtkDataSet * ds, double * x, double * f ) override
-    { return this->Superclass::FunctionValues( ds, x, f ); }
+  int FunctionValues(vtkDataSet* ds, double* x, double* f) override
+  {
+    return this->Superclass::FunctionValues(ds, x, f);
+  }
 
 private:
-  vtkInterpolatedVelocityField
-    ( const vtkInterpolatedVelocityField & ) = delete;
-  void operator =
-    ( const vtkInterpolatedVelocityField & ) = delete;
+  vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&) = delete;
+  void operator=(const vtkInterpolatedVelocityField&) = delete;
 };
 
 #endif

@@ -36,21 +36,25 @@
 #include "vtkNew.h"
 #include "vtkUnsignedCharArray.h"
 
-namespace tovtkm {
+namespace tovtkm
+{
 
-namespace {
+namespace
+{
 
 template <typename PortalT>
 struct ReorderHex : public vtkm::exec::FunctorBase
 {
-  ReorderHex(PortalT portal): Portal{portal} {}
+  ReorderHex(PortalT portal)
+    : Portal{ portal }
+  {
+  }
 
   void operator()(vtkm::Id index) const
   {
     const vtkm::Id offset = index * 8;
 
-    auto doSwap = [&](vtkm::Id id1, vtkm::Id id2)
-    {
+    auto doSwap = [&](vtkm::Id id1, vtkm::Id id2) {
       id1 += offset;
       id2 += offset;
 
@@ -63,14 +67,17 @@ struct ReorderHex : public vtkm::exec::FunctorBase
     doSwap(6, 7);
   }
 
-   PortalT Portal;
+  PortalT Portal;
 };
 
 struct RunReorder
 {
-  RunReorder(vtkm::cont::ArrayHandle<vtkm::Id> &handle) : Handle{handle} {}
+  RunReorder(vtkm::cont::ArrayHandle<vtkm::Id>& handle)
+    : Handle{ handle }
+  {
+  }
 
-  template<typename Device>
+  template <typename Device>
   bool operator()(Device) const
   {
     using Algo = typename vtkm::cont::DeviceAdapterAlgorithm<Device>;
@@ -78,7 +85,7 @@ struct RunReorder
     auto portal = this->Handle.PrepareForInPlace(Device{});
 
     using Functor = ReorderHex<decltype(portal)>;
-    Functor reorder{portal};
+    Functor reorder{ portal };
 
     Algo::Schedule(reorder, portal.GetNumberOfValues() / 8);
     return true;
@@ -90,10 +97,8 @@ struct RunReorder
 struct BuildSingleTypeCellSetVisitor
 {
   template <typename CellStateT>
-  vtkm::cont::DynamicCellSet operator()(CellStateT &state,
-                                        vtkm::UInt8 cellType,
-                                        vtkm::IdComponent cellSize,
-                                        vtkIdType numPoints)
+  vtkm::cont::DynamicCellSet operator()(
+    CellStateT& state, vtkm::UInt8 cellType, vtkm::IdComponent cellSize, vtkIdType numPoints)
   {
     using VTKIdT = typename CellStateT::ValueType; // might not be vtkIdType...
     using VTKArrayT = vtkAOSDataArrayTemplate<VTKIdT>;
@@ -112,10 +117,7 @@ struct BuildSingleTypeCellSetVisitor
     using CellSetType = vtkm::cont::CellSetSingleType<ConnStorageTag>;
 
     CellSetType cellSet;
-    cellSet.Fill(static_cast<vtkm::Id>(numPoints),
-                 cellType,
-                 cellSize,
-                 connHandle);
+    cellSet.Fill(static_cast<vtkm::Id>(numPoints), cellType, cellSize, connHandle);
     return cellSet;
   }
 };
@@ -123,21 +125,18 @@ struct BuildSingleTypeCellSetVisitor
 struct BuildSingleTypeVoxelCellSetVisitor
 {
   template <typename CellStateT>
-  vtkm::cont::DynamicCellSet operator()(CellStateT &state,
-                                        vtkIdType numPoints)
+  vtkm::cont::DynamicCellSet operator()(CellStateT& state, vtkIdType numPoints)
   {
     vtkm::cont::ArrayHandle<vtkm::Id> connHandle;
     {
-      auto *conn = state.GetConnectivity();
-      const auto *origData = conn->GetPointer(0);
+      auto* conn = state.GetConnectivity();
+      const auto* origData = conn->GetPointer(0);
       const vtkm::Id numIds = conn->GetNumberOfValues();
-      vtkm::cont::ArrayCopy(vtkm::cont::make_ArrayHandle(origData,
-                                                         numIds,
-                                                         vtkm::CopyFlag::Off),
-                            connHandle);
+      vtkm::cont::ArrayCopy(
+        vtkm::cont::make_ArrayHandle(origData, numIds, vtkm::CopyFlag::Off), connHandle);
 
       // reorder cells from voxel->hex:
-      RunReorder reorder{connHandle};
+      RunReorder reorder{ connHandle };
       vtkm::cont::TryExecute(reorder);
     }
 
@@ -152,80 +151,63 @@ struct BuildSingleTypeVoxelCellSetVisitor
 } // end anon namespace
 
 // convert a cell array of a single type to a vtkm CellSetSingleType
-vtkm::cont::DynamicCellSet ConvertSingleType(vtkCellArray* cells, int cellType,
-                                             vtkIdType numberOfPoints)
+vtkm::cont::DynamicCellSet ConvertSingleType(
+  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints)
 {
   switch (cellType)
   {
-  case VTK_LINE:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_LINE,
-                        2,
-                        numberOfPoints);
+    case VTK_LINE:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_LINE, 2, numberOfPoints);
 
-  case VTK_HEXAHEDRON:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_HEXAHEDRON,
-                        8,
-                        numberOfPoints);
+    case VTK_HEXAHEDRON:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_HEXAHEDRON, 8, numberOfPoints);
 
-  case VTK_VOXEL:
-    // Note that this is a special case that reorders ids voxel to hex:
-    return cells->Visit(BuildSingleTypeVoxelCellSetVisitor{},
-                        numberOfPoints);
+    case VTK_VOXEL:
+      // Note that this is a special case that reorders ids voxel to hex:
+      return cells->Visit(BuildSingleTypeVoxelCellSetVisitor{}, numberOfPoints);
 
-  case VTK_QUAD:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_QUAD,
-                        4,
-                        numberOfPoints);
+    case VTK_QUAD:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_QUAD, 4, numberOfPoints);
 
-  case VTK_TETRA:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_TETRA,
-                        4,
-                        numberOfPoints);
+    case VTK_TETRA:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_TETRA, 4, numberOfPoints);
 
-  case VTK_TRIANGLE:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_TRIANGLE,
-                        3,
-                        numberOfPoints);
+    case VTK_TRIANGLE:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_TRIANGLE, 3, numberOfPoints);
 
-  case VTK_VERTEX:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_VERTEX,
-                        1,
-                        numberOfPoints);
+    case VTK_VERTEX:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_VERTEX, 1, numberOfPoints);
 
-  case VTK_WEDGE:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_WEDGE,
-                        6,
-                        numberOfPoints);
+    case VTK_WEDGE:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_WEDGE, 6, numberOfPoints);
 
-  case VTK_PYRAMID:
-    return cells->Visit(BuildSingleTypeCellSetVisitor{},
-                        vtkm::CELL_SHAPE_PYRAMID,
-                        5,
-                        numberOfPoints);
+    case VTK_PYRAMID:
+      return cells->Visit(
+        BuildSingleTypeCellSetVisitor{}, vtkm::CELL_SHAPE_PYRAMID, 5, numberOfPoints);
 
-  default:
-    break;
+    default:
+      break;
   }
 
   throw vtkm::cont::ErrorBadType("Unsupported VTK cell type in "
                                  "CellSetSingleType converter.");
 }
 
-namespace {
+namespace
+{
 
 struct BuildExplicitCellSetVisitor
 {
   template <typename CellStateT, typename S>
-  vtkm::cont::DynamicCellSet operator()(CellStateT &state,
-                                        const vtkm::cont::ArrayHandle<vtkm::UInt8, S>& shapes,
-                                        vtkm::Id numPoints) const
+  vtkm::cont::DynamicCellSet operator()(CellStateT& state,
+    const vtkm::cont::ArrayHandle<vtkm::UInt8, S>& shapes, vtkm::Id numPoints) const
   {
     using VTKIdT = typename CellStateT::ValueType; // might not be vtkIdType...
     using VTKArrayT = vtkAOSDataArrayTemplate<VTKIdT>;
@@ -239,15 +221,15 @@ struct BuildExplicitCellSetVisitor
     // Cast if necessary:
     auto connHandle = IsVtkmIdType ? connHandleDirect
                                    : vtkm::cont::make_ArrayHandleCast<vtkm::Id>(connHandleDirect);
-    auto offsetsHandle = IsVtkmIdType ? offsetsHandleDirect
-                                      : vtkm::cont::make_ArrayHandleCast<vtkm::Id>(offsetsHandleDirect);
+    auto offsetsHandle = IsVtkmIdType
+      ? offsetsHandleDirect
+      : vtkm::cont::make_ArrayHandleCast<vtkm::Id>(offsetsHandleDirect);
 
     using ShapesStorageTag = typename std::decay<decltype(shapes)>::type::StorageTag;
     using ConnStorageTag = typename decltype(connHandle)::StorageTag;
     using OffsetsStorageTag = typename decltype(offsetsHandle)::StorageTag;
-    using CellSetType = vtkm::cont::CellSetExplicit<ShapesStorageTag,
-                                                    ConnStorageTag,
-                                                    OffsetsStorageTag>;
+    using CellSetType =
+      vtkm::cont::CellSetExplicit<ShapesStorageTag, ConnStorageTag, OffsetsStorageTag>;
 
     CellSetType cellSet;
     cellSet.Fill(numPoints, shapes, connHandle, offsetsHandle);
@@ -258,23 +240,21 @@ struct BuildExplicitCellSetVisitor
 } // end anon namespace
 
 // convert a cell array of mixed types to a vtkm CellSetExplicit
-vtkm::cont::DynamicCellSet Convert(vtkUnsignedCharArray* types,
-                                   vtkCellArray* cells,
-                                   vtkIdType numberOfPoints)
+vtkm::cont::DynamicCellSet Convert(
+  vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints)
 {
   using ShapeArrayType = vtkAOSDataArrayTemplate<vtkm::UInt8>;
   using ShapeConverter = tovtkm::DataArrayToArrayHandle<ShapeArrayType, 1>;
-  return cells->Visit(BuildExplicitCellSetVisitor{},
-                      ShapeConverter::Wrap(types),
-                      numberOfPoints);
+  return cells->Visit(BuildExplicitCellSetVisitor{}, ShapeConverter::Wrap(types), numberOfPoints);
 }
 
 } // namespace tovtkm
 
-namespace fromvtkm {
+namespace fromvtkm
+{
 
 bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
-             vtkUnsignedCharArray* typesArray)
+  vtkUnsignedCharArray* typesArray)
 {
   const auto* cellset = toConvert.GetCellSetBase();
 
@@ -296,8 +276,8 @@ bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
     typesArray->SetNumberOfTuples(static_cast<vtkIdType>(numCells));
   }
 
-  vtkIdType *connIter = connArray->GetPointer(0);
-  const vtkIdType *connBegin = connIter;
+  vtkIdType* connIter = connArray->GetPointer(0);
+  const vtkIdType* connBegin = connIter;
 
   for (vtkm::Id cellId = 0; cellId < numCells; ++cellId)
   {

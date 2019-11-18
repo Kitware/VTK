@@ -37,7 +37,7 @@ vtkLabelRenderStrategy::~vtkLabelRenderStrategy()
 //----------------------------------------------------------------------------
 void vtkLabelRenderStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "DefaultTextProperty: " << this->DefaultTextProperty << endl;
 }

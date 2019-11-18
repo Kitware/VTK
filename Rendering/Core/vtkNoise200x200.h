@@ -22,7 +22,7 @@
  * Resource generated for file:
  *    noise.vtk (base64) (binary file)
  */
-static const unsigned long file_noise200x200_vtk_length         = 106884;
+static const unsigned long file_noise200x200_vtk_length = 106884;
 static const unsigned long file_noise200x200_vtk_decoded_length = 80162;
 
 static const unsigned char file_noise200x200_vtk_section_1[] =
@@ -1560,12 +1560,9 @@ static const unsigned char file_noise200x200_vtk_section_4[] =
   "+U/1r/hP9j/zH/hP9z/1r/Sv9K/2v/jP+c/yn/EP9C/4T/e/+l/5T/Y/+E/0r/If9z/0r/"
   "Wv9a/xj/Y/+U/2P/Sv97/0r/Uv/G/4T/Sv9K/5z/jP+t/2v/Of8h/1r/Qv8Q/wo=";
 
-static const unsigned char *file_noise200x200_vtk_sections[4] = {
-  file_noise200x200_vtk_section_1,
-  file_noise200x200_vtk_section_2,
-  file_noise200x200_vtk_section_3,
-  file_noise200x200_vtk_section_4
-};
+static const unsigned char* file_noise200x200_vtk_sections[4] = { file_noise200x200_vtk_section_1,
+  file_noise200x200_vtk_section_2, file_noise200x200_vtk_section_3,
+  file_noise200x200_vtk_section_4 };
 
 static const unsigned int file_noise200x200_vtk_nb_sections = 4;
 

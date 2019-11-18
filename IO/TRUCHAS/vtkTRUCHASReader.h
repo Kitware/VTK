@@ -18,7 +18,7 @@
  *
  * vtkTRUCHASReader is a source object that reads TRUCHAS simulation
  * data from HDF5 files.
-*/
+ */
 
 #ifndef vtkTRUCHASReader_h
 #define vtkTRUCHASReader_h
@@ -28,12 +28,11 @@
 
 class vtkDataArraySelection;
 
-class VTKIOTRUCHAS_EXPORT vtkTRUCHASReader
-  : public vtkMultiBlockDataSetAlgorithm
+class VTKIOTRUCHAS_EXPORT vtkTRUCHASReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  static vtkTRUCHASReader *New();
-  vtkTypeMacro(vtkTRUCHASReader,vtkMultiBlockDataSetAlgorithm);
+  static vtkTRUCHASReader* New();
+  vtkTypeMacro(vtkTRUCHASReader, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -47,7 +46,7 @@ public:
   /**
    * A simple, non-exhaustive check to see if a file is a valid truchas file.
    */
-  static int CanReadFile(const char *filename);
+  static int CanReadFile(const char* filename);
 
   //@{
   /**
@@ -110,18 +109,16 @@ protected:
   /**
    * Overridden to announce timesteps we can produce
    */
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   /**
    * Overridden to read the file and parse into an output
    */
-  int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *FileName;
+  char* FileName;
 
   class Internal;
-  Internal * Internals;
+  Internal* Internals;
   friend class Internal;
 
   vtkDataArraySelection* BlockChoices;
@@ -131,7 +128,6 @@ protected:
 private:
   vtkTRUCHASReader(const vtkTRUCHASReader&) = delete;
   void operator=(const vtkTRUCHASReader&) = delete;
-
 };
 
 #endif

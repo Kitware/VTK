@@ -42,11 +42,14 @@ public:
     // index: the point index associated with the bin
     // count: the number of elements in the bin
     // value: the point data value associated with the bin
-    Bin(vtkIdType index, vtkIdType count, double value) :
-      Index(index), Count(count), Value(value) {}
+    Bin(vtkIdType index, vtkIdType count, double value)
+      : Index(index)
+      , Count(count)
+      , Value(value)
+    {
+    }
 
-    friend bool operator<(const Bin &b1, const Bin &b2)
-    { return b1.Value < b2.Value; }
+    friend bool operator<(const Bin& b1, const Bin& b2) { return b1.Value < b2.Value; }
 
     bool Assigned() const { return this->Index != -1; }
 
@@ -67,7 +70,7 @@ public:
   // Reset the fields of the bins in the histogram.
   void Reset(vtkIdType size)
   {
-    for (vtkIdType i=0; i < size + 1; i++)
+    for (vtkIdType i = 0; i < size + 1; i++)
     {
       this->Bins[i] = this->Init;
     }
@@ -96,7 +99,7 @@ public:
 
 Histogram::Bin Histogram::Init(-1, 1, std::numeric_limits<double>::max());
 
-bool BinCountCmp(const Histogram::Bin &b1, const Histogram::Bin &b2)
+bool BinCountCmp(const Histogram::Bin& b1, const Histogram::Bin& b2)
 {
   if (b1.Count < b2.Count)
   {
@@ -153,10 +156,9 @@ vtkIdType Histogram::IndexOfLargestBin()
 
 class vtkPointDataToCellData::Internals
 {
-  public:
-    std::set<std::string> PointDataArrays;
+public:
+  std::set<std::string> PointDataArrays;
 };
-
 
 vtkStandardNewMacro(vtkPointDataToCellData);
 
@@ -177,7 +179,7 @@ vtkPointDataToCellData::~vtkPointDataToCellData()
 }
 
 //----------------------------------------------------------------------------
-void vtkPointDataToCellData::AddPointDataArray(const char *name)
+void vtkPointDataToCellData::AddPointDataArray(const char* name)
 {
   if (!name)
   {
@@ -190,7 +192,7 @@ void vtkPointDataToCellData::AddPointDataArray(const char *name)
 }
 
 //----------------------------------------------------------------------------
-void vtkPointDataToCellData::RemovePointDataArray(const char *name)
+void vtkPointDataToCellData::RemovePointDataArray(const char* name)
 {
   if (!name)
   {
@@ -214,35 +216,31 @@ void vtkPointDataToCellData::ClearPointDataArrays()
 
 //----------------------------------------------------------------------------
 int vtkPointDataToCellData::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    info->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType cellId, ptId, pointId;
   vtkIdType numCells, numPts;
-  vtkPointData *inputInPD = input->GetPointData();
-  vtkPointData *inPD;
-  vtkCellData *outCD=output->GetCellData();
-  int maxCellSize=input->GetMaxCellSize();
-  vtkIdList *cellPts;
+  vtkPointData* inputInPD = input->GetPointData();
+  vtkPointData* inPD;
+  vtkCellData* outCD = output->GetCellData();
+  int maxCellSize = input->GetMaxCellSize();
+  vtkIdList* cellPts;
   double weight;
-  double *weights;
+  double* weights;
 
   if (!this->ProcessAllArrays)
   {
     inPD = vtkPointData::New();
 
-    for (const auto &name : this->Implementation->PointDataArrays)
+    for (const auto& name : this->Implementation->PointDataArrays)
     {
-      vtkAbstractArray *arr = inputInPD->GetAbstractArray(name.c_str());
+      vtkAbstractArray* arr = inputInPD->GetAbstractArray(name.c_str());
       if (arr == nullptr)
       {
         vtkWarningMacro("point data array name not found.");
@@ -256,17 +254,17 @@ int vtkPointDataToCellData::RequestData(
     inPD = inputInPD;
   }
 
-  vtkDebugMacro(<<"Mapping point data to cell data");
+  vtkDebugMacro(<< "Mapping point data to cell data");
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  output->CopyStructure(input);
 
-  if ( (numCells=input->GetNumberOfCells()) < 1 )
+  if ((numCells = input->GetNumberOfCells()) < 1)
   {
-    vtkDebugMacro(<<"No input cells!");
+    vtkDebugMacro(<< "No input cells!");
     return 1;
   }
-  weights=new double[maxCellSize];
+  weights = new double[maxCellSize];
 
   Histogram hist(maxCellSize);
 
@@ -276,22 +274,22 @@ int vtkPointDataToCellData::RequestData(
     // to treat as categorical data, and b) the scalars must have one component.
     if (!input->GetPointData()->GetScalars())
     {
-      vtkDebugMacro(<<"No input scalars!");
-      delete [] weights;
+      vtkDebugMacro(<< "No input scalars!");
+      delete[] weights;
       return 1;
     }
     if (input->GetPointData()->GetScalars()->GetNumberOfComponents() != 1)
     {
-      vtkDebugMacro(<<"Input scalars have more than one component! Cannot categorize!");
-      delete [] weights;
+      vtkDebugMacro(<< "Input scalars have more than one component! Cannot categorize!");
+      delete[] weights;
       return 1;
     }
 
     // Set the scalar to interpolate via nearest neighbor. That way, we won't
     // get any false values (for example, a zone 4 cell appearing on the
     // boundary of zone 3 and zone 5).
-    output->GetPointData()->SetCopyAttribute(vtkDataSetAttributes::SCALARS, 2,
-                                             vtkDataSetAttributes::INTERPOLATE);
+    output->GetPointData()->SetCopyAttribute(
+      vtkDataSetAttributes::SCALARS, 2, vtkDataSetAttributes::INTERPOLATE);
   }
 
   cellPts = vtkIdList::New();
@@ -306,15 +304,15 @@ int vtkPointDataToCellData::RequestData(
 
   // notice that inPD and outCD are vtkPointData and vtkCellData; respectively.
   // It's weird, but it works.
-  outCD->InterpolateAllocate(inPD,numCells);
+  outCD->InterpolateAllocate(inPD, numCells);
 
-  int abort=0;
-  vtkIdType progressInterval=numCells/20 + 1;
-  for (cellId=0; cellId < numCells && !abort; cellId++)
+  int abort = 0;
+  vtkIdType progressInterval = numCells / 20 + 1;
+  for (cellId = 0; cellId < numCells && !abort; cellId++)
   {
-    if ( !(cellId % progressInterval) )
+    if (!(cellId % progressInterval))
     {
-      this->UpdateProgress((double)cellId/numCells);
+      this->UpdateProgress((double)cellId / numCells);
       abort = GetAbortExecute();
     }
 
@@ -332,7 +330,7 @@ int vtkPointDataToCellData::RequestData(
       // ...then we simply provide each point with an equal weight value and
       // interpolate.
       weight = 1.0 / numPts;
-      for (ptId=0; ptId < numPts; ptId++)
+      for (ptId = 0; ptId < numPts; ptId++)
       {
         weights[ptId] = weight;
       }
@@ -343,18 +341,17 @@ int vtkPointDataToCellData::RequestData(
       // ...otherwise, we populate a histogram from the scalar values at each
       // point, and then select the bin with the most elements.
       hist.Reset(numPts);
-      for (ptId=0; ptId < numPts; ptId++)
+      for (ptId = 0; ptId < numPts; ptId++)
       {
         pointId = cellPts->GetId(ptId);
-        hist.Fill(pointId,
-                  input->GetPointData()->GetScalars()->GetTuple1(pointId));
+        hist.Fill(pointId, input->GetPointData()->GetScalars()->GetTuple1(pointId));
       }
 
       outCD->CopyData(inPD, hist.IndexOfLargestBin(), cellId);
     }
   }
 
-  if ( !this->PassPointData )
+  if (!this->PassPointData)
   {
     output->GetPointData()->CopyAllOff();
     output->GetPointData()->CopyFieldOn(vtkDataSetAttributes::GhostArrayName());
@@ -362,7 +359,7 @@ int vtkPointDataToCellData::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   cellPts->Delete();
-  delete [] weights;
+  delete[] weights;
 
   if (!this->ProcessAllArrays)
   {
@@ -376,7 +373,7 @@ int vtkPointDataToCellData::RequestData(
 //----------------------------------------------------------------------------
 void vtkPointDataToCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
 }

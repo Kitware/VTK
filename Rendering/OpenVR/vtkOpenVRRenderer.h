@@ -17,7 +17,7 @@ PURPOSE.  See the above copyright notice for more information.
  *
  * vtkOpenVRRenderer is a concrete implementation of the abstract class
  * vtkRenderer.  vtkOpenVRRenderer interfaces to the OpenVR rendering library.
-*/
+ */
 
 #ifndef vtkOpenVRRenderer_h
 #define vtkOpenVRRenderer_h
@@ -30,8 +30,8 @@ class vtkActor;
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRRenderer : public vtkOpenGLRenderer
 {
 public:
-  static vtkOpenVRRenderer *New();
-  vtkTypeMacro(vtkOpenVRRenderer,vtkOpenGLRenderer);
+  static vtkOpenVRRenderer* New();
+  vtkTypeMacro(vtkOpenVRRenderer, vtkOpenGLRenderer);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -56,8 +56,8 @@ public:
   /**
    * Alternative version of ResetCamera(bounds[6]);
    */
-  void ResetCamera(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) override;
+  void ResetCamera(
+    double xmin, double xmax, double ymin, double ymax, double zmin, double zmax) override;
 
   using vtkRenderer::ResetCameraClippingRange;
 
@@ -68,13 +68,13 @@ public:
    * If Deering frustrum is used then the bounds get expanded
    * by the camera's modelview matrix.
    */
-  void ResetCameraClippingRange( double bounds[6] ) override;
+  void ResetCameraClippingRange(double bounds[6]) override;
   //@}
 
   /**
    * Create a new Camera suitable for use with this type of Renderer.
    */
-  vtkCamera *MakeCamera() override;
+  vtkCamera* MakeCamera() override;
 
   /**
    * Concrete open gl render method.
@@ -85,20 +85,18 @@ public:
    * SHow the floor of the VR world
    */
   virtual void SetShowFloor(bool);
-  virtual bool GetShowFloor() {
-    return this->ShowFloor; }
+  virtual bool GetShowFloor() { return this->ShowFloor; }
 
 protected:
   vtkOpenVRRenderer();
   ~vtkOpenVRRenderer();
 
-  vtkActor *FloorActor;
+  vtkActor* FloorActor;
   bool ShowFloor;
 
 private:
   vtkOpenVRRenderer(const vtkOpenVRRenderer&) = delete;
   void operator=(const vtkOpenVRRenderer&) = delete;
 };
-
 
 #endif

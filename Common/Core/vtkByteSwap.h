@@ -19,7 +19,7 @@
  * vtkByteSwap is used by other classes to perform machine dependent byte
  * swapping. Byte swapping is often used when reading or writing binary
  * files.
-*/
+ */
 
 #ifndef vtkByteSwap_h
 #define vtkByteSwap_h
@@ -30,8 +30,8 @@
 class VTKCOMMONCORE_EXPORT vtkByteSwap : public vtkObject
 {
 public:
-  static vtkByteSwap *New();
-  vtkTypeMacro(vtkByteSwap,vtkObject);
+  static vtkByteSwap* New();
+  vtkTypeMacro(vtkByteSwap, vtkObject);
 
   //@{
   /**
@@ -39,14 +39,14 @@ public:
    * Endian or Big Endian format.  Swapping is performed according to
    * the true size of the type given.
    */
-#define VTK_BYTE_SWAP_DECL(T)                                           \
-  static void SwapLE(T* p);                                             \
-  static void SwapBE(T* p);                                             \
-  static void SwapLERange(T* p, size_t num);                            \
-  static void SwapBERange(T* p, size_t num);                            \
-  static bool SwapLERangeWrite(const T* p, size_t num, FILE* file);     \
-  static bool SwapBERangeWrite(const T* p, size_t num, FILE* file);     \
-  static void SwapLERangeWrite(const T* p, size_t num, ostream* os);    \
+#define VTK_BYTE_SWAP_DECL(T)                                                                      \
+  static void SwapLE(T* p);                                                                        \
+  static void SwapBE(T* p);                                                                        \
+  static void SwapLERange(T* p, size_t num);                                                       \
+  static void SwapBERange(T* p, size_t num);                                                       \
+  static bool SwapLERangeWrite(const T* p, size_t num, FILE* file);                                \
+  static bool SwapBERangeWrite(const T* p, size_t num, FILE* file);                                \
+  static void SwapLERangeWrite(const T* p, size_t num, ostream* os);                               \
   static void SwapBERangeWrite(const T* p, size_t num, ostream* os)
   VTK_BYTE_SWAP_DECL(float);
   VTK_BYTE_SWAP_DECL(double);
@@ -130,7 +130,7 @@ public:
    * Swaps the bytes of a buffer.  Uses an arbitrary word size, but
    * assumes the word size is divisible by two.
    */
-  static void SwapVoidRange(void *buffer, size_t numWords, size_t wordSize);
+  static void SwapVoidRange(void* buffer, size_t numWords, size_t wordSize);
 
 protected:
   vtkByteSwap();

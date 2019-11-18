@@ -23,7 +23,7 @@
  * vtkImagePlaneWidget
  * @par Thanks:
  * Thanks to Atamai Inc. for developing and contributing this class.
-*/
+ */
 
 #ifndef vtkImageOrthoPlanes_h
 #define vtkImageOrthoPlanes_h
@@ -38,15 +38,15 @@ class vtkMatrix4x4;
 class VTKINTERACTIONWIDGETS_EXPORT vtkImageOrthoPlanes : public vtkObject
 {
 public:
-  static vtkImageOrthoPlanes *New();
-  vtkTypeMacro(vtkImageOrthoPlanes,vtkObject);
+  static vtkImageOrthoPlanes* New();
+  vtkTypeMacro(vtkImageOrthoPlanes, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * You must set three planes for the widget.
    */
-  void SetPlane(int i, vtkImagePlaneWidget *imagePlaneWidget);
+  void SetPlane(int i, vtkImagePlaneWidget* imagePlaneWidget);
   vtkImagePlaneWidget* GetPlane(int i);
   //@}
 
@@ -58,29 +58,24 @@ public:
   /**
    * Get the transform for the planes.
    */
-  vtkTransform *GetTransform() { return this->Transform; };
+  vtkTransform* GetTransform() { return this->Transform; }
 
   /**
    * A public method to be used only by the event callback.
    */
-  void HandlePlaneEvent(vtkImagePlaneWidget *imagePlaneWidget);
+  void HandlePlaneEvent(vtkImagePlaneWidget* imagePlaneWidget);
 
 protected:
   vtkImageOrthoPlanes();
   ~vtkImageOrthoPlanes() override;
 
-  void HandlePlaneRotation(vtkImagePlaneWidget *imagePlaneWidget,
-                           int indexOfModifiedPlane);
-  void HandlePlanePush(vtkImagePlaneWidget *imagePlaneWidget,
-                       int indexOfModifiedPlane);
-  void HandlePlaneTranslate(vtkImagePlaneWidget *imagePlaneWidget,
-                            int indexOfModifiedPlane);
-  void HandlePlaneScale(vtkImagePlaneWidget *imagePlaneWidget,
-                       int indexOfModifiedPlane);
+  void HandlePlaneRotation(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
+  void HandlePlanePush(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
+  void HandlePlaneTranslate(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
+  void HandlePlaneScale(vtkImagePlaneWidget* imagePlaneWidget, int indexOfModifiedPlane);
 
-  void SetTransformMatrix(vtkMatrix4x4 *matrix,
-                          vtkImagePlaneWidget *currentImagePlane,
-                          int indexOfModifiedPlane);
+  void SetTransformMatrix(
+    vtkMatrix4x4* matrix, vtkImagePlaneWidget* currentImagePlane, int indexOfModifiedPlane);
 
   void GetBounds(double bounds[3]);
 
@@ -91,7 +86,7 @@ protected:
 
   // The current position and orientation of the bounding box with
   // respect to the origin.
-  vtkTransform *Transform;
+  vtkTransform* Transform;
 
   // An array to hold the planes
   vtkImagePlaneWidget** Planes;
@@ -100,7 +95,7 @@ protected:
   int NumberOfPlanes;
 
   // The observer tags for these planes
-  long *ObserverTags;
+  long* ObserverTags;
 
 private:
   vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) = delete;
@@ -108,5 +103,3 @@ private:
 };
 
 #endif
-
-

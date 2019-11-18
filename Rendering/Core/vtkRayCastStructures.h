@@ -22,7 +22,7 @@
  *
  * @sa
  * vtkRayCaster
-*/
+ */
 
 #ifndef vtkRayCastStructures_h
 #define vtkRayCastStructures_h
@@ -39,14 +39,14 @@ typedef struct
   // important, for example if hardware ray bounding is being used
   // and the location in the depth buffer must be matched to this
   // ray.
-  int   Pixel[2];
+  int Pixel[2];
 
   // The world coordinate location of the camera is important for the
   // ray caster to be able to return a Z value for the intersection
   float CameraPosition[3];
 
   // This input value defines the size of the image
-  int   ImageSize[2];
+  int ImageSize[2];
 
   // These are input values for clipping but may be changed
   // along the way
@@ -57,25 +57,24 @@ typedef struct
   float Color[4];
   float Depth;
 
-
   // Some additional space that may be useful for the
   // specific implementation of the ray caster. This structure
   // is a convenient place to put it, since there is one
   // per thread so that writing to these locations is safe
 
   // Ray information transformed into local coordinates
-  float                        TransformedStart[4];
-  float                        TransformedEnd[4];
-  float                        TransformedDirection[4];
-  float                        TransformedIncrement[3];
+  float TransformedStart[4];
+  float TransformedEnd[4];
+  float TransformedDirection[4];
+  float TransformedIncrement[3];
 
   // The number of steps we want to take if this is
   // a ray caster that takes steps
-  int                          NumberOfStepsToTake;
+  int NumberOfStepsToTake;
 
   // The number of steps we actually take if this is
   // a ray caster that takes steps
-  int                          NumberOfStepsTaken;
+  int NumberOfStepsTaken;
 
 } vtkRayCastRayInfo;
 

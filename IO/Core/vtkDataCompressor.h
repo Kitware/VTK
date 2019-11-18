@@ -32,7 +32,7 @@
  * Homogeneous CompressionLevel behavior contributed by Quincy Wofford
  * (qwofford@lanl.gov) and John Patchett (patchett@lanl.gov)
  *
-*/
+ */
 
 #ifndef vtkDataCompressor_h
 #define vtkDataCompressor_h
@@ -45,7 +45,7 @@ class vtkUnsignedCharArray;
 class VTKIOCORE_EXPORT vtkDataCompressor : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkDataCompressor,vtkObject);
+  vtkTypeMacro(vtkDataCompressor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -54,7 +54,7 @@ public:
    * size of the output buffer that can be passed to the four-argument
    * Compress method.
    */
-  virtual size_t GetMaximumCompressionSpace(size_t size)=0;
+  virtual size_t GetMaximumCompressionSpace(size_t size) = 0;
 
   /**
    * Compress the given input data buffer into the given output
@@ -62,10 +62,8 @@ public:
    * as the value given by GetMaximumCompressionSpace for the given
    * input size.
    */
-  size_t Compress(unsigned char const* uncompressedData,
-                  size_t uncompressedSize,
-                  unsigned char* compressedData,
-                  size_t compressionSpace);
+  size_t Compress(unsigned char const* uncompressedData, size_t uncompressedSize,
+    unsigned char* compressedData, size_t compressionSpace);
 
   /**
    * Uncompress the given input data into the given output buffer.
@@ -73,17 +71,14 @@ public:
    * It should be transmitted from the compressor by a means outside
    * of this class.
    */
-  size_t Uncompress(unsigned char const* compressedData,
-                    size_t compressedSize,
-                    unsigned char* uncompressedData,
-                    size_t uncompressedSize);
+  size_t Uncompress(unsigned char const* compressedData, size_t compressedSize,
+    unsigned char* uncompressedData, size_t uncompressedSize);
 
   /**
    * Compress the given data.  A vtkUnsignedCharArray containing the
    * compressed data is returned with a reference count of 1.
    */
-  vtkUnsignedCharArray* Compress(unsigned char const* uncompressedData,
-                                 size_t uncompressedSize);
+  vtkUnsignedCharArray* Compress(unsigned char const* uncompressedData, size_t uncompressedSize);
 
   /**
    * Uncompress the given data.  A vtkUnsignedCharArray containing the
@@ -92,9 +87,8 @@ public:
    * should be transmitted from the compressor by a means outside of
    * this class.
    */
-  vtkUnsignedCharArray* Uncompress(unsigned char const* compressedData,
-                                   size_t compressedSize,
-                                   size_t uncompressedSize);
+  vtkUnsignedCharArray* Uncompress(
+    unsigned char const* compressedData, size_t compressedSize, size_t uncompressedSize);
 
   /** Compression performance varies greatly with compression level
    *  Require level setting from any vtkDataCompressor
@@ -111,17 +105,12 @@ protected:
 
   // Actual compression method.  This must be provided by a subclass.
   // Must return the size of the compressed data, or zero on error.
-  virtual size_t CompressBuffer(unsigned char const* uncompressedData,
-                                size_t uncompressedSize,
-                                unsigned char* compressedData,
-                                size_t compressionSpace)=0;
+  virtual size_t CompressBuffer(unsigned char const* uncompressedData, size_t uncompressedSize,
+    unsigned char* compressedData, size_t compressionSpace) = 0;
   // Actual decompression method.  This must be provided by a subclass.
   // Must return the size of the uncompressed data, or zero on error.
-  virtual size_t UncompressBuffer(unsigned char const* compressedData,
-                                  size_t compressedSize,
-                                  unsigned char* uncompressedData,
-                                  size_t uncompressedSize)=0;
-
+  virtual size_t UncompressBuffer(unsigned char const* compressedData, size_t compressedSize,
+    unsigned char* uncompressedData, size_t uncompressedSize) = 0;
 
 private:
   vtkDataCompressor(const vtkDataCompressor&) = delete;

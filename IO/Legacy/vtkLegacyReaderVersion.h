@@ -15,7 +15,7 @@
 /**
  * @class   vtkLegacyReaderVersion
  * @brief   version number for legacy readers/writers
-*/
+ */
 
 #ifndef vtkLegacyReaderVersion_h
 #define vtkLegacyReaderVersion_h

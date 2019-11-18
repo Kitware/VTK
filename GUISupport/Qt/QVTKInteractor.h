@@ -45,7 +45,6 @@ class vtkTDxDevice;
 class vtkTDxUnixDevice;
 #endif
 
-
 class QVTKInteractorInternal;
 
 /**
@@ -60,7 +59,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
 {
 public:
   static QVTKInteractor* New();
-  vtkTypeMacro(QVTKInteractor,vtkRenderWindowInteractor);
+  vtkTypeMacro(QVTKInteractor, vtkRenderWindowInteractor);
 
   /**
    * Enum for additional event types supported.
@@ -104,8 +103,8 @@ public:
   virtual void TimerEvent(int timerId);
 
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  virtual vtkTDxUnixDevice *GetDevice();
-  virtual void SetDevice(vtkTDxDevice *device);
+  virtual vtkTDxUnixDevice* GetDevice();
+  virtual void SetDevice(vtkTDxDevice* device);
 #endif
 
 protected:
@@ -119,22 +118,20 @@ protected:
   // destroy a Qt Timer
   int InternalDestroyTimer(int platformTimerId) override;
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
-  vtkTDxWinDevice *Device;
+  vtkTDxWinDevice* Device;
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
-  vtkTDxMacDevice *Device;
+  vtkTDxMacDevice* Device;
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
-  vtkTDxUnixDevice *Device;
+  vtkTDxUnixDevice* Device;
 #endif
 
 private:
-
   QVTKInteractorInternal* Internal;
 
   QVTKInteractor(const QVTKInteractor&) = delete;
   void operator=(const QVTKInteractor&) = delete;
-
 };
 
 #endif

@@ -33,12 +33,11 @@
 
 #include <sstream>
 
-namespace vtkTestTextMapper {
-void setupTextMapper(vtkTextMapper *mapper,
-                     vtkActor2D *actor,
-                     vtkPolyData *anchor)
+namespace vtkTestTextMapper
 {
-  vtkTextProperty *p = mapper->GetTextProperty();
+void setupTextMapper(vtkTextMapper* mapper, vtkActor2D* actor, vtkPolyData* anchor)
+{
+  vtkTextProperty* p = mapper->GetTextProperty();
   std::ostringstream label;
   label << "TProp Angle: " << p->GetOrientation() << "\n"
         << "HAlign: " << p->GetJustificationAsString() << "\n"
@@ -46,26 +45,25 @@ void setupTextMapper(vtkTextMapper *mapper,
   mapper->SetInput(label.str().c_str());
 
   // Add the anchor point:
-  double *pos = actor->GetPosition();
-  double *col = p->GetColor();
+  double* pos = actor->GetPosition();
+  double* col = p->GetColor();
   vtkIdType ptId = anchor->GetPoints()->InsertNextPoint(pos[0], pos[1], 0.);
   anchor->GetVerts()->InsertNextCell(1, &ptId);
-  anchor->GetCellData()->GetScalars()->InsertNextTuple4(col[0] * 255,
-                                                        col[1] * 255,
-                                                        col[2] * 255, 255);
+  anchor->GetCellData()->GetScalars()->InsertNextTuple4(
+    col[0] * 255, col[1] * 255, col[2] * 255, 255);
 }
 } // end namespace vtkTestTextMapper
 
 //----------------------------------------------------------------------------
-int TestTextMapper(int, char *[])
+int TestTextMapper(int, char*[])
 {
   using namespace vtkTestTextMapper;
   vtkNew<vtkRenderer> ren;
 
   int width = 600;
   int height = 600;
-  int x[3] = {100, 300, 500};
-  int y[3] = {100, 300, 500};
+  int x[3] = { 100, 300, 500 };
+  int y[3] = { 100, 300, 500 };
 
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
@@ -111,8 +109,7 @@ int TestTextMapper(int, char *[])
       vtkNew<vtkActor2D> actor;
       actor->SetPosition(x[col], y[row]);
       actor->SetMapper(mapper);
-      setupTextMapper(mapper, actor,
-                      anchors);
+      setupTextMapper(mapper, actor, anchors);
       ren->AddActor2D(actor);
     }
   }

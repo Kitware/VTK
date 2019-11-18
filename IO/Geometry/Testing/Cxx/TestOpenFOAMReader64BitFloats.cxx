@@ -34,13 +34,12 @@ int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
 {
   // Read file name.
   char* filename =
-    vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                         "Data/OpenFOAM/64BitFloats/test.foam");
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/OpenFOAM/64BitFloats/test.foam");
 
   // Read the file
   vtkNew<vtkOpenFOAMReader> reader;
   reader->SetFileName(filename);
-  delete [] filename;
+  delete[] filename;
   reader->Use64BitFloatsOn();
 
   // Visualize
@@ -65,8 +64,8 @@ int TestOpenFOAMReader64BitFloats(int argc, char* argv[])
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow );
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  int retVal = vtkRegressionTestImage(renderWindow);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();
   }

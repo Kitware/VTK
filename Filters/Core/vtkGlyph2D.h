@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkTensorGlyph vtkGlyph3D vtkProgrammableGlyphFilter
-*/
+ */
 
 #ifndef vtkGlyph2D_h
 #define vtkGlyph2D_h
@@ -36,7 +36,7 @@
 class VTKFILTERSCORE_EXPORT vtkGlyph2D : public vtkGlyph3D
 {
 public:
-  vtkTypeMacro(vtkGlyph2D,vtkGlyph3D);
+  vtkTypeMacro(vtkGlyph2D, vtkGlyph3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -45,13 +45,13 @@ public:
    * orientation is by vector. Clamping and indexing are turned off. No
    * initial sources are defined.
    */
-  static vtkGlyph2D *New();
+  static vtkGlyph2D* New();
 
 protected:
   vtkGlyph2D() {}
   ~vtkGlyph2D() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkGlyph2D(const vtkGlyph2D&) = delete;

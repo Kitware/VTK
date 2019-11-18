@@ -56,9 +56,7 @@ void vtkSimpleBondPerceiver::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkSimpleBondPerceiver::RequestData(
-  vtkInformation* ,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkMolecule* input = vtkMolecule::SafeDownCast(vtkDataObject::GetData(inputVector[0]));
   if (!input)
@@ -189,8 +187,8 @@ void vtkSimpleBondPerceiver::ComputeBonds(vtkMolecule* molecule)
 }
 
 //----------------------------------------------------------------------------
-double vtkSimpleBondPerceiver::GetCovalentRadiusWithTolerance(vtkPeriodicTable* table,
-  vtkIdType atomicNumber)
+double vtkSimpleBondPerceiver::GetCovalentRadiusWithTolerance(
+  vtkPeriodicTable* table, vtkIdType atomicNumber)
 {
   return this->IsToleranceAbsolute ? table->GetCovalentRadius(atomicNumber) + this->Tolerance / 2
                                    : table->GetCovalentRadius(atomicNumber) * this->Tolerance;

@@ -69,7 +69,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(istream& stream, vtkStdString& output, char delim = '\n');
 
 vtkStandardNewMacro(vtkDataReader);
 
@@ -138,16 +138,16 @@ vtkDataReader::vtkDataReader()
 
 vtkDataReader::~vtkDataReader()
 {
-  delete [] this->ScalarsName;
-  delete [] this->VectorsName;
-  delete [] this->TensorsName;
-  delete [] this->NormalsName;
-  delete [] this->TCoordsName;
-  delete [] this->LookupTableName;
-  delete [] this->FieldDataName;
-  delete [] this->ScalarLut;
-  delete [] this->InputString;
-  delete [] this->Header;
+  delete[] this->ScalarsName;
+  delete[] this->VectorsName;
+  delete[] this->TensorsName;
+  delete[] this->NormalsName;
+  delete[] this->TCoordsName;
+  delete[] this->LookupTableName;
+  delete[] this->FieldDataName;
+  delete[] this->ScalarLut;
+  delete[] this->InputString;
+  delete[] this->Header;
 
   this->SetInputArray(nullptr);
   this->InitializeCharacteristics();
@@ -156,10 +156,8 @@ vtkDataReader::~vtkDataReader()
 
 void vtkDataReader::SetFileName(const char* fname)
 {
-  if (this->GetNumberOfFileNames() == 1 &&
-      this->GetFileName(0) &&
-      fname &&
-      strcmp(this->GetFileName(0), fname) == 0)
+  if (this->GetNumberOfFileNames() == 1 && this->GetFileName(0) && fname &&
+    strcmp(this->GetFileName(0), fname) == 0)
   {
     return;
   }
@@ -180,8 +178,7 @@ const char* vtkDataReader::GetFileName() const
   return this->vtkSimpleReader::GetFileName(0);
 }
 
-int vtkDataReader::ReadTimeDependentMetaData(
-  int timestep, vtkInformation* metadata)
+int vtkDataReader::ReadTimeDependentMetaData(int timestep, vtkInformation* metadata)
 {
   if (this->ReadFromInputString)
   {
@@ -192,7 +189,7 @@ int vtkDataReader::ReadTimeDependentMetaData(
 }
 
 int vtkDataReader::ReadMesh(
-    int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
+  int piece, int npieces, int nghosts, int timestep, vtkDataObject* output)
 {
   // Not a parallel reader. Cannot handle anything other than the first piece,
   // which will have everything.
@@ -209,7 +206,7 @@ int vtkDataReader::ReadMesh(
   return this->Superclass::ReadMesh(piece, npieces, nghosts, timestep, output);
 }
 
-void vtkDataReader::SetInputString(const char *in)
+void vtkDataReader::SetInputString(const char* in)
 {
   int len = 0;
   if (in != nullptr)
@@ -219,17 +216,16 @@ void vtkDataReader::SetInputString(const char *in)
   this->SetInputString(in, len);
 }
 
-void vtkDataReader::SetBinaryInputString(const char *in, int len)
+void vtkDataReader::SetBinaryInputString(const char* in, int len)
 {
   this->SetInputString(in, len);
 }
 
-void vtkDataReader::SetInputString(const char *in, int len)
+void vtkDataReader::SetInputString(const char* in, int len)
 {
   if (this->Debug)
   {
-    vtkDebugMacro(<< "SetInputString len: " << len
-      << " in: " << (in ? in : "(null)"));
+    vtkDebugMacro(<< "SetInputString len: " << len << " in: " << (in ? in : "(null)"));
   }
 
   if (this->InputString && in && strncmp(in, this->InputString, len) == 0)
@@ -237,16 +233,16 @@ void vtkDataReader::SetInputString(const char *in, int len)
     return;
   }
 
-  delete [] this->InputString;
+  delete[] this->InputString;
 
-  if (in && len>0)
+  if (in && len > 0)
   {
     // Add a nullptr terminator so that GetInputString
     // callers (from wrapped languages) get a valid
     // C string in *ALL* cases...
     //
-    this->InputString = new char[len+1];
-    memcpy(this->InputString,in,len);
+    this->InputString = new char[len + 1];
+    memcpy(this->InputString, in, len);
     this->InputString[len] = 0;
     this->InputStringLength = len;
   }
@@ -263,7 +259,7 @@ void vtkDataReader::SetInputString(const char *in, int len)
 // Returns zero if there was an error.
 int vtkDataReader::ReadLine(char result[256])
 {
-  this->IS->getline(result,256);
+  this->IS->getline(result, 256);
   if (this->IS->fail())
   {
     if (this->IS->eof())
@@ -279,9 +275,9 @@ int vtkDataReader::ReadLine(char result[256])
   }
   // remove '\r', if present.
   size_t slen = strlen(result);
-  if (slen > 0 && result[slen-1] == '\r')
+  if (slen > 0 && result[slen - 1] == '\r')
   {
-    result[slen-1] = '\0';
+    result[slen - 1] = '\0';
   }
   return 1;
 }
@@ -301,7 +297,7 @@ int vtkDataReader::ReadString(char result[256])
 
 // Internal function to read in an integer value.
 // Returns zero if there was an error.
-int vtkDataReader::Read(char *result)
+int vtkDataReader::Read(char* result)
 {
   int intData;
   *this->IS >> intData;
@@ -310,11 +306,11 @@ int vtkDataReader::Read(char *result)
     return 0;
   }
 
-  *result = (char) intData;
+  *result = (char)intData;
   return 1;
 }
 
-int vtkDataReader::Read(unsigned char *result)
+int vtkDataReader::Read(unsigned char* result)
 {
   int intData;
   *this->IS >> intData;
@@ -323,11 +319,11 @@ int vtkDataReader::Read(unsigned char *result)
     return 0;
   }
 
-  *result = (unsigned char) intData;
+  *result = (unsigned char)intData;
   return 1;
 }
 
-int vtkDataReader::Read(short *result)
+int vtkDataReader::Read(short* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -337,7 +333,7 @@ int vtkDataReader::Read(short *result)
   return 1;
 }
 
-int vtkDataReader::Read(unsigned short *result)
+int vtkDataReader::Read(unsigned short* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -347,7 +343,7 @@ int vtkDataReader::Read(unsigned short *result)
   return 1;
 }
 
-int vtkDataReader::Read(int *result)
+int vtkDataReader::Read(int* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -357,7 +353,7 @@ int vtkDataReader::Read(int *result)
   return 1;
 }
 
-int vtkDataReader::Read(unsigned int *result)
+int vtkDataReader::Read(unsigned int* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -367,7 +363,7 @@ int vtkDataReader::Read(unsigned int *result)
   return 1;
 }
 
-int vtkDataReader::Read(long *result)
+int vtkDataReader::Read(long* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -377,7 +373,7 @@ int vtkDataReader::Read(long *result)
   return 1;
 }
 
-int vtkDataReader::Read(unsigned long *result)
+int vtkDataReader::Read(unsigned long* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -387,7 +383,7 @@ int vtkDataReader::Read(unsigned long *result)
   return 1;
 }
 
-int vtkDataReader::Read(long long *result)
+int vtkDataReader::Read(long long* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -397,7 +393,7 @@ int vtkDataReader::Read(long long *result)
   return 1;
 }
 
-int vtkDataReader::Read(unsigned long long *result)
+int vtkDataReader::Read(unsigned long long* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -407,7 +403,7 @@ int vtkDataReader::Read(unsigned long long *result)
   return 1;
 }
 
-int vtkDataReader::Read(float *result)
+int vtkDataReader::Read(float* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -417,7 +413,7 @@ int vtkDataReader::Read(float *result)
   return 1;
 }
 
-int vtkDataReader::Read(double *result)
+int vtkDataReader::Read(double* result)
 {
   *this->IS >> *result;
   if (this->IS->fail())
@@ -427,7 +423,7 @@ int vtkDataReader::Read(double *result)
   return 1;
 }
 
-size_t vtkDataReader::Peek(char *str, size_t n)
+size_t vtkDataReader::Peek(char* str, size_t n)
 {
   if (n == 0)
   {
@@ -454,15 +450,15 @@ int vtkDataReader::OpenVTKFile(const char* fname)
   // avoid locale issues - for instance with the decimal separator.
   this->CurrentLocale = std::locale::global(std::locale::classic());
 
-  if(!fname && this->GetNumberOfFileNames() >0)
+  if (!fname && this->GetNumberOfFileNames() > 0)
   {
     fname = this->GetFileName(0);
   }
-  this->CurrentFileName = fname?fname:std::string();
+  this->CurrentFileName = fname ? fname : std::string();
 
-  if ( this->IS != nullptr )
+  if (this->IS != nullptr)
   {
-    this->CloseVTKFile ();
+    this->CloseVTKFile();
   }
   if (this->ReadFromInputString)
   {
@@ -470,8 +466,8 @@ int vtkDataReader::OpenVTKFile(const char* fname)
     {
       vtkDebugMacro(<< "Reading from InputArray");
       std::string str(this->InputArray->GetPointer(0),
-        static_cast<size_t>( this->InputArray->GetNumberOfTuples()  *
-                             this->InputArray->GetNumberOfComponents()) );
+        static_cast<size_t>(
+          this->InputArray->GetNumberOfTuples() * this->InputArray->GetNumberOfComponents()));
       this->IS = new std::istringstream(str);
       return 1;
     }
@@ -487,10 +483,10 @@ int vtkDataReader::OpenVTKFile(const char* fname)
   {
     vtkDebugMacro(<< "Opening vtk file");
 
-    if ( !fname || (strlen(fname) == 0))
+    if (!fname || (strlen(fname) == 0))
     {
       vtkErrorMacro(<< "No file specified!");
-      this->SetErrorCode( vtkErrorCode::NoFileNameError );
+      this->SetErrorCode(vtkErrorCode::NoFileNameError);
       return 0;
     }
 
@@ -499,18 +495,18 @@ int vtkDataReader::OpenVTKFile(const char* fname)
     vtksys::SystemTools::Stat_t fs;
     if (vtksys::SystemTools::Stat(fname, &fs) != 0)
     {
-      vtkErrorMacro(<< "Unable to open file: "<< fname);
-      this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
+      vtkErrorMacro(<< "Unable to open file: " << fname);
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
     }
 
     this->IS = new ifstream(fname, ios::in | ios::binary);
     if (this->IS->fail())
     {
-      vtkErrorMacro(<< "Unable to open file: "<< fname);
+      vtkErrorMacro(<< "Unable to open file: " << fname);
       delete this->IS;
       this->IS = nullptr;
-      this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
     }
     return 1;
@@ -522,7 +518,7 @@ int vtkDataReader::OpenVTKFile(const char* fname)
 // Read the header of a vtk data file. Returns 0 if error.
 int vtkDataReader::ReadHeader(const char* fname)
 {
-  if (!fname && this->GetNumberOfFileNames() >0)
+  if (!fname && this->GetNumberOfFileNames() > 0)
   {
     fname = this->GetFileName(0);
   }
@@ -534,37 +530,36 @@ int vtkDataReader::ReadHeader(const char* fname)
   //
   if (!this->ReadLine(line))
   {
-    vtkErrorMacro(<<"Premature EOF reading first line! " << " for file: "
-                  << (fname?fname:"(Null FileName)"));
-    this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
+    vtkErrorMacro(<< "Premature EOF reading first line! "
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
   const int VERSION_PREFIX_LENGTH = 22;
-  if ( strncmp ("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH) )
+  if (strncmp("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH))
   {
-    vtkErrorMacro(<< "Unrecognized file type: "<< line << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Unrecognized file type: " << line
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
 
-    this->SetErrorCode( vtkErrorCode::UnrecognizedFileTypeError );
+    this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
     return 0;
   }
-  if (sscanf (line + VERSION_PREFIX_LENGTH,
-              "%d.%d", &this->FileMajorVersion, &this->FileMinorVersion) != 2)
+  if (sscanf(line + VERSION_PREFIX_LENGTH, "%d.%d", &this->FileMajorVersion,
+        &this->FileMinorVersion) != 2)
   {
-    vtkWarningMacro(<< "Cannot read file version: " << line << " for file: "
-                    << (fname?fname:"(Null FileName)"));
+    vtkWarningMacro(<< "Cannot read file version: " << line
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
     this->FileMajorVersion = 0;
     this->FileMinorVersion = 0;
   }
   if (this->FileMajorVersion > vtkLegacyReaderMajorVersion ||
-      (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
-       this->FileMinorVersion > vtkLegacyReaderMinorVersion))
+    (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
+      this->FileMinorVersion > vtkLegacyReaderMinorVersion))
   {
     // newer file than the reader version
-    vtkWarningMacro(
-      << "Reading file version: " << this->FileMajorVersion
-      << "." << this->FileMinorVersion << " with older reader version "
-      << vtkLegacyReaderMajorVersion << "." << vtkLegacyReaderMinorVersion);
+    vtkWarningMacro(<< "Reading file version: " << this->FileMajorVersion << "."
+                    << this->FileMinorVersion << " with older reader version "
+                    << vtkLegacyReaderMajorVersion << "." << vtkLegacyReaderMinorVersion);
   }
 
   //
@@ -572,14 +567,14 @@ int vtkDataReader::ReadHeader(const char* fname)
   //
   if (!this->ReadLine(line))
   {
-    vtkErrorMacro(<<"Premature EOF reading title! " << " for file: "
-                  << (fname?fname:"(Null FileName)"));
-    this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
+    vtkErrorMacro(<< "Premature EOF reading title! "
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
-  delete [] this->Header;
+  delete[] this->Header;
   this->Header = new char[strlen(line) + 1];
-  strcpy (this->Header, line);
+  strcpy(this->Header, line);
 
   vtkDebugMacro(<< "Reading vtk file entitled: " << line);
   //
@@ -587,26 +582,26 @@ int vtkDataReader::ReadHeader(const char* fname)
   //
   if (!this->ReadString(line))
   {
-    vtkErrorMacro(<<"Premature EOF reading file type!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
-    this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
+    vtkErrorMacro(<< "Premature EOF reading file type!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
+    this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
 
-  if ( !strncmp(this->LowerCase(line), "ascii", 5) )
+  if (!strncmp(this->LowerCase(line), "ascii", 5))
   {
     this->FileType = VTK_ASCII;
   }
-  else if ( !strncmp(line, "binary", 6) )
+  else if (!strncmp(line, "binary", 6))
   {
     this->FileType = VTK_BINARY;
   }
   else
   {
-    vtkErrorMacro(<< "Unrecognized file type: "<< line << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Unrecognized file type: " << line
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     this->FileType = 0;
-    this->SetErrorCode( vtkErrorCode::UnrecognizedFileTypeError );
+    this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
     return 0;
   }
 
@@ -624,10 +619,10 @@ int vtkDataReader::ReadHeader(const char* fname)
 #endif
     if (this->IS->fail())
     {
-      vtkErrorMacro(<< "Unable to open file: "<< fname);
+      vtkErrorMacro(<< "Unable to open file: " << fname);
       delete this->IS;
       this->IS = nullptr;
-      this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
     }
     // read up to the same point in the file
@@ -636,13 +631,13 @@ int vtkDataReader::ReadHeader(const char* fname)
     this->ReadString(line);
   }
 
-  float progress=this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
-int vtkDataReader::IsFileValid(const char *dstype)
+int vtkDataReader::IsFileValid(const char* dstype)
 {
   char line[1024];
 
@@ -653,30 +648,30 @@ int vtkDataReader::IsFileValid(const char *dstype)
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
   {
-    this->CloseVTKFile ();
+    this->CloseVTKFile();
     return 0;
   }
 
   if (!this->ReadString(line))
   {
-    vtkErrorMacro(<<"Data file ends prematurely!");
-    this->CloseVTKFile ();
-    this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
+    vtkErrorMacro(<< "Data file ends prematurely!");
+    this->CloseVTKFile();
+    this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
 
-  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
+  if (!strncmp(this->LowerCase(line), "dataset", (unsigned long)7))
   {
     if (!this->ReadString(line))
     {
-      vtkErrorMacro(<<"Data file ends prematurely!");
-      this->CloseVTKFile ();
-      this->SetErrorCode( vtkErrorCode::PrematureEndOfFileError );
+      vtkErrorMacro(<< "Data file ends prematurely!");
+      this->CloseVTKFile();
+      this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
       return 0;
     }
-    if (strncmp(this->LowerCase(line),dstype,strlen(dstype)))
+    if (strncmp(this->LowerCase(line), dstype, strlen(dstype)))
     {
-      this->CloseVTKFile ();
+      this->CloseVTKFile();
       return 0;
     }
     // everything looks good
@@ -684,17 +679,17 @@ int vtkDataReader::IsFileValid(const char *dstype)
     return 1;
   }
 
-  this->CloseVTKFile ();
+  this->CloseVTKFile();
   return 0;
 }
 
 // Read the cell data of a vtk data file. The number of cells (from the
 // dataset) must match the number of cells defined in cell attributes (unless
 // no geometry was defined).
-int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
+int vtkDataReader::ReadCellData(vtkDataSet* ds, vtkIdType numCells)
 {
   char line[256];
-  vtkDataSetAttributes *a=ds->GetCellData();
+  vtkDataSetAttributes* a = ds->GetCellData();
 
   vtkDebugMacro(<< "Reading vtk cell data");
 
@@ -706,9 +701,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read scalar data
     //
-    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+    if (!strncmp(this->LowerCase(line), "scalars", 7))
     {
-      if ( ! this->ReadScalarData(a, numCells) )
+      if (!this->ReadScalarData(a, numCells))
       {
         return 0;
       }
@@ -716,9 +711,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read vector data
     //
-    else if ( ! strncmp(line, "vectors", 7) )
+    else if (!strncmp(line, "vectors", 7))
     {
-      if ( ! this->ReadVectorData(a, numCells) )
+      if (!this->ReadVectorData(a, numCells))
       {
         return 0;
       }
@@ -726,9 +721,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read 3x2 symmetric tensor data
     //
-    else if ( ! strncmp(line, "tensors6", 8) )
+    else if (!strncmp(line, "tensors6", 8))
     {
-      if ( ! this->ReadTensorData(a, numCells, 6) )
+      if (!this->ReadTensorData(a, numCells, 6))
       {
         return 0;
       }
@@ -736,9 +731,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read 3x3 tensor data
     //
-    else if ( ! strncmp(line, "tensors", 7) )
+    else if (!strncmp(line, "tensors", 7))
     {
-      if ( ! this->ReadTensorData(a, numCells) )
+      if (!this->ReadTensorData(a, numCells))
       {
         return 0;
       }
@@ -746,9 +741,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read normals data
     //
-    else if ( ! strncmp(line, "normals", 7) )
+    else if (!strncmp(line, "normals", 7))
     {
-      if ( ! this->ReadNormalData(a, numCells) )
+      if (!this->ReadNormalData(a, numCells))
       {
         return 0;
       }
@@ -756,9 +751,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read texture coordinates data
     //
-    else if ( ! strncmp(line, "texture_coordinates", 19) )
+    else if (!strncmp(line, "texture_coordinates", 19))
     {
-      if ( ! this->ReadTCoordsData(a, numCells) )
+      if (!this->ReadTCoordsData(a, numCells))
       {
         return 0;
       }
@@ -766,9 +761,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read the global id data
     //
-    else if ( ! strncmp(line, "global_ids", 10) )
+    else if (!strncmp(line, "global_ids", 10))
     {
-      if ( ! this->ReadGlobalIds(a, numCells) )
+      if (!this->ReadGlobalIds(a, numCells))
       {
         return 0;
       }
@@ -776,9 +771,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 12) )
+    else if (!strncmp(line, "pedigree_ids", 12))
     {
-      if ( ! this->ReadPedigreeIds(a, numCells) )
+      if (!this->ReadPedigreeIds(a, numCells))
       {
         return 0;
       }
@@ -786,9 +781,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read color scalars data
     //
-    else if ( ! strncmp(line, "color_scalars", 13) )
+    else if (!strncmp(line, "color_scalars", 13))
     {
-      if ( ! this->ReadCoScalarData(a, numCells) )
+      if (!this->ReadCoScalarData(a, numCells))
       {
         return 0;
       }
@@ -796,9 +791,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read lookup table. Associate with scalar data.
     //
-    else if ( ! strncmp(line, "lookup_table", 12) )
+    else if (!strncmp(line, "lookup_table", 12))
     {
-      if ( ! this->ReadLutData(a) )
+      if (!this->ReadLutData(a))
       {
         return 0;
       }
@@ -806,14 +801,14 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // read field of data
     //
-    else if ( ! strncmp(line, "field", 5) )
+    else if (!strncmp(line, "field", 5))
     {
-      vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData(CELL_DATA)) )
+      vtkFieldData* f;
+      if (!(f = this->ReadFieldData(CELL_DATA)))
       {
         return 0;
       }
-      for(int i=0; i<f->GetNumberOfArrays(); i++)
+      for (int i = 0; i < f->GetNumberOfArrays(); i++)
       {
         a->AddArray(f->GetAbstractArray(i));
       }
@@ -822,12 +817,12 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     //
     // maybe bumped into point data
     //
-    else if ( ! strncmp(line, "point_data", 10) )
+    else if (!strncmp(line, "point_data", 10))
     {
       vtkIdType npts;
       if (!this->Read(&npts))
       {
-        vtkErrorMacro(<<"Cannot read point data!");
+        vtkErrorMacro(<< "Cannot read point data!");
         return 0;
       }
 
@@ -838,7 +833,7 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
     {
       const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported cell attribute type: " << line
-                    << " for file: " << (fname?fname:"(Null FileName)"));
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
@@ -846,14 +841,13 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, vtkIdType numCells)
   return 1;
 }
 
-
 // Read the point data of a vtk data file. The number of points (from the
 // dataset) must match the number of points defined in point attributes (unless
 // no geometry was defined).
-int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
+int vtkDataReader::ReadPointData(vtkDataSet* ds, vtkIdType numPts)
 {
   char line[256];
-  vtkDataSetAttributes *a=ds->GetPointData();
+  vtkDataSetAttributes* a = ds->GetPointData();
 
   vtkDebugMacro(<< "Reading vtk point data");
 
@@ -865,9 +859,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read scalar data
     //
-    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+    if (!strncmp(this->LowerCase(line), "scalars", 7))
     {
-      if ( ! this->ReadScalarData(a, numPts) )
+      if (!this->ReadScalarData(a, numPts))
       {
         return 0;
       }
@@ -875,9 +869,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read vector data
     //
-    else if ( ! strncmp(line, "vectors", 7) )
+    else if (!strncmp(line, "vectors", 7))
     {
-      if ( ! this->ReadVectorData(a, numPts) )
+      if (!this->ReadVectorData(a, numPts))
       {
         return 0;
       }
@@ -885,9 +879,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read 3x2 symmetric tensor data
     //
-    else if ( ! strncmp(line, "tensors6", 8) )
+    else if (!strncmp(line, "tensors6", 8))
     {
-      if ( ! this->ReadTensorData(a, numPts, 6) )
+      if (!this->ReadTensorData(a, numPts, 6))
       {
         return 0;
       }
@@ -895,9 +889,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read 3x3 tensor data
     //
-    else if ( ! strncmp(line, "tensors", 7) )
+    else if (!strncmp(line, "tensors", 7))
     {
-      if ( ! this->ReadTensorData(a, numPts) )
+      if (!this->ReadTensorData(a, numPts))
       {
         return 0;
       }
@@ -905,10 +899,10 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read normals data
     //
-    else if ( ! strncmp(line, "normals", 7) )
+    else if (!strncmp(line, "normals", 7))
     {
 
-      if ( ! this->ReadNormalData(a, numPts) )
+      if (!this->ReadNormalData(a, numPts))
       {
         return 0;
       }
@@ -916,9 +910,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read texture coordinates data
     //
-    else if ( ! strncmp(line, "texture_coordinates", 19) )
+    else if (!strncmp(line, "texture_coordinates", 19))
     {
-      if ( ! this->ReadTCoordsData(a, numPts) )
+      if (!this->ReadTCoordsData(a, numPts))
       {
         return 0;
       }
@@ -926,9 +920,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read the global id data
     //
-    else if ( ! strncmp(line, "global_ids", 10) )
+    else if (!strncmp(line, "global_ids", 10))
     {
-      if ( ! this->ReadGlobalIds(a, numPts) )
+      if (!this->ReadGlobalIds(a, numPts))
       {
         return 0;
       }
@@ -936,9 +930,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 12) )
+    else if (!strncmp(line, "pedigree_ids", 12))
     {
-      if ( ! this->ReadPedigreeIds(a, numPts) )
+      if (!this->ReadPedigreeIds(a, numPts))
       {
         return 0;
       }
@@ -946,9 +940,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read the edge flags data
     //
-    else if ( ! strncmp(line, "edge_flags", 10) )
+    else if (!strncmp(line, "edge_flags", 10))
     {
-      if ( ! this->ReadEdgeFlags(a, numPts) )
+      if (!this->ReadEdgeFlags(a, numPts))
       {
         return 0;
       }
@@ -956,9 +950,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read color scalars data
     //
-    else if ( ! strncmp(line, "color_scalars", 13) )
+    else if (!strncmp(line, "color_scalars", 13))
     {
-      if ( ! this->ReadCoScalarData(a, numPts) )
+      if (!this->ReadCoScalarData(a, numPts))
       {
         return 0;
       }
@@ -966,9 +960,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read lookup table. Associate with scalar data.
     //
-    else if ( ! strncmp(line, "lookup_table", 12) )
+    else if (!strncmp(line, "lookup_table", 12))
     {
-      if ( ! this->ReadLutData(a) )
+      if (!this->ReadLutData(a))
       {
         return 0;
       }
@@ -976,14 +970,14 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // read field of data
     //
-    else if ( ! strncmp(line, "field", 5) )
+    else if (!strncmp(line, "field", 5))
     {
-      vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData(POINT_DATA)) )
+      vtkFieldData* f;
+      if (!(f = this->ReadFieldData(POINT_DATA)))
       {
         return 0;
       }
-      for(int i=0; i<f->GetNumberOfArrays(); i++)
+      for (int i = 0; i < f->GetNumberOfArrays(); i++)
       {
         a->AddArray(f->GetAbstractArray(i));
       }
@@ -992,12 +986,12 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     //
     // maybe bumped into cell data
     //
-    else if ( ! strncmp(line, "cell_data", 9) )
+    else if (!strncmp(line, "cell_data", 9))
     {
       vtkIdType ncells;
       if (!this->Read(&ncells))
       {
-        vtkErrorMacro(<<"Cannot read cell data!");
+        vtkErrorMacro(<< "Cannot read cell data!");
         return 0;
       }
 
@@ -1008,21 +1002,20 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, vtkIdType numPts)
     {
       const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported point attribute type: " << line
-                    << " for file: " << (fname?fname:"(Null FileName)"));
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
   return 1;
 }
 
-
 // Read the vertex data of a vtk data file. The number of vertices (from the
 // graph) must match the number of vertices defined in vertex attributes (unless
 // no geometry was defined).
-int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
+int vtkDataReader::ReadVertexData(vtkGraph* g, vtkIdType numVertices)
 {
   char line[256];
-  vtkDataSetAttributes *a=g->GetVertexData();
+  vtkDataSetAttributes* a = g->GetVertexData();
 
   vtkDebugMacro(<< "Reading vtk vertex data");
 
@@ -1034,9 +1027,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read scalar data
     //
-    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+    if (!strncmp(this->LowerCase(line), "scalars", 7))
     {
-      if ( ! this->ReadScalarData(a, numVertices) )
+      if (!this->ReadScalarData(a, numVertices))
       {
         return 0;
       }
@@ -1044,9 +1037,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read vector data
     //
-    else if ( ! strncmp(line, "vectors", 7) )
+    else if (!strncmp(line, "vectors", 7))
     {
-      if ( ! this->ReadVectorData(a, numVertices) )
+      if (!this->ReadVectorData(a, numVertices))
       {
         return 0;
       }
@@ -1054,9 +1047,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read 3x2 symmetric tensor data
     //
-    else if ( ! strncmp(line, "tensors6", 8) )
+    else if (!strncmp(line, "tensors6", 8))
     {
-      if ( ! this->ReadTensorData(a, numVertices, 6) )
+      if (!this->ReadTensorData(a, numVertices, 6))
       {
         return 0;
       }
@@ -1064,9 +1057,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read 3x3 tensor data
     //
-    else if ( ! strncmp(line, "tensors", 7) )
+    else if (!strncmp(line, "tensors", 7))
     {
-      if ( ! this->ReadTensorData(a, numVertices) )
+      if (!this->ReadTensorData(a, numVertices))
       {
         return 0;
       }
@@ -1074,9 +1067,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read normals data
     //
-    else if ( ! strncmp(line, "normals", 7) )
+    else if (!strncmp(line, "normals", 7))
     {
-      if ( ! this->ReadNormalData(a, numVertices) )
+      if (!this->ReadNormalData(a, numVertices))
       {
         return 0;
       }
@@ -1084,9 +1077,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read texture coordinates data
     //
-    else if ( ! strncmp(line, "texture_coordinates", 19) )
+    else if (!strncmp(line, "texture_coordinates", 19))
     {
-      if ( ! this->ReadTCoordsData(a, numVertices) )
+      if (!this->ReadTCoordsData(a, numVertices))
       {
         return 0;
       }
@@ -1094,9 +1087,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read the global id data
     //
-    else if ( ! strncmp(line, "global_ids", 10) )
+    else if (!strncmp(line, "global_ids", 10))
     {
-      if ( ! this->ReadGlobalIds(a, numVertices) )
+      if (!this->ReadGlobalIds(a, numVertices))
       {
         return 0;
       }
@@ -1104,9 +1097,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 12) )
+    else if (!strncmp(line, "pedigree_ids", 12))
     {
-      if ( ! this->ReadPedigreeIds(a, numVertices) )
+      if (!this->ReadPedigreeIds(a, numVertices))
       {
         return 0;
       }
@@ -1114,9 +1107,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read color scalars data
     //
-    else if ( ! strncmp(line, "color_scalars", 13) )
+    else if (!strncmp(line, "color_scalars", 13))
     {
-      if ( ! this->ReadCoScalarData(a, numVertices) )
+      if (!this->ReadCoScalarData(a, numVertices))
       {
         return 0;
       }
@@ -1124,9 +1117,9 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read lookup table. Associate with scalar data.
     //
-    else if ( ! strncmp(line, "lookup_table", 12) )
+    else if (!strncmp(line, "lookup_table", 12))
     {
-      if ( ! this->ReadLutData(a) )
+      if (!this->ReadLutData(a))
       {
         return 0;
       }
@@ -1134,14 +1127,14 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // read field of data
     //
-    else if ( ! strncmp(line, "field", 5) )
+    else if (!strncmp(line, "field", 5))
     {
-      vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData()) )
+      vtkFieldData* f;
+      if (!(f = this->ReadFieldData()))
       {
         return 0;
       }
-      for(int i=0; i<f->GetNumberOfArrays(); i++)
+      for (int i = 0; i < f->GetNumberOfArrays(); i++)
       {
         a->AddArray(f->GetAbstractArray(i));
       }
@@ -1150,12 +1143,12 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     //
     // maybe bumped into edge data
     //
-    else if ( ! strncmp(line, "edge_data", 10) )
+    else if (!strncmp(line, "edge_data", 10))
     {
       vtkIdType npts;
       if (!this->Read(&npts))
       {
-        vtkErrorMacro(<<"Cannot read point data!");
+        vtkErrorMacro(<< "Cannot read point data!");
         return 0;
       }
 
@@ -1166,7 +1159,7 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
     {
       const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported vertex attribute type: " << line
-                    << " for file: " << (fname?fname:"(Null FileName)"));
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
@@ -1177,10 +1170,10 @@ int vtkDataReader::ReadVertexData(vtkGraph *g, vtkIdType numVertices)
 // Read the edge data of a vtk data file. The number of edges (from the
 // graph) must match the number of edges defined in edge attributes (unless
 // no geometry was defined).
-int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
+int vtkDataReader::ReadEdgeData(vtkGraph* g, vtkIdType numEdges)
 {
   char line[256];
-  vtkDataSetAttributes *a=g->GetEdgeData();
+  vtkDataSetAttributes* a = g->GetEdgeData();
 
   vtkDebugMacro(<< "Reading vtk edge data");
 
@@ -1192,9 +1185,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read scalar data
     //
-    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+    if (!strncmp(this->LowerCase(line), "scalars", 7))
     {
-      if ( ! this->ReadScalarData(a, numEdges) )
+      if (!this->ReadScalarData(a, numEdges))
       {
         return 0;
       }
@@ -1202,9 +1195,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read vector data
     //
-    else if ( ! strncmp(line, "vectors", 7) )
+    else if (!strncmp(line, "vectors", 7))
     {
-      if ( ! this->ReadVectorData(a, numEdges) )
+      if (!this->ReadVectorData(a, numEdges))
       {
         return 0;
       }
@@ -1212,9 +1205,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read 3x2 symmetric tensor data
     //
-    else if ( ! strncmp(line, "tensors6", 8) )
+    else if (!strncmp(line, "tensors6", 8))
     {
-      if ( ! this->ReadTensorData(a, numEdges, 6) )
+      if (!this->ReadTensorData(a, numEdges, 6))
       {
         return 0;
       }
@@ -1222,9 +1215,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read 3x3 tensor data
     //
-    else if ( ! strncmp(line, "tensors", 7) )
+    else if (!strncmp(line, "tensors", 7))
     {
-      if ( ! this->ReadTensorData(a, numEdges) )
+      if (!this->ReadTensorData(a, numEdges))
       {
         return 0;
       }
@@ -1232,9 +1225,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read normals data
     //
-    else if ( ! strncmp(line, "normals", 7) )
+    else if (!strncmp(line, "normals", 7))
     {
-      if ( ! this->ReadNormalData(a, numEdges) )
+      if (!this->ReadNormalData(a, numEdges))
       {
         return 0;
       }
@@ -1242,9 +1235,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read texture coordinates data
     //
-    else if ( ! strncmp(line, "texture_coordinates", 19) )
+    else if (!strncmp(line, "texture_coordinates", 19))
     {
-      if ( ! this->ReadTCoordsData(a, numEdges) )
+      if (!this->ReadTCoordsData(a, numEdges))
       {
         return 0;
       }
@@ -1252,9 +1245,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read the global id data
     //
-    else if ( ! strncmp(line, "global_ids", 10) )
+    else if (!strncmp(line, "global_ids", 10))
     {
-      if ( ! this->ReadGlobalIds(a, numEdges) )
+      if (!this->ReadGlobalIds(a, numEdges))
       {
         return 0;
       }
@@ -1262,9 +1255,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 12) )
+    else if (!strncmp(line, "pedigree_ids", 12))
     {
-      if ( ! this->ReadPedigreeIds(a, numEdges) )
+      if (!this->ReadPedigreeIds(a, numEdges))
       {
         return 0;
       }
@@ -1272,9 +1265,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read color scalars data
     //
-    else if ( ! strncmp(line, "color_scalars", 13) )
+    else if (!strncmp(line, "color_scalars", 13))
     {
-      if ( ! this->ReadCoScalarData(a, numEdges) )
+      if (!this->ReadCoScalarData(a, numEdges))
       {
         return 0;
       }
@@ -1282,9 +1275,9 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read lookup table. Associate with scalar data.
     //
-    else if ( ! strncmp(line, "lookup_table", 12) )
+    else if (!strncmp(line, "lookup_table", 12))
     {
-      if ( ! this->ReadLutData(a) )
+      if (!this->ReadLutData(a))
       {
         return 0;
       }
@@ -1292,14 +1285,14 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // read field of data
     //
-    else if ( ! strncmp(line, "field", 5) )
+    else if (!strncmp(line, "field", 5))
     {
-      vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData()) )
+      vtkFieldData* f;
+      if (!(f = this->ReadFieldData()))
       {
         return 0;
       }
-      for(int i=0; i<f->GetNumberOfArrays(); i++)
+      for (int i = 0; i < f->GetNumberOfArrays(); i++)
       {
         a->AddArray(f->GetAbstractArray(i));
       }
@@ -1308,12 +1301,12 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     //
     // maybe bumped into vertex data
     //
-    else if ( ! strncmp(line, "vertex_data", 10) )
+    else if (!strncmp(line, "vertex_data", 10))
     {
       vtkIdType npts;
       if (!this->Read(&npts))
       {
-        vtkErrorMacro(<<"Cannot read vertex data!");
+        vtkErrorMacro(<< "Cannot read vertex data!");
         return 0;
       }
 
@@ -1324,7 +1317,7 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
     {
       const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported vertex attribute type: " << line
-                    << " for file: " << (fname?fname:"(Null FileName)"));
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
@@ -1333,10 +1326,10 @@ int vtkDataReader::ReadEdgeData(vtkGraph *g, vtkIdType numEdges)
 }
 
 // Read the row data of a vtk data file.
-int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
+int vtkDataReader::ReadRowData(vtkTable* t, vtkIdType numEdges)
 {
   char line[256];
-  vtkDataSetAttributes *a=t->GetRowData();
+  vtkDataSetAttributes* a = t->GetRowData();
 
   vtkDebugMacro(<< "Reading vtk row data");
 
@@ -1348,9 +1341,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read scalar data
     //
-    if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
+    if (!strncmp(this->LowerCase(line), "scalars", 7))
     {
-      if ( ! this->ReadScalarData(a, numEdges) )
+      if (!this->ReadScalarData(a, numEdges))
       {
         return 0;
       }
@@ -1358,9 +1351,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read vector data
     //
-    else if ( ! strncmp(line, "vectors", 7) )
+    else if (!strncmp(line, "vectors", 7))
     {
-      if ( ! this->ReadVectorData(a, numEdges) )
+      if (!this->ReadVectorData(a, numEdges))
       {
         return 0;
       }
@@ -1368,9 +1361,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read 3x2 symmetric tensor data
     //
-    else if ( ! strncmp(line, "tensors6", 8) )
+    else if (!strncmp(line, "tensors6", 8))
     {
-      if ( ! this->ReadTensorData(a, numEdges, 6) )
+      if (!this->ReadTensorData(a, numEdges, 6))
       {
         return 0;
       }
@@ -1378,9 +1371,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read 3x3 tensor data
     //
-    else if ( ! strncmp(line, "tensors", 7) )
+    else if (!strncmp(line, "tensors", 7))
     {
-      if ( ! this->ReadTensorData(a, numEdges) )
+      if (!this->ReadTensorData(a, numEdges))
       {
         return 0;
       }
@@ -1388,9 +1381,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read normals data
     //
-    else if ( ! strncmp(line, "normals", 7) )
+    else if (!strncmp(line, "normals", 7))
     {
-      if ( ! this->ReadNormalData(a, numEdges) )
+      if (!this->ReadNormalData(a, numEdges))
       {
         return 0;
       }
@@ -1398,9 +1391,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read texture coordinates data
     //
-    else if ( ! strncmp(line, "texture_coordinates", 19) )
+    else if (!strncmp(line, "texture_coordinates", 19))
     {
-      if ( ! this->ReadTCoordsData(a, numEdges) )
+      if (!this->ReadTCoordsData(a, numEdges))
       {
         return 0;
       }
@@ -1408,9 +1401,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read the global id data
     //
-    else if ( ! strncmp(line, "global_ids", 10) )
+    else if (!strncmp(line, "global_ids", 10))
     {
-      if ( ! this->ReadGlobalIds(a, numEdges) )
+      if (!this->ReadGlobalIds(a, numEdges))
       {
         return 0;
       }
@@ -1418,9 +1411,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read the pedigree id data
     //
-    else if ( ! strncmp(line, "pedigree_ids", 12) )
+    else if (!strncmp(line, "pedigree_ids", 12))
     {
-      if ( ! this->ReadPedigreeIds(a, numEdges) )
+      if (!this->ReadPedigreeIds(a, numEdges))
       {
         return 0;
       }
@@ -1428,9 +1421,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read color scalars data
     //
-    else if ( ! strncmp(line, "color_scalars", 13) )
+    else if (!strncmp(line, "color_scalars", 13))
     {
-      if ( ! this->ReadCoScalarData(a, numEdges) )
+      if (!this->ReadCoScalarData(a, numEdges))
       {
         return 0;
       }
@@ -1438,9 +1431,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read lookup table. Associate with scalar data.
     //
-    else if ( ! strncmp(line, "lookup_table", 12) )
+    else if (!strncmp(line, "lookup_table", 12))
     {
-      if ( ! this->ReadLutData(a) )
+      if (!this->ReadLutData(a))
       {
         return 0;
       }
@@ -1448,14 +1441,14 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     //
     // read field of data
     //
-    else if ( ! strncmp(line, "field", 5) )
+    else if (!strncmp(line, "field", 5))
     {
-      vtkFieldData *f;
-      if ( ! (f=this->ReadFieldData()) )
+      vtkFieldData* f;
+      if (!(f = this->ReadFieldData()))
       {
         return 0;
       }
-      for(int i=0; i<f->GetNumberOfArrays(); i++)
+      for (int i = 0; i < f->GetNumberOfArrays(); i++)
       {
         a->AddArray(f->GetAbstractArray(i));
       }
@@ -1465,7 +1458,7 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
     {
       const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Unsupported row attribute type: " << line
-                    << " for file: " << (fname?fname:"(Null FileName)"));
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
@@ -1475,9 +1468,9 @@ int vtkDataReader::ReadRowData(vtkTable *t, vtkIdType numEdges)
 
 // General templated function to read data of various types.
 template <class T>
-int vtkReadBinaryData(istream *IS, T *data, vtkIdType numTuples, vtkIdType numComp)
+int vtkReadBinaryData(istream* IS, T* data, vtkIdType numTuples, vtkIdType numComp)
 {
-  if (numTuples==0 || numComp==0)
+  if (numTuples == 0 || numComp == 0)
   {
     // nothing to read here.
     return 1;
@@ -1485,11 +1478,11 @@ int vtkReadBinaryData(istream *IS, T *data, vtkIdType numTuples, vtkIdType numCo
   char line[256];
 
   // suck up newline
-  IS->getline(line,256);
-  IS->read((char *)data, sizeof(T)*numComp*numTuples);
+  IS->getline(line, 256);
+  IS->read((char*)data, sizeof(T) * numComp * numTuples);
   if (IS->eof())
   {
-    vtkGenericWarningMacro(<<"Error reading binary data!");
+    vtkGenericWarningMacro(<< "Error reading binary data!");
     return 0;
   }
   return 1;
@@ -1497,18 +1490,18 @@ int vtkReadBinaryData(istream *IS, T *data, vtkIdType numTuples, vtkIdType numCo
 
 // General templated function to read data of various types.
 template <class T>
-int vtkReadASCIIData(vtkDataReader *self, T *data, vtkIdType numTuples, vtkIdType numComp)
+int vtkReadASCIIData(vtkDataReader* self, T* data, vtkIdType numTuples, vtkIdType numComp)
 {
   vtkIdType i, j;
 
-  for (i=0; i<numTuples; i++)
+  for (i = 0; i < numTuples; i++)
   {
-    for (j=0; j<numComp; j++)
+    for (j = 0; j < numComp; j++)
     {
-      if ( !self->Read(data++) )
+      if (!self->Read(data++))
       {
-        vtkGenericWarningMacro(<<"Error reading ascii data. Possible mismatch of "
-          "datasize with declaration.");
+        vtkGenericWarningMacro(<< "Error reading ascii data. Possible mismatch of "
+                                  "datasize with declaration.");
         return 0;
       }
     }
@@ -1522,27 +1515,28 @@ int vtkReadASCIIData(vtkDataReader *self, T *data, vtkIdType numTuples, vtkIdTyp
 // object with initial count of one; proper protocol is for you to assign
 // the data object and then invoke Delete() it to restore proper reference
 // count.
-vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTuples, vtkIdType numComp)
+vtkAbstractArray* vtkDataReader::ReadArray(
+  const char* dataType, vtkIdType numTuples, vtkIdType numComp)
 {
-  char *type=strdup(dataType);
-  type=this->LowerCase(type);
+  char* type = strdup(dataType);
+  type = this->LowerCase(type);
 
-  vtkAbstractArray *array;
-  if ( ! strncmp(type, "bit", 3) )
+  vtkAbstractArray* array;
+  if (!strncmp(type, "bit", 3))
   {
     array = vtkBitArray::New();
     array->SetNumberOfComponents(numComp);
-    if (numTuples !=0 && numComp !=0)
+    if (numTuples != 0 && numComp != 0)
     {
-      unsigned char *ptr=((vtkBitArray *)array)->WritePointer(0,numTuples*numComp);
-      if ( this->FileType == VTK_BINARY )
+      unsigned char* ptr = ((vtkBitArray*)array)->WritePointer(0, numTuples * numComp);
+      if (this->FileType == VTK_BINARY)
       {
         char line[256];
-        this->IS->getline(line,256);
-        this->IS->read((char *)ptr,sizeof(unsigned char)*(numTuples*numComp+7)/8);
+        this->IS->getline(line, 256);
+        this->IS->read((char*)ptr, sizeof(unsigned char) * (numTuples * numComp + 7) / 8);
         if (this->IS->eof())
         {
-          vtkErrorMacro(<<"Error reading binary bit array!");
+          vtkErrorMacro(<< "Error reading binary bit array!");
           free(type);
           array->Delete();
           return nullptr;
@@ -1551,11 +1545,11 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
       else
       {
         vtkIdType b;
-        for (vtkIdType i=0; i<numTuples; i++)
+        for (vtkIdType i = 0; i < numTuples; i++)
         {
-          for (vtkIdType j=0; j<numComp; j++)
+          for (vtkIdType j = 0; j < numComp; j++)
           {
-            if ( !this->Read(&b) )
+            if (!this->Read(&b))
             {
               vtkErrorMacro("Error reading ascii bit array! tuple: " << i << ", component: " << j);
               free(type);
@@ -1564,7 +1558,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
             }
             else
             {
-              ((vtkBitArray *)array)->SetValue(i*numComp+j,b);
+              ((vtkBitArray*)array)->SetValue(i * numComp + j, b);
             }
           }
         }
@@ -1572,12 +1566,12 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strcmp(type, "char") || !strcmp(type, "signed_char") )
+  else if (!strcmp(type, "char") || !strcmp(type, "signed_char"))
   {
     array = vtkCharArray::New();
     array->SetNumberOfComponents(numComp);
-    char *ptr = ((vtkCharArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    char* ptr = ((vtkCharArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
     }
@@ -1587,12 +1581,12 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "unsigned_char", 13) )
+  else if (!strncmp(type, "unsigned_char", 13))
   {
     array = vtkUnsignedCharArray::New();
     array->SetNumberOfComponents(numComp);
-    unsigned char *ptr = ((vtkUnsignedCharArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    unsigned char* ptr = ((vtkUnsignedCharArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
     }
@@ -1602,15 +1596,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "short", 5) )
+  else if (!strncmp(type, "short", 5))
   {
     array = vtkShortArray::New();
     array->SetNumberOfComponents(numComp);
-    short *ptr = ((vtkShortArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    short* ptr = ((vtkShortArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap2BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap2BERange(ptr, numTuples * numComp);
     }
     else
     {
@@ -1618,15 +1612,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "unsigned_short", 14) )
+  else if (!strncmp(type, "unsigned_short", 14))
   {
     array = vtkUnsignedShortArray::New();
     array->SetNumberOfComponents(numComp);
-    unsigned short *ptr = ((vtkUnsignedShortArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    unsigned short* ptr = ((vtkUnsignedShortArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap2BERange((short *)ptr,numTuples*numComp);
+      vtkByteSwap::Swap2BERange((short*)ptr, numTuples * numComp);
     }
     else
     {
@@ -1634,39 +1628,38 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "vtkidtype", 9) )
+  else if (!strncmp(type, "vtkidtype", 9))
   {
     // currently writing vtkIdType as int.
     array = vtkIdTypeArray::New();
     array->SetNumberOfComponents(numComp);
-    int *ptr = new int [numTuples*numComp];
-    if ( this->FileType == VTK_BINARY )
+    int* ptr = new int[numTuples * numComp];
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap4BERange(ptr, numTuples * numComp);
     }
     else
     {
       vtkReadASCIIData(this, ptr, numTuples, numComp);
     }
-    vtkIdType *ptr2 = ((vtkIdTypeArray *)array)->WritePointer(
-      0,numTuples*numComp);
-    for(vtkIdType idx=0; idx<numTuples*numComp; idx++)
+    vtkIdType* ptr2 = ((vtkIdTypeArray*)array)->WritePointer(0, numTuples * numComp);
+    for (vtkIdType idx = 0; idx < numTuples * numComp; idx++)
     {
       ptr2[idx] = ptr[idx];
     }
     delete[] ptr;
   }
 
-  else if ( ! strncmp(type, "int", 3) )
+  else if (!strncmp(type, "int", 3))
   {
     array = vtkIntArray::New();
     array->SetNumberOfComponents(numComp);
-    int *ptr = ((vtkIntArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    int* ptr = ((vtkIntArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap4BERange(ptr, numTuples * numComp);
     }
     else
     {
@@ -1674,15 +1667,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "unsigned_int", 12) )
+  else if (!strncmp(type, "unsigned_int", 12))
   {
     array = vtkUnsignedIntArray::New();
     array->SetNumberOfComponents(numComp);
-    unsigned int *ptr = ((vtkUnsignedIntArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    unsigned int* ptr = ((vtkUnsignedIntArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
+      vtkByteSwap::Swap4BERange((int*)ptr, numTuples * numComp);
     }
     else
     {
@@ -1690,15 +1683,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "long", 4) )
+  else if (!strncmp(type, "long", 4))
   {
     // vtkDataWriter does not write "long" data anymore
     // as data size is not certain
     // we keep this for retro compatibility
     array = vtkLongArray::New();
     array->SetNumberOfComponents(numComp);
-    long *ptr = ((vtkLongArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    long* ptr = ((vtkLongArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
 #if VTK_SIZEOF_LONG == 4
@@ -1714,12 +1707,12 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "unsigned_long", 13) )
+  else if (!strncmp(type, "unsigned_long", 13))
   {
     array = vtkUnsignedLongArray::New();
     array->SetNumberOfComponents(numComp);
-    unsigned long *ptr = ((vtkUnsignedLongArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    unsigned long* ptr = ((vtkUnsignedLongArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
 #if VTK_SIZEOF_LONG == 4
@@ -1734,15 +1727,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "vtktypeint64", 12) )
+  else if (!strncmp(type, "vtktypeint64", 12))
   {
     array = vtkTypeInt64Array::New();
     array->SetNumberOfComponents(numComp);
-    vtkTypeInt64 *ptr = ((vtkTypeInt64Array *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    vtkTypeInt64* ptr = ((vtkTypeInt64Array*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap8BERange(ptr, numTuples * numComp);
     }
 
     else
@@ -1751,15 +1744,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "vtktypeuint64", 13) )
+  else if (!strncmp(type, "vtktypeuint64", 13))
   {
     array = vtkTypeUInt64Array::New();
     array->SetNumberOfComponents(numComp);
-    vtkTypeUInt64 *ptr = ((vtkTypeUInt64Array *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    vtkTypeUInt64* ptr = ((vtkTypeUInt64Array*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap8BERange(ptr, numTuples * numComp);
     }
 
     else
@@ -1768,15 +1761,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "float", 5) )
+  else if (!strncmp(type, "float", 5))
   {
     array = vtkFloatArray::New();
     array->SetNumberOfComponents(numComp);
-    float *ptr = ((vtkFloatArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    float* ptr = ((vtkFloatArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap4BERange(ptr, numTuples * numComp);
     }
     else
     {
@@ -1784,15 +1777,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "double", 6) )
+  else if (!strncmp(type, "double", 6))
   {
     array = vtkDoubleArray::New();
     array->SetNumberOfComponents(numComp);
-    double *ptr = ((vtkDoubleArray *)array)->WritePointer(0,numTuples*numComp);
-    if ( this->FileType == VTK_BINARY )
+    double* ptr = ((vtkDoubleArray*)array)->WritePointer(0, numTuples * numComp);
+    if (this->FileType == VTK_BINARY)
     {
       vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
+      vtkByteSwap::Swap8BERange(ptr, numTuples * numComp);
     }
     else
     {
@@ -1800,20 +1793,20 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
     }
   }
 
-  else if ( ! strncmp(type, "string", 6) )
+  else if (!strncmp(type, "string", 6))
   {
     array = vtkStringArray::New();
     array->SetNumberOfComponents(numComp);
 
-    if ( this->FileType == VTK_BINARY )
+    if (this->FileType == VTK_BINARY)
     {
       // read in newline
       char line[256];
-      IS->getline(line,256);
+      IS->getline(line, 256);
 
-      for (vtkIdType i=0; i<numTuples; i++)
+      for (vtkIdType i = 0; i < numTuples; i++)
       {
-        for (vtkIdType j=0; j<numComp; j++)
+        for (vtkIdType j = 0; j < numComp; j++)
         {
           vtkTypeUInt8 firstByte;
           vtkTypeUInt8 headerType;
@@ -1856,7 +1849,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
           IS->read(str, stringLength);
           vtkStdString s(str, stringLength);
           ((vtkStringArray*)array)->InsertNextValue(s);
-          delete [] str;
+          delete[] str;
         }
       }
     }
@@ -1866,9 +1859,9 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
       vtkStdString s;
       my_getline(*(this->IS), s);
 
-      for (vtkIdType i=0; i<numTuples; i++)
+      for (vtkIdType i = 0; i < numTuples; i++)
       {
-        for (vtkIdType j=0; j<numComp; j++)
+        for (vtkIdType j = 0; j < numComp; j++)
         {
           my_getline(*(this->IS), s);
           int length = static_cast<int>(s.length());
@@ -1881,20 +1874,20 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
       }
     }
   }
-  else if ( ! strncmp(type, "utf8_string", 11) )
+  else if (!strncmp(type, "utf8_string", 11))
   {
     array = vtkUnicodeStringArray::New();
     array->SetNumberOfComponents(numComp);
 
-    if ( this->FileType == VTK_BINARY )
+    if (this->FileType == VTK_BINARY)
     {
       // read in newline
       char line[256];
-      IS->getline(line,256);
+      IS->getline(line, 256);
 
-      for (vtkIdType i=0; i<numTuples; i++)
+      for (vtkIdType i = 0; i < numTuples; i++)
       {
-        for (vtkIdType j=0; j<numComp; j++)
+        for (vtkIdType j = 0; j < numComp; j++)
         {
           vtkTypeUInt8 firstByte;
           vtkTypeUInt8 headerType;
@@ -1937,7 +1930,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
           IS->read(str, stringLength);
           vtkUnicodeString s = vtkUnicodeString::from_utf8(str, str + stringLength);
           ((vtkUnicodeStringArray*)array)->InsertNextValue(s);
-          delete [] str;
+          delete[] str;
         }
       }
     }
@@ -1947,28 +1940,29 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
       vtkStdString s;
       my_getline(*(this->IS), s);
 
-      for (vtkIdType i=0; i<numTuples; i++)
+      for (vtkIdType i = 0; i < numTuples; i++)
       {
-        for (vtkIdType j=0; j<numComp; j++)
+        for (vtkIdType j = 0; j < numComp; j++)
         {
           my_getline(*(this->IS), s);
           int length = static_cast<int>(s.length());
           char* decoded = new char[length + 1];
           int decodedLength = this->DecodeString(decoded, s.c_str());
-          vtkUnicodeString decodedStr = vtkUnicodeString::from_utf8(decoded, decoded + decodedLength);
+          vtkUnicodeString decodedStr =
+            vtkUnicodeString::from_utf8(decoded, decoded + decodedLength);
           ((vtkUnicodeStringArray*)array)->InsertNextValue(decodedStr);
           delete[] decoded;
         }
       }
     }
   }
-  else if ( ! strncmp(type, "variant", 7) )
+  else if (!strncmp(type, "variant", 7))
   {
     array = vtkVariantArray::New();
     array->SetNumberOfComponents(numComp);
-    for (vtkIdType i=0; i<numTuples; i++)
+    for (vtkIdType i = 0; i < numTuples; i++)
     {
-      for (vtkIdType j=0; j<numComp; j++)
+      for (vtkIdType j = 0; j < numComp; j++)
       {
         int t;
         vtkStdString str;
@@ -2065,7 +2059,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
           }
           peekSize = this->Peek(line, 256);
           hasNewData = true;
-          i = peekSize; // Break outer loop
+          i = peekSize;      // Break outer loop
           if (peekSize == 0) // EOF
           {
             return array;
@@ -2123,8 +2117,8 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
       {
         if (!this->ReadLine(line))
         {
-          vtkErrorMacro("Error reading component name " << i << " for array '"
-                        << array->GetName() << "'.");
+          vtkErrorMacro(
+            "Error reading component name " << i << " for array '" << array->GetName() << "'.");
           continue;
         }
 
@@ -2143,7 +2137,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
         continue;
       }
 
-      vtkInformation *info = array->GetInformation();
+      vtkInformation* info = array->GetInformation();
       this->ReadInformation(info, numKeys);
       continue;
     }
@@ -2153,23 +2147,23 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, vtkIdType numTu
 }
 
 // Read point coordinates. Return 0 if error.
-int vtkDataReader::ReadPointCoordinates(vtkPointSet *ps, vtkIdType numPts)
+int vtkDataReader::ReadPointCoordinates(vtkPointSet* ps, vtkIdType numPts)
 {
   char line[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
 
   if (!this->ReadString(line))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read points type!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, 3));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, 3));
+  if (data != nullptr)
   {
-    vtkPoints *points=vtkPoints::New();
+    vtkPoints* points = vtkPoints::New();
     points->SetData(data);
     data->Delete();
     ps->SetPoints(points);
@@ -2180,31 +2174,31 @@ int vtkDataReader::ReadPointCoordinates(vtkPointSet *ps, vtkIdType numPts)
     return 0;
   }
 
-  vtkDebugMacro(<<"Read " << ps->GetNumberOfPoints() << " points");
+  vtkDebugMacro(<< "Read " << ps->GetNumberOfPoints() << " points");
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read point coordinates. Return 0 if error.
-int vtkDataReader::ReadPointCoordinates(vtkGraph *g, vtkIdType numPts)
+int vtkDataReader::ReadPointCoordinates(vtkGraph* g, vtkIdType numPts)
 {
   char line[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
 
   if (!this->ReadString(line))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read points type!" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read points type!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, 3));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, 3));
+  if (data != nullptr)
   {
-    vtkPoints *points=vtkPoints::New();
+    vtkPoints* points = vtkPoints::New();
     points->SetData(data);
     data->Delete();
     g->SetPoints(points);
@@ -2215,41 +2209,39 @@ int vtkDataReader::ReadPointCoordinates(vtkGraph *g, vtkIdType numPts)
     return 0;
   }
 
-  vtkDebugMacro(<<"Read " << g->GetNumberOfVertices() << " points");
+  vtkDebugMacro(<< "Read " << g->GetNumberOfVertices() << " points");
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read the coordinates for a rectilinear grid. The axes parameter specifies
 // which coordinate axes (0,1,2) is being read.
-int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
-                                   int numCoords)
+int vtkDataReader::ReadCoordinates(vtkRectilinearGrid* rg, int axes, int numCoords)
 {
   char line[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
 
   if (!this->ReadString(line))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read coordinates type!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read coordinates type!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numCoords, 1));
-  if ( !data  )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numCoords, 1));
+  if (!data)
   {
     return 0;
   }
 
-  if ( axes == 0 )
+  if (axes == 0)
   {
     rg->SetXCoordinates(data);
   }
-  else if ( axes == 1 )
+  else if (axes == 1)
   {
     rg->SetYCoordinates(data);
   }
@@ -2258,9 +2250,9 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     rg->SetZCoordinates(data);
   }
 
-  vtkDebugMacro(<<"Read " << data->GetNumberOfTuples() << " coordinates");
+  vtkDebugMacro(<< "Read " << data->GetNumberOfTuples() << " coordinates");
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   data->Delete();
 
@@ -2268,19 +2260,19 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
 }
 
 // Read scalar point attributes. Return 0 if error.
-int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
 {
   char line[256], name[256], key[256], tableName[256];
-  int skipScalar=0;
-  vtkDataArray *data;
+  int skipScalar = 0;
+  vtkDataArray* data;
   int numComp = 1;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-    << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read scalar header!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
@@ -2289,8 +2281,8 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
   if (!this->ReadString(key))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read scalar header!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
@@ -2301,50 +2293,49 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
     if (numComp < 1 || !this->ReadString(key))
     {
       const char* fname = this->CurrentFileName.c_str();
-      vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-      << (fname?fname:"(Null FileName)"));
+      vtkErrorMacro(<< "Cannot read scalar header!"
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
 
   if (strcmp(this->LowerCase(key), "lookup_table"))
   {
-    vtkErrorMacro(<<"Lookup table must be specified with scalar.\n" <<
-    "Use \"LOOKUP_TABLE default\" to use default table.");
+    vtkErrorMacro(<< "Lookup table must be specified with scalar.\n"
+                  << "Use \"LOOKUP_TABLE default\" to use default table.");
     return 0;
   }
 
   if (!this->ReadString(tableName))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read scalar header!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read scalar header!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
   // See whether scalar has been already read or scalar name (if specified)
   // matches name in file.
   //
-  if ( a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name,this->ScalarsName)) )
+  if (a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name, this->ScalarsName)))
   {
     skipScalar = 1;
   }
   else
   {
-    this->SetScalarLut(tableName); //may be "default"
+    this->SetScalarLut(tableName); // may be "default"
   }
 
   // Read the data
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, numComp));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, numComp));
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipScalar )
+    if (!skipScalar)
     {
       a->SetScalars(data);
     }
-    else if ( this->ReadAllScalars )
+    else if (this->ReadAllScalars)
     {
       a->AddArray(data);
     }
@@ -2356,23 +2347,24 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read vector point attributes. Return 0 if error.
-int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadVectorData(vtkDataSetAttributes* a, vtkIdType numPts)
 {
-  int skipVector=0;
+  int skipVector = 0;
   char line[256], name[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read vector data!" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read vector data!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2381,21 +2373,20 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, vtkIdType numPts)
   // See whether vector has been already read or vector name (if specified)
   // matches name in file.
   //
-  if ( a->GetVectors() != nullptr || (this->VectorsName && strcmp(name,this->VectorsName)) )
+  if (a->GetVectors() != nullptr || (this->VectorsName && strcmp(name, this->VectorsName)))
   {
     skipVector = 1;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, 3));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, 3));
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipVector )
+    if (!skipVector)
     {
       a->SetVectors(data);
     }
-    else if ( this->ReadAllVectors )
+    else if (this->ReadAllVectors)
     {
       a->AddArray(data);
     }
@@ -2407,23 +2398,24 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read normal point attributes. Return 0 if error.
-int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadNormalData(vtkDataSetAttributes* a, vtkIdType numPts)
 {
-  int skipNormal=0;
+  int skipNormal = 0;
   char line[256], name[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read normal data!" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read normal data!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2432,21 +2424,20 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, vtkIdType numPts)
   // See whether normal has been already read or normal name (if specified)
   // matches name in file.
   //
-  if ( a->GetNormals() != nullptr || (this->NormalsName && strcmp(name,this->NormalsName)) )
+  if (a->GetNormals() != nullptr || (this->NormalsName && strcmp(name, this->NormalsName)))
   {
     skipNormal = 1;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, 3));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, 3));
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipNormal )
+    if (!skipNormal)
     {
       a->SetNormals(data);
     }
-    else if ( this->ReadAllNormals )
+    else if (this->ReadAllNormals)
     {
       a->AddArray(data);
     }
@@ -2458,23 +2449,24 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read tensor point attributes. Return 0 if error.
-int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, vtkIdType numPts, vtkIdType numComp)
+int vtkDataReader::ReadTensorData(vtkDataSetAttributes* a, vtkIdType numPts, vtkIdType numComp)
 {
-  int skipTensor=0;
+  int skipTensor = 0;
   char line[256], name[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read tensor data!" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read tensor data!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2482,21 +2474,20 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, vtkIdType numPts, vtk
   // See whether tensor has been already read or tensor name (if specified)
   // matches name in file.
   //
-  if ( a->GetTensors() != nullptr || (this->TensorsName && strcmp(name,this->TensorsName)) )
+  if (a->GetTensors() != nullptr || (this->TensorsName && strcmp(name, this->TensorsName)))
   {
     skipTensor = 1;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, numComp));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, numComp));
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipTensor )
+    if (!skipTensor)
     {
       a->SetTensors(data);
     }
-    else if ( this->ReadAllTensors )
+    else if (this->ReadAllTensors)
     {
       a->AddArray(data);
     }
@@ -2508,23 +2499,23 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, vtkIdType numPts, vtk
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read color scalar point attributes. Return 0 if error.
-int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
 {
-  int i, j, idx, numComp=0, skipScalar=0;
+  int i, j, idx, numComp = 0, skipScalar = 0;
   char name[256];
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->Read(&numComp)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read color scalar data!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read color scalar data!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2532,105 +2523,106 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, vtkIdType numPts)
   // See whether scalar has been already read or scalar name (if specified)
   // matches name in file.
   //
-  if ( a->GetScalars() != nullptr ||
-  (this->ScalarsName && strcmp(name,this->ScalarsName)) )
+  if (a->GetScalars() != nullptr || (this->ScalarsName && strcmp(name, this->ScalarsName)))
   {
     skipScalar = 1;
   }
 
   // handle binary different from ASCII since they are stored
   // in a different format float versus uchar
-  if ( this->FileType == VTK_BINARY)
+  if (this->FileType == VTK_BINARY)
   {
-    vtkUnsignedCharArray *data;
+    vtkUnsignedCharArray* data;
     char type[14] = "unsigned_char";
-    data = (vtkUnsignedCharArray *)this->ReadArray(type, numPts, numComp);
+    data = (vtkUnsignedCharArray*)this->ReadArray(type, numPts, numComp);
 
-    if ( data != nullptr )
+    if (data != nullptr)
     {
       data->SetName(name);
-      if ( ! skipScalar )
+      if (!skipScalar)
       {
         a->SetScalars(data);
       }
-      else if ( this->ReadAllColorScalars )
+      else if (this->ReadAllColorScalars)
       {
         a->AddArray(data);
-      }      data->Delete();
-    }
-    else
-    {
-        return 0;
-    }
-  }
-  else
-  {
-    vtkFloatArray *data;
-    char type[6] = "float";
-    data = (vtkFloatArray *)this->ReadArray(type, numPts, numComp);
-
-    if ( data != nullptr )
-    {
-      if ( ! skipScalar || this->ReadAllColorScalars )
-      {
-        vtkUnsignedCharArray *scalars=vtkUnsignedCharArray::New();
-        scalars->SetNumberOfComponents(numComp);
-        scalars->SetNumberOfTuples(numPts);
-        scalars->SetName(name);
-        for (i=0; i<numPts; i++)
-        {
-          for (j=0; j<numComp; j++)
-          {
-            idx = i*numComp + j;
-            scalars->SetValue(idx,(unsigned char)(255.0*data->GetValue(idx)+0.5));
-          }
-        }
-        if ( ! skipScalar )
-        {
-          a->SetScalars(scalars);
-        }
-        else if ( this->ReadAllColorScalars )
-        {
-          a->AddArray(scalars);
-        }        scalars->Delete();
       }
       data->Delete();
     }
     else
     {
-        return 0;
+      return 0;
+    }
+  }
+  else
+  {
+    vtkFloatArray* data;
+    char type[6] = "float";
+    data = (vtkFloatArray*)this->ReadArray(type, numPts, numComp);
+
+    if (data != nullptr)
+    {
+      if (!skipScalar || this->ReadAllColorScalars)
+      {
+        vtkUnsignedCharArray* scalars = vtkUnsignedCharArray::New();
+        scalars->SetNumberOfComponents(numComp);
+        scalars->SetNumberOfTuples(numPts);
+        scalars->SetName(name);
+        for (i = 0; i < numPts; i++)
+        {
+          for (j = 0; j < numComp; j++)
+          {
+            idx = i * numComp + j;
+            scalars->SetValue(idx, (unsigned char)(255.0 * data->GetValue(idx) + 0.5));
+          }
+        }
+        if (!skipScalar)
+        {
+          a->SetScalars(scalars);
+        }
+        else if (this->ReadAllColorScalars)
+        {
+          a->AddArray(scalars);
+        }
+        scalars->Delete();
+      }
+      data->Delete();
+    }
+    else
+    {
+      return 0;
     }
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read texture coordinates point attributes. Return 0 if error.
-int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes* a, vtkIdType numPts)
 {
   int dim = 0;
   int skipTCoord = 0;
   char line[256], name[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
   char buffer[1024];
 
-  if (!(this->ReadString(buffer) && this->Read(&dim) &&
-        this->ReadString(line)))
+  if (!(this->ReadString(buffer) && this->Read(&dim) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read texture data!" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read texture data!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
 
-  if ( dim < 1 || dim > 3 )
+  if (dim < 1 || dim > 3)
   {
     const char* fname = this->CurrentFileName.c_str();
     vtkErrorMacro(<< "Unsupported texture coordinates dimension: " << dim
-                  << " for file: " << (fname?fname:"(Null FileName)"));
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
@@ -2638,22 +2630,20 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, vtkIdType numPts)
   // See whether texture coords have been already read or texture coords name
   // (if specified) matches name in file.
   //
-  if ( a->GetTCoords() != nullptr ||
-  (this->TCoordsName && strcmp(name,this->TCoordsName)) )
+  if (a->GetTCoords() != nullptr || (this->TCoordsName && strcmp(name, this->TCoordsName)))
   {
     skipTCoord = 1;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, dim));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, dim));
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipTCoord )
+    if (!skipTCoord)
     {
       a->SetTCoords(data);
     }
-    else if ( this->ReadAllTCoords )
+    else if (this->ReadAllTCoords)
     {
       a->AddArray(data);
     }
@@ -2665,23 +2655,24 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read texture coordinates point attributes. Return 0 if error.
-int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes* a, vtkIdType numPts)
 {
   int skipGlobalIds = 0;
   char line[256], name[256];
-  vtkDataArray *data;
+  vtkDataArray* data;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read global id data"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2689,17 +2680,16 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, vtkIdType numPts)
   //
   // See whether global ids have been already read
   //
-  if ( a->GetGlobalIds() != nullptr )
+  if (a->GetGlobalIds() != nullptr)
   {
     skipGlobalIds = 1;
   }
 
-  data = vtkArrayDownCast<vtkDataArray>(
-    this->ReadArray(line, numPts, 1));
-  if ( data != nullptr )
+  data = vtkArrayDownCast<vtkDataArray>(this->ReadArray(line, numPts, 1));
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipGlobalIds )
+    if (!skipGlobalIds)
     {
       a->SetGlobalIds(data);
     }
@@ -2711,23 +2701,24 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read pedigree ids. Return 0 if error.
-int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes* a, vtkIdType numPts)
 {
   int skipPedigreeIds = 0;
   char line[256], name[256];
-  vtkAbstractArray *data;
+  vtkAbstractArray* data;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read global id data" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read global id data"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2735,16 +2726,16 @@ int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, vtkIdType numPts)
   //
   // See whether pedigree ids have been already read
   //
-  if ( a->GetPedigreeIds() != nullptr )
+  if (a->GetPedigreeIds() != nullptr)
   {
     skipPedigreeIds = 1;
   }
 
   data = this->ReadArray(line, numPts, 1);
-  if ( data != nullptr )
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipPedigreeIds )
+    if (!skipPedigreeIds)
     {
       a->SetPedigreeIds(data);
     }
@@ -2756,23 +2747,24 @@ int vtkDataReader::ReadPedigreeIds(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
 // Read edge flags. Return 0 if error.
-int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, vtkIdType numPts)
+int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes* a, vtkIdType numPts)
 {
   int skipEdgeFlags = 0;
   char line[256], name[256];
-  vtkAbstractArray *data;
+  vtkAbstractArray* data;
   char buffer[1024];
 
   if (!(this->ReadString(buffer) && this->ReadString(line)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read edge flags data" << " for file: " << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read edge flags data"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
   this->DecodeString(name, buffer);
@@ -2780,16 +2772,16 @@ int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, vtkIdType numPts)
   //
   // See whether edge flags have been already read
   //
-  if ( a->GetAttribute(vtkDataSetAttributes::EDGEFLAG) != nullptr )
+  if (a->GetAttribute(vtkDataSetAttributes::EDGEFLAG) != nullptr)
   {
     skipEdgeFlags = 1;
   }
 
   data = this->ReadArray(line, numPts, 1);
-  if ( data != nullptr )
+  if (data != nullptr)
   {
     data->SetName(name);
-    if ( ! skipEdgeFlags )
+    if (!skipEdgeFlags)
     {
       a->SetAttribute(data, vtkDataSetAttributes::EDGEFLAG);
     }
@@ -2801,12 +2793,12 @@ int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, vtkIdType numPts)
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
-int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
+int vtkDataReader::ReadInformation(vtkInformation* info, vtkIdType numKeys)
 {
   // Assuming that the opening INFORMATION line has been read.
   char line[256];
@@ -2821,8 +2813,7 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
         vtkErrorMacro("Unexpected EOF while parsing INFORMATION section.");
         return 0;
       }
-    }
-    while (strlen(line) == 0); // Skip empty lines
+    } while (strlen(line) == 0); // Skip empty lines
 
     if (strncmp("NAME ", line, 5) == 0)
     { // New key
@@ -2832,30 +2823,28 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
         continue;
       }
 
-      vtkInformationKey *key = vtkInformationKeyLookup::Find(name, location);
+      vtkInformationKey* key = vtkInformationKeyLookup::Find(name, location);
       if (!key)
       {
-        vtkWarningMacro("Could not locate key " << location << "::" << name
-                        << ". Is the module in which it is defined linked?");
+        vtkWarningMacro("Could not locate key "
+          << location << "::" << name << ". Is the module in which it is defined linked?");
         continue;
       }
 
-      vtkInformationDoubleKey *dKey = nullptr;
-      vtkInformationDoubleVectorKey *dvKey = nullptr;
-      vtkInformationIdTypeKey *idKey = nullptr;
-      vtkInformationIntegerKey *iKey = nullptr;
-      vtkInformationIntegerVectorKey *ivKey = nullptr;
-      vtkInformationStringKey *sKey = nullptr;
-      vtkInformationStringVectorKey *svKey = nullptr;
-      vtkInformationUnsignedLongKey *ulKey = nullptr;
+      vtkInformationDoubleKey* dKey = nullptr;
+      vtkInformationDoubleVectorKey* dvKey = nullptr;
+      vtkInformationIdTypeKey* idKey = nullptr;
+      vtkInformationIntegerKey* iKey = nullptr;
+      vtkInformationIntegerVectorKey* ivKey = nullptr;
+      vtkInformationStringKey* sKey = nullptr;
+      vtkInformationStringVectorKey* svKey = nullptr;
+      vtkInformationUnsignedLongKey* ulKey = nullptr;
       if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
       {
         double value;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&value))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&value))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -2868,11 +2857,9 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
       {
         int length;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&length))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&length))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -2889,8 +2876,7 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
           double value;
           if (!this->Read(&value))
           {
-            vtkWarningMacro("Malformed data block for key " << location << "::"
-                            << name << ".");
+            vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
             break;
           }
           values.push_back(value);
@@ -2908,11 +2894,9 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else if ((idKey = vtkInformationIdTypeKey::SafeDownCast(key)))
       {
         vtkIdType value;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&value))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&value))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -2925,11 +2909,9 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else if ((iKey = vtkInformationIntegerKey::SafeDownCast(key)))
       {
         int value;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&value))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&value))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -2942,11 +2924,9 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else if ((ivKey = vtkInformationIntegerVectorKey::SafeDownCast(key)))
       {
         int length;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&length))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&length))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -2963,8 +2943,7 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
           int value;
           if (!this->Read(&value))
           {
-            vtkWarningMacro("Malformed data block for key " << location << "::"
-                            << name << ".");
+            vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
             break;
           }
           values.push_back(value);
@@ -2983,16 +2962,14 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       {
         if (!this->ReadLine(line))
         {
-          vtkWarningMacro("Unexpected EOF while parsing key " << location
-                          << "::" << name << ".");
+          vtkWarningMacro("Unexpected EOF while parsing key " << location << "::" << name << ".");
           continue;
         }
 
         char value[256];
         if (sscanf(line, "DATA %s", value) != 1)
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -3004,11 +2981,9 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else if ((svKey = vtkInformationStringVectorKey::SafeDownCast(key)))
       {
         int length;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&length))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&length))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -3030,8 +3005,7 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
           char value[256];
           if (!this->ReadLine(value))
           {
-            vtkWarningMacro("Malformed data block for key " << location << "::"
-                            << name << ".");
+            vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
             success = false;
             break;
           }
@@ -3050,11 +3024,9 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else if ((ulKey = vtkInformationUnsignedLongKey::SafeDownCast(key)))
       {
         unsigned long value;
-        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
-            !this->Read(&value))
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 || !this->Read(&value))
         {
-          vtkWarningMacro("Malformed data block for key " << location << "::"
-                          << name << ".");
+          vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
 
@@ -3067,9 +3039,10 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
       else
       {
         vtkWarningMacro("Could not deserialize information with key "
-                        << key->GetLocation() << "::" << key->GetName() << ": "
-                        "key type '" << key->GetClassName()
-                        << "' is not serializable.");
+          << key->GetLocation() << "::" << key->GetName()
+          << ": "
+             "key type '"
+          << key->GetClassName() << "' is not serializable.");
         continue;
       }
     }
@@ -3083,83 +3056,82 @@ int vtkDataReader::ReadInformation(vtkInformation *info, vtkIdType numKeys)
 }
 
 // Read lookup table. Return 0 if error.
-int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
+int vtkDataReader::ReadLutData(vtkDataSetAttributes* a)
 {
   int i;
-  int size=0, skipTable=0;
-  vtkLookupTable *lut;
-  unsigned char *ptr;
+  int size = 0, skipTable = 0;
+  vtkLookupTable* lut;
+  unsigned char* ptr;
   char line[256], name[256];
 
   if (!(this->ReadString(name) && this->Read(&size)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read lookup table data!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read lookup table data!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return 0;
   }
 
-  if ( a->GetScalars() == nullptr ||
-  (this->LookupTableName && strcmp(name,this->LookupTableName)) ||
-  (this->ScalarLut && strcmp(name,this->ScalarLut)) )
+  if (a->GetScalars() == nullptr ||
+    (this->LookupTableName && strcmp(name, this->LookupTableName)) ||
+    (this->ScalarLut && strcmp(name, this->ScalarLut)))
   {
     skipTable = 1;
   }
 
   lut = vtkLookupTable::New();
   lut->Allocate(size);
-  ptr = lut->WritePointer(0,size);
+  ptr = lut->WritePointer(0, size);
 
-  if ( this->FileType == VTK_BINARY)
+  if (this->FileType == VTK_BINARY)
   {
     // suck up newline
-    this->IS->getline(line,256);
-    this->IS->read((char *)ptr,sizeof(unsigned char)*4*size);
+    this->IS->getline(line, 256);
+    this->IS->read((char*)ptr, sizeof(unsigned char) * 4 * size);
     if (this->IS->eof())
     {
       const char* fname = this->CurrentFileName.c_str();
-      vtkErrorMacro(<<"Error reading binary lookup table!" << " for file: "
-                    << (fname?fname:"(Null FileName)"));
+      vtkErrorMacro(<< "Error reading binary lookup table!"
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
   }
   else // ascii
   {
     float rgba[4];
-    for (i=0; i<size; i++)
+    for (i = 0; i < size; i++)
     {
-      if (!(this->Read(rgba) && this->Read(rgba+1) &&
-            this->Read(rgba+2) && this->Read(rgba+3)))
+      if (!(this->Read(rgba) && this->Read(rgba + 1) && this->Read(rgba + 2) &&
+            this->Read(rgba + 3)))
       {
         const char* fname = this->CurrentFileName.c_str();
-        vtkErrorMacro(<<"Error reading lookup table!" << " for file: "
-                      << (fname?fname:"(Null FileName)"));
+        vtkErrorMacro(<< "Error reading lookup table!"
+                      << " for file: " << (fname ? fname : "(Null FileName)"));
         return 0;
       }
       lut->SetTableValue(i, rgba[0], rgba[1], rgba[2], rgba[3]);
     }
   }
 
-  if ( ! skipTable )
+  if (!skipTable)
   {
     a->GetScalars()->SetLookupTable(lut);
   }
   lut->Delete();
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
-int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
+int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray>& cellArray)
 {
-  vtkIdType offsetsSize{0};
-  vtkIdType connSize{0};
+  vtkIdType offsetsSize{ 0 };
+  vtkIdType connSize{ 0 };
   char buffer[256];
 
-  if (!(this->Read(&offsetsSize) &&
-        this->Read(&connSize)))
+  if (!(this->Read(&offsetsSize) && this->Read(&connSize)))
   {
     vtkErrorMacro("Error while reading cell array header.");
     this->CloseVTKFile();
@@ -3173,8 +3145,7 @@ int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
   }
 
   if (!this->ReadString(buffer) || // "offsets"
-      (strcmp(this->LowerCase(buffer, 256), "offsets") != 0) ||
-      !this->ReadString(buffer)) // datatype
+    (strcmp(this->LowerCase(buffer, 256), "offsets") != 0) || !this->ReadString(buffer)) // datatype
   {
     vtkErrorMacro("Error reading cell array offset header.");
     this->CloseVTKFile();
@@ -3192,8 +3163,8 @@ int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
   }
 
   if (!this->ReadString(buffer) || // "connectivity"
-      (strcmp(this->LowerCase(buffer, 256), "connectivity") != 0) ||
-      !this->ReadString(buffer)) // datatype
+    (strcmp(this->LowerCase(buffer, 256), "connectivity") != 0) ||
+    !this->ReadString(buffer)) // datatype
   {
     vtkErrorMacro("Error reading cell array connectivity header.");
     this->CloseVTKFile();
@@ -3212,8 +3183,8 @@ int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
 
   // Check that they are the indicated types and add them to the cell array:
 
-  auto *offDA = vtkArrayDownCast<vtkDataArray>(offsets.Get());
-  auto *connDA = vtkArrayDownCast<vtkDataArray>(conn.Get());
+  auto* offDA = vtkArrayDownCast<vtkDataArray>(offsets.Get());
+  auto* connDA = vtkArrayDownCast<vtkDataArray>(conn.Get());
   if (!offDA || !connDA)
   {
     vtkErrorMacro("Offsets and connectivity arrays must subclass vtkDataArray.");
@@ -3235,55 +3206,54 @@ int vtkDataReader::ReadCells(vtkSmartPointer<vtkCellArray> &cellArray)
 }
 
 // Read lookup table. Return 0 if error.
-int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data)
+int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data)
 {
   char line[256];
   int i;
 
-  if ( this->FileType == VTK_BINARY)
+  if (this->FileType == VTK_BINARY)
   {
     // suck up newline
-    this->IS->getline(line,256);
-    this->IS->read((char *)data,sizeof(int)*size);
+    this->IS->getline(line, 256);
+    this->IS->read((char*)data, sizeof(int) * size);
     if (this->IS->eof())
     {
       const char* fname = this->CurrentFileName.c_str();
-      vtkErrorMacro(<<"Error reading binary cell data!" << " for file: "
-                    << (fname?fname:"(Null FileName)"));
+      vtkErrorMacro(<< "Error reading binary cell data!"
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       return 0;
     }
-    vtkByteSwap::Swap4BERange(data,size);
+    vtkByteSwap::Swap4BERange(data, size);
   }
   else // ascii
   {
-    for (i=0; i<size; i++)
+    for (i = 0; i < size; i++)
     {
-      if (!this->Read(data+i))
+      if (!this->Read(data + i))
       {
         const char* fname = this->CurrentFileName.c_str();
-        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (fname?fname:"(Null FileName)"));
+        vtkErrorMacro(<< "Error reading ascii cell data!"
+                      << " for file: " << (fname ? fname : "(Null FileName)"));
         return 0;
       }
     }
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
-int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
-                                   int skip1, int read2, int skip3)
+int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data, int skip1, int read2, int skip3)
 {
   char line[256];
   int i, numCellPts, junk, *tmp, *pTmp;
 
-  if ( this->FileType == VTK_BINARY)
+  if (this->FileType == VTK_BINARY)
   {
     // suck up newline
-    this->IS->getline(line,256);
+    this->IS->getline(line, 256);
     // first read all the cells as one chunk (each cell has different length).
     if (skip1 == 0 && skip3 == 0)
     {
@@ -3293,19 +3263,19 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
     {
       tmp = new int[size];
     }
-    this->IS->read((char *)tmp,sizeof(int)*size);
+    this->IS->read((char*)tmp, sizeof(int) * size);
     if (this->IS->eof())
     {
       const char* fname = this->CurrentFileName.c_str();
-      vtkErrorMacro(<<"Error reading binary cell data!" << " for file: "
-                    << (fname?fname:"(Null FileName)"));
+      vtkErrorMacro(<< "Error reading binary cell data!"
+                    << " for file: " << (fname ? fname : "(Null FileName)"));
       if (tmp != data)
       {
-        delete [] tmp;
+        delete[] tmp;
       }
       return 0;
     }
-    vtkByteSwap::Swap4BERange(tmp,size);
+    vtkByteSwap::Swap4BERange(tmp, size);
     if (tmp == data)
     {
       return 1;
@@ -3332,18 +3302,18 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
       --read2;
     }
     // delete the temporary array
-    delete [] tmp;
+    delete[] tmp;
   }
   else // ascii
   {
     // skip cells before the piece
-    for (i=0; i<skip1; i++)
+    for (i = 0; i < skip1; i++)
     {
       if (!this->Read(&numCellPts))
       {
         const char* fname = this->CurrentFileName.c_str();
-        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (fname?fname:"(Null FileName)"));
+        vtkErrorMacro(<< "Error reading ascii cell data!"
+                      << " for file: " << (fname ? fname : "(Null FileName)"));
         return 0;
       }
       while (numCellPts-- > 0)
@@ -3352,13 +3322,13 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
       }
     }
     // read the cells in the piece
-    for (i=0; i<read2; i++)
+    for (i = 0; i < read2; i++)
     {
       if (!this->Read(data))
       {
         const char* fname = this->CurrentFileName.c_str();
-        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (fname?fname:"(Null FileName)"));
+        vtkErrorMacro(<< "Error reading ascii cell data!"
+                      << " for file: " << (fname ? fname : "(Null FileName)"));
         return 0;
       }
       numCellPts = *data++;
@@ -3368,13 +3338,13 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
       }
     }
     // skip cells after the piece
-    for (i=0; i<skip3; i++)
+    for (i = 0; i < skip3; i++)
     {
       if (!this->Read(&numCellPts))
       {
         const char* fname = this->CurrentFileName.c_str();
-        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: "
-                      << (fname?fname:"(Null FileName)"));
+        vtkErrorMacro(<< "Error reading ascii cell data!"
+                      << " for file: " << (fname ? fname : "(Null FileName)"));
         return 0;
       }
       while (numCellPts-- > 0)
@@ -3385,20 +3355,18 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int *data,
   }
 
   float progress = this->GetProgress();
-  this->UpdateProgress(progress + 0.5*(1.0 - progress));
+  this->UpdateProgress(progress + 0.5 * (1.0 - progress));
 
   return 1;
 }
 
-void vtkDataReader::ConvertGhostLevelsToGhostType(
-  FieldType fieldType, vtkAbstractArray *data) const
+void vtkDataReader::ConvertGhostLevelsToGhostType(FieldType fieldType, vtkAbstractArray* data) const
 {
   vtkUnsignedCharArray* ucData = vtkArrayDownCast<vtkUnsignedCharArray>(data);
   const char* name = data->GetName();
   int numComp = data->GetNumberOfComponents();
-  if (this->FileMajorVersion < 4 && ucData &&
-      numComp == 1 && (fieldType == CELL_DATA || fieldType == POINT_DATA) &&
-      !strcmp(name, "vtkGhostLevels"))
+  if (this->FileMajorVersion < 4 && ucData && numComp == 1 &&
+    (fieldType == CELL_DATA || fieldType == POINT_DATA) && !strcmp(name, "vtkGhostLevels"))
   {
     // convert ghost levels to ghost type
     unsigned char* ghosts = ucData->GetPointer(0);
@@ -3420,25 +3388,24 @@ void vtkDataReader::ConvertGhostLevelsToGhostType(
   }
 }
 
-
-vtkFieldData *vtkDataReader::ReadFieldData(FieldType fieldType)
+vtkFieldData* vtkDataReader::ReadFieldData(FieldType fieldType)
 {
-  int i, numArrays=0, skipField=0;
-  vtkFieldData *f;
+  int i, numArrays = 0, skipField = 0;
+  vtkFieldData* f;
   char name[256], type[256];
   vtkIdType numComp, numTuples;
-  vtkAbstractArray *data;
+  vtkAbstractArray* data;
 
-  if ( !(this->ReadString(name) && this->Read(&numArrays)) )
+  if (!(this->ReadString(name) && this->Read(&numArrays)))
   {
     const char* fname = this->CurrentFileName.c_str();
-    vtkErrorMacro(<<"Cannot read field header!" << " for file: "
-                  << (fname?fname:"(Null FileName)"));
+    vtkErrorMacro(<< "Cannot read field header!"
+                  << " for file: " << (fname ? fname : "(Null FileName)"));
     return nullptr;
   }
 
   // See whether field data name (if specified)
-  if ( (this->FieldDataName && strcmp(name,this->FieldDataName)) )
+  if ((this->FieldDataName && strcmp(name, this->FieldDataName)))
   {
     skipField = 1;
   }
@@ -3447,11 +3414,11 @@ vtkFieldData *vtkDataReader::ReadFieldData(FieldType fieldType)
   f->AllocateArrays(numArrays);
 
   // Read the number of arrays specified
-  for (i=0; i<numArrays; i++)
+  for (i = 0; i < numArrays; i++)
   {
     char buffer[1024];
     this->ReadString(buffer);
-    if ( strcmp(buffer, "NULL_ARRAY") == 0 )
+    if (strcmp(buffer, "NULL_ARRAY") == 0)
     {
       continue;
     }
@@ -3460,9 +3427,9 @@ vtkFieldData *vtkDataReader::ReadFieldData(FieldType fieldType)
     this->Read(&numTuples);
     this->ReadString(type);
     data = this->ReadArray(type, numTuples, numComp);
-    if ( data != nullptr )
+    if (data != nullptr)
     {
-      if ( ! skipField  || this->ReadAllFields )
+      if (!skipField || this->ReadAllFields)
       {
         data->SetName(name);
         this->ConvertGhostLevelsToGhostType(fieldType, data);
@@ -3477,7 +3444,7 @@ vtkFieldData *vtkDataReader::ReadFieldData(FieldType fieldType)
     }
   }
 
-  if ( skipField && ! this->ReadAllFields )
+  if (skipField && !this->ReadAllFields)
   {
     f->Delete();
     return nullptr;
@@ -3488,13 +3455,12 @@ vtkFieldData *vtkDataReader::ReadFieldData(FieldType fieldType)
   }
 }
 
-
-char *vtkDataReader::LowerCase(char *str, const size_t len)
+char* vtkDataReader::LowerCase(char* str, const size_t len)
 {
   size_t i;
-  char *s;
+  char* s;
 
-  for ( i=0, s=str; *s != '\0' && i<len; s++,i++)
+  for (i = 0, s = str; *s != '\0' && i < len; s++, i++)
   {
     *s = tolower(*s);
   }
@@ -3504,7 +3470,7 @@ char *vtkDataReader::LowerCase(char *str, const size_t len)
 // Close a vtk file.
 void vtkDataReader::CloseVTKFile()
 {
-  vtkDebugMacro(<<"Closing vtk file");
+  vtkDebugMacro(<< "Closing vtk file");
 
   // Restore the previous locale settings
   std::locale::global(this->CurrentLocale);
@@ -3518,78 +3484,77 @@ void vtkDataReader::InitializeCharacteristics()
   int i;
 
   // Release any old stuff first
-  if ( this->ScalarsNameInFile )
+  if (this->ScalarsNameInFile)
   {
-    for (i=0; i<this->NumberOfScalarsInFile; i++)
+    for (i = 0; i < this->NumberOfScalarsInFile; i++)
     {
-      delete [] this->ScalarsNameInFile[i];
+      delete[] this->ScalarsNameInFile[i];
     }
     this->NumberOfScalarsInFile = 0;
-    delete [] this->ScalarsNameInFile;
+    delete[] this->ScalarsNameInFile;
     this->ScalarsNameInFile = nullptr;
   }
 
-  if ( this->VectorsNameInFile )
+  if (this->VectorsNameInFile)
   {
-    for (i=0; i<this->NumberOfVectorsInFile; i++)
+    for (i = 0; i < this->NumberOfVectorsInFile; i++)
     {
-      delete [] this->VectorsNameInFile[i];
+      delete[] this->VectorsNameInFile[i];
     }
     this->NumberOfVectorsInFile = 0;
-    delete [] this->VectorsNameInFile;
+    delete[] this->VectorsNameInFile;
     this->VectorsNameInFile = nullptr;
   }
 
-  if ( this->TensorsNameInFile )
+  if (this->TensorsNameInFile)
   {
-    for (i=0; i<this->NumberOfTensorsInFile; i++)
+    for (i = 0; i < this->NumberOfTensorsInFile; i++)
     {
-      delete [] this->TensorsNameInFile[i];
+      delete[] this->TensorsNameInFile[i];
     }
     this->NumberOfTensorsInFile = 0;
-    delete [] this->TensorsNameInFile;
+    delete[] this->TensorsNameInFile;
     this->TensorsNameInFile = nullptr;
   }
 
-  if ( this->NormalsNameInFile )
+  if (this->NormalsNameInFile)
   {
-    for (i=0; i<this->NumberOfNormalsInFile; i++)
+    for (i = 0; i < this->NumberOfNormalsInFile; i++)
     {
-      delete [] this->NormalsNameInFile[i];
+      delete[] this->NormalsNameInFile[i];
     }
     this->NumberOfNormalsInFile = 0;
-    delete [] this->NormalsNameInFile;
+    delete[] this->NormalsNameInFile;
     this->NormalsNameInFile = nullptr;
   }
 
-  if ( this->TCoordsNameInFile )
+  if (this->TCoordsNameInFile)
   {
-    for (i=0; i<this->NumberOfTCoordsInFile; i++)
+    for (i = 0; i < this->NumberOfTCoordsInFile; i++)
     {
-      delete [] this->TCoordsNameInFile[i];
+      delete[] this->TCoordsNameInFile[i];
     }
     this->NumberOfTCoordsInFile = 0;
-    delete [] this->TCoordsNameInFile;
+    delete[] this->TCoordsNameInFile;
     this->TCoordsNameInFile = nullptr;
   }
 
-  if ( this->FieldDataNameInFile )
+  if (this->FieldDataNameInFile)
   {
-    for (i=0; i<this->NumberOfFieldDataInFile; i++)
+    for (i = 0; i < this->NumberOfFieldDataInFile; i++)
     {
-      delete [] this->FieldDataNameInFile[i];
+      delete[] this->FieldDataNameInFile[i];
     }
     this->NumberOfFieldDataInFile = 0;
-    delete [] this->FieldDataNameInFile;
+    delete[] this->FieldDataNameInFile;
     this->FieldDataNameInFile = nullptr;
   }
-
 }
 
-//read entire file, storing important characteristics
+// read entire file, storing important characteristics
 int vtkDataReader::CharacterizeFile()
 {
-  if ( this->CharacteristicsTime > this->MTime )
+  if (this->CharacteristicsTime > this->MTime)
   {
     return 1;
   }
@@ -3600,85 +3565,83 @@ int vtkDataReader::CharacterizeFile()
   // Open the file
   if (!this->OpenVTKFile() || !this->ReadHeader())
   {
-    this->CloseVTKFile ();
+    this->CloseVTKFile();
     return 0;
   }
 
   char line[256];
   while (this->ReadLine(line))
   {
-    this->CheckFor("scalars", line, this->NumberOfScalarsInFile,
-                   this->ScalarsNameInFile, this->ScalarsNameAllocSize);
-    this->CheckFor("vectors", line, this->NumberOfVectorsInFile,
-                   this->VectorsNameInFile, this->VectorsNameAllocSize);
-    this->CheckFor("tensors", line, this->NumberOfTensorsInFile,
-                   this->TensorsNameInFile, this->TensorsNameAllocSize);
-    this->CheckFor("normals", line, this->NumberOfNormalsInFile,
-                   this->NormalsNameInFile, this->NormalsNameAllocSize);
-    this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile,
-                   this->TCoordsNameInFile, this->TCoordsNameAllocSize);
-    this->CheckFor("field", line, this->NumberOfFieldDataInFile,
-                   this->FieldDataNameInFile, this->FieldDataNameAllocSize);
+    this->CheckFor("scalars", line, this->NumberOfScalarsInFile, this->ScalarsNameInFile,
+      this->ScalarsNameAllocSize);
+    this->CheckFor("vectors", line, this->NumberOfVectorsInFile, this->VectorsNameInFile,
+      this->VectorsNameAllocSize);
+    this->CheckFor("tensors", line, this->NumberOfTensorsInFile, this->TensorsNameInFile,
+      this->TensorsNameAllocSize);
+    this->CheckFor("normals", line, this->NumberOfNormalsInFile, this->NormalsNameInFile,
+      this->NormalsNameAllocSize);
+    this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile, this->TCoordsNameInFile,
+      this->TCoordsNameAllocSize);
+    this->CheckFor("field", line, this->NumberOfFieldDataInFile, this->FieldDataNameInFile,
+      this->FieldDataNameAllocSize);
   }
 
-  this->CloseVTKFile ();
+  this->CloseVTKFile();
   return 1;
 }
 
-void vtkDataReader::CheckFor(const char* name, char *line, int &num,
-                             char** &array, int &allocSize)
+void vtkDataReader::CheckFor(const char* name, char* line, int& num, char**& array, int& allocSize)
 {
-  if ( !strncmp(this->LowerCase(line, strlen(name)), name, strlen(name)) )
+  if (!strncmp(this->LowerCase(line, strlen(name)), name, strlen(name)))
   {
     int i;
     int newAllocSize;
-    char **newArray;
+    char** newArray;
 
-    //update numbers
+    // update numbers
     num++;
 
-    if ( !array )
+    if (!array)
     {
       allocSize = 25;
-      array = new char* [allocSize];
-      for (i=0; i<allocSize; i++)
+      array = new char*[allocSize];
+      for (i = 0; i < allocSize; i++)
       {
         array[i] = nullptr;
       }
     }
-    else if ( num >= allocSize )
+    else if (num >= allocSize)
     {
-      newAllocSize = 2*num;
-      newArray = new char* [newAllocSize];
-      for (i=0; i<allocSize; i++)
+      newAllocSize = 2 * num;
+      newArray = new char*[newAllocSize];
+      for (i = 0; i < allocSize; i++)
       {
         newArray[i] = array[i];
       }
-      for (i=allocSize; i<newAllocSize; i++)
+      for (i = allocSize; i < newAllocSize; i++)
       {
         newArray[i] = nullptr;
       }
       allocSize = newAllocSize;
-      delete [] array;
+      delete[] array;
       array = newArray;
     }
 
     // enter the name
     char nameOfAttribute[256];
     sscanf(line, "%*s %s", nameOfAttribute);
-    if ( *nameOfAttribute )
+    if (*nameOfAttribute)
     {
-      array[num-1] = new char [strlen(nameOfAttribute)+1];
-      strcpy(array[num-1],nameOfAttribute);
+      array[num - 1] = new char[strlen(nameOfAttribute) + 1];
+      strcpy(array[num - 1], nameOfAttribute);
     }
-  }//found one
+  } // found one
 }
 
-const char *vtkDataReader::GetScalarsNameInFile(int i)
+const char* vtkDataReader::GetScalarsNameInFile(int i)
 {
   this->CharacterizeFile();
-  if ( !this->ScalarsNameInFile ||
-       i < 0 || i >= this->NumberOfScalarsInFile )
+  if (!this->ScalarsNameInFile || i < 0 || i >= this->NumberOfScalarsInFile)
   {
     return nullptr;
   }
@@ -3688,11 +3651,10 @@ const char *vtkDataReader::GetScalarsNameInFile(int i)
   }
 }
 
-const char *vtkDataReader::GetVectorsNameInFile(int i)
+const char* vtkDataReader::GetVectorsNameInFile(int i)
 {
   this->CharacterizeFile();
-  if ( !this->VectorsNameInFile ||
-       i < 0 || i >= this->NumberOfVectorsInFile )
+  if (!this->VectorsNameInFile || i < 0 || i >= this->NumberOfVectorsInFile)
   {
     return nullptr;
   }
@@ -3701,11 +3663,10 @@ const char *vtkDataReader::GetVectorsNameInFile(int i)
     return this->VectorsNameInFile[i];
   }
 }
-const char *vtkDataReader::GetTensorsNameInFile(int i)
+const char* vtkDataReader::GetTensorsNameInFile(int i)
 {
   this->CharacterizeFile();
-  if ( !this->TensorsNameInFile ||
-       i < 0 || i >= this->NumberOfTensorsInFile )
+  if (!this->TensorsNameInFile || i < 0 || i >= this->NumberOfTensorsInFile)
   {
     return nullptr;
   }
@@ -3714,11 +3675,10 @@ const char *vtkDataReader::GetTensorsNameInFile(int i)
     return this->TensorsNameInFile[i];
   }
 }
-const char *vtkDataReader::GetNormalsNameInFile(int i)
+const char* vtkDataReader::GetNormalsNameInFile(int i)
 {
   this->CharacterizeFile();
-  if ( !this->NormalsNameInFile ||
-       i < 0 || i >= this->NumberOfNormalsInFile )
+  if (!this->NormalsNameInFile || i < 0 || i >= this->NumberOfNormalsInFile)
   {
     return nullptr;
   }
@@ -3727,11 +3687,10 @@ const char *vtkDataReader::GetNormalsNameInFile(int i)
     return this->NormalsNameInFile[i];
   }
 }
-const char *vtkDataReader::GetTCoordsNameInFile(int i)
+const char* vtkDataReader::GetTCoordsNameInFile(int i)
 {
   this->CharacterizeFile();
-  if ( !this->TCoordsNameInFile ||
-       i < 0 || i >= this->NumberOfTCoordsInFile )
+  if (!this->TCoordsNameInFile || i < 0 || i >= this->NumberOfTCoordsInFile)
   {
     return nullptr;
   }
@@ -3740,11 +3699,10 @@ const char *vtkDataReader::GetTCoordsNameInFile(int i)
     return this->TCoordsNameInFile[i];
   }
 }
-const char *vtkDataReader::GetFieldDataNameInFile(int i)
+const char* vtkDataReader::GetFieldDataNameInFile(int i)
 {
   this->CharacterizeFile();
-  if ( !this->FieldDataNameInFile ||
-       i < 0 || i >= this->NumberOfFieldDataInFile )
+  if (!this->FieldDataNameInFile || i < 0 || i >= this->NumberOfFieldDataInFile)
   {
     return nullptr;
   }
@@ -3754,23 +3712,22 @@ const char *vtkDataReader::GetFieldDataNameInFile(int i)
   }
 }
 
-vtkTypeBool vtkDataReader::ProcessRequest(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector)
+vtkTypeBool vtkDataReader::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
   {
     return this->RequestData(request, inputVector, outputVector);
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
   {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
   {
     return this->RequestInformation(request, inputVector, outputVector);
   }
@@ -3780,9 +3737,9 @@ vtkTypeBool vtkDataReader::ProcessRequest(vtkInformation* request,
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  if ( this->FileType == VTK_BINARY )
+  if (this->FileType == VTK_BINARY)
   {
     os << indent << "File Type: BINARY\n";
   }
@@ -3791,7 +3748,7 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "File Type: ASCII\n";
   }
 
-  if ( this->Header )
+  if (this->Header)
   {
     os << indent << "Header: " << this->Header << "\n";
   }
@@ -3801,7 +3758,7 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");
-  if ( this->InputString )
+  if (this->InputString)
   {
     os << indent << "Input String: " << this->InputString << "\n";
   }
@@ -3810,10 +3767,11 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input String: (None)\n";
   }
 
-  if ( this->InputArray )
+  if (this->InputArray)
   {
-    os << indent << "Input Array: "  << "\n";
-    this->InputArray->PrintSelf(os,indent.GetNextIndent());
+    os << indent << "Input Array: "
+       << "\n";
+    this->InputArray->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -3822,7 +3780,7 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input String Length: " << this->InputStringLength << endl;
 
-  if ( this->ScalarsName )
+  if (this->ScalarsName)
   {
     os << indent << "Scalars Name: " << this->ScalarsName << "\n";
   }
@@ -3830,10 +3788,9 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Scalars Name: (None)\n";
   }
-  os << indent << "ReadAllScalars: "
-     << (this->ReadAllScalars ? "On" : "Off") << "\n";
+  os << indent << "ReadAllScalars: " << (this->ReadAllScalars ? "On" : "Off") << "\n";
 
-  if ( this->VectorsName )
+  if (this->VectorsName)
   {
     os << indent << "Vectors Name: " << this->VectorsName << "\n";
   }
@@ -3841,10 +3798,9 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Vectors Name: (None)\n";
   }
-  os << indent << "ReadAllVectors: "
-     << (this->ReadAllVectors ? "On" : "Off") << "\n";
+  os << indent << "ReadAllVectors: " << (this->ReadAllVectors ? "On" : "Off") << "\n";
 
-  if ( this->NormalsName )
+  if (this->NormalsName)
   {
     os << indent << "Normals Name: " << this->NormalsName << "\n";
   }
@@ -3852,10 +3808,9 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Normals Name: (None)\n";
   }
-  os << indent << "ReadAllNormals: "
-     << (this->ReadAllNormals ? "On" : "Off") << "\n";
+  os << indent << "ReadAllNormals: " << (this->ReadAllNormals ? "On" : "Off") << "\n";
 
-  if ( this->TensorsName )
+  if (this->TensorsName)
   {
     os << indent << "Tensors Name: " << this->TensorsName << "\n";
   }
@@ -3863,10 +3818,9 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Tensors Name: (None)\n";
   }
-  os << indent << "ReadAllTensors: "
-     << (this->ReadAllTensors ? "On" : "Off") << "\n";
+  os << indent << "ReadAllTensors: " << (this->ReadAllTensors ? "On" : "Off") << "\n";
 
-  if ( this->TCoordsName )
+  if (this->TCoordsName)
   {
     os << indent << "Texture Coords Name: " << this->TCoordsName << "\n";
   }
@@ -3874,10 +3828,9 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Texture Coordinates Name: (None)\n";
   }
-  os << indent << "ReadAllTCoords: "
-     << (this->ReadAllTCoords ? "On" : "Off") << "\n";
+  os << indent << "ReadAllTCoords: " << (this->ReadAllTCoords ? "On" : "Off") << "\n";
 
-  if ( this->LookupTableName )
+  if (this->LookupTableName)
   {
     os << indent << "Lookup Table Name: " << this->LookupTableName << "\n";
   }
@@ -3885,10 +3838,9 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Lookup Table Name: (None)\n";
   }
-  os << indent << "ReadAllColorScalars: "
-     << (this->ReadAllColorScalars ? "On" : "Off") << "\n";
+  os << indent << "ReadAllColorScalars: " << (this->ReadAllColorScalars ? "On" : "Off") << "\n";
 
-  if ( this->FieldDataName )
+  if (this->FieldDataName)
   {
     os << indent << "Field Data Name: " << this->FieldDataName << "\n";
   }
@@ -3896,20 +3848,19 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Field Data Name: (None)\n";
   }
-  os << indent << "ReadAllFields: "
-     << (this->ReadAllFields ? "On" : "Off") << "\n";
+  os << indent << "ReadAllFields: " << (this->ReadAllFields ? "On" : "Off") << "\n";
 
   os << indent << "InputStringLength: " << this->InputStringLength << endl;
 }
 
-int vtkDataReader::ReadDataSetData(vtkDataSet *vtkNotUsed(ds))
+int vtkDataReader::ReadDataSetData(vtkDataSet* vtkNotUsed(ds))
 {
   return 0;
 }
 
-int vtkDataReader::DecodeString(char *resname, const char* name)
+int vtkDataReader::DecodeString(char* resname, const char* name)
 {
-  if ( !resname || !name )
+  if (!resname || !name)
   {
     return 0;
   }
@@ -3919,18 +3870,18 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
   size_t len = strlen(name);
   size_t reslen = 0;
   char buffer[10] = "0x";
-  while(name[cc])
+  while (name[cc])
   {
-    if ( name[cc] == '%' )
+    if (name[cc] == '%')
     {
-      if ( cc <= (len - 3) )
+      if (cc <= (len - 3))
       {
-        buffer[2] = name[cc+1];
-        buffer[3] = name[cc+2];
+        buffer[2] = name[cc + 1];
+        buffer[3] = name[cc + 2];
         buffer[4] = 0;
         sscanf(buffer, "%x", &ch);
         str << static_cast<char>(ch);
-        cc+=2;
+        cc += 2;
         reslen++;
       }
     }
@@ -3939,22 +3890,20 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
       str << name[cc];
       reslen++;
     }
-    cc ++;
+    cc++;
   }
-  strncpy(resname, str.str().c_str(), reslen+1);
+  strncpy(resname, str.str().c_str(), reslen + 1);
   resname[reslen] = 0;
   return static_cast<int>(reslen);
 }
 
-static int
-my_getline(istream& in, vtkStdString &out, char delimiter)
+static int my_getline(istream& in, vtkStdString& out, char delimiter)
 {
   out = vtkStdString();
   unsigned int numCharactersRead = 0;
   int nextValue = 0;
 
-  while ((nextValue = in.get()) != EOF &&
-         numCharactersRead < out.max_size())
+  while ((nextValue = in.get()) != EOF && numCharactersRead < out.max_size())
   {
     ++numCharactersRead;
 
@@ -3975,11 +3924,11 @@ my_getline(istream& in, vtkStdString &out, char delimiter)
 //----------------------------------------------------------------------------
 void vtkDataReader::SetScalarLut(const char* sl)
 {
-  if (!this->ScalarLut  && !sl)
+  if (!this->ScalarLut && !sl)
   {
     return;
   }
-  if (this->ScalarLut && sl && (strcmp(this->ScalarLut,sl)) == 0)
+  if (this->ScalarLut && sl && (strcmp(this->ScalarLut, sl)) == 0)
   {
     return;
   }
@@ -3988,9 +3937,12 @@ void vtkDataReader::SetScalarLut(const char* sl)
   if (sl)
   {
     size_t n = strlen(sl) + 1;
-    char *cp1 =  new char[n];
-    const char *cp2 = sl;
+    char* cp1 = new char[n];
+    const char* cp2 = sl;
     this->ScalarLut = cp1;
-    do { *cp1++ = *cp2++; } while ( --n );
+    do
+    {
+      *cp1++ = *cp2++;
+    } while (--n);
   }
 }

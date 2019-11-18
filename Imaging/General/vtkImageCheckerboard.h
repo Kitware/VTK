@@ -21,7 +21,7 @@
  *  checkerboard pattern is controlled by the NumberOfDivisions
  *  ivar. This controls the number of checkerboard divisions in the whole
  *  extent of the image.
-*/
+ */
 
 #ifndef vtkImageCheckerboard_h
 #define vtkImageCheckerboard_h
@@ -29,55 +29,39 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
-
 class VTKIMAGINGGENERAL_EXPORT vtkImageCheckerboard : public vtkThreadedImageAlgorithm
 {
 public:
-  static vtkImageCheckerboard *New();
-  vtkTypeMacro(vtkImageCheckerboard,vtkThreadedImageAlgorithm);
+  static vtkImageCheckerboard* New();
+  vtkTypeMacro(vtkImageCheckerboard, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set/Get the number of divisions along each axis.
    */
-  vtkSetVector3Macro(NumberOfDivisions,int);
-  vtkGetVectorMacro(NumberOfDivisions,int,3);
+  vtkSetVector3Macro(NumberOfDivisions, int);
+  vtkGetVectorMacro(NumberOfDivisions, int, 3);
   //@}
 
   /**
    * Set the two inputs to this filter
    */
-  virtual void SetInput1Data(vtkDataObject *in) { this->SetInputData(0,in); }
-  virtual void SetInput2Data(vtkDataObject *in) { this->SetInputData(1,in); }
+  virtual void SetInput1Data(vtkDataObject* in) { this->SetInputData(0, in); }
+  virtual void SetInput2Data(vtkDataObject* in) { this->SetInputData(1, in); }
 
 protected:
   vtkImageCheckerboard();
   ~vtkImageCheckerboard() override {}
 
-  void ThreadedRequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector,
-                                   vtkImageData ***inData,
-                                   vtkImageData **outData,
-                                   int extent[6], int threadId) override;
+  void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData,
+    int extent[6], int threadId) override;
   int NumberOfDivisions[3];
+
 private:
   vtkImageCheckerboard(const vtkImageCheckerboard&) = delete;
   void operator=(const vtkImageCheckerboard&) = delete;
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

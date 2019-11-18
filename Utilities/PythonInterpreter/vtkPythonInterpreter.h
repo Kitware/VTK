@@ -52,7 +52,7 @@
  * after Finalize especially when concerning with imported modules. Refer to
  * Python docs for details. In short, modules like numpy don't continue to work
  * after a re-initialize. Hence use it with caution.
-*/
+ */
 
 #ifndef vtkPythonInterpreter_h
 #define vtkPythonInterpreter_h
@@ -232,6 +232,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonGlobalInterpreters
 public:
   vtkPythonGlobalInterpreters();
   ~vtkPythonGlobalInterpreters();
+
 private:
   vtkPythonGlobalInterpreters(const vtkPythonGlobalInterpreters&) = delete;
   vtkPythonGlobalInterpreters& operator=(const vtkPythonGlobalInterpreters&) = delete;

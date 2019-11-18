@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkPolyDataWriter vtkPointDataToCellData
-*/
+ */
 
 #ifndef vtkCGMWriter_h
 #define vtkCGMWriter_h
@@ -54,9 +54,9 @@ public:
    * Instantiate with no viewport defined and sorting on. The default
    * resolution is 10,000, and the color mode is set to default.
    */
-  static vtkCGMWriter *New();
+  static vtkCGMWriter* New();
 
-  vtkTypeMacro(vtkCGMWriter,vtkPolyDataWriter);
+  vtkTypeMacro(vtkCGMWriter, vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //@{
@@ -76,8 +76,8 @@ public:
    * cells will be sorted from back to front, i.e., a Painter's algorithm
    * sort.
    */
-  vtkSetMacro(Sort,int);
-  vtkGetMacro(Sort,int);
+  vtkSetMacro(Sort, int);
+  vtkGetMacro(Sort, int);
   //@}
 
   //@{
@@ -100,14 +100,11 @@ public:
    * the primitives will all be set to this color. If ColorModeToRandomColors
    * is set, each cell will be randomly assigned a color.
    */
-  vtkSetMacro(ColorMode,int);
-  vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault() {
-    this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
-  void SetColorModeToSpecifiedColor() {
-    this->SetColorMode(VTK_COLOR_MODE_SPECIFIED_COLOR);};
-  void SetColorModeToRandomColors() {
-    this->SetColorMode(VTK_COLOR_MODE_RANDOM_COLORS);};
+  vtkSetMacro(ColorMode, int);
+  vtkGetMacro(ColorMode, int);
+  void SetColorModeToDefault() { this->SetColorMode(VTK_COLOR_MODE_DEFAULT); }
+  void SetColorModeToSpecifiedColor() { this->SetColorMode(VTK_COLOR_MODE_SPECIFIED_COLOR); }
+  void SetColorModeToRandomColors() { this->SetColorMode(VTK_COLOR_MODE_RANDOM_COLORS); }
   //@}
 
   //@{
@@ -119,8 +116,8 @@ public:
    * values ranging from (0,1). (Note: CGM will map this color to the
    * closest color it supports.)
    */
-  vtkSetVector3Macro(SpecifiedColor,float);
-  vtkGetVectorMacro(SpecifiedColor,float,3);
+  vtkSetVector3Macro(SpecifiedColor, float);
+  vtkGetVectorMacro(SpecifiedColor, float, 3);
   //@}
 
 protected:
@@ -128,11 +125,11 @@ protected:
   ~vtkCGMWriter();
   void WriteData();
 
-  vtkViewport *Viewport;
-  int         ColorMode;
-  float       SpecifiedColor[3];
-  int         Resolution;
-  int         Sort;
+  vtkViewport* Viewport;
+  int ColorMode;
+  float SpecifiedColor[3];
+  int Resolution;
+  int Sort;
 
 private:
   vtkCGMWriter(const vtkCGMWriter&) = delete;
@@ -140,4 +137,3 @@ private:
 };
 
 #endif
-

@@ -21,21 +21,20 @@
 int TestXMLReaderBadData(int argc, char* argv[])
 {
   // Verify input arguments
-  if(argc < 2)
+  if (argc < 2)
   {
-    std::cout << "Usage: " << argv[0]
-              << " Filename" << std::endl;
+    std::cout << "Usage: " << argv[0] << " Filename" << std::endl;
     return EXIT_FAILURE;
   }
 
   std::string inputFilename = argv[1];
 
   // Observe errors
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver0 =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver0 =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver1 =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver1 =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver2 =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver2 =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   // Read the file

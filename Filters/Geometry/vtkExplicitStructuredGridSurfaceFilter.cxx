@@ -90,9 +90,14 @@ int vtkExplicitStructuredGridSurfaceFilter::RequestData(vtkInformation* vtkNotUs
   return this->ExtractSurface(input, output);
 }
 
-static int hexaFaces[6][4] = { { 0, 4, 7, 3 }, { 1, 2, 6, 5 },
-                               { 0, 1, 5, 4 }, { 3, 7, 6, 2 },
-                               { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
+static int hexaFaces[6][4] = {
+  { 0, 4, 7, 3 },
+  { 1, 2, 6, 5 },
+  { 0, 1, 5, 4 },
+  { 3, 7, 6, 2 },
+  { 0, 3, 2, 1 },
+  { 4, 5, 6, 7 },
+};
 
 //----------------------------------------------------------------------------
 int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
@@ -171,7 +176,7 @@ int vtkExplicitStructuredGridSurfaceFilter::ExtractSurface(
   int abort = 0;
   vtkIdType progressInterval = numCells / 20 + 1;
   vtkIdType npts;
-  const vtkIdType *pts;
+  const vtkIdType* pts;
   cells->InitTraversal();
   std::vector<vtkIdType> pointIdVector(numPts, -1);
 

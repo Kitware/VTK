@@ -130,7 +130,7 @@
  * completed for to improve IO XML by Jacques-Bernard Lekien 2018-19
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTree_h
 #define vtkHyperTree_h
@@ -139,7 +139,7 @@
 #include "vtkObject.h"
 
 #include <cassert> // Used internally
-#include <memory> // std::shared_ptr
+#include <memory>  // std::shared_ptr
 
 class vtkBitArray;
 class vtkUnsignedLongArray;
@@ -180,7 +180,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTree : public vtkObject
 public:
   vtkTypeMacro(vtkHyperTree, vtkObject);
 
-  void PrintSelf( ostream&, vtkIndent ) override;
+  void PrintSelf(ostream&, vtkIndent) override;
 
   /**
    * Restore the initial state: only one vertice is then a leaf:
@@ -189,7 +189,7 @@ public:
    * @param dimension
    * @param numberOfChildren
    */
-  void Initialize( unsigned char, unsigned char, unsigned char );
+  void Initialize(unsigned char, unsigned char, unsigned char);
 
   /**
    * Restore a state from read data, without using a cursor
@@ -210,14 +210,9 @@ public:
    * @param outIsMasked: the mask of hypertree grid including
    * this hypertree which is a vtkBitArray.
    */
-  virtual void InitializeForReader(
-    vtkIdType numberOfLevels,
-    vtkIdType nbVertices,
-    vtkIdType nbVerticesOfLastLevel,
-    vtkBitArray* isParent,
-    vtkBitArray* isMasked,
-    vtkBitArray* outIsMasked
-  ) = 0;
+  virtual void InitializeForReader(vtkIdType numberOfLevels, vtkIdType nbVertices,
+    vtkIdType nbVerticesOfLastLevel, vtkBitArray* isParent, vtkBitArray* isMasked,
+    vtkBitArray* outIsMasked) = 0;
 
   /**
    * Initialize a state from write data.
@@ -235,20 +230,15 @@ public:
    * corresponding. It is useless to declare all the latest values
    * to False.
    */
-  virtual void GetByLevelForWriter(
-    vtkBitArray* inIsMasked,
-    vtkUnsignedLongArray* nbVerticesbyLevel,
-    vtkBitArray* isParent,
-    vtkBitArray* isMasked,
-    vtkIdList* ids
-  ) = 0;
+  virtual void GetByLevelForWriter(vtkBitArray* inIsMasked, vtkUnsignedLongArray* nbVerticesbyLevel,
+    vtkBitArray* isParent, vtkBitArray* isMasked, vtkIdList* ids) = 0;
 
   /**
    * Copy the structure by sharing the decomposition description
    * of the tree.
    * \pre ht_exist: ht!=nullptr
    */
-  void CopyStructure( vtkHyperTree* ht );
+  void CopyStructure(vtkHyperTree* ht);
 
   /**
    * Return a freeze instance (a priori compact but potentially
@@ -257,19 +247,15 @@ public:
    * The mode parameter will allow to propose different instances.
    * Today, there is none, the freeze call does not do anything.
    */
-  virtual vtkHyperTree* Freeze( const char* mode ) = 0;
+  virtual vtkHyperTree* Freeze(const char* mode) = 0;
 
   //@{
   /**
    * Set/Get tree index in hypertree grid.
    * Services for internal use between hypertree grid and hypertree.
    */
-  void SetTreeIndex( vtkIdType treeIndex ) {
-    this->Datas->TreeIndex = treeIndex;
-  }
-  vtkIdType GetTreeIndex() const {
-    return this->Datas->TreeIndex;
-  }
+  void SetTreeIndex(vtkIdType treeIndex) { this->Datas->TreeIndex = treeIndex; }
+  vtkIdType GetTreeIndex() const { return this->Datas->TreeIndex; }
   //@}
 
   /**
@@ -277,26 +263,19 @@ public:
    */
   unsigned int GetNumberOfLevels() const
   {
-    assert( "post: result_greater_or_equal_to_one" &&
-            this->Datas->NumberOfLevels >= 1 );
+    assert("post: result_greater_or_equal_to_one" && this->Datas->NumberOfLevels >= 1);
     return this->Datas->NumberOfLevels;
   }
 
   /**
    * Return the number of all vertices (coarse and fine) in the tree.
    */
-  vtkIdType GetNumberOfVertices() const
-  {
-    return this->Datas->NumberOfVertices;
-  }
+  vtkIdType GetNumberOfVertices() const { return this->Datas->NumberOfVertices; }
 
   /**
    * Return the number of nodes (coarse) in the tree.
    */
-  vtkIdType GetNumberOfNodes() const
-  {
-    return this->Datas->NumberOfNodes;
-  }
+  vtkIdType GetNumberOfNodes() const { return this->Datas->NumberOfNodes; }
 
   /**
    * Return the number of leaf (fine) in the tree.
@@ -309,36 +288,27 @@ public:
   /**
    * Return the branch factor of the tree.
    */
-  int GetBranchFactor() const
-  {
-    return this->BranchFactor;
-  }
+  int GetBranchFactor() const { return this->BranchFactor; }
 
   /**
    * Return the spatial dimension of the tree.
    */
-  int GetDimension() const
-  {
-    return this->Dimension;
-  }
+  int GetDimension() const { return this->Dimension; }
 
   /**
    * Return the number of children per node of the tree.
    * This value is branchfactoring scale spatial dimenion (f^d).
    */
-  vtkIdType GetNumberOfChildren() const
-  {
-    return this->NumberOfChildren;
-  }
+  vtkIdType GetNumberOfChildren() const { return this->NumberOfChildren; }
 
   //@{
   /**
    * Set/Get scale of the tree in each direction for the ground
    * level (0).
    */
-  void GetScale( double s[3] ) const;
+  void GetScale(double s[3]) const;
 
-  double GetScale( unsigned int d ) const;
+  double GetScale(unsigned int d) const;
   //@}
 
   /**
@@ -347,8 +317,7 @@ public:
    * the symetric filter.
    */
   std::shared_ptr<vtkHyperTreeGridScales> InitializeScales(
-    const double *scales,
-    bool reinitialize = false ) const;
+    const double* scales, bool reinitialize = false) const;
 
   /**
    * Return an instance of an implementation of a hypertree for
@@ -360,9 +329,7 @@ public:
    * is returning).
    */
   VTK_NEWINSTANCE
-  static vtkHyperTree* CreateInstance(
-    unsigned char branchFactor,
-    unsigned char dimension );
+  static vtkHyperTree* CreateInstance(unsigned char branchFactor, unsigned char dimension);
   /**
    * Return memory used in bytes.
    * NB: Ignore the attribute array because its size is added by the data set.
@@ -376,7 +343,7 @@ public:
   unsigned int GetActualMemorySize()
   {
     // in kilibytes
-    return static_cast<unsigned int>( this->GetActualMemorySizeBytes() / 1024 );
+    return static_cast<unsigned int>(this->GetActualMemorySizeBytes() / 1024);
   }
 
   /**
@@ -409,16 +376,13 @@ public:
    * SetGlobalIndexFromLocal.
    * \pre not_global_index_start_if_use_global_index_from_local
    */
-  virtual void SetGlobalIndexStart( vtkIdType start ) = 0;
+  virtual void SetGlobalIndexStart(vtkIdType start) = 0;
 
   /**
    * Get the start global index for the current tree for implicit global
    * index mapping.
    */
-  vtkIdType GetGlobalIndexStart( ) const
-  {
-    return this->Datas->GlobalIndexStart;
-  }
+  vtkIdType GetGlobalIndexStart() const { return this->Datas->GlobalIndexStart; }
 
   /**
    * Set the mapping between a node index in tree and a explicit global
@@ -429,7 +393,7 @@ public:
    * SetGlobalIndexStart.
    * \pre not_global_index_from_local_if_use_global_index_start
    */
-  virtual void SetGlobalIndexFromLocal( vtkIdType index, vtkIdType global ) = 0;
+  virtual void SetGlobalIndexFromLocal(vtkIdType index, vtkIdType global) = 0;
 
   /**
    * Get the global id of a local node identified by index.
@@ -439,7 +403,7 @@ public:
    * \pre not_positive_start_index (case implicit global index mapping)
    * \pre not_positive_global_index (case explicit global index mapping)
    */
-  virtual vtkIdType GetGlobalIndexFromLocal( vtkIdType index ) const = 0;
+  virtual vtkIdType GetGlobalIndexFromLocal(vtkIdType index) const = 0;
 
   /**
    * Return the maximum value reached by global index mapping
@@ -451,14 +415,14 @@ public:
    * Return if a vertice identified by index in tree as being leaf.
    * \pre not_valid_index
    */
-  virtual bool IsLeaf( vtkIdType index ) const = 0;
+  virtual bool IsLeaf(vtkIdType index) const = 0;
 
   /**
    * Subdivide a vertice, only if its a leaf.
    * \pre not_valide_index
    * \pre not_leaf
    */
-  virtual void SubdivideLeaf( vtkIdType index, unsigned int level ) = 0;
+  virtual void SubdivideLeaf(vtkIdType index, unsigned int level) = 0;
 
   /**
    * Return if a vertice identified by index in tree as a terminal node.
@@ -466,7 +430,7 @@ public:
    * \pre not_valid_index
    * \pre not_valid_child_index
    */
-  virtual bool IsTerminalNode( vtkIdType index ) const = 0;
+  virtual bool IsTerminalNode(vtkIdType index) const = 0;
 
   /**
    * Return the elder child index, local index node of first child, of
@@ -475,7 +439,7 @@ public:
    * Public only for entry: vtkHyperTreeGridEntry,
    * vtkHyperTreeGridGeometryEntry, vtkHyperTreeGridGeometryLevelEntry
    */
-  virtual vtkIdType GetElderChildIndex( unsigned int index_parent ) const = 0;
+  virtual vtkIdType GetElderChildIndex(unsigned int index_parent) const = 0;
 
   //@{
   /**
@@ -484,26 +448,23 @@ public:
    * the symetric filter.
    * Here, you set a scales since extern description (sharing).
    */
-  void SetScales ( std::shared_ptr<vtkHyperTreeGridScales> scales ) const {
-    this->Scales = scales;
-  }
+  void SetScales(std::shared_ptr<vtkHyperTreeGridScales> scales) const { this->Scales = scales; }
   //@}
 
   //@{
   /**
    * Return the existence scales.
    */
-  bool HasScales ( ) const {
-    return ( this->Scales != nullptr );
-  }
+  bool HasScales() const { return (this->Scales != nullptr); }
   //@}
 
   //@{
   /**
    * Return all scales.
    */
-  std::shared_ptr<vtkHyperTreeGridScales> GetScales ( ) const {
-    assert( this->Scales != nullptr );
+  std::shared_ptr<vtkHyperTreeGridScales> GetScales() const
+  {
+    assert(this->Scales != nullptr);
     return this->Scales;
   }
   //@}
@@ -519,8 +480,8 @@ protected:
   virtual ~vtkHyperTree() override {}
 
   virtual void InitializePrivate() = 0;
-  virtual void PrintSelfPrivate( ostream& os, vtkIndent indent ) = 0;
-  virtual void CopyStructurePrivate( vtkHyperTree* ht ) = 0;
+  virtual void PrintSelfPrivate(ostream& os, vtkIndent indent) = 0;
+  virtual void CopyStructurePrivate(vtkHyperTree* ht) = 0;
 
   //-- Global information
 
@@ -534,13 +495,13 @@ protected:
   unsigned char NumberOfChildren;
 
   //-- Local information
-  std::shared_ptr< vtkHyperTreeData > Datas;
+  std::shared_ptr<vtkHyperTreeData> Datas;
 
   // Storage of pre-computed per-level cell scales
   // In hypertree grid, one description by hypertree.
   // In Uniform hypertree grid, one description by hypertree grid
   // (all cells, differents hypertree, are identicals by level).
-  mutable std::shared_ptr< vtkHyperTreeGridScales > Scales;
+  mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
 private:
   vtkHyperTree(const vtkHyperTree&) = delete;

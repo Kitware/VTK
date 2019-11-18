@@ -35,7 +35,7 @@
  *
  * @sa
  * vtkProgrammablePointDataFilter vtkProgrammableSource
-*/
+ */
 
 #ifndef vtkProgrammableFilter_h
 #define vtkProgrammableFilter_h
@@ -43,12 +43,11 @@
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
 {
 public:
-  static vtkProgrammableFilter *New();
-  vtkTypeMacro(vtkProgrammableFilter,vtkPassInputTypeAlgorithm);
+  static vtkProgrammableFilter* New();
+  vtkTypeMacro(vtkProgrammableFilter, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -60,18 +59,18 @@ public:
    * header files themselves because it prevents the internal VTK wrapper
    * generators from wrapping these methods.
    */
-  typedef void (*ProgrammableMethodCallbackType)(void *arg);
+  typedef void (*ProgrammableMethodCallbackType)(void* arg);
 
   /**
    * Specify the function to use to operate on the point attribute data. Note
    * that the function takes a single (void *) argument.
    */
-  void SetExecuteMethod(void (*f)(void *), void *arg);
+  void SetExecuteMethod(void (*f)(void*), void* arg);
 
   /**
    * Set the arg delete method. This is used to free user memory.
    */
-  void SetExecuteMethodArgDelete(void (*f)(void *));
+  void SetExecuteMethodArgDelete(void (*f)(void*));
 
   //@{
   /**
@@ -80,14 +79,14 @@ public:
    * it essentially does type casting). It is the users responsibility to know
    * the correct type of the input data.
    */
-  vtkPolyData *GetPolyDataInput();
-  vtkStructuredPoints *GetStructuredPointsInput();
-  vtkStructuredGrid *GetStructuredGridInput();
-  vtkUnstructuredGrid *GetUnstructuredGridInput();
-  vtkRectilinearGrid *GetRectilinearGridInput();
-  vtkGraph *GetGraphInput();
-  vtkMolecule *GetMoleculeInput();
-  vtkTable *GetTableInput();
+  vtkPolyData* GetPolyDataInput();
+  vtkStructuredPoints* GetStructuredPointsInput();
+  vtkStructuredGrid* GetStructuredGridInput();
+  vtkUnstructuredGrid* GetUnstructuredGridInput();
+  vtkRectilinearGrid* GetRectilinearGridInput();
+  vtkGraph* GetGraphInput();
+  vtkMolecule* GetMoleculeInput();
+  vtkTable* GetTableInput();
   //@}
 
   //@{
@@ -104,12 +103,12 @@ protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
+  ProgrammableMethodCallbackType ExecuteMethod; // function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
-  void *ExecuteMethodArg;
+  void* ExecuteMethodArg;
 
   bool CopyArrays;
 

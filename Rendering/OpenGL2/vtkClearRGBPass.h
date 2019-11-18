@@ -20,7 +20,7 @@
  *
  * @sa
  * vtkValuePasses
-*/
+ */
 
 #ifndef vtkClearRGBPass_h
 #define vtkClearRGBPass_h
@@ -33,25 +33,25 @@ class vtkOpenGLRenderWindow;
 class VTKRENDERINGOPENGL2_EXPORT vtkClearRGBPass : public vtkRenderPass
 {
 public:
-  static vtkClearRGBPass *New();
-  vtkTypeMacro(vtkClearRGBPass,vtkRenderPass);
+  static vtkClearRGBPass* New();
+  vtkTypeMacro(vtkClearRGBPass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state s.
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
   //@{
   /**
    * Set/Get the background color of the rendering screen using an rgb color
    * specification.
    */
-  vtkSetVector3Macro(Background,double);
-  vtkGetVector3Macro(Background,double);
+  vtkSetVector3Macro(Background, double);
+  vtkGetVector3Macro(Background, double);
   //@}
 
- protected:
+protected:
   /**
    * Default constructor.
    */
@@ -64,7 +64,7 @@ public:
 
   double Background[3];
 
- private:
+private:
   vtkClearRGBPass(const vtkClearRGBPass&) = delete;
   void operator=(const vtkClearRGBPass&) = delete;
 };

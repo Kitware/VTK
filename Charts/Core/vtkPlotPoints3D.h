@@ -24,7 +24,7 @@
  * vtkPlotLine3D
  * vtkPlotPoints
  *
-*/
+ */
 
 #ifndef vtkPlotPoints3D_h
 #define vtkPlotPoints3D_h
@@ -38,13 +38,13 @@ class VTKCHARTSCORE_EXPORT vtkPlotPoints3D : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotPoints3D, vtkPlot3D);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
-  static vtkPlotPoints3D * New();
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkPlotPoints3D* New();
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D* painter) override;
 
 protected:
   vtkPlotPoints3D();
@@ -61,9 +61,8 @@ protected:
   vtkTimeStamp SelectedPointsBuildTime;
 
 private:
-  vtkPlotPoints3D(const vtkPlotPoints3D &) = delete;
-  void operator=(const vtkPlotPoints3D &) = delete;
-
+  vtkPlotPoints3D(const vtkPlotPoints3D&) = delete;
+  void operator=(const vtkPlotPoints3D&) = delete;
 };
 
-#endif //vtkPlotPoints3D_h
+#endif // vtkPlotPoints3D_h

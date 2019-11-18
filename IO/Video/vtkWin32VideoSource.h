@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkVideoSource vtkMILVideoSource
-*/
+ */
 
 #ifndef vtkWin32VideoSource_h
 #define vtkWin32VideoSource_h
@@ -39,8 +39,8 @@ class vtkWin32VideoSourceInternal;
 class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
 public:
-  static vtkWin32VideoSource *New();
-  vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
+  static vtkWin32VideoSource* New();
+  vtkTypeMacro(vtkWin32VideoSource, vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -68,8 +68,7 @@ public:
    * Request a particular frame size (set the third value to 1).
    */
   void SetFrameSize(int x, int y, int z) override;
-  void SetFrameSize(int dim[3]) override {
-    this->SetFrameSize(dim[0], dim[1], dim[2]); };
+  void SetFrameSize(int dim[3]) override { this->SetFrameSize(dim[0], dim[1], dim[2]); }
   //@}
 
   /**
@@ -87,8 +86,8 @@ public:
    * Turn on/off the preview (overlay) window.
    */
   void SetPreview(int p);
-  vtkBooleanMacro(Preview,int);
-  vtkGetMacro(Preview,int);
+  vtkBooleanMacro(Preview, int);
+  vtkGetMacro(Preview, int);
   //@}
 
   /**
@@ -129,11 +128,10 @@ protected:
   int BitMapSize;
   int Preview;
 
-  vtkWin32VideoSourceInternal *Internal;
+  vtkWin32VideoSourceInternal* Internal;
 
   void CheckBuffer();
-  void UnpackRasterLine(char *outptr, char *inptr,
-                        int start, int count) override;
+  void UnpackRasterLine(char* outptr, char* inptr, int start, int count) override;
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();
@@ -144,8 +142,3 @@ private:
 };
 
 #endif
-
-
-
-
-

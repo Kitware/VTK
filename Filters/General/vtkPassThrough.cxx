@@ -25,8 +25,8 @@ vtkStandardNewMacro(vtkPassThrough);
 
 //----------------------------------------------------------------------------
 vtkPassThrough::vtkPassThrough()
-  : DeepCopyInput(0),
-    AllowNullInput(false)
+  : DeepCopyInput(0)
+  , AllowNullInput(false)
 {
 }
 
@@ -34,17 +34,15 @@ vtkPassThrough::vtkPassThrough()
 vtkPassThrough::~vtkPassThrough() = default;
 
 //----------------------------------------------------------------------------
-int vtkPassThrough::RequestDataObject(vtkInformation *request,
-                                      vtkInformationVector **inVec,
-                                      vtkInformationVector *outVec)
+int vtkPassThrough::RequestDataObject(
+  vtkInformation* request, vtkInformationVector** inVec, vtkInformationVector* outVec)
 {
-  if (this->AllowNullInput &&
-      this->GetNumberOfInputPorts() != 0 &&
-      inVec[0]->GetInformationObject(0) == nullptr)
+  if (this->AllowNullInput && this->GetNumberOfInputPorts() != 0 &&
+    inVec[0]->GetInformationObject(0) == nullptr)
   {
     for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
     {
-      vtkPolyData *obj = vtkPolyData::New();
+      vtkPolyData* obj = vtkPolyData::New();
       outVec->GetInformationObject(i)->Set(vtkDataObject::DATA_OBJECT(), obj);
       obj->FastDelete();
     }
@@ -60,17 +58,13 @@ int vtkPassThrough::RequestDataObject(vtkInformation *request,
 void vtkPassThrough::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "DeepCopyInput: "
-     << (this->DeepCopyInput ? "on" : "off") << endl
-     << indent << "AllowNullInput: "
-     << (this->AllowNullInput ? "on" : "off") << endl;
+  os << indent << "DeepCopyInput: " << (this->DeepCopyInput ? "on" : "off") << endl
+     << indent << "AllowNullInput: " << (this->AllowNullInput ? "on" : "off") << endl;
 }
 
 //----------------------------------------------------------------------------
-int vtkPassThrough::RequestData(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkPassThrough::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -82,7 +76,7 @@ int vtkPassThrough::RequestData(
 
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  if(this->DeepCopyInput)
+  if (this->DeepCopyInput)
   {
     output->DeepCopy(input);
   }
@@ -97,10 +91,10 @@ int vtkPassThrough::RequestData(
 //----------------------------------------------------------------------------
 int vtkPassThrough::FillInputPortInformation(int port, vtkInformation* info)
 {
-    if (port == 0)
-    {
-        info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-        return 1;
-    }
-    return 0;
+  if (port == 0)
+  {
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    return 1;
+  }
+  return 0;
 }

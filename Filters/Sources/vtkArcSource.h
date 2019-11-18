@@ -34,7 +34,7 @@
  *
  * @sa
  * vtkEllipseArcSource
-*/
+ */
 
 #ifndef vtkArcSource_h
 #define vtkArcSource_h
@@ -45,24 +45,24 @@
 class VTKFILTERSSOURCES_EXPORT vtkArcSource : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkArcSource *New();
-  vtkTypeMacro(vtkArcSource,vtkPolyDataAlgorithm);
+  static vtkArcSource* New();
+  vtkTypeMacro(vtkArcSource, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set position of the first end point.
    */
-  vtkSetVector3Macro(Point1,double);
-  vtkGetVectorMacro(Point1,double,3);
+  vtkSetVector3Macro(Point1, double);
+  vtkGetVectorMacro(Point1, double, 3);
   //@}
 
   //@{
   /**
    * Set position of the other end point.
    */
-  vtkSetVector3Macro(Point2,double);
-  vtkGetVectorMacro(Point2,double,3);
+  vtkSetVector3Macro(Point2, double);
+  vtkGetVectorMacro(Point2, double, 3);
   //@}
 
   //@{
@@ -71,8 +71,8 @@ public:
    * Note: you can use the function vtkMath::Solve3PointCircle to
    * find the center from 3 points located on a circle.
    */
-  vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVectorMacro(Center, double, 3);
   //@}
 
   //@{
@@ -81,8 +81,8 @@ public:
    * By default it points in the positive Z direction.
    * Note: This is only used when UseNormalAndAngle is ON.
    */
-  vtkSetVector3Macro(Normal,double);
-  vtkGetVectorMacro(Normal,double,3);
+  vtkSetVector3Macro(Normal, double);
+  vtkGetVectorMacro(Normal, double, 3);
   //@}
 
   //@{
@@ -91,8 +91,8 @@ public:
    * By default it is the unit vector in the positive X direction.
    * Note: This is only used when UseNormalAndAngle is ON.
    */
-  vtkSetVector3Macro(PolarVector,double);
-  vtkGetVectorMacro(PolarVector,double,3);
+  vtkSetVector3Macro(PolarVector, double);
+  vtkGetVectorMacro(PolarVector, double, 3);
   //@}
 
   //@{
@@ -102,8 +102,8 @@ public:
    * a negative value draws the arc in the clockwise direction.
    * Note: This is only used when UseNormalAndAngle is ON.
    */
-  vtkSetClampMacro(Angle,double,-360.0,360.0);
-  vtkGetMacro(Angle,double);
+  vtkSetClampMacro(Angle, double, -360.0, 360.0);
+  vtkGetMacro(Angle, double);
   //@}
 
   //@{
@@ -112,8 +112,8 @@ public:
    * Note: if the resolution is set to 1 (the default value),
    * the arc is drawn as a straight line.
    */
-  vtkSetClampMacro(Resolution,int,1,VTK_INT_MAX);
-  vtkGetMacro(Resolution,int);
+  vtkSetClampMacro(Resolution, int, 1, VTK_INT_MAX);
+  vtkGetMacro(Resolution, int);
   //@}
 
   //@{
@@ -148,16 +148,16 @@ public:
    * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
    * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetMacro(OutputPointsPrecision, int);
+  vtkGetMacro(OutputPointsPrecision, int);
   //@}
 
 protected:
-  vtkArcSource(int res=1);
+  vtkArcSource(int res = 1);
   ~vtkArcSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   double Point1[3];
   double Point2[3];
   double Center[3];

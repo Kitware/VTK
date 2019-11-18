@@ -19,7 +19,7 @@
  * This object provides the entry point for the vtkContextScene to be rendered
  * in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
  * vtkContextScene.
-*/
+ */
 
 #ifndef vtkOpenGLContextActor_h
 #define vtkOpenGLContextActor_h
@@ -40,12 +40,12 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) override;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
   /**
    * We only render in the overlay for the context scene.
    */
-  int RenderOverlay(vtkViewport *viewport) override;
+  int RenderOverlay(vtkViewport* viewport) override;
 
 protected:
   vtkOpenGLContextActor();

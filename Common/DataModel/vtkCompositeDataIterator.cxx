@@ -16,7 +16,6 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkObjectFactory.h"
 
-
 //----------------------------------------------------------------------------
 vtkCompositeDataIterator::vtkCompositeDataIterator()
 {
@@ -35,7 +34,7 @@ vtkCompositeDataIterator::~vtkCompositeDataIterator()
 void vtkCompositeDataIterator::SetDataSet(vtkCompositeDataSet* ds)
 {
   vtkSetObjectBodyMacro(DataSet, vtkCompositeDataSet, ds);
-  if(ds)
+  if (ds)
   {
     this->GoToFirstItem();
   }
@@ -59,8 +58,6 @@ void vtkCompositeDataIterator::InitReverseTraversal()
 void vtkCompositeDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Reverse: "
-    << (this->Reverse? "On" : "Off") << endl;
-  os << indent << "SkipEmptyNodes: "
-    << (this->SkipEmptyNodes? "On" : "Off") << endl;
+  os << indent << "Reverse: " << (this->Reverse ? "On" : "Off") << endl;
+  os << indent << "SkipEmptyNodes: " << (this->SkipEmptyNodes ? "On" : "Off") << endl;
 }

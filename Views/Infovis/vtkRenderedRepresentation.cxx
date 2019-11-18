@@ -43,7 +43,6 @@ public:
   std::vector<vtkSmartPointer<vtkProp> > PropsToRemove;
 };
 
-
 vtkRenderedRepresentation::vtkRenderedRepresentation()
 {
   this->Implementation = new Internals();
@@ -82,7 +81,8 @@ void vtkRenderedRepresentation::PrepareForRendering(vtkRenderView* view)
   this->Implementation->PropsToRemove.clear();
 }
 
-vtkUnicodeString vtkRenderedRepresentation::GetHoverText(vtkView* view, vtkProp* prop, vtkIdType cell)
+vtkUnicodeString vtkRenderedRepresentation::GetHoverText(
+  vtkView* view, vtkProp* prop, vtkIdType cell)
 {
   vtkSmartPointer<vtkSelection> cellSelect = vtkSmartPointer<vtkSelection>::New();
   vtkSmartPointer<vtkSelectionNode> cellNode = vtkSmartPointer<vtkSelectionNode>::New();

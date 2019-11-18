@@ -27,7 +27,7 @@
  * vtkPUnstructuredGridGhostCellsGenerator
  *
  *
-*/
+ */
 
 #ifndef vtkUnstructuredGridGhostCellsGenerator_h
 #define vtkUnstructuredGridGhostCellsGenerator_h
@@ -39,15 +39,15 @@ class vtkMultiProcessController;
 class vtkUnstructuredGrid;
 class vtkUnstructuredGridBase;
 
-class VTKFILTERSPARALLEL_EXPORT vtkUnstructuredGridGhostCellsGenerator:
-  public vtkUnstructuredGridAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkUnstructuredGridGhostCellsGenerator
+  : public vtkUnstructuredGridAlgorithm
 {
   vtkTypeMacro(vtkUnstructuredGridGhostCellsGenerator, vtkUnstructuredGridAlgorithm);
 
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkUnstructuredGridGhostCellsGenerator *New();
+  static vtkUnstructuredGridGhostCellsGenerator* New();
 
   //@{
   /**
@@ -119,17 +119,14 @@ protected:
   vtkUnstructuredGridGhostCellsGenerator();
   ~vtkUnstructuredGridGhostCellsGenerator() override;
 
-  int RequestUpdateExtent(
-    vtkInformation*,
-    vtkInformationVector** inputVector,
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char *GlobalPointIdsArrayName;
+  char* GlobalPointIdsArrayName;
   bool UseGlobalPointIds;
-  char *GlobalCellIdsArrayName;
+  char* GlobalCellIdsArrayName;
   bool HasGlobalCellIds;
   bool BuildIfRequired;
   int MinimumNumberOfGhostLevels;

@@ -21,7 +21,7 @@
  * The histogram consists of a certain number of bins specified by the user, and
  * the user can fetch the range and bin delta after completion.
  *
-*/
+ */
 
 #ifndef vtkmHistogram_h
 #define vtkmHistogram_h
@@ -34,7 +34,7 @@ class vtkDoubleArray;
 class VTKACCELERATORSVTKM_EXPORT vtkmHistogram : public vtkTableAlgorithm
 {
 public:
-  vtkTypeMacro(vtkmHistogram, vtkTableAlgorithm)
+  vtkTypeMacro(vtkmHistogram, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmHistogram* New();
 
@@ -42,8 +42,8 @@ public:
   /**
    * Specify number of bins.  Default is 10.
    */
-  vtkSetMacro(NumberOfBins,size_t);
-  vtkGetMacro(NumberOfBins,size_t);
+  vtkSetMacro(NumberOfBins, size_t);
+  vtkGetMacro(NumberOfBins, size_t);
   //@}
 
   //@{
@@ -51,8 +51,8 @@ public:
    * Specify the range to use to generate the histogram. They are only used when
    * UseCustomBinRanges is set to true.
    */
-  vtkSetVector2Macro(CustomBinRange,double);
-  vtkGetVector2Macro(CustomBinRange,double);
+  vtkSetVector2Macro(CustomBinRange, double);
+  vtkGetVector2Macro(CustomBinRange, double);
   //@}
 
   //@{
@@ -80,7 +80,7 @@ public:
   /**
    * Return the range used to generate the histogram.
    */
-  vtkGetVectorMacro(ComputedRange,double, 2);
+  vtkGetVectorMacro(ComputedRange, double, 2);
   //@}
 
   //@{
@@ -94,8 +94,7 @@ protected:
   vtkmHistogram();
   ~vtkmHistogram();
 
-  virtual int RequestData(vtkInformation*,
-                         vtkInformationVector**, vtkInformationVector*) override;
+  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:

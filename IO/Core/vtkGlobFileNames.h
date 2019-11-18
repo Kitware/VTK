@@ -31,7 +31,7 @@
  * case-insensitive matches on Windows.
  * @sa
  * vtkDirectory
-*/
+ */
 
 #ifndef vtkGlobFileNames_h
 #define vtkGlobFileNames_h
@@ -48,13 +48,13 @@ public:
   /**
    * Return the class name as a string.
    */
-  vtkTypeMacro(vtkGlobFileNames,vtkObject);
+  vtkTypeMacro(vtkGlobFileNames, vtkObject);
   //@}
 
   /**
    * Create a new vtkGlobFileNames object.
    */
-  static vtkGlobFileNames *New();
+  static vtkGlobFileNames* New();
 
   /**
    * Print directory to stream.
@@ -125,10 +125,10 @@ protected:
   ~vtkGlobFileNames() override;
 
 private:
-  char* Directory;          // Directory for search.
-  char* Pattern;            // Wildcard pattern
-  vtkTypeBool Recurse;              // Recurse into subdirectories
-  vtkStringArray *FileNames;    // VTK array of files
+  char* Directory;           // Directory for search.
+  char* Pattern;             // Wildcard pattern
+  vtkTypeBool Recurse;       // Recurse into subdirectories
+  vtkStringArray* FileNames; // VTK array of files
 
 private:
   vtkGlobFileNames(const vtkGlobFileNames&) = delete;

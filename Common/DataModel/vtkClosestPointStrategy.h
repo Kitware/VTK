@@ -32,11 +32,11 @@
 #ifndef vtkClosestPointStrategy_h
 #define vtkClosestPointStrategy_h
 
-#include "vtkCell.h" //inline SelectCell
+#include "vtkCell.h"                  //inline SelectCell
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkFindCellStrategy.h"
 #include "vtkGenericCell.h" //inline SelectCell
-#include "vtkPointSet.h" //inline SelectCell
+#include "vtkPointSet.h"    //inline SelectCell
 
 #include <set> // For tracking visited cells
 
@@ -49,13 +49,13 @@ public:
   /**
    * Construct a vtkFindCellStrategy subclass.
    */
-  static vtkClosestPointStrategy * New();
+  static vtkClosestPointStrategy* New();
 
   //@{
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkClosestPointStrategy,vtkFindCellStrategy);
+  vtkTypeMacro(vtkClosestPointStrategy, vtkFindCellStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -65,16 +65,14 @@ public:
    * It will use the vtkPointSet's default locator if not defined by
    * SetPointLocator() below.
    */
-  int Initialize(vtkPointSet *ps) override;
+  int Initialize(vtkPointSet* ps) override;
 
   /**
    * Implement the specific strategy. This method should only be called
    * after the Initialize() method has been invoked.
    */
-  vtkIdType FindCell(double x[3], vtkCell *cell,
-                     vtkGenericCell *gencell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
 
   //@{
   /**
@@ -83,39 +81,36 @@ public:
    * specified, then the default locator instantiated by the vtkPointSet
    * provided in the Initialize() method is used.
    */
-  virtual void SetPointLocator(vtkAbstractPointLocator *);
+  virtual void SetPointLocator(vtkAbstractPointLocator*);
   vtkGetObjectMacro(PointLocator, vtkAbstractPointLocator);
   //@}
 
   /**
    * Subclasses use this method to select the current cell.
    */
-  vtkCell *SelectCell(vtkPointSet *self, vtkIdType cellId,
-                      vtkCell *cell, vtkGenericCell *gencell);
+  vtkCell* SelectCell(vtkPointSet* self, vtkIdType cellId, vtkCell* cell, vtkGenericCell* gencell);
 
 protected:
   vtkClosestPointStrategy();
   ~vtkClosestPointStrategy() override;
 
   std::set<vtkIdType> VisitedCells;
-  vtkIdList *PointIds;
-  vtkIdList *Neighbors;
-  vtkIdList *CellIds;
-  vtkIdList *NearPointIds;
+  vtkIdList* PointIds;
+  vtkIdList* Neighbors;
+  vtkIdList* CellIds;
+  vtkIdList* NearPointIds;
 
-  vtkAbstractPointLocator *PointLocator;
-  bool OwnsLocator; //was the locator specified? or taken from associated point set
+  vtkAbstractPointLocator* PointLocator;
+  bool OwnsLocator; // was the locator specified? or taken from associated point set
 
 private:
   vtkClosestPointStrategy(const vtkClosestPointStrategy&) = delete;
   void operator=(const vtkClosestPointStrategy&) = delete;
-
 };
 
 // Handle cases where starting cell is provided or not
-inline vtkCell *vtkClosestPointStrategy::
-  SelectCell(vtkPointSet *self, vtkIdType cellId,
-             vtkCell *cell, vtkGenericCell *gencell)
+inline vtkCell* vtkClosestPointStrategy::SelectCell(
+  vtkPointSet* self, vtkIdType cellId, vtkCell* cell, vtkGenericCell* gencell)
 {
   if (!cell)
   {

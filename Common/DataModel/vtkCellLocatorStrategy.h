@@ -39,13 +39,13 @@ public:
   /**
    * Construct a vtkFindCellStrategy subclass.
    */
-  static vtkCellLocatorStrategy * New();
+  static vtkCellLocatorStrategy* New();
 
   //@{
   /**
    * Standard methods for type information and printing.
    */
-  vtkTypeMacro(vtkCellLocatorStrategy,vtkFindCellStrategy);
+  vtkTypeMacro(vtkCellLocatorStrategy, vtkFindCellStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -53,15 +53,13 @@ public:
    * Provide necessary initialization method (see superclass for more
    * information).
    */
-  int Initialize(vtkPointSet *ps) override;
+  int Initialize(vtkPointSet* ps) override;
 
   /**
    * Implement the specific strategy.
    */
-  vtkIdType FindCell(double x[3], vtkCell *cell,
-                     vtkGenericCell *gencell, vtkIdType cellId,
-                     double tol2, int& subId, double pcoords[3],
-                     double *weights) override;
+  vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) override;
 
   //@{
   /**
@@ -69,22 +67,20 @@ public:
    * implement the strategy for FindCell(). The locator is required to
    * already be built and non-NULL.
    */
-  virtual void SetCellLocator(vtkAbstractCellLocator *);
+  virtual void SetCellLocator(vtkAbstractCellLocator*);
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   //@}
-
 
 protected:
   vtkCellLocatorStrategy();
   ~vtkCellLocatorStrategy() override;
 
-  vtkAbstractCellLocator *CellLocator;
-  bool OwnsLocator; //was the locator specified? or taken from associated point set
+  vtkAbstractCellLocator* CellLocator;
+  bool OwnsLocator; // was the locator specified? or taken from associated point set
 
 private:
   vtkCellLocatorStrategy(const vtkCellLocatorStrategy&) = delete;
   void operator=(const vtkCellLocatorStrategy&) = delete;
 };
-
 
 #endif

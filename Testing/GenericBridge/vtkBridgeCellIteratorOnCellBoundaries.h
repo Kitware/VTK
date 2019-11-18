@@ -19,7 +19,7 @@
  *
  * @sa
  * vtkBridgeCellIterator, vtkBridgeDataSet, vtkBridgeCellIteratorStrategy
-*/
+ */
 
 #ifndef vtkBridgeCellIteratorOnCellBoundaries_h
 #define vtkBridgeCellIteratorOnCellBoundaries_h
@@ -31,12 +31,12 @@ class vtkBridgeDataSet;
 class vtkBridgeCell;
 class vtkIdList;
 
-class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCellIteratorOnCellBoundaries : public vtkBridgeCellIteratorStrategy
+class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeCellIteratorOnCellBoundaries
+  : public vtkBridgeCellIteratorStrategy
 {
 public:
-  static vtkBridgeCellIteratorOnCellBoundaries *New();
-  vtkTypeMacro(vtkBridgeCellIteratorOnCellBoundaries,
-                       vtkBridgeCellIteratorStrategy);
+  static vtkBridgeCellIteratorOnCellBoundaries* New();
+  vtkTypeMacro(vtkBridgeCellIteratorOnCellBoundaries, vtkBridgeCellIteratorStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -55,7 +55,7 @@ public:
    * \pre c_exists: c!=0
    * THREAD SAFE
    */
-  void GetCell(vtkGenericAdaptorCell *c) override;
+  void GetCell(vtkGenericAdaptorCell* c) override;
 
   /**
    * Cell at current position.
@@ -63,7 +63,7 @@ public:
    * \pre not_at_end: !IsAtEnd()
    * \post result_exits: result!=0
    */
-  vtkGenericAdaptorCell *GetCell() override;
+  vtkGenericAdaptorCell* GetCell() override;
 
   /**
    * Move iterator to next position. (loop progression).
@@ -77,8 +77,7 @@ public:
    * \pre cell_exists: cell!=0
    * \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<cell->GetDimension()))
    */
-  void InitWithCellBoundaries(vtkBridgeCell *cell,
-                              int dim);
+  void InitWithCellBoundaries(vtkBridgeCell* cell, int dim);
 
 protected:
   vtkBridgeCellIteratorOnCellBoundaries();
@@ -86,12 +85,13 @@ protected:
 
   int Dim; // Dimension of cells over which to iterate (-1 to 3)
 
-  vtkBridgeCell *DataSetCell; // the structure on which the object iterates.
-  vtkIdType Id; // the id at current position.
-  vtkBridgeCell *Cell; // cell at current position.
+  vtkBridgeCell* DataSetCell; // the structure on which the object iterates.
+  vtkIdType Id;               // the id at current position.
+  vtkBridgeCell* Cell;        // cell at current position.
   vtkIdType NumberOfFaces;
   vtkIdType NumberOfEdges;
   vtkIdType NumberOfVertices;
+
 private:
   vtkBridgeCellIteratorOnCellBoundaries(const vtkBridgeCellIteratorOnCellBoundaries&) = delete;
   void operator=(const vtkBridgeCellIteratorOnCellBoundaries&) = delete;

@@ -29,58 +29,59 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-
 //----------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
 // Map input points to output. Basically the third pass of the algorithm.
 template <typename T>
 struct MapPoints
 {
-  T *InPoints;
-  T *OutPoints;
-  const vtkIdType *PointMap;
+  T* InPoints;
+  T* OutPoints;
+  const vtkIdType* PointMap;
   ArrayList Arrays;
 
-  MapPoints(vtkIdType, T *inPts, vtkIdType numOutPts, T *outPts,
-            vtkIdType *map, vtkPointData *inPD, vtkPointData *outPD) :
-    InPoints(inPts), OutPoints(outPts), PointMap(map)
+  MapPoints(vtkIdType, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map, vtkPointData* inPD,
+    vtkPointData* outPD)
+    : InPoints(inPts)
+    , OutPoints(outPts)
+    , PointMap(map)
   {
     this->Arrays.AddArrays(numOutPts, inPD, outPD, 0.0, false);
   }
 
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     T *inP, *outP;
-    const vtkIdType *map=this->PointMap;
+    const vtkIdType* map = this->PointMap;
     vtkIdType outPtId;
 
-    for ( ; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId)
     {
       outPtId = map[ptId];
-      if ( outPtId != -1 )
+      if (outPtId != -1)
       {
-        inP = this->InPoints + 3*ptId;
-        outP = this->OutPoints + 3*outPtId;
+        inP = this->InPoints + 3 * ptId;
+        outP = this->OutPoints + 3 * outPtId;
         *outP++ = *inP++;
         *outP++ = *inP++;
         *outP = *inP;
-        this->Arrays.Copy(ptId,outPtId);
+        this->Arrays.Copy(ptId, outPtId);
       }
     }
   }
 
-  static void Execute(vtkIdType numInPts, T *inPts,
-                      vtkIdType numOutPts, T *outPts, vtkIdType *map,
-                      vtkPointData *inPD, vtkPointData *outPD)
+  static void Execute(vtkIdType numInPts, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map,
+    vtkPointData* inPD, vtkPointData* outPD)
   {
     MapPoints copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD);
     vtkSMPTools::For(0, numInPts, copy);
   }
 
-}; //MapPoints
+}; // MapPoints
 
 //----------------------------------------------------------------------------
 // Map outlier points to second output. This is an optional pass of the
@@ -88,52 +89,52 @@ struct MapPoints
 template <typename T>
 struct MapOutliers
 {
-  T *InPoints;
-  T *OutPoints;
-  const vtkIdType *PointMap;
+  T* InPoints;
+  T* OutPoints;
+  const vtkIdType* PointMap;
   ArrayList Arrays;
 
-  MapOutliers(vtkIdType, T *inPts, vtkIdType numOutPts, T *outPts,
-              vtkIdType *map, vtkPointData *inPD, vtkPointData *outPD2) :
-    InPoints(inPts), OutPoints(outPts), PointMap(map)
+  MapOutliers(vtkIdType, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map,
+    vtkPointData* inPD, vtkPointData* outPD2)
+    : InPoints(inPts)
+    , OutPoints(outPts)
+    , PointMap(map)
   {
     this->Arrays.AddArrays(numOutPts, inPD, outPD2, 0.0, false);
   }
 
-  void operator() (vtkIdType ptId, vtkIdType endPtId)
+  void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     T *inP, *outP;
-    const vtkIdType *map=this->PointMap;
+    const vtkIdType* map = this->PointMap;
     vtkIdType outPtId;
 
-    for ( ; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId)
     {
       outPtId = map[ptId];
-      if ( outPtId < 0 )
+      if (outPtId < 0)
       {
         outPtId = (-outPtId) - 1;
-        inP = this->InPoints + 3*ptId;
-        outP = this->OutPoints + 3*outPtId;
+        inP = this->InPoints + 3 * ptId;
+        outP = this->OutPoints + 3 * outPtId;
         *outP++ = *inP++;
         *outP++ = *inP++;
         *outP = *inP;
-        this->Arrays.Copy(ptId,outPtId);
+        this->Arrays.Copy(ptId, outPtId);
       }
     }
   }
 
-  static void Execute(vtkIdType numInPts, T *inPts,
-                      vtkIdType numOutPts, T *outPts, vtkIdType *map,
-                      vtkPointData *inPD, vtkPointData *outPD2)
+  static void Execute(vtkIdType numInPts, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map,
+    vtkPointData* inPD, vtkPointData* outPD2)
   {
     MapOutliers copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD2);
     vtkSMPTools::For(0, numInPts, copy);
   }
 
-}; //MapOutliers
+}; // MapOutliers
 
-
-} //anonymous namespace
+} // anonymous namespace
 
 //================= Begin class proper =======================================
 //----------------------------------------------------------------------------
@@ -151,7 +152,7 @@ vtkPointCloudFilter::vtkPointCloudFilter()
 //----------------------------------------------------------------------------
 vtkPointCloudFilter::~vtkPointCloudFilter()
 {
-  delete [] this->PointMap;
+  delete[] this->PointMap;
 }
 
 //----------------------------------------------------------------------------
@@ -173,40 +174,36 @@ vtkIdType vtkPointCloudFilter::GetNumberOfPointsRemoved()
 // output. Next a prefix sum is used to count the output points, and to
 // update the mapping between the input and the output. Finally, non-removed
 // input points (and associated attributes) are copied to the output.
-int vtkPointCloudFilter::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkPointSet *input = vtkPointSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *output = vtkPolyData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Reset the filter
   this->NumberOfPointsRemoved = 0;
 
-  delete [] this->PointMap; //might have executed previously
+  delete[] this->PointMap; // might have executed previously
 
   // Check input
-  if ( !input || !output )
+  if (!input || !output)
   {
     return 1;
   }
   vtkIdType numPts = input->GetNumberOfPoints();
-  if ( numPts < 1 )
+  if (numPts < 1)
   {
     return 1;
   }
 
   // Okay invoke filtering operation. This is always the initial pass.
   this->PointMap = new vtkIdType[numPts];
-  if ( ! this->FilterPoints(input) )
+  if (!this->FilterPoints(input))
   {
     return 1;
   }
@@ -214,11 +211,11 @@ int vtkPointCloudFilter::RequestData(
   // Count the resulting points (prefix sum). The second pass of the algorithm; it
   // could be threaded but prefix sum does not benefit very much from threading.
   vtkIdType ptId;
-  vtkIdType count=0;
-  vtkIdType *map = this->PointMap;
-  for (ptId=0; ptId < numPts; ++ptId)
+  vtkIdType count = 0;
+  vtkIdType* map = this->PointMap;
+  for (ptId = 0; ptId < numPts; ++ptId)
   {
-    if ( map[ptId] != -1 )
+    if (map[ptId] != -1)
     {
       map[ptId] = count;
       count++;
@@ -228,9 +225,9 @@ int vtkPointCloudFilter::RequestData(
 
   // If the number of input and output points is the same we short circuit
   // the process. Otherwise, copy the masked input points to the output.
-  vtkPointData *inPD = input->GetPointData();
-  vtkPointData *outPD = output->GetPointData();
-  if ( this->NumberOfPointsRemoved == 0 )
+  vtkPointData* inPD = input->GetPointData();
+  vtkPointData* outPD = output->GetPointData();
+  if (this->NumberOfPointsRemoved == 0)
   {
     output->SetPoints(input->GetPoints());
     outPD->PassData(inPD);
@@ -242,18 +239,18 @@ int vtkPointCloudFilter::RequestData(
   // Okay copy the points from the input to the output. We use a threaded
   // operation that provides a minor benefit (since it's mostly data
   // movement with almost no computation).
-  outPD->CopyAllocate(inPD,count);
-  vtkPoints *points = input->GetPoints()->NewInstance();
+  outPD->CopyAllocate(inPD, count);
+  vtkPoints* points = input->GetPoints()->NewInstance();
   points->SetDataType(input->GetPoints()->GetDataType());
   points->SetNumberOfPoints(count);
   output->SetPoints(points);
 
-  void *inPtr = input->GetPoints()->GetVoidPointer(0);
-  void *outPtr = output->GetPoints()->GetVoidPointer(0);
+  void* inPtr = input->GetPoints()->GetVoidPointer(0);
+  void* outPtr = output->GetPoints()->GetVoidPointer(0);
   switch (output->GetPoints()->GetDataType())
   {
-    vtkTemplateMacro(MapPoints<VTK_TT>::Execute(numPts, (VTK_TT *)inPtr, count,
-                              (VTK_TT *)outPtr, this->PointMap, inPD, outPD));
+    vtkTemplateMacro(MapPoints<VTK_TT>::Execute(
+      numPts, (VTK_TT*)inPtr, count, (VTK_TT*)outPtr, this->PointMap, inPD, outPD));
   }
 
   // Generate poly vertex cell if requested
@@ -265,21 +262,20 @@ int vtkPointCloudFilter::RequestData(
   // Create the second output if requested. Note that we are using a negative
   // count in the map (offset by -1) which indicates the final position of
   // the output point in the second output.
-  if ( this->GenerateOutliers && this->NumberOfPointsRemoved > 0 )
+  if (this->GenerateOutliers && this->NumberOfPointsRemoved > 0)
   {
-    vtkInformation *outInfo2 = outputVector->GetInformationObject(1);
+    vtkInformation* outInfo2 = outputVector->GetInformationObject(1);
     // get the second output
-    vtkPolyData *output2 = vtkPolyData::SafeDownCast(
-      outInfo2->Get(vtkDataObject::DATA_OBJECT()));
-    vtkPointData *outPD2 = output2->GetPointData();
-    outPD2->CopyAllocate(inPD,(count-1));
+    vtkPolyData* output2 = vtkPolyData::SafeDownCast(outInfo2->Get(vtkDataObject::DATA_OBJECT()));
+    vtkPointData* outPD2 = output2->GetPointData();
+    outPD2->CopyAllocate(inPD, (count - 1));
 
     // Update map
-    count = 1; //offset by one
+    count = 1; // offset by one
     map = this->PointMap;
-    for (ptId=0; ptId < numPts; ++ptId)
+    for (ptId = 0; ptId < numPts; ++ptId)
     {
-      if ( map[ptId] == -1 )
+      if (map[ptId] == -1)
       {
         map[ptId] = (-count);
         count++;
@@ -287,15 +283,15 @@ int vtkPointCloudFilter::RequestData(
     }
 
     // Copy to second output
-    vtkPoints *points2 = input->GetPoints()->NewInstance();
+    vtkPoints* points2 = input->GetPoints()->NewInstance();
     points2->SetDataType(input->GetPoints()->GetDataType());
-    points2->SetNumberOfPoints(count-1);
+    points2->SetNumberOfPoints(count - 1);
     output2->SetPoints(points2);
-    void *outPtr2 = output2->GetPoints()->GetVoidPointer(0);
+    void* outPtr2 = output2->GetPoints()->GetVoidPointer(0);
     switch (output->GetPoints()->GetDataType())
     {
-      vtkTemplateMacro(MapOutliers<VTK_TT>::Execute(numPts, (VTK_TT *)inPtr, (count-1),
-                                  (VTK_TT *)outPtr2, this->PointMap, inPD, outPD2));
+      vtkTemplateMacro(MapOutliers<VTK_TT>::Execute(
+        numPts, (VTK_TT*)inPtr, (count - 1), (VTK_TT*)outPtr2, this->PointMap, inPD, outPD2));
     }
     points2->Delete();
 
@@ -307,21 +303,21 @@ int vtkPointCloudFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData *output)
+void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData* output)
 {
   vtkIdType numPts;
-  if ( ! this->GenerateVertices || output->GetPoints() == nullptr ||
-       (numPts=output->GetNumberOfPoints()) < 1)
+  if (!this->GenerateVertices || output->GetPoints() == nullptr ||
+    (numPts = output->GetNumberOfPoints()) < 1)
   {
     return;
   }
 
   // Okay create a cell array and assign it to the output
-  vtkCellArray *verts = vtkCellArray::New();
+  vtkCellArray* verts = vtkCellArray::New();
   verts->AllocateEstimate(1, numPts);
 
   verts->InsertNextCell(numPts);
-  for (vtkIdType ptId=0; ptId < numPts; ++ptId)
+  for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
   {
     verts->InsertCellPoint(ptId);
   }
@@ -331,8 +327,7 @@ void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData *output)
 }
 
 //----------------------------------------------------------------------------
-int vtkPointCloudFilter::
-FillInputPortInformation(int, vtkInformation *info)
+int vtkPointCloudFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
   return 1;
@@ -341,15 +336,11 @@ FillInputPortInformation(int, vtkInformation *info)
 //----------------------------------------------------------------------------
 void vtkPointCloudFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Number of Points Removed: "
-     << this->NumberOfPointsRemoved << "\n";
+  os << indent << "Number of Points Removed: " << this->NumberOfPointsRemoved << "\n";
 
-  os << indent << "Generate Outliers: "
-     << (this->GenerateOutliers ? "On\n" : "Off\n");
+  os << indent << "Generate Outliers: " << (this->GenerateOutliers ? "On\n" : "Off\n");
 
-  os << indent << "Generate Vertices: "
-     << (this->GenerateVertices ? "On\n" : "Off\n");
-
+  os << indent << "Generate Vertices: " << (this->GenerateVertices ? "On\n" : "Off\n");
 }

@@ -26,7 +26,7 @@
  * This algorithm requires that the vtkCirclePackLayout filter has already
  * been applied to the data in order to create the triple array
  * (Xcenter, Ycenter, Radius) of circle bounds or each vertex of the tree.
-*/
+ */
 
 #ifndef vtkCirclePackToPolyData_h
 #define vtkCirclePackToPolyData_h
@@ -37,9 +37,9 @@
 class VTKINFOVISLAYOUT_EXPORT vtkCirclePackToPolyData : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkCirclePackToPolyData *New();
+  static vtkCirclePackToPolyData* New();
 
-  vtkTypeMacro(vtkCirclePackToPolyData,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkCirclePackToPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -49,7 +49,9 @@ public:
    * This array must be set.
    */
   virtual void SetCirclesArrayName(const char* name)
-    { this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name); }
+  {
+    this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, name);
+  }
 
   //@{
   /**
@@ -68,16 +70,13 @@ protected:
 
   unsigned int Resolution;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 private:
   vtkCirclePackToPolyData(const vtkCirclePackToPolyData&) = delete;
   void operator=(const vtkCirclePackToPolyData&) = delete;
-  void CreateCircle(const double& x,
-                    const double& y,
-                    const double& z,
-                    const double& radius,
-                    const int& resolution,
-                    vtkPolyData* polyData);
+  void CreateCircle(const double& x, const double& y, const double& z, const double& radius,
+    const int& resolution, vtkPolyData* polyData);
 };
 
 #endif

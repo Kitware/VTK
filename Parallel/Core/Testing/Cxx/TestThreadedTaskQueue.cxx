@@ -17,16 +17,14 @@
 #include "vtkLogger.h"
 #include <chrono>
 #include <thread>
-int TestThreadedTaskQueue(int, char* [])
+int TestThreadedTaskQueue(int, char*[])
 {
   vtkThreadedTaskQueue<double, int, double> queue(
     [](int i, double v) {
       vtkLogF(INFO, "hey: %d, %f", i, v);
       return i * v;
     },
-    false,
-    2,
-    1);
+    false, 2, 1);
   queue.Push(1, 1.0);
   queue.Push(2, 2.0);
   queue.Push(3, 3.0);

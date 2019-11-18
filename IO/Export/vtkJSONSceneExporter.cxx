@@ -121,42 +121,31 @@ std::string vtkJSONSceneExporter::ExtractRenderingSetup(vtkActor* actor)
 
   const char* INDENT = "      ";
   std::stringstream renderingConfig;
-  renderingConfig
-    << ",\n"
-    << INDENT << "\"actor\": {\n"
-    << INDENT << "  \"origin\": ["
-    << p3dOrigin[0] << ", "
-    << p3dOrigin[1] << ", "
-    << p3dOrigin[2] << "],\n"
-    << INDENT << "  \"scale\": ["
-    << p3dScale[0] << ", "
-    << p3dScale[1] << ", "
-    << p3dScale[2] << "],\n"
-    << INDENT << "  \"position\": ["
-    << p3dPosition[0] << ", "
-    << p3dPosition[1] << ", "
-    << p3dPosition[2] << "]\n"
-    << INDENT << "},\n"
-    << INDENT << "\"actorRotation\": ["
-    << p3dRotateWXYZ[0] << ", "
-    << p3dRotateWXYZ[1] << ", "
-    << p3dRotateWXYZ[2] << ", "
-    << p3dRotateWXYZ[3] << "],\n"
-    << INDENT << "\"mapper\": {\n"
-    << INDENT << "  \"colorByArrayName\": \"" << colorArrayName << "\",\n"
-    << INDENT << "  \"colorMode\": " << colorMode << ",\n"
-    << INDENT << "  \"scalarMode\": " << scalarMode << "\n"
-    << INDENT << "},\n"
-    << INDENT << "\"property\": {\n"
-    << INDENT << "  \"representation\": " << representation << ",\n"
-    << INDENT << "  \"edgeVisibility\": " << edgeVisibility << ",\n"
-    << INDENT << "  \"diffuseColor\": ["
-    << colorToUse[0] << ", "
-    << colorToUse[1] << ", "
-    << colorToUse[2] << "],\n"
-    << INDENT << "  \"pointSize\": " << pointSize << ",\n"
-    << INDENT << "  \"opacity\": " << opacity << "\n"
-    << INDENT << "}\n";
+  renderingConfig << ",\n"
+                  << INDENT << "\"actor\": {\n"
+                  << INDENT << "  \"origin\": [" << p3dOrigin[0] << ", " << p3dOrigin[1] << ", "
+                  << p3dOrigin[2] << "],\n"
+                  << INDENT << "  \"scale\": [" << p3dScale[0] << ", " << p3dScale[1] << ", "
+                  << p3dScale[2] << "],\n"
+                  << INDENT << "  \"position\": [" << p3dPosition[0] << ", " << p3dPosition[1]
+                  << ", " << p3dPosition[2] << "]\n"
+                  << INDENT << "},\n"
+                  << INDENT << "\"actorRotation\": [" << p3dRotateWXYZ[0] << ", "
+                  << p3dRotateWXYZ[1] << ", " << p3dRotateWXYZ[2] << ", " << p3dRotateWXYZ[3]
+                  << "],\n"
+                  << INDENT << "\"mapper\": {\n"
+                  << INDENT << "  \"colorByArrayName\": \"" << colorArrayName << "\",\n"
+                  << INDENT << "  \"colorMode\": " << colorMode << ",\n"
+                  << INDENT << "  \"scalarMode\": " << scalarMode << "\n"
+                  << INDENT << "},\n"
+                  << INDENT << "\"property\": {\n"
+                  << INDENT << "  \"representation\": " << representation << ",\n"
+                  << INDENT << "  \"edgeVisibility\": " << edgeVisibility << ",\n"
+                  << INDENT << "  \"diffuseColor\": [" << colorToUse[0] << ", " << colorToUse[1]
+                  << ", " << colorToUse[2] << "],\n"
+                  << INDENT << "  \"pointSize\": " << pointSize << ",\n"
+                  << INDENT << "  \"opacity\": " << opacity << "\n"
+                  << INDENT << "}\n";
 
   return renderingConfig.str();
 }
@@ -225,15 +214,15 @@ void vtkJSONSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors
     const char* INDENT = "    ";
     std::stringstream lutJSON;
     lutJSON << "{\n"
-      << INDENT << "  \"clamping\": " << (dctfn->GetClamping() ? "true" : "false") << ",\n"
-      << INDENT << "  \"colorSpace\": " << dctfn->GetColorSpace() << ",\n"
-      << INDENT << "  \"hSVWrap\": " << (dctfn->GetHSVWrap() ? "true" : "false") << ",\n"
-      << INDENT << "  \"alpha\": " << dctfn->GetAlpha() << ",\n"
-      << INDENT << "  \"vectorComponent\": " << dctfn->GetVectorComponent() << ",\n"
-      << INDENT << "  \"vectorSize\": " << dctfn->GetVectorSize() << ",\n"
-      << INDENT << "  \"vectorMode\": " << dctfn->GetVectorMode() << ",\n"
-      << INDENT << "  \"indexedLookup\": " << dctfn->GetIndexedLookup() << ",\n"
-      << INDENT << "  \"nodes\": [";
+            << INDENT << "  \"clamping\": " << (dctfn->GetClamping() ? "true" : "false") << ",\n"
+            << INDENT << "  \"colorSpace\": " << dctfn->GetColorSpace() << ",\n"
+            << INDENT << "  \"hSVWrap\": " << (dctfn->GetHSVWrap() ? "true" : "false") << ",\n"
+            << INDENT << "  \"alpha\": " << dctfn->GetAlpha() << ",\n"
+            << INDENT << "  \"vectorComponent\": " << dctfn->GetVectorComponent() << ",\n"
+            << INDENT << "  \"vectorSize\": " << dctfn->GetVectorSize() << ",\n"
+            << INDENT << "  \"vectorMode\": " << dctfn->GetVectorMode() << ",\n"
+            << INDENT << "  \"indexedLookup\": " << dctfn->GetIndexedLookup() << ",\n"
+            << INDENT << "  \"nodes\": [";
 
     // Fill nodes
     vtkIdType nbNodes = dctfn->GetSize();
@@ -246,14 +235,9 @@ void vtkJSONSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors
         lutJSON << ",";
       }
 
-      lutJSON
-        << "\n" << INDENT << INDENT << "["
-        << node[0] << ", "
-        << node[1] << ", "
-        << node[2] << ", "
-        << node[3] << ", "
-        << node[4] << ", "
-        << node[5] << "]";
+      lutJSON << "\n"
+              << INDENT << INDENT << "[" << node[0] << ", " << node[1] << ", " << node[2] << ", "
+              << node[3] << ", " << node[4] << ", " << node[5] << "]";
     }
 
     // Close node list
@@ -331,8 +315,7 @@ void vtkJSONSceneExporter::WriteData()
                 << "  },\n"
                 << "  \"centerOfRotation\": [" << cam->GetFocalPoint()[0] << ", "
                 << cam->GetFocalPoint()[1] << ", " << cam->GetFocalPoint()[2] << "],\n"
-                << "  \"scene\": [" << sceneComponents.str()
-                << "\n  ],\n"
+                << "  \"scene\": [" << sceneComponents.str() << "\n  ],\n"
                 << "  \"lookupTables\": {\n";
 
   // Inject lookup table

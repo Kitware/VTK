@@ -24,11 +24,11 @@
 
 #include <cassert>
 
-const vtkIdType vtkLookupTable::REPEATED_LAST_COLOR_INDEX  = 0;
-const vtkIdType vtkLookupTable::BELOW_RANGE_COLOR_INDEX    = 1;
-const vtkIdType vtkLookupTable::ABOVE_RANGE_COLOR_INDEX    = 2;
-const vtkIdType vtkLookupTable::NAN_COLOR_INDEX            = 3;
-const vtkIdType vtkLookupTable::NUMBER_OF_SPECIAL_COLORS   = NAN_COLOR_INDEX+1;
+const vtkIdType vtkLookupTable::REPEATED_LAST_COLOR_INDEX = 0;
+const vtkIdType vtkLookupTable::BELOW_RANGE_COLOR_INDEX = 1;
+const vtkIdType vtkLookupTable::ABOVE_RANGE_COLOR_INDEX = 2;
+const vtkIdType vtkLookupTable::NAN_COLOR_INDEX = 3;
+const vtkIdType vtkLookupTable::NUMBER_OF_SPECIAL_COLORS = NAN_COLOR_INDEX + 1;
 
 vtkStandardNewMacro(vtkLookupTable);
 
@@ -41,7 +41,7 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Table->Register(this);
   this->Table->Delete();
   this->Table->SetNumberOfComponents(4);
-  this->Table->Allocate(4*(sze + NUMBER_OF_SPECIAL_COLORS), 4*ext);
+  this->Table->Allocate(4 * (sze + NUMBER_OF_SPECIAL_COLORS), 4 * ext);
 
   this->HueRange[0] = 0.0;
   this->HueRange[1] = 0.66667;
@@ -87,7 +87,7 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 //----------------------------------------------------------------------------
 vtkLookupTable::~vtkLookupTable()
 {
-  this->Table->UnRegister( this );
+  this->Table->UnRegister(this);
   this->Table = nullptr;
 }
 
@@ -97,38 +97,46 @@ vtkLookupTable::~vtkLookupTable()
 // equal to 1. Default implementation returns true.
 int vtkLookupTable::IsOpaque()
 {
-  if(this->OpaqueFlagBuildTime<this->GetMTime())
+  if (this->OpaqueFlagBuildTime < this->GetMTime())
   {
-    int opaque=1;
-    if (this->NanColor[3] < 1.0) { opaque = 0; }
-    if (this->UseBelowRangeColor && this->BelowRangeColor[3] < 1.0) { opaque = 0; }
-    if (this->UseAboveRangeColor && this->AboveRangeColor[3] < 1.0) { opaque = 0; }
-    vtkIdType size=this->Table->GetNumberOfTuples();
-    vtkIdType i=0;
-    const unsigned char *ptr=this->Table->GetPointer(0);
-    while(opaque && i<size)
+    int opaque = 1;
+    if (this->NanColor[3] < 1.0)
     {
-      opaque=ptr[3]==255;
-      ptr+=4;
+      opaque = 0;
+    }
+    if (this->UseBelowRangeColor && this->BelowRangeColor[3] < 1.0)
+    {
+      opaque = 0;
+    }
+    if (this->UseAboveRangeColor && this->AboveRangeColor[3] < 1.0)
+    {
+      opaque = 0;
+    }
+    vtkIdType size = this->Table->GetNumberOfTuples();
+    vtkIdType i = 0;
+    const unsigned char* ptr = this->Table->GetPointer(0);
+    while (opaque && i < size)
+    {
+      opaque = ptr[3] == 255;
+      ptr += 4;
       ++i;
     }
-    this->OpaqueFlag=opaque;
+    this->OpaqueFlag = opaque;
     this->OpaqueFlagBuildTime.Modified();
   }
 
   return this->OpaqueFlag;
 }
 
-int vtkLookupTable::IsOpaque(vtkAbstractArray *scalars,
-                             int colorMode, int component)
+int vtkLookupTable::IsOpaque(vtkAbstractArray* scalars, int colorMode, int component)
 {
   // use superclass logic?
-  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
+  vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
   if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
-       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
-      (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
+        vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
+    (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
   {
-   return this->Superclass::IsOpaque(scalars, colorMode, component);
+    return this->Superclass::IsOpaque(scalars, colorMode, component);
   }
   // otherwise look at our table
   return this->IsOpaque();
@@ -137,7 +145,7 @@ int vtkLookupTable::IsOpaque(vtkAbstractArray *scalars,
 //----------------------------------------------------------------------------
 void vtkLookupTable::SetTableRange(const double r[2])
 {
-  this->SetTableRange(r[0],r[1]);
+  this->SetTableRange(r[0], r[1]);
 }
 
 //----------------------------------------------------------------------------
@@ -147,15 +155,14 @@ void vtkLookupTable::SetTableRange(const double r[2])
 // range value.
 void vtkLookupTable::SetTableRange(double rmin, double rmax)
 {
-  if (this->Scale == VTK_SCALE_LOG10 &&
-      ((rmin > 0 && rmax < 0) || (rmin < 0 && rmax > 0)))
+  if (this->Scale == VTK_SCALE_LOG10 && ((rmin > 0 && rmax < 0) || (rmin < 0 && rmax > 0)))
   {
-    vtkErrorMacro("Bad table range for log scale: ["<<rmin<<", "<<rmax<<"]");
+    vtkErrorMacro("Bad table range for log scale: [" << rmin << ", " << rmax << "]");
     return;
   }
   if (rmax < rmin)
   {
-    vtkErrorMacro("Bad table range: ["<<rmin<<", "<<rmax<<"]");
+    vtkErrorMacro("Bad table range: [" << rmin << ", " << rmax << "]");
     return;
   }
 
@@ -184,13 +191,13 @@ void vtkLookupTable::SetScale(int scale)
   double rmin = this->TableRange[0];
   double rmax = this->TableRange[1];
 
-  if (this->Scale == VTK_SCALE_LOG10 &&
-      ((rmin > 0 && rmax < 0) || (rmin < 0 && rmax > 0)))
+  if (this->Scale == VTK_SCALE_LOG10 && ((rmin > 0 && rmax < 0) || (rmin < 0 && rmax > 0)))
   {
     this->TableRange[0] = 1.0;
     this->TableRange[1] = 10.0;
-    vtkErrorMacro("Bad table range for log scale: ["<<rmin<<", "<<rmax<<"], "
-                  "adjusting to [1, 10]");
+    vtkErrorMacro("Bad table range for log scale: [" << rmin << ", " << rmax
+                                                     << "], "
+                                                        "adjusting to [1, 10]");
     return;
   }
 }
@@ -200,7 +207,7 @@ void vtkLookupTable::SetScale(int scale)
 int vtkLookupTable::Allocate(int sz, int ext)
 {
   this->NumberOfColors = sz;
-  int a = this->Table->Allocate(4*(this->NumberOfColors + NUMBER_OF_SPECIAL_COLORS), 4*ext);
+  int a = this->Table->Allocate(4 * (this->NumberOfColors + NUMBER_OF_SPECIAL_COLORS), 4 * ext);
   this->Modified();
   return a;
 }
@@ -212,12 +219,12 @@ void vtkLookupTable::ForceBuild()
   vtkIdType maxIndex = this->NumberOfColors - 1;
 
   double hinc, sinc, vinc, ainc;
-  if( maxIndex > 0 )
+  if (maxIndex > 0)
   {
-    hinc = (this->HueRange[1] - this->HueRange[0])/maxIndex;
-    sinc = (this->SaturationRange[1] - this->SaturationRange[0])/maxIndex;
-    vinc = (this->ValueRange[1] - this->ValueRange[0])/maxIndex;
-    ainc = (this->AlphaRange[1] - this->AlphaRange[0])/maxIndex;
+    hinc = (this->HueRange[1] - this->HueRange[0]) / maxIndex;
+    sinc = (this->SaturationRange[1] - this->SaturationRange[0]) / maxIndex;
+    vinc = (this->ValueRange[1] - this->ValueRange[0]) / maxIndex;
+    ainc = (this->AlphaRange[1] - this->AlphaRange[0]) / maxIndex;
   }
   else
   {
@@ -227,27 +234,27 @@ void vtkLookupTable::ForceBuild()
   double rgba[4];
   for (vtkIdType i = 0; i <= maxIndex; i++)
   {
-    double hue = this->HueRange[0] + i*hinc;
-    double sat = this->SaturationRange[0] + i*sinc;
-    double val = this->ValueRange[0] + i*vinc;
-    double alpha = this->AlphaRange[0] + i*ainc;
+    double hue = this->HueRange[0] + i * hinc;
+    double sat = this->SaturationRange[0] + i * sinc;
+    double val = this->ValueRange[0] + i * vinc;
+    double alpha = this->AlphaRange[0] + i * ainc;
 
     vtkMath::HSVToRGB(hue, sat, val, &rgba[0], &rgba[1], &rgba[2]);
     rgba[3] = alpha;
 
-    unsigned char *c_rgba = this->Table->WritePointer(4*i,4);
+    unsigned char* c_rgba = this->Table->WritePointer(4 * i, 4);
 
-    switch(this->Ramp)
+    switch (this->Ramp)
     {
       case VTK_RAMP_SCURVE:
       {
-        c_rgba[0] = static_cast<unsigned char>
-          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[0]))*vtkMath::Pi())));
-        c_rgba[1] = static_cast<unsigned char>
-           (127.5*(1.0+cos((1.0-static_cast<double>(rgba[1]))*vtkMath::Pi())));
-        c_rgba[2] = static_cast<unsigned char>
-          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*vtkMath::Pi())));
-        c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
+        c_rgba[0] = static_cast<unsigned char>(
+          127.5 * (1.0 + cos((1.0 - static_cast<double>(rgba[0])) * vtkMath::Pi())));
+        c_rgba[1] = static_cast<unsigned char>(
+          127.5 * (1.0 + cos((1.0 - static_cast<double>(rgba[1])) * vtkMath::Pi())));
+        c_rgba[2] = static_cast<unsigned char>(
+          127.5 * (1.0 + cos((1.0 - static_cast<double>(rgba[2])) * vtkMath::Pi())));
+        c_rgba[3] = static_cast<unsigned char>(alpha * 255.0);
         /* same code, but with rounding for correctness
         c_rgba[0] = static_cast<unsigned char>
           (127.5*(1.0 + cos((1.0 - rgba[0])*vtkMath::Pi())) + 0.5);
@@ -258,23 +265,23 @@ void vtkLookupTable::ForceBuild()
         c_rgba[3] = static_cast<unsigned char>(alpha*255.0 + 0.5);
         */
       }
-        break;
+      break;
       case VTK_RAMP_LINEAR:
       {
-        c_rgba[0] = static_cast<unsigned char>(rgba[0]*255.0 + 0.5);
-        c_rgba[1] = static_cast<unsigned char>(rgba[1]*255.0 + 0.5);
-        c_rgba[2] = static_cast<unsigned char>(rgba[2]*255.0 + 0.5);
-        c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0 + 0.5);
+        c_rgba[0] = static_cast<unsigned char>(rgba[0] * 255.0 + 0.5);
+        c_rgba[1] = static_cast<unsigned char>(rgba[1] * 255.0 + 0.5);
+        c_rgba[2] = static_cast<unsigned char>(rgba[2] * 255.0 + 0.5);
+        c_rgba[3] = static_cast<unsigned char>(rgba[3] * 255.0 + 0.5);
       }
-        break;
+      break;
       case VTK_RAMP_SQRT:
       {
-        c_rgba[0] = static_cast<unsigned char>(sqrt(rgba[0])*255.0 + 0.5);
-        c_rgba[1] = static_cast<unsigned char>(sqrt(rgba[1])*255.0 + 0.5);
-        c_rgba[2] = static_cast<unsigned char>(sqrt(rgba[2])*255.0 + 0.5);
-        c_rgba[3] = static_cast<unsigned char>(sqrt(rgba[3])*255.0 + 0.5);
+        c_rgba[0] = static_cast<unsigned char>(sqrt(rgba[0]) * 255.0 + 0.5);
+        c_rgba[1] = static_cast<unsigned char>(sqrt(rgba[1]) * 255.0 + 0.5);
+        c_rgba[2] = static_cast<unsigned char>(sqrt(rgba[2]) * 255.0 + 0.5);
+        c_rgba[3] = static_cast<unsigned char>(sqrt(rgba[3]) * 255.0 + 0.5);
       }
-        break;
+      break;
       default:
         assert("check: impossible case." && 0); // reaching this line is a bug.
         break;
@@ -293,9 +300,8 @@ void vtkLookupTable::Build()
 {
   vtkMTimeType mtime = this->GetMTime();
 
-  if ((mtime > this->BuildTime &&
-       this->InsertTime <= this->BuildTime) ||
-      this->Table->GetNumberOfTuples() < 1)
+  if ((mtime > this->BuildTime && this->InsertTime <= this->BuildTime) ||
+    this->Table->GetNumberOfTuples() < 1)
   {
     this->ForceBuild();
   }
@@ -311,20 +317,20 @@ void vtkLookupTable::BuildSpecialColors()
   // Append 4 "special" colors (repeated last, below range, above range, NaN) to table here.
   vtkIdType numberOfColors = this->GetTable()->GetNumberOfTuples();
   this->ResizeTableForSpecialColors();
-  unsigned char *table = this->GetTable()->GetPointer(0);
+  unsigned char* table = this->GetTable()->GetPointer(0);
   unsigned char color[4];
 
   // Repeat the last color. This is done to improve performance later on.
   // Floating point math in vtkLinearIndexLookupMain may result in an off-by-one,
   // and having an extra copy of the last color lets us avoid a test in that very hot function.
-  unsigned char *tptr = table + 4*(numberOfColors + vtkLookupTable::REPEATED_LAST_COLOR_INDEX);
+  unsigned char* tptr = table + 4 * (numberOfColors + vtkLookupTable::REPEATED_LAST_COLOR_INDEX);
   if (numberOfColors > 0)
   {
     // Duplicate the last color in the table.
-    tptr[0] = table[4*(numberOfColors-1) + 0];
-    tptr[1] = table[4*(numberOfColors-1) + 1];
-    tptr[2] = table[4*(numberOfColors-1) + 2];
-    tptr[3] = table[4*(numberOfColors-1) + 3];
+    tptr[0] = table[4 * (numberOfColors - 1) + 0];
+    tptr[1] = table[4 * (numberOfColors - 1) + 1];
+    tptr[2] = table[4 * (numberOfColors - 1) + 2];
+    tptr[3] = table[4 * (numberOfColors - 1) + 3];
   }
   else if (this->GetUseAboveRangeColor())
   {
@@ -343,7 +349,7 @@ void vtkLookupTable::BuildSpecialColors()
   }
 
   // Below range color
-  tptr = table + 4*(numberOfColors + vtkLookupTable::BELOW_RANGE_COLOR_INDEX);
+  tptr = table + 4 * (numberOfColors + vtkLookupTable::BELOW_RANGE_COLOR_INDEX);
   if (this->GetUseBelowRangeColor() || numberOfColors == 0)
   {
     vtkLookupTable::GetColorAsUnsignedChars(this->GetBelowRangeColor(), color);
@@ -362,7 +368,7 @@ void vtkLookupTable::BuildSpecialColors()
   }
 
   // Above range color
-  tptr = table + 4*(numberOfColors + vtkLookupTable::ABOVE_RANGE_COLOR_INDEX);
+  tptr = table + 4 * (numberOfColors + vtkLookupTable::ABOVE_RANGE_COLOR_INDEX);
   if (this->GetUseAboveRangeColor() || numberOfColors == 0)
   {
     vtkLookupTable::GetColorAsUnsignedChars(this->GetAboveRangeColor(), color);
@@ -374,15 +380,15 @@ void vtkLookupTable::BuildSpecialColors()
   else
   {
     // Duplicate the last color in the table.
-    tptr[0] = table[4*(numberOfColors-1) + 0];
-    tptr[1] = table[4*(numberOfColors-1) + 1];
-    tptr[2] = table[4*(numberOfColors-1) + 2];
-    tptr[3] = table[4*(numberOfColors-1) + 3];
+    tptr[0] = table[4 * (numberOfColors - 1) + 0];
+    tptr[1] = table[4 * (numberOfColors - 1) + 1];
+    tptr[2] = table[4 * (numberOfColors - 1) + 2];
+    tptr[3] = table[4 * (numberOfColors - 1) + 3];
   }
 
   // Always use NanColor
   vtkLookupTable::GetColorAsUnsignedChars(this->GetNanColor(), color);
-  tptr = table + 4*(numberOfColors + vtkLookupTable::NAN_COLOR_INDEX);
+  tptr = table + 4 * (numberOfColors + vtkLookupTable::NAN_COLOR_INDEX);
   tptr[0] = color[0];
   tptr[1] = color[1];
   tptr[2] = color[2];
@@ -395,23 +401,24 @@ void vtkLookupTable::BuildSpecialColors()
 // get the color for a scalar value
 void vtkLookupTable::GetColor(double v, double rgb[3])
 {
-  const unsigned char *rgb8 = this->MapValue(v);
+  const unsigned char* rgb8 = this->MapValue(v);
 
-  rgb[0] = rgb8[0]/255.0;
-  rgb[1] = rgb8[1]/255.0;
-  rgb[2] = rgb8[2]/255.0;
+  rgb[0] = rgb8[0] / 255.0;
+  rgb[1] = rgb8[1] / 255.0;
+  rgb[2] = rgb8[2] / 255.0;
 }
 
 //----------------------------------------------------------------------------
 // get the opacity (alpha) for a scalar value
 double vtkLookupTable::GetOpacity(double v)
 {
-  const unsigned char *rgb8 = this->MapValue(v);
+  const unsigned char* rgb8 = this->MapValue(v);
 
-  return rgb8[3]/255.0;
+  return rgb8[3] / 255.0;
 }
 
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
 // There is a little more to this than simply taking the log10 of the
@@ -423,17 +430,16 @@ inline void vtkLookupTableLogRange(const double range[2], double logRange[2])
   double rmax = range[1];
 
   // does the range include zero?
-  if ((rmin <= 0 && rmax >= 0) ||
-      (rmin >= 0 && rmax <= 0))
+  if ((rmin <= 0 && rmax >= 0) || (rmin >= 0 && rmax <= 0))
   {
     // clamp the smaller value to 1e-6 times the larger
     if (fabs(rmax) >= fabs(rmin))
     {
-      rmin = rmax*1e-6;
+      rmin = rmax * 1e-6;
     }
     else
     {
-      rmax = rmin*1e-6;
+      rmax = rmin * 1e-6;
     }
 
     // ensure values are not zero
@@ -461,8 +467,7 @@ inline void vtkLookupTableLogRange(const double range[2], double logRange[2])
 
 //----------------------------------------------------------------------------
 // Apply log to value, with appropriate constraints.
-static double vtkApplyLogScaleMain(double v, const double range[2],
-                                   const double logRange[2])
+static double vtkApplyLogScaleMain(double v, const double range[2], const double logRange[2])
 {
   // is the range set for negative numbers?
   if (range[0] < 0)
@@ -499,17 +504,15 @@ static double vtkApplyLogScaleMain(double v, const double range[2],
 }
 
 //----------------------------------------------------------------------------
-template<class T>
-double vtkApplyLogScale(T v, const double range[2],
-                        const double logRange[2])
+template <class T>
+double vtkApplyLogScale(T v, const double range[2], const double logRange[2])
 {
   return vtkApplyLogScaleMain(v, range, logRange);
 }
 
 //----------------------------------------------------------------------------
 // Apply log to a float value (NaN values pass through)
-inline double vtkApplyLogScale(float v, const double range[2],
-                               const double logRange[2])
+inline double vtkApplyLogScale(float v, const double range[2], const double logRange[2])
 {
   if (vtkMath::IsNan(v))
   {
@@ -521,8 +524,7 @@ inline double vtkApplyLogScale(float v, const double range[2],
 
 //----------------------------------------------------------------------------
 // Apply log to a double value (NaN values pass through)
-inline double vtkApplyLogScale(double v, const double range[2],
-                               const double logRange[2])
+inline double vtkApplyLogScale(double v, const double range[2], const double logRange[2])
 {
   if (vtkMath::IsNan(v))
   {
@@ -534,16 +536,17 @@ inline double vtkApplyLogScale(double v, const double range[2],
 
 //----------------------------------------------------------------------------
 // Private structure for passing data between various internal functions
-struct TableParameters {
-  vtkIdType      NumColors;
-  double         Range[2];
-  double         Shift;
-  double         Scale;
+struct TableParameters
+{
+  vtkIdType NumColors;
+  double Range[2];
+  double Shift;
+  double Scale;
 };
 
 //----------------------------------------------------------------------------
 // Apply shift/scale to the scalar value v and return the index.
-inline vtkIdType vtkLinearIndexLookupMain(double v, const TableParameters & p)
+inline vtkIdType vtkLinearIndexLookupMain(double v, const TableParameters& p)
 {
   vtkIdType index;
 
@@ -576,8 +579,8 @@ inline vtkIdType vtkLinearIndexLookupMain(double v, const TableParameters & p)
 
 //----------------------------------------------------------------------------
 // integer variant
-template<class T>
-inline vtkIdType vtkLinearLookup(T v, const TableParameters & p)
+template <class T>
+inline vtkIdType vtkLinearLookup(T v, const TableParameters& p)
 {
   // First convert from integer to double.
   double dv = static_cast<double>(v);
@@ -586,7 +589,7 @@ inline vtkIdType vtkLinearLookup(T v, const TableParameters & p)
 
 //----------------------------------------------------------------------------
 // double variant
-inline vtkIdType vtkLinearLookup(double v, const TableParameters & p)
+inline vtkIdType vtkLinearLookup(double v, const TableParameters& p)
 {
   // If Nan, use the special NaN color.
   if (vtkMath::IsNan(v))
@@ -600,7 +603,7 @@ inline vtkIdType vtkLinearLookup(double v, const TableParameters & p)
 
 //----------------------------------------------------------------------------
 // float variant
-inline vtkIdType vtkLinearLookup(float v, const TableParameters & p)
+inline vtkIdType vtkLinearLookup(float v, const TableParameters& p)
 {
   // Convert from float to double, then call the double variant.
   double dv = static_cast<double>(v);
@@ -608,13 +611,12 @@ inline vtkIdType vtkLinearLookup(float v, const TableParameters & p)
 }
 
 //----------------------------------------------------------------------------
-inline void vtkLookupShiftAndScale(const double range[2],
-                                   double numColors,
-                                   double& shift, double& scale)
+inline void vtkLookupShiftAndScale(
+  const double range[2], double numColors, double& shift, double& scale)
 {
   shift = -range[0];
   double rangeDelta = range[1] - range[0];
-  if (rangeDelta < VTK_DBL_MIN*numColors)
+  if (rangeDelta < VTK_DBL_MIN * numColors)
   {
     // if the range is tiny, anything within the range will map to the bottom
     // of the color scale.
@@ -636,8 +638,7 @@ void vtkLookupTable::GetLogRange(const double range[2], double log_range[2])
 }
 
 //----------------------------------------------------------------------------
-double vtkLookupTable::ApplyLogScale(double v, const double range[2],
-  const double log_range[2])
+double vtkLookupTable::ApplyLogScale(double v, const double range[2], const double log_range[2])
 {
   return vtkApplyLogScale(v, range, log_range);
 }
@@ -646,11 +647,11 @@ double vtkLookupTable::ApplyLogScale(double v, const double range[2],
 // Given a scalar value v, return an index into the lookup table
 vtkIdType vtkLookupTable::GetIndex(double v)
 {
-  if ( this->IndexedLookup )
+  if (this->IndexedLookup)
   {
     if (this->NumberOfColors > 0)
     {
-      return this->GetAnnotatedValueIndex( v ) % this->NumberOfColors;
+      return this->GetAnnotatedValueIndex(v) % this->NumberOfColors;
     }
     else
     {
@@ -661,7 +662,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
 
   // Map to an index:
   //   First, check whether we have a number...
-  if ( vtkMath::IsNan( v ) )
+  if (vtkMath::IsNan(v))
   {
     // For backwards compatibility
     return -1;
@@ -671,7 +672,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
   p.NumColors = this->NumberOfColors;
 
   if (this->Scale == VTK_SCALE_LOG10)
-  {   // handle logarithmic scale
+  { // handle logarithmic scale
     double logRange[2];
     vtkLookupTableLogRange(this->TableRange, logRange);
     vtkLookupShiftAndScale(logRange, p.NumColors, p.Shift, p.Scale);
@@ -680,7 +681,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
     p.Range[1] = logRange[1];
   }
   else
-  {   // plain old linear
+  { // plain old linear
     vtkLookupShiftAndScale(this->TableRange, p.NumColors, p.Shift, p.Scale);
     p.Range[0] = this->TableRange[0];
     p.Range[1] = this->TableRange[1];
@@ -695,7 +696,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
     index = 0;
   }
   else if ((index == this->NumberOfColors + REPEATED_LAST_COLOR_INDEX) ||
-           (index == this->NumberOfColors + ABOVE_RANGE_COLOR_INDEX))
+    (index == this->NumberOfColors + ABOVE_RANGE_COLOR_INDEX))
   {
     index = this->NumberOfColors - 1;
   }
@@ -705,18 +706,16 @@ vtkIdType vtkLookupTable::GetIndex(double v)
 
 //----------------------------------------------------------------------------
 // Given a table, set the internal table and set the number of colors.
-void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
+void vtkLookupTable::SetTable(vtkUnsignedCharArray* table)
 {
   if (table != this->Table && table != nullptr)
   {
     // Check for incorrect arrays.
     if (table->GetNumberOfComponents() != this->Table->GetNumberOfComponents())
     {
-      vtkErrorMacro(<<"Number of components in given table ("
-                    << table->GetNumberOfComponents()
-                    << ") is incorrect, it should have "
-                    << this->Table->GetNumberOfComponents()
-                    << "." );
+      vtkErrorMacro(<< "Number of components in given table (" << table->GetNumberOfComponents()
+                    << ") is incorrect, it should have " << this->Table->GetNumberOfComponents()
+                    << ".");
       return;
     }
     this->Table->UnRegister(this);
@@ -733,8 +732,7 @@ void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
 }
 
 //----------------------------------------------------------------------------
-void vtkLookupTable::GetColorAsUnsignedChars(const double colorIn[4],
-                                             unsigned char colorOut[4])
+void vtkLookupTable::GetColorAsUnsignedChars(const double colorIn[4], unsigned char colorOut[4])
 {
   assert(colorIn && colorOut);
   if (!colorIn || !colorOut)
@@ -742,12 +740,18 @@ void vtkLookupTable::GetColorAsUnsignedChars(const double colorIn[4],
     return;
   }
 
-  for ( int c = 0; c < 4; ++ c )
+  for (int c = 0; c < 4; ++c)
   {
     double v = colorIn[c];
-    if (v < 0.0) { v = 0.0; }
-    else if (v > 1.0) { v = 1.0; }
-    colorOut[c] = static_cast<unsigned char>( v * 255.0 + 0.5 );
+    if (v < 0.0)
+    {
+      v = 0.0;
+    }
+    else if (v > 1.0)
+    {
+      v = 1.0;
+    }
+    colorOut[c] = static_cast<unsigned char>(v * 255.0 + 0.5);
   }
 }
 
@@ -771,35 +775,33 @@ const unsigned char* vtkLookupTable::MapValue(double v)
   {
     if (this->UseBelowRangeColor && v < this->TableRange[0])
     {
-      this->GetColorAsUnsignedChars(this->GetBelowRangeColor(),
-                                    this->RGBABytes);
+      this->GetColorAsUnsignedChars(this->GetBelowRangeColor(), this->RGBABytes);
       return this->RGBABytes;
     }
   }
-  else if (index == this->NumberOfColors-1)
+  else if (index == this->NumberOfColors - 1)
   {
     if (this->UseAboveRangeColor && v > this->TableRange[1])
     {
-      this->GetColorAsUnsignedChars(this->GetAboveRangeColor(),
-                                    this->RGBABytes);
+      this->GetColorAsUnsignedChars(this->GetAboveRangeColor(), this->RGBABytes);
       return this->RGBABytes;
     }
   }
 
-  return this->Table->GetPointer(0) + 4*index;
+  return this->Table->GetPointer(0) + 4 * index;
 }
 
-namespace {
+namespace
+{
 
 //----------------------------------------------------------------------------
-template<class T>
-void vtkLookupTableMapData(vtkLookupTable *self,
-                           T *input, unsigned char *output, int length,
-                           int inIncr, int outFormat, TableParameters & p)
+template <class T>
+void vtkLookupTableMapData(vtkLookupTable* self, T* input, unsigned char* output, int length,
+  int inIncr, int outFormat, TableParameters& p)
 {
   int i = length;
-  const double *range = self->GetTableRange();
-  const unsigned char *cptr;
+  const double* range = self->GetTableRange();
+  const unsigned char* cptr;
 
   // Resize the internal table to hold the special colors at the
   // end. When this function is called repeatedly with the same size
@@ -811,7 +813,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
   const unsigned char* table = lookupTable->GetPointer(0);
 
   double alpha = self->GetAlpha();
-  if ( alpha >= 1.0 ) //no blending required
+  if (alpha >= 1.0) // no blending required
   {
     if (self->GetScale() == VTK_SCALE_LOG10)
     {
@@ -828,7 +830,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           memcpy(output, cptr, 4);
           input += inIncr;
           output += 4;
@@ -840,7 +842,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           memcpy(output, cptr, 3);
           input += inIncr;
           output += 3;
@@ -852,9 +854,9 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
-          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
+          cptr = table + 4 * idx;
+          output[0] =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
           output[1] = cptr[3];
           input += inIncr;
           output += 2;
@@ -866,15 +868,15 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
+          cptr = table + 4 * idx;
+          *output++ =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
           input += inIncr;
         }
       }
-    }//if log scale
+    } // if log scale
 
-    else //not log scale
+    else // not log scale
     {
       vtkLookupShiftAndScale(range, p.NumColors, p.Shift, p.Scale);
       p.Range[0] = range[0];
@@ -884,7 +886,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           memcpy(output, cptr, 4);
           input += inIncr;
           output += 4;
@@ -895,7 +897,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           memcpy(output, cptr, 3);
           input += inIncr;
           output += 3;
@@ -906,9 +908,9 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
-          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
+          cptr = table + 4 * idx;
+          output[0] =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
           output[1] = cptr[3];
           input += inIncr;
           output += 2;
@@ -919,16 +921,16 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
+          cptr = table + 4 * idx;
+          *output++ =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
           input += inIncr;
         }
       }
-    }//if not log lookup
-  }//if blending not needed
+    } // if not log lookup
+  }   // if blending not needed
 
-  else //blend with the specified alpha
+  else // blend with the specified alpha
   {
     if (self->GetScale() == VTK_SCALE_LOG10)
     {
@@ -945,11 +947,11 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           output[0] = cptr[0];
           output[1] = cptr[1];
           output[2] = cptr[2];
-          output[3] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+          output[3] = static_cast<unsigned char>(cptr[3] * alpha + 0.5);
           input += inIncr;
           output += 4;
         }
@@ -960,7 +962,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           memcpy(output, cptr, 3);
           input += inIncr;
           output += 3;
@@ -972,10 +974,10 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
-          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
-          output[1] = static_cast<unsigned char>(alpha*cptr[3] + 0.5);
+          cptr = table + 4 * idx;
+          output[0] =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+          output[1] = static_cast<unsigned char>(alpha * cptr[3] + 0.5);
           input += inIncr;
           output += 2;
         }
@@ -986,15 +988,15 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         {
           val = vtkApplyLogScale(*input, range, logRange);
           vtkIdType idx = vtkLinearLookup(val, p);
-          cptr = table + 4*idx;
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
+          cptr = table + 4 * idx;
+          *output++ =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
           input += inIncr;
         }
       }
-    }//log scale with blending
+    } // log scale with blending
 
-    else //no log scale with blending
+    else // no log scale with blending
     {
       vtkLookupShiftAndScale(range, p.NumColors, p.Shift, p.Scale);
       p.Range[0] = range[0];
@@ -1005,11 +1007,11 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           output[0] = cptr[0];
           output[1] = cptr[1];
           output[2] = cptr[2];
-          output[3] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+          output[3] = static_cast<unsigned char>(cptr[3] * alpha + 0.5);
           input += inIncr;
           output += 4;
         }
@@ -1019,7 +1021,7 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
+          cptr = table + 4 * idx;
           memcpy(output, cptr, 3);
           input += inIncr;
           output += 3;
@@ -1030,10 +1032,10 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
-          output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
-          output[1] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+          cptr = table + 4 * idx;
+          output[0] =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+          output[1] = static_cast<unsigned char>(cptr[3] * alpha + 0.5);
           input += inIncr;
           output += 2;
         }
@@ -1043,21 +1045,20 @@ void vtkLookupTableMapData(vtkLookupTable *self,
         while (--i >= 0)
         {
           vtkIdType idx = vtkLinearLookup(*input, p);
-          cptr = table + 4*idx;
-          *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                                 cptr[2]*0.11 + 0.5);
+          cptr = table + 4 * idx;
+          *output++ =
+            static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
           input += inIncr;
         }
       }
-    }//no log scale
-  }//alpha blending
+    } // no log scale
+  }   // alpha blending
 }
 
 //----------------------------------------------------------------------------
-template<class T>
-void vtkLookupTableIndexedMapData(
-  vtkLookupTable* self, const T* input, unsigned char* output, int length,
-  int inIncr, int outFormat )
+template <class T>
+void vtkLookupTableIndexedMapData(vtkLookupTable* self, const T* input, unsigned char* output,
+  int length, int inIncr, int outFormat)
 {
   int i = length;
   unsigned char* cptr;
@@ -1067,15 +1068,15 @@ void vtkLookupTableIndexedMapData(
 
   vtkVariant vin;
   double alpha = self->GetAlpha();
-  if ( alpha >= 1.0 ) //no blending required
+  if (alpha >= 1.0) // no blending required
   {
     if (outFormat == VTK_RGBA)
     {
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
 
         memcpy(output, cptr, 4);
         input += inIncr;
@@ -1087,8 +1088,8 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
 
         memcpy(output, cptr, 3);
         input += inIncr;
@@ -1100,10 +1101,10 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
-        output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                               cptr[2]*0.11 + 0.5);
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
+        output[0] =
+          static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
         output[1] = cptr[3];
         input += inIncr;
         output += 2;
@@ -1114,10 +1115,10 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
-        *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                               cptr[2]*0.11 + 0.5);
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
+        *output++ =
+          static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
         input += inIncr;
       }
     }
@@ -1130,10 +1131,10 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
         memcpy(output, cptr, 3);
-        output[3] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+        output[3] = static_cast<unsigned char>(cptr[3] * alpha + 0.5);
         input += inIncr;
         output += 4;
       }
@@ -1143,8 +1144,8 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
         memcpy(output, cptr, 3);
         input += inIncr;
         output += 3;
@@ -1155,11 +1156,11 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
-        output[0] = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                               cptr[2]*0.11 + 0.5);
-        output[1] = static_cast<unsigned char>(cptr[3]*alpha + 0.5);
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
+        output[0] =
+          static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
+        output[1] = static_cast<unsigned char>(cptr[3] * alpha + 0.5);
         input += inIncr;
         output += 2;
       }
@@ -1169,10 +1170,10 @@ void vtkLookupTableIndexedMapData(
       while (--i >= 0)
       {
         vin = *input;
-        vtkIdType idx = self->GetAnnotatedValueIndexInternal( vin );
-        cptr = idx < 0 ? nanColor : self->GetPointer( idx );
-        *output++ = static_cast<unsigned char>(cptr[0]*0.30 + cptr[1]*0.59 +
-                                               cptr[2]*0.11 + 0.5);
+        vtkIdType idx = self->GetAnnotatedValueIndexInternal(vin);
+        cptr = idx < 0 ? nanColor : self->GetPointer(idx);
+        *output++ =
+          static_cast<unsigned char>(cptr[0] * 0.30 + cptr[1] * 0.59 + cptr[2] * 0.11 + 0.5);
         input += inIncr;
       }
     }
@@ -1182,45 +1183,37 @@ void vtkLookupTableIndexedMapData(
 } // end anonymous namespace
 
 //----------------------------------------------------------------------------
-void vtkLookupTable::MapScalarsThroughTable2(void *input,
-                                             unsigned char *output,
-                                             int inputDataType,
-                                             int numberOfValues,
-                                             int inputIncrement,
-                                             int outputFormat)
+void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
+  int numberOfValues, int inputIncrement, int outputFormat)
 {
-  if ( this->IndexedLookup )
+  if (this->IndexedLookup)
   {
     switch (inputDataType)
     {
       case VTK_BIT:
       {
         vtkIdType i, id;
-        vtkBitArray *bitArray = vtkBitArray::New();
-        bitArray->SetVoidArray(input,numberOfValues,1);
-        vtkUnsignedCharArray *newInput = vtkUnsignedCharArray::New();
+        vtkBitArray* bitArray = vtkBitArray::New();
+        bitArray->SetVoidArray(input, numberOfValues, 1);
+        vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
-        for (id=i=0; i<numberOfValues; i++, id+=inputIncrement)
+        for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
         {
           newInput->SetValue(i, bitArray->GetValue(id));
         }
-        vtkLookupTableIndexedMapData(this,
-                                     newInput->GetPointer(0),
-                                     output,numberOfValues,
-                                     inputIncrement,outputFormat);
+        vtkLookupTableIndexedMapData(
+          this, newInput->GetPointer(0), output, numberOfValues, inputIncrement, outputFormat);
         newInput->Delete();
         bitArray->Delete();
       }
-        break;
+      break;
 
-      vtkTemplateMacro(
-        vtkLookupTableIndexedMapData(this,static_cast<VTK_TT*>(input),output,
-                                     numberOfValues,inputIncrement,outputFormat)
-        );
+        vtkTemplateMacro(vtkLookupTableIndexedMapData(
+          this, static_cast<VTK_TT*>(input), output, numberOfValues, inputIncrement, outputFormat));
 
       case VTK_STRING:
-        vtkLookupTableIndexedMapData(this,static_cast<vtkStdString*>(input),output,
-                                     numberOfValues,inputIncrement,outputFormat);
+        vtkLookupTableIndexedMapData(this, static_cast<vtkStdString*>(input), output,
+          numberOfValues, inputIncrement, outputFormat);
         break;
 
       default:
@@ -1238,26 +1231,23 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
       case VTK_BIT:
       {
         vtkIdType i, id;
-        vtkBitArray *bitArray = vtkBitArray::New();
-        bitArray->SetVoidArray(input,numberOfValues,1);
-        vtkUnsignedCharArray *newInput = vtkUnsignedCharArray::New();
+        vtkBitArray* bitArray = vtkBitArray::New();
+        bitArray->SetVoidArray(input, numberOfValues, 1);
+        vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
-        for (id=i=0; i<numberOfValues; i++, id+=inputIncrement)
+        for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
         {
           newInput->SetValue(i, bitArray->GetValue(id));
         }
-        vtkLookupTableMapData(this, newInput->GetPointer(0),
-                              output, numberOfValues,
-                              inputIncrement, outputFormat, p);
+        vtkLookupTableMapData(
+          this, newInput->GetPointer(0), output, numberOfValues, inputIncrement, outputFormat, p);
         newInput->Delete();
         bitArray->Delete();
       }
-        break;
+      break;
 
-      vtkTemplateMacro(
-        vtkLookupTableMapData(this, static_cast<VTK_TT*>(input),output,
-                              numberOfValues, inputIncrement, outputFormat, p)
-        );
+        vtkTemplateMacro(vtkLookupTableMapData(this, static_cast<VTK_TT*>(input), output,
+          numberOfValues, inputIncrement, outputFormat, p));
       default:
         vtkErrorMacro(<< "MapScalarsThroughTable2: Unknown input ScalarType");
         return;
@@ -1296,18 +1286,17 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, const double rgba[4])
   }
   if (indx >= this->NumberOfColors)
   {
-    vtkErrorMacro("Index " << indx <<
-                  " is greater than the number of colors " <<
-                  this->NumberOfColors);
+    vtkErrorMacro(
+      "Index " << indx << " is greater than the number of colors " << this->NumberOfColors);
     return;
   }
 
-  unsigned char *_rgba = this->Table->WritePointer(4*indx,4);
+  unsigned char* _rgba = this->Table->WritePointer(4 * indx, 4);
 
-  _rgba[0] = static_cast<unsigned char>(rgba[0]*255.0 + 0.5);
-  _rgba[1] = static_cast<unsigned char>(rgba[1]*255.0 + 0.5);
-  _rgba[2] = static_cast<unsigned char>(rgba[2]*255.0 + 0.5);
-  _rgba[3] = static_cast<unsigned char>(rgba[3]*255.0 + 0.5);
+  _rgba[0] = static_cast<unsigned char>(rgba[0] * 255.0 + 0.5);
+  _rgba[1] = static_cast<unsigned char>(rgba[1] * 255.0 + 0.5);
+  _rgba[2] = static_cast<unsigned char>(rgba[2] * 255.0 + 0.5);
+  _rgba[3] = static_cast<unsigned char>(rgba[3] * 255.0 + 0.5);
 
   if (indx == 0 || indx == this->NumberOfColors - 1)
   {
@@ -1327,11 +1316,10 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, const double rgba[4])
 //----------------------------------------------------------------------------
 // Directly load color into lookup table. Use [0,1] double values for color
 // component specification.
-void vtkLookupTable::SetTableValue(vtkIdType indx, double r, double g, double b,
-                                   double a)
+void vtkLookupTable::SetTableValue(vtkIdType indx, double r, double g, double b, double a)
 {
-  const double rgba[4] = {r, g, b, a};
-  this->SetTableValue(indx,rgba);
+  const double rgba[4] = { r, g, b, a };
+  this->SetTableValue(indx, rgba);
 }
 
 //----------------------------------------------------------------------------
@@ -1339,20 +1327,19 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, double r, double g, double b,
 // components are expressed as [0,1] double values.
 void vtkLookupTable::GetTableValue(vtkIdType indx, double rgba[4])
 {
-  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ?
-                          this->NumberOfColors-1 : indx));
+  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors - 1 : indx));
 
-  const unsigned char *_rgba = this->Table->GetPointer(indx*4);
+  const unsigned char* _rgba = this->Table->GetPointer(indx * 4);
 
-  rgba[0] = _rgba[0]/255.0;
-  rgba[1] = _rgba[1]/255.0;
-  rgba[2] = _rgba[2]/255.0;
-  rgba[3] = _rgba[3]/255.0;
+  rgba[0] = _rgba[0] / 255.0;
+  rgba[1] = _rgba[1] / 255.0;
+  rgba[2] = _rgba[2] / 255.0;
+  rgba[3] = _rgba[3] / 255.0;
 }
 
 // Return an RGBA color value for the given index into the lookup table. Color
 // components are expressed as [0,1] double values.
-double *vtkLookupTable::GetTableValue(vtkIdType indx)
+double* vtkLookupTable::GetTableValue(vtkIdType indx)
 {
   this->GetTableValue(indx, this->RGBA);
   return this->RGBA;
@@ -1361,46 +1348,36 @@ double *vtkLookupTable::GetTableValue(vtkIdType indx)
 //----------------------------------------------------------------------------
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "TableRange: (" << this->TableRange[0] << ", "
-     << this->TableRange[1] << ")\n";
-  os << indent << "Scale: "
-     << (this->Scale == VTK_SCALE_LOG10 ? "Log10\n" : "Linear\n");
-  os << indent << "HueRange: (" << this->HueRange[0] << ", "
-     << this->HueRange[1] << ")\n";
+  os << indent << "TableRange: (" << this->TableRange[0] << ", " << this->TableRange[1] << ")\n";
+  os << indent << "Scale: " << (this->Scale == VTK_SCALE_LOG10 ? "Log10\n" : "Linear\n");
+  os << indent << "HueRange: (" << this->HueRange[0] << ", " << this->HueRange[1] << ")\n";
   os << indent << "SaturationRange: (" << this->SaturationRange[0] << ", "
      << this->SaturationRange[1] << ")\n";
-  os << indent << "ValueRange: (" << this->ValueRange[0] << ", "
-     << this->ValueRange[1] << ")\n";
-  os << indent << "AlphaRange: (" << this->AlphaRange[0] << ", "
-     << this->AlphaRange[1] << ")\n";
+  os << indent << "ValueRange: (" << this->ValueRange[0] << ", " << this->ValueRange[1] << ")\n";
+  os << indent << "AlphaRange: (" << this->AlphaRange[0] << ", " << this->AlphaRange[1] << ")\n";
 
-  os << indent << "NanColor: (" << this->NanColor[0] << ", "
-     << this->NanColor[1] << ", " << this->NanColor[2] << ", "
-     << this->NanColor[3] << ")\n";
+  os << indent << "NanColor: (" << this->NanColor[0] << ", " << this->NanColor[1] << ", "
+     << this->NanColor[2] << ", " << this->NanColor[3] << ")\n";
 
   os << indent << "BelowRangeColor: (" << this->BelowRangeColor[0] << ", "
      << this->BelowRangeColor[1] << ", " << this->BelowRangeColor[2] << ", "
      << this->BelowRangeColor[3] << ")\n";
-  os << indent << "UseBelowRangeColor: "
-     << (this->UseBelowRangeColor != 0 ? "ON" : "OFF") << "\n";
+  os << indent << "UseBelowRangeColor: " << (this->UseBelowRangeColor != 0 ? "ON" : "OFF") << "\n";
 
   os << indent << "AboveRangeColor: (" << this->AboveRangeColor[0] << ", "
      << this->AboveRangeColor[1] << ", " << this->AboveRangeColor[2] << ", "
      << this->AboveRangeColor[3] << ")\n";
-  os << indent << "UseAboveRangeColor: "
-     << (this->UseAboveRangeColor != 0 ? "ON" : "OFF") << "\n";
+  os << indent << "UseAboveRangeColor: " << (this->UseAboveRangeColor != 0 ? "ON" : "OFF") << "\n";
 
-  os << indent << "NumberOfTableValues: "
-     << this->GetNumberOfTableValues() << "\n";
+  os << indent << "NumberOfTableValues: " << this->GetNumberOfTableValues() << "\n";
   os << indent << "NumberOfColors: " << this->NumberOfColors << "\n";
-  os << indent << "Ramp: "
-     << (this->Ramp == VTK_RAMP_SCURVE ? "SCurve\n" : "Linear\n");
-  os << indent << "InsertTime: " <<this->InsertTime.GetMTime() << "\n";
-  os << indent << "BuildTime: " <<this->BuildTime.GetMTime() << "\n";
+  os << indent << "Ramp: " << (this->Ramp == VTK_RAMP_SCURVE ? "SCurve\n" : "Linear\n");
+  os << indent << "InsertTime: " << this->InsertTime.GetMTime() << "\n";
+  os << indent << "BuildTime: " << this->BuildTime.GetMTime() << "\n";
   os << indent << "Table: ";
-  if( this->Table )
+  if (this->Table)
   {
     this->Table->PrintSelf(os << "\n", indent.GetNextIndent());
   }
@@ -1412,37 +1389,36 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkLookupTable::DeepCopy(vtkScalarsToColors *obj)
+void vtkLookupTable::DeepCopy(vtkScalarsToColors* obj)
 {
   if (!obj)
   {
     return;
   }
 
-  vtkLookupTable *lut = vtkLookupTable::SafeDownCast(obj);
+  vtkLookupTable* lut = vtkLookupTable::SafeDownCast(obj);
 
   if (!lut)
   {
-    vtkErrorMacro("Cannot DeepCopy a " << obj->GetClassName()
-                  << " into a vtkLookupTable.");
+    vtkErrorMacro("Cannot DeepCopy a " << obj->GetClassName() << " into a vtkLookupTable.");
     return;
   }
 
-  this->Scale               = lut->Scale;
-  this->TableRange[0]       = lut->TableRange[0];
-  this->TableRange[1]       = lut->TableRange[1];
-  this->HueRange[0]         = lut->HueRange[0];
-  this->HueRange[1]         = lut->HueRange[1];
-  this->SaturationRange[0]  = lut->SaturationRange[0];
-  this->SaturationRange[1]  = lut->SaturationRange[1];
-  this->ValueRange[0]       = lut->ValueRange[0];
-  this->ValueRange[1]       = lut->ValueRange[1];
-  this->AlphaRange[0]       = lut->AlphaRange[0];
-  this->AlphaRange[1]       = lut->AlphaRange[1];
-  this->NumberOfColors      = lut->NumberOfColors;
-  this->Ramp                = lut->Ramp;
-  this->InsertTime          = lut->InsertTime;
-  this->BuildTime           = lut->BuildTime;
+  this->Scale = lut->Scale;
+  this->TableRange[0] = lut->TableRange[0];
+  this->TableRange[1] = lut->TableRange[1];
+  this->HueRange[0] = lut->HueRange[0];
+  this->HueRange[1] = lut->HueRange[1];
+  this->SaturationRange[0] = lut->SaturationRange[0];
+  this->SaturationRange[1] = lut->SaturationRange[1];
+  this->ValueRange[0] = lut->ValueRange[0];
+  this->ValueRange[1] = lut->ValueRange[1];
+  this->AlphaRange[0] = lut->AlphaRange[0];
+  this->AlphaRange[1] = lut->AlphaRange[1];
+  this->NumberOfColors = lut->NumberOfColors;
+  this->Ramp = lut->Ramp;
+  this->InsertTime = lut->InsertTime;
+  this->BuildTime = lut->BuildTime;
 
   for (int i = 0; i < 4; ++i)
   {
@@ -1476,7 +1452,7 @@ void vtkLookupTable::GetIndexedColor(vtkIdType idx, double rgba[4])
 void vtkLookupTable::ResizeTableForSpecialColors()
 {
   vtkIdType neededColors = this->NumberOfColors + vtkLookupTable::NUMBER_OF_SPECIAL_COLORS;
-  if (this->Table->GetSize() < neededColors*this->Table->GetNumberOfComponents())
+  if (this->Table->GetSize() < neededColors * this->Table->GetNumberOfComponents())
   {
     this->Table->Resize(neededColors);
   }

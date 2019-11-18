@@ -35,7 +35,7 @@ int main()
   // Next we create an instance of vtkConeSource and set some of its
   // properties
   //
-  vtkConeSource *cone = vtkConeSource::New();
+  vtkConeSource* cone = vtkConeSource::New();
   cone->SetHeight(3.0);
   cone->SetRadius(1.0);
   cone->SetResolution(10);
@@ -45,7 +45,7 @@ int main()
   // into graphics primitives. We connect the output of the cone souece
   // to the input of this mapper
   //
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
 
   //
@@ -53,7 +53,7 @@ int main()
   // the graphics primitives for a mapper. We set this actor's mapper to be
   // coneMapper which we created above.
   //
-  vtkActor *coneActor = vtkActor::New();
+  vtkActor* coneActor = vtkActor::New();
   coneActor->SetMapper(coneMapper);
 
   //
@@ -62,7 +62,7 @@ int main()
   // responsible for drawing the actors it has.  We also set the background
   // color here
   //
-  vtkRenderer *ren1= vtkRenderer::New();
+  vtkRenderer* ren1 = vtkRenderer::New();
   ren1->AddActor(coneActor);
   ren1->SetBackground(0.1, 0.2, 0.4);
 
@@ -71,7 +71,7 @@ int main()
   // We put our renderer into the render window using AddRenderer. We also
   // set the size to be 300 pixels by 300
   //
-  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
   renWin->SetSize(300, 300);
 

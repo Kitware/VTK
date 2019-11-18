@@ -22,46 +22,47 @@
 class vtkSplineWidgetCallback : public vtkCommand
 {
 public:
-  static vtkSplineWidgetCallback *New()
-    { return new vtkSplineWidgetCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  static vtkSplineWidgetCallback* New() { return new vtkSplineWidgetCallback; }
+  virtual void Execute(vtkObject* caller, unsigned long, void*)
   {
-      vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
-      spline->GetPolyData(Poly);
+    vtkSplineWidget* spline = reinterpret_cast<vtkSplineWidget*>(caller);
+    spline->GetPolyData(Poly);
   }
-  vtkSplineWidgetCallback():Poly(0){};
+  vtkSplineWidgetCallback()
+    : Poly(0)
+  {
+  }
   vtkPolyData* Poly;
 };
 
-int main( int, char *[] )
+int main(int, char*[])
 {
   vtkRenderer* ren1 = vtkRenderer::New();
   vtkRenderWindow* renWin = vtkRenderWindow::New();
-    renWin->AddRenderer( ren1);
+  renWin->AddRenderer(ren1);
 
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
-    iren->SetRenderWindow( renWin);
+  iren->SetRenderWindow(renWin);
 
   vtkPlaneSource* planeSource = vtkPlaneSource::New();
-    planeSource->Update();
+  planeSource->Update();
 
   vtkPolyDataMapper* planeSourceMapper = vtkPolyDataMapper::New();
-    planeSourceMapper->SetInput(planeSource->GetOutput());
+  planeSourceMapper->SetInput(planeSource->GetOutput());
   vtkActor* planeSourceActor = vtkActor::New();
-    planeSourceActor->SetMapper(planeSourceMapper);
+  planeSourceActor->SetMapper(planeSourceMapper);
 
   vtkSplineWidget* spline = vtkSplineWidget::New();
-    spline->SetInteractor( iren);
-    spline->SetInput(planeSource->GetOutput());
-    spline->SetPriority(1.0);
-    spline->KeyPressActivationOff();
-    spline->PlaceWidget();
-    spline->ProjectToPlaneOn();
-    spline->SetProjectionNormal(0);
-    spline->SetProjectionPosition(102.4);  //initial plane oriented position
-    spline->SetProjectionNormal(3); //allow arbitrary oblique orientations
-    spline->SetPlaneSource(planeSource);
-
+  spline->SetInteractor(iren);
+  spline->SetInput(planeSource->GetOutput());
+  spline->SetPriority(1.0);
+  spline->KeyPressActivationOff();
+  spline->PlaceWidget();
+  spline->ProjectToPlaneOn();
+  spline->SetProjectionNormal(0);
+  spline->SetProjectionPosition(102.4); // initial plane oriented position
+  spline->SetProjectionNormal(3);       // allow arbitrary oblique orientations
+  spline->SetPlaneSource(planeSource);
 
   // Specify the type of spline (change from default vtkCardinalSpline)
   vtkKochanekSpline* xspline = vtkKochanekSpline::New();
@@ -75,17 +76,17 @@ int main( int, char *[] )
   para->SetZSpline(zspline);
 
   vtkPolyData* poly = vtkPolyData::New();
-    spline->GetPolyData(poly);
+  spline->GetPolyData(poly);
 
   vtkSplineWidgetCallback* swcb = vtkSplineWidgetCallback::New();
-    swcb->Poly = poly;
+  swcb->Poly = poly;
 
-  spline->AddObserver(vtkCommand::InteractionEvent,swcb);
+  spline->AddObserver(vtkCommand::InteractionEvent, swcb);
 
-  ren1->SetBackground( 0.1, 0.2, 0.4);
+  ren1->SetBackground(0.1, 0.2, 0.4);
   ren1->AddActor(planeSourceActor);
 
-  renWin->SetSize( 600, 300);
+  renWin->SetSize(600, 300);
   renWin->Render();
 
   spline->On();
@@ -102,5 +103,3 @@ int main( int, char *[] )
 
   return EXIT_SUCCESS;
 }
-
-

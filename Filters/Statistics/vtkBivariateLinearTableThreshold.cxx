@@ -56,7 +56,7 @@ vtkBivariateLinearTableThreshold::~vtkBivariateLinearTableThreshold()
 
 void vtkBivariateLinearTableThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << "ColumnRanges: " << this->ColumnRanges[0] << " " << this->ColumnRanges[1] << endl;
   os << "UseNormalizedDistance: " << this->UseNormalizedDistance << endl;
   os << "Inclusive: " << this->Inclusive << endl;
@@ -83,12 +83,11 @@ void vtkBivariateLinearTableThreshold::Initialize()
 }
 
 int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(request),
-                                              vtkInformationVector** inputVector,
-                                              vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkTable* inTable = vtkTable::GetData( inputVector[0], 0);
-  vtkTable* outRowIdsTable = vtkTable::GetData( outputVector, OUTPUT_ROW_IDS );
-  vtkTable* outRowDataTable = vtkTable::GetData( outputVector, OUTPUT_ROW_DATA );
+  vtkTable* inTable = vtkTable::GetData(inputVector[0], 0);
+  vtkTable* outRowIdsTable = vtkTable::GetData(outputVector, OUTPUT_ROW_IDS);
+  vtkTable* outRowDataTable = vtkTable::GetData(outputVector, OUTPUT_ROW_DATA);
 
   if (!inTable || this->GetNumberOfColumnsToThreshold() != 2)
   {
@@ -97,14 +96,14 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
 
   if (!outRowIdsTable)
   {
-    vtkErrorMacro(<<"No output table, for some reason.");
+    vtkErrorMacro(<< "No output table, for some reason.");
     return 0;
   }
 
   vtkSmartPointer<vtkIdTypeArray> outIds = vtkSmartPointer<vtkIdTypeArray>::New();
-  if (!ApplyThreshold(inTable,outIds))
+  if (!ApplyThreshold(inTable, outIds))
   {
-    vtkErrorMacro(<<"Error during threshold application.");
+    vtkErrorMacro(<< "Error during threshold application.");
     return 0;
   }
 
@@ -113,7 +112,7 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
 
   outRowDataTable->Initialize();
   vtkIdType numColumns = inTable->GetNumberOfColumns();
-  for (vtkIdType i=0; i<numColumns; i++)
+  for (vtkIdType i = 0; i < numColumns; i++)
   {
     vtkDataArray* a = vtkDataArray::CreateDataArray(inTable->GetColumn(i)->GetDataType());
     a->SetNumberOfComponents(inTable->GetColumn(i)->GetNumberOfComponents());
@@ -122,7 +121,7 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
     a->Delete();
   }
 
-  for (vtkIdType i=0; i<outIds->GetNumberOfTuples(); i++)
+  for (vtkIdType i = 0; i < outIds->GetNumberOfTuples(); i++)
   {
     outRowDataTable->InsertNextRow(inTable->GetRow(outIds->GetValue(i)));
   }
@@ -130,7 +129,7 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
   return 1;
 }
 
-int vtkBivariateLinearTableThreshold::FillInputPortInformation( int port, vtkInformation* info )
+int vtkBivariateLinearTableThreshold::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
   {
@@ -141,12 +140,11 @@ int vtkBivariateLinearTableThreshold::FillInputPortInformation( int port, vtkInf
   return 0;
 }
 
-int vtkBivariateLinearTableThreshold::FillOutputPortInformation( int port, vtkInformation* info )
+int vtkBivariateLinearTableThreshold::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  if ( port == OUTPUT_ROW_IDS ||
-       port == OUTPUT_ROW_DATA)
+  if (port == OUTPUT_ROW_IDS || port == OUTPUT_ROW_DATA)
   {
-    info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkTable" );
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkTable");
     return 1;
   }
 
@@ -165,7 +163,8 @@ int vtkBivariateLinearTableThreshold::GetNumberOfColumnsToThreshold()
   return (int)this->Implementation->ColumnsToThreshold.size();
 }
 
-void vtkBivariateLinearTableThreshold::GetColumnToThreshold(vtkIdType idx, vtkIdType& column, vtkIdType& component)
+void vtkBivariateLinearTableThreshold::GetColumnToThreshold(
+  vtkIdType idx, vtkIdType& column, vtkIdType& component)
 {
   if (idx < 0 || idx >= (int)this->Implementation->ColumnsToThreshold.size())
   {
@@ -195,36 +194,38 @@ vtkIdTypeArray* vtkBivariateLinearTableThreshold::GetSelectedRowIds(int selectio
   return vtkArrayDownCast<vtkIdTypeArray>(table->GetColumn(selection));
 }
 
-int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold, vtkIdTypeArray* acceptedIds)
+int vtkBivariateLinearTableThreshold::ApplyThreshold(
+  vtkTable* tableToThreshold, vtkIdTypeArray* acceptedIds)
 {
   // grab the first two arrays (and their components) to threshold
-  vtkIdType column1,column2,component1,component2;
+  vtkIdType column1, column2, component1, component2;
 
   if (this->GetNumberOfColumnsToThreshold() != 2)
   {
-    vtkErrorMacro(<<"This threshold only works on two columns at a time.  Received: "<<this->GetNumberOfColumnsToThreshold());
+    vtkErrorMacro(<< "This threshold only works on two columns at a time.  Received: "
+                  << this->GetNumberOfColumnsToThreshold());
     return 0;
   }
 
-  this->GetColumnToThreshold(0,column1,component1);
-  this->GetColumnToThreshold(1,column2,component2);
+  this->GetColumnToThreshold(0, column1, component1);
+  this->GetColumnToThreshold(1, column2, component2);
 
   vtkDataArray* a1 = vtkArrayDownCast<vtkDataArray>(tableToThreshold->GetColumn(column1));
   vtkDataArray* a2 = vtkArrayDownCast<vtkDataArray>(tableToThreshold->GetColumn(column2));
 
   if (!a1 || !a2)
   {
-    vtkErrorMacro(<<"Wrong number of arrays received.");
+    vtkErrorMacro(<< "Wrong number of arrays received.");
     return 0;
   }
 
   if (a1->GetNumberOfTuples() != a2->GetNumberOfTuples())
   {
-    vtkErrorMacro(<<"Two arrays to threshold must have the same number of tuples.");
+    vtkErrorMacro(<< "Two arrays to threshold must have the same number of tuples.");
     return 0;
   }
 
-  int (vtkBivariateLinearTableThreshold::*thresholdFunc)(double,double) = nullptr;
+  int (vtkBivariateLinearTableThreshold::*thresholdFunc)(double, double) = nullptr;
   switch (this->LinearThresholdType)
   {
     case vtkBivariateLinearTableThreshold::BLT_ABOVE:
@@ -240,19 +241,19 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
       thresholdFunc = &vtkBivariateLinearTableThreshold::ThresholdBetween;
       break;
     default:
-      vtkErrorMacro(<<"Threshold type not defined: "<<this->LinearThresholdType);
+      vtkErrorMacro(<< "Threshold type not defined: " << this->LinearThresholdType);
       return 0;
   }
 
   acceptedIds->Initialize();
   vtkIdType numTuples = a1->GetNumberOfTuples();
-  double v1,v2;
-  for (int i=0; i<numTuples; i++)
+  double v1, v2;
+  for (int i = 0; i < numTuples; i++)
   {
-    v1 = a1->GetComponent(i,component1);
-    v2 = a2->GetComponent(i,component2);
+    v1 = a1->GetComponent(i, component1);
+    v2 = a2->GetComponent(i, component2);
 
-    if ((this->*thresholdFunc)(v1,v2))
+    if ((this->*thresholdFunc)(v1, v2))
     {
       acceptedIds->InsertNextValue(i);
     }
@@ -263,59 +264,60 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
 
 void vtkBivariateLinearTableThreshold::AddLineEquation(double* p1, double* p2)
 {
-  double a = p1[1]-p2[1];
-  double b = p2[0]-p1[0];
-  double c = p1[0]*p2[1]-p2[0]*p1[1];
+  double a = p1[1] - p2[1];
+  double b = p2[0] - p1[0];
+  double c = p1[0] * p2[1] - p2[0] * p1[1];
 
-  this->AddLineEquation(a,b,c);
+  this->AddLineEquation(a, b, c);
 }
 
 void vtkBivariateLinearTableThreshold::AddLineEquation(double* p, double slope)
 {
-  double p2[2] = {p[0]+1.0,p[1]+slope};
-  this->AddLineEquation(p,p2);
+  double p2[2] = { p[0] + 1.0, p[1] + slope };
+  this->AddLineEquation(p, p2);
 }
 
 void vtkBivariateLinearTableThreshold::AddLineEquation(double a, double b, double c)
 {
-  double norm = sqrt(a*a+b*b);
+  double norm = sqrt(a * a + b * b);
   a /= norm;
   b /= norm;
   c /= norm;
 
-  this->LineEquations->InsertNextTuple3(a,b,c);
+  this->LineEquations->InsertNextTuple3(a, b, c);
   this->NumberOfLineEquations++;
 }
 
 void vtkBivariateLinearTableThreshold::ClearLineEquations()
 {
   this->LineEquations->Initialize();
-  this->NumberOfLineEquations=0;
+  this->NumberOfLineEquations = 0;
 }
 
-void vtkBivariateLinearTableThreshold::ComputeImplicitLineFunction(double* p1, double* p2, double* abc)
+void vtkBivariateLinearTableThreshold::ComputeImplicitLineFunction(
+  double* p1, double* p2, double* abc)
 {
-  abc[0] = p1[1]-p2[1];
-  abc[1] = p2[0]-p1[0];
-  abc[2] = p1[0]*p2[1]-p2[0]*p1[1];
+  abc[0] = p1[1] - p2[1];
+  abc[1] = p2[0] - p1[0];
+  abc[2] = p1[0] * p2[1] - p2[0] * p1[1];
 }
 
-void vtkBivariateLinearTableThreshold::ComputeImplicitLineFunction(double* p, double slope, double* abc)
+void vtkBivariateLinearTableThreshold::ComputeImplicitLineFunction(
+  double* p, double slope, double* abc)
 {
-  double p2[2] = {p[0]+1.0,p[1]+slope};
-  vtkBivariateLinearTableThreshold::ComputeImplicitLineFunction(p,p2,abc);
+  double p2[2] = { p[0] + 1.0, p[1] + slope };
+  vtkBivariateLinearTableThreshold::ComputeImplicitLineFunction(p, p2, abc);
 }
 
 int vtkBivariateLinearTableThreshold::ThresholdAbove(double x, double y)
 {
-  double* c,v;
-  for (int i=0; i<this->NumberOfLineEquations; i++)
+  double *c, v;
+  for (int i = 0; i < this->NumberOfLineEquations; i++)
   {
     c = this->LineEquations->GetTuple3(i);
-    v = c[0]*x + c[1]*y + c[2];
+    v = c[0] * x + c[1] * y + c[2];
 
-    if ((this->GetInclusive() && v >= 0) ||
-        (!this->GetInclusive() && v > 0))
+    if ((this->GetInclusive() && v >= 0) || (!this->GetInclusive() && v > 0))
     {
       return 1;
     }
@@ -325,14 +327,13 @@ int vtkBivariateLinearTableThreshold::ThresholdAbove(double x, double y)
 
 int vtkBivariateLinearTableThreshold::ThresholdBelow(double x, double y)
 {
-  double* c,v;
-  for (int i=0; i<this->NumberOfLineEquations; i++)
+  double *c, v;
+  for (int i = 0; i < this->NumberOfLineEquations; i++)
   {
     c = this->LineEquations->GetTuple3(i);
-    v = c[0]*x + c[1]*y + c[2];
+    v = c[0] * x + c[1] * y + c[2];
 
-    if ((this->GetInclusive() && v <= 0) ||
-        (!this->GetInclusive() && v < 0))
+    if ((this->GetInclusive() && v <= 0) || (!this->GetInclusive() && v < 0))
     {
       return 1;
     }
@@ -342,28 +343,28 @@ int vtkBivariateLinearTableThreshold::ThresholdBelow(double x, double y)
 
 int vtkBivariateLinearTableThreshold::ThresholdNear(double x, double y)
 {
-  double* c,v;
-  for (int i=0; i<this->NumberOfLineEquations; i++)
+  double *c, v;
+  for (int i = 0; i < this->NumberOfLineEquations; i++)
   {
     c = this->LineEquations->GetTuple3(i);
 
     if (this->UseNormalizedDistance)
     {
-      double dx = fabs(x-(-c[1]*y-c[2])/c[0]);
-      double dy = fabs(y-(-c[0]*x-c[2])/c[1]);
+      double dx = fabs(x - (-c[1] * y - c[2]) / c[0]);
+      double dy = fabs(y - (-c[0] * x - c[2]) / c[1]);
 
-      double dxn = dx/this->ColumnRanges[0];
-      double dyn = dy/this->ColumnRanges[1];
+      double dxn = dx / this->ColumnRanges[0];
+      double dyn = dy / this->ColumnRanges[1];
 
-      v = sqrt(dxn*dxn+dyn*dyn);
+      v = sqrt(dxn * dxn + dyn * dyn);
     }
     else
     {
-      v = fabs(c[0]*x + c[1]*y + c[2]);
+      v = fabs(c[0] * x + c[1] * y + c[2]);
     }
 
     if ((this->GetInclusive() && v <= this->DistanceThreshold) ||
-        (!this->GetInclusive() && v < this->DistanceThreshold))
+      (!this->GetInclusive() && v < this->DistanceThreshold))
     {
       return 1;
     }
@@ -374,5 +375,5 @@ int vtkBivariateLinearTableThreshold::ThresholdNear(double x, double y)
 
 int vtkBivariateLinearTableThreshold::ThresholdBetween(double x, double y)
 {
-  return (this->ThresholdAbove(x,y) && this->ThresholdBelow(x,y));
+  return (this->ThresholdAbove(x, y) && this->ThresholdBelow(x, y));
 }

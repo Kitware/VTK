@@ -50,7 +50,6 @@ vtkPPairwiseExtractHistogram2D::vtkPPairwiseExtractHistogram2D()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
-
 vtkPPairwiseExtractHistogram2D::~vtkPPairwiseExtractHistogram2D()
 {
   this->SetController(nullptr);
@@ -58,7 +57,7 @@ vtkPPairwiseExtractHistogram2D::~vtkPPairwiseExtractHistogram2D()
 
 void vtkPPairwiseExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
 }
 

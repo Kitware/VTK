@@ -35,7 +35,7 @@
  * vtkPointSet vtkStructuredPoints vtkStructuredGrid vtkUnstructuredGrid
  * vtkRectilinearGrid vtkPolyData vtkPointData vtkCellData
  * vtkDataObject vtkFieldData
-*/
+ */
 
 #ifndef vtkDataSet_h
 #define vtkDataSet_h
@@ -56,7 +56,7 @@ class vtkCallbackCommand;
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
-  vtkTypeMacro(vtkDataSet,vtkDataObject);
+  vtkTypeMacro(vtkDataSet, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -65,14 +65,14 @@ public:
    * be of the same type.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual void CopyStructure(vtkDataSet *ds) = 0;
+  virtual void CopyStructure(vtkDataSet* ds) = 0;
 
   /**
    * Copy the attributes associated with the specified dataset to this
    * instance of vtkDataSet.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual void CopyAttributes(vtkDataSet *ds);
+  virtual void CopyAttributes(vtkDataSet* ds);
 
   /**
    * Determine the number of points composing the dataset.
@@ -90,7 +90,7 @@ public:
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) = 0;
+  virtual double* GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) = 0;
 
   /**
    * Copy point coordinates into user provided array x[3] for specified
@@ -110,8 +110,8 @@ public:
    * Get cell with cellId such that: 0 <= cellId < NumberOfCells.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual vtkCell *GetCell(vtkIdType cellId) = 0;
-  virtual vtkCell *GetCell(int vtkNotUsed(i), int vtkNotUsed(j), int vtkNotUsed(k))
+  virtual vtkCell* GetCell(vtkIdType cellId) = 0;
+  virtual vtkCell* GetCell(int vtkNotUsed(i), int vtkNotUsed(j), int vtkNotUsed(k))
   {
     vtkErrorMacro("ijk indices are only valid with structured data!");
     return nullptr;
@@ -124,7 +124,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell) = 0;
+  virtual void GetCell(vtkIdType cellId, vtkGenericCell* cell) = 0;
 
   /**
    * Get the bounds of the cell with cellId such that:
@@ -155,21 +155,21 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual void GetCellTypes(vtkCellTypes *types);
+  virtual void GetCellTypes(vtkCellTypes* types);
 
   /**
    * Topological inquiry to get points defining cell.
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) = 0;
+  virtual void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) = 0;
 
   /**
    * Topological inquiry to get cells using point.
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) = 0;
+  virtual void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) = 0;
 
   /**
    * Topological inquiry to get all cells using list of points exclusive of
@@ -178,8 +178,7 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                                vtkIdList *cellIds);
+  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds);
 
   //@{
   /**
@@ -192,8 +191,10 @@ public:
   vtkIdType FindPoint(double x, double y, double z)
   {
     double xyz[3];
-    xyz[0] = x; xyz[1] = y; xyz[2] = z;
-    return this->FindPoint (xyz);
+    xyz[0] = x;
+    xyz[1] = y;
+    xyz[2] = z;
+    return this->FindPoint(xyz);
   }
   virtual vtkIdType FindPoint(double x[3]) = 0;
   //@}
@@ -209,9 +210,8 @@ public:
    * the point is to be considered "in" the cell.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                             double tol2, int& subId, double pcoords[3],
-                             double *weights) = 0;
+  virtual vtkIdType FindCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2, int& subId,
+    double pcoords[3], double* weights) = 0;
 
   /**
    * This is a version of the above method that can be used with
@@ -220,10 +220,8 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell,
-                             vtkGenericCell *gencell, vtkIdType cellId,
-                             double tol2, int& subId, double pcoords[3],
-                             double *weights) = 0;
+  virtual vtkIdType FindCell(double x[3], vtkCell* cell, vtkGenericCell* gencell, vtkIdType cellId,
+    double tol2, int& subId, double pcoords[3], double* weights) = 0;
 
   /**
    * Locate the cell that contains a point and return the cell. Also returns
@@ -233,9 +231,8 @@ public:
    * efficient implementation. See for example vtkStructuredPoints.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                                  double tol2, int& subId, double pcoords[3],
-                                  double *weights);
+  virtual vtkCell* FindAndGetCell(double x[3], vtkCell* cell, vtkIdType cellId, double tol2,
+    int& subId, double pcoords[3], double* weights);
 
   /**
    * Datasets are composite objects and need to check each part for MTime
@@ -247,13 +244,13 @@ public:
    * Return a pointer to this dataset's cell data.
    * THIS METHOD IS THREAD SAFE
    */
-  vtkCellData *GetCellData() {return this->CellData;};
+  vtkCellData* GetCellData() { return this->CellData; }
 
   /**
    * Return a pointer to this dataset's point data.
    * THIS METHOD IS THREAD SAFE
    */
-  vtkPointData *GetPointData() {return this->PointData;};
+  vtkPointData* GetPointData() { return this->PointData; }
 
   /**
    * Reclaim any extra memory used to store data.
@@ -272,7 +269,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetBounds() VTK_SIZEHINT(6);
+  double* GetBounds() VTK_SIZEHINT(6);
 
   /**
    * Return a pointer to the geometry bounding box in the form
@@ -286,7 +283,7 @@ public:
    * Get the center of the bounding box.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetCenter() VTK_SIZEHINT(3);
+  double* GetCenter() VTK_SIZEHINT(3);
 
   /**
    * Get the center of the bounding box.
@@ -329,7 +326,7 @@ public:
    * Update to create or refresh the scalars before calling this method.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetScalarRange() VTK_SIZEHINT(2);
+  double* GetScalarRange() VTK_SIZEHINT(2);
 
   /**
    * Convenience method returns largest cell size in dataset. This is generally
@@ -351,21 +348,21 @@ public:
   /**
    * Return the type of data object.
    */
-  int GetDataObjectType() override {return VTK_DATA_SET;}
+  int GetDataObjectType() override { return VTK_DATA_SET; }
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) override;
-  void DeepCopy(vtkDataObject *src) override;
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
   //@}
 
   enum FieldDataType
   {
-    DATA_OBJECT_FIELD=0,
-    POINT_DATA_FIELD=1,
-    CELL_DATA_FIELD=2
+    DATA_OBJECT_FIELD = 0,
+    POINT_DATA_FIELD = 1,
+    CELL_DATA_FIELD = 2
   };
 
   /**
@@ -384,10 +381,7 @@ public:
    * computes the ghost arrays for a given dataset. The zeroExt argument
    * specifies the extent of the region which ghost type = 0.
    */
-  virtual void GenerateGhostArray(int zeroExt[6])
-  {
-    this->GenerateGhostArray(zeroExt, false);
-  }
+  virtual void GenerateGhostArray(int zeroExt[6]) { this->GenerateGhostArray(zeroExt, false); }
   virtual void GenerateGhostArray(int zeroExt[6], bool cellOnly);
   //@}
 
@@ -396,7 +390,7 @@ public:
    * Retrieve an instance of this class from an information object.
    */
   static vtkDataSet* GetData(vtkInformation* info);
-  static vtkDataSet* GetData(vtkInformationVector* v, int i=0);
+  static vtkDataSet* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
@@ -427,19 +421,13 @@ public:
    * 0 otherwise. Blanking is supported only for vtkStructuredGrid
    * and vtkUniformGrid
    */
-  virtual bool HasAnyBlankCells()
-  {
-    return 0;
-  }
+  virtual bool HasAnyBlankCells() { return 0; }
   /**
    * Returns 1 if there are any blanking points
    * 0 otherwise. Blanking is supported only for vtkStructuredGrid
    * and vtkUniformGrid
    */
-  virtual bool HasAnyBlankPoints()
-  {
-    return 0;
-  }
+  virtual bool HasAnyBlankPoints() { return 0; }
 
   /**
    * Gets the array that defines the ghost type of each point.
@@ -486,13 +474,13 @@ protected:
    * Helper function that tests if any of the values in 'a' have bitFlag set.
    * The test performed is (value & bitFlag).
    */
-  bool IsAnyBitSet(vtkUnsignedCharArray *a, int bitFlag);
+  bool IsAnyBitSet(vtkUnsignedCharArray* a, int bitFlag);
 
-  vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
-  vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
-  vtkCallbackCommand *DataObserver; // Observes changes to cell/point data
-  vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
-  double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
+  vtkCellData* CellData;            // Scalars, vectors, etc. associated w/ each cell
+  vtkPointData* PointData;          // Scalars, vectors, etc. associated w/ each point
+  vtkCallbackCommand* DataObserver; // Observes changes to cell/point data
+  vtkTimeStamp ComputeTime;         // Time at which bounds, center, etc. computed
+  double Bounds[6];                 // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   double Center[3];
 
   // Cached scalar range
@@ -512,15 +500,14 @@ protected:
   bool CellGhostArrayCached;
   //@}
 
-
 private:
-  void InternalDataSetCopy(vtkDataSet *src);
+  void InternalDataSetCopy(vtkDataSet* src);
   /**
    * Called when point/cell data is modified
    * Updates caches to point/cell ghost arrays.
    */
   static void OnDataModified(
-    vtkObject* source, unsigned long eid, void* clientdata, void *calldata);
+    vtkObject* source, unsigned long eid, void* clientdata, void* calldata);
 
   friend class vtkImageAlgorithmToDataSetFriendship;
 
@@ -531,8 +518,10 @@ private:
 
 inline void vtkDataSet::GetPoint(vtkIdType id, double x[3])
 {
-  double *pt = this->GetPoint(id);
-  x[0] = pt[0]; x[1] = pt[1]; x[2] = pt[2];
+  double* pt = this->GetPoint(id);
+  x[0] = pt[0];
+  x[1] = pt[1];
+  x[2] = pt[2];
 }
 
 #endif

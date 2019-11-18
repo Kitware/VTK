@@ -5,7 +5,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
-int TestResourceFileLocator(int, char* [])
+int TestResourceFileLocator(int, char*[])
 {
   auto vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
   if (vtklib.empty())

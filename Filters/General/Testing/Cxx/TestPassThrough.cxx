@@ -19,56 +19,55 @@
 #include "vtkPassThrough.h"
 #include "vtkSmartPointer.h"
 
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 bool CompareData(vtkGraph* Output, vtkGraph* Input)
 {
   bool inputDirected = (vtkDirectedGraph::SafeDownCast(Input) != nullptr);
   bool outputDirected = (vtkDirectedGraph::SafeDownCast(Output) != nullptr);
-  if(inputDirected != outputDirected)
+  if (inputDirected != outputDirected)
   {
     std::cerr << "Directedness not the same" << std::endl;
     return false;
   }
 
-  if(Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
+  if (Input->GetNumberOfVertices() != Output->GetNumberOfVertices())
   {
     std::cerr << "GetNumberOfVertices not the same" << std::endl;
     return false;
   }
 
-  if(Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
+  if (Input->GetNumberOfEdges() != Output->GetNumberOfEdges())
   {
     std::cerr << "GetNumberOfEdges not the same" << std::endl;
     return false;
   }
 
-  if(Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
+  if (Input->GetVertexData()->GetNumberOfArrays() != Output->GetVertexData()->GetNumberOfArrays())
   {
     std::cerr << "GetVertexData()->GetNumberOfArrays() not the same" << std::endl;
     return false;
   }
 
-  if(Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
+  if (Input->GetEdgeData()->GetNumberOfArrays() != Output->GetEdgeData()->GetNumberOfArrays())
   {
     std::cerr << "GetEdgeData()->GetNumberOfArrays() not the same" << std::endl;
     return false;
   }
 
-  vtkEdgeListIterator *inputEdges = vtkEdgeListIterator::New();
-  vtkEdgeListIterator *outputEdges = vtkEdgeListIterator::New();
-  while(inputEdges->HasNext())
+  vtkEdgeListIterator* inputEdges = vtkEdgeListIterator::New();
+  vtkEdgeListIterator* outputEdges = vtkEdgeListIterator::New();
+  while (inputEdges->HasNext())
   {
     vtkEdgeType inputEdge = inputEdges->Next();
     vtkEdgeType outputEdge = outputEdges->Next();
-    if(inputEdge.Source != outputEdge.Source)
+    if (inputEdge.Source != outputEdge.Source)
     {
       std::cerr << "Input source != output source" << std::endl;
       return false;
     }
 
-    if(inputEdge.Target != outputEdge.Target)
+    if (inputEdge.Target != outputEdge.Target)
     {
       std::cerr << "Input target != output target" << std::endl;
       return false;
@@ -80,7 +79,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
   return true;
 }
 
-int TestPassThrough(int , char* [])
+int TestPassThrough(int, char*[])
 {
   std::cerr << "Generating graph ..." << std::endl;
   VTK_CREATE(vtkMutableDirectedGraph, g);
@@ -108,7 +107,7 @@ int TestPassThrough(int , char* [])
   VTK_CREATE(vtkPassThrough, pass);
   pass->SetInputData(g);
   pass->Update();
-  vtkGraph *output = vtkGraph::SafeDownCast(pass->GetOutput());
+  vtkGraph* output = vtkGraph::SafeDownCast(pass->GetOutput());
 
   if (!CompareData(g, output))
   {

@@ -197,9 +197,9 @@ int TestPolylineWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // record events
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(iren);
-  //recorder->SetFileName("/tmp/record.log");
-  //recorder->On();
-  //recorder->Record();
+  // recorder->SetFileName("/tmp/record.log");
+  // recorder->On();
+  // recorder->Record();
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(events);
 

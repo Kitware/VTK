@@ -21,7 +21,7 @@ vtkObjectFactoryCollection* vtkObjectFactoryCollection::New()
 {
   // Don't use the object factory macros. Creating an object factory here
   // will cause an infinite loop.
-  vtkObjectFactoryCollection *ret = new vtkObjectFactoryCollection;
+  vtkObjectFactoryCollection* ret = new vtkObjectFactoryCollection;
   ret->InitializeObjectBase();
   return ret;
 }

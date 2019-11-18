@@ -22,7 +22,7 @@
  * represent region of different materials in a simulation or parts in
  * an assembly. It is not requires that items have anything in common.
  * For example, they can have completely different point or cell arrays.
-*/
+ */
 
 #ifndef vtkPartitionedDataSetCollection_h
 #define vtkPartitionedDataSetCollection_h
@@ -43,7 +43,7 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override {return VTK_PARTITIONED_DATA_SET_COLLECTION;}
+  int GetDataObjectType() override { return VTK_PARTITIONED_DATA_SET_COLLECTION; }
 
   /**
    * Set the number of blocks. This will cause allocation if the new number of
@@ -77,36 +77,38 @@ public:
   /**
    * Returns true if meta-data is available for a given block.
    */
-  int HasMetaData(unsigned int idx)
-    { return this->Superclass::HasChildMetaData(idx); }
+  int HasMetaData(unsigned int idx) { return this->Superclass::HasChildMetaData(idx); }
 
   /**
    * Returns the meta-data for the block. If none is already present, a new
    * vtkInformation object will be allocated. Use HasMetaData to avoid
    * allocating vtkInformation objects.
    */
-  vtkInformation* GetMetaData(unsigned int idx)
-    { return this->Superclass::GetChildMetaData(idx); }
+  vtkInformation* GetMetaData(unsigned int idx) { return this->Superclass::GetChildMetaData(idx); }
 
   //@{
   /**
    * Retrieve an instance of this class from an information object.
    */
   static vtkPartitionedDataSetCollection* GetData(vtkInformation* info);
-  static vtkPartitionedDataSetCollection* GetData(vtkInformationVector* v, int i=0);
+  static vtkPartitionedDataSetCollection* GetData(vtkInformationVector* v, int i = 0);
   //@}
 
   /**
    * Unhiding superclass method.
    */
   vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) override
-    { return this->Superclass::GetMetaData(iter); }
+  {
+    return this->Superclass::GetMetaData(iter);
+  }
 
   /**
    * Unhiding superclass method.
    */
   int HasMetaData(vtkCompositeDataIterator* iter) override
-    { return this->Superclass::HasMetaData(iter); }
+  {
+    return this->Superclass::HasMetaData(iter);
+  }
 
 protected:
   vtkPartitionedDataSetCollection();
@@ -115,7 +117,6 @@ protected:
 private:
   vtkPartitionedDataSetCollection(const vtkPartitionedDataSetCollection&) = delete;
   void operator=(const vtkPartitionedDataSetCollection&) = delete;
-
 };
 
 #endif

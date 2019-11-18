@@ -21,7 +21,7 @@
  * in the image header.
  * @sa
  * vtkImageReader2 vtkGESignaReader vtkMedicalImageProperties
-*/
+ */
 
 #ifndef vtkMedicalImageReader2_h
 #define vtkMedicalImageReader2_h
@@ -34,8 +34,8 @@ class vtkMedicalImageProperties;
 class VTKIOIMAGE_EXPORT vtkMedicalImageReader2 : public vtkImageReader2
 {
 public:
-  static vtkMedicalImageReader2 *New();
-  vtkTypeMacro(vtkMedicalImageReader2,vtkImageReader2);
+  static vtkMedicalImageReader2* New();
+  vtkTypeMacro(vtkMedicalImageReader2, vtkImageReader2);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -73,7 +73,7 @@ protected:
   /**
    * Medical Image properties
    */
-  vtkMedicalImageProperties *MedicalImageProperties;
+  vtkMedicalImageProperties* MedicalImageProperties;
 
 private:
   vtkMedicalImageReader2(const vtkMedicalImageReader2&) = delete;

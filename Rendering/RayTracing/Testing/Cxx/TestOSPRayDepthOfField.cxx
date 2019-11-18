@@ -40,7 +40,8 @@
 
 int TestOSPRayDepthOfField(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkRenderWindowInteractor> iren =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -78,7 +79,6 @@ int TestOSPRayDepthOfField(int argc, char* argv[])
   actor3->SetMapper(mapper);
   actor3->SetPosition(0, -0.05, -0.3);
 
-
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   renderer->SetPass(ospray);
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
@@ -98,21 +98,21 @@ int TestOSPRayDepthOfField(int argc, char* argv[])
   camera->SetFocalDistance(camera->GetDistance());
 
   // Increase focal disk
-  for (int i = 9; i < 100; i+=10)
+  for (int i = 9; i < 100; i += 10)
   {
     camera->SetFocalDisk(i * 0.01f);
     renWin->Render();
   }
 
   // Decrease focal disk
-  for (int i = 9; i < 100; i+=10)
+  for (int i = 9; i < 100; i += 10)
   {
     camera->SetFocalDisk(1.0f - 0.8f * (i * 0.01f));
     renWin->Render();
   }
 
   // Move focal point
-  for (int i = 9; i < 200; i+=10)
+  for (int i = 9; i < 200; i += 10)
   {
     camera->SetFocalDistance(camera->GetDistance() + sin(i * 0.03141592653) * 0.3);
     renWin->Render();

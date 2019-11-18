@@ -38,14 +38,12 @@ vtkImageStencilToImage::vtkImageStencilToImage()
 vtkImageStencilToImage::~vtkImageStencilToImage() = default;
 
 //----------------------------------------------------------------------------
-int vtkImageStencilToImage::RequestInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageStencilToImage::RequestInformation(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info object
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   int extent[6];
   double spacing[3];
@@ -59,19 +57,15 @@ int vtkImageStencilToImage::RequestInformation (
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
 
-  vtkDataObject::SetPointDataActiveScalarInfo(
-    outInfo, this->OutputScalarType, -1);
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
 
   return 1;
 }
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageStencilToImageExecute(
-  vtkImageStencilToImage *self,
-  vtkImageStencilData *stencil,
-  vtkImageData *outData, T *,
-  int outExt[6], int id)
+void vtkImageStencilToImageExecute(vtkImageStencilToImage* self, vtkImageStencilData* stencil,
+  vtkImageData* outData, T*, int outExt[6], int id)
 {
   double inValueD = self->GetInsideValue();
   double outValueD = self->GetOutsideValue();
@@ -127,30 +121,24 @@ void vtkImageStencilToImageExecute(
 }
 
 //----------------------------------------------------------------------------
-int vtkImageStencilToImage::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImageStencilToImage::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int updateExtent[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-               updateExtent);
-  vtkImageData *outData = static_cast<vtkImageData *>(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
+  vtkImageData* outData = static_cast<vtkImageData*>(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   this->AllocateOutputData(outData, outInfo, updateExtent);
-  void *outPtr = outData->GetScalarPointerForExtent(updateExtent);
+  void* outPtr = outData->GetScalarPointerForExtent(updateExtent);
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageStencilData *inData = static_cast<vtkImageStencilData *>(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageStencilData* inData =
+    static_cast<vtkImageStencilData*>(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   switch (outData->GetScalarType())
   {
-    vtkTemplateMacro(
-      vtkImageStencilToImageExecute(
-        this, inData, outData, static_cast<VTK_TT *>(outPtr),
-        updateExtent, 0));
+    vtkTemplateMacro(vtkImageStencilToImageExecute(
+      this, inData, outData, static_cast<VTK_TT*>(outPtr), updateExtent, 0));
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
   }

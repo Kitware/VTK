@@ -20,20 +20,19 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 
 //----------------------------------------------------------------------------
-vtkAtom::vtkAtom(vtkMolecule *parent, vtkIdType id)
-  : Molecule(parent), Id(id)
+vtkAtom::vtkAtom(vtkMolecule* parent, vtkIdType id)
+  : Molecule(parent)
+  , Id(id)
 {
   assert(parent != nullptr);
   assert(id < parent->GetNumberOfAtoms());
 }
 
 //----------------------------------------------------------------------------
-void vtkAtom::PrintSelf(ostream &os, vtkIndent indent)
+void vtkAtom::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "Molecule: " << this->Molecule
-     << " Id: " << this->Id
-     << " Element: " << this->GetAtomicNumber()
-     << " Position: " << this->GetPosition() << endl;
+  os << indent << "Molecule: " << this->Molecule << " Id: " << this->Id
+     << " Element: " << this->GetAtomicNumber() << " Position: " << this->GetPosition() << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -82,7 +81,7 @@ vtkVector3f vtkAtom::GetPosition() const
 }
 
 //----------------------------------------------------------------------------
-void vtkAtom::SetPosition(const vtkVector3f &pos)
+void vtkAtom::SetPosition(const vtkVector3f& pos)
 {
   this->Molecule->SetAtomPosition(this->Id, pos);
 }

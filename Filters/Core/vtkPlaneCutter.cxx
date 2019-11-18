@@ -57,7 +57,7 @@ vtkObjectFactoryNewMacro(vtkPlaneCutter);
 vtkCxxSetObjectMacro(vtkPlaneCutter, Plane, vtkPlane);
 
 //----------------------------------------------------------------------------
-namespace //begin anonymous namespace
+namespace // begin anonymous namespace
 {
 
 struct vtkLocalDataType
@@ -80,43 +80,44 @@ struct vtkLocalDataType
 // simplify bit fiddling later on.
 struct InOutPlanePoints
 {
-  vtkPoints *Points;
+  vtkPoints* Points;
   unsigned char* InOutArray;
   double Origin[3];
   double Normal[3];
 
-  InOutPlanePoints(vtkPoints *pts, vtkPlane* plane) : Points(pts)
+  InOutPlanePoints(vtkPoints* pts, vtkPlane* plane)
+    : Points(pts)
   {
 
-    this->InOutArray = new unsigned char [pts->GetNumberOfPoints()];
+    this->InOutArray = new unsigned char[pts->GetNumberOfPoints()];
     plane->GetOrigin(this->Origin);
     plane->GetNormal(this->Normal);
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    double p[3], zero=double(0), eval;
-    double *n=this->Normal, *o=this->Origin;
-    unsigned char *ioa = this->InOutArray + ptId;
-    for ( ; ptId < endPtId; ++ptId )
+    double p[3], zero = double(0), eval;
+    double *n = this->Normal, *o = this->Origin;
+    unsigned char* ioa = this->InOutArray + ptId;
+    for (; ptId < endPtId; ++ptId)
     {
       // Access each point
       this->Points->GetPoint(ptId, p);
 
       // Evaluate position of the point with the plane. Invoke inline,
       // non-virtual version of evaluate method.
-      eval = vtkPlane::Evaluate(n,o,p);
+      eval = vtkPlane::Evaluate(n, o, p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
       *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
   }
 
-  static unsigned char* Execute(vtkPoints *pts, vtkPlane *plane)
+  static unsigned char* Execute(vtkPoints* pts, vtkPlane* plane)
   {
-    vtkIdType numPts=pts->GetNumberOfPoints();
-    InOutPlanePoints iopp(pts,plane);
-    vtkSMPTools::For(0,numPts, iopp);
+    vtkIdType numPts = pts->GetNumberOfPoints();
+    InOutPlanePoints iopp(pts, plane);
+    vtkSMPTools::For(0, numPts, iopp);
     return iopp.InOutArray;
   }
 };
@@ -125,41 +126,44 @@ struct InOutPlanePoints
 template <typename TP>
 struct InOutRealPlanePoints : public InOutPlanePoints
 {
-  TP *PointsPtr;
+  TP* PointsPtr;
 
-  InOutRealPlanePoints(vtkPoints *pts, vtkPlane* plane) :
-    InOutPlanePoints(pts,plane)
+  InOutRealPlanePoints(vtkPoints* pts, vtkPlane* plane)
+    : InOutPlanePoints(pts, plane)
   {
     this->PointsPtr = static_cast<TP*>(this->Points->GetVoidPointer(0));
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    double p[3], zero=double(0), eval;
-    double *n=this->Normal, *o=this->Origin;
-    TP *pts = this->PointsPtr + 3*ptId;
-    unsigned char *ioa = this->InOutArray + ptId;
-    for ( ; ptId < endPtId; ++ptId )
+    double p[3], zero = double(0), eval;
+    double *n = this->Normal, *o = this->Origin;
+    TP* pts = this->PointsPtr + 3 * ptId;
+    unsigned char* ioa = this->InOutArray + ptId;
+    for (; ptId < endPtId; ++ptId)
     {
       // Access each point
-      p[0] = static_cast<double>(*pts); ++pts;
-      p[1] = static_cast<double>(*pts); ++pts;
-      p[2] = static_cast<double>(*pts); ++pts;
+      p[0] = static_cast<double>(*pts);
+      ++pts;
+      p[1] = static_cast<double>(*pts);
+      ++pts;
+      p[2] = static_cast<double>(*pts);
+      ++pts;
 
       // Evaluate position of the point with the plane. Invoke inline,
       // non-virtual version of evaluate method.
-      eval = vtkPlane::Evaluate(n,o,p);
+      eval = vtkPlane::Evaluate(n, o, p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
       *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
   }
 
-  static unsigned char* Execute(vtkPoints *pts, vtkPlane *plane)
+  static unsigned char* Execute(vtkPoints* pts, vtkPlane* plane)
   {
-    vtkIdType numPts=pts->GetNumberOfPoints();
-    InOutRealPlanePoints<TP> iorpp(pts,plane);
-    vtkSMPTools::For(0,numPts, iorpp);
+    vtkIdType numPts = pts->GetNumberOfPoints();
+    InOutRealPlanePoints<TP> iorpp(pts, plane);
+    vtkSMPTools::For(0, numPts, iorpp);
     return static_cast<InOutPlanePoints&>(iorpp).InOutArray;
   }
 };
@@ -170,8 +174,8 @@ struct InOutRealPlanePoints : public InOutPlanePoints
 struct CuttingFunctor
 {
   vtkDataSet* Input;
-  vtkPoints* InPoints; //if explicit points, the points
-  int PointsType; //if explicit points, the type
+  vtkPoints* InPoints; // if explicit points, the points
+  int PointsType;      // if explicit points, the type
   vtkDataObject* Output;
   vtkPlane* Plane;
   vtkSphereTree* SphereTree;
@@ -193,14 +197,8 @@ struct CuttingFunctor
   bool Interpolate;
   bool GeneratePolygons;
 
-  CuttingFunctor(vtkDataSet* input,
-    vtkDataObject* output,
-    vtkPlane* plane,
-    vtkSphereTree* tree,
-    double* origin,
-    double* normal,
-    bool interpolate,
-    bool generatePolygons = false)
+  CuttingFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane, vtkSphereTree* tree,
+    double* origin, double* normal, bool interpolate, bool generatePolygons = false)
     : Input(input)
     , InPoints(nullptr)
     , Output(output)
@@ -232,45 +230,41 @@ struct CuttingFunctor
       ++dataIter;
     }
 
-    if ( this->InPoints )
+    if (this->InPoints)
     {
       this->InPoints->Delete();
     }
-    delete [] this->InOutArray;
+    delete[] this->InOutArray;
   }
 
   void BuildAccelerationStructure()
   {
     // To speed computation, either a sphere tree or fast classification
     // process is used.
-    if ( this->SphereTree )
+    if (this->SphereTree)
     {
-      this->Selected =
-        this->SphereTree->SelectPlane(this->Origin, this->Normal, this->NumSelected);
+      this->Selected = this->SphereTree->SelectPlane(this->Origin, this->Normal, this->NumSelected);
     }
     else
     {
       // Create a classification array which is used later to reduce the
       // number of the more expensive "GetCell()" type operations.
-      if ( this->PointsType == VTK_FLOAT )
+      if (this->PointsType == VTK_FLOAT)
       {
-        this->InOutArray =
-          InOutRealPlanePoints<float>::Execute(this->InPoints, this->Plane);
+        this->InOutArray = InOutRealPlanePoints<float>::Execute(this->InPoints, this->Plane);
       }
-      else if ( this->PointsType == VTK_DOUBLE )
+      else if (this->PointsType == VTK_DOUBLE)
       {
-        this->InOutArray =
-          InOutRealPlanePoints<double>::Execute(this->InPoints, this->Plane);
+        this->InOutArray = InOutRealPlanePoints<double>::Execute(this->InPoints, this->Plane);
       }
       else // not a real type
       {
-        this->InOutArray =
-          InOutPlanePoints::Execute(this->InPoints, this->Plane);
+        this->InOutArray = InOutPlanePoints::Execute(this->InPoints, this->Plane);
       }
     }
   }
 
-  void SetInPoints(vtkPoints *inPts)
+  void SetInPoints(vtkPoints* inPts)
   {
     this->InPoints = inPts;
     inPts->Register(nullptr);
@@ -282,7 +276,7 @@ struct CuttingFunctor
     vtkNew<vtkIdList> ptIds;
     this->Input->GetCellPoints(cellId, ptIds);
     vtkIdType npts = ptIds->GetNumberOfIds();
-    vtkIdType* pts =  ptIds->GetPointer(0);
+    vtkIdType* pts = ptIds->GetPointer(0);
     return this->ArePointsAroundPlane(npts, pts);
   }
 
@@ -290,7 +284,7 @@ struct CuttingFunctor
   bool ArePointsAroundPlane(vtkIdType& npts, const vtkIdType* pts)
   {
     unsigned char onOneSideOfPlane = this->InOutArray[pts[0]];
-    for ( vtkIdType i=1; onOneSideOfPlane && i < npts; ++i )
+    for (vtkIdType i = 1; onOneSideOfPlane && i < npts; ++i)
     {
       onOneSideOfPlane &= this->InOutArray[pts[i]];
     }
@@ -384,20 +378,15 @@ struct CuttingFunctor
 // PolyData and UnstructuredGrid shared function
 struct PointSetFunctor : public CuttingFunctor
 {
-  PointSetFunctor(vtkDataSet* input,
-    vtkDataObject* output,
-    vtkPlane* plane,
-    vtkSphereTree* tree,
-    double* origin,
-    double* normal,
-    bool interpolate)
+  PointSetFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane, vtkSphereTree* tree,
+    double* origin, double* normal, bool interpolate)
     : CuttingFunctor(input, output, plane, tree, origin, normal, interpolate)
   {
   }
 
   ~PointSetFunctor() override
   {
-    if(this->Interpolate)
+    if (this->Interpolate)
     {
       vtkSMPThreadLocal<vtkLocalDataType>::iterator dataIter = this->LocalData.begin();
       while (dataIter != this->LocalData.end())
@@ -464,13 +453,8 @@ struct UnstructuredGridFunctor : public PointSetFunctor
 {
   vtkUnstructuredGrid* Grid;
 
-  UnstructuredGridFunctor(vtkDataSet* input,
-    vtkDataObject* output,
-    vtkPlane* plane,
-    vtkSphereTree* tree,
-    double* origin,
-    double* normal,
-    bool interpolate)
+  UnstructuredGridFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
+    vtkSphereTree* tree, double* origin, double* normal, bool interpolate)
     : PointSetFunctor(input, output, plane, tree, origin, normal, interpolate)
   {
     this->Grid = vtkUnstructuredGrid::SafeDownCast(input);
@@ -524,7 +508,7 @@ struct UnstructuredGridFunctor : public PointSetFunctor
       needCell = false;
       if (this->SphereTree)
       {
-        if(*selected++)
+        if (*selected++)
         {
           // only the cell whose bounding sphere intersect with the plane are needed
           needCell = true;
@@ -551,17 +535,17 @@ struct UnstructuredGridFunctor : public PointSetFunctor
         if (this->Interpolate)
         {
           // Select correct cell data
-          switch(cell->GetCellDimension())
+          switch (cell->GetCellDimension())
           {
-            case(0):
+            case (0):
               VTK_FALLTHROUGH;
-            case(1):
+            case (1):
               tmpOutCD = newVertsData;
               break;
-            case(2):
+            case (2):
               tmpOutCD = newLinesData;
               break;
-            case(3):
+            case (3):
               tmpOutCD = newPolysData;
               break;
             default:
@@ -579,21 +563,18 @@ struct UnstructuredGridFunctor : public PointSetFunctor
   bool IsCellSlicedByPlane(vtkIdType cellId)
   {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     this->Grid->GetCellPoints(cellId, npts, pts);
     return this->ArePointsAroundPlane(npts, pts);
   }
 
-  static void Execute(vtkDataSet* input, vtkDataObject* output,
-                      vtkPlane* plane, vtkSphereTree* tree,
-                      double* origin, double* normal,
-                      bool interpolate)
+  static void Execute(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
+    vtkSphereTree* tree, double* origin, double* normal, bool interpolate)
   {
-    vtkIdType numCells=input->GetNumberOfCells();
-    UnstructuredGridFunctor functor(input,output,plane,tree,origin,normal,
-                                    interpolate);
+    vtkIdType numCells = input->GetNumberOfCells();
+    UnstructuredGridFunctor functor(input, output, plane, tree, origin, normal, interpolate);
     functor.BuildAccelerationStructure();
-    vtkSMPTools::For(0,numCells, functor);
+    vtkSMPTools::For(0, numCells, functor);
   }
 };
 
@@ -602,17 +583,12 @@ struct PolyDataFunctor : public PointSetFunctor
 {
   vtkPolyData* PolyData;
 
-  PolyDataFunctor(vtkDataSet* input,
-    vtkDataObject* output,
-    vtkPlane* plane,
-    vtkSphereTree* tree,
-    double* origin,
-    double* normal,
-    bool interpolate)
+  PolyDataFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane, vtkSphereTree* tree,
+    double* origin, double* normal, bool interpolate)
     : PointSetFunctor(input, output, plane, tree, origin, normal, interpolate)
   {
     this->PolyData = vtkPolyData::SafeDownCast(input);
-    if(this->PolyData->NeedToBuildCells())
+    if (this->PolyData->NeedToBuildCells())
     {
       this->PolyData->BuildCells();
     }
@@ -666,7 +642,7 @@ struct PolyDataFunctor : public PointSetFunctor
       needCell = false;
       if (this->SphereTree)
       {
-        if(*selected++)
+        if (*selected++)
         {
           // only the cell whose bounding sphere intersect with the plane are needed
           needCell = true;
@@ -693,17 +669,17 @@ struct PolyDataFunctor : public PointSetFunctor
         if (this->Interpolate)
         {
           // Select correct cell data
-          switch(cell->GetCellDimension())
+          switch (cell->GetCellDimension())
           {
-            case(0):
+            case (0):
               VTK_FALLTHROUGH;
-            case(1):
+            case (1):
               tmpOutCD = newVertsData;
               break;
-            case(2):
+            case (2):
               tmpOutCD = newLinesData;
               break;
-            case(3):
+            case (3):
               tmpOutCD = newPolysData;
               break;
             default:
@@ -721,21 +697,18 @@ struct PolyDataFunctor : public PointSetFunctor
   bool IsCellSlicedByPlane(vtkIdType cellId)
   {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     this->PolyData->GetCellPoints(cellId, npts, pts);
     return this->ArePointsAroundPlane(npts, pts);
   }
 
-  static void Execute(vtkDataSet* input, vtkDataObject* output,
-                      vtkPlane* plane, vtkSphereTree* tree,
-                      double* origin, double* normal,
-                      bool interpolate)
+  static void Execute(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
+    vtkSphereTree* tree, double* origin, double* normal, bool interpolate)
   {
-    vtkIdType numCells=input->GetNumberOfCells();
-    PolyDataFunctor functor(input,output,plane,tree,origin,normal,
-                            interpolate);
+    vtkIdType numCells = input->GetNumberOfCells();
+    PolyDataFunctor functor(input, output, plane, tree, origin, normal, interpolate);
     functor.BuildAccelerationStructure();
-    vtkSMPTools::For(0,numCells, functor);
+    vtkSMPTools::For(0, numCells, functor);
   }
 };
 
@@ -1281,33 +1254,13 @@ static vtkPlaneCutCases VTK_PLANE_CUT_CASES_TRIANGLES[] = {
 }; /* 255 0 */
 
 //----------------------------------------------------------------------------
-static int edges[12][2] = { { 0, 1 },
-  { 1, 2 },
-  { 3, 2 },
-  { 0, 3 },
-  { 4, 5 },
-  { 5, 6 },
-  { 7, 6 },
-  { 4, 7 },
-  { 0, 4 },
-  { 1, 5 },
-  { 3, 7 },
-  { 2, 6 } };
+static int edges[12][2] = { { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 7, 6 },
+  { 4, 7 }, { 0, 4 }, { 1, 5 }, { 3, 7 }, { 2, 6 } };
 
-template<typename T>
-void CutStructuredGrid(T* pts,
-  vtkIdType ptId,
-  vtkIdType cellId,
-  int dims[3],
-  vtkIdType sliceOffset,
-  vtkPoints* newPts,
-  vtkCellArray* polys,
-  vtkPointData* inPd,
-  vtkPointData* outPd,
-  vtkCellData* inCd,
-  vtkCellData* outCd,
-  const double* planeOrigin,
-  const double* planeNormal,
+template <typename T>
+void CutStructuredGrid(T* pts, vtkIdType ptId, vtkIdType cellId, int dims[3], vtkIdType sliceOffset,
+  vtkPoints* newPts, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
+  vtkCellData* inCd, vtkCellData* outCd, const double* planeOrigin, const double* planeNormal,
   bool generatePolygons)
 {
   static const int CASE_MASK[8] = { 1, 2, 4, 8, 16, 32, 64, 128 };
@@ -1454,14 +1407,8 @@ void CutStructuredGrid(T* pts,
 // Process structured grids
 struct StructuredFunctor : public CuttingFunctor
 {
-  StructuredFunctor(vtkDataSet* input,
-    vtkDataObject* output,
-    vtkPlane* plane,
-    vtkSphereTree* tree,
-    double* origin,
-    double* normal,
-    bool interpolate,
-    bool generatePolygons)
+  StructuredFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane, vtkSphereTree* tree,
+    double* origin, double* normal, bool interpolate, bool generatePolygons)
     : CuttingFunctor(input, output, plane, tree, origin, normal, interpolate, generatePolygons)
   {
     vtkStructuredGrid* sgrid = vtkStructuredGrid::SafeDownCast(input);
@@ -1520,7 +1467,7 @@ struct StructuredFunctor : public CuttingFunctor
       needCell = false;
       if (this->SphereTree)
       {
-        if(*selected++)
+        if (*selected++)
         {
           needCell = true;
         }
@@ -1537,36 +1484,14 @@ struct StructuredFunctor : public CuttingFunctor
         ptId = i + j * dims[0] + k * sliceOffset;
         if (this->PointsType == VTK_FLOAT)
         {
-          CutStructuredGrid<float>(static_cast<float*>(ptsPtr),
-            ptId,
-            cellId,
-            dims,
-            sliceOffset,
-            newPoints,
-            newPolys,
-            inPD,
-            outPD,
-            inCD,
-            outCD,
-            planeOrigin,
-            planeNormal,
+          CutStructuredGrid<float>(static_cast<float*>(ptsPtr), ptId, cellId, dims, sliceOffset,
+            newPoints, newPolys, inPD, outPD, inCD, outCD, planeOrigin, planeNormal,
             this->GeneratePolygons);
         }
         else // double
         {
-          CutStructuredGrid<double>(static_cast<double*>(ptsPtr),
-            ptId,
-            cellId,
-            dims,
-            sliceOffset,
-            newPoints,
-            newPolys,
-            inPD,
-            outPD,
-            inCD,
-            outCD,
-            planeOrigin,
-            planeNormal,
+          CutStructuredGrid<double>(static_cast<double*>(ptsPtr), ptId, cellId, dims, sliceOffset,
+            newPoints, newPolys, inPD, outPD, inCD, outCD, planeOrigin, planeNormal,
             this->GeneratePolygons);
         }
       } // for all selected cells
@@ -1575,36 +1500,27 @@ struct StructuredFunctor : public CuttingFunctor
 
   void Reduce() { CuttingFunctor::Reduce(); }
 
-  static void Execute(vtkDataSet* input, vtkDataObject* output,
-                      vtkPlane* plane, vtkSphereTree* tree,
-                      double* origin, double* normal,
-                      bool interpolate, bool generatePolygons)
+  static void Execute(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
+    vtkSphereTree* tree, double* origin, double* normal, bool interpolate, bool generatePolygons)
   {
-    vtkIdType numCells=input->GetNumberOfCells();
-    StructuredFunctor functor(input,output,plane,tree,origin,normal,
-                              interpolate,generatePolygons);
+    vtkIdType numCells = input->GetNumberOfCells();
+    StructuredFunctor functor(
+      input, output, plane, tree, origin, normal, interpolate, generatePolygons);
     functor.BuildAccelerationStructure();
-    vtkSMPTools::For(0,numCells, functor);
+    vtkSMPTools::For(0, numCells, functor);
   }
-
 };
 
 // Process rectilinear grids with the same algo as structured grid
 struct RectilinearFunctor : public CuttingFunctor
 {
-  RectilinearFunctor(vtkDataSet* input,
-    vtkDataObject* output,
-    vtkPlane* plane,
-    vtkSphereTree* tree,
-    double* origin,
-    double* normal,
-    bool interpolate,
-    bool generatePolygons)
+  RectilinearFunctor(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane, vtkSphereTree* tree,
+    double* origin, double* normal, bool interpolate, bool generatePolygons)
     : CuttingFunctor(input, output, plane, tree, origin, normal, interpolate, generatePolygons)
   {
     vtkRectilinearGrid* sgrid = vtkRectilinearGrid::SafeDownCast(input);
     vtkNew<vtkPoints> inPts;
-    sgrid->GetPoints(inPts); //copy points into provided points array
+    sgrid->GetPoints(inPts); // copy points into provided points array
     this->SetInPoints(inPts);
   }
 
@@ -1660,7 +1576,7 @@ struct RectilinearFunctor : public CuttingFunctor
       needCell = false;
       if (this->SphereTree)
       {
-        if(*selected++)
+        if (*selected++)
         {
           needCell = true;
         }
@@ -1677,36 +1593,14 @@ struct RectilinearFunctor : public CuttingFunctor
         ptId = i + j * dims[0] + k * sliceOffset;
         if (this->PointsType == VTK_FLOAT)
         {
-          CutStructuredGrid<float>(static_cast<float*>(ptsPtr),
-            ptId,
-            cellId,
-            dims,
-            sliceOffset,
-            newPoints,
-            newPolys,
-            inPD,
-            outPD,
-            inCD,
-            outCD,
-            planeOrigin,
-            planeNormal,
+          CutStructuredGrid<float>(static_cast<float*>(ptsPtr), ptId, cellId, dims, sliceOffset,
+            newPoints, newPolys, inPD, outPD, inCD, outCD, planeOrigin, planeNormal,
             this->GeneratePolygons);
         }
         else // double
         {
-          CutStructuredGrid<double>(static_cast<double*>(ptsPtr),
-            ptId,
-            cellId,
-            dims,
-            sliceOffset,
-            newPoints,
-            newPolys,
-            inPD,
-            outPD,
-            inCD,
-            outCD,
-            planeOrigin,
-            planeNormal,
+          CutStructuredGrid<double>(static_cast<double*>(ptsPtr), ptId, cellId, dims, sliceOffset,
+            newPoints, newPolys, inPD, outPD, inCD, outCD, planeOrigin, planeNormal,
             this->GeneratePolygons);
         }
       } // for all selected cells
@@ -1715,18 +1609,15 @@ struct RectilinearFunctor : public CuttingFunctor
 
   void Reduce() { CuttingFunctor::Reduce(); }
 
-  static void Execute(vtkDataSet* input, vtkDataObject* output,
-                      vtkPlane* plane, vtkSphereTree* tree,
-                      double* origin, double* normal,
-                      bool interpolate, bool generatePolygons)
+  static void Execute(vtkDataSet* input, vtkDataObject* output, vtkPlane* plane,
+    vtkSphereTree* tree, double* origin, double* normal, bool interpolate, bool generatePolygons)
   {
-    vtkIdType numCells=input->GetNumberOfCells();
-    RectilinearFunctor functor(input,output,plane,tree,origin,normal,
-                               interpolate,generatePolygons);
+    vtkIdType numCells = input->GetNumberOfCells();
+    RectilinearFunctor functor(
+      input, output, plane, tree, origin, normal, interpolate, generatePolygons);
     functor.BuildAccelerationStructure();
-    vtkSMPTools::For(0,numCells, functor);
+    vtkSMPTools::For(0, numCells, functor);
   }
-
 };
 
 } // anonymous namespace
@@ -1770,8 +1661,7 @@ vtkMTimeType vtkPlaneCutter::GetMTime()
 //----------------------------------------------------------------------------
 // Always create multiblock, although it is necessary only with Threading enabled
 int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* outputVector)
+  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outInfo);
@@ -1785,9 +1675,8 @@ int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-vtkTypeBool vtkPlaneCutter::ProcessRequest(vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+vtkTypeBool vtkPlaneCutter::ProcessRequest(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // generate the data
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
@@ -1800,8 +1689,7 @@ vtkTypeBool vtkPlaneCutter::ProcessRequest(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 int vtkPlaneCutter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+  vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector))
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
@@ -1825,8 +1713,7 @@ int vtkPlaneCutter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformati
 //----------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
 int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkDebugMacro(<< "Executing plane cutter");
 
@@ -1852,7 +1739,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     }
     return this->ExecuteDataSet(dsInput, tree, output);
   }
-  else if(hdInput)
+  else if (hdInput)
   {
     mb->CopyStructure(hdInput);
 
@@ -1889,8 +1776,8 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 
 //----------------------------------------------------------------------------
 // This method delegates to the appropriate algorithm
-int vtkPlaneCutter::
-ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output)
+int vtkPlaneCutter::ExecuteDataSet(
+  vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* output)
 {
   vtkPlane* plane = this->Plane;
   if (this->Plane == nullptr)
@@ -1972,7 +1859,7 @@ ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* out
   }
 
   // Prepare the output
-  if ( tree )
+  if (tree)
   {
     tree->SetBuildHierarchy(this->BuildHierarchy);
     tree->Build(input);
@@ -1982,48 +1869,26 @@ ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* out
   // Threaded execute
   if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
   {
-    StructuredFunctor::Execute(input,
-      output,
-      plane,
-      tree,
-      planeOrigin,
-      planeNormal,
-      this->InterpolateAttributes,
-      this->GeneratePolygons);
+    StructuredFunctor::Execute(input, output, plane, tree, planeOrigin, planeNormal,
+      this->InterpolateAttributes, this->GeneratePolygons);
   }
 
   else if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
   {
-    RectilinearFunctor::Execute(input,
-      output,
-      plane,
-      tree,
-      planeOrigin,
-      planeNormal,
-      this->InterpolateAttributes,
-      this->GeneratePolygons);
+    RectilinearFunctor::Execute(input, output, plane, tree, planeOrigin, planeNormal,
+      this->InterpolateAttributes, this->GeneratePolygons);
   }
 
   else if (input->GetDataObjectType() == VTK_POLY_DATA)
   {
-    PolyDataFunctor::Execute(input,
-      output,
-      plane,
-      tree,
-      planeOrigin,
-      planeNormal,
-      this->InterpolateAttributes);
+    PolyDataFunctor::Execute(
+      input, output, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes);
   }
 
   else if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
   {
-    UnstructuredGridFunctor::Execute(input,
-      output,
-      plane,
-      tree,
-      planeOrigin,
-      planeNormal,
-      this->InterpolateAttributes);
+    UnstructuredGridFunctor::Execute(
+      input, output, plane, tree, planeOrigin, planeNormal, this->InterpolateAttributes);
   }
 
   else
@@ -2036,9 +1901,8 @@ ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMultiPieceDataSet* out
   if (this->ComputeNormals)
   {
     using Opts = vtk::DataObjectTreeOptions;
-    for (vtkDataObject *dObj : vtk::Range(output, Opts::SkipEmptyNodes |
-                                                  Opts::TraverseSubTree |
-                                                  Opts::VisitOnlyLeaves))
+    for (vtkDataObject* dObj :
+      vtk::Range(output, Opts::SkipEmptyNodes | Opts::TraverseSubTree | Opts::VisitOnlyLeaves))
     {
       vtkDataSet* hdLeafOutput = vtkDataSet::SafeDownCast(dObj);
       this->AddNormalArray(planeNormal, hdLeafOutput);
@@ -2068,7 +1932,7 @@ void vtkPlaneCutter::InitializeOutput(vtkMultiPieceDataSet* output)
   // to have a coherent multipiece output, even in parallel.
   int nThreads = vtkSMPTools::GetEstimatedNumberOfThreads();
   output->SetNumberOfPieces(nThreads);
-  for(int i = 0; i < nThreads; i++)
+  for (int i = 0; i < nThreads; i++)
   {
     vtkNew<vtkPolyData> filler;
     output->SetPiece(i, filler);

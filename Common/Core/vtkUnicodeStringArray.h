@@ -27,7 +27,7 @@
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
-*/
+ */
 
 #ifndef vtkUnicodeStringArray_h
 #define vtkUnicodeStringArray_h
@@ -36,42 +36,36 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkUnicodeString.h"    // For value type
 
-class VTKCOMMONCORE_EXPORT vtkUnicodeStringArray :
-  public vtkAbstractArray
+class VTKCOMMONCORE_EXPORT vtkUnicodeStringArray : public vtkAbstractArray
 {
 public:
   static vtkUnicodeStringArray* New();
-  vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
+  vtkTypeMacro(vtkUnicodeStringArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext=1000) override;
+  vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000) override;
   void Initialize() override;
   int GetDataType() override;
   int GetDataTypeSize() override;
   int GetElementComponentSize() override;
   void SetNumberOfTuples(vtkIdType number) override;
-  void SetTuple(vtkIdType i, vtkIdType j,
-                vtkAbstractArray* source) override;
-  void InsertTuple(vtkIdType i, vtkIdType j,
-                   vtkAbstractArray* source) override;
-  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) override;
-  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) override;
+  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
+  void InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source) override;
+  void InsertTuples(
+    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source) override;
   vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) override;
   void* GetVoidPointer(vtkIdType id) override;
   void DeepCopy(vtkAbstractArray* da) override;
-  void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights) override;
-  void InterpolateTuple(vtkIdType i,
-    vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t) override;
+  void InterpolateTuple(
+    vtkIdType i, vtkIdList* ptIndices, vtkAbstractArray* source, double* weights) override;
+  void InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray* source1, vtkIdType id2,
+    vtkAbstractArray* source2, double t) override;
   void Squeeze() override;
   vtkTypeBool Resize(vtkIdType numTuples) override;
-  void SetVoidArray(void *array, vtkIdType size, int save) override;
-  void SetVoidArray(void *array, vtkIdType size, int save,
-                    int deleteMethod) override;
-  void SetArrayFreeFunction(void (*callback)(void *)) override;
+  void SetVoidArray(void* array, vtkIdType size, int save) override;
+  void SetVoidArray(void* array, vtkIdType size, int save, int deleteMethod) override;
+  void SetArrayFreeFunction(void (*callback)(void*)) override;
   unsigned long GetActualMemorySize() override; // in bytes
   int IsNumeric() override;
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
@@ -86,7 +80,7 @@ public:
 
   vtkIdType InsertNextValue(const vtkUnicodeString&);
   void InsertValue(vtkIdType idx, const vtkUnicodeString&); // Ranged checked
-  void SetValue(vtkIdType i, const vtkUnicodeString&); // Not ranged checked
+  void SetValue(vtkIdType i, const vtkUnicodeString&);      // Not ranged checked
   vtkUnicodeString& GetValue(vtkIdType i);
 
   void InsertNextUTF8Value(const char*);
@@ -103,7 +97,6 @@ private:
 
   class Implementation;
   Implementation* Internal;
-
 };
 
 #endif

@@ -21,7 +21,7 @@
  * several GPUs. The values are set by vtkGPUInfoList.
  * @sa
  * vtkGPUInfoList vtkDirectXGPUInfoList vtkCoreGraphicsGPUInfoList
-*/
+ */
 
 #ifndef vtkGPUInfo_h
 #define vtkGPUInfo_h

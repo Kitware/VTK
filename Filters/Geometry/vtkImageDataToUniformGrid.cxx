@@ -39,16 +39,15 @@ vtkImageDataToUniformGrid::vtkImageDataToUniformGrid()
 vtkImageDataToUniformGrid::~vtkImageDataToUniformGrid() = default;
 
 //----------------------------------------------------------------------------
-void vtkImageDataToUniformGrid::PrintSelf(ostream &os, vtkIndent indent)
+void vtkImageDataToUniformGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Reverse: " << this->Reverse << "\n";
 }
 
 //----------------------------------------------------------------------------
-int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
-                                                 vtkInformationVector **inV,
-                                                 vtkInformationVector *outV)
+int vtkImageDataToUniformGrid::RequestDataObject(
+  vtkInformation*, vtkInformationVector** inV, vtkInformationVector* outV)
 {
   vtkInformation* inInfo = inV[0]->GetInformationObject(0);
   if (!inInfo)
@@ -58,7 +57,7 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
 
   vtkInformation* outInfo = outV->GetInformationObject(0);
 
-  if(vtkDataObjectTree* input = vtkDataObjectTree::GetData(inInfo) )
+  if (vtkDataObjectTree* input = vtkDataObjectTree::GetData(inInfo))
   { // multiblock data sets
     vtkDataObjectTree* output = vtkDataObjectTree::GetData(outInfo);
     if (!output)
@@ -71,7 +70,7 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
     }
     return VTK_OK;
   }
-  if(vtkImageData::GetData(inInfo) != nullptr)
+  if (vtkImageData::GetData(inInfo) != nullptr)
   {
     vtkUniformGrid* output = vtkUniformGrid::New();
     outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
@@ -82,21 +81,20 @@ int vtkImageDataToUniformGrid::RequestDataObject(vtkInformation *,
     return VTK_OK;
   }
 
-  vtkErrorMacro("Don't know how to handle input of type " <<
-                vtkDataObject::GetData(inInfo)->GetClassName());
+  vtkErrorMacro(
+    "Don't know how to handle input of type " << vtkDataObject::GetData(inInfo)->GetClassName());
   return VTK_ERROR;
 }
 
 //----------------------------------------------------------------------------
-int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
-                                           vtkInformationVector **,
-                                           vtkInformationVector *outV)
+int vtkImageDataToUniformGrid::RequestData(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector* outV)
 {
   vtkDataObject* input = this->GetInput();
-  vtkInformation *outInfo = outV->GetInformationObject(0);
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkInformation* outInfo = outV->GetInformationObject(0);
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  vtkInformation *inArrayInfo = this->GetInputArrayInformation(0);
+  vtkInformation* inArrayInfo = this->GetInputArrayInformation(0);
   if (!inArrayInfo)
   {
     vtkErrorMacro("Problem getting array to process.");
@@ -117,10 +115,9 @@ int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
     return 0;
   }
 
-  if(vtkImageData* inImageData = vtkImageData::SafeDownCast(input))
+  if (vtkImageData* inImageData = vtkImageData::SafeDownCast(input))
   {
-    return this->Process(inImageData, association, arrayName,
-                         vtkUniformGrid::SafeDownCast(output));
+    return this->Process(inImageData, association, arrayName, vtkUniformGrid::SafeDownCast(output));
   }
   vtkDataObjectTree* inMB = vtkDataObjectTree::SafeDownCast(input);
   vtkDataObjectTree* outMB = vtkDataObjectTree::SafeDownCast(output);
@@ -128,13 +125,12 @@ int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
   vtkDataObjectTreeIterator* iter = inMB->NewTreeIterator();
   iter->VisitOnlyLeavesOn();
   iter->TraverseSubTreeOn();
-  for(iter->GoToFirstItem();!iter->IsDoneWithTraversal();iter->GoToNextItem())
+  for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    if(vtkImageData* inImageData =
-       vtkImageData::SafeDownCast(iter->GetCurrentDataObject()))
+    if (vtkImageData* inImageData = vtkImageData::SafeDownCast(iter->GetCurrentDataObject()))
     {
       vtkNew<vtkUniformGrid> outUniformGrid;
-      if(this->Process(inImageData, association, arrayName, outUniformGrid) != VTK_OK)
+      if (this->Process(inImageData, association, arrayName, outUniformGrid) != VTK_OK)
       {
         iter->Delete();
         return VTK_ERROR;
@@ -152,21 +148,18 @@ int vtkImageDataToUniformGrid::RequestData(vtkInformation *,
 }
 
 //-----------------------------------------------------------------------------
-int vtkImageDataToUniformGrid::FillInputPortInformation(int port,
-                                                        vtkInformation* info)
+int vtkImageDataToUniformGrid::FillInputPortInformation(int port, vtkInformation* info)
 {
   this->Superclass::FillInputPortInformation(port, info);
 
   // According to the documentation this is the way to append additional
   // input data set type since VTK 5.2.
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
-    "vtkDataObjectTree");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObjectTree");
   return VTK_OK;
 }
 
 //----------------------------------------------------------------------------
-int vtkImageDataToUniformGrid::FillOutputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+int vtkImageDataToUniformGrid::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
@@ -176,10 +169,9 @@ int vtkImageDataToUniformGrid::FillOutputPortInformation(
 
 //----------------------------------------------------------------------------
 int vtkImageDataToUniformGrid::Process(
-  vtkImageData* input, int association,
-  const char* arrayName, vtkUniformGrid* output)
+  vtkImageData* input, int association, const char* arrayName, vtkUniformGrid* output)
 {
-  if(vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input))
+  if (vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input))
   {
     output->ShallowCopy(uniformGrid);
   }
@@ -189,11 +181,11 @@ int vtkImageDataToUniformGrid::Process(
   }
 
   vtkDataArray* inScalars = nullptr;
-  if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     inScalars = input->GetPointData()->GetArray(arrayName);
   }
-  else if(association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
+  else if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
     inScalars = input->GetCellData()->GetArray(arrayName);
   }
@@ -208,7 +200,7 @@ int vtkImageDataToUniformGrid::Process(
     vtkErrorMacro("No scalar data to use for blanking.");
     return VTK_ERROR;
   }
-  else if(inScalars->GetNumberOfComponents() != 1)
+  else if (inScalars->GetNumberOfComponents() != 1)
   {
     vtkErrorMacro("Scalar data must be a single component array.");
     return VTK_ERROR;
@@ -217,7 +209,6 @@ int vtkImageDataToUniformGrid::Process(
   vtkNew<vtkUnsignedCharArray> blankingArray;
   blankingArray->DeepCopy(inScalars);
   blankingArray->SetName(vtkDataSetAttributes::GhostArrayName());
-
 
   unsigned char value1;
   unsigned char value2;
@@ -247,13 +238,13 @@ int vtkImageDataToUniformGrid::Process(
       value2 = 0;
     }
   }
-  for(vtkIdType i=0;i<blankingArray->GetNumberOfTuples();i++)
+  for (vtkIdType i = 0; i < blankingArray->GetNumberOfTuples(); i++)
   {
     char value = blankingArray->GetValue(i) == 0 ? value1 : value2;
     blankingArray->SetValue(i, value);
   }
 
-  if(association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     output->GetPointData()->AddArray(blankingArray);
   }

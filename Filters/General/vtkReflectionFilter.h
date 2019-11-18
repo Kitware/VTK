@@ -20,7 +20,7 @@
  * planes formed by the data set's bounding box.
  * Since it converts data sets into unstructured grids, it is not efficient
  * for structured data sets.
-*/
+ */
 
 #ifndef vtkReflectionFilter_h
 #define vtkReflectionFilter_h
@@ -34,10 +34,10 @@ class vtkDataSet;
 class VTKFILTERSGENERAL_EXPORT vtkReflectionFilter : public vtkDataObjectAlgorithm
 {
 public:
-  static vtkReflectionFilter *New();
+  static vtkReflectionFilter* New();
 
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ReflectionPlane
   {
@@ -58,15 +58,15 @@ public:
    */
   vtkSetClampMacro(Plane, int, 0, 8);
   vtkGetMacro(Plane, int);
-  void SetPlaneToX() { this->SetPlane(USE_X); };
-  void SetPlaneToY() { this->SetPlane(USE_Y); };
-  void SetPlaneToZ() { this->SetPlane(USE_Z); };
-  void SetPlaneToXMin() { this->SetPlane(USE_X_MIN); };
-  void SetPlaneToYMin() { this->SetPlane(USE_Y_MIN); };
-  void SetPlaneToZMin() { this->SetPlane(USE_Z_MIN); };
-  void SetPlaneToXMax() { this->SetPlane(USE_X_MAX); };
-  void SetPlaneToYMax() { this->SetPlane(USE_Y_MAX); };
-  void SetPlaneToZMax() { this->SetPlane(USE_Z_MAX); };
+  void SetPlaneToX() { this->SetPlane(USE_X); }
+  void SetPlaneToY() { this->SetPlane(USE_Y); }
+  void SetPlaneToZ() { this->SetPlane(USE_Z); }
+  void SetPlaneToXMin() { this->SetPlane(USE_X_MIN); }
+  void SetPlaneToYMin() { this->SetPlane(USE_Y_MIN); }
+  void SetPlaneToZMin() { this->SetPlane(USE_Z_MIN); }
+  void SetPlaneToXMax() { this->SetPlane(USE_X_MAX); }
+  void SetPlaneToYMax() { this->SetPlane(USE_Y_MAX); }
+  void SetPlaneToZMax() { this->SetPlane(USE_Z_MAX); }
   //@}
 
   //@{
@@ -110,15 +110,12 @@ protected:
    * This is the method you should override.
    * Overridden to create the correct type of output.
    */
-  int RequestDataObject(vtkInformation*,
-                        vtkInformationVector**,
-                        vtkInformationVector*) override;
+  int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Actual implementation for reflection.
    */
-  virtual int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output,
-    double bounds[6]);
+  virtual int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output, double bounds[6]);
 
   /**
    * Internal method to compute bounds.
@@ -128,11 +125,11 @@ protected:
   /**
    * Generate new, non-3D cell and return the generated cells id.
    */
-  virtual vtkIdType ReflectNon3DCell(vtkDataSet* input, vtkUnstructuredGrid* output,
-                                     vtkIdType cellId,  vtkIdType numInputPoints);
+  virtual vtkIdType ReflectNon3DCell(
+    vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numInputPoints);
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   void FlipTuple(double* tuple, int* mirrorDir, int nComp);
 

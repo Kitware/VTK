@@ -77,7 +77,7 @@ class ExampleDataManager: NSObject {
         }
     }
 
-    private static func markDataDownloaded(for fileName:String){
+    private static func markDataDownloaded(for fileName:String) {
         // Update dictionary
         downloadedDataList[fileName] = true
 

@@ -37,8 +37,7 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLVolumeMaskTransferFunction2D : public vtkOpenGLVolumeLookupTable
 {
 public:
-  vtkTypeMacro(vtkOpenGLVolumeMaskTransferFunction2D,
-               vtkOpenGLVolumeLookupTable);
+  vtkTypeMacro(vtkOpenGLVolumeMaskTransferFunction2D, vtkOpenGLVolumeLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOpenGLVolumeMaskTransferFunction2D* New();
@@ -49,24 +48,18 @@ protected:
   /**
    * Update the internal texture object using the 2D image data
    */
-  void InternalUpdate(vtkObject* func,
-                      int blendMode,
-                      double sampleDistance,
-                      double unitDistance,
-                      int filterValue) override;
+  void InternalUpdate(vtkObject* func, int blendMode, double sampleDistance, double unitDistance,
+    int filterValue) override;
 
   /**
    * Compute the ideal texture size based on the number of labels and transfer
    * functions in the label map.
    */
-  void ComputeIdealTextureSize(vtkObject* func,
-                               int& width,
-                               int& height,
-                               vtkOpenGLRenderWindow* renWin) override;
+  void ComputeIdealTextureSize(
+    vtkObject* func, int& width, int& height, vtkOpenGLRenderWindow* renWin) override;
 
 private:
-  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeLookupTable&) =
-    delete;
+  vtkOpenGLVolumeMaskTransferFunction2D(const vtkOpenGLVolumeLookupTable&) = delete;
   vtkOpenGLVolumeMaskTransferFunction2D& operator=(
     const vtkOpenGLVolumeMaskTransferFunction2D&) = delete;
 };

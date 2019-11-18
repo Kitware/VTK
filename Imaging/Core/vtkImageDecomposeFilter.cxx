@@ -16,7 +16,6 @@
 
 #include <cmath>
 
-
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageDecomposeFilter filter.
 vtkImageDecomposeFilter::vtkImageDecomposeFilter()
@@ -25,11 +24,10 @@ vtkImageDecomposeFilter::vtkImageDecomposeFilter()
   this->SetNumberOfIterations(3);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageDecomposeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
@@ -53,12 +51,9 @@ void vtkImageDecomposeFilter::SetDimensionality(int dim)
   this->Modified();
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageDecomposeFilter::PermuteIncrements(vtkIdType *increments,
-                                                vtkIdType &inc0,
-                                                vtkIdType &inc1,
-                                                vtkIdType &inc2)
+void vtkImageDecomposeFilter::PermuteIncrements(
+  vtkIdType* increments, vtkIdType& inc0, vtkIdType& inc1, vtkIdType& inc2)
 {
   switch (this->Iteration)
   {
@@ -80,46 +75,35 @@ void vtkImageDecomposeFilter::PermuteIncrements(vtkIdType *increments,
   }
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageDecomposeFilter::PermuteExtent(int *extent, int &min0, int &max0,
-                                            int &min1, int &max1,
-                                            int &min2, int &max2)
+void vtkImageDecomposeFilter::PermuteExtent(
+  int* extent, int& min0, int& max0, int& min1, int& max1, int& min2, int& max2)
 {
   switch (this->Iteration)
   {
     case 0:
-      min0 = extent[0];       max0 = extent[1];
-      min1 = extent[2];       max1 = extent[3];
-      min2 = extent[4];       max2 = extent[5];
+      min0 = extent[0];
+      max0 = extent[1];
+      min1 = extent[2];
+      max1 = extent[3];
+      min2 = extent[4];
+      max2 = extent[5];
       break;
     case 1:
-      min1 = extent[0];       max1 = extent[1];
-      min0 = extent[2];       max0 = extent[3];
-      min2 = extent[4];       max2 = extent[5];
+      min1 = extent[0];
+      max1 = extent[1];
+      min0 = extent[2];
+      max0 = extent[3];
+      min2 = extent[4];
+      max2 = extent[5];
       break;
     case 2:
-      min1 = extent[0];       max1 = extent[1];
-      min2 = extent[2];       max2 = extent[3];
-      min0 = extent[4];       max0 = extent[5];
+      min1 = extent[0];
+      max1 = extent[1];
+      min2 = extent[2];
+      max2 = extent[3];
+      min0 = extent[4];
+      max0 = extent[5];
       break;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

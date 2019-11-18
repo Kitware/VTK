@@ -18,7 +18,7 @@
  *
  * vtkInformationIdTypeKey is used to represent keys for vtkIdType values
  * in vtkInformation.
-*/
+ */
 
 #ifndef vtkInformationIdTypeKey_h
 #define vtkInformationIdTypeKey_h
@@ -31,7 +31,7 @@
 class VTKCOMMONCORE_EXPORT vtkInformationIdTypeKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationIdTypeKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationIdTypeKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationIdTypeKey(const char* name, const char* location);

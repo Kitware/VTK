@@ -29,17 +29,18 @@
 #include <iostream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-    throw std::runtime_error("Expression failed: " #expression); \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+      throw std::runtime_error("Expression failed: " #expression);                                 \
+  }
 
-int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int ArraySparseArrayToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
+    vtkSmartPointer<vtkSparseArray<double> > array =
+      vtkSmartPointer<vtkSparseArray<double> >::New();
     array->Resize(10, 10, 10);
     array->SetDimensionLabel(0, "i");
     array->SetDimensionLabel(1, "j");
@@ -82,10 +83,9 @@ int ArraySparseArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;
   }
 }
-

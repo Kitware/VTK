@@ -26,7 +26,7 @@
  *
  * @sa
  * vtkRenderPass vtkDefaultPass
-*/
+ */
 
 #ifndef vtkOpaquePass_h
 #define vtkOpaquePass_h
@@ -37,17 +37,17 @@
 class VTKRENDERINGOPENGL2_EXPORT vtkOpaquePass : public vtkDefaultPass
 {
 public:
-  static vtkOpaquePass *New();
-  vtkTypeMacro(vtkOpaquePass,vtkDefaultPass);
+  static vtkOpaquePass* New();
+  vtkTypeMacro(vtkOpaquePass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) override;
+  void Render(const vtkRenderState* s) override;
 
- protected:
+protected:
   /**
    * Default constructor.
    */
@@ -58,7 +58,7 @@ public:
    */
   ~vtkOpaquePass() override;
 
- private:
+private:
   vtkOpaquePass(const vtkOpaquePass&) = delete;
   void operator=(const vtkOpaquePass&) = delete;
 };

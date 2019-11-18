@@ -43,8 +43,7 @@ namespace detail
 
 //------------------------------------------------------------------------------
 // ValueRange
-template <typename ValueTypeT,
-          ComponentIdType TupleSize>
+template <typename ValueTypeT, ComponentIdType TupleSize>
 struct ValueRange<vtkAOSDataArrayTemplate<ValueTypeT>, TupleSize>
 {
 private:
@@ -74,9 +73,7 @@ public:
   using const_reference = ConstReferenceType;
 
   VTK_ITER_INLINE
-  ValueRange(ArrayType *arr,
-             ValueIdType beginValue,
-             ValueIdType endValue) noexcept
+  ValueRange(ArrayType* arr, ValueIdType beginValue, ValueIdType endValue) noexcept
     : Array(arr)
     , NumComps(arr)
     , Begin(arr->GetPointer(beginValue))
@@ -106,10 +103,7 @@ public:
   }
 
   VTK_ITER_INLINE
-  size_type size() const noexcept
-  {
-    return static_cast<size_type>(this->End - this->Begin);
-  }
+  size_type size() const noexcept { return static_cast<size_type>(this->End - this->Begin); }
 
   VTK_ITER_INLINE
   iterator begin() noexcept { return this->Begin; }
@@ -127,31 +121,24 @@ public:
   const_iterator cend() const noexcept { return this->End; }
 
   VTK_ITER_INLINE
-  reference operator[](size_type i) noexcept
-  {
-    return this->Begin[i];
-  }
+  reference operator[](size_type i) noexcept { return this->Begin[i]; }
   VTK_ITER_INLINE
-  const_reference operator[](size_type i) const noexcept
-  {
-    return this->Begin[i];
-  }
+  const_reference operator[](size_type i) const noexcept { return this->Begin[i]; }
 
 private:
-  mutable ArrayType *Array;
+  mutable ArrayType* Array;
   NumCompsType NumComps;
   ValueType* Begin;
   ValueType* End;
 };
 
 // Unimplemented, only used inside decltype in SelectValueRange:
-template <typename ArrayType,
-          ComponentIdType TupleSize,
-          // Convenience:
-          typename ValueType = typename ArrayType::ValueType,
-          typename AOSArrayType = vtkAOSDataArrayTemplate<ValueType>,
-          // SFINAE to select AOS arrays:
-          typename = typename std::enable_if<IsAOSDataArray<ArrayType>::value>::type>
+template <typename ArrayType, ComponentIdType TupleSize,
+  // Convenience:
+  typename ValueType = typename ArrayType::ValueType,
+  typename AOSArrayType = vtkAOSDataArrayTemplate<ValueType>,
+  // SFINAE to select AOS arrays:
+  typename = typename std::enable_if<IsAOSDataArray<ArrayType>::value>::type>
 ValueRange<AOSArrayType, TupleSize> DeclareValueRangeSpecialization(ArrayType*);
 
 }

@@ -19,7 +19,7 @@
  * vtkInformationExecutivePortKey is used to represent keys in
  * vtkInformation for values that are vtkExecutive instances paired
  * with port numbers.
-*/
+ */
 
 #ifndef vtkInformationExecutivePortKey_h
 #define vtkInformationExecutivePortKey_h
@@ -34,7 +34,7 @@ class vtkExecutive;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortKey : public vtkInformationKey
 {
 public:
-  vtkTypeMacro(vtkInformationExecutivePortKey,vtkInformationKey);
+  vtkTypeMacro(vtkInformationExecutivePortKey, vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationExecutivePortKey(const char* name, const char* location);
@@ -58,7 +58,7 @@ public:
   void Set(vtkInformation* info, vtkExecutive*, int);
   vtkExecutive* GetExecutive(vtkInformation* info);
   int GetPort(vtkInformation* info);
-  void Get(vtkInformation *info, vtkExecutive*& executive, int &port);
+  void Get(vtkInformation* info, vtkExecutive*& executive, int& port);
   //@}
 
   /**

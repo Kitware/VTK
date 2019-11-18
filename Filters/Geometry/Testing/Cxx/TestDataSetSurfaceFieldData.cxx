@@ -56,14 +56,14 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
     vtkIntArray* array = vtkArrayDownCast<vtkIntArray>(fieldData->GetArray(0));
     if (!array)
     {
-      std::cerr << "Field data array was not of type vtkIntArray for data set type"
-                << className << "\n";
+      std::cerr << "Field data array was not of type vtkIntArray for data set type" << className
+                << "\n";
       return EXIT_FAILURE;
     }
     else if (array->GetNumberOfTuples() < 1)
     {
-      std::cerr << "No tuples in field data array for surface from data set type "
-                << className << "\n";
+      std::cerr << "No tuples in field data array for surface from data set type " << className
+                << "\n";
       return EXIT_FAILURE;
     }
     else
@@ -75,8 +75,8 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
       if (value != expectedValue)
       {
         std::cerr << "Unexpected block field array value " << value
-                  << " for surface from data set type " << className
-                  << ". Expected " << expectedValue << "\n";
+                  << " for surface from data set type " << className << ". Expected "
+                  << expectedValue << "\n";
         return EXIT_FAILURE;
       }
     }
@@ -100,7 +100,7 @@ void AddFieldData(vtkDataSet* ds, int id)
 //----------------------------------------------------------------------------
 int TestImageData()
 {
- // Create image data
+  // Create image data
   vtkNew<vtkImageData> imageData;
   imageData->Initialize();
   imageData->SetSpacing(1, 1, 1);

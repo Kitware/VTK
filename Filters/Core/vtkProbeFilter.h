@@ -80,8 +80,8 @@ class vtkFindCellStrategy;
 class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
 public:
-  static vtkProbeFilter *New();
-  vtkTypeMacro(vtkProbeFilter,vtkDataSetAlgorithm);
+  static vtkProbeFilter* New();
+  vtkTypeMacro(vtkProbeFilter, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -91,8 +91,8 @@ public:
    * while the Source is probed (interpolated) to generate the scalars,
    * vectors, etc. for the output points based on the point locations.
    */
-  void SetSourceData(vtkDataObject *source);
-  vtkDataObject *GetSource();
+  void SetSourceData(vtkDataObject* source);
+  vtkDataObject* GetSource();
   //@}
 
   /**
@@ -109,9 +109,9 @@ public:
    * the data is categorical, then the resultant data will be determined by
    * a nearest neighbor interpolation scheme.
    */
-  vtkSetMacro(CategoricalData,vtkTypeBool);
-  vtkGetMacro(CategoricalData,vtkTypeBool);
-  vtkBooleanMacro(CategoricalData,vtkTypeBool);
+  vtkSetMacro(CategoricalData, vtkTypeBool);
+  vtkGetMacro(CategoricalData, vtkTypeBool);
+  vtkBooleanMacro(CategoricalData, vtkTypeBool);
   //@}
 
   //@{
@@ -135,7 +135,7 @@ public:
    * Get the list of point ids in the output that contain attribute data
    * interpolated from the source.
    */
-  vtkIdTypeArray *GetValidPoints();
+  vtkIdTypeArray* GetValidPoints();
   //@}
 
   //@{
@@ -144,8 +144,8 @@ public:
    * valid points and 0 for invalid points.
    * Set to "vtkValidPointMask" by default.
    */
-  vtkSetStringMacro(ValidPointMaskArrayName)
-  vtkGetStringMacro(ValidPointMaskArrayName)
+  vtkSetStringMacro(ValidPointMaskArrayName);
+  vtkGetStringMacro(ValidPointMaskArrayName);
   //@}
 
   //@{
@@ -166,7 +166,6 @@ public:
   vtkBooleanMacro(PassPointArrays, vtkTypeBool);
   vtkGetMacro(PassPointArrays, vtkTypeBool);
   //@}
-
 
   //@{
   /**
@@ -206,7 +205,7 @@ public:
    * prototype. When neither a strategy or cell locator prototype is defined,
    * then the vtkDataSet::FindCell() method is used.
    */
-  virtual void SetFindCellStrategy(vtkFindCellStrategy *);
+  virtual void SetFindCellStrategy(vtkFindCellStrategy*);
   vtkGetObjectMacro(FindCellStrategy, vtkFindCellStrategy);
   //@}
 
@@ -219,32 +218,28 @@ public:
    * used. If a vtkFindCellStrategy is not defined, then the prototype is
    * used.
    */
-   virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
-   vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
+  virtual void SetCellLocatorPrototype(vtkAbstractCellLocator*);
+  vtkGetObjectMacro(CellLocatorPrototype, vtkAbstractCellLocator);
   //@}
 
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   /**
    * Call at end of RequestData() to pass attribute data respecting the
    * PassCellArrays, PassPointArrays, PassFieldArrays flags.
    */
-  void PassAttributeData(
-    vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
+  void PassAttributeData(vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
   /**
    * Equivalent to calling BuildFieldList(); InitializeForProbing(); DoProbing().
    */
-  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
+  void Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet* output);
 
   /**
    * Build the field lists. This is required before calling
@@ -255,15 +250,14 @@ protected:
   /**
    * Initializes output and various arrays which keep track for probing status.
    */
-  virtual void InitializeForProbing(vtkDataSet *input, vtkDataSet *output);
-  virtual void InitializeOutputArrays(vtkPointData *outPD, vtkIdType numPts);
+  virtual void InitializeForProbing(vtkDataSet* input, vtkDataSet* output);
+  virtual void InitializeOutputArrays(vtkPointData* outPD, vtkIdType numPts);
 
   /**
    * Probe appropriate points
    * srcIdx is the index in the PointList for the given source.
    */
-  void DoProbing(vtkDataSet *input, int srcIdx, vtkDataSet *source,
-                 vtkDataSet *output);
+  void DoProbing(vtkDataSet* input, int srcIdx, vtkDataSet* source, vtkDataSet* output);
 
   vtkTypeBool CategoricalData;
 
@@ -277,12 +271,12 @@ protected:
   bool ComputeTolerance;
 
   char* ValidPointMaskArrayName;
-  vtkIdTypeArray *ValidPoints;
+  vtkIdTypeArray* ValidPoints;
   vtkCharArray* MaskPoints;
 
   // Support various methods to support the FindCell() operation
   vtkAbstractCellLocator* CellLocatorPrototype;
-  vtkFindCellStrategy *FindCellStrategy;
+  vtkFindCellStrategy* FindCellStrategy;
 
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;
@@ -293,15 +287,14 @@ private:
 
   // Probe only those points that are marked as not-probed by the MaskPoints
   // array.
-  void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source,
-    vtkDataSet *output);
+  void ProbeEmptyPoints(vtkDataSet* input, int srcIdx, vtkDataSet* source, vtkDataSet* output);
 
   // A faster implementation for vtkImageData input.
-  void ProbePointsImageData(vtkImageData *input, int srcIdx, vtkDataSet *source,
-    vtkImageData *output);
-  void ProbeImagePointsInCell(vtkCell *cell, vtkIdType cellId, vtkDataSet *source,
-    int srcBlockId, const double start[3], const double spacing[3],
-    const int dim[3], vtkPointData *outPD, char *maskArray, double *wtsBuff);
+  void ProbePointsImageData(
+    vtkImageData* input, int srcIdx, vtkDataSet* source, vtkImageData* output);
+  void ProbeImagePointsInCell(vtkCell* cell, vtkIdType cellId, vtkDataSet* source, int srcBlockId,
+    const double start[3], const double spacing[3], const int dim[3], vtkPointData* outPD,
+    char* maskArray, double* wtsBuff);
 
   class ProbeImageDataWorklet;
 

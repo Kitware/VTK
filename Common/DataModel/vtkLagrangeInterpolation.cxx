@@ -31,14 +31,14 @@ vtkStandardNewMacro(vtkLagrangeInterpolation);
 
 // -----------------------------------------------------------------------------
 static const double hexCorner[8][3] = {
-  {  0.,  0.,  0. },
-  { +1.,  0.,  0. },
-  { +1., +1.,  0. },
-  {  0., +1.,  0. },
-  {  0.,  0., +1. },
-  { +1.,  0., +1. },
+  { 0., 0., 0. },
+  { +1., 0., 0. },
+  { +1., +1., 0. },
+  { 0., +1., 0. },
+  { 0., 0., +1. },
+  { +1., 0., +1. },
   { +1., +1., +1. },
-  {  0., +1., +1. }
+  { 0., +1., +1. },
 };
 
 // Edges and faces are always oriented along quad/hexahedron axes,
@@ -46,47 +46,47 @@ static const double hexCorner[8][3] = {
 // have inward-pointing normals).
 static const int hexEdgeCorners[12][5] = {
   // e0 e1    varying-  fixed- parametric coordinate(s)
-  { 0, 1,   0,        1, 2 },
-  { 1, 2,   1,        0, 2 },
-  { 3, 2,   0,        1, 2 },
-  { 0, 3,   1,        0, 2 },
-  { 4, 5,   0,        1, 2 },
-  { 5, 6,   1,        0, 2 },
-  { 7, 6,   0,        1, 2 },
-  { 4, 7,   1,        0, 2 },
-  { 0, 4,   2,        0, 1 },
-  { 1, 5,   2,        0, 1 },
-  { 3, 7,   2,        0, 1 },
-  { 2, 6,   2,        0, 1 }
+  { 0, 1, 0, 1, 2 },
+  { 1, 2, 1, 0, 2 },
+  { 3, 2, 0, 1, 2 },
+  { 0, 3, 1, 0, 2 },
+  { 4, 5, 0, 1, 2 },
+  { 5, 6, 1, 0, 2 },
+  { 7, 6, 0, 1, 2 },
+  { 4, 7, 1, 0, 2 },
+  { 0, 4, 2, 0, 1 },
+  { 1, 5, 2, 0, 1 },
+  { 3, 7, 2, 0, 1 },
+  { 2, 6, 2, 0, 1 },
 };
 
 static const int hexFaceCorners[6][7] = {
   // c0 c1 c2 c3    varying- fixed-parametric coordinate(s)
-  { 0, 3, 7, 4,   1, 2,    0 },
-  { 1, 2, 6, 5,   1, 2,    0 },
-  { 0, 1, 5, 4,   0, 2,    1 },
-  { 3, 2, 6, 7,   0, 2,    1 },
-  { 0, 1, 2, 3,   0, 1,    2 },
-  { 4, 5, 6, 7,   0, 1,    2 },
+  { 0, 3, 7, 4, 1, 2, 0 },
+  { 1, 2, 6, 5, 1, 2, 0 },
+  { 0, 1, 5, 4, 0, 2, 1 },
+  { 3, 2, 6, 7, 0, 2, 1 },
+  { 0, 1, 2, 3, 0, 1, 2 },
+  { 4, 5, 6, 7, 0, 1, 2 },
 };
 
 static const int hexFaceEdges[6][4] = {
   // e0  e1  e2  e3
-  {  3, 10,  7,  8 },
-  {  1, 11,  5,  9 },
-  {  0,  9,  4,  8 },
-  {  2, 11,  6, 10 },
-  {  0,  1,  2,  3 },
-  {  4,  5,  6,  7 },
+  { 3, 10, 7, 8 },
+  { 1, 11, 5, 9 },
+  { 0, 9, 4, 8 },
+  { 2, 11, 6, 10 },
+  { 0, 1, 2, 3 },
+  { 4, 5, 6, 7 },
 };
 // -----------------------------------------------------------------------------
 static const double wedgeCorner[6][3] = {
-  {  0.,  0.,  0. },
-  { +1.,  0.,  0. },
-  {  0., +1.,  0. },
-  {  0.,  0., +1. },
-  { +1.,  0., +1. },
-  {  0., +1., +1. }
+  { 0., 0., 0. },
+  { +1., 0., 0. },
+  { 0., +1., 0. },
+  { 0., 0., +1. },
+  { +1., 0., +1. },
+  { 0., +1., +1. },
 };
 
 // Edges and faces are always oriented along quad/hexahedron axes,
@@ -94,43 +94,42 @@ static const double wedgeCorner[6][3] = {
 // have inward-pointing normals).
 static const int wedgeEdgeCorners[9][5] = {
   // e0 e1    varying-  fixed- parametric coordinate(s)
-  { 0, 1,   0,        1, 2 },
-  { 1, 2,  -1,       -1, 2 },
-  { 2, 0,   1,        0, 2 },
+  { 0, 1, 0, 1, 2 },
+  { 1, 2, -1, -1, 2 },
+  { 2, 0, 1, 0, 2 },
 
-  { 3, 4,   0,        1, 2 },
-  { 4, 5,  -1,       -1, 2 },
-  { 5, 3,   1,        0, 2 },
+  { 3, 4, 0, 1, 2 },
+  { 4, 5, -1, -1, 2 },
+  { 5, 3, 1, 0, 2 },
 
-  { 0, 3,   2,        0, 1 },
-  { 1, 4,   2,        0, 1 },
-  { 2, 5,   2,        0, 1 }
+  { 0, 3, 2, 0, 1 },
+  { 1, 4, 2, 0, 1 },
+  { 2, 5, 2, 0, 1 },
 };
 
 static const int wedgeFaceCorners[5][9] = {
-  // c0  c1  c2  c3   varying-  fixed-param. coordinate(s)  orientation (0 is negative, 1 is positive)  fixed-param. value (-1=lo, +1=hi)
-  { 0,  1,  2, -1,    0,  1,     2,                         0,                                         -1 },
-  { 3,  4,  5, -1,    0,  1,     2,                         1,                                         +1 },
+  // c0  c1  c2  c3   varying-  fixed-param. coordinate(s)  orientation (0 is negative, 1 is
+  // positive)  fixed-param. value (-1=lo, +1=hi)
+  { 0, 1, 2, -1, 0, 1, 2, 0, -1 },
+  { 3, 4, 5, -1, 0, 1, 2, 1, +1 },
 
-  { 0,  1,  4,  3,    0,  2,     1,                         1,                                         -1 },
-  { 1,  2,  5,  4,   -1,  2,    -1,                         1,                                         -1 },
-  { 0,  2,  5,  3,    1,  2,     0,                         0,                                         -1 },
+  { 0, 1, 4, 3, 0, 2, 1, 1, -1 },
+  { 1, 2, 5, 4, -1, 2, -1, 1, -1 },
+  { 0, 2, 5, 3, 1, 2, 0, 0, -1 },
 };
 
 static const int wedgeFaceEdges[5][5] = {
   // e0  e1  e2  e3    orientation (<- 1 when implied normal points in, not out)
-  {  0,  1,  2, -1,   0 },
-  {  3,  4,  5, -1,   1 },
+  { 0, 1, 2, -1, 0 },
+  { 3, 4, 5, -1, 1 },
 
-  {  0,  7,  3,  6,   0 },
-  {  1,  8,  4,  7,   0 },
-  {  2,  8,  5,  6,   0 },
+  { 0, 7, 3, 6, 0 },
+  { 1, 8, 4, 7, 0 },
+  { 2, 8, 5, 6, 0 },
 };
 // -----------------------------------------------------------------------------
 
-vtkLagrangeInterpolation::vtkLagrangeInterpolation()
-{
-}
+vtkLagrangeInterpolation::vtkLagrangeInterpolation() {}
 
 vtkLagrangeInterpolation::~vtkLagrangeInterpolation() = default;
 
@@ -159,15 +158,17 @@ void vtkLagrangeInterpolation::EvaluateShapeFunctions(int order, double pcoord, 
   }
 }
 
-/// Evaluate 1-D shape functions and their derivatives for the given \a order at the given \a pcoord (in [0,1]).
-void vtkLagrangeInterpolation::EvaluateShapeAndGradient(int order, double pcoord, double* shape, double* deriv)
+/// Evaluate 1-D shape functions and their derivatives for the given \a order at the given \a pcoord
+/// (in [0,1]).
+void vtkLagrangeInterpolation::EvaluateShapeAndGradient(
+  int order, double pcoord, double* shape, double* deriv)
 {
   int j, k, q;
   double dtmp;
   double v = order * pcoord;
   for (j = 0; j <= order; ++j)
   {
-    //std::cout << "ShapeDeriv j = " << j << "  v = " << v << "\n";
+    // std::cout << "ShapeDeriv j = " << j << "  v = " << v << "\n";
     shape[j] = 1.;
     deriv[j] = 0.;
     for (k = 0; k <= order; ++k)
@@ -182,7 +183,7 @@ void vtkLagrangeInterpolation::EvaluateShapeAndGradient(int order, double pcoord
         // rule d/dx(a * b) = a * d/dx(b) + b * d/dx(a) instead of faster
         // methods because it keeps the truncation error low(er):
         dtmp = 1.;
-        //std::cout << "           k = " << k;
+        // std::cout << "           k = " << k;
         for (q = 0; q <= order; ++q)
         {
           if (q == j)
@@ -190,22 +191,24 @@ void vtkLagrangeInterpolation::EvaluateShapeAndGradient(int order, double pcoord
             continue;
           }
           dtmp *= (q == k ? 1. : (v - q)) / (j - q);
-          //std::cout << "  q " << q << " dtmp *= " << ((q == k ? 1. : (v - q)) / (j - q));
+          // std::cout << "  q " << q << " dtmp *= " << ((q == k ? 1. : (v - q)) / (j - q));
         }
-        //std::cout << "        dtmp = " << dtmp << "\n";
-        deriv[j] += order*dtmp;
+        // std::cout << "        dtmp = " << dtmp << "\n";
+        deriv[j] += order * dtmp;
       }
     }
   }
 }
 
-int vtkLagrangeInterpolation::Tensor1ShapeFunctions(const int order[1], const double* pcoords, double* shape)
+int vtkLagrangeInterpolation::Tensor1ShapeFunctions(
+  const int order[1], const double* pcoords, double* shape)
 {
   vtkLagrangeInterpolation::EvaluateShapeFunctions(order[0], pcoords[0], shape);
   return order[0] + 1;
 }
 
-int vtkLagrangeInterpolation::Tensor1ShapeDerivatives(const int order[1], const double* pcoords, double* derivs)
+int vtkLagrangeInterpolation::Tensor1ShapeDerivatives(
+  const int order[1], const double* pcoords, double* derivs)
 {
   std::vector<double> dummy(order[0] + 1);
   vtkLagrangeInterpolation::EvaluateShapeAndGradient(order[0], pcoords[0], &dummy[0], derivs);
@@ -213,7 +216,8 @@ int vtkLagrangeInterpolation::Tensor1ShapeDerivatives(const int order[1], const 
 }
 
 /// Quadrilateral shape function computation
-int vtkLagrangeInterpolation::Tensor2ShapeFunctions(const int order[2], const double pcoords[3], double* shape)
+int vtkLagrangeInterpolation::Tensor2ShapeFunctions(
+  const int order[2], const double pcoords[3], double* shape)
 {
   std::array<std::vector<double>, 2> ll;
   int i, j;
@@ -227,24 +231,24 @@ int vtkLagrangeInterpolation::Tensor2ShapeFunctions(const int order[2], const do
   int sn = 0;
 
   // Corners
-  shape[sn++] = ll[0][0]        * ll[1][0];
+  shape[sn++] = ll[0][0] * ll[1][0];
   shape[sn++] = ll[0][order[0]] * ll[1][0];
   shape[sn++] = ll[0][order[0]] * ll[1][order[1]];
-  shape[sn++] = ll[0][0]        * ll[1][order[1]];
+  shape[sn++] = ll[0][0] * ll[1][order[1]];
 
   int sn1 = sn + order[0] + order[1] - 2;
   for (i = 1; i < order[0]; ++i)
   {
-    //cout << sn << ", " << sn1 << "\n";
-    shape[sn++ ] = ll[0][i] * ll[1][0];               // Edge 0-1
-    shape[sn1++] = ll[0][i] * ll[1][order[1]];        // Edge 2-3
+    // cout << sn << ", " << sn1 << "\n";
+    shape[sn++] = ll[0][i] * ll[1][0];         // Edge 0-1
+    shape[sn1++] = ll[0][i] * ll[1][order[1]]; // Edge 2-3
   }
 
   for (i = 1; i < order[1]; ++i)
   {
-    //cout << sn << ", " << sn1 << "\n";
-    shape[sn++ ] = ll[0][order[0]] * ll[1][i];        // Edge 1-2
-    shape[sn1++] = ll[0][0] * ll[1][i];               // Edge 3-0
+    // cout << sn << ", " << sn1 << "\n";
+    shape[sn++] = ll[0][order[0]] * ll[1][i]; // Edge 1-2
+    shape[sn1++] = ll[0][0] * ll[1][i];       // Edge 3-0
   }
   sn = sn1; // Advance to the end of all edge DOFs.
 
@@ -252,15 +256,16 @@ int vtkLagrangeInterpolation::Tensor2ShapeFunctions(const int order[2], const do
   {
     for (j = 1; j < order[0]; ++j)
     {
-      //cout << sn << "\n";
-      shape[sn++ ] = ll[0][j] * ll[1][i];        // Face 0-1-2-3
+      // cout << sn << "\n";
+      shape[sn++] = ll[0][j] * ll[1][i]; // Face 0-1-2-3
     }
   }
   return sn;
 }
 
 // Quadrilateral shape-function derivatives
-int vtkLagrangeInterpolation::Tensor2ShapeDerivatives(const int order[2], const double pcoords[2], double* deriv)
+int vtkLagrangeInterpolation::Tensor2ShapeDerivatives(
+  const int order[2], const double pcoords[2], double* deriv)
 {
   std::array<std::vector<double>, 2> ll;
   std::array<std::vector<double>, 2> dd;
@@ -270,15 +275,14 @@ int vtkLagrangeInterpolation::Tensor2ShapeDerivatives(const int order[2], const 
   {
     ll[i].resize(order[i] + 1);
     dd[i].resize(order[i] + 1);
-    vtkLagrangeInterpolation::EvaluateShapeAndGradient(
-      order[i], pcoords[i], &ll[i][0], &dd[i][0]);
+    vtkLagrangeInterpolation::EvaluateShapeAndGradient(order[i], pcoords[i], &ll[i][0], &dd[i][0]);
   }
 
   int sn = 0;
 
   // Corners
-  deriv[sn++] = dd[0][0]        * ll[1][0];
-  deriv[sn++] = ll[0][0]        * dd[1][0];
+  deriv[sn++] = dd[0][0] * ll[1][0];
+  deriv[sn++] = ll[0][0] * dd[1][0];
 
   deriv[sn++] = dd[0][order[0]] * ll[1][0];
   deriv[sn++] = ll[0][order[0]] * dd[1][0];
@@ -286,47 +290,48 @@ int vtkLagrangeInterpolation::Tensor2ShapeDerivatives(const int order[2], const 
   deriv[sn++] = dd[0][order[0]] * ll[1][order[1]];
   deriv[sn++] = ll[0][order[0]] * dd[1][order[1]];
 
-  deriv[sn++] = dd[0][0]        * ll[1][order[1]];
-  deriv[sn++] = ll[0][0]        * dd[1][order[1]];
+  deriv[sn++] = dd[0][0] * ll[1][order[1]];
+  deriv[sn++] = ll[0][0] * dd[1][order[1]];
 
   int sn1 = sn + 2 * (order[0] + order[1] - 2);
   for (i = 1; i < order[0]; ++i)
   {
-    //cout << sn << ", " << sn1 << "\n";
-    deriv[sn++ ] = dd[0][i] * ll[1][0];               // Edge 0-1
-    deriv[sn++ ] = ll[0][i] * dd[1][0];               // Edge 0-1
+    // cout << sn << ", " << sn1 << "\n";
+    deriv[sn++] = dd[0][i] * ll[1][0]; // Edge 0-1
+    deriv[sn++] = ll[0][i] * dd[1][0]; // Edge 0-1
 
-    deriv[sn1++] = dd[0][i] * ll[1][order[1]];        // Edge 2-3
-    deriv[sn1++] = ll[0][i] * dd[1][order[1]];        // Edge 2-3
+    deriv[sn1++] = dd[0][i] * ll[1][order[1]]; // Edge 2-3
+    deriv[sn1++] = ll[0][i] * dd[1][order[1]]; // Edge 2-3
   }
 
   for (i = 1; i < order[1]; ++i)
   {
-    //cout << sn << ", " << sn1 << "\n";
-    deriv[sn++ ] = dd[0][order[0]] * ll[1][i];        // Edge 1-2
-    deriv[sn++ ] = ll[0][order[0]] * dd[1][i];        // Edge 1-2
+    // cout << sn << ", " << sn1 << "\n";
+    deriv[sn++] = dd[0][order[0]] * ll[1][i]; // Edge 1-2
+    deriv[sn++] = ll[0][order[0]] * dd[1][i]; // Edge 1-2
 
-    deriv[sn1++] = dd[0][0] * ll[1][i];               // Edge 3-0
-    deriv[sn1++] = ll[0][0] * dd[1][i];               // Edge 3-0
+    deriv[sn1++] = dd[0][0] * ll[1][i]; // Edge 3-0
+    deriv[sn1++] = ll[0][0] * dd[1][i]; // Edge 3-0
   }
   sn = sn1;
   for (i = 1; i < order[1]; ++i)
   {
     for (j = 1; j < order[0]; ++j)
     {
-      //cout << sn << "\n";
-      deriv[sn++ ] = dd[0][j] * ll[1][i];        // Face 0-1-2-3
-      deriv[sn++ ] = ll[0][j] * dd[1][i];        // Face 0-1-2-3
+      // cout << sn << "\n";
+      deriv[sn++] = dd[0][j] * ll[1][i]; // Face 0-1-2-3
+      deriv[sn++] = ll[0][j] * dd[1][i]; // Face 0-1-2-3
     }
   }
   return sn;
 }
 
 /// Hexahedral shape function computation
-int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const double pcoords[3], double* shape)
+int vtkLagrangeInterpolation::Tensor3ShapeFunctions(
+  const int order[3], const double pcoords[3], double* shape)
 {
   std::array<std::vector<double>, 3> ll;
-  int i,j,k;
+  int i, j, k;
 
   for (i = 0; i < 3; ++i)
   {
@@ -337,14 +342,14 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
   int sn = 0;
 
   // Corners
-  shape[sn++] = ll[0][0]        * ll[1][0]        * ll[2][0];
-  shape[sn++] = ll[0][order[0]] * ll[1][0]        * ll[2][0];
+  shape[sn++] = ll[0][0] * ll[1][0] * ll[2][0];
+  shape[sn++] = ll[0][order[0]] * ll[1][0] * ll[2][0];
   shape[sn++] = ll[0][order[0]] * ll[1][order[1]] * ll[2][0];
-  shape[sn++] = ll[0][0]        * ll[1][order[1]] * ll[2][0];
-  shape[sn++] = ll[0][0]        * ll[1][0]        * ll[2][order[2]];
-  shape[sn++] = ll[0][order[0]] * ll[1][0]        * ll[2][order[2]];
+  shape[sn++] = ll[0][0] * ll[1][order[1]] * ll[2][0];
+  shape[sn++] = ll[0][0] * ll[1][0] * ll[2][order[2]];
+  shape[sn++] = ll[0][order[0]] * ll[1][0] * ll[2][order[2]];
   shape[sn++] = ll[0][order[0]] * ll[1][order[1]] * ll[2][order[2]];
-  shape[sn++] = ll[0][0]        * ll[1][order[1]] * ll[2][order[2]];
+  shape[sn++] = ll[0][0] * ll[1][order[1]] * ll[2][order[2]];
 
   int sn1, sn2, sn3;
   sn1 = order[0] + order[1] - 2;
@@ -354,8 +359,8 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
   sn2 += sn;
   for (i = 1; i < order[0]; ++i)
   {
-    //cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
-    shape[sn++ ] = ll[0][i] * ll[1][0] * ll[2][0];               // Edge 0-1
+    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    shape[sn++] = ll[0][i] * ll[1][0] * ll[2][0];                // Edge 0-1
     shape[sn1++] = ll[0][i] * ll[1][order[1]] * ll[2][0];        // Edge 2-3
     shape[sn2++] = ll[0][i] * ll[1][0] * ll[2][order[2]];        // Edge 4-5
     shape[sn3++] = ll[0][i] * ll[1][order[1]] * ll[2][order[2]]; // Edge 6-7
@@ -363,8 +368,8 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
 
   for (i = 1; i < order[1]; ++i)
   {
-    //cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
-    shape[sn++ ] = ll[0][order[0]] * ll[1][i] * ll[2][0];        // Edge 1-2
+    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    shape[sn++] = ll[0][order[0]] * ll[1][i] * ll[2][0];         // Edge 1-2
     shape[sn1++] = ll[0][0] * ll[1][i] * ll[2][0];               // Edge 3-0
     shape[sn2++] = ll[0][order[0]] * ll[1][i] * ll[2][order[2]]; // Edge 5-6
     shape[sn3++] = ll[0][0] * ll[1][i] * ll[2][order[2]];        // Edge 7-4
@@ -377,43 +382,43 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
   sn2 += sn;
   for (i = 1; i < order[2]; ++i)
   {
-    //cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
-    shape[sn++ ] = ll[0][0] * ll[1][0] * ll[2][i];                // Edge 0-4
-    shape[sn1++] = ll[0][order[0]] * ll[1][0] * ll[2][i];         // Edge 1-5
+    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    shape[sn++] = ll[0][0] * ll[1][0] * ll[2][i];         // Edge 0-4
+    shape[sn1++] = ll[0][order[0]] * ll[1][0] * ll[2][i]; // Edge 1-5
     // Kitware insists on swapping edges 10 and 11 as follows:
-    shape[sn3++] = ll[0][order[0]] * ll[1][order[1]] * ll[2][i];  // Edge 2-6
-    shape[sn2++] = ll[0][0] * ll[1][order[1]] * ll[2][i];         // Edge 3-7
+    shape[sn3++] = ll[0][order[0]] * ll[1][order[1]] * ll[2][i]; // Edge 2-6
+    shape[sn2++] = ll[0][0] * ll[1][order[1]] * ll[2][i];        // Edge 3-7
   }
 
   sn = sn3;
-  sn1 = (order[1] - 1)*(order[2] - 1);
+  sn1 = (order[1] - 1) * (order[2] - 1);
   sn2 = sn1 * 2;
-  sn3 = sn + sn2 + (order[2] - 1)*(order[0] - 1);
+  sn3 = sn + sn2 + (order[2] - 1) * (order[0] - 1);
   sn1 += sn;
   sn2 += sn;
   for (i = 1; i < order[2]; ++i)
   {
     for (j = 1; j < order[1]; ++j)
     {
-      //cout << sn << ", " << sn1 << "\n";
-      shape[sn++ ] = ll[0][0] * ll[1][j] * ll[2][i];        // Face 0-4-7-3
+      // cout << sn << ", " << sn1 << "\n";
+      shape[sn++] = ll[0][0] * ll[1][j] * ll[2][i];         // Face 0-4-7-3
       shape[sn1++] = ll[0][order[0]] * ll[1][j] * ll[2][i]; // Face 1-2-6-5
     }
     for (j = 1; j < order[0]; ++j)
     {
-      //cout << sn2 << ", " << sn3 << "\n";
+      // cout << sn2 << ", " << sn3 << "\n";
       shape[sn2++] = ll[0][j] * ll[1][0] * ll[2][i];        // Face 0-1-5-4
       shape[sn3++] = ll[0][j] * ll[1][order[1]] * ll[2][i]; // Face 2-3-7-6
     }
   }
   sn = sn3;
-  sn1 = sn + (order[0] - 1)*(order[1] - 1);
+  sn1 = sn + (order[0] - 1) * (order[1] - 1);
   for (i = 1; i < order[1]; ++i)
   {
     for (j = 1; j < order[0]; ++j)
     {
-      //cout << sn << ", " << sn1 << "\n";
-      shape[sn++ ] = ll[0][j] * ll[1][i] * ll[2][0];        // Face 0-1-2-3
+      // cout << sn << ", " << sn1 << "\n";
+      shape[sn++] = ll[0][j] * ll[1][i] * ll[2][0];         // Face 0-1-2-3
       shape[sn1++] = ll[0][j] * ll[1][i] * ll[2][order[2]]; // Face 4-7-6-5
     }
   }
@@ -424,7 +429,7 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
     {
       for (i = 1; i < order[0]; ++i)
       {
-        //cout << sn << "\n";
+        // cout << sn << "\n";
         shape[sn++] = ll[0][i] * ll[1][j] * ll[2][k]; // Body
       }
     }
@@ -432,7 +437,8 @@ int vtkLagrangeInterpolation::Tensor3ShapeFunctions(const int order[3], const do
   return sn;
 }
 
-int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const double pcoords[3], double* deriv)
+int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(
+  const int order[3], const double pcoords[3], double* deriv)
 {
   std::array<std::vector<double>, 3> ll;
   std::array<std::vector<double>, 3> dd;
@@ -442,45 +448,43 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
   {
     ll[i].resize(order[i] + 1);
     dd[i].resize(order[i] + 1);
-    vtkLagrangeInterpolation::EvaluateShapeAndGradient(
-      order[i], pcoords[i], &ll[i][0], &dd[i][0]);
+    vtkLagrangeInterpolation::EvaluateShapeAndGradient(order[i], pcoords[i], &ll[i][0], &dd[i][0]);
   }
 
   int sn = 0;
 
   // Corners
-  deriv[sn++] = dd[0][0]        * ll[1][0]        * ll[2][0];
-  deriv[sn++] = ll[0][0]        * dd[1][0]        * ll[2][0];
-  deriv[sn++] = ll[0][0]        * ll[1][0]        * dd[2][0];
+  deriv[sn++] = dd[0][0] * ll[1][0] * ll[2][0];
+  deriv[sn++] = ll[0][0] * dd[1][0] * ll[2][0];
+  deriv[sn++] = ll[0][0] * ll[1][0] * dd[2][0];
 
-  deriv[sn++] = dd[0][order[0]] * ll[1][0]        * ll[2][0];
-  deriv[sn++] = ll[0][order[0]] * dd[1][0]        * ll[2][0];
-  deriv[sn++] = ll[0][order[0]] * ll[1][0]        * dd[2][0];
+  deriv[sn++] = dd[0][order[0]] * ll[1][0] * ll[2][0];
+  deriv[sn++] = ll[0][order[0]] * dd[1][0] * ll[2][0];
+  deriv[sn++] = ll[0][order[0]] * ll[1][0] * dd[2][0];
 
   deriv[sn++] = dd[0][order[0]] * ll[1][order[1]] * ll[2][0];
   deriv[sn++] = ll[0][order[0]] * dd[1][order[1]] * ll[2][0];
   deriv[sn++] = ll[0][order[0]] * ll[1][order[1]] * dd[2][0];
 
-  deriv[sn++] = dd[0][0]        * ll[1][order[1]] * ll[2][0];
-  deriv[sn++] = ll[0][0]        * dd[1][order[1]] * ll[2][0];
-  deriv[sn++] = ll[0][0]        * ll[1][order[1]] * dd[2][0];
+  deriv[sn++] = dd[0][0] * ll[1][order[1]] * ll[2][0];
+  deriv[sn++] = ll[0][0] * dd[1][order[1]] * ll[2][0];
+  deriv[sn++] = ll[0][0] * ll[1][order[1]] * dd[2][0];
 
-  deriv[sn++] = dd[0][0]        * ll[1][0]        * ll[2][order[2]];
-  deriv[sn++] = ll[0][0]        * dd[1][0]        * ll[2][order[2]];
-  deriv[sn++] = ll[0][0]        * ll[1][0]        * dd[2][order[2]];
+  deriv[sn++] = dd[0][0] * ll[1][0] * ll[2][order[2]];
+  deriv[sn++] = ll[0][0] * dd[1][0] * ll[2][order[2]];
+  deriv[sn++] = ll[0][0] * ll[1][0] * dd[2][order[2]];
 
-  deriv[sn++] = dd[0][order[0]] * ll[1][0]        * ll[2][order[2]];
-  deriv[sn++] = ll[0][order[0]] * dd[1][0]        * ll[2][order[2]];
-  deriv[sn++] = ll[0][order[0]] * ll[1][0]        * dd[2][order[2]];
+  deriv[sn++] = dd[0][order[0]] * ll[1][0] * ll[2][order[2]];
+  deriv[sn++] = ll[0][order[0]] * dd[1][0] * ll[2][order[2]];
+  deriv[sn++] = ll[0][order[0]] * ll[1][0] * dd[2][order[2]];
 
   deriv[sn++] = dd[0][order[0]] * ll[1][order[1]] * ll[2][order[2]];
   deriv[sn++] = ll[0][order[0]] * dd[1][order[1]] * ll[2][order[2]];
   deriv[sn++] = ll[0][order[0]] * ll[1][order[1]] * dd[2][order[2]];
 
-  deriv[sn++] = dd[0][0]        * ll[1][order[1]] * ll[2][order[2]];
-  deriv[sn++] = ll[0][0]        * dd[1][order[1]] * ll[2][order[2]];
-  deriv[sn++] = ll[0][0]        * ll[1][order[1]] * dd[2][order[2]];
-
+  deriv[sn++] = dd[0][0] * ll[1][order[1]] * ll[2][order[2]];
+  deriv[sn++] = ll[0][0] * dd[1][order[1]] * ll[2][order[2]];
+  deriv[sn++] = ll[0][0] * ll[1][order[1]] * dd[2][order[2]];
 
   int sn1, sn2, sn3;
   sn1 = 3 * (order[0] + order[1] - 2);
@@ -490,18 +494,18 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
   sn2 += sn;
   for (i = 1; i < order[0]; ++i)
   {
-    //cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
-    deriv[sn++ ] = dd[0][i] * ll[1][0] * ll[2][0];               // Edge 0-1
-    deriv[sn++ ] = ll[0][i] * dd[1][0] * ll[2][0];               // Edge 0-1
-    deriv[sn++ ] = ll[0][i] * ll[1][0] * dd[2][0];               // Edge 0-1
+    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    deriv[sn++] = dd[0][i] * ll[1][0] * ll[2][0]; // Edge 0-1
+    deriv[sn++] = ll[0][i] * dd[1][0] * ll[2][0]; // Edge 0-1
+    deriv[sn++] = ll[0][i] * ll[1][0] * dd[2][0]; // Edge 0-1
 
-    deriv[sn1++] = dd[0][i] * ll[1][order[1]] * ll[2][0];        // Edge 2-3
-    deriv[sn1++] = ll[0][i] * dd[1][order[1]] * ll[2][0];        // Edge 2-3
-    deriv[sn1++] = ll[0][i] * ll[1][order[1]] * dd[2][0];        // Edge 2-3
+    deriv[sn1++] = dd[0][i] * ll[1][order[1]] * ll[2][0]; // Edge 2-3
+    deriv[sn1++] = ll[0][i] * dd[1][order[1]] * ll[2][0]; // Edge 2-3
+    deriv[sn1++] = ll[0][i] * ll[1][order[1]] * dd[2][0]; // Edge 2-3
 
-    deriv[sn2++] = dd[0][i] * ll[1][0] * ll[2][order[2]];        // Edge 4-5
-    deriv[sn2++] = ll[0][i] * dd[1][0] * ll[2][order[2]];        // Edge 4-5
-    deriv[sn2++] = ll[0][i] * ll[1][0] * dd[2][order[2]];        // Edge 4-5
+    deriv[sn2++] = dd[0][i] * ll[1][0] * ll[2][order[2]]; // Edge 4-5
+    deriv[sn2++] = ll[0][i] * dd[1][0] * ll[2][order[2]]; // Edge 4-5
+    deriv[sn2++] = ll[0][i] * ll[1][0] * dd[2][order[2]]; // Edge 4-5
 
     deriv[sn3++] = dd[0][i] * ll[1][order[1]] * ll[2][order[2]]; // Edge 6-7
     deriv[sn3++] = ll[0][i] * dd[1][order[1]] * ll[2][order[2]]; // Edge 6-7
@@ -510,23 +514,22 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
 
   for (i = 1; i < order[1]; ++i)
   {
-    //cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
-    deriv[sn++ ] = dd[0][order[0]] * ll[1][i] * ll[2][0];        // Edge 1-2
-    deriv[sn++ ] = ll[0][order[0]] * dd[1][i] * ll[2][0];        // Edge 1-2
-    deriv[sn++ ] = ll[0][order[0]] * ll[1][i] * dd[2][0];        // Edge 1-2
+    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    deriv[sn++] = dd[0][order[0]] * ll[1][i] * ll[2][0]; // Edge 1-2
+    deriv[sn++] = ll[0][order[0]] * dd[1][i] * ll[2][0]; // Edge 1-2
+    deriv[sn++] = ll[0][order[0]] * ll[1][i] * dd[2][0]; // Edge 1-2
 
-    deriv[sn1++] = dd[0][0] * ll[1][i] * ll[2][0];               // Edge 3-0
-    deriv[sn1++] = ll[0][0] * dd[1][i] * ll[2][0];               // Edge 3-0
-    deriv[sn1++] = ll[0][0] * ll[1][i] * dd[2][0];               // Edge 3-0
+    deriv[sn1++] = dd[0][0] * ll[1][i] * ll[2][0]; // Edge 3-0
+    deriv[sn1++] = ll[0][0] * dd[1][i] * ll[2][0]; // Edge 3-0
+    deriv[sn1++] = ll[0][0] * ll[1][i] * dd[2][0]; // Edge 3-0
 
     deriv[sn2++] = dd[0][order[0]] * ll[1][i] * ll[2][order[2]]; // Edge 5-6
     deriv[sn2++] = ll[0][order[0]] * dd[1][i] * ll[2][order[2]]; // Edge 5-6
     deriv[sn2++] = ll[0][order[0]] * ll[1][i] * dd[2][order[2]]; // Edge 5-6
 
-    deriv[sn3++] = dd[0][0] * ll[1][i] * ll[2][order[2]];        // Edge 7-4
-    deriv[sn3++] = ll[0][0] * dd[1][i] * ll[2][order[2]];        // Edge 7-4
-    deriv[sn3++] = ll[0][0] * ll[1][i] * dd[2][order[2]];        // Edge 7-4
-
+    deriv[sn3++] = dd[0][0] * ll[1][i] * ll[2][order[2]]; // Edge 7-4
+    deriv[sn3++] = ll[0][0] * dd[1][i] * ll[2][order[2]]; // Edge 7-4
+    deriv[sn3++] = ll[0][0] * ll[1][i] * dd[2][order[2]]; // Edge 7-4
   }
   sn = sn3;
   sn1 = 3 * (order[2] - 1);
@@ -536,39 +539,39 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
   sn2 += sn;
   for (i = 1; i < order[2]; ++i)
   {
-    //cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
-    deriv[sn++ ] = dd[0][0] * ll[1][0] * ll[2][i];                // Edge 0-4
-    deriv[sn++ ] = ll[0][0] * dd[1][0] * ll[2][i];                // Edge 0-4
-    deriv[sn++ ] = ll[0][0] * ll[1][0] * dd[2][i];                // Edge 0-4
+    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    deriv[sn++] = dd[0][0] * ll[1][0] * ll[2][i]; // Edge 0-4
+    deriv[sn++] = ll[0][0] * dd[1][0] * ll[2][i]; // Edge 0-4
+    deriv[sn++] = ll[0][0] * ll[1][0] * dd[2][i]; // Edge 0-4
 
-    deriv[sn1++] = dd[0][order[0]] * ll[1][0] * ll[2][i];         // Edge 1-5
-    deriv[sn1++] = ll[0][order[0]] * dd[1][0] * ll[2][i];         // Edge 1-5
-    deriv[sn1++] = ll[0][order[0]] * ll[1][0] * dd[2][i];         // Edge 1-5
+    deriv[sn1++] = dd[0][order[0]] * ll[1][0] * ll[2][i]; // Edge 1-5
+    deriv[sn1++] = ll[0][order[0]] * dd[1][0] * ll[2][i]; // Edge 1-5
+    deriv[sn1++] = ll[0][order[0]] * ll[1][0] * dd[2][i]; // Edge 1-5
 
     // Kitware insists on swapping edges 10 and 11 as follows:
-    deriv[sn3++] = dd[0][order[0]] * ll[1][order[1]] * ll[2][i];  // Edge 2-6
-    deriv[sn3++] = ll[0][order[0]] * dd[1][order[1]] * ll[2][i];  // Edge 2-6
-    deriv[sn3++] = ll[0][order[0]] * ll[1][order[1]] * dd[2][i];  // Edge 2-6
+    deriv[sn3++] = dd[0][order[0]] * ll[1][order[1]] * ll[2][i]; // Edge 2-6
+    deriv[sn3++] = ll[0][order[0]] * dd[1][order[1]] * ll[2][i]; // Edge 2-6
+    deriv[sn3++] = ll[0][order[0]] * ll[1][order[1]] * dd[2][i]; // Edge 2-6
 
-    deriv[sn2++] = dd[0][0] * ll[1][order[1]] * ll[2][i];         // Edge 3-7
-    deriv[sn2++] = ll[0][0] * dd[1][order[1]] * ll[2][i];         // Edge 3-7
-    deriv[sn2++] = ll[0][0] * ll[1][order[1]] * dd[2][i];         // Edge 3-7
+    deriv[sn2++] = dd[0][0] * ll[1][order[1]] * ll[2][i]; // Edge 3-7
+    deriv[sn2++] = ll[0][0] * dd[1][order[1]] * ll[2][i]; // Edge 3-7
+    deriv[sn2++] = ll[0][0] * ll[1][order[1]] * dd[2][i]; // Edge 3-7
   }
 
   sn = sn3;
   sn1 = 3 * (order[1] - 1) * (order[2] - 1);
   sn2 = sn1 * 2;
-  sn3 = sn + sn2 + 3 * (order[2] - 1)*(order[0] - 1);
+  sn3 = sn + sn2 + 3 * (order[2] - 1) * (order[0] - 1);
   sn1 += sn;
   sn2 += sn;
   for (i = 1; i < order[2]; ++i)
   {
     for (j = 1; j < order[1]; ++j)
     {
-      //cout << sn << ", " << sn1 << "\n";
-      deriv[sn++ ] = dd[0][0] * ll[1][j] * ll[2][i];        // Face 0-4-7-3
-      deriv[sn++ ] = ll[0][0] * dd[1][j] * ll[2][i];        // Face 0-4-7-3
-      deriv[sn++ ] = ll[0][0] * ll[1][j] * dd[2][i];        // Face 0-4-7-3
+      // cout << sn << ", " << sn1 << "\n";
+      deriv[sn++] = dd[0][0] * ll[1][j] * ll[2][i]; // Face 0-4-7-3
+      deriv[sn++] = ll[0][0] * dd[1][j] * ll[2][i]; // Face 0-4-7-3
+      deriv[sn++] = ll[0][0] * ll[1][j] * dd[2][i]; // Face 0-4-7-3
 
       deriv[sn1++] = dd[0][order[0]] * ll[1][j] * ll[2][i]; // Face 1-2-6-5
       deriv[sn1++] = ll[0][order[0]] * dd[1][j] * ll[2][i]; // Face 1-2-6-5
@@ -576,10 +579,10 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
     }
     for (j = 1; j < order[0]; ++j)
     {
-      //cout << sn2 << ", " << sn3 << "\n";
-      deriv[sn2++] = dd[0][j] * ll[1][0] * ll[2][i];        // Face 0-1-5-4
-      deriv[sn2++] = ll[0][j] * dd[1][0] * ll[2][i];        // Face 0-1-5-4
-      deriv[sn2++] = ll[0][j] * ll[1][0] * dd[2][i];        // Face 0-1-5-4
+      // cout << sn2 << ", " << sn3 << "\n";
+      deriv[sn2++] = dd[0][j] * ll[1][0] * ll[2][i]; // Face 0-1-5-4
+      deriv[sn2++] = ll[0][j] * dd[1][0] * ll[2][i]; // Face 0-1-5-4
+      deriv[sn2++] = ll[0][j] * ll[1][0] * dd[2][i]; // Face 0-1-5-4
 
       deriv[sn3++] = dd[0][j] * ll[1][order[1]] * ll[2][i]; // Face 2-3-7-6
       deriv[sn3++] = ll[0][j] * dd[1][order[1]] * ll[2][i]; // Face 2-3-7-6
@@ -592,10 +595,10 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
   {
     for (j = 1; j < order[0]; ++j)
     {
-      //cout << sn << ", " << sn1 << "\n";
-      deriv[sn++ ] = dd[0][j] * ll[1][i] * ll[2][0];        // Face 0-1-2-3
-      deriv[sn++ ] = ll[0][j] * dd[1][i] * ll[2][0];        // Face 0-1-2-3
-      deriv[sn++ ] = ll[0][j] * ll[1][i] * dd[2][0];        // Face 0-1-2-3
+      // cout << sn << ", " << sn1 << "\n";
+      deriv[sn++] = dd[0][j] * ll[1][i] * ll[2][0]; // Face 0-1-2-3
+      deriv[sn++] = ll[0][j] * dd[1][i] * ll[2][0]; // Face 0-1-2-3
+      deriv[sn++] = ll[0][j] * ll[1][i] * dd[2][0]; // Face 0-1-2-3
 
       deriv[sn1++] = dd[0][j] * ll[1][i] * ll[2][order[2]]; // Face 4-7-6-5
       deriv[sn1++] = ll[0][j] * dd[1][i] * ll[2][order[2]]; // Face 4-7-6-5
@@ -609,7 +612,7 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
     {
       for (i = 1; i < order[0]; ++i)
       {
-        //cout << sn << "\n";
+        // cout << sn << "\n";
         deriv[sn++] = dd[0][i] * ll[1][j] * ll[2][k]; // Body
         deriv[sn++] = ll[0][i] * dd[1][j] * ll[2][k]; // Body
         deriv[sn++] = ll[0][i] * ll[1][j] * dd[2][k]; // Body
@@ -619,13 +622,8 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[3], const 
   return sn;
 }
 
-void vtkLagrangeInterpolation::Tensor3EvaluateDerivative(
-  const int order[3],
-  const double* pcoords,
-  vtkPoints* points,
-  const double* fieldVals,
-  int fieldDim,
-  double* fieldDerivs)
+void vtkLagrangeInterpolation::Tensor3EvaluateDerivative(const int order[3], const double* pcoords,
+  vtkPoints* points, const double* fieldVals, int fieldDim, double* fieldDerivs)
 {
   vtkIdType numberOfPoints = points->GetNumberOfPoints();
   this->PrepareForOrder(order, numberOfPoints);
@@ -633,42 +631,45 @@ void vtkLagrangeInterpolation::Tensor3EvaluateDerivative(
 
   // compute inverse Jacobian
   double *jI[3], j0[3], j1[3], j2[3];
-  jI[0] = j0; jI[1] = j1; jI[2] = j2;
+  jI[0] = j0;
+  jI[1] = j1;
+  jI[2] = j2;
   if (this->JacobianInverse(points, this->DerivSpace.data(), jI) == 0)
   { // jacobian inverse computation failed
     return;
   }
 
   // now compute derivates of values provided
-  for (int k=0; k < fieldDim; k++) //loop over values per vertex
+  for (int k = 0; k < fieldDim; k++) // loop over values per vertex
   {
-    double sum[3] = {0, 0, 0};
-    for (vtkIdType i=0; i < numberOfPoints; i++) //loop over interp. function derivatives
+    double sum[3] = { 0, 0, 0 };
+    for (vtkIdType i = 0; i < numberOfPoints; i++) // loop over interp. function derivatives
     {
-      // Note the subtle difference between the indexing of this->DerivSpace here and in WedgeEvaluateDerivative.
-      double value = fieldVals[fieldDim*i + k];
-      sum[0] += this->DerivSpace[3*i] * value;
-      sum[1] += this->DerivSpace[3*i+1] * value;
-      sum[2] += this->DerivSpace[3*i+2] * value;
+      // Note the subtle difference between the indexing of this->DerivSpace here and in
+      // WedgeEvaluateDerivative.
+      double value = fieldVals[fieldDim * i + k];
+      sum[0] += this->DerivSpace[3 * i] * value;
+      sum[1] += this->DerivSpace[3 * i + 1] * value;
+      sum[2] += this->DerivSpace[3 * i + 2] * value;
     }
 
-    for (int j=0; j < 3; j++) //loop over derivative directions
+    for (int j = 0; j < 3; j++) // loop over derivative directions
     {
-      fieldDerivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+      fieldDerivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
     }
   }
 }
 
-
 /// Wedge shape function computation
-void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtkIdType numberOfPoints, const double pcoords[3], double* shape)
+void vtkLagrangeInterpolation::WedgeShapeFunctions(
+  const int order[3], const vtkIdType numberOfPoints, const double pcoords[3], double* shape)
 {
   static vtkNew<vtkLagrangeTriangle> tri;
 
   if (order[0] != order[1])
   {
-    vtkGenericWarningMacro(
-      "Orders 0 and 1 (parametric coordinates of triangle, " << order[0] << " and " << order[1] << ") must match.");
+    vtkGenericWarningMacro("Orders 0 and 1 (parametric coordinates of triangle, "
+      << order[0] << " and " << order[1] << ") must match.");
     return;
   }
 
@@ -687,27 +688,27 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtk
     const double tp = 1. + t;
     const double tm = 1. - t;
 
-    shape[ 0] = -0.5 * t * tm * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
-    shape[ 1] = -0.5 * t * tm * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
-    shape[ 2] = -0.5 * t * tm * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
-    shape[ 3] =  0.5 * t * tp * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
-    shape[ 4] =  0.5 * t * tp * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
-    shape[ 5] =  0.5 * t * tp * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
-    shape[ 6] = -0.5 * t * tm * rsm * (4.0 * r - 12.0 * rs);
-    shape[ 7] = -0.5 * t * tm * (4.0 * rs - 12.0 * rsm * rs);
-    shape[ 8] = -0.5 * t * tm * rsm * (4.0 * s - 12.0 * rs);
-    shape[ 9] =  0.5 * t * tp * rsm * (4.0 * r - 12.0 * rs);
-    shape[10] =  0.5 * t * tp * (4.0 * rs - 12.0 * rsm * rs);
-    shape[11] =  0.5 * t * tp * rsm * (4.0 * s - 12.0 * rs);
-    shape[12] =  tp * tm * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
-    shape[13] =  tp * tm * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
-    shape[14] =  tp * tm * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
+    shape[0] = -0.5 * t * tm * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
+    shape[1] = -0.5 * t * tm * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
+    shape[2] = -0.5 * t * tm * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
+    shape[3] = 0.5 * t * tp * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
+    shape[4] = 0.5 * t * tp * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
+    shape[5] = 0.5 * t * tp * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
+    shape[6] = -0.5 * t * tm * rsm * (4.0 * r - 12.0 * rs);
+    shape[7] = -0.5 * t * tm * (4.0 * rs - 12.0 * rsm * rs);
+    shape[8] = -0.5 * t * tm * rsm * (4.0 * s - 12.0 * rs);
+    shape[9] = 0.5 * t * tp * rsm * (4.0 * r - 12.0 * rs);
+    shape[10] = 0.5 * t * tp * (4.0 * rs - 12.0 * rsm * rs);
+    shape[11] = 0.5 * t * tp * rsm * (4.0 * s - 12.0 * rs);
+    shape[12] = tp * tm * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
+    shape[13] = tp * tm * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
+    shape[14] = tp * tm * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
     shape[15] = -0.5 * 27.0 * t * tm * rsm * rs;
-    shape[16] =  0.5 * 27.0 * t * tp * rsm * rs;
-    shape[17] =  tp * tm * rsm * (4.0 * r - 12.0 * rs);
-    shape[18] =  tp * tm * (4.0 * rs - 12.0 * rsm * rs);
-    shape[19] =  tp * tm * rsm * (4.0 * s - 12.0 * rs);
-    shape[20] =  27.0 * tp * tm * rsm * rs;
+    shape[16] = 0.5 * 27.0 * t * tp * rsm * rs;
+    shape[17] = tp * tm * rsm * (4.0 * r - 12.0 * rs);
+    shape[18] = tp * tm * (4.0 * rs - 12.0 * rsm * rs);
+    shape[19] = tp * tm * rsm * (4.0 * s - 12.0 * rs);
+    shape[20] = 27.0 * tp * tm * rsm * rs;
     return;
   }
 #endif
@@ -725,7 +726,7 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtk
   tri->InterpolateFunctions(triP.GetData(), &tt[0]);
 
   int sn;
-  //int numPts = numtripts * (tOrder + 1);
+  // int numPts = numtripts * (tOrder + 1);
   vtkIdType ijk[3];
   for (int kk = 0; kk <= tOrder; ++kk)
   {
@@ -748,14 +749,15 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const vtk
 }
 
 /// Wedge shape-function derivative evaluation
-void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const vtkIdType numberOfPoints, const double pcoords[3], double* derivs)
+void vtkLagrangeInterpolation::WedgeShapeDerivatives(
+  const int order[3], const vtkIdType numberOfPoints, const double pcoords[3], double* derivs)
 {
   static vtkNew<vtkLagrangeTriangle> tri;
 
   if (order[0] != order[1])
   {
-    vtkGenericWarningMacro(
-      "Orders 0 and 1 (parametric coordinates of triangle, " << order[0] << " and " << order[1] << ") must match.");
+    vtkGenericWarningMacro("Orders 0 and 1 (parametric coordinates of triangle, "
+      << order[0] << " and " << order[1] << ") must match.");
     return;
   }
 
@@ -790,73 +792,73 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
     const double rs = r * s;
 
     // dN/dr
-    derivs[ 0] = 0.5*t*tm*(-3.0*rs + 2.0*r + 2.0*s + (3.0*s - 2.0)*rsm - 1.0);
-    derivs[ 1] = -0.5*t*tm*(3.0*rs - 4.0*r - 3.0*s*rsm + 1.0);
-    derivs[ 2] = -1.5*s*t*tm*(2*r + s - 1);
-    derivs[ 3] = 0.5*t*tp*(-3.0*rs + 2.0*r + 2.0*s + (3.0*s - 2.0)*rsm - 1.0);
-    derivs[ 4] = -0.5*t*tp*(3.0*rs - 4.0*r - 3.0*s*rsm + 1.0);
-    derivs[ 5] = -1.5*s*t*tp*(2*r + s - 1);
-    derivs[ 6] = 0.5*t*(12.0*s - 4.0)*tm*(2*r + s - 1);
-    derivs[ 7] = 0.5*s*t*tm*(24.0*r + 12.0*s - 8.0);
-    derivs[ 8] = s*t*tm*(12.0*r + 6.0*s - 8.0);
-    derivs[ 9] = 0.5*t*(12.0*s - 4.0)*tp*(2*r + s - 1);
-    derivs[10] = 0.5*s*t*tp*(24.0*r + 12.0*s - 8.0);
-    derivs[11] = s*t*tp*(12.0*r + 6.0*s - 8.0);
-    derivs[12] = tm*tp*(3.0*rs - 2.0*r - 2.0*s - (3.0*s - 2.0)*rsm + 1.0);
-    derivs[13] = tm*tp*(3.0*rs - 4.0*r - 3.0*s*rsm + 1.0);
-    derivs[14] = 3.0*s*tm*tp*(2*r + s - 1);
-    derivs[15] = 13.5*s*t*tm*(-2*r - s + 1);
-    derivs[16] = 13.5*s*t*tp*(-2*r - s + 1);
-    derivs[17] = (12.0*s - 4.0)*tm*tp*(-2*r - s + 1);
-    derivs[18] = -s*tm*tp*(24.0*r + 12.0*s - 8.0);
-    derivs[19] = s*tm*tp*(-24.0*r - 12.0*s + 16.0);
-    derivs[20] = 27.0*s*tm*tp*(2*r + s - 1);
+    derivs[0] = 0.5 * t * tm * (-3.0 * rs + 2.0 * r + 2.0 * s + (3.0 * s - 2.0) * rsm - 1.0);
+    derivs[1] = -0.5 * t * tm * (3.0 * rs - 4.0 * r - 3.0 * s * rsm + 1.0);
+    derivs[2] = -1.5 * s * t * tm * (2 * r + s - 1);
+    derivs[3] = 0.5 * t * tp * (-3.0 * rs + 2.0 * r + 2.0 * s + (3.0 * s - 2.0) * rsm - 1.0);
+    derivs[4] = -0.5 * t * tp * (3.0 * rs - 4.0 * r - 3.0 * s * rsm + 1.0);
+    derivs[5] = -1.5 * s * t * tp * (2 * r + s - 1);
+    derivs[6] = 0.5 * t * (12.0 * s - 4.0) * tm * (2 * r + s - 1);
+    derivs[7] = 0.5 * s * t * tm * (24.0 * r + 12.0 * s - 8.0);
+    derivs[8] = s * t * tm * (12.0 * r + 6.0 * s - 8.0);
+    derivs[9] = 0.5 * t * (12.0 * s - 4.0) * tp * (2 * r + s - 1);
+    derivs[10] = 0.5 * s * t * tp * (24.0 * r + 12.0 * s - 8.0);
+    derivs[11] = s * t * tp * (12.0 * r + 6.0 * s - 8.0);
+    derivs[12] = tm * tp * (3.0 * rs - 2.0 * r - 2.0 * s - (3.0 * s - 2.0) * rsm + 1.0);
+    derivs[13] = tm * tp * (3.0 * rs - 4.0 * r - 3.0 * s * rsm + 1.0);
+    derivs[14] = 3.0 * s * tm * tp * (2 * r + s - 1);
+    derivs[15] = 13.5 * s * t * tm * (-2 * r - s + 1);
+    derivs[16] = 13.5 * s * t * tp * (-2 * r - s + 1);
+    derivs[17] = (12.0 * s - 4.0) * tm * tp * (-2 * r - s + 1);
+    derivs[18] = -s * tm * tp * (24.0 * r + 12.0 * s - 8.0);
+    derivs[19] = s * tm * tp * (-24.0 * r - 12.0 * s + 16.0);
+    derivs[20] = 27.0 * s * tm * tp * (2 * r + s - 1);
 
     // dN/ds
-    derivs[21] = 0.5*t*tm*(-3.0*rs + 2.0*r + 2.0*s + (3.0*r - 2.0)*rsm - 1.0);
-    derivs[22] =  -1.5*r*t*tm*(r + 2*s - 1);
-    derivs[23] =  -0.5*t*tm*(3.0*rs - 3.0*r*rsm - 4.0*s + 1.0);
-    derivs[24] =  0.5*t*tp*(-3.0*rs + 2.0*r + 2.0*s + (3.0*r - 2.0)*rsm - 1.0);
-    derivs[25] =  -1.5*r*t*tp*(r + 2*s - 1);
-    derivs[26] =  -0.5*t*tp*(3.0*rs - 3.0*r*rsm - 4.0*s + 1.0);
-    derivs[27] =  r*t*tm*(6.0*r + 12.0*s - 8.0);
-    derivs[28] =  0.5*r*t*tm*(12.0*r + 24.0*s - 8.0);
-    derivs[29] =  0.5*t*(12.0*r - 4.0)*tm*(r + 2*s - 1);
-    derivs[30] =  r*t*tp*(6.0*r + 12.0*s - 8.0);
-    derivs[31] =  0.5*r*t*tp*(12.0*r + 24.0*s - 8.0);
-    derivs[32] =  0.5*t*(12.0*r - 4.0)*tp*(r + 2*s - 1);
-    derivs[33] =  tm*tp*(3.0*rs - 2.0*r - 2.0*s - (3.0*r - 2.0)*rsm + 1.0);
-    derivs[34] =  3.0*r*tm*tp*(r + 2*s - 1);
-    derivs[35] =  tm*tp*(3.0*rs - 3.0*r*rsm - 4.0*s + 1.0);
-    derivs[36] =  13.5*r*t*tm*(-r - 2*s + 1);
-    derivs[37] =  13.5*r*t*tp*(-r - 2*s + 1);
-    derivs[38] =  r*tm*tp*(-12.0*r - 24.0*s + 16.0);
-    derivs[39] =  -r*tm*tp*(12.0*r + 24.0*s - 8.0);
-    derivs[40] =  (12.0*r - 4.0)*tm*tp*(-r - 2*s + 1);
-    derivs[41] =  27.0*r*tm*tp*(r + 2*s - 1);
+    derivs[21] = 0.5 * t * tm * (-3.0 * rs + 2.0 * r + 2.0 * s + (3.0 * r - 2.0) * rsm - 1.0);
+    derivs[22] = -1.5 * r * t * tm * (r + 2 * s - 1);
+    derivs[23] = -0.5 * t * tm * (3.0 * rs - 3.0 * r * rsm - 4.0 * s + 1.0);
+    derivs[24] = 0.5 * t * tp * (-3.0 * rs + 2.0 * r + 2.0 * s + (3.0 * r - 2.0) * rsm - 1.0);
+    derivs[25] = -1.5 * r * t * tp * (r + 2 * s - 1);
+    derivs[26] = -0.5 * t * tp * (3.0 * rs - 3.0 * r * rsm - 4.0 * s + 1.0);
+    derivs[27] = r * t * tm * (6.0 * r + 12.0 * s - 8.0);
+    derivs[28] = 0.5 * r * t * tm * (12.0 * r + 24.0 * s - 8.0);
+    derivs[29] = 0.5 * t * (12.0 * r - 4.0) * tm * (r + 2 * s - 1);
+    derivs[30] = r * t * tp * (6.0 * r + 12.0 * s - 8.0);
+    derivs[31] = 0.5 * r * t * tp * (12.0 * r + 24.0 * s - 8.0);
+    derivs[32] = 0.5 * t * (12.0 * r - 4.0) * tp * (r + 2 * s - 1);
+    derivs[33] = tm * tp * (3.0 * rs - 2.0 * r - 2.0 * s - (3.0 * r - 2.0) * rsm + 1.0);
+    derivs[34] = 3.0 * r * tm * tp * (r + 2 * s - 1);
+    derivs[35] = tm * tp * (3.0 * rs - 3.0 * r * rsm - 4.0 * s + 1.0);
+    derivs[36] = 13.5 * r * t * tm * (-r - 2 * s + 1);
+    derivs[37] = 13.5 * r * t * tp * (-r - 2 * s + 1);
+    derivs[38] = r * tm * tp * (-12.0 * r - 24.0 * s + 16.0);
+    derivs[39] = -r * tm * tp * (12.0 * r + 24.0 * s - 8.0);
+    derivs[40] = (12.0 * r - 4.0) * tm * tp * (-r - 2 * s + 1);
+    derivs[41] = 27.0 * r * tm * tp * (r + 2 * s - 1);
 
     // dN/dt
-    derivs[42] = (2*t - 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
-    derivs[43] =  r*(-2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
-    derivs[44] =  s*(-2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
-    derivs[45] =  (2*t + 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
-    derivs[46] =  -r*(2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
-    derivs[47] =  -s*(2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
-    derivs[48] =  -r*(12.0*s - 4.0)*(2*t - 1)*rsm;
-    derivs[49] =  rs*(2*t - 1)*(12.0*r + 12.0*s - 8.0);
-    derivs[50] =  -s*(12.0*r - 4.0)*(2*t - 1)*rsm;
-    derivs[51] =  -r*(12.0*s - 4.0)*(2*t + 1)*rsm;
-    derivs[52] =  rs*(2*t + 1)*(12.0*r + 12.0*s - 8.0);
-    derivs[53] =  -s*(12.0*r - 4.0)*(2*t + 1)*rsm;
-    derivs[54] =  -4*t*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
-    derivs[55] =  4.*r*(1. - 3.*s + 3.*s*s + r*(-2. + 3.*s))*t;
-    derivs[56] =  4.*s*t*(-3.0*r*rsm - 2.0*s + 1.0);
-    derivs[57] =  -27.*rs*(-2*t + 1)*rsm;
-    derivs[58] =  27.*rs*(2*t + 1)*rsm;
-    derivs[59] =  4.*r*t*(12.0*s - 4.0)*rsm;
-    derivs[60] =  2.*rs*t*(-24.0*r - 24.0*s + 16.0);
-    derivs[61] =  4.*s*t*(12.0*r - 4.0)*rsm;
-    derivs[62] =  -108.*rs*t*rsm;
+    derivs[42] = (2 * t - 1) * rsm * (3.0 * rs - 2.0 * r - 2.0 * s + 1.0);
+    derivs[43] = r * (-2 * t + 1) * (-2.0 * r - 3.0 * s * rsm + 1.0);
+    derivs[44] = s * (-2 * t + 1) * (-3.0 * r * rsm - 2.0 * s + 1.0);
+    derivs[45] = (2 * t + 1) * rsm * (3.0 * rs - 2.0 * r - 2.0 * s + 1.0);
+    derivs[46] = -r * (2 * t + 1) * (-2.0 * r - 3.0 * s * rsm + 1.0);
+    derivs[47] = -s * (2 * t + 1) * (-3.0 * r * rsm - 2.0 * s + 1.0);
+    derivs[48] = -r * (12.0 * s - 4.0) * (2 * t - 1) * rsm;
+    derivs[49] = rs * (2 * t - 1) * (12.0 * r + 12.0 * s - 8.0);
+    derivs[50] = -s * (12.0 * r - 4.0) * (2 * t - 1) * rsm;
+    derivs[51] = -r * (12.0 * s - 4.0) * (2 * t + 1) * rsm;
+    derivs[52] = rs * (2 * t + 1) * (12.0 * r + 12.0 * s - 8.0);
+    derivs[53] = -s * (12.0 * r - 4.0) * (2 * t + 1) * rsm;
+    derivs[54] = -4 * t * rsm * (3.0 * rs - 2.0 * r - 2.0 * s + 1.0);
+    derivs[55] = 4. * r * (1. - 3. * s + 3. * s * s + r * (-2. + 3. * s)) * t;
+    derivs[56] = 4. * s * t * (-3.0 * r * rsm - 2.0 * s + 1.0);
+    derivs[57] = -27. * rs * (-2 * t + 1) * rsm;
+    derivs[58] = 27. * rs * (2 * t + 1) * rsm;
+    derivs[59] = 4. * r * t * (12.0 * s - 4.0) * rsm;
+    derivs[60] = 2. * rs * t * (-24.0 * r - 24.0 * s + 16.0);
+    derivs[61] = 4. * s * t * (12.0 * r - 4.0) * rsm;
+    derivs[62] = -108. * rs * t * rsm;
 
     return;
   }
@@ -876,7 +878,7 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
           ijk[2] = rsOrder - ii - jj;
           int tOff = vtkLagrangeTriangle::Index(ijk, rsOrder);
           derivs[sn] = td[tOff] * ll[kk];
-          derivs[sn + numPts] = td[tOff+numtripts] * ll[kk];
+          derivs[sn + numPts] = td[tOff + numtripts] * ll[kk];
           derivs[sn + 2 * numPts] = ld[kk] * tt[tOff];
         }
       }
@@ -886,42 +888,42 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[3], const v
 
 #define VTK_MAX_WARNS 6
 int vtkLagrangeInterpolation::JacobianInverse(
-  vtkPoints* points,
-  const double* derivs,
-  double** inverse)
+  vtkPoints* points, const double* derivs, double** inverse)
 {
   double *m[3], m0[3], m1[3], m2[3];
   double x[3];
 
   // create Jacobian matrix
-  m[0] = m0; m[1] = m1; m[2] = m2;
-  for (int i=0; i < 3; i++) //initialize matrix
+  m[0] = m0;
+  m[1] = m1;
+  m[2] = m2;
+  for (int i = 0; i < 3; i++) // initialize matrix
   {
     m0[i] = m1[i] = m2[i] = 0.0;
   }
 
   vtkIdType numberOfPoints = points->GetNumberOfPoints();
-  for (vtkIdType j=0; j < numberOfPoints; j++ )
+  for (vtkIdType j = 0; j < numberOfPoints; j++)
   {
     points->GetPoint(j, x);
-    for (int i=0; i < 3; i++ )
+    for (int i = 0; i < 3; i++)
     {
-      m0[i] += x[i] * derivs[3*j];
-      m1[i] += x[i] * derivs[3*j+1];
-      m2[i] += x[i] * derivs[3*j+2];
+      m0[i] += x[i] * derivs[3 * j];
+      m1[i] += x[i] * derivs[3 * j + 1];
+      m2[i] += x[i] * derivs[3 * j + 2];
     }
   }
 
   // now find the inverse
-  if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
+  if (vtkMath::InvertMatrix(m, inverse, 3) == 0)
   {
-    static int numWarns=0;
-    if ( numWarns++ < VTK_MAX_WARNS )
+    static int numWarns = 0;
+    if (numWarns++ < VTK_MAX_WARNS)
     {
-      vtkErrorMacro(<<"Jacobian inverse not found");
-      vtkErrorMacro(<<"Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " "
-                    << m[1][0] << " " << m[1][1] << " " << m[1][2] << " "
-                    << m[2][0] << " " << m[2][1] << " " << m[2][2] );
+      vtkErrorMacro(<< "Jacobian inverse not found");
+      vtkErrorMacro(<< "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
+                    << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
+                    << m[2][2]);
       return 0;
     }
   }
@@ -930,42 +932,42 @@ int vtkLagrangeInterpolation::JacobianInverse(
 }
 
 int vtkLagrangeInterpolation::JacobianInverseWedge(
-  vtkPoints* points,
-  const double* derivs,
-  double** inverse)
+  vtkPoints* points, const double* derivs, double** inverse)
 {
   double *m[3], m0[3], m1[3], m2[3];
   double x[3];
 
   // create Jacobian matrix
-  m[0] = m0; m[1] = m1; m[2] = m2;
-  for (int i=0; i < 3; i++) //initialize matrix
+  m[0] = m0;
+  m[1] = m1;
+  m[2] = m2;
+  for (int i = 0; i < 3; i++) // initialize matrix
   {
     m0[i] = m1[i] = m2[i] = 0.0;
   }
 
   vtkIdType numberOfPoints = points->GetNumberOfPoints();
-  for (vtkIdType j=0; j < numberOfPoints; j++ )
+  for (vtkIdType j = 0; j < numberOfPoints; j++)
   {
     points->GetPoint(j, x);
-    for (int i=0; i < 3; i++ )
+    for (int i = 0; i < 3; i++)
     {
       m0[i] += x[i] * derivs[j];
-      m1[i] += x[i] * derivs[numberOfPoints+j];
-      m2[i] += x[i] * derivs[2*numberOfPoints+j];
+      m1[i] += x[i] * derivs[numberOfPoints + j];
+      m2[i] += x[i] * derivs[2 * numberOfPoints + j];
     }
   }
 
   // now find the inverse
-  if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
+  if (vtkMath::InvertMatrix(m, inverse, 3) == 0)
   {
-    static int numWarns=0;
-    if ( numWarns++ < VTK_MAX_WARNS )
+    static int numWarns = 0;
+    if (numWarns++ < VTK_MAX_WARNS)
     {
-      vtkErrorMacro(<<"Jacobian inverse not found");
-      vtkErrorMacro(<<"Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " "
-                    << m[1][0] << " " << m[1][1] << " " << m[1][2] << " "
-                    << m[2][0] << " " << m[2][1] << " " << m[2][2] );
+      vtkErrorMacro(<< "Jacobian inverse not found");
+      vtkErrorMacro(<< "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
+                    << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
+                    << m[2][2]);
       return 0;
     }
   }
@@ -973,13 +975,8 @@ int vtkLagrangeInterpolation::JacobianInverseWedge(
   return 1;
 }
 
-void vtkLagrangeInterpolation::WedgeEvaluate(
-  const int order[3],
-  const vtkIdType numberOfPoints,
-  const double* pcoords,
-  double* fieldVals,
-  int fieldDim,
-  double* fieldAtPCoords)
+void vtkLagrangeInterpolation::WedgeEvaluate(const int order[3], const vtkIdType numberOfPoints,
+  const double* pcoords, double* fieldVals, int fieldDim, double* fieldAtPCoords)
 {
   this->PrepareForOrder(order, numberOfPoints);
   this->WedgeShapeFunctions(order, numberOfPoints, pcoords, &this->ShapeSpace[0]);
@@ -995,13 +992,8 @@ void vtkLagrangeInterpolation::WedgeEvaluate(
   }
 }
 
-void vtkLagrangeInterpolation::WedgeEvaluateDerivative(
-  const int order[3],
-  const double* pcoords,
-  vtkPoints* points,
-  const double* fieldVals,
-  int fieldDim,
-  double* fieldDerivs)
+void vtkLagrangeInterpolation::WedgeEvaluateDerivative(const int order[3], const double* pcoords,
+  vtkPoints* points, const double* fieldVals, int fieldDim, double* fieldDerivs)
 {
   vtkIdType numberOfPoints = points->GetNumberOfPoints();
   this->PrepareForOrder(order, numberOfPoints);
@@ -1009,27 +1001,29 @@ void vtkLagrangeInterpolation::WedgeEvaluateDerivative(
 
   // compute inverse Jacobian
   double *jI[3], j0[3], j1[3], j2[3];
-  jI[0] = j0; jI[1] = j1; jI[2] = j2;
+  jI[0] = j0;
+  jI[1] = j1;
+  jI[2] = j2;
   if (this->JacobianInverseWedge(points, this->DerivSpace.data(), jI) == 0)
   { // jacobian inverse computation failed
     return;
   }
 
   // now compute derivates of values provided
-  for (int k=0; k < fieldDim; k++) //loop over values per vertex
+  for (int k = 0; k < fieldDim; k++) // loop over values per vertex
   {
-    double sum[3] = {0, 0, 0};
-    for (vtkIdType i=0; i < numberOfPoints; i++) //loop over interp. function derivatives
+    double sum[3] = { 0, 0, 0 };
+    for (vtkIdType i = 0; i < numberOfPoints; i++) // loop over interp. function derivatives
     {
-      double value = fieldVals[fieldDim*i + k];
+      double value = fieldVals[fieldDim * i + k];
       sum[0] += this->DerivSpace[i] * value;
       sum[1] += this->DerivSpace[numberOfPoints + i] * value;
-      sum[2] += this->DerivSpace[2*numberOfPoints + i] * value;
+      sum[2] += this->DerivSpace[2 * numberOfPoints + i] * value;
     }
 
-    for (int j=0; j < 3; j++) //loop over derivative directions
+    for (int j = 0; j < 3; j++) // loop over derivative directions
     {
-      fieldDerivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+      fieldDerivs[3 * k + j] = sum[0] * jI[j][0] + sum[1] * jI[j][1] + sum[2] * jI[j][2];
     }
   }
 }
@@ -1099,7 +1093,8 @@ const int* vtkLagrangeInterpolation::GetPointIndicesBoundingWedgeFace(int faceId
   return wedgeFaceCorners[faceId];
 }
 
-/// Return 4 edge ids bounding face (with -1 as last id for triangles) plus a face orientation as the 5th number.
+/// Return 4 edge ids bounding face (with -1 as last id for triangles) plus a face orientation as
+/// the 5th number.
 const int* vtkLagrangeInterpolation::GetEdgeIndicesBoundingWedgeFace(int faceId)
 {
   return wedgeFaceEdges[faceId];
@@ -1115,7 +1110,8 @@ int vtkLagrangeInterpolation::GetFixedParameterOfWedgeFace(int faceId)
   return wedgeFaceCorners[faceId][6];
 }
 
-void vtkLagrangeInterpolation::AppendCurveCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[1])
+void vtkLagrangeInterpolation::AppendCurveCollocationPoints(
+  vtkSmartPointer<vtkPoints>& pts, const int order[1])
 {
   if (!pts)
   {
@@ -1125,7 +1121,7 @@ void vtkLagrangeInterpolation::AppendCurveCollocationPoints(vtkSmartPointer<vtkP
   vtkIdType existing = pts->GetNumberOfPoints();
   vtkIdType np = order[0] + 1;
   pts->SetNumberOfPoints(existing + np);
-  vtkVector3d e0( 0., 0., 0.);
+  vtkVector3d e0(0., 0., 0.);
   vtkVector3d e1(+1., 0., 0.);
 
   // Insert corner points
@@ -1136,13 +1132,13 @@ void vtkLagrangeInterpolation::AppendCurveCollocationPoints(vtkSmartPointer<vtkP
   // Insert edge points
   for (int ii = 1; ii < order[0]; ++ii)
   {
-    pts->SetPoint(sn++,
-                  ii / static_cast<double>(order[0]), 0.0, 0.0 // Force quad to z = 0 plane
-      );
+    pts->SetPoint(sn++, ii / static_cast<double>(order[0]), 0.0, 0.0 // Force quad to z = 0 plane
+    );
   }
 }
 
-void vtkLagrangeInterpolation::AppendQuadrilateralCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[2])
+void vtkLagrangeInterpolation::AppendQuadrilateralCollocationPoints(
+  vtkSmartPointer<vtkPoints>& pts, const int order[2])
 {
   if (!pts)
   {
@@ -1180,16 +1176,15 @@ void vtkLagrangeInterpolation::AppendQuadrilateralCollocationPoints(vtkSmartPoin
   {
     for (int ii = 1; ii < order[0]; ++ii)
     {
-      pts->SetPoint(sn++,
-                    ii / static_cast<double>(order[0]),
-                    jj / static_cast<double>(order[1]),
-                    0.0 // Force quad to z = 0 plane
-        );
+      pts->SetPoint(sn++, ii / static_cast<double>(order[0]), jj / static_cast<double>(order[1]),
+        0.0 // Force quad to z = 0 plane
+      );
     }
   }
 }
 
-void vtkLagrangeInterpolation::AppendHexahedronCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[3])
+void vtkLagrangeInterpolation::AppendHexahedronCollocationPoints(
+  vtkSmartPointer<vtkPoints>& pts, const int order[3])
 {
   if (!pts)
   {
@@ -1232,9 +1227,7 @@ void vtkLagrangeInterpolation::AppendHexahedronCollocationPoints(vtkSmartPointer
       for (int ii = 1; ii < order[hexFaceCorners[kk][4]]; ++ii)
       {
         double rr = ii / static_cast<double>(order[hexFaceCorners[kk][4]]);
-        vtkVector3d vv =
-          (1. - ss) * ((1. - rr) * f0 + rr * f1) +
-          ss        * ((1. - rr) * f3 + rr * f2);
+        vtkVector3d vv = (1. - ss) * ((1. - rr) * f0 + rr * f1) + ss * ((1. - rr) * f3 + rr * f2);
         pts->SetPoint(sn++, vv.GetData());
       }
     }
@@ -1247,16 +1240,15 @@ void vtkLagrangeInterpolation::AppendHexahedronCollocationPoints(vtkSmartPointer
     {
       for (int ii = 1; ii < order[0]; ++ii)
       {
-        pts->SetPoint(sn++,
-                      ii / static_cast<double>(order[0]),
-                      jj / static_cast<double>(order[1]),
-                      kk / static_cast<double>(order[2]));
+        pts->SetPoint(sn++, ii / static_cast<double>(order[0]), jj / static_cast<double>(order[1]),
+          kk / static_cast<double>(order[2]));
       }
     }
   }
 }
 
-void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkSmartPointer<vtkPoints>& pts, const int order[3])
+void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(
+  vtkSmartPointer<vtkPoints>& pts, const int order[3])
 {
   if (!pts)
   {
@@ -1264,7 +1256,8 @@ void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkSmartPointer<vtkP
   }
 
   vtkIdType existing = pts->GetNumberOfPoints();
-  vtkIdType np = (order[0] + 1) * (order[1] + 2) * (order[2] + 1) / 2; // NB: assert(order[0] == order[1])
+  vtkIdType np =
+    (order[0] + 1) * (order[1] + 2) * (order[2] + 1) / 2; // NB: assert(order[0] == order[1])
   pts->SetNumberOfPoints(existing + np);
   // Insert corner points
   vtkIdType sn = existing;
@@ -1308,9 +1301,7 @@ void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkSmartPointer<vtkP
       for (int ii = 1; ii < rsOrder - jj; ++ii)
       {
         double rr = ii / static_cast<double>(rsOrder);
-        vtkVector3d vv =
-          (1. - ss) * ((1. - rr) * f0 + rr * f1) +
-          ss        * ((1. - rr) * f3 + rr * f2);
+        vtkVector3d vv = (1. - ss) * ((1. - rr) * f0 + rr * f1) + ss * ((1. - rr) * f3 + rr * f2);
         pts->SetPoint(sn++, vv.GetData());
       }
     }
@@ -1329,9 +1320,7 @@ void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkSmartPointer<vtkP
       for (int ii = 1; ii < rsOrder; ++ii)
       {
         double rr = ii / static_cast<double>(rsOrder);
-        vtkVector3d vv =
-          (1. - ss) * ((1. - rr) * f0 + rr * f1) +
-          ss        * ((1. - rr) * f3 + rr * f2);
+        vtkVector3d vv = (1. - ss) * ((1. - rr) * f0 + rr * f1) + ss * ((1. - rr) * f3 + rr * f2);
         pts->SetPoint(sn++, vv.GetData());
       }
     }
@@ -1344,10 +1333,8 @@ void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkSmartPointer<vtkP
     {
       for (int ii = 1; ii < rsOrder - jj; ++ii)
       {
-        pts->SetPoint(sn++,
-                      ii / static_cast<double>(rsOrder),
-                      jj / static_cast<double>(rsOrder),
-                      kk / static_cast<double>(tOrder));
+        pts->SetPoint(sn++, ii / static_cast<double>(rsOrder), jj / static_cast<double>(rsOrder),
+          kk / static_cast<double>(tOrder));
       }
     }
   }
@@ -1365,7 +1352,8 @@ void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkPoints* pts, int 
 void vtkLagrangeInterpolation::PrepareForOrder(const int order[3], const vtkIdType numberOfPoints)
 {
   // Ensure some scratch space is allocated for templated evaluation methods.
-  std::size_t maxShape = numberOfPoints > 0 ? numberOfPoints : ((order[0] + 1) * (order[1] + 1) * (order[2] + 1));
+  std::size_t maxShape =
+    numberOfPoints > 0 ? numberOfPoints : ((order[0] + 1) * (order[1] + 1) * (order[2] + 1));
   std::size_t maxDeriv = maxShape * 3;
   if (this->ShapeSpace.size() < maxShape)
   {

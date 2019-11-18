@@ -34,7 +34,7 @@
  *
  * @sa
  * vtkImplicitBoolean vtkSpheres vtkFrustrumSource vtkCamera
-*/
+ */
 
 #ifndef vtkPlanes_h
 #define vtkPlanes_h
@@ -53,11 +53,10 @@ public:
   /**
    * Standard methods for instantiation, type information, and printing.
    */
-  static vtkPlanes *New();
-  vtkTypeMacro(vtkPlanes,vtkImplicitFunction);
+  static vtkPlanes* New();
+  vtkTypeMacro(vtkPlanes, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
-
 
   //@{
   /**
@@ -78,7 +77,7 @@ public:
    * Specify a list of points defining points through which the planes pass.
    */
   virtual void SetPoints(vtkPoints*);
-  vtkGetObjectMacro(Points,vtkPoints);
+  vtkGetObjectMacro(Points, vtkPoints);
   //@}
 
   //@{
@@ -87,7 +86,7 @@ public:
    * correspondence between plane points and plane normals.
    */
   void SetNormals(vtkDataArray* normals);
-  vtkGetObjectMacro(Normals,vtkDataArray);
+  vtkGetObjectMacro(Normals, vtkDataArray);
   //@}
 
   /**
@@ -103,8 +102,7 @@ public:
    * It defines six planes orthogonal to the x-y-z coordinate axes.
    */
   void SetBounds(const double bounds[6]);
-  void SetBounds(double xmin, double xmax, double ymin, double ymax,
-                 double zmin, double zmax);
+  void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   //@}
 
   /**
@@ -118,22 +116,22 @@ public:
    * This method always returns the same object.
    * Use GetPlane(int i, vtkPlane *plane) instead.
    */
-  vtkPlane *GetPlane(int i);
+  vtkPlane* GetPlane(int i);
 
   /**
    * If i is within the allowable range, mutates the given plane's
    * Normal and Origin to match the vtkPlane object at the ith
    * position. Does nothing if i is outside the allowable range.
    */
-  void GetPlane(int i, vtkPlane *plane);
+  void GetPlane(int i, vtkPlane* plane);
 
 protected:
   vtkPlanes();
   ~vtkPlanes() override;
 
-  vtkPoints *Points;
-  vtkDataArray *Normals;
-  vtkPlane *Plane;
+  vtkPoints* Points;
+  vtkDataArray* Normals;
+  vtkPlane* Plane;
 
 private:
   double Planes[24];

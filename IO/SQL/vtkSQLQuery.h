@@ -52,7 +52,7 @@
  *
  * @sa
  * vtkSQLDatabase
-*/
+ */
 
 #ifndef vtkSQLQuery_h
 #define vtkSQLQuery_h
@@ -77,8 +77,8 @@ public:
    * process the query string as soon as it's set, this method returns
    * a boolean to indicate success or failure.
    */
-  virtual bool SetQuery(const char *query);
-  virtual const char *GetQuery();
+  virtual bool SetQuery(const char* query);
+  virtual const char* GetQuery();
   //@}
 
   /**
@@ -161,13 +161,13 @@ public:
   /**
    * Bind a string value -- string must be null-terminated
    */
-  virtual bool BindParameter(int index, const char *stringValue);
+  virtual bool BindParameter(int index, const char* stringValue);
   /**
    * Bind a string value by specifying an array and a size
    */
-  virtual bool BindParameter(int index, const char *stringValue, size_t length);
+  virtual bool BindParameter(int index, const char* stringValue, size_t length);
 
-  virtual bool BindParameter(int index, const vtkStdString &string);
+  virtual bool BindParameter(int index, const vtkStdString& string);
 
   virtual bool BindParameter(int index, vtkVariant var);
   /**
@@ -175,7 +175,7 @@ public:
    * type.  Check vtkSQLDatabase::IsSupported(VTK_SQL_FEATURE_BLOB) to
    * make sure.
    */
-  virtual bool BindParameter(int index, const void *data, size_t length);
+  virtual bool BindParameter(int index, const void* data, size_t length);
   /**
    * Reset all parameter bindings to nullptr.
    */
@@ -191,7 +191,7 @@ public:
    * database backends that do not provde a way to escape
    * strings for use inside queries.
    */
-  virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
+  virtual vtkStdString EscapeString(vtkStdString s, bool addSurroundingQuotes = true);
 
   /**
    * Escape a string for inclusion into an SQL query.
@@ -202,7 +202,7 @@ public:
    * This method simply calls the vtkStdString variant and thus
    * need not be re-implemented by subclasses.
    */
-  char* EscapeString( const char* src, bool addSurroundingQuotes );
+  char* EscapeString(const char* src, bool addSurroundingQuotes);
 
 protected:
   vtkSQLQuery();
@@ -221,9 +221,8 @@ protected:
   bool Active;
 
 private:
-  vtkSQLQuery(const vtkSQLQuery &) = delete;
-  void operator=(const vtkSQLQuery &) = delete;
+  vtkSQLQuery(const vtkSQLQuery&) = delete;
+  void operator=(const vtkSQLQuery&) = delete;
 };
 
 #endif // vtkSQLQuery_h
-

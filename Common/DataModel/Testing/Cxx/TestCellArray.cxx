@@ -44,7 +44,8 @@
 #define TEST_LEGACY_METHODS
 //#endif
 
-namespace {
+namespace
+{
 
 [[noreturn]] void ThrowAssertError(const std::string& msg)
 {
@@ -52,16 +53,15 @@ namespace {
   throw std::runtime_error(msg);
 }
 
-#define TEST_ASSERT(cond) \
-  do { \
-    if (!(cond)) \
-    { \
-      ThrowAssertError(vtkQuoteMacro(__FILE__) ":" \
-                       vtkQuoteMacro(__LINE__) \
-                       ": test assertion failed: (" #cond ")"); \
-    } \
-  } \
-  while (false)
+#define TEST_ASSERT(cond)                                                                          \
+  do                                                                                               \
+  {                                                                                                \
+    if (!(cond))                                                                                   \
+    {                                                                                              \
+      ThrowAssertError(vtkQuoteMacro(__FILE__) ":" vtkQuoteMacro(                                  \
+        __LINE__) ": test assertion failed: (" #cond ")");                                         \
+    }                                                                                              \
+  } while (false)
 
 vtkSmartPointer<vtkCellArray> NewCellArray(bool use64BitStorage)
 {
@@ -80,17 +80,17 @@ vtkSmartPointer<vtkCellArray> NewCellArray(bool use64BitStorage)
   return cellArray;
 }
 
-void FillCellArray(vtkCellArray *cellArray)
+void FillCellArray(vtkCellArray* cellArray)
 {
-  cellArray->InsertNextCell({0, 1, 2, 3, 4});
-  cellArray->InsertNextCell({3, 4, 5});
-  cellArray->InsertNextCell({7, 8, 9, 4, 2, 1});
+  cellArray->InsertNextCell({ 0, 1, 2, 3, 4 });
+  cellArray->InsertNextCell({ 3, 4, 5 });
+  cellArray->InsertNextCell({ 7, 8, 9, 4, 2, 1 });
 }
 
-void ValidateCellArray(vtkCellArray *cellArray)
+void ValidateCellArray(vtkCellArray* cellArray)
 {
   vtkIdType npts;
-  const vtkIdType *pts;
+  const vtkIdType* pts;
   auto it = vtk::TakeSmartPointer(cellArray->NewIterator());
   it->GoToFirstCell();
 
@@ -122,7 +122,6 @@ void ValidateCellArray(vtkCellArray *cellArray)
   TEST_ASSERT(pts[4] == 2);
   TEST_ASSERT(pts[5] == 1);
   it->GoToNextCell();
-
 
   TEST_ASSERT(it->IsDoneWithTraversal());
 }
@@ -172,9 +171,9 @@ void TestSqueeze(vtkSmartPointer<vtkCellArray> cellArray)
   cellArray->Initialize();
   cellArray->AllocateExact(128, 256);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({5, 6});
-  cellArray->InsertNextCell({9, 8, 5});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 5, 6 });
+  cellArray->InsertNextCell({ 9, 8, 5 });
 
   cellArray->Squeeze();
 
@@ -183,20 +182,18 @@ void TestSqueeze(vtkSmartPointer<vtkCellArray> cellArray)
   TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() == 4);
   TEST_ASSERT(cellArray->GetConnectivityArray()->GetSize() == 8);
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 3);
-  validate(0, {0, 1, 2});
-  validate(1, {5, 6});
-  validate(2, {9, 8, 5});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 5, 6 });
+  validate(2, { 9, 8, 5 });
 }
 
 void TestReset(vtkSmartPointer<vtkCellArray> cellArray)
@@ -217,8 +214,8 @@ void TestIsValid(vtkSmartPointer<vtkCellArray> cellArray)
   vtkLogScopeFunction(INFO);
 
   TEST_ASSERT(cellArray->IsValid());
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({0, 4});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 0, 4 });
   TEST_ASSERT(cellArray->IsValid());
 
   cellArray->GetOffsetsArray()->SetComponent(0, 0, 1);
@@ -257,9 +254,9 @@ void TestGetNumberOfCells(vtkSmartPointer<vtkCellArray> cellArray)
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 0);
 
-  cellArray->InsertNextCell({0, 1, 2, 3, 4});
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2, 3, 4 });
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 3);
 
@@ -278,9 +275,9 @@ void TestGetNumberOfOffsets(vtkSmartPointer<vtkCellArray> cellArray)
 
   TEST_ASSERT(cellArray->GetNumberOfOffsets() == 1);
 
-  cellArray->InsertNextCell({0, 1, 2, 3, 4});
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2, 3, 4 });
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
 
   TEST_ASSERT(cellArray->GetNumberOfOffsets() == 4);
 
@@ -299,9 +296,9 @@ void TestGetNumberOfConnectivityIds(vtkSmartPointer<vtkCellArray> cellArray)
 
   TEST_ASSERT(cellArray->GetNumberOfConnectivityIds() == 0);
 
-  cellArray->InsertNextCell({0, 1, 2, 3, 4});
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2, 3, 4 });
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
 
   TEST_ASSERT(cellArray->GetNumberOfConnectivityIds() == 11);
 
@@ -330,13 +327,13 @@ void TestNewIterator(vtkSmartPointer<vtkCellArray> cellArray)
     TEST_ASSERT(iter->IsDoneWithTraversal());
   }
 
-  cellArray->InsertNextCell({0, 1, 2, 3, 4});
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2, 3, 4 });
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
 
   {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
 
     auto iter = vtk::TakeSmartPointer(cellArray->NewIterator());
     TEST_ASSERT(!iter->IsDoneWithTraversal());
@@ -382,8 +379,7 @@ void TestNewIterator(vtkSmartPointer<vtkCellArray> cellArray)
 }
 
 template <typename ArrayType>
-void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray,
-                     bool checkNoCopy)
+void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
 {
   using ValueType = typename ArrayType::ValueType;
 
@@ -394,8 +390,8 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray,
   vtkNew<ArrayType> conn;
   test->SetData(offsets, conn);
 
-  static_assert(sizeof(ValueType) == 4 || sizeof(ValueType) == 8,
-                "Invalid type for cell array storage.");
+  static_assert(
+    sizeof(ValueType) == 4 || sizeof(ValueType) == 8, "Invalid type for cell array storage.");
 
   if (sizeof(ValueType) == 4)
   {
@@ -408,10 +404,8 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray,
 
   if (checkNoCopy)
   {
-    TEST_ASSERT(test->GetConnectivityArray()->GetVoidPointer(0) ==
-                conn->GetVoidPointer(0));
-    TEST_ASSERT(test->GetOffsetsArray()->GetVoidPointer(0) ==
-                offsets->GetVoidPointer(0));
+    TEST_ASSERT(test->GetConnectivityArray()->GetVoidPointer(0) == conn->GetVoidPointer(0));
+    TEST_ASSERT(test->GetOffsetsArray()->GetVoidPointer(0) == offsets->GetVoidPointer(0));
   }
 }
 
@@ -439,10 +433,10 @@ struct TestIsStorage64BitImpl
   {
     // Check the actual arrays, not the typedefs:
     using OffsetsArrayType =
-    typename std::decay<decltype(*std::declval<CellStateT>().GetOffsets())>::type;
+      typename std::decay<decltype(*std::declval<CellStateT>().GetOffsets())>::type;
 
     using ConnArrayType =
-    typename std::decay<decltype(*std::declval<CellStateT>().GetConnectivity())>::type;
+      typename std::decay<decltype(*std::declval<CellStateT>().GetConnectivity())>::type;
 
     using OffsetsValueType = typename OffsetsArrayType::ValueType;
     using ConnValueType = typename ConnArrayType::ValueType;
@@ -467,8 +461,8 @@ void TestUse32BitStorage(vtkSmartPointer<vtkCellArray> cellArray)
   vtkLogScopeFunction(INFO);
 
   // Add some data to make sure that switching storage re-initializes data:
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
   cellArray->Use32BitStorage();
 
   TEST_ASSERT(!cellArray->IsStorage64Bit());
@@ -481,8 +475,8 @@ void TestUse64BitStorage(vtkSmartPointer<vtkCellArray> cellArray)
   vtkLogScopeFunction(INFO);
 
   // Add some data to make sure that switching storage re-initializes data:
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
   cellArray->Use64BitStorage();
 
   TEST_ASSERT(cellArray->IsStorage64Bit());
@@ -495,8 +489,8 @@ void TestUseDefaultStorage(vtkSmartPointer<vtkCellArray> cellArray)
   vtkLogScopeFunction(INFO);
 
   // Add some data to make sure that switching storage re-initializes data:
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5, 6});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5, 6 });
   cellArray->UseDefaultStorage();
 
   TEST_ASSERT(cellArray->IsStorage64Bit() == (sizeof(vtkIdType) == 8));
@@ -512,18 +506,17 @@ void TestCanConvertTo32BitStorage(vtkSmartPointer<vtkCellArray> cellArray)
 
   if (cellArray->IsStorage64Bit())
   {
-    cellArray->InsertNextCell({0, VTK_TYPE_INT32_MAX});
+    cellArray->InsertNextCell({ 0, VTK_TYPE_INT32_MAX });
     TEST_ASSERT(cellArray->CanConvertTo32BitStorage());
 
 #ifdef VTK_USE_64BIT_IDS
-    cellArray->InsertNextCell({0, static_cast<vtkTypeInt64>(VTK_TYPE_INT32_MAX) + 1});
+    cellArray->InsertNextCell({ 0, static_cast<vtkTypeInt64>(VTK_TYPE_INT32_MAX) + 1 });
     TEST_ASSERT(!cellArray->CanConvertTo32BitStorage());
 #endif // VTK_USE_64BIT_IDS
-
   }
   else
   {
-    cellArray->InsertNextCell({0, VTK_TYPE_INT32_MAX});
+    cellArray->InsertNextCell({ 0, VTK_TYPE_INT32_MAX });
     TEST_ASSERT(cellArray->CanConvertTo32BitStorage());
   }
 }
@@ -536,22 +529,21 @@ void TestCanConvertTo64BitStorage(vtkSmartPointer<vtkCellArray> cellArray)
 
   if (cellArray->IsStorage64Bit())
   {
-    cellArray->InsertNextCell({0, VTK_TYPE_INT32_MAX});
+    cellArray->InsertNextCell({ 0, VTK_TYPE_INT32_MAX });
     TEST_ASSERT(cellArray->CanConvertTo64BitStorage());
 
 #ifdef VTK_USE_64BIT_IDS
 
-    cellArray->InsertNextCell({0, static_cast<vtkTypeInt64>(VTK_TYPE_INT32_MAX) + 1});
+    cellArray->InsertNextCell({ 0, static_cast<vtkTypeInt64>(VTK_TYPE_INT32_MAX) + 1 });
     TEST_ASSERT(cellArray->CanConvertTo64BitStorage());
-    cellArray->InsertNextCell({0, VTK_TYPE_INT64_MAX});
+    cellArray->InsertNextCell({ 0, VTK_TYPE_INT64_MAX });
     TEST_ASSERT(cellArray->CanConvertTo64BitStorage());
 
 #endif // VTK_USE_64BIT_IDS
-
   }
   else
   {
-    cellArray->InsertNextCell({0, VTK_TYPE_INT32_MAX});
+    cellArray->InsertNextCell({ 0, VTK_TYPE_INT32_MAX });
     TEST_ASSERT(cellArray->CanConvertTo64BitStorage());
   }
 }
@@ -602,13 +594,11 @@ void TestGetConnectivityArray(vtkSmartPointer<vtkCellArray> cellArray)
 
   if (cellArray->IsStorage64Bit())
   {
-    TEST_ASSERT(cellArray->GetConnectivityArray() ==
-                cellArray->GetConnectivityArray64());
+    TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityArray64());
   }
   else
   {
-    TEST_ASSERT(cellArray->GetConnectivityArray() ==
-                cellArray->GetConnectivityArray32());
+    TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityArray32());
   }
 }
 
@@ -620,13 +610,13 @@ void TestIsHomogeneous(vtkSmartPointer<vtkCellArray> cellArray)
   cellArray->Initialize();
   TEST_ASSERT(cellArray->IsHomogeneous() == 0);
 
-  cellArray->InsertNextCell({1, 2, 3, 4});
+  cellArray->InsertNextCell({ 1, 2, 3, 4 });
   TEST_ASSERT(cellArray->IsHomogeneous() == 4);
 
-  cellArray->InsertNextCell({5, 6, 7, 8});
+  cellArray->InsertNextCell({ 5, 6, 7, 8 });
   TEST_ASSERT(cellArray->IsHomogeneous() == 4);
 
-  cellArray->InsertNextCell({5, 6});
+  cellArray->InsertNextCell({ 5, 6 });
   TEST_ASSERT(cellArray->IsHomogeneous() == -1);
 
   cellArray->Initialize();
@@ -637,14 +627,13 @@ void TestTraversalSizePointer(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5});
-  cellArray->InsertNextCell({9, 4, 5, 1});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5 });
+  cellArray->InsertNextCell({ 9, 4, 5, 1 });
 
-  auto validate = [&](const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     TEST_ASSERT(cellArray->GetNextCell(npts, pts) != 0);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
@@ -652,20 +641,20 @@ void TestTraversalSizePointer(vtkSmartPointer<vtkCellArray> cellArray)
 
   cellArray->InitTraversal();
   TEST_ASSERT(cellArray->GetTraversalCellId() == 0);
-  validate({0, 1, 2});
+  validate({ 0, 1, 2 });
   TEST_ASSERT(cellArray->GetTraversalCellId() == 1);
-  validate({4, 5});
+  validate({ 4, 5 });
   TEST_ASSERT(cellArray->GetTraversalCellId() == 2);
-  validate({9, 4, 5, 1});
+  validate({ 9, 4, 5, 1 });
 
   cellArray->SetTraversalCellId(1);
   TEST_ASSERT(cellArray->GetTraversalCellId() == 1);
-  validate({4, 5});
+  validate({ 4, 5 });
   TEST_ASSERT(cellArray->GetTraversalCellId() == 2);
-  validate({9, 4, 5, 1});
+  validate({ 9, 4, 5, 1 });
 
   vtkIdType npts;
-  const vtkIdType *pts;
+  const vtkIdType* pts;
   TEST_ASSERT(cellArray->GetNextCell(npts, pts) == 0);
 }
 
@@ -673,12 +662,11 @@ void TestTraversalIdList(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5});
-  cellArray->InsertNextCell({9, 4, 5, 1});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5 });
+  cellArray->InsertNextCell({ 9, 4, 5, 1 });
 
-  auto validate = [&](const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const std::initializer_list<vtkIdType>& ref) {
     vtkNew<vtkIdList> ids;
     TEST_ASSERT(cellArray->GetNextCell(ids) != 0);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(ids->GetNumberOfIds()));
@@ -686,9 +674,9 @@ void TestTraversalIdList(vtkSmartPointer<vtkCellArray> cellArray)
   };
 
   cellArray->InitTraversal();
-  validate({0, 1, 2});
-  validate({4, 5});
-  validate({9, 4, 5, 1});
+  validate({ 0, 1, 2 });
+  validate({ 4, 5 });
+  validate({ 9, 4, 5, 1 });
 
   vtkNew<vtkIdList> ids;
   TEST_ASSERT(cellArray->GetNextCell(ids) == 0);
@@ -698,15 +686,13 @@ void TestGetCellAtId(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5});
-  cellArray->InsertNextCell({9, 4, 5, 1});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5 });
+  cellArray->InsertNextCell({ 9, 4, 5, 1 });
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
@@ -717,18 +703,18 @@ void TestGetCellAtId(vtkSmartPointer<vtkCellArray> cellArray)
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), ids->GetPointer(0)));
   };
 
-  validate(2, {9, 4, 5, 1});
-  validate(0, {0, 1, 2});
-  validate(1, {4, 5});
+  validate(2, { 9, 4, 5, 1 });
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 5 });
 }
 
 void TestGetCellSize(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5});
-  cellArray->InsertNextCell({9, 4, 5, 1});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5 });
+  cellArray->InsertNextCell({ 9, 4, 5, 1 });
 
   TEST_ASSERT(cellArray->GetCellSize(1) == 2);
   TEST_ASSERT(cellArray->GetCellSize(0) == 3);
@@ -764,28 +750,25 @@ void TestInsertNextCell(vtkSmartPointer<vtkCellArray> cellArray)
     list->SetNumberOfIds(2);
     list->SetId(0, 7);
     list->SetId(1, 8);
-    TEST_ASSERT(cellArray->InsertNextCell(list->GetNumberOfIds(),
-                                          list->GetPointer(0)) == 2);
+    TEST_ASSERT(cellArray->InsertNextCell(list->GetNumberOfIds(), list->GetPointer(0)) == 2);
     TEST_ASSERT(cellArray->GetNumberOfCells() == 3);
   }
 
-  TEST_ASSERT(cellArray->InsertNextCell({0, 1}) == 3);
+  TEST_ASSERT(cellArray->InsertNextCell({ 0, 1 }) == 3);
   TEST_ASSERT(cellArray->GetNumberOfCells() == 4);
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(2, {7, 8});
-  validate(0, {4, 2, 1, 5});
-  validate(3, {0, 1});
-  validate(1, {2, 3, 1});
+  validate(2, { 7, 8 });
+  validate(0, { 4, 2, 1, 5 });
+  validate(3, { 0, 1 });
+  validate(1, { 2, 3, 1 });
 }
 
 void TestIncrementalCellInsertion(vtkSmartPointer<vtkCellArray> cellArray)
@@ -809,84 +792,78 @@ void TestIncrementalCellInsertion(vtkSmartPointer<vtkCellArray> cellArray)
   cellArray->InsertCellPoint(1);
   cellArray->InsertCellPoint(5);
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(3, {1, 5});
-  validate(1, {4, 1});
-  validate(2, {5, 7, 6, 1});
-  validate(0, {2, 3, 4});
+  validate(3, { 1, 5 });
+  validate(1, { 4, 1 });
+  validate(2, { 5, 7, 6, 1 });
+  validate(0, { 2, 3, 4 });
 }
 
 void TestReverseCellAtId(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 6});
-  cellArray->InsertNextCell({7, 8, 9, 1});
-  cellArray->InsertNextCell({5, 3, 4});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 6 });
+  cellArray->InsertNextCell({ 7, 8, 9, 1 });
+  cellArray->InsertNextCell({ 5, 3, 4 });
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {7, 8, 9, 1});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 7, 8, 9, 1 });
+  validate(3, { 5, 3, 4 });
 
   cellArray->ReverseCellAtId(2);
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {1, 9, 8, 7});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 1, 9, 8, 7 });
+  validate(3, { 5, 3, 4 });
 
   cellArray->ReverseCellAtId(0);
 
-  validate(0, {2, 1, 0});
-  validate(1, {4, 6});
-  validate(2, {1, 9, 8, 7});
-  validate(3, {5, 3, 4});
+  validate(0, { 2, 1, 0 });
+  validate(1, { 4, 6 });
+  validate(2, { 1, 9, 8, 7 });
+  validate(3, { 5, 3, 4 });
 }
 
 void TestReplaceCellAtId(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 6});
-  cellArray->InsertNextCell({7, 8, 9, 1});
-  cellArray->InsertNextCell({5, 3, 4});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 6 });
+  cellArray->InsertNextCell({ 7, 8, 9, 1 });
+  cellArray->InsertNextCell({ 5, 3, 4 });
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {7, 8, 9, 1});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 7, 8, 9, 1 });
+  validate(3, { 5, 3, 4 });
 
   {
     vtkNew<vtkIdList> list;
@@ -898,10 +875,10 @@ void TestReplaceCellAtId(vtkSmartPointer<vtkCellArray> cellArray)
     cellArray->ReplaceCellAtId(2, list);
   }
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {1, 2, 3, 4});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 1, 2, 3, 4 });
+  validate(3, { 5, 3, 4 });
 
   {
     vtkNew<vtkIdList> list;
@@ -911,17 +888,17 @@ void TestReplaceCellAtId(vtkSmartPointer<vtkCellArray> cellArray)
     cellArray->ReplaceCellAtId(1, list->GetNumberOfIds(), list->GetPointer(0));
   }
 
-  validate(0, {0, 1, 2});
-  validate(1, {9, 4});
-  validate(2, {1, 2, 3, 4});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 9, 4 });
+  validate(2, { 1, 2, 3, 4 });
+  validate(3, { 5, 3, 4 });
 
-  cellArray->ReplaceCellAtId(0, {4, 5, 6});
+  cellArray->ReplaceCellAtId(0, { 4, 5, 6 });
 
-  validate(0, {4, 5, 6});
-  validate(1, {9, 4});
-  validate(2, {1, 2, 3, 4});
-  validate(3, {5, 3, 4});
+  validate(0, { 4, 5, 6 });
+  validate(1, { 9, 4 });
+  validate(2, { 1, 2, 3, 4 });
+  validate(3, { 5, 3, 4 });
 }
 
 void TestGetMaxCellSize(vtkSmartPointer<vtkCellArray> cellArray)
@@ -929,15 +906,15 @@ void TestGetMaxCellSize(vtkSmartPointer<vtkCellArray> cellArray)
   vtkLogScopeFunction(INFO);
 
   TEST_ASSERT(cellArray->GetMaxCellSize() == 0);
-  cellArray->InsertNextCell({0, 1});
+  cellArray->InsertNextCell({ 0, 1 });
   TEST_ASSERT(cellArray->GetMaxCellSize() == 2);
-  cellArray->InsertNextCell({2, 1, 3});
+  cellArray->InsertNextCell({ 2, 1, 3 });
   TEST_ASSERT(cellArray->GetMaxCellSize() == 3);
-  cellArray->InsertNextCell({2, 4});
+  cellArray->InsertNextCell({ 2, 4 });
   TEST_ASSERT(cellArray->GetMaxCellSize() == 3);
-  cellArray->InsertNextCell({2, 4, 3});
+  cellArray->InsertNextCell({ 2, 4, 3 });
   TEST_ASSERT(cellArray->GetMaxCellSize() == 3);
-  cellArray->InsertNextCell({2, 4, 3, 5});
+  cellArray->InsertNextCell({ 2, 4, 3, 5 });
   TEST_ASSERT(cellArray->GetMaxCellSize() == 4);
 }
 
@@ -953,7 +930,7 @@ void TestDeepCopy(vtkSmartPointer<vtkCellArray> cellArray)
   TEST_ASSERT(cellArray->IsStorage64Bit() == other->IsStorage64Bit());
   ValidateCellArray(other);
 
-  cellArray->InsertNextCell({0, 1, 2});
+  cellArray->InsertNextCell({ 0, 1, 2 });
   TEST_ASSERT(cellArray->GetNumberOfCells() == other->GetNumberOfCells() + 1);
 }
 
@@ -969,45 +946,42 @@ void TestShallowCopy(vtkSmartPointer<vtkCellArray> cellArray)
   TEST_ASSERT(cellArray->IsStorage64Bit() == other->IsStorage64Bit());
   ValidateCellArray(other);
 
-  cellArray->InsertNextCell({0, 1, 2});
+  cellArray->InsertNextCell({ 0, 1, 2 });
   TEST_ASSERT(cellArray->GetNumberOfCells() == other->GetNumberOfCells());
   TEST_ASSERT(cellArray->GetOffsetsArray() == other->GetOffsetsArray());
   TEST_ASSERT(cellArray->GetConnectivityArray() == other->GetConnectivityArray());
 }
 
-void TestAppendImpl(vtkSmartPointer<vtkCellArray> first,
-                    vtkSmartPointer<vtkCellArray> second)
+void TestAppendImpl(vtkSmartPointer<vtkCellArray> first, vtkSmartPointer<vtkCellArray> second)
 {
-  first->InsertNextCell({0, 1, 2});
-  first->InsertNextCell({3, 5});
-  first->InsertNextCell({9, 7, 8});
+  first->InsertNextCell({ 0, 1, 2 });
+  first->InsertNextCell({ 3, 5 });
+  first->InsertNextCell({ 9, 7, 8 });
 
-  second->InsertNextCell({3, 5, 6, 7});
-  second->InsertNextCell({3, 2, 4});
-  second->InsertNextCell({3, 2, 4, 6, 8});
+  second->InsertNextCell({ 3, 5, 6, 7 });
+  second->InsertNextCell({ 3, 2, 4 });
+  second->InsertNextCell({ 3, 2, 4, 6, 8 });
 
   vtkNew<vtkCellArray> concat;
   concat->DeepCopy(first);
   concat->Append(second, 10); // add 10 to all point ids from second
   TEST_ASSERT(concat->GetNumberOfCells() == 6);
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     concat->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(0, {0, 1, 2});
-  validate(1, {3, 5});
-  validate(2, {9, 7, 8});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 3, 5 });
+  validate(2, { 9, 7, 8 });
 
-  validate(3, {13, 15, 16, 17});
-  validate(4, {13, 12, 14});
-  validate(5, {13, 12, 14, 16, 18});
+  validate(3, { 13, 15, 16, 17 });
+  validate(4, { 13, 12, 14 });
+  validate(5, { 13, 12, 14, 16, 18 });
 }
 
 void TestAppend32(vtkSmartPointer<vtkCellArray> cellArray)
@@ -1026,85 +1000,74 @@ void TestLegacyFormatImportExportAppend(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 2, 3});
-  cellArray->InsertNextCell({1, 4, 5, 7});
-  cellArray->InsertNextCell({2, 8, 9, 1, 4});
-  cellArray->InsertNextCell({3, 7});
+  cellArray->InsertNextCell({ 0, 2, 3 });
+  cellArray->InsertNextCell({ 1, 4, 5, 7 });
+  cellArray->InsertNextCell({ 2, 8, 9, 1, 4 });
+  cellArray->InsertNextCell({ 3, 7 });
 
   vtkNew<vtkIdTypeArray> legacy;
   cellArray->ExportLegacyFormat(legacy);
 
   {
-    std::vector<vtkIdType> expected {
-      3, 0, 2, 3,
-      4, 1, 4, 5, 7,
-      5, 2, 8, 9, 1, 4,
-      2, 3, 7
-    };
+    std::vector<vtkIdType> expected{ 3, 0, 2, 3, 4, 1, 4, 5, 7, 5, 2, 8, 9, 1, 4, 2, 3, 7 };
     auto legacyRange = vtk::DataArrayValueRange<1>(legacy);
-    TEST_ASSERT(std::equal(expected.cbegin(), expected.cend(),
-                           legacyRange.cbegin()));
+    TEST_ASSERT(std::equal(expected.cbegin(), expected.cend(), legacyRange.cbegin()));
   }
 
   cellArray->Initialize();
   cellArray->ImportLegacyFormat(legacy);
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 4);
-  validate(0, {0, 2, 3});
-  validate(1, {1, 4, 5, 7});
-  validate(2, {2, 8, 9, 1, 4});
-  validate(3, {3, 7});
+  validate(0, { 0, 2, 3 });
+  validate(1, { 1, 4, 5, 7 });
+  validate(2, { 2, 8, 9, 1, 4 });
+  validate(3, { 3, 7 });
 
   // check that the next import doesn't have this
-  cellArray->InsertNextCell({4, 5});
-  cellArray->ImportLegacyFormat(legacy->GetPointer(0),
-                                legacy->GetNumberOfTuples());
+  cellArray->InsertNextCell({ 4, 5 });
+  cellArray->ImportLegacyFormat(legacy->GetPointer(0), legacy->GetNumberOfTuples());
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 4);
-  validate(0, {0, 2, 3});
-  validate(1, {1, 4, 5, 7});
-  validate(2, {2, 8, 9, 1, 4});
-  validate(3, {3, 7});
+  validate(0, { 0, 2, 3 });
+  validate(1, { 1, 4, 5, 7 });
+  validate(2, { 2, 8, 9, 1, 4 });
+  validate(3, { 3, 7 });
 
   cellArray->AppendLegacyFormat(legacy, 10);
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 8);
-  validate(0, {0, 2, 3});
-  validate(1, {1, 4, 5, 7});
-  validate(2, {2, 8, 9, 1, 4});
-  validate(3, {3, 7});
-  validate(4, {10, 12, 13});
-  validate(5, {11, 14, 15, 17});
-  validate(6, {12, 18, 19, 11, 14});
-  validate(7, {13, 17});
+  validate(0, { 0, 2, 3 });
+  validate(1, { 1, 4, 5, 7 });
+  validate(2, { 2, 8, 9, 1, 4 });
+  validate(3, { 3, 7 });
+  validate(4, { 10, 12, 13 });
+  validate(5, { 11, 14, 15, 17 });
+  validate(6, { 12, 18, 19, 11, 14 });
+  validate(7, { 13, 17 });
 
-  cellArray->AppendLegacyFormat(legacy->GetPointer(0),
-                                legacy->GetNumberOfTuples(),
-                                20);
+  cellArray->AppendLegacyFormat(legacy->GetPointer(0), legacy->GetNumberOfTuples(), 20);
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 12);
-  validate(0,  {0, 2, 3});
-  validate(1,  {1, 4, 5, 7});
-  validate(2,  {2, 8, 9, 1, 4});
-  validate(3,  {3, 7});
-  validate(4,  {10, 12, 13});
-  validate(5,  {11, 14, 15, 17});
-  validate(6,  {12, 18, 19, 11, 14});
-  validate(7,  {13, 17});
-  validate(8,  {20, 22, 23});
-  validate(9,  {21, 24, 25, 27});
-  validate(10, {22, 28, 29, 21, 24});
-  validate(11, {23, 27});
+  validate(0, { 0, 2, 3 });
+  validate(1, { 1, 4, 5, 7 });
+  validate(2, { 2, 8, 9, 1, 4 });
+  validate(3, { 3, 7 });
+  validate(4, { 10, 12, 13 });
+  validate(5, { 11, 14, 15, 17 });
+  validate(6, { 12, 18, 19, 11, 14 });
+  validate(7, { 13, 17 });
+  validate(8, { 20, 22, 23 });
+  validate(9, { 21, 24, 25, 27 });
+  validate(10, { 22, 28, 29, 21, 24 });
+  validate(11, { 23, 27 });
 }
 
 //==============================================================================
@@ -1149,15 +1112,13 @@ void TestLegacyGetCell(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({3, 4});
-  cellArray->InsertNextCell({5, 6, 7});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 3, 4 });
+  cellArray->InsertNextCell({ 5, 6, 7 });
 
-  auto validate = [&](const vtkIdType loc,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType loc, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCell(loc, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
@@ -1169,20 +1130,20 @@ void TestLegacyGetCell(vtkSmartPointer<vtkCellArray> cellArray)
   };
 
   // Use the location API:
-  validate(0, {0, 1, 2});
-  validate(4, {3, 4});
-  validate(7, {5, 6, 7});
+  validate(0, { 0, 1, 2 });
+  validate(4, { 3, 4 });
+  validate(7, { 5, 6, 7 });
 }
 
 void TestLegacyGetInsertLocation(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
+  cellArray->InsertNextCell({ 0, 1, 2 });
   TEST_ASSERT(cellArray->GetInsertLocation(3) == 0);
-  cellArray->InsertNextCell({4, 5});
+  cellArray->InsertNextCell({ 4, 5 });
   TEST_ASSERT(cellArray->GetInsertLocation(2) == 4);
-  cellArray->InsertNextCell({6, 7, 8, 2});
+  cellArray->InsertNextCell({ 6, 7, 8, 2 });
   TEST_ASSERT(cellArray->GetInsertLocation(4) == 7);
 }
 
@@ -1190,9 +1151,9 @@ void TestLegacyGetSetTraversalLocation(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 5});
-  cellArray->InsertNextCell({6, 7, 8, 2});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 5 });
+  cellArray->InsertNextCell({ 6, 7, 8, 2 });
 
   vtkNew<vtkIdList> ids;
   cellArray->InitTraversal();
@@ -1219,64 +1180,60 @@ void TestLegacyReverseCell(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 6});
-  cellArray->InsertNextCell({7, 8, 9, 1});
-  cellArray->InsertNextCell({5, 3, 4});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 6 });
+  cellArray->InsertNextCell({ 7, 8, 9, 1 });
+  cellArray->InsertNextCell({ 5, 3, 4 });
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {7, 8, 9, 1});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 7, 8, 9, 1 });
+  validate(3, { 5, 3, 4 });
 
   cellArray->ReverseCell(7);
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {1, 9, 8, 7});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 1, 9, 8, 7 });
+  validate(3, { 5, 3, 4 });
 
   cellArray->ReverseCell(0);
 
-  validate(0, {2, 1, 0});
-  validate(1, {4, 6});
-  validate(2, {1, 9, 8, 7});
-  validate(3, {5, 3, 4});
+  validate(0, { 2, 1, 0 });
+  validate(1, { 4, 6 });
+  validate(2, { 1, 9, 8, 7 });
+  validate(3, { 5, 3, 4 });
 }
 
 void TestLegacyReplaceCell(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 1, 2});
-  cellArray->InsertNextCell({4, 6});
-  cellArray->InsertNextCell({7, 8, 9, 1});
-  cellArray->InsertNextCell({5, 3, 4});
+  cellArray->InsertNextCell({ 0, 1, 2 });
+  cellArray->InsertNextCell({ 4, 6 });
+  cellArray->InsertNextCell({ 7, 8, 9, 1 });
+  cellArray->InsertNextCell({ 5, 3, 4 });
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {7, 8, 9, 1});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 7, 8, 9, 1 });
+  validate(3, { 5, 3, 4 });
 
   {
     vtkNew<vtkIdList> list;
@@ -1288,10 +1245,10 @@ void TestLegacyReplaceCell(vtkSmartPointer<vtkCellArray> cellArray)
     cellArray->ReplaceCell(7, list->GetNumberOfIds(), list->GetPointer(0));
   }
 
-  validate(0, {0, 1, 2});
-  validate(1, {4, 6});
-  validate(2, {1, 2, 3, 4});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 4, 6 });
+  validate(2, { 1, 2, 3, 4 });
+  validate(3, { 5, 3, 4 });
 
   {
     vtkNew<vtkIdList> list;
@@ -1301,10 +1258,10 @@ void TestLegacyReplaceCell(vtkSmartPointer<vtkCellArray> cellArray)
     cellArray->ReplaceCell(4, list->GetNumberOfIds(), list->GetPointer(0));
   }
 
-  validate(0, {0, 1, 2});
-  validate(1, {9, 4});
-  validate(2, {1, 2, 3, 4});
-  validate(3, {5, 3, 4});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 9, 4 });
+  validate(2, { 1, 2, 3, 4 });
+  validate(3, { 5, 3, 4 });
 
   {
     vtkNew<vtkIdList> list;
@@ -1315,33 +1272,27 @@ void TestLegacyReplaceCell(vtkSmartPointer<vtkCellArray> cellArray)
     cellArray->ReplaceCell(0, list->GetNumberOfIds(), list->GetPointer(0));
   }
 
-  validate(0, {4, 5, 6});
-  validate(1, {9, 4});
-  validate(2, {1, 2, 3, 4});
-  validate(3, {5, 3, 4});
+  validate(0, { 4, 5, 6 });
+  validate(1, { 9, 4 });
+  validate(2, { 1, 2, 3, 4 });
+  validate(3, { 5, 3, 4 });
 }
 
 void TestLegacyGetData(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->InsertNextCell({0, 2, 3});
-  cellArray->InsertNextCell({1, 4, 5, 7});
-  cellArray->InsertNextCell({2, 8, 9, 1, 4});
-  cellArray->InsertNextCell({3, 7});
+  cellArray->InsertNextCell({ 0, 2, 3 });
+  cellArray->InsertNextCell({ 1, 4, 5, 7 });
+  cellArray->InsertNextCell({ 2, 8, 9, 1, 4 });
+  cellArray->InsertNextCell({ 3, 7 });
 
-  vtkIdTypeArray *legacy = cellArray->GetData();
+  vtkIdTypeArray* legacy = cellArray->GetData();
 
   {
-    std::vector<vtkIdType> expected {
-      3, 0, 2, 3,
-      4, 1, 4, 5, 7,
-      5, 2, 8, 9, 1, 4,
-      2, 3, 7
-    };
+    std::vector<vtkIdType> expected{ 3, 0, 2, 3, 4, 1, 4, 5, 7, 5, 2, 8, 9, 1, 4, 2, 3, 7 };
     auto legacyRange = vtk::DataArrayValueRange<1>(legacy);
-    TEST_ASSERT(std::equal(expected.cbegin(), expected.cend(),
-                           legacyRange.cbegin()));
+    TEST_ASSERT(std::equal(expected.cbegin(), expected.cend(), legacyRange.cbegin()));
   }
 }
 
@@ -1367,20 +1318,18 @@ void TestLegacySetCells(vtkSmartPointer<vtkCellArray> cellArray)
 
   cellArray->SetCells(3, legacy);
 
-  auto validate = [&](const vtkIdType cellId,
-                      const std::initializer_list<vtkIdType>& ref)
-  {
+  auto validate = [&](const vtkIdType cellId, const std::initializer_list<vtkIdType>& ref) {
     vtkIdType npts;
-    const vtkIdType *pts;
+    const vtkIdType* pts;
     cellArray->GetCellAtId(cellId, npts, pts);
     TEST_ASSERT(ref.size() == static_cast<std::size_t>(npts));
     TEST_ASSERT(std::equal(ref.begin(), ref.end(), pts));
   };
 
   TEST_ASSERT(cellArray->GetNumberOfCells() == 3);
-  validate(0, {0, 1, 2});
-  validate(1, {3, 5});
-  validate(2, {9, 6, 5, 2});
+  validate(0, { 0, 1, 2 });
+  validate(1, { 3, 5 });
+  validate(2, { 9, 6, 5, 2 });
 }
 
 void RunLegacyTests(bool use64BitStorage)
@@ -1401,7 +1350,7 @@ void RunLegacyTests(bool use64BitStorage)
 }
 
 //==============================================================================
-#else // TEST_LEGACY_METHODS
+#else  // TEST_LEGACY_METHODS
 
 void RunLegacyTests(bool)
 {
@@ -1470,7 +1419,7 @@ int TestCellArray(int, char*[])
   {
     RunTests();
   }
-  catch (std::exception &err)
+  catch (std::exception& err)
   {
     vtkLog(ERROR, << err.what());
     return EXIT_FAILURE;

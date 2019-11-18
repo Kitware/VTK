@@ -24,8 +24,9 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cstdlib>
 
-namespace {
-size_t fileSize(const std::string & filename)
+namespace
+{
+size_t fileSize(const std::string& filename)
 {
   size_t size = 0;
   FILE* f = fopen(filename.c_str(), "r");
@@ -44,10 +45,10 @@ size_t fileSize(const std::string & filename)
 }
 }
 
-int TestGLTFExporter(int argc, char *argv[])
+int TestGLTFExporter(int argc, char* argv[])
 {
-  char *tempDir = vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  char* tempDir =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
     std::cout << "Could not determine temporary directory.\n";
@@ -56,8 +57,7 @@ int TestGLTFExporter(int argc, char *argv[])
   std::string testDirectory = tempDir;
   delete[] tempDir;
 
-  std::string filename = testDirectory
-    + std::string("/") + std::string("Export");
+  std::string filename = testDirectory + std::string("/") + std::string("Export");
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkElevationFilter> elev;
@@ -100,7 +100,8 @@ int TestGLTFExporter(int argc, char *argv[])
   if (noDataSize >= correctSize)
   {
     std::cerr << "Error: file should contain data for a visible actor"
-      "and not for a hidden one." << std::endl;
+                 "and not for a hidden one."
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -115,7 +116,8 @@ int TestGLTFExporter(int argc, char *argv[])
   if (size > noDataSize)
   {
     std::cerr << "Error: file should not contain geometry"
-      " (actor has no mapper)" << std::endl;
+                 " (actor has no mapper)"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -130,7 +132,8 @@ int TestGLTFExporter(int argc, char *argv[])
   if (size > noDataSize)
   {
     std::cerr << "Error: file should not contain geometry"
-      " (mapper has no input)" << std::endl;
+                 " (mapper has no input)"
+              << std::endl;
     return EXIT_FAILURE;
   }
 

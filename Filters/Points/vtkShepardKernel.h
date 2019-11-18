@@ -30,7 +30,7 @@
  * @sa
  * vtkPointInterpolator vtkPointInterpolator2D vtkInterpolationKernel
  * vtkGaussianKernel vtkSPHKernel vtkShepardKernel
-*/
+ */
 
 #ifndef vtkShepardKernel_h
 #define vtkShepardKernel_h
@@ -41,7 +41,6 @@
 class vtkIdList;
 class vtkDoubleArray;
 
-
 class VTKFILTERSPOINTS_EXPORT vtkShepardKernel : public vtkGeneralizedKernel
 {
 public:
@@ -49,8 +48,8 @@ public:
   /**
    * Standard methods for instantiation, obtaining type information, and printing.
    */
-  static vtkShepardKernel *New();
-  vtkTypeMacro(vtkShepardKernel,vtkGeneralizedKernel);
+  static vtkShepardKernel* New();
+  vtkTypeMacro(vtkShepardKernel, vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -71,16 +70,16 @@ public:
    * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
+  vtkIdType ComputeWeights(
+    double x[3], vtkIdList* pIds, vtkDoubleArray* prob, vtkDoubleArray* weights) override;
 
   //@{
   /**
    * Set / Get the power parameter p. By default p=2. Values (which must be
    * a positive, real value) != 2 may affect performance significantly.
    */
-  vtkSetClampMacro(PowerParameter,double,0.001,100);
-  vtkGetMacro(PowerParameter,double);
+  vtkSetClampMacro(PowerParameter, double, 0.001, 100);
+  vtkGetMacro(PowerParameter, double);
   //@}
 
 protected:

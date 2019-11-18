@@ -18,9 +18,7 @@
 // Simple implementation that runs everything sequentially.
 
 //--------------------------------------------------------------------------------
-void vtkSMPTools::Initialize(int)
-{
-}
+void vtkSMPTools::Initialize(int) {}
 
 int vtkSMPTools::GetEstimatedNumberOfThreads()
 {

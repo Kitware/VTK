@@ -34,27 +34,26 @@ vtkContextMapper2D::vtkContextMapper2D()
 vtkContextMapper2D::~vtkContextMapper2D() = default;
 
 //----------------------------------------------------------------------------
-void vtkContextMapper2D::SetInputData(vtkTable *input)
+void vtkContextMapper2D::SetInputData(vtkTable* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
-vtkTable * vtkContextMapper2D::GetInput()
+vtkTable* vtkContextMapper2D::GetInput()
 {
   return vtkTable::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
 //-----------------------------------------------------------------------------
-int vtkContextMapper2D::FillInputPortInformation(int, vtkInformation *info)
+int vtkContextMapper2D::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
   return 1;
 }
 
-
 //-----------------------------------------------------------------------------
-void vtkContextMapper2D::PrintSelf(ostream &os, vtkIndent indent)
+void vtkContextMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

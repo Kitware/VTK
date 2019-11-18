@@ -45,11 +45,10 @@ struct PStreamArgs_tmp
 };
 
 // This will be called by all processes
-void MyMain( vtkMultiProcessController *controller, void *arg )
+void MyMain(vtkMultiProcessController* controller, void* arg)
 {
 
-  PStreamArgs_tmp* args =
-    reinterpret_cast<PStreamArgs_tmp*>(arg);
+  PStreamArgs_tmp* args = reinterpret_cast<PStreamArgs_tmp*>(arg);
 
   int myId = controller->GetLocalProcessId();
   int numProcs = controller->GetNumberOfProcesses();
@@ -62,7 +61,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   renWin->SetSize(400, 300);
   renWin->SetPosition(0, 350 * myId);
 
-  //camera parameters
+  // camera parameters
   vtkCamera* camera = ren->GetActiveCamera();
   camera->SetPosition(-5.86786, 49.2857, 51.597);
   camera->SetFocalPoint(8.255, -3.17482e-16, 29.7631);
@@ -73,13 +72,11 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
-  char* fname1 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
-                                                     "Data/combxyz.bin");
-  char* fname2 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
-                                                     "Data/combq.bin");
+  char* fname1 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, "Data/combxyz.bin");
+  char* fname2 = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv, "Data/combq.bin");
   vtkMultiBlockPLOT3DReader* Plot3D0 = vtkMultiBlockPLOT3DReader::New();
   Plot3D0->SetFileName(fname1);
-  Plot3D0->SetQFileName (fname2);
+  Plot3D0->SetQFileName(fname2);
   Plot3D0->SetBinaryFile(1);
   Plot3D0->SetMultiGrid(0);
   Plot3D0->SetHasByteCount(0);
@@ -91,14 +88,12 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   delete[] fname2;
   Plot3D0->Update();
 
-  vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(
-    Plot3D0->GetOutput()->GetBlock(0));
+  vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(Plot3D0->GetOutput()->GetBlock(0));
 
   vtkTrivialProducer* tv = vtkTrivialProducer::New();
   tv->SetOutput(sg);
 
-  vtkStructuredGridOutlineFilter* Geometry5 =
-    vtkStructuredGridOutlineFilter::New();
+  vtkStructuredGridOutlineFilter* Geometry5 = vtkStructuredGridOutlineFilter::New();
   Geometry5->SetInputConnection(tv->GetOutputPort());
 
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
@@ -170,7 +165,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   ren->AddActor(Actor6);
 
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
   vtkCompositeRenderManager* compManager = vtkCompositeRenderManager::New();
@@ -187,8 +182,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   else
   {
     renWin->Render();
-    *(args->retVal) =
-      vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
+    *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     for (int i = 1; i < numProcs; i++)
     {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
@@ -196,7 +190,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     }
   }
 
-  if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
+  if (*(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
   {
     compManager->StartInteractor();
   }
@@ -239,7 +233,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Mapper6->Delete();
 }
 
-int TestPStream( int argc, char* argv[] )
+int TestPStream(int argc, char* argv[])
 {
   vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);

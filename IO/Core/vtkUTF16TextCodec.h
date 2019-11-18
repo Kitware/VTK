@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
  * @sa
  * vtkUTF16TextCodecFactory
  *
-*/
+ */
 
 #ifndef vtkUTF16TextCodec_h
 #define vtkUTF16TextCodec_h
@@ -40,12 +40,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkTextCodec.h"
 
-
 class VTKIOCORE_EXPORT vtkUTF16TextCodec : public vtkTextCodec
 {
 public:
   vtkTypeMacro(vtkUTF16TextCodec, vtkTextCodec);
-  static vtkUTF16TextCodec* New() ;
+  static vtkUTF16TextCodec* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
@@ -53,49 +52,46 @@ public:
    * The name this codec goes by - should match the string the factory will take to create it
    */
   const char* Name() override;
-  bool CanHandle(const char* NameString) override ;
+  bool CanHandle(const char* NameString) override;
   //@}
 
   /**
    * Set the endianness - true if Big false is little
    */
-  void SetBigEndian(bool) ;
+  void SetBigEndian(bool);
 
   /**
    * Set the endianness - true if Big false is little
    */
-  void FindEndianness(istream& InputStream) ;
+  void FindEndianness(istream& InputStream);
 
   /**
    * is the given sample valid for this codec? - will take endianness into account
    */
-  bool IsValid(istream& InputStream) override ;
+  bool IsValid(istream& InputStream) override;
 
   /**
    * Iterate through the sequence represented by the begin and end iterators assigning the result
    * to the output iterator.  This is the current pattern in vtkDelimitedTextReader
    */
-  void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) override ;
+  void ToUnicode(istream& InputStream, vtkTextCodec::OutputIterator& output) override;
 
   /**
    * Return the next code point from the sequence represented by the begin, end iterators
    * advancing begin through however many places needed to assemble that code point
    */
-  vtkUnicodeString::value_type  NextUnicode(istream& inputStream) override ;
+  vtkUnicodeString::value_type NextUnicode(istream& inputStream) override;
 
 protected:
-  vtkUTF16TextCodec() ;
+  vtkUTF16TextCodec();
   ~vtkUTF16TextCodec() override;
 
-  bool _endianExplicitlySet ;
-  bool _bigEndian ;
+  bool _endianExplicitlySet;
+  bool _bigEndian;
 
 private:
-  vtkUTF16TextCodec(const vtkUTF16TextCodec &) = delete;
-  void operator=(const vtkUTF16TextCodec &) = delete;
-
+  vtkUTF16TextCodec(const vtkUTF16TextCodec&) = delete;
+  void operator=(const vtkUTF16TextCodec&) = delete;
 };
-
 
 #endif

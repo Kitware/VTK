@@ -25,7 +25,7 @@
  *
  * @sa
  * vtkXMLRectilinearGridWriter
-*/
+ */
 
 #ifndef vtkXMLPRectilinearGridWriter_h
 #define vtkXMLPRectilinearGridWriter_h
@@ -39,7 +39,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPRectilinearGridWriter : public vtkXMLPStruc
 {
 public:
   static vtkXMLPRectilinearGridWriter* New();
-  vtkTypeMacro(vtkXMLPRectilinearGridWriter,vtkXMLPStructuredDataWriter);
+  vtkTypeMacro(vtkXMLPRectilinearGridWriter, vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

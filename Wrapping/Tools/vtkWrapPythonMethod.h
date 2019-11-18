@@ -21,22 +21,19 @@
 #include "vtkParseHierarchy.h"
 
 /* print out the code for one method, including all of its overloads */
-void vtkWrapPython_GenerateOneMethod(
-  FILE *fp, const char *classname, ClassInfo *data, HierarchyInfo *hinfo,
-  FunctionInfo *wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
+void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo* data,
+  HierarchyInfo* hinfo, FunctionInfo* wrappedFunctions[], int numberOfWrappedFunctions, int fnum,
   int is_vtkobject, int do_constructors);
 
 /* declare all variables needed by the wrapper method */
-void vtkWrapPython_DeclareVariables(
-  FILE *fp, ClassInfo *data, FunctionInfo *theFunc);
+void vtkWrapPython_DeclareVariables(FILE* fp, ClassInfo* data, FunctionInfo* theFunc);
 
 /* Write the code to convert an argument with vtkPythonArgs */
 void vtkWrapPython_GetSingleArgument(
-  FILE *fp, ClassInfo *data, int i, ValueInfo *arg, int call_static);
+  FILE* fp, ClassInfo* data, int i, ValueInfo* arg, int call_static);
 
 /* print the code to build python return value from a method */
-void vtkWrapPython_ReturnValue(
-  FILE *fp, ClassInfo *data, ValueInfo *val, int static_call);
+void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int static_call);
 
 #endif /* vtkWrapPythonMethod_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonMethod.h */

@@ -16,8 +16,7 @@
 
 #include "vtkArrayIteratorTemplate.txx"
 
-vtkInstantiateTemplateMacro(
-  template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate)
+vtkInstantiateTemplateMacro(template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate);
 template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkStdString>;
 template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkUnicodeString>;
 template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkVariant>;

@@ -23,7 +23,7 @@
  *
  * All edge layouts should subclass from this class.  vtkEdgeLayoutStrategy
  * works as a plug-in to the vtkEdgeLayout algorithm.
-*/
+ */
 
 #ifndef vtkEdgeLayoutStrategy_h
 #define vtkEdgeLayoutStrategy_h
@@ -36,13 +36,13 @@ class vtkGraph;
 class VTKINFOVISLAYOUT_EXPORT vtkEdgeLayoutStrategy : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkEdgeLayoutStrategy,vtkObject);
+  vtkTypeMacro(vtkEdgeLayoutStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Setting the graph for the layout strategy
    */
-  virtual void SetGraph(vtkGraph *graph);
+  virtual void SetGraph(vtkGraph* graph);
 
   /**
    * This method allows the layout strategy to
@@ -55,7 +55,7 @@ public:
    * This is the layout method where the graph that was
    * set in SetGraph() is laid out.
    */
-  virtual void Layout()=0;
+  virtual void Layout() = 0;
 
   //@{
   /**
@@ -69,14 +69,12 @@ protected:
   vtkEdgeLayoutStrategy();
   ~vtkEdgeLayoutStrategy() override;
 
-  vtkGraph *Graph;
-  char     *EdgeWeightArrayName;
+  vtkGraph* Graph;
+  char* EdgeWeightArrayName;
 
 private:
-
   vtkEdgeLayoutStrategy(const vtkEdgeLayoutStrategy&) = delete;
   void operator=(const vtkEdgeLayoutStrategy&) = delete;
 };
 
 #endif
-

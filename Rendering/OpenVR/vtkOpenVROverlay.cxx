@@ -58,17 +58,17 @@ vtkOpenVROverlay::~vtkOpenVROverlay()
 {
   if (this->OriginalTextureData)
   {
-    delete [] this->OriginalTextureData;
+    delete[] this->OriginalTextureData;
     this->OriginalTextureData = 0;
   }
   if (this->CurrentTextureData)
   {
-    delete [] this->CurrentTextureData;
+    delete[] this->CurrentTextureData;
     this->CurrentTextureData = 0;
   }
 }
 
-vtkOpenVRCameraPose *vtkOpenVROverlay::GetSavedCameraPose(int i)
+vtkOpenVRCameraPose* vtkOpenVROverlay::GetSavedCameraPose(int i)
 {
   auto p = this->SavedCameraPoses.find(i);
   if (p != this->SavedCameraPoses.end())
@@ -84,7 +84,7 @@ void vtkOpenVROverlay::WriteCameraPoses(ostream& os)
   topel->SetName("CameraPoses");
   for (auto p : this->SavedCameraPoses)
   {
-    vtkOpenVRCameraPose &pose = p.second;
+    vtkOpenVRCameraPose& pose = p.second;
     if (pose.Loaded)
     {
       vtkNew<vtkXMLDataElement> el;
@@ -133,16 +133,15 @@ void vtkOpenVROverlay::ReadCameraPoses()
   this->ReadCameraPoses(is);
 }
 
-void vtkOpenVROverlay::ReadCameraPoses(istream &is)
+void vtkOpenVROverlay::ReadCameraPoses(istream& is)
 {
-  vtkXMLDataElement *topel =
-    vtkXMLUtilities::ReadElementFromStream(is);
+  vtkXMLDataElement* topel = vtkXMLUtilities::ReadElementFromStream(is);
 
   this->ReadCameraPoses(topel);
   topel->Delete();
 }
 
-void vtkOpenVROverlay::ReadCameraPoses(vtkXMLDataElement *topel)
+void vtkOpenVROverlay::ReadCameraPoses(vtkXMLDataElement* topel)
 {
   this->SavedCameraPoses.clear();
   if (topel)
@@ -150,29 +149,23 @@ void vtkOpenVROverlay::ReadCameraPoses(vtkXMLDataElement *topel)
     int numPoses = topel->GetNumberOfNestedElements();
     for (size_t i = 0; i < numPoses; i++)
     {
-      vtkXMLDataElement *el = topel->GetNestedElement(static_cast<int>(i));
+      vtkXMLDataElement* el = topel->GetNestedElement(static_cast<int>(i));
       int poseNum = 0;
       el->GetScalarAttribute("PoseNumber", poseNum);
-      el->GetVectorAttribute("Position", 3,
-        this->SavedCameraPoses[poseNum].Position);
-      el->GetVectorAttribute("InitialViewUp", 3,
-        this->SavedCameraPoses[poseNum].PhysicalViewUp);
-      el->GetVectorAttribute("InitialViewDirection", 3,
-        this->SavedCameraPoses[poseNum].PhysicalViewDirection);
-      el->GetVectorAttribute("ViewDirection", 3,
-        this->SavedCameraPoses[poseNum].ViewDirection);
-      el->GetVectorAttribute("Translation", 3,
-        this->SavedCameraPoses[poseNum].Translation);
-      el->GetScalarAttribute("Distance",
-        this->SavedCameraPoses[poseNum].Distance);
-      el->GetScalarAttribute("MotionFactor",
-        this->SavedCameraPoses[poseNum].MotionFactor);
+      el->GetVectorAttribute("Position", 3, this->SavedCameraPoses[poseNum].Position);
+      el->GetVectorAttribute("InitialViewUp", 3, this->SavedCameraPoses[poseNum].PhysicalViewUp);
+      el->GetVectorAttribute(
+        "InitialViewDirection", 3, this->SavedCameraPoses[poseNum].PhysicalViewDirection);
+      el->GetVectorAttribute("ViewDirection", 3, this->SavedCameraPoses[poseNum].ViewDirection);
+      el->GetVectorAttribute("Translation", 3, this->SavedCameraPoses[poseNum].Translation);
+      el->GetScalarAttribute("Distance", this->SavedCameraPoses[poseNum].Distance);
+      el->GetScalarAttribute("MotionFactor", this->SavedCameraPoses[poseNum].MotionFactor);
       this->SavedCameraPoses[poseNum].Loaded = true;
     }
   }
 }
 
-void vtkOpenVROverlay::SetSavedCameraPose(int i, vtkOpenVRCameraPose *pose)
+void vtkOpenVROverlay::SetSavedCameraPose(int i, vtkOpenVRCameraPose* pose)
 {
   if (pose)
   {
@@ -182,24 +175,22 @@ void vtkOpenVROverlay::SetSavedCameraPose(int i, vtkOpenVRCameraPose *pose)
 
 void vtkOpenVROverlay::SaveCameraPose(int slot)
 {
-  vtkOpenVRCameraPose *pose = &this->SavedCameraPoses[slot];
-  vtkRenderer *ren = static_cast<vtkRenderer *>(
-    this->Window->GetRenderers()->GetItemAsObject(0));
-  pose->Set(static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera()), this->Window);
-  this->InvokeEvent(vtkCommand::SaveStateEvent, reinterpret_cast<void *>(slot));
+  vtkOpenVRCameraPose* pose = &this->SavedCameraPoses[slot];
+  vtkRenderer* ren = static_cast<vtkRenderer*>(this->Window->GetRenderers()->GetItemAsObject(0));
+  pose->Set(static_cast<vtkOpenVRCamera*>(ren->GetActiveCamera()), this->Window);
+  this->InvokeEvent(vtkCommand::SaveStateEvent, reinterpret_cast<void*>(slot));
 }
 
 void vtkOpenVROverlay::LoadCameraPose(int slot)
 {
-  vtkOpenVRCameraPose *pose = this->GetSavedCameraPose(slot);
+  vtkOpenVRCameraPose* pose = this->GetSavedCameraPose(slot);
   if (pose && pose->Loaded)
   {
     this->LastCameraPoseIndex = slot;
-    vtkRenderer *ren = static_cast<vtkRenderer *>(
-      this->Window->GetRenderers()->GetItemAsObject(0));
-    pose->Apply(static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera()), this->Window);
+    vtkRenderer* ren = static_cast<vtkRenderer*>(this->Window->GetRenderers()->GetItemAsObject(0));
+    pose->Apply(static_cast<vtkOpenVRCamera*>(ren->GetActiveCamera()), this->Window);
     ren->ResetCameraClippingRange();
-    this->InvokeEvent(vtkCommand::LoadStateEvent, reinterpret_cast<void *>(slot));
+    this->InvokeEvent(vtkCommand::LoadStateEvent, reinterpret_cast<void*>(slot));
   }
 }
 
@@ -253,16 +244,16 @@ void vtkOpenVROverlay::Hide()
   vr::VROverlay()->HideOverlay(this->OverlayHandle);
 }
 
-void vtkOpenVROverlay::SetDashboardImageData(vtkJPEGReader *imgReader)
+void vtkOpenVROverlay::SetDashboardImageData(vtkJPEGReader* imgReader)
 {
   imgReader->SetMemoryBuffer(OpenVRDashboard);
   imgReader->SetMemoryBufferLength(sizeof(OpenVRDashboard));
   imgReader->Update();
 }
 
-void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
+void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow* win)
 {
-  if( !vr::VROverlay() )
+  if (!vr::VROverlay())
   {
     vtkErrorMacro("Error creating overlay");
     return;
@@ -277,21 +268,20 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
 
   this->ReadCameraPoses();
 
-  std::string sKey = std::string( "VTK OpenVR Settings");
-  vr::VROverlayError overlayError =
-    vr::VROverlay()->CreateDashboardOverlay(
-      sKey.c_str(), "VTK",
-      &this->OverlayHandle, &this->OverlayThumbnailHandle );
+  std::string sKey = std::string("VTK OpenVR Settings");
+  vr::VROverlayError overlayError = vr::VROverlay()->CreateDashboardOverlay(
+    sKey.c_str(), "VTK", &this->OverlayHandle, &this->OverlayThumbnailHandle);
   if (overlayError != vr::VROverlayError_None)
   {
     vtkErrorMacro("Error creating overlay");
     return;
   }
 
-  vr::VROverlay()->SetOverlayFlag(this->OverlayHandle, vr::VROverlayFlags_SortWithNonSceneOverlays, true);
+  vr::VROverlay()->SetOverlayFlag(
+    this->OverlayHandle, vr::VROverlayFlags_SortWithNonSceneOverlays, true);
   vr::VROverlay()->SetOverlayFlag(this->OverlayHandle, vr::VROverlayFlags_VisibleInDashboard, true);
-  vr::VROverlay()->SetOverlayWidthInMeters( this->OverlayHandle, 2.5f );
-  vr::VROverlay()->SetOverlayInputMethod( this->OverlayHandle, vr::VROverlayInputMethod_Mouse );
+  vr::VROverlay()->SetOverlayWidthInMeters(this->OverlayHandle, 2.5f);
+  vr::VROverlay()->SetOverlayInputMethod(this->OverlayHandle, vr::VROverlayInputMethod_Mouse);
 
   win->MakeCurrent();
 
@@ -300,14 +290,14 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
   // delete any old texture data
   if (this->OriginalTextureData)
   {
-    delete [] this->OriginalTextureData;
+    delete[] this->OriginalTextureData;
     this->OriginalTextureData = 0;
   }
 
   // if dashboard image exists use it
   vtkNew<vtkJPEGReader> imgReader;
-  if (!this->DashboardImageFileName.empty()
-      && imgReader->CanReadFile(this->DashboardImageFileName.c_str()))
+  if (!this->DashboardImageFileName.empty() &&
+    imgReader->CanReadFile(this->DashboardImageFileName.c_str()))
   {
     imgReader->SetFileName(this->DashboardImageFileName.c_str());
     imgReader->Update();
@@ -317,16 +307,16 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
     this->SetDashboardImageData(imgReader);
   }
 
-  vtkImageData *id = imgReader->GetOutput();
+  vtkImageData* id = imgReader->GetOutput();
   int dims[3];
   id->GetDimensions(dims);
   int numC = id->GetPointData()->GetScalars()->GetNumberOfComponents();
 
-  this->OriginalTextureData = new unsigned char[dims[0]*dims[1]*4];
-  this->CurrentTextureData = new unsigned char[dims[0]*dims[1]*4];
-  unsigned char *dataPtr = this->OriginalTextureData;
-  unsigned char *inPtr = static_cast<unsigned char *>(
-    id->GetPointData()->GetScalars()->GetVoidPointer(0));
+  this->OriginalTextureData = new unsigned char[dims[0] * dims[1] * 4];
+  this->CurrentTextureData = new unsigned char[dims[0] * dims[1] * 4];
+  unsigned char* dataPtr = this->OriginalTextureData;
+  unsigned char* inPtr =
+    static_cast<unsigned char*>(id->GetPointData()->GetScalars()->GetVoidPointer(0));
   for (int j = 0; j < dims[1]; j++)
   {
     for (int i = 0; i < dims[0]; i++)
@@ -337,31 +327,24 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow *win)
       *(dataPtr++) = (numC == 4 ? *(inPtr++) : 255.0);
     }
   }
-  memcpy(this->CurrentTextureData, this->OriginalTextureData, dims[0]*dims[1]*4);
-  this->OverlayTexture->Create2DFromRaw(
-    dims[0], dims[1],
-    4,  VTK_UNSIGNED_CHAR,
-    const_cast<void *>(static_cast<const void *const>(
-      this->OriginalTextureData)));
+  memcpy(this->CurrentTextureData, this->OriginalTextureData, dims[0] * dims[1] * 4);
+  this->OverlayTexture->Create2DFromRaw(dims[0], dims[1], 4, VTK_UNSIGNED_CHAR,
+    const_cast<void*>(static_cast<const void* const>(this->OriginalTextureData)));
 
   this->SetupSpots();
 
   int width = this->OverlayTexture->GetWidth();
   int height = this->OverlayTexture->GetHeight();
-  vr::HmdVector2_t vecWindowSize =
-  {
-    static_cast<float>(width),
-    static_cast<float>(height)
-  };
-  vr::VROverlay()->SetOverlayMouseScale( this->OverlayHandle, &vecWindowSize );
+  vr::HmdVector2_t vecWindowSize = { static_cast<float>(width), static_cast<float>(height) };
+  vr::VROverlay()->SetOverlayMouseScale(this->OverlayHandle, &vecWindowSize);
 }
 
 void vtkOpenVROverlay::Render()
 {
   // skip rendering if the overlay isn't visible
-  if( !vr::VROverlay() ||
-      ( !vr::VROverlay()->IsOverlayVisible( this->OverlayHandle ) &&
-        !vr::VROverlay()->IsOverlayVisible( this->OverlayThumbnailHandle ) ) )
+  if (!vr::VROverlay() ||
+    (!vr::VROverlay()->IsOverlayVisible(this->OverlayHandle) &&
+      !vr::VROverlay()->IsOverlayVisible(this->OverlayThumbnailHandle)))
   {
     return;
   }
@@ -370,16 +353,15 @@ void vtkOpenVROverlay::Render()
   int dims[2];
   dims[0] = this->OverlayTexture->GetWidth();
   dims[1] = this->OverlayTexture->GetHeight();
-  this->OverlayTexture->Create2DFromRaw(
-    dims[0], dims[1],
-    4,  VTK_UNSIGNED_CHAR,
-    const_cast<void *>(static_cast<const void *const>(this->CurrentTextureData)));
+  this->OverlayTexture->Create2DFromRaw(dims[0], dims[1], 4, VTK_UNSIGNED_CHAR,
+    const_cast<void*>(static_cast<const void* const>(this->CurrentTextureData)));
   this->OverlayTexture->Bind();
   GLuint unTexture = this->OverlayTexture->GetHandle();
-  if( unTexture != 0 )
+  if (unTexture != 0)
   {
-    vr::Texture_t texture = {(void*)(uintptr_t)unTexture, vr::TextureType_OpenGL, vr::ColorSpace_Auto };
-    vr::VROverlay()->SetOverlayTexture( this->OverlayHandle, &texture );
+    vr::Texture_t texture = { (void*)(uintptr_t)unTexture, vr::TextureType_OpenGL,
+      vr::ColorSpace_Auto };
+    vr::VROverlay()->SetOverlayTexture(this->OverlayHandle, &texture);
   }
 }
 
@@ -387,14 +369,12 @@ void vtkOpenVROverlay::MouseMoved(int x, int y)
 {
   // did we leave the last active spot
   bool leftSpot = false;
-  if (this->LastSpot && (
-    x < this->LastSpot->xmin ||
-    x > this->LastSpot->xmax ||
-    y < this->LastSpot->ymin ||
-    y > this->LastSpot->ymax))
+  if (this->LastSpot &&
+    (x < this->LastSpot->xmin || x > this->LastSpot->xmax || y < this->LastSpot->ymin ||
+      y > this->LastSpot->ymax))
   {
     leftSpot = true;
-    vtkOpenVROverlaySpot *spot = this->LastSpot;
+    vtkOpenVROverlaySpot* spot = this->LastSpot;
     this->LastSpot = nullptr;
     this->UpdateSpot(spot);
   }
@@ -412,11 +392,7 @@ void vtkOpenVROverlay::MouseMoved(int x, int y)
   std::vector<vtkOpenVROverlaySpot>::iterator it = this->Spots.begin();
   for (; !enteredSpot && it != this->Spots.end(); ++it)
   {
-    if (
-      x >= it->xmin &&
-      x <= it->xmax &&
-      y >= it->ymin &&
-      y <= it->ymax)
+    if (x >= it->xmin && x <= it->xmax && y >= it->ymin && y <= it->ymax)
     {
       // if we are not already in this spot
       if (this->LastSpot != &(*it))
@@ -436,36 +412,36 @@ void vtkOpenVROverlay::MouseMoved(int x, int y)
   this->Render();
 }
 
-void vtkOpenVROverlay::UpdateSpot(vtkOpenVROverlaySpot *spot)
+void vtkOpenVROverlay::UpdateSpot(vtkOpenVROverlaySpot* spot)
 {
   int dims[2];
   dims[0] = this->OverlayTexture->GetWidth();
   dims[1] = this->OverlayTexture->GetHeight();
-  unsigned char *currPtr = this->CurrentTextureData;
-  unsigned char *origPtr = this->OriginalTextureData;
+  unsigned char* currPtr = this->CurrentTextureData;
+  unsigned char* origPtr = this->OriginalTextureData;
 
   float shift = 0.0;
   float scale = 1.0;
   if (spot->Active)
   {
-    shift = this->ActiveSpotIntensity*255.0;
+    shift = this->ActiveSpotIntensity * 255.0;
     scale = 1.0 - this->ActiveSpotIntensity;
   }
   if (spot == this->LastSpot)
   {
-    shift = this->LastSpotIntensity*255.0;
+    shift = this->LastSpotIntensity * 255.0;
     scale = 1.0 - this->LastSpotIntensity;
   }
 
   for (int j = spot->ymin; j <= spot->ymax; j++)
   {
-    unsigned char *dataPtr = currPtr + (j*dims[0] + spot->xmin)*4;
-    unsigned char *inPtr = origPtr + (j*dims[0] + spot->xmin)*4;
+    unsigned char* dataPtr = currPtr + (j * dims[0] + spot->xmin) * 4;
+    unsigned char* inPtr = origPtr + (j * dims[0] + spot->xmin) * 4;
     for (int i = spot->xmin; i <= spot->xmax; i++)
     {
-      *(dataPtr++) =  static_cast<unsigned char>(scale * *(inPtr++) + shift);
-      *(dataPtr++) =  static_cast<unsigned char>(scale * *(inPtr++) + shift);
-      *(dataPtr++) =  static_cast<unsigned char>(scale * *(inPtr++) + shift);
+      *(dataPtr++) = static_cast<unsigned char>(scale * *(inPtr++) + shift);
+      *(dataPtr++) = static_cast<unsigned char>(scale * *(inPtr++) + shift);
+      *(dataPtr++) = static_cast<unsigned char>(scale * *(inPtr++) + shift);
       dataPtr++;
       inPtr++;
     }
@@ -477,7 +453,7 @@ void vtkOpenVROverlay::MouseButtonPress(int x, int y)
   this->MouseMoved(x, y);
   if (this->LastSpot && this->LastSpot->Callback)
   {
-    this->LastSpot->Callback->Execute(this, vtkCommand::LeftButtonPressEvent,this->Window);
+    this->LastSpot->Callback->Execute(this, vtkCommand::LeftButtonPressEvent, this->Window);
   }
 }
 
@@ -485,11 +461,11 @@ void vtkOpenVROverlay::MouseButtonRelease(int, int)
 {
   if (this->LastSpot && this->LastSpot->Callback)
   {
-    this->LastSpot->Callback->Execute(this, vtkCommand::LeftButtonReleaseEvent,this->Window);
+    this->LastSpot->Callback->Execute(this, vtkCommand::LeftButtonReleaseEvent, this->Window);
   }
 }
 
 void vtkOpenVROverlay::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

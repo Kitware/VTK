@@ -35,18 +35,15 @@
 
 vtkStandardNewMacro(vtkCaptionActor2D);
 
-vtkCxxSetObjectMacro(vtkCaptionActor2D,CaptionTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkCaptionActor2D, CaptionTextProperty, vtkTextProperty);
 
 class vtkCaptionActor2DConnection : public vtkAlgorithm
 {
 public:
-  static vtkCaptionActor2DConnection *New();
-  vtkTypeMacro(vtkCaptionActor2DConnection,vtkAlgorithm);
+  static vtkCaptionActor2DConnection* New();
+  vtkTypeMacro(vtkCaptionActor2DConnection, vtkAlgorithm);
 
-  vtkCaptionActor2DConnection()
-  {
-      this->SetNumberOfInputPorts(1);
-  }
+  vtkCaptionActor2DConnection() { this->SetNumberOfInputPorts(1); }
 };
 
 vtkStandardNewMacro(vtkCaptionActor2DConnection);
@@ -57,13 +54,11 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   // Positioning information
   this->AttachmentPointCoordinate = vtkCoordinate::New();
   this->AttachmentPointCoordinate->SetCoordinateSystemToWorld();
-  this->AttachmentPointCoordinate->SetValue(0.0,0.0,0.0);
+  this->AttachmentPointCoordinate->SetValue(0.0, 0.0, 0.0);
 
   this->PositionCoordinate->SetCoordinateSystemToDisplay();
-  this->PositionCoordinate->SetReferenceCoordinate(
-    this->AttachmentPointCoordinate);
-  this->PositionCoordinate->SetValue(static_cast<double>(10),
-                                     static_cast<double>(10));
+  this->PositionCoordinate->SetReferenceCoordinate(this->AttachmentPointCoordinate);
+  this->PositionCoordinate->SetValue(static_cast<double>(10), static_cast<double>(10));
 
   // This sets up the Position2Coordinate
   this->vtkActor2D::SetWidth(0.25);
@@ -99,11 +94,11 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->TextActor->SetTextProperty(this->CaptionTextProperty);
 
   this->BorderPolyData = vtkPolyData::New();
-  vtkPoints *pts = vtkPoints::New();
+  vtkPoints* pts = vtkPoints::New();
   pts->SetNumberOfPoints(4);
   this->BorderPolyData->SetPoints(pts);
   pts->Delete();
-  vtkCellArray *border = vtkCellArray::New();
+  vtkCellArray* border = vtkCellArray::New();
   border->InsertNextCell(5);
   border->InsertCellPoint(0);
   border->InsertCellPoint(1);
@@ -119,7 +114,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->BorderActor->SetMapper(this->BorderMapper);
 
   // Set border mapper coordinate system to Display.
-  vtkCoordinate *coord = vtkCoordinate::New();
+  vtkCoordinate* coord = vtkCoordinate::New();
   coord->SetCoordinateSystemToDisplay();
   this->BorderMapper->SetTransformCoordinate(coord);
   coord->Delete();
@@ -131,7 +126,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   pts->SetNumberOfPoints(1);
   this->HeadPolyData->SetPoints(pts);
   pts->Delete();
-  vtkDoubleArray *vecs = vtkDoubleArray::New();
+  vtkDoubleArray* vecs = vtkDoubleArray::New();
   vecs->SetNumberOfComponents(3);
   vecs->SetNumberOfTuples(1);
   this->HeadPolyData->GetPointData()->SetVectors(vecs);
@@ -143,10 +138,10 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   pts->SetNumberOfPoints(2);
   this->LeaderPolyData->SetPoints(pts);
   pts->Delete();
-  vtkCellArray *leader = vtkCellArray::New();
+  vtkCellArray* leader = vtkCellArray::New();
   leader->InsertNextCell(2);
   leader->InsertCellPoint(0);
-  leader->InsertCellPoint(1); //at the attachment point
+  leader->InsertCellPoint(1); // at the attachment point
   this->LeaderPolyData->SetLines(leader);
   leader->Delete();
 
@@ -229,14 +224,13 @@ vtkPolyData* vtkCaptionActor2D::GetLeaderGlyph()
   {
     return nullptr;
   }
-  return vtkPolyData::SafeDownCast(
-    this->LeaderGlyphConnectionHolder->GetInputDataObject(0, 0));
+  return vtkPolyData::SafeDownCast(this->LeaderGlyphConnectionHolder->GetInputDataObject(0, 0));
 }
 
 //----------------------------------------------------------------------------
 void vtkCaptionActor2D::SetCaption(const char* caption)
 {
- this->TextActor->SetInput(caption);
+  this->TextActor->SetInput(caption);
 }
 
 //----------------------------------------------------------------------------
@@ -245,12 +239,11 @@ char* vtkCaptionActor2D::GetCaption()
   return this->TextActor->GetInput();
 }
 
-
 //----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
-void vtkCaptionActor2D::ReleaseGraphicsResources(vtkWindow *win)
+void vtkCaptionActor2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->TextActor->ReleaseGraphicsResources(win);
   this->BorderActor->ReleaseGraphicsResources(win);
@@ -258,20 +251,20 @@ void vtkCaptionActor2D::ReleaseGraphicsResources(vtkWindow *win)
   this->LeaderActor3D->ReleaseGraphicsResources(win);
 }
 
-int vtkCaptionActor2D::RenderOverlay(vtkViewport *viewport)
+int vtkCaptionActor2D::RenderOverlay(vtkViewport* viewport)
 {
   int renderedSomething = 0;
 
   renderedSomething += this->TextActor->RenderOverlay(viewport);
 
-  if ( this->Border )
+  if (this->Border)
   {
     renderedSomething += this->BorderActor->RenderOverlay(viewport);
   }
 
-  if ( this->Leader )
+  if (this->Leader)
   {
-    if ( this->ThreeDimensionalLeader )
+    if (this->ThreeDimensionalLeader)
     {
       renderedSomething += this->LeaderActor3D->RenderOverlay(viewport);
     }
@@ -285,10 +278,10 @@ int vtkCaptionActor2D::RenderOverlay(vtkViewport *viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   // Build the caption (almost always needed so we don't check mtime)
-  vtkDebugMacro(<<"Rebuilding caption");
+  vtkDebugMacro(<< "Rebuilding caption");
 
   // compute coordinates and set point values
   //
@@ -298,23 +291,29 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   x1 = this->AttachmentPointCoordinate->GetComputedDisplayValue(viewport);
   x2 = this->PositionCoordinate->GetComputedDisplayValue(viewport);
   x3 = this->Position2Coordinate->GetComputedDisplayValue(viewport);
-  p1[0] = (double)x1[0]; p1[1] = (double)x1[1]; p1[2] = 0.0;
-  p2[0] = (double)x2[0]; p2[1] = (double)x2[1]; p2[2] = p1[2];
-  p3[0] = (double)x3[0]; p3[1] = (double)x3[1]; p3[2] = p1[2];
+  p1[0] = (double)x1[0];
+  p1[1] = (double)x1[1];
+  p1[2] = 0.0;
+  p2[0] = (double)x2[0];
+  p2[1] = (double)x2[1];
+  p2[2] = p1[2];
+  p3[0] = (double)x3[0];
+  p3[1] = (double)x3[1];
+  p3[2] = p1[2];
 
   // Set up the scaled text - take into account the padding
   this->TextActor->SetTextProperty(this->CaptionTextProperty);
   this->TextActor->GetPositionCoordinate()->SetValue(
-    p2[0]+this->Padding,p2[1]+this->Padding,0.0);
+    p2[0] + this->Padding, p2[1] + this->Padding, 0.0);
   this->TextActor->GetPosition2Coordinate()->SetValue(
-    p3[0]-this->Padding,p3[1]-this->Padding,0.0);
+    p3[0] - this->Padding, p3[1] - this->Padding, 0.0);
 
   // Define the border
-  vtkPoints *pts = this->BorderPolyData->GetPoints();
+  vtkPoints* pts = this->BorderPolyData->GetPoints();
   pts->SetPoint(0, p2);
-  pts->SetPoint(1, p3[0],p2[1],p1[2]);
-  pts->SetPoint(2, p3[0],p3[1],p1[2]);
-  pts->SetPoint(3, p2[0],p3[1],p1[2]);
+  pts->SetPoint(1, p3[0], p2[1], p1[2]);
+  pts->SetPoint(2, p3[0], p3[1], p1[2]);
+  pts->SetPoint(3, p2[0], p3[1], p1[2]);
 
   // Define the leader. Have to find the closest point from the
   // border to the attachment point. We look at the four vertices
@@ -325,75 +324,81 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   minPt[0] = p2[0];
   minPt[1] = p2[1];
 
-  pt[0] = p2[0]; pt[1] = p2[1]; pt[2] = minPt[2] = 0.0;
-  if ( !this->AttachEdgeOnly &&
-    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  pt[0] = p2[0];
+  pt[1] = p2[1];
+  pt[2] = minPt[2] = 0.0;
+  if (!this->AttachEdgeOnly && (d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
-  pt[0] = (p2[0]+p3[0])/2.0;
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  pt[0] = (p2[0] + p3[0]) / 2.0;
+  if ((d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
   pt[0] = p3[0];
-  if ( !this->AttachEdgeOnly &&
-    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if (!this->AttachEdgeOnly && (d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
-  pt[1] = (p2[1]+p3[1])/2.0;
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  pt[1] = (p2[1] + p3[1]) / 2.0;
+  if ((d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
   pt[1] = p3[1];
-  if ( !this->AttachEdgeOnly &&
-    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if (!this->AttachEdgeOnly && (d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
-  pt[0] = (p2[0]+p3[0])/2.0;
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  pt[0] = (p2[0] + p3[0]) / 2.0;
+  if ((d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
   pt[0] = p2[0];
-  if ( !this->AttachEdgeOnly &&
-    (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  if (!this->AttachEdgeOnly && (d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
-  pt[1] = (p2[1]+p3[1])/2.0;
-  if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
+  pt[1] = (p2[1] + p3[1]) / 2.0;
+  if ((d2 = vtkMath::Distance2BetweenPoints(p1, pt)) < minD2)
   {
     minD2 = d2;
-    minPt[0] = pt[0]; minPt[1] = pt[1];
+    minPt[0] = pt[0];
+    minPt[1] = pt[1];
   }
 
   // Set the leader coordinates in appropriate coordinate system
   // The pipeline is connected differently depending on the dimension
   // and availability of a leader head.
-  if ( this->Leader )
+  if (this->Leader)
   {
     pts = this->LeaderPolyData->GetPoints();
 
     w1 = this->AttachmentPointCoordinate->GetComputedWorldValue(viewport);
-    viewport->SetWorldPoint(w1[0],w1[1],w1[2],1.0);
+    viewport->SetWorldPoint(w1[0], w1[1], w1[2], 1.0);
     viewport->WorldToView();
     viewport->GetViewPoint(p1);
 
@@ -403,10 +408,10 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     val[1] = minPt[1];
     val[2] = 0;
     // convert to view
-    viewport->DisplayToNormalizedDisplay(val[0],val[1]);
-    viewport->NormalizedDisplayToViewport(val[0],val[1]);
-    viewport->ViewportToNormalizedViewport(val[0],val[1]);
-    viewport->NormalizedViewportToView(val[0],val[1],val[2]);
+    viewport->DisplayToNormalizedDisplay(val[0], val[1]);
+    viewport->NormalizedDisplayToViewport(val[0], val[1]);
+    viewport->ViewportToNormalizedViewport(val[0], val[1]);
+    viewport->NormalizedViewportToView(val[0], val[1], val[2]);
 
     // use the zvalue from the attach point
     val[2] = p1[2];
@@ -414,59 +419,68 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     viewport->ViewToWorld();
     double w3[4];
     viewport->GetWorldPoint(w3);
-    if ( w3[3] != 0.0 )
+    if (w3[3] != 0.0)
     {
-      w3[0] /= w3[3]; w3[1] /= w3[3]; w3[2] /= w3[3];
+      w3[0] /= w3[3];
+      w3[1] /= w3[3];
+      w3[2] /= w3[3];
     }
     w2 = w3;
 
     pts->SetPoint(0, w1);
     pts->SetPoint(1, w2);
-    this->HeadPolyData->GetPoints()->SetPoint(0,w1);
-    this->HeadPolyData->GetPointData()->
-      GetVectors()->SetTuple3(0,w1[0]-w2[0],w1[1]-w2[1],w1[2]-w2[2]);
+    this->HeadPolyData->GetPoints()->SetPoint(0, w1);
+    this->HeadPolyData->GetPointData()->GetVectors()->SetTuple3(
+      0, w1[0] - w2[0], w1[1] - w2[1], w1[2] - w2[2]);
 
     pts->Modified();
     this->HeadPolyData->Modified();
   }
 
-  if ( this->GetLeaderGlyph() )
+  if (this->GetLeaderGlyph())
   {
     this->LeaderGlyphConnectionHolder->GetInputAlgorithm()->Update();
 
     // compute the scale
     double length = this->GetLeaderGlyph()->GetLength();
-    int *sze = viewport->GetSize();
-    int   numPixels = static_cast<int> (this->LeaderGlyphSize *
-      sqrt(static_cast<double>(sze[0]*sze[0] + sze[1]*sze[1])));
-    numPixels = (numPixels > this->MaximumLeaderGlyphSize ?
-                 this->MaximumLeaderGlyphSize : numPixels );
+    int* sze = viewport->GetSize();
+    int numPixels = static_cast<int>(
+      this->LeaderGlyphSize * sqrt(static_cast<double>(sze[0] * sze[0] + sze[1] * sze[1])));
+    numPixels =
+      (numPixels > this->MaximumLeaderGlyphSize ? this->MaximumLeaderGlyphSize : numPixels);
 
     // determine the number of units length per pixel
-    viewport->SetDisplayPoint(sze[0]/2,sze[1]/2,0);
+    viewport->SetDisplayPoint(sze[0] / 2, sze[1] / 2, 0);
     viewport->DisplayToWorld();
     viewport->GetWorldPoint(p1);
-    if ( p1[3] != 0.0 ) {p1[0] /= p1[3]; p1[1] /= p1[3]; p1[2] /= p1[3];}
+    if (p1[3] != 0.0)
+    {
+      p1[0] /= p1[3];
+      p1[1] /= p1[3];
+      p1[2] /= p1[3];
+    }
 
-    viewport->SetDisplayPoint(sze[0]/2+1,sze[1]/2+1,0);
+    viewport->SetDisplayPoint(sze[0] / 2 + 1, sze[1] / 2 + 1, 0);
     viewport->DisplayToWorld();
     viewport->GetWorldPoint(p2);
-    if ( p2[3] != 0.0 ) {p2[0] /= p2[3]; p2[1] /= p2[3]; p2[2] /= p2[3];}
+    if (p2[3] != 0.0)
+    {
+      p2[0] /= p2[3];
+      p2[1] /= p2[3];
+      p2[2] /= p2[3];
+    }
 
     // Arbitrary 1.5 factor makes up for the use of "diagonals" in length
     // calculations; otherwise the scale factor tends to be too small
-    double sf = 1.5 * numPixels *
-      sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) / length;
+    double sf = 1.5 * numPixels * sqrt(vtkMath::Distance2BetweenPoints(p1, p2)) / length;
 
-    vtkDebugMacro(<<"Scale factor: " << sf);
+    vtkDebugMacro(<< "Scale factor: " << sf);
 
     this->HeadGlyph->SetSourceData(this->GetLeaderGlyph());
     this->HeadGlyph->SetScaleFactor(sf);
 
-    this->LeaderMapper2D->SetInputConnection(
-      this->AppendLeader->GetOutputPort());
-    this->LeaderMapper3D->SetInputConnection(
-      this->AppendLeader->GetOutputPort());
+    this->LeaderMapper2D->SetInputConnection(this->AppendLeader->GetOutputPort());
+    this->LeaderMapper3D->SetInputConnection(this->AppendLeader->GetOutputPort());
     this->AppendLeader->Update();
   }
   else
@@ -479,26 +493,24 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   //
   this->BorderActor->SetProperty(this->GetProperty());
   this->LeaderActor2D->SetProperty(this->GetProperty());
-  this->LeaderActor3D->GetProperty()->SetColor(
-    this->GetProperty()->GetColor());
+  this->LeaderActor3D->GetProperty()->SetColor(this->GetProperty()->GetColor());
   // Copy the property into the text actor and reset the color -- otherwise the
   // text shadow will be colored the same as the text.
   this->TextActor->GetProperty()->DeepCopy(this->GetProperty());
   this->TextActor->GetProperty()->SetColor(1.0, 1.0, 1.0);
   this->TextActor->GetProperty()->SetOpacity(1.0);
 
-
   // Okay we are ready to render something
   int renderedSomething = 0;
   renderedSomething += this->TextActor->RenderOpaqueGeometry(viewport);
-  if ( this->Border )
+  if (this->Border)
   {
     renderedSomething += this->BorderActor->RenderOpaqueGeometry(viewport);
   }
 
-  if ( this->Leader )
+  if (this->Leader)
   {
-    if ( this->ThreeDimensionalLeader )
+    if (this->ThreeDimensionalLeader)
     {
       renderedSomething += this->LeaderActor3D->RenderOpaqueGeometry(viewport);
     }
@@ -522,13 +534,13 @@ vtkTypeBool vtkCaptionActor2D::HasTranslucentPolygonalGeometry()
 //----------------------------------------------------------------------------
 void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Text Actor: " << this->TextActor << "\n";
   if (this->CaptionTextProperty)
   {
     os << indent << "Caption Text Property:\n";
-    this->CaptionTextProperty->PrintSelf(os,indent.GetNextIndent());
+    this->CaptionTextProperty->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
@@ -536,7 +548,7 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Caption: ";
-  if ( this->TextActor->GetInput() )
+  if (this->TextActor->GetInput())
   {
     os << this->TextActor->GetInput() << "\n";
   }
@@ -546,13 +558,10 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Leader: " << (this->Leader ? "On\n" : "Off\n");
-  os << indent << "Three Dimensional Leader: "
-     << (this->ThreeDimensionalLeader ? "On\n" : "Off\n");
-  os << indent << "Leader Glyph Size: "
-     << this->LeaderGlyphSize << "\n";
-  os << indent << "MaximumLeader Glyph Size: "
-     << this->MaximumLeaderGlyphSize << "\n";
-  if ( ! this->GetLeaderGlyph() )
+  os << indent << "Three Dimensional Leader: " << (this->ThreeDimensionalLeader ? "On\n" : "Off\n");
+  os << indent << "Leader Glyph Size: " << this->LeaderGlyphSize << "\n";
+  os << indent << "MaximumLeader Glyph Size: " << this->MaximumLeaderGlyphSize << "\n";
+  if (!this->GetLeaderGlyph())
   {
     os << indent << "Leader Glyph: (none)\n";
   }
@@ -566,10 +575,10 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
+void vtkCaptionActor2D::ShallowCopy(vtkProp* prop)
 {
-  vtkCaptionActor2D *a = vtkCaptionActor2D::SafeDownCast(prop);
-  if ( a != nullptr )
+  vtkCaptionActor2D* a = vtkCaptionActor2D::SafeDownCast(prop);
+  if (a != nullptr)
   {
     this->SetCaption(a->GetCaption());
     this->SetAttachmentPoint(a->GetAttachmentPoint());
@@ -582,8 +591,7 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
     }
     else
     {
-     this->SetLeaderGlyphConnection(
-        a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
+      this->SetLeaderGlyphConnection(a->LeaderGlyphConnectionHolder->GetInputConnection(0, 0));
     }
     this->SetLeaderGlyphSize(a->GetLeaderGlyphSize());
     this->SetMaximumLeaderGlyphSize(a->GetMaximumLeaderGlyphSize());

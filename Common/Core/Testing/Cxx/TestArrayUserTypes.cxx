@@ -27,59 +27,57 @@
 #include <sstream>
 #include <stdexcept>
 
-#define test_expression(expression) \
-{ \
-  if(!(expression)) \
-  { \
-    std::ostringstream buffer; \
-    buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
-    throw std::runtime_error(buffer.str()); \
-  } \
-}
+#define test_expression(expression)                                                                \
+  {                                                                                                \
+    if (!(expression))                                                                             \
+    {                                                                                              \
+      std::ostringstream buffer;                                                                   \
+      buffer << "Expression failed at line " << __LINE__ << ": " << #expression;                   \
+      throw std::runtime_error(buffer.str());                                                      \
+    }                                                                                              \
+  }
 
 class UserType
 {
 public:
-  UserType() :
-    Value("")
+  UserType()
+    : Value("")
   {
   }
 
-  UserType(const vtkStdString& value) :
-    Value(value)
+  UserType(const vtkStdString& value)
+    : Value(value)
   {
   }
 
-  bool operator==(const UserType& other) const
-  {
-    return this->Value == other.Value;
-  }
+  bool operator==(const UserType& other) const { return this->Value == other.Value; }
 
   vtkStdString Value;
 };
 
-template<>
+template <>
 inline UserType vtkVariantCast<UserType>(const vtkVariant& value, bool* valid)
 {
-  if(valid)
+  if (valid)
     *valid = true;
   return UserType(value.ToString());
 }
 
-template<>
+template <>
 inline vtkVariant vtkVariantCreate<UserType>(const UserType& value)
 {
   return vtkVariant(value.Value);
 }
 
-int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
+int TestArrayUserTypes(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   try
   {
-    vtkSmartPointer<vtkDenseArray<UserType> > dense = vtkSmartPointer<vtkDenseArray<UserType> >::New();
+    vtkSmartPointer<vtkDenseArray<UserType> > dense =
+      vtkSmartPointer<vtkDenseArray<UserType> >::New();
     dense->Resize(3, 4);
     dense->Fill(UserType("red"));
-    for(vtkArray::SizeT n = 0; n != dense->GetNonNullSize(); ++n)
+    for (vtkArray::SizeT n = 0; n != dense->GetNonNullSize(); ++n)
     {
       test_expression(dense->GetValueN(n) == UserType("red"));
     }
@@ -91,7 +89,8 @@ int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(dense->GetValue(1, 2) == UserType("puce"));
     test_expression(dense->GetVariantValue(1, 2) == vtkVariant("puce"));
 
-    vtkSmartPointer<vtkSparseArray<UserType> > sparse = vtkSmartPointer<vtkSparseArray<UserType> >::New();
+    vtkSmartPointer<vtkSparseArray<UserType> > sparse =
+      vtkSmartPointer<vtkSparseArray<UserType> >::New();
     sparse->Resize(3, 4);
     sparse->SetNullValue(UserType("blue"));
     test_expression(sparse->GetNullValue() == UserType("blue"));
@@ -109,7 +108,7 @@ int TestArrayUserTypes(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     return 0;
   }
-  catch(std::exception& e)
+  catch (std::exception& e)
   {
     cerr << e.what() << endl;
     return 1;

@@ -34,9 +34,9 @@
 class GraphAnimate : public vtkCommand
 {
 public:
-  static GraphAnimate *New() { return new GraphAnimate(); }
+  static GraphAnimate* New() { return new GraphAnimate(); }
   vtkTypeMacro(GraphAnimate, vtkCommand);
-  void Execute(vtkObject *, unsigned long, void *) override
+  void Execute(vtkObject*, unsigned long, void*) override
   {
     this->GraphItem->UpdatePositions();
     this->View->Render();
@@ -47,7 +47,7 @@ public:
 };
 
 //----------------------------------------------------------------------------
-int main(int, char *[])
+int main(int, char*[])
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();

@@ -100,9 +100,7 @@ protected:
       vtkCellArray* polys = pd2->GetPolys();
       auto cellIter = vtk::TakeSmartPointer(polys->NewIterator());
       vtkNew<vtkIdList> cell;
-      for (cellIter->GoToFirstCell();
-         !cellIter->IsDoneWithTraversal();
-         cellIter->GoToNextCell())
+      for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
       {
         cellIter->GetCurrentCell(cell);
         for (vtkIdType i = 0; i < cell->GetNumberOfIds(); i++)

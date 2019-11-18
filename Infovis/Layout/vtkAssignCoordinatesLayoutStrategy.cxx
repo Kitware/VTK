@@ -81,5 +81,5 @@ void vtkAssignCoordinatesLayoutStrategy::Layout()
 
 void vtkAssignCoordinatesLayoutStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 }

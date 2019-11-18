@@ -52,8 +52,7 @@ const char* vtkXMLPUnstructuredGridWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-vtkXMLUnstructuredDataWriter*
-  vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
+vtkXMLUnstructuredDataWriter* vtkXMLPUnstructuredGridWriter::CreateUnstructuredPieceWriter()
 {
   // Create the writer for the piece.
   vtkXMLUnstructuredGridWriter* pWriter = vtkXMLUnstructuredGridWriter::New();
@@ -62,8 +61,7 @@ vtkXMLUnstructuredDataWriter*
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(
-  int, vtkInformation* info)
+int vtkXMLPUnstructuredGridWriter::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGridBase");
   return 1;

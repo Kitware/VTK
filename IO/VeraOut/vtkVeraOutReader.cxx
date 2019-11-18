@@ -259,8 +259,8 @@ public:
     if ((datasetId = H5Dopen(groupId, datasetName)) < 0)
     {
       H5Gclose(groupId);
-      vtkErrorWithObjectMacro(this->Owner, "DataSet " << datasetName << " in group " << groupName
-                                                      << " don't want to open.");
+      vtkErrorWithObjectMacro(this->Owner,
+        "DataSet " << datasetName << " in group " << groupName << " don't want to open.");
       return false;
     }
 
@@ -307,8 +307,8 @@ public:
     hid_t datasetId;
     if ((datasetId = H5Dopen(groupId, datasetName)) < 0)
     {
-      vtkErrorWithObjectMacro(this->Owner, "DataSet " << datasetName << " in group " << groupName
-                                                      << " don't want to open.");
+      vtkErrorWithObjectMacro(this->Owner,
+        "DataSet " << datasetName << " in group " << groupName << " don't want to open.");
       H5Gclose(groupId);
       return nullptr;
     }
@@ -400,7 +400,8 @@ public:
     }
     else
     {
-      vtkErrorWithObjectMacro(this->Owner, "Unknown HDF5 data type --- it is not FLOAT, "
+      vtkErrorWithObjectMacro(this->Owner,
+        "Unknown HDF5 data type --- it is not FLOAT, "
           << "DOUBLE, INT, UNSIGNED INT, SHORT, UNSIGNED SHORT, "
           << "UNSIGNED CHAR, LONG, or LONG LONG.");
     }
@@ -523,8 +524,8 @@ public:
       hid_t datasetId;
       if ((datasetId = H5Dopen(groupId, dsName.c_str())) < 0)
       {
-        vtkErrorWithObjectMacro(this->Owner, "DataSet " << dsName.c_str() << " in group "
-                                                        << groupName << " don't want to open.");
+        vtkErrorWithObjectMacro(this->Owner,
+          "DataSet " << dsName.c_str() << " in group " << groupName << " don't want to open.");
         continue;
       }
 
@@ -965,8 +966,8 @@ vtkMTimeType vtkVeraOutReader::GetMTime()
   vtkMTimeType cellMTime = this->Internal->CellDataArraySelection->GetMTime();
   vtkMTimeType fieldMTime = this->Internal->FieldDataArraySelection->GetMTime();
 
-  mTime = ( cellMTime > mTime ? cellMTime : mTime );
-  mTime = ( fieldMTime > mTime ? fieldMTime : mTime );
+  mTime = (cellMTime > mTime ? cellMTime : mTime);
+  mTime = (fieldMTime > mTime ? fieldMTime : mTime);
 
   return mTime;
 }

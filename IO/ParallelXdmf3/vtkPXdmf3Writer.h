@@ -46,23 +46,22 @@
 class VTKIOPARALLELXDMF3_EXPORT vtkPXdmf3Writer : public vtkXdmf3Writer
 {
 public:
-  static vtkPXdmf3Writer *New ();
-  vtkTypeMacro(vtkPXdmf3Writer,vtkXdmf3Writer);
-  void PrintSelf (ostream& os, vtkIndent indent) override;
+  static vtkPXdmf3Writer* New();
+  vtkTypeMacro(vtkPXdmf3Writer, vtkXdmf3Writer);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkPXdmf3Writer ();
-  ~vtkPXdmf3Writer ();
-  int CheckParameters () override;
+  vtkPXdmf3Writer();
+  ~vtkPXdmf3Writer();
+  int CheckParameters() override;
 
-  int RequestUpdateExtent (vtkInformation* request,
-                           vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector) override;
+  int RequestUpdateExtent(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int GlobalContinueExecuting(int localContinue) override;
 
 private:
-  vtkPXdmf3Writer (const vtkPXdmf3Writer&) = delete;
-  void operator= (const vtkPXdmf3Writer&) = delete;
+  vtkPXdmf3Writer(const vtkPXdmf3Writer&) = delete;
+  void operator=(const vtkPXdmf3Writer&) = delete;
 };
 
 #endif /* vtkPXdmf3Writer_h */

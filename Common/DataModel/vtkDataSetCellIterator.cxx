@@ -21,109 +21,108 @@
 #include "vtkPoints.h"
 #include "vtkRectilinearGrid.h"
 
-vtkStandardNewMacro(vtkDataSetCellIterator)
+vtkStandardNewMacro(vtkDataSetCellIterator);
 
 namespace
 {
-  template<typename T>
-  void SetArrayType(T* grid, vtkPoints* points)
+template <typename T>
+void SetArrayType(T* grid, vtkPoints* points)
+{
+  // check all directions to see if any of them are doubles and
+  // if they are we set the points data type to double. If the
+  // data types are all the same then we set it to the common
+  // data type. Otherwise we give up and just keep the default
+  // float data type.
+  int xType = -1, yType = -1, zType = -1;
+  if (vtkDataArray* x = grid->GetXCoordinates())
   {
-    // check all directions to see if any of them are doubles and
-    // if they are we set the points data type to double. If the
-    // data types are all the same then we set it to the common
-    // data type. Otherwise we give up and just keep the default
-    // float data type.
-    int xType = -1, yType = -1, zType = -1;
-    if (vtkDataArray* x = grid->GetXCoordinates())
+    xType = x->GetDataType();
+    if (xType == VTK_DOUBLE)
     {
-      xType = x->GetDataType();
-      if (xType == VTK_DOUBLE)
+      points->SetDataType(VTK_DOUBLE);
+      return;
+    }
+  }
+  if (vtkDataArray* y = grid->GetYCoordinates())
+  {
+    yType = y->GetDataType();
+    if (yType == VTK_DOUBLE)
+    {
+      points->SetDataType(VTK_DOUBLE);
+      return;
+    }
+  }
+  if (vtkDataArray* z = grid->GetZCoordinates())
+  {
+    zType = z->GetDataType();
+    if (zType == VTK_DOUBLE)
+    {
+      points->SetDataType(VTK_DOUBLE);
+      return;
+    }
+  }
+  if (xType != -1 || yType != -1 || zType != -1)
+  {
+    if (xType == yType && xType == zType)
+    {
+      points->SetDataType(xType);
+      return;
+    }
+    if (xType == -1)
+    {
+      if (yType == -1)
       {
-        points->SetDataType(VTK_DOUBLE);
+        points->SetDataType(zType);
+        return;
+      }
+      else if (zType == -1 || yType == zType)
+      {
+        points->SetDataType(yType);
         return;
       }
     }
-    if (vtkDataArray* y = grid->GetYCoordinates())
+    if (yType == -1)
     {
-      yType = y->GetDataType();
-      if (yType == VTK_DOUBLE)
+      if (xType == -1)
       {
-        points->SetDataType(VTK_DOUBLE);
+        points->SetDataType(zType);
         return;
       }
-    }
-    if (vtkDataArray* z = grid->GetZCoordinates())
-    {
-      zType = z->GetDataType();
-      if (zType == VTK_DOUBLE)
-      {
-        points->SetDataType(VTK_DOUBLE);
-        return;
-      }
-    }
-    if (xType != -1 || yType != -1 || zType != -1)
-    {
-      if(xType == yType && xType == zType)
+      else if (zType == -1 || xType == zType)
       {
         points->SetDataType(xType);
         return;
       }
+    }
+    if (zType == -1)
+    {
       if (xType == -1)
       {
-        if (yType == -1)
-        {
-          points->SetDataType(zType);
-          return;
-        }
-        else if (zType == -1 || yType == zType)
-        {
-          points->SetDataType(yType);
-          return;
-        }
+        points->SetDataType(yType);
+        return;
       }
-      if (yType == -1)
+      else if (yType == -1 || xType == yType)
       {
-        if (xType == -1)
-        {
-          points->SetDataType(zType);
-          return;
-        }
-        else if (zType == -1 || xType == zType)
-        {
-          points->SetDataType(xType);
-          return;
-        }
-      }
-      if (zType == -1)
-      {
-        if (xType == -1)
-        {
-          points->SetDataType(yType);
-          return;
-        }
-        else if (yType == -1 || xType == yType)
-        {
-          points->SetDataType(xType);
-          return;
-        }
+        points->SetDataType(xType);
+        return;
       }
     }
-
-    // Set it to the default since it may have gotten set to something else
-    points->SetDataType(VTK_FLOAT);
   }
+
+  // Set it to the default since it may have gotten set to something else
+  points->SetDataType(VTK_FLOAT);
+}
 }
 
 //------------------------------------------------------------------------------
-void vtkDataSetCellIterator::PrintSelf(ostream &os, vtkIndent indent)
+void vtkDataSetCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DataSet: " << this->DataSet << endl;
-
 }
 
 //------------------------------------------------------------------------------
-void vtkDataSetCellIterator::SetDataSet(vtkDataSet *ds)
+void vtkDataSetCellIterator::SetDataSet(vtkDataSet* ds)
 {
   this->DataSet = ds;
   this->CellId = 0;
@@ -147,8 +146,7 @@ void vtkDataSetCellIterator::SetDataSet(vtkDataSet *ds)
 //------------------------------------------------------------------------------
 bool vtkDataSetCellIterator::IsDoneWithTraversal()
 {
-  return this->DataSet == nullptr
-      || this->CellId >= this->DataSet->GetNumberOfCells();
+  return this->DataSet == nullptr || this->CellId >= this->DataSet->GetNumberOfCells();
 }
 
 //------------------------------------------------------------------------------
@@ -165,9 +163,9 @@ void vtkDataSetCellIterator::IncrementToNextCell()
 
 //------------------------------------------------------------------------------
 vtkDataSetCellIterator::vtkDataSetCellIterator()
-  : vtkCellIterator(),
-    DataSet(nullptr),
-    CellId(0)
+  : vtkCellIterator()
+  , DataSet(nullptr)
+  , CellId(0)
 {
 }
 
@@ -196,10 +194,10 @@ void vtkDataSetCellIterator::FetchPointIds()
 void vtkDataSetCellIterator::FetchPoints()
 {
   // This will fetch the point ids if needed:
-  vtkIdList *pointIds = this->GetPointIds();
+  vtkIdList* pointIds = this->GetPointIds();
 
   vtkIdType numPoints = pointIds->GetNumberOfIds();
-  vtkIdType *id = pointIds->GetPointer(0);
+  vtkIdType* id = pointIds->GetPointer(0);
 
   this->Points->SetNumberOfPoints(numPoints);
 

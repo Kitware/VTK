@@ -67,7 +67,7 @@
  *
  * @sa
  * vtkODBCQuery
-*/
+ */
 
 #ifndef vtkODBCDatabase_h
 #define vtkODBCDatabase_h
@@ -88,7 +88,7 @@ class VTKIOODBC_EXPORT vtkODBCDatabase : public vtkSQLDatabase
 public:
   vtkTypeMacro(vtkODBCDatabase, vtkSQLDatabase);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkODBCDatabase *New();
+  static vtkODBCDatabase* New();
 
   /**
    * Open a new connection to the database.  You need to set the
@@ -125,7 +125,7 @@ public:
   /**
    * Get the list of fields for a particular table
    */
-  vtkStringArray* GetRecord(const char *table) override;
+  vtkStringArray* GetRecord(const char* table) override;
 
   /**
    * Return whether a feature is supported by the database.
@@ -155,10 +155,7 @@ public:
   /**
    * String representing database type (e.g. "ODBC").
    */
-  const char* GetDatabaseType() override
-  {
-    return this->DatabaseType;
-  }
+  const char* GetDatabaseType() override { return this->DatabaseType; }
   //@}
 
   vtkStdString GetURL() override;
@@ -170,37 +167,34 @@ public:
    * into INT NOT nullptr. Therefore, one should not pass
    * NOT nullptr as an attribute of a column whose type is SERIAL.
    */
-  vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                       int tblHandle,
-                                       int colHandle ) override;
+  vtkStdString GetColumnSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle) override;
 
   /**
    * Return the SQL string with the syntax to create an index inside a
    * "CREATE TABLE" SQL statement.
    */
-  vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
-                                      int tblHandle,
-                                      int idxHandle,
-                                      bool& skipped ) override;
+  vtkStdString GetIndexSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int idxHandle, bool& skipped) override;
 
   /**
    * Create a new database, optionally dropping any existing database of the same name.
    * Returns true when the database is properly created and false on failure.
    */
-  bool CreateDatabase( const char* dbName, bool dropExisting );
+  bool CreateDatabase(const char* dbName, bool dropExisting);
 
   /**
    * Drop a database if it exists.
    * Returns true on success and false on failure.
    */
-  bool DropDatabase( const char* dbName );
+  bool DropDatabase(const char* dbName);
 
   /**
    * This will only handle URLs of the form
    * odbc://[user@]datsourcename[:port]/[dbname].  Anything
    * more complicated than that needs to be set up manually.
    */
-  bool ParseURL(const char *url) override;
+  bool ParseURL(const char* url) override;
 
 protected:
   vtkODBCDatabase();
@@ -209,29 +203,28 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkStringArray *Tables;
-  vtkStringArray *Record;
+  vtkStringArray* Tables;
+  vtkStringArray* Record;
 
-  char *LastErrorText;
+  char* LastErrorText;
 
-  char *HostName;
-  char *UserName;
-  char *Password;
-  char *DataSourceName;
-  char *DatabaseName;
+  char* HostName;
+  char* UserName;
+  char* Password;
+  char* DataSourceName;
+  char* DatabaseName;
   int ServerPort;
 
-  vtkODBCInternals *Internals;
+  vtkODBCInternals* Internals;
 
   // We want this to be private, a user of this class
   // should not be setting this for any reason
   vtkSetStringMacro(DatabaseType);
 
-  char *DatabaseType;
+  char* DatabaseType;
 
-  vtkODBCDatabase(const vtkODBCDatabase &) = delete;
-  void operator=(const vtkODBCDatabase &) = delete;
+  vtkODBCDatabase(const vtkODBCDatabase&) = delete;
+  void operator=(const vtkODBCDatabase&) = delete;
 };
 
 #endif // vtkODBCDatabase_h
-

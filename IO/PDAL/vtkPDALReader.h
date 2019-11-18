@@ -24,7 +24,7 @@
  *
  * @sa
  * vtkPolyData
-*/
+ */
 
 #ifndef vtkPDALReader_h
 #define vtkPDALReader_h
@@ -35,17 +35,17 @@
 
 namespace pdal
 {
-  class Stage;
+class Stage;
 };
 
-class VTKIOPDAL_EXPORT vtkPDALReader: public vtkPolyDataAlgorithm
+class VTKIOPDAL_EXPORT vtkPDALReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkPDALReader(const vtkPDALReader&) = delete;
   void operator=(const vtkPDALReader&) = delete;
   static vtkPDALReader* New();
-  vtkTypeMacro(vtkPDALReader,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
+  vtkTypeMacro(vtkPDALReader, vtkPolyDataAlgorithm);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Name of the file that will be opened
@@ -61,12 +61,12 @@ protected:
    * Core implementation of the data set reader
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) override;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Read point record data i.e. position and visualisation data
    */
-  void ReadPointRecordData(pdal::Stage &reader, vtkPolyData* pointsPolyData);
+  void ReadPointRecordData(pdal::Stage& reader, vtkPolyData* pointsPolyData);
 
   char* FileName;
 };

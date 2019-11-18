@@ -23,9 +23,9 @@
 #include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkImplicitTextureCoords);
-vtkCxxSetObjectMacro(vtkImplicitTextureCoords,SFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkImplicitTextureCoords,RFunction,vtkImplicitFunction);
-vtkCxxSetObjectMacro(vtkImplicitTextureCoords,TFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitTextureCoords, SFunction, vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitTextureCoords, RFunction, vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitTextureCoords, TFunction, vtkImplicitFunction);
 
 // Create object with texture dimension=2 and no r-s-t implicit functions
 // defined and FlipTexture turned off.
@@ -45,95 +45,90 @@ vtkImplicitTextureCoords::~vtkImplicitTextureCoords()
   this->SetTFunction(nullptr);
 }
 
-
-int vtkImplicitTextureCoords::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkImplicitTextureCoords::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *output = vtkDataSet::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType ptId, numPts;
   int tcoordDim;
-  vtkFloatArray *newTCoords;
+  vtkFloatArray* newTCoords;
   double min[3], max[3], scale[3];
   double tCoord[3], tc[3], x[3];
   int i;
 
   // Initialize
   //
-  vtkDebugMacro(<<"Generating texture coordinates from implicit functions...");
+  vtkDebugMacro(<< "Generating texture coordinates from implicit functions...");
 
   // First, copy the input to the output as a starting point
-  output->CopyStructure( input );
+  output->CopyStructure(input);
 
-  if ( ((numPts=input->GetNumberOfPoints()) < 1) )
+  if (((numPts = input->GetNumberOfPoints()) < 1))
   {
     vtkErrorMacro(<< "No input points!");
     return 1;
   }
 
-  if ( this->RFunction == nullptr )
+  if (this->RFunction == nullptr)
   {
     vtkErrorMacro(<< "No implicit functions defined!");
     return 1;
   }
 
   tcoordDim = 1;
-  if ( this->SFunction != nullptr )
+  if (this->SFunction != nullptr)
   {
     tcoordDim++;
-    if ( this->TFunction != nullptr )
+    if (this->TFunction != nullptr)
     {
       tcoordDim++;
     }
   }
-//
-// Allocate
-//
+  //
+  // Allocate
+  //
   tCoord[0] = tCoord[1] = tCoord[2] = 0.0;
 
   newTCoords = vtkFloatArray::New();
-  if ( tcoordDim == 1 ) //force 2D map to be created
+  if (tcoordDim == 1) // force 2D map to be created
   {
     newTCoords->SetNumberOfComponents(2);
-    newTCoords->Allocate(2*numPts);
+    newTCoords->Allocate(2 * numPts);
   }
   else
   {
     newTCoords->SetNumberOfComponents(tcoordDim);
-    newTCoords->Allocate(tcoordDim*numPts);
+    newTCoords->Allocate(tcoordDim * numPts);
   }
-//
-// Compute implicit function values -> insert as initial texture coordinate
-//
-  for (i=0; i<3; i++) //initialize min/max values array
+  //
+  // Compute implicit function values -> insert as initial texture coordinate
+  //
+  for (i = 0; i < 3; i++) // initialize min/max values array
   {
     min[i] = VTK_DOUBLE_MAX;
     max[i] = -VTK_DOUBLE_MAX;
   }
-  for (ptId=0; ptId<numPts; ptId++) //compute texture coordinates
+  for (ptId = 0; ptId < numPts; ptId++) // compute texture coordinates
   {
     input->GetPoint(ptId, x);
     tCoord[0] = this->RFunction->FunctionValue(x);
-    if ( this->SFunction )
+    if (this->SFunction)
     {
       tCoord[1] = this->SFunction->FunctionValue(x);
     }
-    if ( this->TFunction )
+    if (this->TFunction)
     {
       tCoord[2] = this->TFunction->FunctionValue(x);
     }
 
-    for (i=0; i<tcoordDim; i++)
+    for (i = 0; i < tcoordDim; i++)
     {
       if (tCoord[i] < min[i])
       {
@@ -145,55 +140,55 @@ int vtkImplicitTextureCoords::RequestData(
       }
     }
 
-    newTCoords->InsertTuple(ptId,tCoord);
+    newTCoords->InsertTuple(ptId, tCoord);
   }
-//
-// Scale and shift texture coordinates into (0,1) range, with 0.0 implicit
-// function value equal to texture coordinate value of 0.5
-//
-  for (i=0; i<tcoordDim; i++)
+  //
+  // Scale and shift texture coordinates into (0,1) range, with 0.0 implicit
+  // function value equal to texture coordinate value of 0.5
+  //
+  for (i = 0; i < tcoordDim; i++)
   {
     scale[i] = 1.0;
-    if ( max[i] > 0.0 && min[i] < 0.0 ) //have positive & negative numbers
+    if (max[i] > 0.0 && min[i] < 0.0) // have positive & negative numbers
     {
-      if ( max[i] > (-min[i]) )
+      if (max[i] > (-min[i]))
       {
-        scale[i] = 0.499 / max[i]; //scale into 0.5->1
+        scale[i] = 0.499 / max[i]; // scale into 0.5->1
       }
       else
       {
-        scale[i] = -0.499 / min[i]; //scale into 0->0.5
+        scale[i] = -0.499 / min[i]; // scale into 0->0.5
       }
     }
-    else if ( max[i] > 0.0 ) //have positive numbers only
+    else if (max[i] > 0.0) // have positive numbers only
     {
-      scale[i] = 0.499 / max[i]; //scale into 0.5->1.0
+      scale[i] = 0.499 / max[i]; // scale into 0.5->1.0
     }
-    else if ( min[i] < 0.0 ) //have negative numbers only
+    else if (min[i] < 0.0) // have negative numbers only
     {
-      scale[i] = -0.499 / min[i]; //scale into 0.0->0.5
+      scale[i] = -0.499 / min[i]; // scale into 0.0->0.5
     }
   }
 
-  if ( this->FlipTexture )
+  if (this->FlipTexture)
   {
-    for (i=0; i<tcoordDim; i++)
+    for (i = 0; i < tcoordDim; i++)
     {
       scale[i] *= (-1.0);
     }
   }
-  for (ptId=0; ptId<numPts; ptId++)
+  for (ptId = 0; ptId < numPts; ptId++)
   {
-     newTCoords->GetTuple(ptId, tc);
-    for (i=0; i<tcoordDim; i++)
+    newTCoords->GetTuple(ptId, tc);
+    for (i = 0; i < tcoordDim; i++)
     {
       tCoord[i] = 0.5 + scale[i] * tc[i];
     }
-    newTCoords->InsertTuple(ptId,tCoord);
+    newTCoords->InsertTuple(ptId, tCoord);
   }
-//
-// Update self
-//
+  //
+  // Update self
+  //
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
 
@@ -205,15 +200,15 @@ int vtkImplicitTextureCoords::RequestData(
 
 void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Flip Texture: " << this->FlipTexture << "\n";
 
-  if ( this->RFunction != nullptr )
+  if (this->RFunction != nullptr)
   {
-    if ( this->SFunction != nullptr )
+    if (this->SFunction != nullptr)
     {
-      if ( this->TFunction != nullptr )
+      if (this->TFunction != nullptr)
       {
         os << indent << "R, S, and T Functions defined\n";
       }

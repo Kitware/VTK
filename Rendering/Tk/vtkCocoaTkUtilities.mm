@@ -37,7 +37,7 @@ void vtkCocoaTkUtilities::PrintSelf(ostream& os, vtkIndent indent)
 // included in the distributed PrivateHeaders in later releases of Tk.
 void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
 {
-  MacDrawable *macWin = reinterpret_cast<TkWindow *>(window)->privatePtr;
+  MacDrawable* macWin = reinterpret_cast<TkWindow*>(window)->privatePtr;
 
   if (!macWin)
   {
@@ -54,7 +54,7 @@ void* vtkCocoaTkUtilities::GetDrawableView(Tk_Window window)
   }
 
   TkMacOSXMakeRealWindowExist(macWin->winPtr);
-  NSView *result = macWin->view;
+  NSView* result = macWin->view;
 
-  return reinterpret_cast<void *>(result);
+  return reinterpret_cast<void*>(result);
 }

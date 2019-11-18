@@ -39,7 +39,7 @@
  * C. Bajaj, V. Pascucci, D. Schikore,
  * "The contour spectrum",
  * IEEE Visualization, 167-174, 1997.
-*/
+ */
 
 #ifndef vtkVolumeContourSpectrumFilter_h
 #define vtkVolumeContourSpectrumFilter_h
@@ -50,8 +50,7 @@
 class vtkReebGraph;
 class vtkTable;
 
-class VTKFILTERSGENERAL_EXPORT vtkVolumeContourSpectrumFilter :
-  public vtkDataObjectAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkVolumeContourSpectrumFilter : public vtkDataObjectAlgorithm
 {
 public:
   static vtkVolumeContourSpectrumFilter* New();
@@ -94,11 +93,11 @@ protected:
   vtkIdType ArcId, FieldId;
   int NumberOfSamples;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *) override;
-  int FillOutputPortInformation(int portNumber, vtkInformation *info) override;
+  int FillInputPortInformation(int portNumber, vtkInformation*) override;
+  int FillOutputPortInformation(int portNumber, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
+  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
 
 private:
   vtkVolumeContourSpectrumFilter(const vtkVolumeContourSpectrumFilter&) = delete;

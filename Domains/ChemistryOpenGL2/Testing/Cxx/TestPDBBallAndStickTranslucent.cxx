@@ -32,17 +32,16 @@
 #include "vtkCamera.h"
 #include "vtkTimerLog.h"
 
-int TestPDBBallAndStickTranslucent(int argc, char *argv[])
+int TestPDBBallAndStickTranslucent(int argc, char* argv[])
 {
-  char* fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/caffeine.pdb");
+  char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/caffeine.pdb");
 
   // read protein from pdb
   vtkNew<vtkPDBReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
 
-  delete [] fileName;
+  delete[] fileName;
 
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
@@ -68,22 +67,22 @@ int TestPDBBallAndStickTranslucent(int argc, char *argv[])
   win->SetSize(450, 450);
 
   vtkNew<vtkLight> light1;
-  light1->SetFocalPoint(0,0,0);
-  light1->SetPosition(0,1,0.2);
-  light1->SetColor(0.95,0.97,1.0);
+  light1->SetFocalPoint(0, 0, 0);
+  light1->SetPosition(0, 1, 0.2);
+  light1->SetColor(0.95, 0.97, 1.0);
   light1->SetIntensity(0.8);
   ren->AddLight(light1);
 
   vtkNew<vtkLight> light2;
-  light2->SetFocalPoint(0,0,0);
-  light2->SetPosition(1.0,1.0,1.0);
-  light2->SetColor(1.0,0.8,0.7);
+  light2->SetFocalPoint(0, 0, 0);
+  light2->SetPosition(1.0, 1.0, 1.0);
+  light2->SetColor(1.0, 0.8, 0.7);
   light2->SetIntensity(0.3);
   ren->AddLight(light2);
 
-  ren->GetActiveCamera()->SetPosition(0,0,1);
-  ren->GetActiveCamera()->SetFocalPoint(0,0,0);
-  ren->GetActiveCamera()->SetViewUp(0,1,0);
+  ren->GetActiveCamera()->SetPosition(0, 0, 1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);
+  ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(3.0);
 

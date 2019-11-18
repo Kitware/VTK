@@ -7,16 +7,16 @@
 
 #include "WidgetTestingMacros.h"
 
-int vtkCaptionWidgetTest1(int , char * [] )
+int vtkCaptionWidgetTest1(int, char*[])
 {
-  vtkSmartPointer< vtkCaptionWidget > node1 = vtkSmartPointer< vtkCaptionWidget >::New();
+  vtkSmartPointer<vtkCaptionWidget> node1 = vtkSmartPointer<vtkCaptionWidget>::New();
 
-  EXERCISE_BASIC_BORDER_METHODS (node1 );
+  EXERCISE_BASIC_BORDER_METHODS(node1);
 
   vtkSmartPointer<vtkCaptionRepresentation> rep1 = vtkSmartPointer<vtkCaptionRepresentation>::New();
   node1->SetRepresentation(rep1);
 
-  vtkCaptionActor2D *captionActor = node1->GetCaptionActor2D();
+  vtkCaptionActor2D* captionActor = node1->GetCaptionActor2D();
   if (captionActor)
   {
     std::cout << "Caption actor is not null" << std::endl;

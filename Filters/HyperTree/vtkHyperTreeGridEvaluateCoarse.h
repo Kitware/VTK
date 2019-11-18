@@ -69,7 +69,7 @@
  * different of one, by Florent Denef, 2019
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
-*/
+ */
 
 #ifndef vtkHyperTreeGridEvaluateCoarse_h
 #define vtkHyperTreeGridEvaluateCoarse_h
@@ -85,39 +85,39 @@ class vtkHyperTreeGrid;
 
 class vtkHyperTreeGridNonOrientedCursor;
 
-
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridEvaluateCoarse : public vtkHyperTreeGridAlgorithm
 {
 public:
-  enum {
-     OPERATOR_DON_T_CHANGE_FAST = 0,
-     OPERATOR_DON_T_CHANGE      = 1,
-     OPERATOR_MIN               = 2,
-     OPERATOR_MAX               = 3,
-     OPERATOR_SUM               = 4,
-     OPERATOR_AVERAGE           = 5,
-     OPERATOR_UNMASKED_AVERAGE  = 6,
-     OPERATOR_ELDER_CHILD       = 7,
-     OPERATOR_SPLATTING_AVERAGE = 8
+  enum
+  {
+    OPERATOR_DON_T_CHANGE_FAST = 0,
+    OPERATOR_DON_T_CHANGE = 1,
+    OPERATOR_MIN = 2,
+    OPERATOR_MAX = 3,
+    OPERATOR_SUM = 4,
+    OPERATOR_AVERAGE = 5,
+    OPERATOR_UNMASKED_AVERAGE = 6,
+    OPERATOR_ELDER_CHILD = 7,
+    OPERATOR_SPLATTING_AVERAGE = 8
   };
 
   static vtkHyperTreeGridEvaluateCoarse* New();
-  vtkTypeMacro( vtkHyperTreeGridEvaluateCoarse, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) override;
+  vtkTypeMacro(vtkHyperTreeGridEvaluateCoarse, vtkHyperTreeGridAlgorithm);
+  void PrintSelf(ostream&, vtkIndent) override;
 
   //@{
   /**
    * Set/Get operator
    */
-  vtkSetMacro( Operator, unsigned int );
-  vtkGetMacro( Operator, unsigned int );
+  vtkSetMacro(Operator, unsigned int);
+  vtkGetMacro(Operator, unsigned int);
   //@}
 
   //@{
   /**
    * Set/Get operator
    */
-  vtkSetMacro( Default, double );
+  vtkSetMacro(Default, double);
   //@}
 
 protected:
@@ -127,37 +127,37 @@ protected:
   /**
    * Main routine to extract hyper tree grid levels
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   //@{
   /**
    * Define default input and output port types
    */
-  int FillOutputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
   //@}
 
   /**
    * Recursively descend into tree down to leaves
    */
-  virtual void ProcessNode( vtkHyperTreeGridNonOrientedCursor* );
+  virtual void ProcessNode(vtkHyperTreeGridNonOrientedCursor*);
 
 private:
-  vtkHyperTreeGridEvaluateCoarse( const vtkHyperTreeGridEvaluateCoarse& ) = delete;
-  void operator=( const vtkHyperTreeGridEvaluateCoarse& ) = delete;
+  vtkHyperTreeGridEvaluateCoarse(const vtkHyperTreeGridEvaluateCoarse&) = delete;
+  void operator=(const vtkHyperTreeGridEvaluateCoarse&) = delete;
 
   //@{
   /**
    * Define operator
    */
-  virtual double EvalCoarse( const std::vector<double>& );
+  virtual double EvalCoarse(const std::vector<double>&);
 
-  virtual double Min( const std::vector<double>& );
-  virtual double Max( const std::vector<double>& );
-  virtual double Sum( const std::vector<double>& );
-  virtual double Average( const std::vector<double>& );
-  virtual double UnmaskedAverage( const std::vector<double>& );
-  virtual double ElderChild( const std::vector<double>& );
-  virtual double SplattingAverage( const std::vector<double>& );
+  virtual double Min(const std::vector<double>&);
+  virtual double Max(const std::vector<double>&);
+  virtual double Sum(const std::vector<double>&);
+  virtual double Average(const std::vector<double>&);
+  virtual double UnmaskedAverage(const std::vector<double>&);
+  virtual double ElderChild(const std::vector<double>&);
+  virtual double SplattingAverage(const std::vector<double>&);
   //@}
 
   int NbChilds;

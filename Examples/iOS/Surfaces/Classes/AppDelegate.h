@@ -13,8 +13,8 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #import <UIKit/UIKit.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder<UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
+@property (strong, nonatomic) UIWindow* window;
 
 @end

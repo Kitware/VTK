@@ -66,7 +66,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * @par Thanks:
  * Thanks to David Gobbi for writing this class and Atamai Inc. for
  * contributing it to VTK.
-*/
+ */
 
 #ifndef vtkMINCImageReader_h
 #define vtkMINCImageReader_h
@@ -85,27 +85,25 @@ class vtkMINCImageAttributes;
 class VTKIOMINC_EXPORT vtkMINCImageReader : public vtkImageReader2
 {
 public:
-  vtkTypeMacro(vtkMINCImageReader,vtkImageReader2);
+  vtkTypeMacro(vtkMINCImageReader, vtkImageReader2);
 
-  static vtkMINCImageReader *New();
+  static vtkMINCImageReader* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the file name.
    */
-  void SetFileName(const char *name) override;
+  void SetFileName(const char* name) override;
 
   /**
    * Get the extension for this file format.
    */
-  const char* GetFileExtensions() override {
-    return ".mnc"; }
+  const char* GetFileExtensions() override { return ".mnc"; }
 
   /**
    * Get the name of this file format.
    */
-  const char* GetDescriptiveName() override {
-    return "MINC"; }
+  const char* GetDescriptiveName() override { return "MINC"; }
 
   /**
    * Test whether the specified file can be read.
@@ -117,7 +115,7 @@ public:
    * The three columns of the matrix are the direction cosines
    * for the x, y and z dimensions respectively.
    */
-  virtual vtkMatrix4x4 *GetDirectionCosines();
+  virtual vtkMatrix4x4* GetDirectionCosines();
 
   //@{
   /**
@@ -147,10 +145,13 @@ public:
    * scalar range, but in some cases the MINC file stores an
    * incorrect valid_range and the DataRange will be incorrect.
    */
-  virtual double *GetDataRange() VTK_SIZEHINT(2);
-  virtual void GetDataRange(double range[2]) {
-    double *r = this->GetDataRange();
-    range[0] = r[0]; range[1] = r[1]; };
+  virtual double* GetDataRange() VTK_SIZEHINT(2);
+  virtual void GetDataRange(double range[2])
+  {
+    double* r = this->GetDataRange();
+    range[0] = r[0];
+    range[1] = r[1];
+  }
   //@}
 
   /**
@@ -170,7 +171,7 @@ public:
    * Get the image attributes, which contain patient information and
    * other useful metadata.
    */
-  virtual vtkMINCImageAttributes *GetImageAttributes();
+  virtual vtkMINCImageAttributes* GetImageAttributes();
 
 protected:
   vtkMINCImageReader();
@@ -185,28 +186,27 @@ protected:
 
   int NumberOfTimeSteps;
   int TimeStep;
-  vtkMatrix4x4 *DirectionCosines;
+  vtkMatrix4x4* DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
   vtkTypeBool RescaleRealValues;
-  vtkMINCImageAttributes *ImageAttributes;
+  vtkMINCImageAttributes* ImageAttributes;
 
   int FileNameHasChanged;
 
-  virtual int OpenNetCDFFile(const char *filename, int& ncid);
+  virtual int OpenNetCDFFile(const char* filename, int& ncid);
   virtual int CloseNetCDFFile(int ncid);
-  virtual int IndexFromDimensionName(const char *dimName);
+  virtual int IndexFromDimensionName(const char* dimName);
   virtual int ReadMINCFileAttributes();
   virtual void FindRangeAndRescaleValues();
   static int ConvertMINCTypeToVTKType(int minctype, int mincsigned);
 
   void ExecuteInformation() override;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
+  void ExecuteDataWithInformation(vtkDataObject* out, vtkInformation* outInfo) override;
 
 private:
   vtkMINCImageReader(const vtkMINCImageReader&) = delete;
   void operator=(const vtkMINCImageReader&) = delete;
-
 };
 
 #endif

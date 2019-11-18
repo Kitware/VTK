@@ -36,9 +36,10 @@ public:
   typedef boost::tokenizer<delimiter_t> tokenizer_t;
   typedef std::vector<tokenizer_t*> tokenizers_t;
 
-  static void GenerateRows(const tokenizers_t& tokenizers, const unsigned int column_index, vtkVariantArray* input_row, vtkVariantArray* output_row, vtkTable* output_table)
+  static void GenerateRows(const tokenizers_t& tokenizers, const unsigned int column_index,
+    vtkVariantArray* input_row, vtkVariantArray* output_row, vtkTable* output_table)
   {
-    if(column_index == tokenizers.size())
+    if (column_index == tokenizers.size())
     {
       output_table->InsertNextRow(output_row);
       return;
@@ -47,11 +48,11 @@ public:
     tokenizer_t* const tokenizer = tokenizers[column_index];
     vtkVariant input_value = input_row->GetValue(column_index);
 
-    if(tokenizer && input_value.IsString())
+    if (tokenizer && input_value.IsString())
     {
       const std::string value = input_value.ToString();
       tokenizer->assign(value);
-      for(tokenizer_t::iterator token = tokenizer->begin(); token != tokenizer->end(); ++token)
+      for (tokenizer_t::iterator token = tokenizer->begin(); token != tokenizer->end(); ++token)
       {
         output_row->SetValue(column_index, boost::trim_copy(*token).c_str());
         GenerateRows(tokenizers, column_index + 1, input_row, output_row, output_table);
@@ -65,9 +66,9 @@ public:
   }
 };
 
-vtkBoostSplitTableField::vtkBoostSplitTableField() :
-  Fields(vtkStringArray::New()),
-  Delimiters(vtkStringArray::New())
+vtkBoostSplitTableField::vtkBoostSplitTableField()
+  : Fields(vtkStringArray::New())
+  , Delimiters(vtkStringArray::New())
 {
 }
 
@@ -101,36 +102,34 @@ void vtkBoostSplitTableField::AddField(const char* field, const char* delimiters
 }
 
 int vtkBoostSplitTableField::RequestData(
-  vtkInformation*,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+  vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkTable* const input = vtkTable::GetData(inputVector[0]);
   vtkTable* const output = vtkTable::GetData(outputVector);
 
   // If the number of fields and delimiters don't match, we're done ...
-  if(this->Fields->GetNumberOfValues() != this->Delimiters->GetNumberOfValues())
+  if (this->Fields->GetNumberOfValues() != this->Delimiters->GetNumberOfValues())
   {
     vtkErrorMacro("The number of fields and the number of delimiters must match");
     return 0;
   }
 
   // If no fields were specified, we don't do any splitting - just shallow copy ...
-  if(0 == this->Fields->GetNumberOfValues())
+  if (0 == this->Fields->GetNumberOfValues())
   {
     output->ShallowCopy(input);
     return 1;
   }
 
   // Setup the columns for our output table ...
-  for(vtkIdType i = 0; i < input->GetNumberOfColumns(); ++i)
+  for (vtkIdType i = 0; i < input->GetNumberOfColumns(); ++i)
   {
     vtkAbstractArray* const column = input->GetColumn(i);
     vtkAbstractArray* const new_column = vtkAbstractArray::CreateArray(column->GetDataType());
     new_column->SetName(column->GetName());
     new_column->SetNumberOfComponents(column->GetNumberOfComponents());
     output->AddColumn(new_column);
-    if(input->GetRowData()->GetPedigreeIds() == column)
+    if (input->GetRowData()->GetPedigreeIds() == column)
     {
       output->GetRowData()->SetPedigreeIds(new_column);
     }
@@ -139,15 +138,16 @@ int vtkBoostSplitTableField::RequestData(
 
   // Setup a tokenizer for each column that will be split ...
   implementation::tokenizers_t tokenizers;
-  for(vtkIdType column = 0; column < input->GetNumberOfColumns(); ++column)
+  for (vtkIdType column = 0; column < input->GetNumberOfColumns(); ++column)
   {
     tokenizers.push_back(static_cast<implementation::tokenizer_t*>(0));
 
-    for(vtkIdType field = 0; field < this->Fields->GetNumberOfValues(); ++field)
+    for (vtkIdType field = 0; field < this->Fields->GetNumberOfValues(); ++field)
     {
-      if(this->Fields->GetValue(field) == input->GetColumn(column)->GetName())
+      if (this->Fields->GetValue(field) == input->GetColumn(column)->GetName())
       {
-        tokenizers[column] = new implementation::tokenizer_t(std::string(), implementation::delimiter_t(this->Delimiters->GetValue(field)));
+        tokenizers[column] = new implementation::tokenizer_t(
+          std::string(), implementation::delimiter_t(this->Delimiters->GetValue(field)));
         break;
       }
     }
@@ -157,7 +157,7 @@ int vtkBoostSplitTableField::RequestData(
   vtkVariantArray* const output_row = vtkVariantArray::New();
   output_row->SetNumberOfValues(input->GetNumberOfColumns());
 
-  for(vtkIdType i = 0; i < input->GetNumberOfRows(); ++i)
+  for (vtkIdType i = 0; i < input->GetNumberOfRows(); ++i)
   {
     vtkVariantArray* const input_row = input->GetRow(i);
     implementation::GenerateRows(tokenizers, 0, input_row, output_row, output);
@@ -169,7 +169,8 @@ int vtkBoostSplitTableField::RequestData(
   output_row->Delete();
 
   // Cleanup tokenizers ...
-  for(implementation::tokenizers_t::iterator tokenizer = tokenizers.begin(); tokenizer != tokenizers.end(); ++tokenizer)
+  for (implementation::tokenizers_t::iterator tokenizer = tokenizers.begin();
+       tokenizer != tokenizers.end(); ++tokenizer)
     delete *tokenizer;
 
   return 1;

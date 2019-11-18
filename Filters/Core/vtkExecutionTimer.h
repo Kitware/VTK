@@ -27,7 +27,7 @@
  *
  * By default we simply store the elapsed time.  You are welcome to
  * subclass and override TimerFinished() to do anything you want.
-*/
+ */
 
 #ifndef vtkExecutionTimer_h
 #define vtkExecutionTimer_h
@@ -121,12 +121,12 @@ protected:
    * and EndEvent.  Its responsibility is to pass the event on to an
    * instance of this observer class.
    */
-  static void EventRelay(vtkObject* caller, unsigned long eventId, void* clientData, void* callData);
+  static void EventRelay(
+    vtkObject* caller, unsigned long eventId, void* clientData, void* callData);
 
 private:
   vtkExecutionTimer(const vtkExecutionTimer&) = delete;
   void operator=(const vtkExecutionTimer&) = delete;
-
 };
 
 #endif

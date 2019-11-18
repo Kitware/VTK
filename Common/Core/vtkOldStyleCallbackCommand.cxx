@@ -36,7 +36,7 @@ vtkOldStyleCallbackCommand::~vtkOldStyleCallbackCommand()
   }
 }
 
-void vtkOldStyleCallbackCommand::Execute(vtkObject *,unsigned long, void *)
+void vtkOldStyleCallbackCommand::Execute(vtkObject*, unsigned long, void*)
 {
   if (this->Callback)
   {

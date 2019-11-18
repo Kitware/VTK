@@ -347,7 +347,7 @@ void QVTKOpenGLWindow::setQVTKCursor(const QCursor& cursor)
 
 //-----------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
-void QVTKOpenGLWindow::setDefaultQVTKCursor(const QCursor &cursor)
+void QVTKOpenGLWindow::setDefaultQVTKCursor(const QCursor& cursor)
 {
   VTK_LEGACY_REPLACED_BODY(
     QVTKOpenGLWindow::setDefaultQVTKCursor, "VTK 8.3", QVTKOpenGLWindow::setDefaultCursor);

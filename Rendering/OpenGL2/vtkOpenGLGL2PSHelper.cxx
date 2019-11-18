@@ -18,25 +18,25 @@
 #include "vtkObjectFactory.h"
 
 // Static allocation:
-vtkOpenGLGL2PSHelper *vtkOpenGLGL2PSHelper::Instance = nullptr;
+vtkOpenGLGL2PSHelper* vtkOpenGLGL2PSHelper::Instance = nullptr;
 
 //------------------------------------------------------------------------------
-vtkAbstractObjectFactoryNewMacro(vtkOpenGLGL2PSHelper)
+vtkAbstractObjectFactoryNewMacro(vtkOpenGLGL2PSHelper);
 
 //------------------------------------------------------------------------------
-void vtkOpenGLGL2PSHelper::PrintSelf(std::ostream &os, vtkIndent indent)
+void vtkOpenGLGL2PSHelper::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------
-vtkOpenGLGL2PSHelper *vtkOpenGLGL2PSHelper::GetInstance()
+vtkOpenGLGL2PSHelper* vtkOpenGLGL2PSHelper::GetInstance()
 {
   return vtkOpenGLGL2PSHelper::Instance;
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper *obj)
+void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper* obj)
 {
   if (obj == vtkOpenGLGL2PSHelper::Instance)
   {
@@ -58,14 +58,14 @@ void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper *obj)
 
 //------------------------------------------------------------------------------
 vtkOpenGLGL2PSHelper::vtkOpenGLGL2PSHelper()
-  : RenderWindow(nullptr),
-    ActiveState(Inactive),
-    TextAsPath(false),
-    PointSize(1.f),
-    LineWidth(1.f),
-    PointSizeFactor(5.f / 7.f),
-    LineWidthFactor(5.f / 7.f),
-    LineStipple(0xffff)
+  : RenderWindow(nullptr)
+  , ActiveState(Inactive)
+  , TextAsPath(false)
+  , PointSize(1.f)
+  , LineWidth(1.f)
+  , PointSizeFactor(5.f / 7.f)
+  , LineWidthFactor(5.f / 7.f)
+  , LineStipple(0xffff)
 {
 }
 

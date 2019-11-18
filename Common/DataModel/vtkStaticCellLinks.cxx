@@ -33,6 +33,6 @@ vtkStaticCellLinks::~vtkStaticCellLinks()
 //----------------------------------------------------------------------------
 void vtkStaticCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Implementation: " << this->Impl << "\n";
 }

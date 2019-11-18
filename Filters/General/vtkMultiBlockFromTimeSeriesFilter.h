@@ -20,7 +20,7 @@
  * time steps from the input into one multiblock dataset.  It will assign each
  * time step from the input to one group of the multi-block dataset and will
  * assign each timestep's data as a block in the multi-block datset.
-*/
+ */
 
 #ifndef vtkMultiBlockFromTimeSeriesFilter_h
 #define vtkMultiBlockFromTimeSeriesFilter_h
@@ -33,29 +33,24 @@
 
 class vtkMultiBlockDataSet;
 
-class VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter
+  : public vtkMultiBlockDataSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkMultiBlockFromTimeSeriesFilter,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkMultiBlockFromTimeSeriesFilter, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkMultiBlockFromTimeSeriesFilter *New();
+  static vtkMultiBlockFromTimeSeriesFilter* New();
 
 protected:
   vtkMultiBlockFromTimeSeriesFilter();
   ~vtkMultiBlockFromTimeSeriesFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestInformation(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestUpdateExtent(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
-  int RequestData(vtkInformation *,
-                  vtkInformationVector **,
-                  vtkInformationVector *) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
   vtkMultiBlockFromTimeSeriesFilter(const vtkMultiBlockFromTimeSeriesFilter&) = delete;

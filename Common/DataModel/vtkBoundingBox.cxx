@@ -21,14 +21,14 @@
 // ---------------------------------------------------------------------------
 namespace
 {
-  inline double Sign(const double& a)
-  {
-    return a>0.0?  1.0 : ( a<0? -1.0 : 0.0);
-  }
-  inline bool OppSign(const double& a, const double& b)
-  {
-    return (a<=0 && b>=0) || (a>=0 && b<=0);
-  }
+inline double Sign(const double& a)
+{
+  return a > 0.0 ? 1.0 : (a < 0 ? -1.0 : 0.0);
+}
+inline bool OppSign(const double& a, const double& b)
+{
+  return (a <= 0 && b >= 0) || (a >= 0 && b <= 0);
+}
 };
 
 // ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ void vtkBoundingBox::AddPoint(double p[3])
 }
 
 // ---------------------------------------------------------------------------
-void vtkBoundingBox::AddBox(const vtkBoundingBox &bbox)
+void vtkBoundingBox::AddBox(const vtkBoundingBox& bbox)
 {
   double bds[6];
   bbox.GetBounds(bds);
@@ -116,9 +116,8 @@ void vtkBoundingBox::AddBounds(const double bounds[6])
 }
 
 // ---------------------------------------------------------------------------
-void vtkBoundingBox::SetBounds(double xMin, double xMax,
-                              double yMin, double yMax,
-                              double zMin, double zMax)
+void vtkBoundingBox::SetBounds(
+  double xMin, double xMax, double yMin, double yMax, double zMin, double zMax)
 {
   this->MinPnt[0] = xMin;
   this->MaxPnt[0] = xMax;
@@ -148,7 +147,6 @@ void vtkBoundingBox::SetMinPoint(double x, double y, double z)
   {
     this->MaxPnt[2] = z;
   }
-
 }
 
 // ---------------------------------------------------------------------------
@@ -198,11 +196,11 @@ void vtkBoundingBox::Inflate()
 {
   // First determine the maximum length of the side of the bounds. Keep track
   // of zero width sides of the bounding box.
-  int nonZero[3], maxIdx=(-1);
-  double w, max=0.0;
-  for (int i=0; i<3; ++i)
+  int nonZero[3], maxIdx = (-1);
+  double w, max = 0.0;
+  for (int i = 0; i < 3; ++i)
   {
-    if ( (w = (this->MaxPnt[i] - this->MinPnt[i])) > max )
+    if ((w = (this->MaxPnt[i] - this->MinPnt[i])) > max)
     {
       max = w;
       maxIdx = i;
@@ -211,16 +209,16 @@ void vtkBoundingBox::Inflate()
   }
 
   // If the bounding box is degenerate, then bump out to arbitrary size.
-  if ( maxIdx < 0 )
+  if (maxIdx < 0)
   {
     this->Inflate(0.5);
   }
-  else //any zero width sides are bumped out 1% of max side
+  else // any zero width sides are bumped out 1% of max side
   {
     double delta;
-    for (int i=0; i<3; ++i)
+    for (int i = 0; i < 3; ++i)
     {
-      if ( ! nonZero[i] )
+      if (!nonZero[i])
       {
         delta = 0.005 * max;
         this->MinPnt[i] -= delta;
@@ -231,7 +229,7 @@ void vtkBoundingBox::Inflate()
 }
 
 // ---------------------------------------------------------------------------
-int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
+int vtkBoundingBox::IntersectBox(const vtkBoundingBox& bbox)
 {
   // if either box is not valid don't do the operation
   if (!(this->IsValid() && bbox.IsValid()))
@@ -244,26 +242,22 @@ int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
   for (unsigned i = 0; i < 3; i++)
   {
     intersects = false;
-    if ((bbox.MinPnt[i] >= this->MinPnt[i]) &&
-        (bbox.MinPnt[i] <= this->MaxPnt[i]))
+    if ((bbox.MinPnt[i] >= this->MinPnt[i]) && (bbox.MinPnt[i] <= this->MaxPnt[i]))
     {
       intersects = true;
       pMin[i] = bbox.MinPnt[i];
     }
-    else if ((this->MinPnt[i] >= bbox.MinPnt[i]) &&
-             (this->MinPnt[i] <= bbox.MaxPnt[i]))
+    else if ((this->MinPnt[i] >= bbox.MinPnt[i]) && (this->MinPnt[i] <= bbox.MaxPnt[i]))
     {
       intersects = true;
       pMin[i] = this->MinPnt[i];
     }
-    if ((bbox.MaxPnt[i] >= this->MinPnt[i]) &&
-        (bbox.MaxPnt[i] <= this->MaxPnt[i]))
+    if ((bbox.MaxPnt[i] >= this->MinPnt[i]) && (bbox.MaxPnt[i] <= this->MaxPnt[i]))
     {
       intersects = true;
       pMax[i] = bbox.MaxPnt[i];
     }
-    else if ((this->MaxPnt[i] >= bbox.MinPnt[i]) &&
-             (this->MaxPnt[i] <= bbox.MaxPnt[i]))
+    else if ((this->MaxPnt[i] >= bbox.MinPnt[i]) && (this->MaxPnt[i] <= bbox.MaxPnt[i]))
     {
       intersects = true;
       pMax[i] = this->MaxPnt[i];
@@ -284,7 +278,7 @@ int vtkBoundingBox::IntersectBox(const vtkBoundingBox &bbox)
 }
 
 // ---------------------------------------------------------------------------
-int vtkBoundingBox::Intersects(const vtkBoundingBox &bbox) const
+int vtkBoundingBox::Intersects(const vtkBoundingBox& bbox) const
 {
   // if either box is not valid they don't intersect
   if (!(this->IsValid() && bbox.IsValid()))
@@ -294,23 +288,19 @@ int vtkBoundingBox::Intersects(const vtkBoundingBox &bbox) const
   int i;
   for (i = 0; i < 3; i++)
   {
-    if ((bbox.MinPnt[i] >= this->MinPnt[i]) &&
-        (bbox.MinPnt[i] <= this->MaxPnt[i]))
+    if ((bbox.MinPnt[i] >= this->MinPnt[i]) && (bbox.MinPnt[i] <= this->MaxPnt[i]))
     {
       continue;
     }
-    if ((this->MinPnt[i] >= bbox.MinPnt[i]) &&
-             (this->MinPnt[i] <= bbox.MaxPnt[i]))
+    if ((this->MinPnt[i] >= bbox.MinPnt[i]) && (this->MinPnt[i] <= bbox.MaxPnt[i]))
     {
       continue;
     }
-    if ((bbox.MaxPnt[i] >= this->MinPnt[i]) &&
-        (bbox.MaxPnt[i] <= this->MaxPnt[i]))
+    if ((bbox.MaxPnt[i] >= this->MinPnt[i]) && (bbox.MaxPnt[i] <= this->MaxPnt[i]))
     {
       continue;
     }
-    if ((this->MaxPnt[i] >= bbox.MinPnt[i]) &&
-             (this->MaxPnt[i] <= bbox.MaxPnt[i]))
+    if ((this->MaxPnt[i] >= bbox.MinPnt[i]) && (this->MaxPnt[i] <= bbox.MaxPnt[i]))
     {
       continue;
     }
@@ -320,7 +310,7 @@ int vtkBoundingBox::Intersects(const vtkBoundingBox &bbox) const
 }
 
 // ---------------------------------------------------------------------------
-int vtkBoundingBox::Contains(const vtkBoundingBox &bbox) const
+int vtkBoundingBox::Contains(const vtkBoundingBox& bbox) const
 {
   // if either box is not valid or they don't intersect
   if (!this->Intersects(bbox))
@@ -328,12 +318,12 @@ int vtkBoundingBox::Contains(const vtkBoundingBox &bbox) const
     return 0;
   }
   const double* pt = bbox.GetMinPoint();
-  if (!this->ContainsPoint(pt[0],pt[1],pt[2]))
+  if (!this->ContainsPoint(pt[0], pt[1], pt[2]))
   {
     return 0;
   }
   pt = bbox.GetMaxPoint();
-  if (!this->ContainsPoint(pt[0],pt[1],pt[2]))
+  if (!this->ContainsPoint(pt[0], pt[1], pt[2]))
   {
     return 0;
   }
@@ -368,7 +358,7 @@ double vtkBoundingBox::GetDiagonalLength() const
   double l[3];
   this->GetLengths(l);
 
-  return sqrt(l[0]*l[0]+l[1]*l[1]+l[2]*l[2]);
+  return sqrt(l[0] * l[0] + l[1] * l[1] + l[2] * l[2]);
 }
 
 // ---------------------------------------------------------------------------
@@ -379,42 +369,42 @@ double vtkBoundingBox::GetDiagonalLength() const
 // if (xMin,xMax)=(-2,4) and sx=-3, (xMin,xMax) becomes (-12,6).
 void vtkBoundingBox::Scale(double sx, double sy, double sz)
 {
-  if(this->IsValid())
+  if (this->IsValid())
   {
-    if(sx>=0.0)
+    if (sx >= 0.0)
     {
-      this->MinPnt[0]*=sx;
-      this->MaxPnt[0]*=sx;
+      this->MinPnt[0] *= sx;
+      this->MaxPnt[0] *= sx;
     }
     else
     {
-      double tmp=this->MinPnt[0];
-      this->MinPnt[0]=sx*this->MaxPnt[0];
-      this->MaxPnt[0]=sx*tmp;
+      double tmp = this->MinPnt[0];
+      this->MinPnt[0] = sx * this->MaxPnt[0];
+      this->MaxPnt[0] = sx * tmp;
     }
 
-    if(sy>=0.0)
+    if (sy >= 0.0)
     {
-      this->MinPnt[1]*=sy;
-      this->MaxPnt[1]*=sy;
+      this->MinPnt[1] *= sy;
+      this->MaxPnt[1] *= sy;
     }
     else
     {
-      double tmp=this->MinPnt[1];
-      this->MinPnt[1]=sy*this->MaxPnt[1];
-      this->MaxPnt[1]=sy*tmp;
+      double tmp = this->MinPnt[1];
+      this->MinPnt[1] = sy * this->MaxPnt[1];
+      this->MaxPnt[1] = sy * tmp;
     }
 
-    if(sz>=0.0)
+    if (sz >= 0.0)
     {
-      this->MinPnt[2]*=sz;
-      this->MaxPnt[2]*=sz;
+      this->MinPnt[2] *= sz;
+      this->MaxPnt[2] *= sz;
     }
     else
     {
-      double tmp=this->MinPnt[2];
-      this->MinPnt[2]=sz*this->MaxPnt[2];
-      this->MaxPnt[2]=sz*tmp;
+      double tmp = this->MinPnt[2];
+      this->MinPnt[2] = sz * this->MaxPnt[2];
+      this->MaxPnt[2] = sz * tmp;
     }
   }
 }
@@ -422,55 +412,54 @@ void vtkBoundingBox::Scale(double sx, double sy, double sz)
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::Scale(double s[3])
 {
-  this->Scale(s[0],s[1],s[2]);
+  this->Scale(s[0], s[1], s[2]);
 }
 
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::ScaleAboutCenter(double s)
 {
-  this->ScaleAboutCenter(s,s,s);
+  this->ScaleAboutCenter(s, s, s);
 }
 
 // ---------------------------------------------------------------------------
 // Scale the box around the bounding box center point.
 void vtkBoundingBox::ScaleAboutCenter(double sx, double sy, double sz)
 {
-  if(this->IsValid())
+  if (this->IsValid())
   {
     double center[3];
     this->GetCenter(center);
 
-    this->MinPnt[0] = center[0] + sx*(this->MinPnt[0] - center[0]);
-    this->MaxPnt[0] = center[0] + sx*(this->MaxPnt[0] - center[0]);
+    this->MinPnt[0] = center[0] + sx * (this->MinPnt[0] - center[0]);
+    this->MaxPnt[0] = center[0] + sx * (this->MaxPnt[0] - center[0]);
 
-    this->MinPnt[1] = center[1] + sy*(this->MinPnt[1] - center[1]);
-    this->MaxPnt[1] = center[1] + sy*(this->MaxPnt[1] - center[1]);
+    this->MinPnt[1] = center[1] + sy * (this->MinPnt[1] - center[1]);
+    this->MaxPnt[1] = center[1] + sy * (this->MaxPnt[1] - center[1]);
 
-    this->MinPnt[2] = center[2] + sz*(this->MinPnt[2] - center[2]);
-    this->MaxPnt[2] = center[2] + sz*(this->MaxPnt[2] - center[2]);
+    this->MinPnt[2] = center[2] + sz * (this->MinPnt[2] - center[2]);
+    this->MaxPnt[2] = center[2] + sz * (this->MaxPnt[2] - center[2]);
   }
 }
 
 // ---------------------------------------------------------------------------
 void vtkBoundingBox::ScaleAboutCenter(double s[3])
 {
-  this->ScaleAboutCenter(s[0],s[1],s[2]);
+  this->ScaleAboutCenter(s[0], s[1], s[2]);
 }
 
 // ---------------------------------------------------------------------------
 // Compute the number of divisions given the current bounding box and a
 // target number of buckets/bins. Note that degenerate bounding boxes (i.e.,
 // one or more of the edges are zero length) are handled properly.
-vtkIdType vtkBoundingBox::
-ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
+vtkIdType vtkBoundingBox::ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
 {
   // This will always produce at least one bin
   totalBins = (totalBins <= 0 ? 1 : totalBins);
 
   // First determine the maximum length of the side of the bounds. Keep track
   // of zero width sides of the bounding box.
-  int numNonZero=0, nonZero[3], maxIdx=(-1);
-  double max=0.0, lengths[3];
+  int numNonZero = 0, nonZero[3], maxIdx = (-1);
+  double max = 0.0, lengths[3];
   this->GetLengths(lengths);
 
   // Use a finite tolerance when detecting zero width sides to ensure that
@@ -479,14 +468,14 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   double totLen = lengths[0] + lengths[1] + lengths[2];
   const double zeroDetectionTolerance = totLen * (0.001 / 3.);
 
-  for (int i=0; i<3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
-    if ( lengths[i] > max )
+    if (lengths[i] > max)
     {
       maxIdx = i;
       max = lengths[i];
     }
-    if ( lengths[i] > zeroDetectionTolerance )
+    if (lengths[i] > zeroDetectionTolerance)
     {
       nonZero[i] = 1;
       numNonZero++;
@@ -498,7 +487,7 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   }
 
   // If the bounding box is degenerate, then one bin of arbitrary size
-  if ( numNonZero < 1 )
+  if (numNonZero < 1)
   {
     divs[0] = divs[1] = divs[2] = 1;
     bounds[0] = this->MinPnt[0] - 0.5;
@@ -514,33 +503,33 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
   // bounding box edge lengths.  The idea is to make the bins as close to a
   // cube as possible. Ensure that the number of divisions is valid.
   double f = static_cast<double>(totalBins);
-  f /= (nonZero[0] ? (lengths[0]/totLen) : 1.0);
-  f /= (nonZero[1] ? (lengths[1]/totLen) : 1.0);
-  f /= (nonZero[2] ? (lengths[2]/totLen) : 1.0);
-  f = pow (f,(1.0/static_cast<double>(numNonZero)));
+  f /= (nonZero[0] ? (lengths[0] / totLen) : 1.0);
+  f /= (nonZero[1] ? (lengths[1] / totLen) : 1.0);
+  f /= (nonZero[2] ? (lengths[2] / totLen) : 1.0);
+  f = pow(f, (1.0 / static_cast<double>(numNonZero)));
 
-  for (int i=0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
-    divs[i] = (nonZero[i] ? vtkMath::Floor(f*lengths[i]/totLen) : 1);
+    divs[i] = (nonZero[i] ? vtkMath::Floor(f * lengths[i] / totLen) : 1);
     divs[i] = (divs[i] < 1 ? 1 : divs[i]);
   }
 
   // Now compute the final bounds, making sure it is a non-zero volume.
   double delta = 0.5 * lengths[maxIdx] / static_cast<double>(divs[maxIdx]);
-  for (int i=0; i<3; ++i)
+  for (int i = 0; i < 3; ++i)
   {
-    if ( nonZero[i] )
+    if (nonZero[i])
     {
-      bounds[2*i] = this->MinPnt[i];
-      bounds[2*i+1] = this->MaxPnt[i];
+      bounds[2 * i] = this->MinPnt[i];
+      bounds[2 * i + 1] = this->MaxPnt[i];
     }
     else
     {
-      bounds[2*i] = this->MinPnt[i] - delta;
-      bounds[2*i+1] = this->MaxPnt[i] + delta;
+      bounds[2 * i] = this->MinPnt[i] - delta;
+      bounds[2 * i + 1] = this->MaxPnt[i] + delta;
     }
   }
-  return static_cast<vtkIdType>(divs[0])*divs[1]*divs[2];
+  return static_cast<vtkIdType>(divs[0]) * divs[1] * divs[2];
 }
 
 // ---------------------------------------------------------------------------
@@ -554,72 +543,72 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
 //   update the bounding interval in that direction based on intersection
 //   of the plane with the four edges
 
-bool vtkBoundingBox::IntersectPlane(double origin[3],double normal[3])
+bool vtkBoundingBox::IntersectPlane(double origin[3], double normal[3])
 {
-  double* bounds[2] = {this->MinPnt,this->MaxPnt};
+  double* bounds[2] = { this->MinPnt, this->MaxPnt };
   assert(this->IsValid());
 
-  //Index[0..2] represents the order of traversing the corners of a cube
+  // Index[0..2] represents the order of traversing the corners of a cube
   //  in (x,y,z), (y,x,z) and (z,x,y) ordering, respectively
-  static const int Index[3][8] =
-    {  {0, 1, 2, 3, 4, 5, 6, 7},
-       {0, 1, 4, 5, 2, 3, 6, 7},
-       {0, 2, 4, 6, 1, 3, 5, 7}};
+  static const int Index[3][8] = {
+    { 0, 1, 2, 3, 4, 5, 6, 7 },
+    { 0, 1, 4, 5, 2, 3, 6, 7 },
+    { 0, 2, 4, 6, 1, 3, 5, 7 },
+  };
 
-
-  double d[8]={0,0,0,0,0,0,0,0}; //stores the signed distance to a plane
+  double d[8] = { 0, 0, 0, 0, 0, 0, 0, 0 }; // stores the signed distance to a plane
   {
     int index(-1);
-    for(int ix = 0; ix<=1; ix++)
+    for (int ix = 0; ix <= 1; ix++)
     {
-      for(int iy = 0; iy<=1; iy++)
+      for (int iy = 0; iy <= 1; iy++)
       {
-        for(int iz = 0; iz<=1; iz++)
+        for (int iz = 0; iz <= 1; iz++)
         {
-          double x[3]={bounds[ix][0],bounds[iy][1],bounds[iz][2]};
-          d[++index] = vtkPlane::Evaluate(normal,origin,x);
+          double x[3] = { bounds[ix][0], bounds[iy][1], bounds[iz][2] };
+          d[++index] = vtkPlane::Evaluate(normal, origin, x);
         }
       }
     }
   }
 
   int dir(-1);
-  for(dir=2;dir>=0; dir--)
+  for (dir = 2; dir >= 0; dir--)
   {
-    //in each direction, we test if the vertices of two orthogonal faces
-    //are on either side of the plane
-    if( OppSign(d[Index[dir][0]], d[Index[dir][4]])  &&
-        OppSign(d[Index[dir][1]], d[Index[dir][5]])  &&
-        OppSign(d[Index[dir][2]], d[Index[dir][6]])  &&
-        OppSign(d[Index[dir][3]], d[Index[dir][7]]) )
+    // in each direction, we test if the vertices of two orthogonal faces
+    // are on either side of the plane
+    if (OppSign(d[Index[dir][0]], d[Index[dir][4]]) &&
+      OppSign(d[Index[dir][1]], d[Index[dir][5]]) && OppSign(d[Index[dir][2]], d[Index[dir][6]]) &&
+      OppSign(d[Index[dir][3]], d[Index[dir][7]]))
     {
       break;
     }
   }
-  if(dir<0)
+  if (dir < 0)
   {
-      return false;
+    return false;
   }
 
   double sign = Sign(normal[dir]);
-  double size = fabs((bounds[1][dir] - bounds[0][dir])*normal[dir]);
-  double t = sign>0? 1 : 0;
-  for(int i=0; i<4; i++)
+  double size = fabs((bounds[1][dir] - bounds[0][dir]) * normal[dir]);
+  double t = sign > 0 ? 1 : 0;
+  for (int i = 0; i < 4; i++)
   {
-      if(size==0) continue;  //shouldn't happen
-      double ti = fabs(d[Index[dir][i]])/ size;
-      if(sign>0 && ti<t )
-      {
-        t = ti;
-      }
-      if(sign<0 && ti>t)
-      {
-        t = ti;
-      }
+    if (size == 0)
+      continue; // shouldn't happen
+    double ti = fabs(d[Index[dir][i]]) / size;
+    if (sign > 0 && ti < t)
+    {
+      t = ti;
+    }
+    if (sign < 0 && ti > t)
+    {
+      t = ti;
+    }
   }
-  double bound = (1.0-t)*bounds[0][dir] + t*bounds[1][dir];
+  double bound = (1.0 - t) * bounds[0][dir] + t * bounds[1][dir];
 
-  if(sign>0)
+  if (sign > 0)
   {
     bounds[0][dir] = bound;
   }

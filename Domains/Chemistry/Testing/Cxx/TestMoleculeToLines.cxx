@@ -52,11 +52,9 @@ int TestMoleculeToLines(int argc, char* argv[])
   // check number of points, lines and associated data
   CheckNumbers("points", poly->GetNumberOfPoints(), molecule->GetNumberOfAtoms());
   CheckNumbers("lines", poly->GetNumberOfLines(), molecule->GetNumberOfBonds());
-  CheckNumbers("pointData",
-    poly->GetPointData()->GetNumberOfArrays(),
+  CheckNumbers("pointData", poly->GetPointData()->GetNumberOfArrays(),
     molecule->GetAtomData()->GetNumberOfArrays());
-  CheckNumbers("cellData",
-    poly->GetCellData()->GetNumberOfArrays(),
+  CheckNumbers("cellData", poly->GetCellData()->GetNumberOfArrays(),
     molecule->GetBondData()->GetNumberOfArrays());
   return EXIT_SUCCESS;
 }

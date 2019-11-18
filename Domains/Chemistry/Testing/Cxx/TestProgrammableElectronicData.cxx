@@ -17,17 +17,15 @@
 #include "vtkNew.h"
 #include "vtkProgrammableElectronicData.h"
 
-#define CHECK_MO(num) \
-  if (ed->GetMO(num) != mo##num) \
-  {   \
-    cerr << "MO number " << (num) << " has changed since being set: " \
-         << "Expected @" << mo##num \
-         << ", got @" << ed->GetMO(num) << ".\n"; \
-    return EXIT_FAILURE;  \
+#define CHECK_MO(num)                                                                              \
+  if (ed->GetMO(num) != mo##num)                                                                   \
+  {                                                                                                \
+    cerr << "MO number " << (num) << " has changed since being set: "                              \
+         << "Expected @" << mo##num << ", got @" << ed->GetMO(num) << ".\n";                       \
+    return EXIT_FAILURE;                                                                           \
   }
 
-
-int TestProgrammableElectronicData(int, char *[])
+int TestProgrammableElectronicData(int, char*[])
 {
   vtkNew<vtkMolecule> mol;
   vtkNew<vtkProgrammableElectronicData> ed;

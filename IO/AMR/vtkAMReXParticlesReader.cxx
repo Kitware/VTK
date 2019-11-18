@@ -188,7 +188,7 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
       if (this->num_real_base < 3)
       {
         // fill with 0, since this->dim may be less than 3.
-        std::fill_n(coords->GetPointer(0), 3*count, 0.0);
+        std::fill_n(coords->GetPointer(0), 3 * count, 0.0);
       }
 
       vtkNew<vtkPoints> pts;

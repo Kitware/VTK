@@ -22,7 +22,7 @@
  * as well as accept a pipeline request using the UPDATE_MEMBER key.
  * Note that it is expected that all ensemble members produce data of the
  * same type.
-*/
+ */
 
 #ifndef vtkEnsembleSource_h
 #define vtkEnsembleSource_h
@@ -39,8 +39,8 @@ class vtkInformationIntegerKey;
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkEnsembleSource : public vtkAlgorithm
 {
 public:
-  static vtkEnsembleSource *New();
-  vtkTypeMacro(vtkEnsembleSource,vtkAlgorithm);
+  static vtkEnsembleSource* New();
+  vtkTypeMacro(vtkEnsembleSource, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -96,9 +96,8 @@ protected:
 
   friend class vtkInformationEnsembleMemberRequestKey;
 
-  vtkTypeBool ProcessRequest(vtkInformation *request,
-                             vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector) override;
+  vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
   vtkAlgorithm* GetCurrentReader(vtkInformation*);

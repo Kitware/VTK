@@ -32,7 +32,7 @@
  *
  * @sa
  * vtkOctreePointLocator
-*/
+ */
 
 #ifndef vtkOctreePointLocatorNode_h
 #define vtkOctreePointLocatorNode_h
@@ -49,16 +49,13 @@ public:
   vtkTypeMacro(vtkOctreePointLocatorNode, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static vtkOctreePointLocatorNode *New();
+  static vtkOctreePointLocatorNode* New();
 
   //@{
   /**
    * Set/Get the number of points contained in this region.
    */
-  void SetNumberOfPoints(int numberOfPoints)
-  {
-    this->NumberOfPoints = numberOfPoints;
-  }
+  void SetNumberOfPoints(int numberOfPoints) { this->NumberOfPoints = numberOfPoints; }
   vtkGetMacro(NumberOfPoints, int);
   //@}
 
@@ -67,13 +64,9 @@ public:
    * Set/Get the bounds of the spatial region represented by this node.
    * Caller allocates storage for 6-vector in GetBounds.
    */
-  void SetBounds(double xMin, double xMax, double yMin,
-                 double yMax, double zMin, double zMax);
-  void SetBounds(const double b[6])
-  {
-    this->SetBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
-  }
-  void GetBounds(double *b) const;
+  void SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
+  void SetBounds(const double b[6]) { this->SetBounds(b[0], b[1], b[2], b[3], b[4], b[5]); }
+  void GetBounds(double* b) const;
   //@}
 
   //@{
@@ -82,9 +75,8 @@ public:
    * This may be smaller than the bounds of the region itself.
    * Caller allocates storage for 6-vector in GetDataBounds.
    */
-  void SetDataBounds(double xMin, double xMax, double yMin,
-                     double yMax, double zMin, double zMax);
-  void GetDataBounds(double *b) const;
+  void SetDataBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
+  void GetDataBounds(double* b) const;
   //@}
 
   //@{
@@ -196,7 +188,7 @@ public:
    * Use the possibly smaller bounds of the points within the region
    * if useDataBounds is non-zero.
    */
-  int IntersectsRegion(vtkPlanesIntersection *pi, int useDataBounds);
+  int IntersectsRegion(vtkPlanesIntersection* pi, int useDataBounds);
 
   /**
    * Return 1 if this spatial region entirely contains the given point.
@@ -210,17 +202,16 @@ public:
    * region.  Use the boundary of the points within the region if useDataBounds
    * is non-zero.
    */
-  double GetDistance2ToBoundary(double x, double y, double z,
-                                vtkOctreePointLocatorNode* top, int useDataBounds);
+  double GetDistance2ToBoundary(
+    double x, double y, double z, vtkOctreePointLocatorNode* top, int useDataBounds);
 
   /**
    * Calculate the distance squared from any point to the boundary of this
    * region.  Use the boundary of the points within the region if useDataBounds
    * is non-zero.  Set boundaryPt to the point on the boundary.
    */
-  double GetDistance2ToBoundary(double x, double y, double z,
-                                double *boundaryPt, vtkOctreePointLocatorNode* top,
-                                int useDataBounds);
+  double GetDistance2ToBoundary(double x, double y, double z, double* boundaryPt,
+    vtkOctreePointLocatorNode* top, int useDataBounds);
 
   /**
    * Calculate the distance from the specified point (which is required to
@@ -228,8 +219,7 @@ public:
    * boundary is one that is not also an boundary of the entire space
    * partitioned by the tree of vtkOctreePointLocatorNode's.
    */
-  double GetDistance2ToInnerBoundary(double x, double y, double z,
-                                     vtkOctreePointLocatorNode* top);
+  double GetDistance2ToInnerBoundary(double x, double y, double z, vtkOctreePointLocatorNode* top);
 
   /**
    * Return the id of the suboctant that a given point is in.
@@ -246,20 +236,16 @@ public:
    * Parent is used for MinVal and MaxVal in the case that no
    * points are in the leaf node.
    */
-  void ComputeOctreeNodeInformation(vtkOctreePointLocatorNode* Parent,
-                                    int& NextLeafId, int & NextMinId,
-                                    float* coordinates);
+  void ComputeOctreeNodeInformation(
+    vtkOctreePointLocatorNode* Parent, int& NextLeafId, int& NextMinId, float* coordinates);
 
 protected:
   vtkOctreePointLocatorNode();
   ~vtkOctreePointLocatorNode() override;
 
 private:
-
-  double _GetDistance2ToBoundary(
-    double x, double y, double z, double *boundaryPt,
-    int innerBoundaryOnly, vtkOctreePointLocatorNode* top,
-    int useDataBounds);
+  double _GetDistance2ToBoundary(double x, double y, double z, double* boundaryPt,
+    int innerBoundaryOnly, vtkOctreePointLocatorNode* top, int useDataBounds);
 
   /**
    * The minimum coordinate location of the node.

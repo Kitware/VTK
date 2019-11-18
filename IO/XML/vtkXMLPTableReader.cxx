@@ -475,7 +475,8 @@ void vtkXMLPTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
   if (this->UpdatePieceId < this->UpdateNumberOfPieces)
   {
     this->StartPiece = (this->UpdatePieceId * this->NumberOfPieces) / this->UpdateNumberOfPieces;
-    this->EndPiece = ((this->UpdatePieceId + 1) * this->NumberOfPieces) / this->UpdateNumberOfPieces;
+    this->EndPiece =
+      ((this->UpdatePieceId + 1) * this->NumberOfPieces) / this->UpdateNumberOfPieces;
   }
   else
   {

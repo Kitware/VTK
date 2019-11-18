@@ -21,7 +21,7 @@
  *
  * @sa
  * vtkImageData vtkImageIterator
-*/
+ */
 
 #ifndef vtkImageProgressIterator_h
 #define vtkImageProgressIterator_h
@@ -30,7 +30,7 @@
 #include "vtkImageIterator.h"
 class vtkAlgorithm;
 
-template<class DType>
+template <class DType>
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator : public vtkImageIterator<DType>
 {
 public:
@@ -41,8 +41,7 @@ public:
    * and extent to iterate over. The passes progress object will
    * receive any UpdateProgress calls if the thread id is zero
    */
-  vtkImageProgressIterator(vtkImageData *imgd, int *ext,
-                           vtkAlgorithm *po, int id);
+  vtkImageProgressIterator(vtkImageData* imgd, int* ext, vtkAlgorithm* po, int id);
 
   /**
    * Move the iterator to the next span, may call UpdateProgress on the
@@ -57,17 +56,16 @@ public:
   vtkTypeBool IsAtEnd();
 
 protected:
-  vtkAlgorithm     *Algorithm;
-  unsigned long     Count;
-  unsigned long     Count2;
-  unsigned long     Target;
-  int               ID;
+  vtkAlgorithm* Algorithm;
+  unsigned long Count;
+  unsigned long Count2;
+  unsigned long Target;
+  int ID;
 };
 
 #ifndef vtkImageProgressIterator_cxx
 vtkExternTemplateMacro(
-  extern template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator
-)
+  extern template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator);
 #endif
 
 #endif

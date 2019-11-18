@@ -18,7 +18,7 @@
  * vtkInformationDataObjectMetaDataKey is a vtkInformationDataObjectKey
  * that (shallow) copies itself downstream during the REQUEST_INFORMATION pass. Hence
  * it can be used to provide meta-data of type vtkDataObject or any subclass.
-*/
+ */
 
 #ifndef vtkInformationDataObjectMetaDataKey_h
 #define vtkInformationDataObjectMetaDataKey_h
@@ -28,10 +28,11 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationDataObjectMetaDataKey : public vtkInformationDataObjectKey
+class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationDataObjectMetaDataKey
+  : public vtkInformationDataObjectKey
 {
 public:
-  vtkTypeMacro(vtkInformationDataObjectMetaDataKey,vtkInformationDataObjectKey);
+  vtkTypeMacro(vtkInformationDataObjectMetaDataKey, vtkInformationDataObjectKey);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationDataObjectMetaDataKey(const char* name, const char* location);
@@ -52,9 +53,8 @@ public:
    * has the REQUEST_INFORMATION() key.
    * This is used by the pipeline to propagate this key downstream.
    */
-  void CopyDefaultInformation(vtkInformation* request,
-                                      vtkInformation* fromInfo,
-                                      vtkInformation* toInfo) override;
+  void CopyDefaultInformation(
+    vtkInformation* request, vtkInformation* fromInfo, vtkInformation* toInfo) override;
 
 private:
   vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) = delete;

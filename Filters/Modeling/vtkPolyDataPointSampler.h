@@ -36,7 +36,7 @@
  *
  * @sa
  * vtkImplicitModeller
-*/
+ */
 
 #ifndef vtkPolyDataPointSampler_h
 #define vtkPolyDataPointSampler_h
@@ -50,13 +50,13 @@ public:
   /**
    * Instantiate this class.
    */
-  static vtkPolyDataPointSampler *New();
+  static vtkPolyDataPointSampler* New();
 
   //@{
   /**
    * Standard macros for type information and printing.
    */
-  vtkTypeMacro(vtkPolyDataPointSampler,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPolyDataPointSampler, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -65,8 +65,8 @@ public:
    * Set/Get the approximate distance between points. This is an absolute
    * distance measure. The default is 0.01.
    */
-  vtkSetClampMacro(Distance,double,0.0,VTK_FLOAT_MAX);
-  vtkGetMacro(Distance,double);
+  vtkSetClampMacro(Distance, double, 0.0, VTK_FLOAT_MAX);
+  vtkGetMacro(Distance, double);
   //@}
 
   //@{
@@ -74,9 +74,9 @@ public:
    * Specify/retrieve a boolean flag indicating whether cell vertex points should
    * be output.
    */
-  vtkGetMacro(GenerateVertexPoints,vtkTypeBool);
-  vtkSetMacro(GenerateVertexPoints,vtkTypeBool);
-  vtkBooleanMacro(GenerateVertexPoints,vtkTypeBool);
+  vtkGetMacro(GenerateVertexPoints, vtkTypeBool);
+  vtkSetMacro(GenerateVertexPoints, vtkTypeBool);
+  vtkBooleanMacro(GenerateVertexPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -84,9 +84,9 @@ public:
    * Specify/retrieve a boolean flag indicating whether cell edges should
    * be sampled to produce output points. The default is true.
    */
-  vtkGetMacro(GenerateEdgePoints,vtkTypeBool);
-  vtkSetMacro(GenerateEdgePoints,vtkTypeBool);
-  vtkBooleanMacro(GenerateEdgePoints,vtkTypeBool);
+  vtkGetMacro(GenerateEdgePoints, vtkTypeBool);
+  vtkSetMacro(GenerateEdgePoints, vtkTypeBool);
+  vtkBooleanMacro(GenerateEdgePoints, vtkTypeBool);
   //@}
 
   //@{
@@ -94,9 +94,9 @@ public:
    * Specify/retrieve a boolean flag indicating whether cell interiors should
    * be sampled to produce output points. The default is true.
    */
-  vtkGetMacro(GenerateInteriorPoints,vtkTypeBool);
-  vtkSetMacro(GenerateInteriorPoints,vtkTypeBool);
-  vtkBooleanMacro(GenerateInteriorPoints,vtkTypeBool);
+  vtkGetMacro(GenerateInteriorPoints, vtkTypeBool);
+  vtkSetMacro(GenerateInteriorPoints, vtkTypeBool);
+  vtkBooleanMacro(GenerateInteriorPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -107,16 +107,16 @@ public:
    * Recall that VTK only renders vertices and not points.
    * The default is true.
    */
-  vtkGetMacro(GenerateVertices,vtkTypeBool);
-  vtkSetMacro(GenerateVertices,vtkTypeBool);
-  vtkBooleanMacro(GenerateVertices,vtkTypeBool);
+  vtkGetMacro(GenerateVertices, vtkTypeBool);
+  vtkSetMacro(GenerateVertices, vtkTypeBool);
+  vtkBooleanMacro(GenerateVertices, vtkTypeBool);
   //@}
 
 protected:
   vtkPolyDataPointSampler();
   ~vtkPolyDataPointSampler() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double Distance;
   double Distance2;
@@ -126,11 +126,9 @@ protected:
   vtkTypeBool GenerateInteriorPoints;
   vtkTypeBool GenerateVertices;
 
-  void SampleEdge(vtkPoints *pts, double x0[3], double x1[3]);
-  void SampleTriangle(vtkPoints *newPts, vtkPoints *inPts,
-                      const vtkIdType *pts);
-  void SamplePolygon(vtkPoints *newPts, vtkPoints *inPts,
-                      vtkIdType npts, const vtkIdType *pts);
+  void SampleEdge(vtkPoints* pts, double x0[3], double x1[3]);
+  void SampleTriangle(vtkPoints* newPts, vtkPoints* inPts, const vtkIdType* pts);
+  void SamplePolygon(vtkPoints* newPts, vtkPoints* inPts, vtkIdType npts, const vtkIdType* pts);
 
 private:
   vtkPolyDataPointSampler(const vtkPolyDataPointSampler&) = delete;

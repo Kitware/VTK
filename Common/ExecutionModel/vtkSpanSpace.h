@@ -45,7 +45,6 @@
 class vtkSpanSpace;
 struct vtkInternalSpanSpace;
 
-
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSpanSpace : public vtkScalarTree
 {
 public:
@@ -53,13 +52,13 @@ public:
    * Instantiate a scalar tree with default resolution of 100 and automatic
    * scalar range computation.
    */
-  static vtkSpanSpace *New();
+  static vtkSpanSpace* New();
 
   //@{
   /**
    * Standard type related macros and PrintSelf() method.
    */
-  vtkTypeMacro(vtkSpanSpace,vtkScalarTree);
+  vtkTypeMacro(vtkSpanSpace, vtkScalarTree);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
@@ -67,7 +66,7 @@ public:
    * This method is used to copy data members when cloning an instance of the
    * class. It does not copy heavy data.
    */
-  void ShallowCopy(vtkScalarTree *stree) override;
+  void ShallowCopy(vtkScalarTree* stree) override;
 
   //----------------------------------------------------------------------
   // The following methods are specific to the creation and configuration of
@@ -91,9 +90,9 @@ public:
    * This boolean controls whether the determination of the scalar range is
    * computed from the input scalar data. By default this is enabled.
    */
-  vtkSetMacro(ComputeScalarRange,vtkTypeBool);
-  vtkGetMacro(ComputeScalarRange,vtkTypeBool);
-  vtkBooleanMacro(ComputeScalarRange,vtkTypeBool);
+  vtkSetMacro(ComputeScalarRange, vtkTypeBool);
+  vtkGetMacro(ComputeScalarRange, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalarRange, vtkTypeBool);
   //@}
 
   //@{
@@ -105,8 +104,8 @@ public:
    * determined from the cell's 2-tuple (smin,smax) scalar range.  By default
    * Resolution = 100, with a clamp of 10,000.
    */
-  vtkSetClampMacro(Resolution,vtkIdType,1,10000);
-  vtkGetMacro(Resolution,vtkIdType);
+  vtkSetClampMacro(Resolution, vtkIdType, 1, 10000);
+  vtkGetMacro(Resolution, vtkIdType);
   //@}
 
   //@{
@@ -114,9 +113,9 @@ public:
    * Boolean controls whether the resolution of span space is computed
    * automatically from the average number of cells falling in each bucket.
    */
-  vtkSetMacro(ComputeResolution,vtkTypeBool);
-  vtkGetMacro(ComputeResolution,vtkTypeBool);
-  vtkBooleanMacro(ComputeResolution,vtkTypeBool);
+  vtkSetMacro(ComputeResolution, vtkTypeBool);
+  vtkGetMacro(ComputeResolution, vtkTypeBool);
+  vtkBooleanMacro(ComputeResolution, vtkTypeBool);
   //@}
 
   //@{
@@ -124,8 +123,8 @@ public:
    * Specify the average number of cells in each bucket. This is used to
    * indirectly control the resolution if ComputeResolution is enabled.
    */
-  vtkSetClampMacro(NumberOfCellsPerBucket,int,1,VTK_INT_MAX);
-  vtkGetMacro(NumberOfCellsPerBucket,int);
+  vtkSetClampMacro(NumberOfCellsPerBucket, int, 1, VTK_INT_MAX);
+  vtkGetMacro(NumberOfCellsPerBucket, int);
   //@}
 
   //----------------------------------------------------------------------
@@ -158,8 +157,7 @@ public:
    * exhausted. Make sure that InitTraversal() has been invoked first or
    * you'll get undefined behavior. This is inherently a serial operation.
    */
-  vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
-                               vtkDataArray *cellScalars) override;
+  vtkCell* GetNextCell(vtkIdType& cellId, vtkIdList*& ptIds, vtkDataArray* cellScalars) override;
 
   // The following methods supports parallel (threaded) traversal. Basically
   // batches of cells (which are a portion of the whole dataset) are available for
@@ -177,16 +175,15 @@ public:
    * also returns the number of cell ids in the array. Make sure to
    * call GetNumberOfCellBatches() beforehand.
    */
-  const vtkIdType* GetCellBatch(vtkIdType batchNum,
-                                vtkIdType& numCells) override;
+  const vtkIdType* GetCellBatch(vtkIdType batchNum, vtkIdType& numCells) override;
 
   //@{
   /**
    * Set/Get the size of the cell batches when processing in
    * parallel. By default the batch size = 100 cells in each batch.
    */
-  vtkSetClampMacro(BatchSize,vtkIdType,100,VTK_INT_MAX);
-  vtkGetMacro(BatchSize,vtkIdType);
+  vtkSetClampMacro(BatchSize, vtkIdType, 100, VTK_INT_MAX);
+  vtkGetMacro(BatchSize, vtkIdType);
   //@}
 
 protected:
@@ -198,19 +195,19 @@ protected:
   vtkIdType Resolution;
   vtkTypeBool ComputeResolution;
   int NumberOfCellsPerBucket;
-  vtkInternalSpanSpace *SpanSpace;
+  vtkInternalSpanSpace* SpanSpace;
   vtkIdType BatchSize;
 
 private:
   // Internal variables supporting span space traversal
-  vtkIdType RMin[2]; //span space lower left corner
-  vtkIdType RMax[2]; //span space upper right corner
+  vtkIdType RMin[2]; // span space lower left corner
+  vtkIdType RMax[2]; // span space upper right corner
 
   // This supports serial traversal via GetNextCell()
-  vtkIdType CurrentRow; //the span space row currently being processed
-  vtkIdType *CurrentSpan; //pointer to current span row
-  vtkIdType CurrentIdx; //position into the current span row
-  vtkIdType CurrentNumCells; //number of cells on the current span row
+  vtkIdType CurrentRow;      // the span space row currently being processed
+  vtkIdType* CurrentSpan;    // pointer to current span row
+  vtkIdType CurrentIdx;      // position into the current span row
+  vtkIdType CurrentNumCells; // number of cells on the current span row
 
 private:
   vtkSpanSpace(const vtkSpanSpace&) = delete;

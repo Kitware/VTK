@@ -32,7 +32,7 @@
  * by Cory Quammen, Chris Weigle C., Russ Taylor
  * http://hdl.handle.net/10380/3262
  * http://www.midasjournal.org/browse/publication/797
-*/
+ */
 
 #ifndef vtkBooleanOperationPolyDataFilter_h
 #define vtkBooleanOperationPolyDataFilter_h
@@ -50,16 +50,15 @@ public:
   /**
    * Construct object that computes the boolean surface.
    */
-  static vtkBooleanOperationPolyDataFilter *New();
+  static vtkBooleanOperationPolyDataFilter* New();
 
-  vtkTypeMacro(vtkBooleanOperationPolyDataFilter,
-               vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkBooleanOperationPolyDataFilter, vtkPolyDataAlgorithm);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum OperationType
   {
-    VTK_UNION=0,
+    VTK_UNION = 0,
     VTK_INTERSECTION,
     VTK_DIFFERENCE
   };
@@ -68,14 +67,11 @@ public:
   /**
    * Set the boolean operation to perform. Defaults to union.
    */
-  vtkSetClampMacro( Operation, int, VTK_UNION, VTK_DIFFERENCE );
-  vtkGetMacro( Operation, int );
-  void SetOperationToUnion()
-  { this->SetOperation( VTK_UNION ); }
-  void SetOperationToIntersection()
-  { this->SetOperation( VTK_INTERSECTION ); }
-  void SetOperationToDifference()
-  { this->SetOperation( VTK_DIFFERENCE ); }
+  vtkSetClampMacro(Operation, int, VTK_UNION, VTK_DIFFERENCE);
+  vtkGetMacro(Operation, int);
+  void SetOperationToUnion() { this->SetOperation(VTK_UNION); }
+  void SetOperationToIntersection() { this->SetOperation(VTK_INTERSECTION); }
+  void SetOperationToDifference() { this->SetOperation(VTK_DIFFERENCE); }
   //@}
 
   //@{
@@ -83,9 +79,9 @@ public:
    * Turn on/off cell reorientation of the intersection portion of the
    * surface when the operation is set to DIFFERENCE. Defaults to on.
    */
-  vtkSetMacro( ReorientDifferenceCells, vtkTypeBool );
-  vtkGetMacro( ReorientDifferenceCells, vtkTypeBool );
-  vtkBooleanMacro( ReorientDifferenceCells, vtkTypeBool );
+  vtkSetMacro(ReorientDifferenceCells, vtkTypeBool);
+  vtkGetMacro(ReorientDifferenceCells, vtkTypeBool);
+  vtkBooleanMacro(ReorientDifferenceCells, vtkTypeBool);
   //@}
 
   //@{
@@ -104,8 +100,7 @@ protected:
   /**
    * Labels triangles in mesh as part of the intersection or union surface.
    */
-  void SortPolyData(vtkPolyData* input, vtkIdList* intersectionList,
-                    vtkIdList* unionList);
+  void SortPolyData(vtkPolyData* input, vtkIdList* intersectionList, vtkIdList* unionList);
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int, vtkInformation*) override;
@@ -120,9 +115,8 @@ private:
    * which fields should be copied.
    */
   void CopyCells(vtkPolyData* in, vtkPolyData* out, int idx,
-                 vtkDataSetAttributes::FieldList & pointFieldList,
-                 vtkDataSetAttributes::FieldList & cellFieldList,
-                 vtkIdList* cellIds, bool reverseCells);
+    vtkDataSetAttributes::FieldList& pointFieldList, vtkDataSetAttributes::FieldList& cellFieldList,
+    vtkIdList* cellIds, bool reverseCells);
 
   /**
    * Tolerance used to determine when a point's absolute
@@ -142,7 +136,7 @@ private:
    * reversed in the difference surface.
    */
   vtkTypeBool ReorientDifferenceCells;
-};
   //@}
+};
 
 #endif
