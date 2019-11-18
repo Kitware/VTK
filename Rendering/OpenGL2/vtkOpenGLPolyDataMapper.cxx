@@ -1263,11 +1263,26 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
       {
         vsimpl = vsimpl + "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,0.0,1.0);\n"
           + it + "VCVSOutput = " + it + "Tmp.x/" + it + "Tmp.w;\n";
+        if (this->SeamlessU)
+        {
+          vsimpl += it + "VCVSOutputU1 = fract(" + it + "VCVSOutput.x);\n" + it +
+            "VCVSOutputU2 = fract(" + it + "VCVSOutput.x+0.5)-0.5;\n";
+        }
       }
       else
       {
         vsimpl = vsimpl + "vec4 " + it + "Tmp = tcMatrix*vec4(" + it + ",0.0,1.0);\n"
           + it + "VCVSOutput = " + it + "Tmp.xy/" + it + "Tmp.w;\n";
+        if (this->SeamlessU)
+        {
+          vsimpl += it + "VCVSOutputU1 = fract(" + it + "VCVSOutput.x);\n" + it +
+            "VCVSOutputU2 = fract(" + it + "VCVSOutput.x+0.5)-0.5;\n";
+        }
+        if (this->SeamlessV)
+        {
+          vsimpl += it + "VCVSOutputV1 = fract(" + it + "VCVSOutput.y);\n" + it +
+            "VCVSOutputV2 = fract(" + it + "VCVSOutput.y+0.5)-0.5;\n";
+        }
       }
     }
   }
@@ -1276,6 +1291,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     for (const auto& it : tcoordnames)
     {
       vsimpl = vsimpl + it + "VCVSOutput = " + it + ";\n";
+      if (this->SeamlessU)
+      {
+        vsimpl += it + "VCVSOutputU1 = fract(" + it + "VCVSOutput.x);\n" + it +
+          "VCVSOutputU2 = fract(" + it + "VCVSOutput.x+0.5)-0.5;\n";
+      }
+      if (this->SeamlessV)
+      {
+        vsimpl += it + "VCVSOutputV1 = fract(" + it + "VCVSOutput.y);\n" + it +
+          "VCVSOutputV2 = fract(" + it + "VCVSOutput.y+0.5)-0.5;\n";
+      }
     }
   }
 
@@ -1300,10 +1325,30 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     }
     vsdec = vsdec + "in " + tCoordType + " " + it + ";\n";
     vsdec = vsdec + "out " + tCoordType + " " + it + "VCVSOutput;\n";
+    if (this->SeamlessU)
+    {
+      vsdec = vsdec + "out float " + it + "VCVSOutputU1;\n";
+      vsdec = vsdec + "out float " + it + "VCVSOutputU2;\n";
+    }
+    if (this->SeamlessV && tcoordComps > 1)
+    {
+      vsdec = vsdec + "out float " + it + "VCVSOutputV1;\n";
+      vsdec = vsdec + "out float " + it + "VCVSOutputV2;\n";
+    }
     gsdec = gsdec + "in " + tCoordType + " " + it + "VCVSOutput[];\n";
     gsdec = gsdec + "out " + tCoordType + " " + it + "VCGSOutput;\n";
     gsimpl = gsimpl + it + "VCGSOutput = " + it + "VCVSOutput[i];\n";
     fsdec = fsdec + "in " + tCoordType + " " + it + "VCVSOutput;\n";
+    if (this->SeamlessU)
+    {
+      fsdec = fsdec + "in float " + it + "VCVSOutputU1;\n";
+      fsdec = fsdec + "in float " + it + "VCVSOutputU2;\n";
+    }
+    if (this->SeamlessV && tcoordComps > 1)
+    {
+      fsdec = fsdec + "in float " + it + "VCVSOutputV1;\n";
+      fsdec = fsdec + "in float " + it + "VCVSOutputV2;\n";
+    }
   }
 
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec", vsdec);
@@ -1359,8 +1404,61 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
 
 
     // Read texture color
-    ss << "vec4 tcolor_" << i << " = texture(" << textures[i].second << ", "
-       << tCoordImpFSPre << tcoordname << "VCVSOutput" << tCoordImpFSPost << "); // Read texture color\n";
+    if (this->SeamlessU || (this->SeamlessV && tcoordComps > 1))
+    {
+      // Implementation of "Cylindrical and Toroidal Parameterizations Without Vertex Seams"
+      // Marco Turini, 2011
+      if (tcoordComps == 1)
+      {
+        ss << "  float texCoord;\n";
+      }
+      else
+      {
+        ss << "  vec2 texCoord;\n";
+      }
+      if (this->SeamlessU)
+      {
+        ss << "  if (fwidth(" << tCoordImpFSPre << tcoordname << "VCVSOutputU1" << tCoordImpFSPost
+           << ") <= fwidth(" << tCoordImpFSPre << tcoordname << "VCVSOutputU2" << tCoordImpFSPost
+           << "))\n  {\n"
+           << "    texCoord.x = " << tCoordImpFSPre << tcoordname << "VCVSOutputU1"
+           << tCoordImpFSPost << ";\n  }\n  else\n  {\n"
+           << "    texCoord.x = " << tCoordImpFSPre << tcoordname << "VCVSOutputU2"
+           << tCoordImpFSPost << ";\n  }\n";
+      }
+      else
+      {
+        ss << "  texCoord.x = " << tCoordImpFSPre << tcoordname << "VCVSOutput" << tCoordImpFSPost
+           << ".x"
+           << ";\n";
+      }
+      if (tcoordComps > 1)
+      {
+        if (this->SeamlessV)
+        {
+          ss << "  if (fwidth(" << tCoordImpFSPre << tcoordname << "VCVSOutputV1" << tCoordImpFSPost
+             << ") <= fwidth(" << tCoordImpFSPre << tcoordname << "VCVSOutputV2" << tCoordImpFSPost
+             << "))\n  {\n"
+             << "    texCoord.y = " << tCoordImpFSPre << tcoordname << "VCVSOutputV1"
+             << tCoordImpFSPost << ";\n  }\n  else\n  {\n"
+             << "    texCoord.y = " << tCoordImpFSPre << tcoordname << "VCVSOutputV2"
+             << tCoordImpFSPost << ";\n  }\n";
+        }
+        else
+        {
+          ss << "  texCoord.y = " << tCoordImpFSPre << tcoordname << "VCVSOutput" << tCoordImpFSPost
+             << ".y"
+             << ";\n";
+        }
+      }
+      ss << "  vec4 tcolor_" << i << " = texture(" << textures[i].second
+         << ", texCoord); // Read texture color\n";
+    }
+    else
+    {
+      ss << "vec4 tcolor_" << i << " = texture(" << textures[i].second << ", " << tCoordImpFSPre
+         << tcoordname << "VCVSOutput" << tCoordImpFSPost << "); // Read texture color\n";
+    }
 
     // Update color based on texture number of components
     int tNumComp = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureObject()->GetComponents();

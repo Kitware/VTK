@@ -1630,6 +1630,8 @@ void vtkCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHel
   helper->SetCompositeIdArrayName(this->GetCompositeIdArrayName());
   helper->SetProcessIdArrayName(this->GetProcessIdArrayName());
   helper->SetCellIdArrayName(this->GetCellIdArrayName());
+  helper->SetSeamlessU(this->SeamlessU);
+  helper->SetSeamlessV(this->SeamlessV);
   helper->SetStatic(1);
 }
 
