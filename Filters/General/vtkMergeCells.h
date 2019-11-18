@@ -180,11 +180,6 @@ protected:
   vtkIdType AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType* idMap);
   vtkIdType AddNewCellsDataSet(vtkDataSet* set, vtkIdType* idMap);
 
-  vtkIdType GlobalCellIdAccessGetId(vtkIdType idx);
-  bool GlobalCellIdAccessStart(vtkDataSet* set);
-  vtkIdType GlobalNodeIdAccessGetId(vtkIdType idx);
-  bool GlobalNodeIdAccessStart(vtkDataSet* set);
-
   int TotalNumberOfDataSets;
 
   vtkIdType TotalNumberOfCells;
@@ -193,13 +188,8 @@ protected:
   vtkIdType NumberOfCells; // so far
   vtkIdType NumberOfPoints;
 
-  int UseGlobalIds; // point, or node, IDs
-  int GlobalIdArrayType;
-  void* GlobalIdArray;
-
+  int UseGlobalIds;     // point, or node, IDs
   int UseGlobalCellIds; // cell IDs
-  int GlobalCellIdArrayType;
-  void* GlobalCellIdArray;
 
   float PointMergeTolerance;
   bool MergeDuplicatePoints;
