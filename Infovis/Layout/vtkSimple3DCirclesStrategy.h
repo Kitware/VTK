@@ -175,8 +175,8 @@ public:
   void SetGraph( vtkGraph * graph ) override;
 protected:
 
-  vtkSimple3DCirclesStrategy( void );
-  ~vtkSimple3DCirclesStrategy( void ) override;
+  vtkSimple3DCirclesStrategy();
+  ~vtkSimple3DCirclesStrategy() override;
 
   inline void Transform( double Local[], double Global[] );
 
