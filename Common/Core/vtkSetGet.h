@@ -333,7 +333,8 @@
   virtual void name##Off() { this->Set##name(static_cast<type>(0)); }
 
 //
-// Following set macros for vectors define two members for each macro.  The first
+// Following set macros for vectors define two members for each macro.  The
+// first
 // allows setting of individual components (e.g, SetColor(float,float,float)),
 // the second allows setting from an array (e.g., SetColor(float* rgb[3])).
 // The macros vary in the size of the vector they deal with.
@@ -774,6 +775,18 @@ public:                                                                         
   VTK_NEWINSTANCE instanceType* NewInstance() const                                                \
   {                                                                                                \
     return instanceType::SafeDownCast(this->NewInstanceInternal());                                \
+  }                                                                                                \
+  static vtkIdType GetNumberOfGenerationsFromBaseType(const char* type)                            \
+  {                                                                                                \
+    if (!strcmp(thisClassName, type))                                                              \
+    {                                                                                              \
+      return 0;                                                                                    \
+    }                                                                                              \
+    return 1 + superclass::GetNumberOfGenerationsFromBaseType(type);                               \
+  }                                                                                                \
+  vtkIdType GetNumberOfGenerationsFromBase(const char* type) override                              \
+  {                                                                                                \
+    return this->thisClass::GetNumberOfGenerationsFromBaseType(type);                              \
   }
 
 // Same as vtkTypeMacro, but adapted for cases where thisClass is abstract.
