@@ -375,7 +375,6 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotU
   output->ShallowCopy(this->Internals->CurrentGrid);
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), maxGhostLevel);
 
-  this->Controller->Barrier();
   vtkDebugMacro("Produced " << maxGhostLevel << " ghost levels.");
 
   delete this->Internals;
