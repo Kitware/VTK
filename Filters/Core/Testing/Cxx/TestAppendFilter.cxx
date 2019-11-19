@@ -53,7 +53,7 @@ public:
 void FillComponentWithRandom(vtkIntArray* array, int component)
 {
   int numberOfComponents = array->GetNumberOfComponents();
-  int* values = static_cast<int*>(array->GetVoidPointer(0));
+  int* values = array->GetPointer(0);
   for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
   {
     values[i * numberOfComponents + component] = vtkMath::Random() * 100000;

@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkMergeFields.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
@@ -280,16 +282,25 @@ int vtkMergeFields::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// fast pointer copy
-template <class T>
-void vtkMergeFieldsCopyTuples(
-  T* input, T* output, vtkIdType numTuples, int numInComp, int numOutComp, int inComp, int outComp)
+namespace {
+
+struct MergeFieldsWorker
 {
-  for (int i = 0; i < numTuples; i++)
+  template <typename SrcArrayT, typename DstArrayT>
+  void operator()(SrcArrayT* input, DstArrayT* output,
+                  int inComp, int outComp) const
   {
-    output[numOutComp * i + outComp] = input[numInComp * i + inComp];
+    const auto srcRange = vtk::DataArrayTupleRange(input);
+    auto dstRange = vtk::DataArrayTupleRange(output);
+
+    for (vtkIdType tupleIdx = 0; tupleIdx < srcRange.size(); ++tupleIdx)
+    {
+      dstRange[tupleIdx][outComp] = srcRange[tupleIdx][inComp];
+    }
   }
-}
+};
+
+} // end anon namespace
 
 int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out, int inComp, int outComp)
 {
@@ -300,42 +311,13 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out, int inComp, 
     return 0;
   }
 
-  int numTuples = in->GetNumberOfTuples();
-  int i;
+  // If data types match, use templated, fast method
+  using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
 
-  if (numTuples > 0)
-  {
-    // If data types match, use templated, fast method
-    if (in->GetDataType() == out->GetDataType())
-    {
-      switch (out->GetDataType())
-      {
-        vtkTemplateMacro(
-          vtkMergeFieldsCopyTuples((VTK_TT*)in->GetVoidPointer(0), (VTK_TT*)out->GetVoidPointer(0),
-            numTuples, in->GetNumberOfComponents(), out->GetNumberOfComponents(), inComp, outComp));
-        // This is not supported by the template macro.
-        // Switch to using the float interface.
-        case VTK_BIT:
-        {
-          for (i = 0; i < numTuples; i++)
-          {
-            out->SetComponent(i, outComp, in->GetComponent(i, inComp));
-          }
-        }
-        break;
-        default:
-          vtkErrorMacro(<< "Sanity check failed: Unsupported data type.");
-          return 0;
-      }
-    }
-    // otherwise use slow float copy
-    else
-    {
-      for (i = 0; i < numTuples; i++)
-      {
-        out->SetComponent(i, outComp, in->GetComponent(i, inComp));
-      }
-    }
+  MergeFieldsWorker worker;
+  if (!Dispatcher::Execute(in, out, worker, inComp, outComp))
+  { // otherwise fallback to vtkDataArray API:
+    worker(in, out, inComp, outComp);
   }
 
   return 1;

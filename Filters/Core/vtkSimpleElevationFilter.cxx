@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkSimpleElevationFilter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,73 +28,60 @@
 
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
-// The heart of the algorithm plus interface to the SMP tools. Double templated
-// over point and scalar types.
-template <class TP>
+namespace {
+
+// The heart of the algorithm plus interface to the SMP tools.
+template <class PointArrayT>
 class vtkSimpleElevationAlgorithm
 {
 public:
   vtkIdType NumPts;
   double Vector[3];
-  const TP* Points;
-  float* Scalars;
+  PointArrayT *PointArray;
+  float *Scalars;
 
-  // Constructor
-  vtkSimpleElevationAlgorithm();
-
-  // Interface between VTK and templated functions
-  static void Elevate(
-    vtkSimpleElevationFilter* self, vtkIdType numPts, const TP* points, float* scalars);
+  vtkSimpleElevationAlgorithm(PointArrayT* pointArray,
+                              vtkSimpleElevationFilter* filter,
+                              float* scalars)
+    : NumPts{pointArray->GetNumberOfTuples()}
+    , PointArray{pointArray}
+    , Scalars{scalars}
+  {
+    filter->GetVector(this->Vector);
+  }
 
   // Interface implicit function computation to SMP tools.
-  template <class T>
-  class ElevationOp
+  void operator()(vtkIdType begin, vtkIdType end)
   {
-  public:
-    ElevationOp(vtkSimpleElevationAlgorithm<T>* algo) { this->Algo = algo; }
-    vtkSimpleElevationAlgorithm* Algo;
-    void operator()(vtkIdType k, vtkIdType end)
+    const double* v = this->Vector;
+    float* s = this->Scalars + begin;
+
+    const auto pointRange = vtk::DataArrayTupleRange<3>(this->PointArray,
+                                                        begin, end);
+
+    for (const auto p : pointRange)
     {
-      const double* v = this->Algo->Vector;
-      const TP* p = this->Algo->Points + 3 * k;
-      float* s = this->Algo->Scalars + k;
-      for (; k < end; ++k)
-      {
-        *s = v[0] * p[0] + v[1] * p[1] + v[2] * p[2];
-        p += 3;
-        ++s;
-      }
+      *s = v[0]*p[0] + v[1]*p[1] + v[2]*p[2];
+      ++s;
     }
-  };
+  }
 };
 
 //----------------------------------------------------------------------------
-// Initialized mainly to eliminate compiler warnings.
-template <class TP>
-vtkSimpleElevationAlgorithm<TP>::vtkSimpleElevationAlgorithm()
-  : Points(nullptr)
-  , Scalars(nullptr)
-{
-  this->Vector[0] = this->Vector[1] = this->Vector[2] = 0.0;
-}
-
-//----------------------------------------------------------------------------
 // Templated class is glue between VTK and templated algorithms.
-template <class TP>
-void vtkSimpleElevationAlgorithm<TP>::Elevate(
-  vtkSimpleElevationFilter* self, vtkIdType numPts, const TP* points, float* scalars)
+struct Elevate
 {
-  // Populate data into local storage
-  vtkSimpleElevationAlgorithm<TP> algo;
-  algo.NumPts = numPts;
-  self->GetVector(algo.Vector);
-  algo.Points = points;
-  algo.Scalars = scalars;
+  template <typename PointArrayT>
+  void operator()(PointArrayT* pointArray,
+                  vtkSimpleElevationFilter* filter,
+                  float* scalars)
+  {
+    vtkSimpleElevationAlgorithm<PointArrayT> algo{pointArray, filter, scalars};
+    vtkSMPTools::For(0, pointArray->GetNumberOfTuples(), algo);
+  }
+};
 
-  // Okay now generate samples using SMP tools
-  ElevationOp<TP> values(&algo);
-  vtkSMPTools::For(0, algo.NumPts, values);
-}
+} // end anon namespace
 
 // Okay begin the class proper
 //----------------------------------------------------------------------------
@@ -155,13 +144,18 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
   if (ps)
   {
-    float* scalars = static_cast<float*>(newScalars->GetVoidPointer(0));
+    float* scalars = newScalars->GetPointer(0);
     vtkPoints* points = ps->GetPoints();
-    void* pts = points->GetData()->GetVoidPointer(0);
-    switch (points->GetDataType())
-    {
-      vtkTemplateMacro(
-        vtkSimpleElevationAlgorithm<VTK_TT>::Elevate(this, numPts, (VTK_TT*)pts, scalars));
+    vtkDataArray* pointsArray = points->GetData();
+
+    Elevate worker; // Entry point to vtkSimpleElevationAlgorithm
+
+    // Generate an optimized fast-path for float/double
+    using FastValueTypes = vtkArrayDispatch::Reals;
+    using Dispatcher = vtkArrayDispatch::DispatchByValueType<FastValueTypes>;
+    if (!Dispatcher::Execute(pointsArray, worker, this, scalars))
+    { // fallback for unknown arrays and integral value types:
+      worker(pointsArray, this, scalars);
     }
   } // fast path
 

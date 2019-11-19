@@ -84,6 +84,8 @@
 #  pragma pop_macro("__TBB_NO_IMPLICIT_LINKAGE")
 #endif
 
+#include <iterator>
+
 template <typename T>
 class vtkSMPThreadLocal
 {
@@ -133,6 +135,7 @@ public:
   // as long as each thread uses its own iterator and does not modify
   // objects in the container.
   class iterator
+    : public std::iterator<std::forward_iterator_tag, T> // for iterator_traits
   {
   public:
     iterator& operator++()

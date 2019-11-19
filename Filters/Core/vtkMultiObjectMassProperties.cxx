@@ -271,12 +271,12 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     this->ObjectIds->SetName("ObjectIds");
     this->ObjectIds->SetNumberOfTuples(numPolys);
     outputCD->AddArray(objectIdsArray);
-    objectIds = static_cast<vtkIdType*>(objectIdsArray->GetVoidPointer(0));
+    objectIds = objectIdsArray->GetPointer(0);
     std::fill_n(objectIds, numPolys, (-1));
   }
   else
   {
-    objectIds = static_cast<vtkIdType*>(objectIdsArray->GetVoidPointer(0));
+    objectIds = objectIdsArray->GetPointer(0);
   }
 
   this->ObjectValidity = vtkUnsignedCharArray::New();
@@ -317,7 +317,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     // Clean up
     this->Wave->Delete();
     this->Wave2->Delete();
-    valid = static_cast<unsigned char*>(this->ObjectValidity->GetVoidPointer(0));
+    valid = this->ObjectValidity->GetPointer(0);
 
     // Roll up the valid flag
     for (idx = 0; idx < this->NumberOfObjects; ++idx)
@@ -340,7 +340,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
       }
     }
     this->ObjectValidity->SetNumberOfTuples(this->NumberOfObjects);
-    valid = static_cast<unsigned char*>(this->ObjectValidity->GetVoidPointer(0));
+    valid = this->ObjectValidity->GetPointer(0);
     std::fill_n(valid, this->NumberOfObjects, 1);
     this->AllValid = 1;
   }
@@ -353,13 +353,13 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
   polyAreas->SetName("Areas");
   polyAreas->SetNumberOfTuples(numPolys);
   outputCD->AddArray(polyAreas);
-  double* pAreas = static_cast<double*>(polyAreas->GetVoidPointer(0));
+  double* pAreas = polyAreas->GetPointer(0);
 
   vtkDoubleArray* polyVolumes = vtkDoubleArray::New();
   polyVolumes->SetName("Volumes");
   polyVolumes->SetNumberOfTuples(numPolys);
   outputCD->AddArray(polyVolumes);
-  double* pVolumes = static_cast<double*>(polyVolumes->GetVoidPointer(0));
+  double* pVolumes = polyVolumes->GetPointer(0);
 
   // Need reference origin to compute volumes
   double center[3];
@@ -367,22 +367,23 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
 
   // Compute areas and volumes in parallel
   ComputeProperties::Execute(numPolys, output, center, orient,
-    static_cast<double*>(polyAreas->GetVoidPointer(0)),
-    static_cast<double*>(polyVolumes->GetVoidPointer(0)));
+                             polyAreas->GetPointer(0),
+                             polyVolumes->GetPointer(0));
 
   // Roll up the results into total results on a per object basis.
   this->ObjectAreas = vtkDoubleArray::New();
   this->ObjectAreas->SetName("ObjectAreas");
   output->GetFieldData()->AddArray(this->ObjectAreas);
   this->ObjectAreas->SetNumberOfTuples(this->NumberOfObjects);
-  double* areas = static_cast<double*>(this->ObjectAreas->GetVoidPointer(0));
+  this->ObjectAreas->FillValue(0.0);
+  double* areas = this->ObjectAreas->GetPointer(0);
   std::fill_n(areas, this->NumberOfObjects, 0.0);
 
   this->ObjectVolumes = vtkDoubleArray::New();
   this->ObjectVolumes->SetName("ObjectVolumes");
   output->GetFieldData()->AddArray(this->ObjectVolumes);
   this->ObjectVolumes->SetNumberOfTuples(this->NumberOfObjects);
-  double* volumes = static_cast<double*>(this->ObjectVolumes->GetVoidPointer(0));
+  double* volumes = this->ObjectVolumes->GetPointer(0);
   std::fill_n(volumes, this->NumberOfObjects, 0.0);
 
   // Roll up final numbers

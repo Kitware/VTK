@@ -15,8 +15,10 @@
 #include "vtkStructuredGridAppend.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -148,63 +150,78 @@ int vtkStructuredGridAppend::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
 namespace
 {
 //----------------------------------------------------------------------------
-// This templated function executes the filter for any type of data.
-template <class T>
-void vtkStructuredGridAppendExecute(int inExt[6], vtkStructuredGrid* inData, T* inPtr,
-  int outExt[6], T* outPtr, vtkIdType numComp, bool forCells, std::vector<int>& validValues,
-  vtkUnsignedCharArray* ghosts)
+// This templated implementation executes the filter for any type of data.
+struct AppendWorker
 {
-  int forPoints = forCells ? 0 : 1;
-  vtkIdType inCounter = 0;
-  for (int k = inExt[4]; k < inExt[5] + forPoints; k++)
+  template <typename InArrayT, typename OutArrayT>
+  void operator()(InArrayT *inArray,
+                  OutArrayT *outArray,
+                  int inExt[6],
+                  int outExt[6],
+                  vtkStructuredGrid *inData,
+                  std::vector<int> &validValues,
+                  vtkUnsignedCharArray *ghosts,
+                  bool forCells)
   {
-    for (int j = inExt[2]; j < inExt[3] + forPoints; j++)
+    const auto inTuples = vtk::DataArrayTupleRange(inArray);
+    auto outTuples = vtk::DataArrayTupleRange(outArray);
+
+    const int forPoints = forCells ? 0 : 1;
+    vtkIdType inCounter = 0;
+
+    for (int k = inExt[4]; k < inExt[5] + forPoints; k++)
     {
-      for (int i = inExt[0]; i < inExt[1] + forPoints; i++)
+      for (int j = inExt[2]; j < inExt[3] + forPoints; j++)
       {
-        bool skipValue =
-          !(forCells ? inData->IsCellVisible(inCounter) : inData->IsPointVisible(inCounter));
-        int ijk[3] = { i, j, k };
-        vtkIdType outputIndex = forCells ? vtkStructuredData::ComputeCellIdForExtent(outExt, ijk)
-                                         : vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
-        assert(static_cast<size_t>(outputIndex) < validValues.size());
-        if (skipValue && validValues[outputIndex] <= 1)
-        { // current output value for this is not set
-          skipValue = false;
-          validValues[outputIndex] = 1; // value is from a blanked entity
-        }
-        else if (ghosts && (ghosts->GetValue(inCounter) & vtkDataSetAttributes::DUPLICATECELL) &&
-          validValues[outputIndex] <= 2)
+        for (int i = inExt[0]; i < inExt[1] + forPoints; i++)
         {
-          validValues[outputIndex] = 2; // value is a ghost
-          skipValue = false;
-        }
-        else if (validValues[outputIndex] <= 3)
-        {
-          validValues[outputIndex] = 3; // value is valid
-          skipValue = false;
-        }
-        if (!skipValue)
-        {
-          for (vtkIdType nc = 0; nc < numComp; nc++)
-          {
-            outPtr[outputIndex * numComp + nc] = inPtr[inCounter * numComp + nc];
+          const int ijk[3] = {i, j, k};
+          bool skipValue = forCells
+              ? !inData->IsCellVisible(inCounter)
+              : !inData->IsPointVisible(inCounter);
+
+          const vtkIdType outputIndex = forCells
+              ? vtkStructuredData::ComputeCellIdForExtent(outExt, ijk)
+              : vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
+          assert(static_cast<size_t>(outputIndex) < validValues.size());
+          int &validValue = validValues[static_cast<std::size_t>(outputIndex)];
+
+          if (skipValue && validValue <= 1)
+          { // current output value for this is not set
+            skipValue = false;
+            validValue = 1; // value is from a blanked entity
           }
+          else if(
+            ghosts &&
+            (ghosts->GetValue(inCounter) & vtkDataSetAttributes::DUPLICATECELL) &&
+            validValue <= 2)
+          {
+            validValue = 2; // value is a ghost
+            skipValue = false;
+          }
+          else if(validValue <= 3)
+          {
+            validValue = 3; // value is valid
+            skipValue = false;
+          }
+
+          if(!skipValue)
+          {
+            outTuples[outputIndex] = inTuples[inCounter];
+          }
+          inCounter++;
         }
-        inCounter++;
       }
     }
   }
-}
-}
+};
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 int vtkStructuredGridAppend::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   int outExt[6];
-  void* inPtr;
-  void* outPtr;
 
   vtkStructuredGrid* output = vtkStructuredGrid::GetData(outputVector, 0);
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -220,6 +237,10 @@ int vtkStructuredGridAppend::RequestData(
   vtkIdType numCells = vtkStructuredData::GetNumberOfCells(outExt);
   std::vector<int> validValues;
   validValues.reserve(numPoints);
+
+  // Dispatcher and worker implementation for append
+  using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+  AppendWorker worker;
 
   for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
@@ -286,18 +307,14 @@ int vtkStructuredGridAppend::RequestData(
             return 0;
           }
 
-          inPtr = inArray->GetVoidPointer(0);
-          outPtr = outArray->GetVoidPointer(0);
-
-          switch (inArray->GetDataType())
-          {
-            vtkTemplateMacro(
-              vtkStructuredGridAppendExecute(inExt, input, static_cast<VTK_TT*>(inPtr), outExt,
-                static_cast<VTK_TT*>(outPtr), numComp, false, validValues, ghosts));
-            default:
-              vtkErrorMacro(<< "Execute: Unknown ScalarType");
-              return 0;
+          if (!Dispatcher::Execute(inArray, outArray,
+                                   worker, inExt, outExt, input,
+                                   validValues, ghosts, false))
+          { // Fallback for unknown array types:
+            worker(inArray, outArray, inExt, outExt, input, validValues,
+                   ghosts, false);
           }
+
         }
 
         // do the point locations array
@@ -310,15 +327,13 @@ int vtkStructuredGridAppend::RequestData(
           output->SetPoints(points);
         }
         outArray = output->GetPoints()->GetData();
-        inPtr = inArray->GetVoidPointer(0);
-        outPtr = outArray->GetVoidPointer(0);
-        switch (inArray->GetDataType())
-        {
-          vtkTemplateMacro(vtkStructuredGridAppendExecute(inExt, input, static_cast<VTK_TT*>(inPtr),
-            outExt, static_cast<VTK_TT*>(outPtr), 3, false, validValues, ghosts));
-          default:
-            vtkErrorMacro(<< "Execute: Unknown ScalarType");
-            return 0;
+
+        if (!Dispatcher::Execute(inArray, outArray,
+                                 worker, inExt, outExt, input,
+                                 validValues, ghosts, false))
+        { // Fallback for unknown array types:
+          worker(inArray, outArray, inExt, outExt, input, validValues,
+                 ghosts, false);
         }
 
         // note that we are still using validValues but only for the
@@ -369,17 +384,12 @@ int vtkStructuredGridAppend::RequestData(
             return 0;
           }
 
-          inPtr = inArray->GetVoidPointer(0);
-          outPtr = outArray->GetVoidPointer(0);
-
-          switch (inArray->GetDataType())
-          {
-            vtkTemplateMacro(
-              vtkStructuredGridAppendExecute(inExt, input, static_cast<VTK_TT*>(inPtr), outExt,
-                static_cast<VTK_TT*>(outPtr), numComp, true, validValues, ghosts));
-            default:
-              vtkErrorMacro(<< "Execute: Unknown ScalarType");
-              return 0;
+          if (!Dispatcher::Execute(inArray, outArray,
+                                   worker, inExt, outExt, input,
+                                   validValues, ghosts, true))
+          { // Fallback for unknown array types:
+            worker(inArray, outArray, inExt, outExt, input, validValues,
+                   ghosts, true);
           }
         }
       }
