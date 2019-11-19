@@ -19,8 +19,10 @@ __attribute__ ((format (printf, 3, 4)))
 #endif
  ;
 
-#ifndef PARALLEL_IO
-typedef unsigned long		MPI_Comm;
+#if defined(PARALLEL_IO) || defined(H5_HAVE_PARALLEL)
+typedef MPI_Comm		H5_Comm;
+#else
+typedef unsigned long		H5_Comm;
 #endif
 
 #define H5PART_STEPNAME_LEN	64
@@ -87,7 +89,7 @@ struct H5PartFile {
 	/**
 	   MPI communicator
 	*/
-	MPI_Comm comm;
+	H5_Comm comm;
 
 	int throttle;
 
