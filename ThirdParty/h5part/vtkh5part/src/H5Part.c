@@ -79,7 +79,7 @@ For further information contact: <a href="mailto:h5part@lists.psi.ch">h5part</a>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 
 #ifndef WIN32
 #include <unistd.h>
@@ -140,7 +140,7 @@ static H5PartFile*
 _H5Part_open_file (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	const char flags,	/*!< [in] The access mode for the file. */
-	MPI_Comm comm,		/*!< [in] MPI communicator */
+	H5_Comm comm,		/*!< [in] MPI communicator */
 	int f_parallel,		/*!< [in] 0 for serial io otherwise parallel */
 	h5part_int64_t align	/*!< [in] Number of bytes for setting alignment,
 					  metadata block size, etc.
@@ -400,7 +400,7 @@ H5PartFile*
 H5PartOpenFileParallel (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	const char flags,	/*!< [in] The access mode for the file. */
-	MPI_Comm comm		/*!< [in] MPI communicator */
+	H5_Comm comm		/*!< [in] MPI communicator */
 	) {
 	INIT
 	SET_FNAME ( "H5PartOpenFileParallel" );
@@ -440,7 +440,7 @@ H5PartFile*
 H5PartOpenFileParallelAlign (
 	const char *filename,	/*!< [in] The name of the data file to open. */
 	const char flags,	/*!< [in] The access mode for the file. */
-	MPI_Comm comm,		/*!< [in] MPI communicator */
+	H5_Comm comm,		/*!< [in] MPI communicator */
 	h5part_int64_t align	/*!< [in] Alignment size in bytes. */
 	) {
 	INIT
@@ -481,7 +481,7 @@ H5PartOpenFile (
 	INIT
 	SET_FNAME ( "H5PartOpenFile" );
 
-	MPI_Comm comm = 0;	/* dummy */
+	H5_Comm comm = 0;	/* dummy */
 	int f_parallel = 0;	/* serial open */
 	int align = 0;		/* no tuning parameters */
 
@@ -519,7 +519,7 @@ H5PartOpenFileAlign (
 	INIT
 	SET_FNAME ( "H5PartOpenFileAlign" );
 
-	MPI_Comm comm = 0;	/* dummy */
+	H5_Comm comm = 0;	/* dummy */
 	int f_parallel = 0;	/* serial open */
 
 	return _H5Part_open_file ( filename, flags, comm, f_parallel, align );
