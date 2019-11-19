@@ -27,6 +27,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLParser.h"
+#include "vtksys/FStream.hxx"
 
 vtkCxxSetObjectMacro(vtkXdmfReader, InputArray, vtkCharArray);
 

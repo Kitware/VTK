@@ -19,6 +19,7 @@
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkVersion.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/Process.h>
 
 #include <iostream>

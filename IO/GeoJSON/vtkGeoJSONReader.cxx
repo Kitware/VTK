@@ -31,6 +31,7 @@
 #include "vtkStringArray.h"
 #include "vtkTriangleFilter.h"
 #include "vtk_jsoncpp.h"
+#include "vtksys/FStream.hxx"
 
 // C++ includes
 #include <fstream>

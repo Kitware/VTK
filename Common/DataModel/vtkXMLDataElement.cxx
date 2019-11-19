@@ -21,7 +21,7 @@
 using std::istringstream;
 using std::ostringstream;
 #include <string>
-#include <vtksys/FStream.hxx>>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 using std::string;
 #include <locale> // C++ locale

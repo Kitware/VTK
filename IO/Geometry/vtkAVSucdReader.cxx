@@ -207,7 +207,7 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->FileStream = nullptr;
 
 #ifdef _WIN32
-    std::wstring wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
+    wfilename = vtksys::Encoding::ToWindowsExtendedPath(this->FileName);
     this->FileStream = new ifstream(wfilename, ios::in);
 #else
     this->FileStream = new ifstream(this->FileName, ios::in);

@@ -62,7 +62,9 @@
 #include "glMatrix.h"
 #include "webglRenderer.h"
 
+#include "vtksys/FStream.hxx"
 #include "vtksys/MD5.h"
+#include "vtksys/SystemTools.hxx"
 
 //*****************************************************************************
 class vtkWebGLExporter::vtkInternal

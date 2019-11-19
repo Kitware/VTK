@@ -54,6 +54,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <adios2.h>
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 namespace

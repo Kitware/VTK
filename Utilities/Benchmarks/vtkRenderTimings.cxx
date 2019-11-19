@@ -16,6 +16,7 @@
 #include "vtkRenderTimings.h"
 //#include "vtkNew.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemInformation.hxx>
 

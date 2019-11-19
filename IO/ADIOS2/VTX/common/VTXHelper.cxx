@@ -31,6 +31,7 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMultiProcessController.h"
 
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 namespace vtx

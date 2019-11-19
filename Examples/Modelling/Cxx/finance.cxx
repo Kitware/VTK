@@ -30,6 +30,7 @@
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include <vtkRegressionTestImage.h>
+#include <vtksys/SystemTools.hxx>
 
 #include <cstring>
 

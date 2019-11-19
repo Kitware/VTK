@@ -25,6 +25,7 @@
 #include <vtkPolyData.h>
 #include <vtkUnsignedShortArray.h>
 #include <vtkVertexGlyphFilter.h>
+#include <vtksys/FStream.hxx>
 
 #include <liblas/liblas.hpp>
 

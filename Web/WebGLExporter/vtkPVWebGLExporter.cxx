@@ -29,6 +29,7 @@
 #include <sstream>
 #include <string>
 #include <vtksys/FStream.hxx>
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkPVWebGLExporter);
 // ---------------------------------------------------------------------------
