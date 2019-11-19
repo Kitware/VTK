@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 
 // XXX(kitware) include mangling header
 #include "vtk_h5part_mangle.h"
@@ -88,7 +88,7 @@ H5PartFile*
 H5PartOpenFileParallel (
 	const char *filename,
 	const char flags,
-	MPI_Comm communicator
+	H5_Comm communicator
 	);
 
 VTKH5PART_EXPORT
@@ -96,7 +96,7 @@ H5PartFile*
 H5PartOpenFileParallelAlign (
 	const char *filename,
 	const char flags,
-	MPI_Comm communicator,
+	H5_Comm communicator,
 	h5part_int64_t align
 	);
 #endif
