@@ -98,7 +98,7 @@ int vtkPointConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkUnsignedIntArray> connCount;
   connCount->SetNumberOfTuples(numPts);
   connCount->SetName("Point Connectivity Count");
-  unsigned int* connPtr = static_cast<unsigned int*>(connCount->GetVoidPointer(0));
+  unsigned int* connPtr = connCount->GetPointer(0);
 
   // Loop over all points, retrieving connectivity count
   // The first GetPointCells() primes the pump (builds internal structures, etc.)

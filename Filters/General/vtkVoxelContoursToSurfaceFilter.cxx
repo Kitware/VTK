@@ -17,6 +17,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkContourFilter.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -514,7 +515,10 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(requ
   volume->SetDimensions(gridSize[0], gridSize[1], chunkSize);
   volume->SetSpacing(this->Spacing);
   volume->AllocateScalars(VTK_FLOAT, 1);
-  volumePtr = (float*)(volume->GetPointData()->GetScalars()->GetVoidPointer(0));
+  vtkDataArray* volumeArrayDA = volume->GetPointData()->GetScalars();
+  vtkFloatArray* volumeArray = vtkArrayDownCast<vtkFloatArray>(volumeArrayDA);
+  assert(volumeArray);
+  volumePtr = volumeArray->GetPointer(0);
 
   contourFilter = vtkContourFilter::New();
   contourFilter->SetInputData(volume);
