@@ -31,6 +31,7 @@
 #define vtkADIOS2CoreImageReader_h
 
 #include <map>    // For independently time stepped array indexing
+#include <memory> // For std::unique_ptr
 #include <string> // For variable name index mapping
 #include <vector> // For independently time stepped array indexing
 
