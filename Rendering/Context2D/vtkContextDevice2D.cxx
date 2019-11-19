@@ -72,6 +72,7 @@ void vtkContextDevice2D::DrawPolyData(
     switch (cellType)
     {
       case VTK_LINE:
+      case VTK_POLY_LINE:
       case VTK_TRIANGLE:
       case VTK_QUAD:
       case VTK_POLYGON:
@@ -113,7 +114,7 @@ void vtkContextDevice2D::DrawPolyData(
       }
     }
 
-    if (cellType == VTK_LINE)
+    if (cellType == VTK_LINE || cellType == VTK_POLY_LINE )
     {
       this->DrawPoly(verts.data(), numPoints, vertColors.data(), 4);
     }

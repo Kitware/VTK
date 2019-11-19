@@ -15,7 +15,9 @@
 
 #include "vtkSVGExporter.h"
 
+#include "vtkAbstractMapper.h"
 #include "vtkBrush.h"
+#include "vtkCellArray.h"
 #include "vtkContext2D.h"
 #include "vtkContextItem.h"
 #include "vtkContextScene.h"
@@ -26,13 +28,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkPen.h"
+#include "vtkPoints.h"
 #include "vtkPointData.h"
 #include "vtkPoints2D.h"
+#include "vtkPolyData.h"
+#include "vtkPolyLine.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkTriangle.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
@@ -51,6 +57,52 @@ public:
   // Paint event for the chart, called whenever the chart needs to be drawn
   bool Paint(vtkContext2D* painter) override;
 };
+
+void drawPolyLinePolyData(vtkContext2D *painter)
+{
+  // Setup points
+  vtkSmartPointer<vtkPoints> points =
+    vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(50.0, 0.0, 0.0);
+  points->InsertNextPoint(0.0, 0.0, 0.0);
+  points->InsertNextPoint(0.0, 50.0, 0.0);
+  points->InsertNextPoint(50.0, 0.0, 0.0);
+
+
+  // Define some colors
+  unsigned char black[4] = {0, 0, 0, 255};
+
+
+  // Setup the colors array
+  vtkSmartPointer<vtkUnsignedCharArray> colors =
+    vtkSmartPointer<vtkUnsignedCharArray>::New();
+  colors->SetNumberOfComponents(4);
+  colors->SetName("Colors");
+
+  // Add the three colors we have created to the array
+  colors->InsertNextTypedTuple(black);
+  colors->InsertNextTypedTuple(black);
+  colors->InsertNextTypedTuple(black);
+  colors->InsertNextTypedTuple(black);
+
+  vtkNew<vtkCellArray> polylines;
+  vtkNew<vtkPolyLine> polyline;
+  polyline->GetPointIds()->SetNumberOfIds(4);
+  polyline->GetPointIds()->SetId(0, 0);
+  polyline->GetPointIds()->SetId(1, 1);
+  polyline->GetPointIds()->SetId(2, 2);
+  polyline->GetPointIds()->SetId(3, 3);
+  polylines->InsertNextCell(polyline);
+
+  // Create a polydata object and add everything to it
+  vtkSmartPointer<vtkPolyData> polydata =
+    vtkSmartPointer<vtkPolyData>::New();
+  polydata->SetPoints(points);
+  polydata->SetLines(polylines);
+  painter->GetPen()->SetWidth(2.0);
+  painter->DrawPolyData(475,  200, polydata, colors, VTK_SCALAR_MODE_USE_POINT_DATA);
+}
+
 
 int TestSVGContextExport(int, char*[])
 {
@@ -128,6 +180,8 @@ bool ContextSVGTest::Paint(vtkContext2D* painter)
   painter->GetTextProp()->SetJustificationToRight();
   painter->GetTextProp()->SetVerticalJustificationToCentered();
   painter->DrawString(475, 250, "Testing multi-\nline justified\nand rotated text.");
+
+  drawPolyLinePolyData(painter);
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
