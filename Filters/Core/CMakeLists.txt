@@ -50,6 +50,7 @@ set(classes
   vtkImageDataToExplicitStructuredGrid
   vtkImageAppend
   vtkImplicitPolyDataDistance
+  vtkImplicitProjectOnPlaneDistance
   vtkMarchingCubes
   vtkMarchingSquares
   vtkMaskFields
