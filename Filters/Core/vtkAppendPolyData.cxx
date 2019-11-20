@@ -19,7 +19,7 @@
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -560,20 +560,13 @@ struct AppendDataWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T* dest, Array2T* src)
   {
-    vtkDataArrayAccessor<Array1T> d(dest);
-    vtkDataArrayAccessor<Array2T> s(src);
     VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+    const auto srcTuples = vtk::DataArrayTupleRange(src);
 
-    const vtkIdType numTuples = src->GetNumberOfTuples();
-    const int numComps = src->GetNumberOfComponents();
+    // Offset the dstTuple range to begin at this->Offset
+    auto dstTuples = vtk::DataArrayTupleRange(dest, this->Offset);
 
-    for (vtkIdType t = 0; t < numTuples; ++t)
-    {
-      for (int c = 0; c < numComps; ++c)
-      {
-        d.Set(t + this->Offset, c, s.Get(t, c));
-      }
-    }
+    std::copy(srcTuples.cbegin(), srcTuples.cend(), dstTuples.begin());
   }
 };
 } // end anon namespace
