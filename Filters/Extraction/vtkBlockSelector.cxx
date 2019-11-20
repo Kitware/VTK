@@ -15,11 +15,10 @@
 #include "vtkBlockSelector.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 #include "vtkSelectionNode.h"
@@ -56,13 +55,11 @@ public:
     template <typename ArrayType>
     void operator()(ArrayType* array)
     {
-      VTK_ASSUME(array->GetNumberOfComponents() == 2);
-      vtkDataArrayAccessor<ArrayType> accessor(array);
-      for (vtkIdType cc = 0, max = array->GetNumberOfTuples(); cc < max; ++cc)
+      const auto tuples = vtk::DataArrayTupleRange<2>(array);
+      for (const auto tuple : tuples)
       {
         this->insert(
-          std::pair<unsigned int, unsigned int>(static_cast<unsigned int>(accessor.Get(cc, 0)),
-            static_cast<unsigned int>(accessor.Get(cc, 1))));
+          std::make_pair(static_cast<unsigned int>(tuple[0]), static_cast<unsigned int>(tuple[1])));
       }
     }
   };
