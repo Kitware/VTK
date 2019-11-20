@@ -65,7 +65,7 @@ struct IdStorage
   using NumCompsType = GenericTupleSize<TupleSize>;
 
   VTK_ITER_INLINE
-  IdStorage()
+  IdStorage() noexcept
     : ValueId(0)
     , TupleId(0)
     , ComponentId(0)
@@ -873,6 +873,9 @@ public:
   using const_reference = ConstReferenceType;
 
   VTK_ITER_INLINE
+  ValueRange() noexcept = default;
+
+  VTK_ITER_INLINE
   ValueRange(ArrayType* arr, ValueIdType beginValue, ValueIdType endValue) noexcept
     : Array(arr)
     , NumComps(arr)
@@ -882,6 +885,16 @@ public:
     assert(this->Array);
     assert(beginValue >= 0 && beginValue <= endValue);
     assert(endValue >= 0 && endValue <= this->Array->GetNumberOfValues());
+  }
+
+  VTK_ITER_INLINE
+  ValueRange GetSubRange(ValueIdType beginValue = 0, ValueIdType endValue = -1) const noexcept
+  {
+    const ValueIdType realBegin = this->BeginValue.GetValueId() + beginValue;
+    const ValueIdType realEnd =
+      endValue >= 0 ? this->BeginValue.GetValueId() + endValue : this->EndValue.GetValueId();
+
+    return ValueRange{ this->Array, realBegin, realEnd };
   }
 
   VTK_ITER_INLINE
@@ -937,10 +950,10 @@ private:
     return const_iterator{ this->Array, id };
   }
 
-  mutable ArrayType* Array;
-  NumCompsType NumComps;
-  IdStorageType BeginValue;
-  IdStorageType EndValue;
+  mutable ArrayType* Array{ nullptr };
+  NumCompsType NumComps{};
+  IdStorageType BeginValue{};
+  IdStorageType EndValue{};
 };
 
 // Unimplemented, only used inside decltype in SelectValueRange:

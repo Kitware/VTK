@@ -144,8 +144,8 @@ private:
 public:
   // Need to construct from array for specialization.
   using Superclass::Superclass;
-  VTK_ITER_INLINE GenericTupleSize() = default;
-  VTK_ITER_INLINE GenericTupleSize(vtkDataArray*) {}
+  VTK_ITER_INLINE GenericTupleSize() noexcept = default;
+  VTK_ITER_INLINE GenericTupleSize(vtkDataArray*) noexcept {}
 };
 
 // Specialize for dynamic types, mimicking integral_constant API:

@@ -250,11 +250,14 @@ struct UnitTestTupleRangeAPI
   {
     {
       TestRange<RangeArrayType, RangeTupleSize>(range, array, start, end);
+      TestSubRange(range);
+      TestDefaultInit(range);
     }
 
     {
       const Range& crange = range;
       TestRange<RangeArrayType, RangeTupleSize>(crange, array, start, end);
+      TestSubRange(crange);
     }
   }
 
@@ -334,6 +337,47 @@ struct UnitTestTupleRangeAPI
     CHECK_TYPEDEF(vtk::TupleIdType, decltype(range.GetEndTupleId()));
 
     static_assert(Range::TupleSizeTag == RangeTupleSize, "Range::TupleSizeTag incorrect.");
+  }
+
+  template <typename Range>
+  void TestSubRange(Range& range)
+  {
+    auto range1 = range.GetSubRange(3, 9);
+    CHECK_EQUAL(range1.GetBeginTupleId(), range.GetBeginTupleId() + 3);
+    CHECK_EQUAL(range1.GetEndTupleId(), range.GetBeginTupleId() + 9);
+    {
+      auto subRange = range1.GetSubRange();
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId());
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetEndTupleId());
+    }
+    {
+      auto subRange = range1.GetSubRange(2, 4);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId() + 2);
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetBeginTupleId() + 4);
+    }
+    {
+      auto subRange = range1.GetSubRange(1);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId() + 1);
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetEndTupleId());
+    }
+    {
+      auto subRange = range1.GetSubRange(0, 5);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId());
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetBeginTupleId() + 5);
+    }
+    {
+      auto subRange = range1.GetSubRange(0, 0);
+      CHECK_EQUAL(subRange.GetBeginTupleId(), range1.GetBeginTupleId());
+      CHECK_EQUAL(subRange.GetEndTupleId(), range1.GetBeginTupleId());
+    }
+  }
+
+  template <typename Range>
+  void TestDefaultInit(Range& range)
+  {
+    auto range1 = Range{};
+    range1 = range;
+    (void)range;
   }
 };
 
