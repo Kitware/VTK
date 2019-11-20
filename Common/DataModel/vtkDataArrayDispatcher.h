@@ -17,6 +17,8 @@
  * @class   vtkDataArrayDispatcher
  * @brief   Dispatch to functor vtkDataArrayType
  *
+ * @warning The vtkArrayDispatch utilities should be used instead.
+ *
  * vtkDataArrayDispatcher is a class that allows calling a functor based
  * on the data type of the vtkDataArray subclass. This is a wrapper
  * around the vtkTemplateMacro (VTK_TT) to allow easier implementation and
@@ -46,7 +48,7 @@
  *
  *
  * @sa
- * vtkDispatcher vtkDoubleDispatcher
+ * vtkArrayDispatch
  */
 
 #ifndef vtkDataArrayDispatcher_h
