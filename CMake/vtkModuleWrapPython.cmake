@@ -1024,6 +1024,10 @@ function (vtk_module_add_python_module name)
   target_link_libraries("${_vtk_add_python_module_target_name}"
     INTERFACE
       ${_vtk_add_python_module_depends})
+  if (NOT _vtk_build_module STREQUAL _vtk_add_python_module_target_name)
+    add_library("${_vtk_build_module}" ALIAS
+      "${_vtk_add_python_module_target_name}")
+  endif ()
   foreach (_vtk_add_python_module_package IN LISTS _vtk_add_python_module_PACKAGES)
     add_dependencies("${_vtk_add_python_module_target_name}"
       "${_vtk_build_module}-${_vtk_add_python_module_package}")
@@ -1036,10 +1040,6 @@ function (vtk_module_add_python_module name)
       PROPERTY
         "python_modules" "${_vtk_module_python_modules}")
   endforeach ()
-  if (NOT _vtk_build_module STREQUAL _vtk_add_python_module_target_name)
-    add_library("${_vtk_build_module}" ALIAS
-      "${_vtk_add_python_module_target_name}")
-  endif ()
 
   _vtk_module_apply_properties("${_vtk_add_python_module_target_name}")
   _vtk_module_install("${_vtk_add_python_module_target_name}")
