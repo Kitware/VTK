@@ -17,6 +17,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersGeometry
+  VTK::FiltersModeling
   VTK::FiltersSources
   VTK::IOCore
   VTK::eigen

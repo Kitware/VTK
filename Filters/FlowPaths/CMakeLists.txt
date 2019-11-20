@@ -16,9 +16,11 @@ set(classes
   vtkParticleTracer
   vtkParticleTracerBase
   vtkStreaklineFilter
+  vtkStreamSurface
   vtkStreamTracer
   vtkTemporalInterpolatedVelocityField
   vtkTemporalStreamTracer
+  vtkVectorFieldTopology
   vtkVortexCore)
 
 vtk_module_add_module(VTK::FiltersFlowPaths
