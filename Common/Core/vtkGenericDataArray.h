@@ -60,7 +60,7 @@
  * avoided.
  *
  * @sa
- * vtkArrayDispatcher vtkDataArrayAccessor
+ * vtkArrayDispatcher vtkDataArrayRange
  */
 
 #ifndef vtkGenericDataArray_h
