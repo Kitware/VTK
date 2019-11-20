@@ -213,7 +213,7 @@ vtkVector3f vtkMolecule::GetAtomPosition(vtkIdType id)
   assert(id >= 0 && id < this->GetNumberOfAtoms());
   vtkFloatArray* positions = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData());
   assert(positions != nullptr);
-  float* data = static_cast<float*>(positions->GetVoidPointer(id * 3));
+  float* data = positions->GetPointer(id * 3);
   return vtkVector3f(data);
 }
 

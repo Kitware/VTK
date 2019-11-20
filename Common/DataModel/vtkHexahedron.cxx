@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkMarchingCubesTriangleCases.h"
@@ -69,7 +70,8 @@ int vtkHexahedron::EvaluatePosition(const double x[3], double closestPoint[3], i
   double derivs[24];
 
   // Efficient point access
-  const double* pts = static_cast<double*>(this->Points->GetVoidPointer(0));
+  vtkDoubleArray* ptArray = static_cast<vtkDoubleArray*>(this->Points->GetData());
+  const double* pts = ptArray->GetPointer(0);
   const double *pt0, *pt1, *pt;
 
   // compute a bound on the volume to get a scale for an acceptable determinant
