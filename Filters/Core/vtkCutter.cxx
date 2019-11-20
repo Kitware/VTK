@@ -22,7 +22,6 @@
 #include "vtkCellIterator.h"
 #include "vtkContourHelper.h"
 #include "vtkContourValues.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
