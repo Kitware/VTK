@@ -548,7 +548,10 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 //----------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReleaseData()
 {
-  GDALClose(this->GDALData);
+  if (this->GDALData)
+  {
+    GDALClose(this->GDALData);
+  }
   this->CellArraySelection->RemoveAllArrays();
 }
 
