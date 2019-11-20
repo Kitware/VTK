@@ -1218,7 +1218,11 @@ void vtkOpenGLState::Initialize(vtkOpenGLRenderWindow*)
   unsigned int vals[1];
   vals[0] = this->CurrentState.DrawBinding.GetDrawBuffer(0);
   ::glDrawBuffers(1, vals);
+#ifdef GL_DRAW_BUFFER
+  ::glGetIntegerv(GL_DRAW_BUFFER, (int*)&this->CurrentState.DrawBinding.DrawBuffers[0]);
+#endif
   ::glReadBuffer(this->CurrentState.ReadBinding.GetReadBuffer());
+  ::glGetIntegerv(GL_READ_BUFFER, (int*)&this->CurrentState.ReadBinding.ReadBuffer);
 }
 
 void vtkOpenGLState::ResetFramebufferBindings()
