@@ -1276,11 +1276,10 @@ struct UpdateCellCountImpl
 
 struct GetCellSizeImpl
 {
-  vtkIdType Result{ 0 };
   template <typename CellStateT>
-  void operator()(CellStateT& state, const vtkIdType cellId)
+  vtkIdType operator()(CellStateT& state, const vtkIdType cellId)
   {
-    this->Result = state.GetCellSize(cellId);
+    return state.GetCellSize(cellId);
   }
 };
 
@@ -1403,9 +1402,7 @@ inline int vtkCellArray::GetNextCell(vtkIdList* pts)
 //----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::GetCellSize(const vtkIdType cellId) const
 {
-  vtkCellArray_detail::GetCellSizeImpl functor;
-  this->Visit(functor, cellId);
-  return functor.Result;
+  return this->Visit(vtkCellArray_detail::GetCellSizeImpl{}, cellId);
 }
 
 //----------------------------------------------------------------------------
