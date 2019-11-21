@@ -19,7 +19,7 @@
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYUtilities.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
 #include "vtkIdList.h"
@@ -45,6 +45,7 @@
 // clang-format on
 
 #include <algorithm>
+#include <iterator>
 
 vtkStandardNewMacro(vtkPResampleToImage);
 
@@ -139,10 +140,11 @@ public:
   template <typename ArrayType>
   void operator()(ArrayType* array) const
   {
-    vtkDataArrayAccessor<ArrayType> accessor(array);
-    for (int i = 0; i < this->NumComponents; ++i)
+    using T = vtk::GetAPIType<ArrayType>;
+    const auto tuple = vtk::DataArrayTupleRange(array)[this->Tuple];
+    for (const T comp : tuple)
     {
-      diy::save(*this->Buffer, accessor.Get(this->Tuple, i));
+      diy::save(*this->Buffer, comp);
     }
   }
 
@@ -181,12 +183,14 @@ public:
   template <typename ArrayType>
   void operator()(ArrayType* array) const
   {
-    vtkDataArrayAccessor<ArrayType> accessor(array);
-    for (int i = 0; i < this->NumComponents; ++i)
+    auto tuple = vtk::DataArrayTupleRange(array)[this->Tuple];
+    using CompRefT = typename std::iterator_traits<decltype(tuple.begin())>::reference;
+    using ValueT = typename std::iterator_traits<decltype(tuple.begin())>::value_type;
+    for (CompRefT compRef : tuple)
     {
-      typename vtkDataArrayAccessor<ArrayType>::APIType val;
+      ValueT val;
       diy::load(*this->Buffer, val);
-      accessor.Set(this->Tuple, i, val);
+      compRef = val;
     }
   }
 
