@@ -15,7 +15,7 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkPoints.h"
 
@@ -244,8 +244,7 @@ void vtkAppendVBOWorker<destType>::operator()(DataArray* array)
 
   destType* VBOit = reinterpret_cast<destType*>(&this->VBO->GetPackedVBO()[this->Offset]);
 
-  // Accessor for the data array
-  vtkDataArrayAccessor<DataArray> data(array);
+  const auto dataRange = vtk::DataArrayTupleRange(array);
 
   // compute extra padding required
   int bytesNeeded = this->VBO->GetDataTypeSize() * this->VBO->GetNumberOfComponents();
@@ -254,22 +253,19 @@ void vtkAppendVBOWorker<destType>::operator()(DataArray* array)
   // If not shift & scale
   if (!this->VBO->GetCoordShiftAndScaleEnabled())
   {
-    for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+    for (const auto tuple : dataRange)
     {
-      for (vtkIdType j = 0; j < array->GetNumberOfComponents(); j++)
-      {
-        *(VBOit++) = data.Get(i, j);
-      }
+      VBOit = std::copy(tuple.cbegin(), tuple.cend(), VBOit);
       VBOit += extraComponents;
     }
   }
   else
   {
-    for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
+    for (const auto tuple : dataRange)
     {
-      for (vtkIdType j = 0; j < array->GetNumberOfComponents(); j++)
+      for (int j = 0; j < tuple.size(); ++j)
       {
-        *(VBOit++) = (data.Get(i, j) - this->Shift.at(j)) * this->Scale.at(j);
+        *(VBOit++) = (tuple[j] - this->Shift[j]) * this->Scale[j];
       }
       VBOit += extraComponents;
     }
