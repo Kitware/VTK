@@ -28,7 +28,6 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
 #include "vtkDataArrayTupleRange_AOS.h"
 #include "vtkDataArrayTupleRange_Generic.h"
