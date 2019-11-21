@@ -1209,14 +1209,14 @@ A wrapper around `set_property(TARGET)` that works for modules.
 vtk_module_set_property(<module>
   [APPEND] [APPEND_STRING]
   PROPERTY  <property>
-  VALUE     <value>)
+  VALUE     <value>...)
 ~~~
 #]==]
 function (vtk_module_set_property module)
   cmake_parse_arguments(_vtk_property
     "APPEND;APPEND_STRING"
-    "PROPERTY;VALUE"
-    ""
+    "PROPERTY"
+    "VALUE"
     ${ARGN})
 
   if (_vtk_property_UNPARSED_ARGUMENTS)
@@ -1677,14 +1677,14 @@ required prefix will automatically be added to the passed name.
 _vtk_module_set_module_property(<module>
   [APPEND] [APPEND_STRING]
   PROPERTY  <property>
-  VALUE     <value>)
+  VALUE     <value>...)
 ~~~
 #]==]
 function (_vtk_module_set_module_property module)
   cmake_parse_arguments(_vtk_property
     "APPEND;APPEND_STRING"
-    "PROPERTY;VALUE"
-    ""
+    "PROPERTY"
+    "VALUE"
     ${ARGN})
 
   if (_vtk_property_UNPARSED_ARGUMENTS)

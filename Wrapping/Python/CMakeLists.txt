@@ -73,7 +73,7 @@ endforeach ()
 
 set(_vtk_python_files)
 foreach (_vtk_module IN LISTS vtk_modules)
-  vtk_module_get_property("${_vtk_module}"
+  _vtk_module_get_module_property("${_vtk_module}"
     PROPERTY "python_modules"
     VARIABLE _vtk_module_python_files)
   list(APPEND _vtk_python_files
