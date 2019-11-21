@@ -18,7 +18,7 @@
 
 #include "vtkAssume.h"
 #include "vtkConfigure.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArray.h"
 #include "vtkMeta.h"
 #include "vtkSetGet.h"
 #include "vtkType.h"
@@ -166,12 +166,23 @@ struct GenericTupleSize<DynamicTupleSize>
   ComponentIdType value;
 };
 
+template <typename ArrayType>
+struct GetAPITypeImpl
+{
+  using APIType = typename ArrayType::ValueType;
+};
+template <>
+struct GetAPITypeImpl<vtkDataArray>
+{
+  using APIType = double;
+};
+
 } // end namespace detail
 
 //------------------------------------------------------------------------------
 // Typedef for double if vtkDataArray, or the array's ValueType for subclasses.
 template <typename ArrayType, typename = detail::EnableIfVtkDataArray<ArrayType> >
-using GetAPIType = typename vtkDataArrayAccessor<ArrayType>::APIType;
+using GetAPIType = typename detail::GetAPITypeImpl<ArrayType>::APIType;
 
 //------------------------------------------------------------------------------
 namespace detail
