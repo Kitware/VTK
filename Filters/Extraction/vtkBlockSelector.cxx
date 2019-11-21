@@ -38,12 +38,10 @@ public:
     template <typename ArrayType>
     void operator()(ArrayType* array)
     {
-      VTK_ASSUME(array->GetNumberOfComponents() == 1);
-      vtkDataArrayAccessor<ArrayType> accessor(array);
-      for (vtkIdType cc = 0, max = array->GetNumberOfTuples(); cc < max; ++cc)
-      {
-        this->insert(static_cast<unsigned int>(accessor.Get(cc, 0)));
-      }
+      using T = vtk::GetAPIType<ArrayType>;
+      const auto range = vtk::DataArrayValueRange<1>(array);
+      std::for_each(range.cbegin(), range.cend(),
+        [&](const T val) { this->insert(static_cast<unsigned int>(val)); });
     }
   };
 
