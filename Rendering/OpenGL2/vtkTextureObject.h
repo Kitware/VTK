@@ -178,7 +178,6 @@ public:
    */
   bool IsBound();
 
-  //@{
   /**
    * Send all the texture object parameters to the hardware if not done yet.
    * Parameters are automatically sent as a side affect of Bind. Disable
@@ -186,8 +185,15 @@ public:
    * \pre is_bound: IsBound()
    */
   void SendParameters();
+
+  //@{
+  /**
+   * Get/Set AutoParameters flag.
+   * When enabled, SendParameters method is called automatically when the texture is bound.
+   */
   vtkSetMacro(AutoParameters, int);
   vtkGetMacro(AutoParameters, int);
+  vtkBooleanMacro(AutoParameters, int);
   //@}
 
   /**
