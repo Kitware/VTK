@@ -18,7 +18,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkGraph.h"
@@ -29,6 +29,9 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+
+#include <algorithm>
+#include <functional>
 
 vtkStandardNewMacro(vtkTemporalArrayOperatorFilter);
 
@@ -359,41 +362,36 @@ struct TemporalDataOperatorWorker
   template <typename Array1T, typename Array2T, typename Array3T>
   void operator()(Array1T* src1, Array2T* src2, Array3T* dst)
   {
-    typedef typename vtkDataArrayAccessor<Array3T>::APIType DestType;
+    using T = vtk::GetAPIType<Array3T>;
 
-    vtkDataArrayAccessor<Array1T> i0(src1);
-    vtkDataArrayAccessor<Array2T> i1(src2);
-    vtkDataArrayAccessor<Array3T> o(dst);
+    VTK_ASSUME(src1->GetNumberOfComponents() == dst->GetNumberOfComponents());
+    VTK_ASSUME(src2->GetNumberOfComponents() == dst->GetNumberOfComponents());
 
-    vtkIdType numComp = src1->GetNumberOfComponents();
-    vtkIdType numTuples = src1->GetNumberOfTuples();
-    for (vtkIdType i = 0; i < numTuples; i++)
+    const auto srcRange1 = vtk::DataArrayValueRange(src1);
+    const auto srcRange2 = vtk::DataArrayValueRange(src2);
+    auto dstRange = vtk::DataArrayValueRange(dst);
+
+    switch (this->Operator)
     {
-      for (vtkIdType j = 0; j < numComp; j++)
-      {
-        DestType a = i0.Get(i, j);
-        DestType b = i1.Get(i, j);
-        DestType v;
-        switch (this->Operator)
-        {
-          case vtkTemporalArrayOperatorFilter::ADD:
-            v = a + b;
-            break;
-          case vtkTemporalArrayOperatorFilter::SUB:
-            v = a - b;
-            break;
-          case vtkTemporalArrayOperatorFilter::MUL:
-            v = a * b;
-            break;
-          case vtkTemporalArrayOperatorFilter::DIV:
-            v = a / b;
-            break;
-          default:
-            v = a;
-            break;
-        }
-        o.Set(i, j, v);
-      }
+      case vtkTemporalArrayOperatorFilter::ADD:
+        std::transform(srcRange1.cbegin(), srcRange1.cend(), srcRange2.cbegin(), dstRange.begin(),
+          std::plus<T>{});
+        break;
+      case vtkTemporalArrayOperatorFilter::SUB:
+        std::transform(srcRange1.cbegin(), srcRange1.cend(), srcRange2.cbegin(), dstRange.begin(),
+          std::minus<T>{});
+        break;
+      case vtkTemporalArrayOperatorFilter::MUL:
+        std::transform(srcRange1.cbegin(), srcRange1.cend(), srcRange2.cbegin(), dstRange.begin(),
+          std::multiplies<T>{});
+        break;
+      case vtkTemporalArrayOperatorFilter::DIV:
+        std::transform(srcRange1.cbegin(), srcRange1.cend(), srcRange2.cbegin(), dstRange.begin(),
+          std::divides<T>{});
+        break;
+      default:
+        std::copy(srcRange1.cbegin(), srcRange1.cend(), dstRange.begin());
+        break;
     }
   }
 
