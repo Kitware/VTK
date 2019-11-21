@@ -65,6 +65,37 @@ public:
   vtkBooleanMacro(InlineData, bool);
   //@}
 
+  //@{
+  /**
+   * It looks for a point array called
+   * NORMAL in the data and it saves it in the
+   * GLTF file if found.
+   * NORMAL is the vertex normal. Cesium needs this to render buildings correctly
+   * if there is no texture.
+   */
+  vtkGetMacro(SaveNormal, bool);
+  vtkSetMacro(SaveNormal, bool);
+  vtkBooleanMacro(SaveNormal, bool);
+  //@}
+
+  //@{
+  /**
+   * It looks for point arrays called
+   * _BATCHID in the data and it saves it in the
+   * GLTF file if found.
+   * _BATCHID is an index used in 3D Tiles b3dm format. This format stores
+   * a binary gltf with a mesh that has several objects (buildings).
+   * Objects are indexed from 0 to number of objects - 1, all points
+   * of an objects have the same index. These index values are stored
+   * in _BATCHID
+   */
+  vtkGetMacro(SaveBatchId, bool);
+  vtkSetMacro(SaveBatchId, bool);
+  vtkBooleanMacro(SaveBatchId, bool);
+  //@}
+
+
+
   /**
    * Write the result to a string instead of a file
    */
@@ -81,8 +112,11 @@ protected:
 
   void WriteData() override;
 
+
   char* FileName;
   bool InlineData;
+  bool SaveNormal;
+  bool SaveBatchId;
 
 private:
   vtkGLTFExporter(const vtkGLTFExporter&) = delete;
