@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkSelectionNode.h"
 
+#include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
@@ -29,7 +30,8 @@
 
 #include <algorithm>
 #include <iterator>
-#include <set>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkSelectionNode);
 vtkCxxSetObjectMacro(vtkSelectionNode, SelectionData, vtkDataSetAttributes);
@@ -405,6 +407,7 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
       if (fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
       {
         vtkErrorMacro(<< "Cannot take subtract selections if the number of arrays do not match.");
+        return;
       }
       if (fd1->GetNumberOfArrays() != 1 || fd2->GetNumberOfArrays() != 1)
       {
@@ -416,31 +419,38 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
         fd2->GetArray(0)->GetDataType() != VTK_ID_TYPE)
       {
         vtkErrorMacro(<< "Can only subtract selections with vtkIdTypeArray lists.");
+        return;
       }
 
       vtkIdTypeArray* fd1_array = (vtkIdTypeArray*)fd1->GetArray(0);
       vtkIdTypeArray* fd2_array = (vtkIdTypeArray*)fd2->GetArray(0);
 
-      vtkIdType fd1_N = fd1_array->GetNumberOfTuples();
-      vtkIdType fd2_N = fd2_array->GetNumberOfTuples();
+      if (fd1_array->GetNumberOfComponents() != 1 || fd2_array->GetNumberOfComponents() != 1)
+      {
+        vtkErrorMacro("Can only subtract selections with single component arrays.");
+        return;
+      }
 
-      vtkIdType* fd1_P = (vtkIdType*)fd1_array->GetVoidPointer(0);
-      vtkIdType* fd2_P = (vtkIdType*)fd2_array->GetVoidPointer(0);
+      auto fd1Range = vtk::DataArrayValueRange<1>(fd1_array);
+      auto fd2Range = vtk::DataArrayValueRange<1>(fd2_array);
 
       // make sure both arrays are sorted
-      std::sort(fd1_P, fd1_P + fd1_N);
-      std::sort(fd2_P, fd2_P + fd2_N);
+      std::sort(fd1Range.begin(), fd1Range.end());
+      std::sort(fd2Range.begin(), fd2Range.end());
 
-      std::set<vtkIdType> result;
+      // set_difference result is bounded by the first set:
+      std::vector<vtkIdType> result;
+      result.resize(static_cast<std::size_t>(fd1Range.size()));
 
-      std::set_difference(
-        fd1_P, fd1_P + fd1_N, fd2_P, fd2_P + fd2_N, std::inserter(result, result.end()));
+      auto diffEnd = std::set_difference(
+        fd1Range.cbegin(), fd1Range.cend(), fd2Range.cbegin(), fd2Range.cend(), result.begin());
+      result.erase(diffEnd, result.end());
 
+      // Copy the result back into fd1_array:
       fd1_array->Reset();
-      for (std::set<vtkIdType>::const_iterator p = result.begin(); p != result.end(); ++p)
-      {
-        fd1_array->InsertNextValue(*p);
-      }
+      fd1_array->SetNumberOfTuples(static_cast<vtkIdType>(result.size()));
+      fd1Range = vtk::DataArrayValueRange<1>(fd1_array);
+      std::copy(result.cbegin(), result.cend(), fd1Range.begin());
       break;
     }
     case BLOCKS:

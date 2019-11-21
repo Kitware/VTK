@@ -103,6 +103,21 @@ void TestTupleRangeAPI(ArrayT* someArray)
     std::cout << "\n";
   }
 
+  // The GetSubRange method can be used to create a new TupleRange that
+  // spans a portion of the original range:
+  {
+    auto fullRange = vtk::DataArrayTupleRange(someArray);
+    // Arguments are (beginOffset, endOffset)
+    auto range_2_thru_8 = fullRange.GetSubRange(2, 8);
+    // Arguments are relative to the current range:
+    auto range_3_thru_6 = range_2_thru_8.GetSubRange(1, 4);
+    // If the second arg is omitted, the new range uses the parent's end point:
+    auto range_4_thru_6 = range_3_thru_6.GetSubRange(1);
+
+    // Compiler warnings:
+    (void)range_4_thru_6;
+  }
+
   // decltype can be used to deduce the exact type of the TupleRange. The
   // TupleRange classes provide additional type aliases that can be used to
   // refer to specific types in the iterator/reference hierarchy:
@@ -408,6 +423,21 @@ void TestValueRangeAPI(ArrayT* someArray)
     std::cout << value << " ";
   }
   std::cout << "\n";
+
+  // The GetSubRange method can be used to create a new ValueRange that
+  // spans a portion of the original range:
+  {
+    auto fullRange = vtk::DataArrayValueRange(someArray);
+    // Arguments are (beginOffset, endOffset)
+    auto range_2_thru_8 = fullRange.GetSubRange(2, 8);
+    // Arguments are relative to the current range:
+    auto range_3_thru_6 = range_2_thru_8.GetSubRange(1, 4);
+    // If the second arg is omitted, the new range uses the parent's end point:
+    auto range_4_thru_6 = range_3_thru_6.GetSubRange(1);
+
+    // Compiler warnings:
+    (void)range_4_thru_6;
+  }
 
   // decltype can be used to deduce the exact type of the ValueRange. The
   // ValueRange classes provide additional type aliases that can be used to

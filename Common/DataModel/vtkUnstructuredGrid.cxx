@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkUnstructuredGrid.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBiQuadraticQuad.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
@@ -76,6 +77,8 @@
 #include "vtkSMPTools.h"
 #include "vtkTimerLog.h"
 
+#include <algorithm>
+#include <limits>
 #include <set>
 
 vtkStandardNewMacro(vtkUnstructuredGrid);
@@ -797,27 +800,74 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 // Support GetCellBounds()
 namespace
 { // anonymous
-template <typename T>
-void ComputeCellBounds(const T* p, vtkIdType numPts, const vtkIdType* pts, double bounds[6])
+struct ComputeCellBoundsWorker
 {
-  const T* x = p + 3 * pts[0];
-  bounds[0] = x[0];
-  bounds[2] = x[1];
-  bounds[4] = x[2];
-  bounds[1] = x[0];
-  bounds[3] = x[1];
-  bounds[5] = x[2];
-  for (auto i = 1; i < numPts; i++)
+  struct Visitor
   {
-    x = p + 3 * pts[i];
-    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    // vtkCellArray::Visit entry point:
+    template <typename CellStateT, typename PointArrayT>
+    void operator()(
+      CellStateT& state, PointArrayT* ptArray, vtkIdType cellId, double bounds[6]) const
+    {
+      using IdType = typename CellStateT::ValueType;
+
+      const auto ptIds = state.GetCellRange(cellId);
+      if (ptIds.size() == 0)
+      {
+        vtkMath::UninitializeBounds(bounds);
+        return;
+      }
+
+      const auto points = vtk::DataArrayTupleRange<3>(ptArray);
+
+      // Initialize bounds to first point:
+      {
+        const auto pt = points[ptIds[0]];
+
+        // Explicitly reusing a local will improve performance when virtual
+        // calls are involved in the iterator read:
+        const double x = static_cast<double>(pt[0]);
+        const double y = static_cast<double>(pt[1]);
+        const double z = static_cast<double>(pt[2]);
+
+        bounds[0] = x;
+        bounds[1] = x;
+        bounds[2] = y;
+        bounds[3] = y;
+        bounds[4] = z;
+        bounds[5] = z;
+      }
+
+      // Reduce bounds with the rest of the ids:
+      for (const IdType ptId : ptIds.GetSubRange(1))
+      {
+        const auto pt = points[ptId];
+
+        // Explicitly reusing a local will improve performance when virtual
+        // calls are involved in the iterator read:
+        const double x = static_cast<double>(pt[0]);
+        const double y = static_cast<double>(pt[1]);
+        const double z = static_cast<double>(pt[2]);
+
+        bounds[0] = std::min(bounds[0], x);
+        bounds[1] = std::max(bounds[1], x);
+        bounds[2] = std::min(bounds[2], y);
+        bounds[3] = std::max(bounds[3], y);
+        bounds[4] = std::min(bounds[4], z);
+        bounds[5] = std::max(bounds[5], z);
+      }
+    }
+  };
+
+  // vtkArrayDispatch entry point:
+  template <typename PointArrayT>
+  void operator()(
+    PointArrayT* ptArray, vtkCellArray* conn, vtkIdType cellId, double bounds[6]) const
+  {
+    conn->Visit(Visitor{}, ptArray, cellId, bounds);
   }
-}
+};
+
 } // anonymous
 
 //----------------------------------------------------------------------------
@@ -825,48 +875,15 @@ void ComputeCellBounds(const T* p, vtkIdType numPts, const vtkIdType* pts, doubl
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  vtkIdType numPts;
-  const vtkIdType* pts;
-  this->Connectivity->GetCellAtId(cellId, numPts, pts);
+  // Fast path for float/double:
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  ComputeCellBoundsWorker worker;
 
-  // very
-  // carefully compute the bounds
-  if (numPts)
-  {
-    // Slightly faster paths for real types - not sure it's worth it
-    if (this->Points->GetDataType() == VTK_FLOAT)
-    {
-      ComputeCellBounds(static_cast<float*>(this->Points->GetVoidPointer(0)), numPts, pts, bounds);
-    }
-    else if (this->Points->GetDataType() == VTK_DOUBLE)
-    {
-      ComputeCellBounds(static_cast<double*>(this->Points->GetVoidPointer(0)), numPts, pts, bounds);
-    }
-    else
-    {
-      double x[3];
-      this->Points->GetPoint(pts[0], x);
-      bounds[0] = x[0];
-      bounds[2] = x[1];
-      bounds[4] = x[2];
-      bounds[1] = x[0];
-      bounds[3] = x[1];
-      bounds[5] = x[2];
-      for (vtkIdType i = 1; i < numPts; i++)
-      {
-        this->Points->GetPoint(pts[i], x);
-        bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-        bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-        bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-        bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-        bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-        bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
-      }
-    }
-  }
-  else
-  {
-    vtkMath::UninitializeBounds(bounds);
+  vtkDataArray* ptArray = this->Points->GetData();
+  if (!Dispatcher::Execute(ptArray, worker, this->Connectivity, cellId, bounds))
+  { // fallback for weird types:
+    worker(ptArray, this->Connectivity, cellId, bounds);
   }
 }
 

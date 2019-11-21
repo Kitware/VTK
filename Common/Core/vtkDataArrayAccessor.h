@@ -17,6 +17,10 @@
  * @class   vtkDataArrayAccessor
  * @brief   Efficient templated access to vtkDataArray.
  *
+ * @warning vtkDataArrayAccessor has been replaced by the much easier to use
+ * range facilities vtk::DataArrayTupleRange and vtk::DataArrayValueRange,
+ * defined in vtkDataArrayRange.h. This accessor class shouldn't need to be
+ * used directly.
  *
  * vtkDataArrayAccessor provides access to data stored in a vtkDataArray. It
  * is intended to be used in conjunction with vtkArrayDispatcher.
@@ -87,7 +91,7 @@
  * function template.
  *
  * .SEE ALSO
- * vtkArrayDispatch
+ * vtkArrayDispatch vtk::DataArrayValueRange vtk::DataArrayTupleRange
  */
 
 #include "vtkDataArray.h"

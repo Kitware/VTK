@@ -73,6 +73,9 @@ public:
   using const_reference = ConstReferenceType;
 
   VTK_ITER_INLINE
+  ValueRange() noexcept = default;
+
+  VTK_ITER_INLINE
   ValueRange(ArrayType* arr, ValueIdType beginValue, ValueIdType endValue) noexcept
     : Array(arr)
     , NumComps(arr)
@@ -82,6 +85,18 @@ public:
     assert(this->Array);
     assert(beginValue >= 0 && beginValue <= endValue);
     assert(endValue >= 0 && endValue <= this->Array->GetNumberOfValues());
+  }
+
+  VTK_ITER_INLINE
+  ValueRange GetSubRange(ValueIdType beginValue = 0, ValueIdType endValue = -1) const noexcept
+  {
+    const ValueIdType realBegin =
+      std::distance(this->Array->GetPointer(0), this->Begin) + beginValue;
+    const ValueIdType realEnd = endValue >= 0
+      ? std::distance(this->Array->GetPointer(0), this->Begin) + endValue
+      : std::distance(this->Array->GetPointer(0), this->End);
+
+    return ValueRange{ this->Array, realBegin, realEnd };
   }
 
   VTK_ITER_INLINE
@@ -126,10 +141,10 @@ public:
   const_reference operator[](size_type i) const noexcept { return this->Begin[i]; }
 
 private:
-  mutable ArrayType* Array;
-  NumCompsType NumComps;
-  ValueType* Begin;
-  ValueType* End;
+  mutable ArrayType* Array{ nullptr };
+  NumCompsType NumComps{};
+  ValueType* Begin{ nullptr };
+  ValueType* End{ nullptr };
 };
 
 // Unimplemented, only used inside decltype in SelectValueRange:

@@ -1675,6 +1675,9 @@ public:
   using const_reference = ConstTupleReferenceType;
 
   VTK_ITER_INLINE
+  TupleRange() noexcept = default;
+
+  VTK_ITER_INLINE
   TupleRange(ArrayType* arr, TupleIdType beginTuple, TupleIdType endTuple) noexcept
     : Array(arr)
     , NumComps(arr)
@@ -1684,6 +1687,15 @@ public:
     assert(this->Array);
     assert(beginTuple >= 0 && beginTuple <= endTuple);
     assert(endTuple >= 0 && endTuple <= this->Array->GetNumberOfTuples());
+  }
+
+  VTK_ITER_INLINE
+  TupleRange GetSubRange(TupleIdType beginTuple = 0, TupleIdType endTuple = -1) const noexcept
+  {
+    const TupleIdType realBegin = this->BeginTuple + beginTuple;
+    const TupleIdType realEnd = endTuple >= 0 ? this->BeginTuple + endTuple : this->EndTuple;
+
+    return TupleRange{ this->Array, realBegin, realEnd };
   }
 
   VTK_ITER_INLINE
@@ -1735,10 +1747,10 @@ private:
     return const_iterator{ this->Array, this->NumComps, t };
   }
 
-  mutable ArrayType* Array;
-  NumCompsType NumComps;
-  TupleIdType BeginTuple;
-  TupleIdType EndTuple;
+  mutable ArrayType* Array{ nullptr };
+  NumCompsType NumComps{};
+  TupleIdType BeginTuple{ 0 };
+  TupleIdType EndTuple{ 0 };
 };
 
 // Unimplemented, only used inside decltype in SelectTupleRange:
