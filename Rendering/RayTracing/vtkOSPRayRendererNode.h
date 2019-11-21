@@ -278,12 +278,12 @@ public:
   /**
    * Get the last rendered ColorBuffer
    */
-  virtual unsigned char* GetBuffer() { return this->Buffer; }
+  virtual unsigned char* GetBuffer() { return this->Buffer.data(); }
 
   /**
    * Get the last rendered ZBuffer
    */
-  virtual float* GetZBuffer() { return this->ZBuffer; }
+  virtual float* GetZBuffer() { return this->ZBuffer.data(); }
 
   // Get the last renderer color buffer as an OpenGL texture.
   virtual int GetColorBufferTextureGL() { return this->ColorBufferTex; }
@@ -335,8 +335,8 @@ protected:
   void Denoise();
 
   // internal structures
-  unsigned char* Buffer;
-  float* ZBuffer;
+  std::vector<unsigned char> Buffer;
+  std::vector<float> ZBuffer;
 
   int ColorBufferTex;
   int DepthBufferTex;
@@ -351,7 +351,7 @@ protected:
   bool ComputeDepth;
   bool Accumulate;
   bool CompositeOnGL;
-  float* ODepthBuffer;
+  std::vector<float> ODepthBuffer;
   int AccumulateCount;
   int ActorCount;
   vtkMTimeType AccumulateTime;
