@@ -1,0 +1,21 @@
+NAME
+  VTK::IOPIO
+LIBRARY_NAME
+  vtkIOPIO
+KIT
+  VTK::Parallel
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::CommonSystem
+  VTK::ParallelCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::IOImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
