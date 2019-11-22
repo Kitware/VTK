@@ -12,7 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkRandomPool.h"
+
+#include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkMersenneTwister.h"
 #include "vtkMinimalStandardRandomSequence.h"
@@ -21,6 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 
+#include <algorithm>
 #include <cassert>
 
 vtkStandardNewMacro(vtkRandomPool);
@@ -32,15 +36,16 @@ namespace
 {
 
 // This method scales all components between (min,max)
-template <typename T>
+template <typename ArrayT>
 struct PopulateDA
 {
+  using T = vtk::GetAPIType<ArrayT>;
   const double* Pool;
-  T* Array;
+  ArrayT* Array;
   T Min;
   T Max;
 
-  PopulateDA(const double* pool, T* array, double min, double max)
+  PopulateDA(const double* pool, ArrayT* array, double min, double max)
     : Pool(pool)
     , Array(array)
   {
@@ -52,41 +57,44 @@ struct PopulateDA
 
   void operator()(vtkIdType dataId, vtkIdType endDataId)
   {
-    const double* p = this->Pool + dataId;
-    T* array = this->Array + dataId;
-    double range = static_cast<double>(this->Max - this->Min);
+    const double* pool = this->Pool + dataId;
+    const double* poolEnd = this->Pool + endDataId;
+    const double range = static_cast<double>(this->Max - this->Min);
 
-    for (; dataId < endDataId; ++dataId, ++array, ++p)
-    {
-      *array = this->Min + static_cast<T>(*p * range);
-    }
+    auto output = vtk::DataArrayValueRange(this->Array, dataId, endDataId);
+
+    std::transform(pool, poolEnd, output.begin(),
+      [&](const double p) -> T { return this->Min + static_cast<T>(p * range); });
   }
 
   void Reduce() {}
+};
 
-  static void Execute(const double* pool, T* array, double min, double max, vtkIdType totalSize)
+struct PopulateLauncher
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* array, const double* pool, double min, double max) const
   {
-    PopulateDA popDA(pool, array, min, max);
-    vtkSMPTools::For(0, totalSize, popDA);
+    PopulateDA<ArrayT> popDA{ pool, array, min, max };
+    vtkSMPTools::For(0, array->GetNumberOfValues(), popDA);
   }
 };
 
 // This method scales a selected component between (min,max)
-template <typename T>
+template <typename ArrayT>
 struct PopulateDAComponent
 {
+  using T = vtk::GetAPIType<ArrayT>;
+
   const double* Pool;
-  T* Array;
-  int NumComp;
+  ArrayT* Array;
   int CompNum;
   T Min;
   T Max;
 
-  PopulateDAComponent(
-    const double* pool, T* array, double min, double max, int numComp, int compNum)
+  PopulateDAComponent(const double* pool, ArrayT* array, double min, double max, int compNum)
     : Pool(pool)
     , Array(array)
-    , NumComp(numComp)
     , CompNum(compNum)
   {
     this->Min = static_cast<T>(min);
@@ -97,24 +105,34 @@ struct PopulateDAComponent
 
   void operator()(vtkIdType tupleId, vtkIdType endTupleId)
   {
-    int numComp = this->NumComp;
-    const double* p = this->Pool + tupleId * numComp + this->CompNum;
-    T* array = this->Array + tupleId * numComp + this->CompNum;
-    double range = static_cast<double>(this->Max - this->Min);
+    const int numComp = this->Array->GetNumberOfComponents();
+    const double range = static_cast<double>(this->Max - this->Min);
 
-    for (; tupleId < endTupleId; ++tupleId, array += numComp, p += numComp)
+    const vtkIdType valueId = tupleId * numComp + this->CompNum;
+    const vtkIdType endValueId = endTupleId * numComp;
+
+    const double* poolIter = this->Pool + valueId;
+    const double* poolEnd = this->Pool + endValueId;
+
+    auto data = vtk::DataArrayValueRange(this->Array, valueId, endValueId);
+    auto dataIter = data.begin();
+
+    for (; poolIter < poolEnd; dataIter += numComp, poolIter += numComp)
     {
-      *array = this->Min + static_cast<T>(*p * range);
+      *dataIter = this->Min + static_cast<T>(*poolIter * range);
     }
   }
 
   void Reduce() {}
+};
 
-  static void Execute(
-    const double* pool, T* array, double min, double max, vtkIdType size, int numComp, int compNum)
+struct PopulateDAComponentLauncher
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* array, const double* pool, double min, double max, int compNum)
   {
-    PopulateDAComponent popDAC(pool, array, min, max, numComp, compNum);
-    vtkSMPTools::For(0, size, popDAC);
+    PopulateDAComponent<ArrayT> popDAC{ pool, array, min, max, compNum };
+    vtkSMPTools::For(0, array->GetNumberOfTuples(), popDAC);
   }
 };
 
@@ -164,11 +182,11 @@ void vtkRandomPool::PopulateDataArray(vtkDataArray* da, double minRange, double 
   }
 
   // Now perform the scaling of all components
-  void* ptr = da->GetVoidPointer(0);
-  switch (da->GetDataType())
-  {
-    vtkTemplateMacro(
-      PopulateDA<VTK_TT>::Execute(pool, (VTK_TT*)ptr, minRange, maxRange, this->GetTotalSize()));
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+  PopulateLauncher worker;
+  if (!Dispatcher::Execute(da, worker, pool, minRange, maxRange))
+  { // Fallback for unknown array types:
+    worker(da, pool, minRange, maxRange);
   }
 
   // Make sure that the data array is marked modified
@@ -198,11 +216,11 @@ void vtkRandomPool::PopulateDataArray(
   }
 
   // Now perform the scaling for one of the components
-  void* ptr = da->GetVoidPointer(0);
-  switch (da->GetDataType())
-  {
-    vtkTemplateMacro(PopulateDAComponent<VTK_TT>::Execute(
-      pool, (VTK_TT*)ptr, minRange, maxRange, size, numComp, compNum));
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+  PopulateDAComponentLauncher worker;
+  if (!Dispatcher::Execute(da, worker, pool, minRange, maxRange, compNum))
+  { // fallback
+    worker(da, pool, minRange, maxRange, compNum);
   }
 
   // Make sure that the data array is marked modified
