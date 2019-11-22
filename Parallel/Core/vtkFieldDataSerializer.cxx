@@ -14,8 +14,11 @@
  =========================================================================*/
 #include "vtkFieldDataSerializer.h"
 #include "vtkDataArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
+#include "vtkFloatArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
@@ -99,9 +102,9 @@ void vtkFieldDataSerializer::DeserializeMetaData(vtkMultiProcessStream& bytestre
   dimensions->SetNumberOfComponents(2);
   dimensions->SetNumberOfTuples(NumberOfArrays);
 
-  std::string* namesPtr = static_cast<std::string*>(names->GetVoidPointer(0));
-  int* datatypesPtr = static_cast<int*>(datatypes->GetVoidPointer(0));
-  int* dimensionsPtr = static_cast<int*>(dimensions->GetVoidPointer(0));
+  std::string* namesPtr = names->GetPointer(0);
+  int* datatypesPtr = datatypes->GetPointer(0);
+  int* dimensionsPtr = dimensions->GetPointer(0);
 
   // STEP 2: Extract metadata for each array in corresponding output arrays
   for (int arrayIdx = 0; arrayIdx < NumberOfArrays; ++arrayIdx)
@@ -347,23 +350,26 @@ void vtkFieldDataSerializer::SerializeDataArray(
   // STEP 1: Push the raw data into the bytestream
   // TODO: Add more cases for more datatypes here (?)
   unsigned int size = numComp * numTuples;
-  switch (dataArray->GetDataType())
+  if (dataArray->IsA("vtkFloatArray"))
   {
-    case VTK_FLOAT:
-      bytestream.Push(static_cast<float*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    case VTK_DOUBLE:
-      bytestream.Push(static_cast<double*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    case VTK_INT:
-      bytestream.Push(static_cast<int*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    case VTK_ID_TYPE:
-      bytestream.Push(static_cast<vtkIdType*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    default:
-      assert("ERROR: cannot serialize data of given type" && false);
-      cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
+    bytestream.Push(static_cast<vtkFloatArray*>(dataArray)->GetPointer(0), size);
+  }
+  else if (dataArray->IsA("vtkDoubleArray"))
+  {
+    bytestream.Push(static_cast<vtkDoubleArray*>(dataArray)->GetPointer(0), size);
+  }
+  else if (dataArray->IsA("vtkIntArray"))
+  {
+    bytestream.Push(static_cast<vtkIntArray*>(dataArray)->GetPointer(0), size);
+  }
+  else if (dataArray->IsA("vtkIdTypeArray"))
+  {
+    bytestream.Push(static_cast<vtkIdTypeArray*>(dataArray)->GetPointer(0), size);
+  }
+  else
+  {
+    assert("ERROR: cannot serialize data of given type" && false);
+    cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
   }
 }
 
