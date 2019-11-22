@@ -213,6 +213,16 @@ public:
   double* GetTransformedFocalPoint() VTK_SIZEHINT(3);
   //@}
 
+  /**
+   * Use transform matrix to transform point (if it exists).
+   */
+  void TransformPoint(double a[3], double b[3]);
+
+  /**
+   * Use transform matrix to transform vector (if it exists).
+   */
+  void TransformVector(double a[3], double b[3]);
+
   //@{
   /**
    * Set the position and focal point of a light based on elevation and

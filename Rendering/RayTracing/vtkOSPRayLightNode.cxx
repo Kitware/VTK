@@ -14,14 +14,18 @@
 =========================================================================*/
 #include "vtkOSPRayLightNode.h"
 
+#include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
+#include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkTransform.h"
 
 #include <vector>
 
@@ -130,6 +134,22 @@ void vtkOSPRayLightNode::Render(bool prepass)
     vtkOSPRayRendererNode* orn =
       static_cast<vtkOSPRayRendererNode*>(this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
+    vtkOpenGLRenderer* ren = vtkOpenGLRenderer::SafeDownCast(orn->GetRenderable());
+    vtkTransform* userLightTransfo = ren->GetUserLightTransform();
+
+    vtkNew<vtkMatrix4x4> camTransfo;
+    vtkNew<vtkMatrix4x4> invCamTransfo;
+    if (userLightTransfo)
+    {
+      vtkOSPRayCameraNode* ocam =
+        static_cast<vtkOSPRayCameraNode*>(orn->GetFirstChildOfType("vtkOSPRayCameraNode"));
+
+      vtkCamera* cam = vtkCamera::SafeDownCast(ocam->GetRenderable());
+
+      cam->GetModelViewTransformObject()->GetMatrix(camTransfo);
+      vtkMatrix4x4::Invert(camTransfo, invCamTransfo);
+    }
+
     RTW::Backend* backend = orn->GetBackend();
     if (backend == nullptr)
       return;
@@ -137,7 +157,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
     OSPLight ospLight;
 
     vtkLight* light = vtkLight::SafeDownCast(this->GetRenderable());
-    int lt = light->GetLightType();
+
     float color[3] = { 0.0, 0.0, 0.0 };
     if (light->GetSwitch())
     {
@@ -160,15 +180,22 @@ void vtkOSPRayLightNode::Render(bool prepass)
     }
     else if (light->GetPositional())
     {
-      double px, py, pz;
-      light->GetTransformedPosition(px, py, pz);
-      if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT) // todo: hacky and doesn't fix GL
+      double position[4];
+      light->GetPosition(position);
+      position[3] = 1.0;
+
+      if (light->LightTypeIsCameraLight())
       {
-        double* p = light->GetPosition();
-        px = p[0];
-        py = p[1];
-        pz = p[2];
+        light->TransformPoint(position, position);
       }
+
+      if (!light->LightTypeIsSceneLight() && userLightTransfo)
+      {
+        camTransfo->MultiplyPoint(position, position);
+        userLightTransfo->TransformPoint(position, position);
+        invCamTransfo->MultiplyPoint(position, position);
+      }
+
       float coneAngle = static_cast<float>(light->GetConeAngle());
       if (coneAngle <= 0.0 || coneAngle >= 90.0)
       {
@@ -177,19 +204,26 @@ void vtkOSPRayLightNode::Render(bool prepass)
       else
       {
         ospLight = ospNewLight3("SpotLight");
-        double fx, fy, fz;
-        light->GetTransformedFocalPoint(fx, fy, fz);
-        if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
+        double focalPoint[4];
+        light->GetFocalPoint(focalPoint);
+        focalPoint[3] = 1.0;
+
+        if (light->LightTypeIsCameraLight())
         {
-          double* p = light->GetFocalPoint();
-          fx = p[0];
-          fy = p[1];
-          fz = p[2];
+          light->TransformPoint(focalPoint, focalPoint);
         }
+
+        if (!light->LightTypeIsSceneLight() && userLightTransfo)
+        {
+          camTransfo->MultiplyPoint(focalPoint, focalPoint);
+          userLightTransfo->TransformPoint(focalPoint, focalPoint);
+          invCamTransfo->MultiplyPoint(focalPoint, focalPoint);
+        }
+
         double direction[3];
-        direction[0] = fx - px;
-        direction[1] = fy - py;
-        direction[2] = fz - pz;
+        vtkMath::Subtract(focalPoint, position, direction);
+        vtkMath::Normalize(direction);
+
         ospSet3f(ospLight, "direction", direction[0], direction[1], direction[2]);
         // OpenGL interprets this as a half-angle. Mult by 2 for consistency.
         ospSet1f(ospLight, "openingAngle", 2 * coneAngle);
@@ -200,7 +234,8 @@ void vtkOSPRayLightNode::Render(bool prepass)
         static_cast<float>(vtkOSPRayLightNode::LightScale * light->GetIntensity() * vtkMath::Pi());
       ospSet1i(ospLight, "isVisible", 0);
       ospSet1f(ospLight, "intensity", fI);
-      ospSet3f(ospLight, "position", px, py, pz);
+
+      ospSet3f(ospLight, "position", position[0], position[1], position[2]);
       float r = static_cast<float>(vtkOSPRayLightNode::GetRadius(light));
       ospSet1f(ospLight, "radius", r);
       ospCommit(ospLight);
@@ -208,31 +243,33 @@ void vtkOSPRayLightNode::Render(bool prepass)
     }
     else
     {
-      double px, py, pz;
-      double fx, fy, fz;
-      light->GetTransformedPosition(px, py, pz);
-      light->GetTransformedFocalPoint(fx, fy, fz);
-      if (lt == VTK_LIGHT_TYPE_SCENE_LIGHT)
+      double position[3];
+      double focalPoint[3];
+      light->GetPosition(position);
+      light->GetFocalPoint(focalPoint);
+
+      double direction[4];
+      vtkMath::Subtract(focalPoint, position, direction);
+      vtkMath::Normalize(direction);
+      direction[3] = 0.0;
+
+      if (light->LightTypeIsCameraLight())
       {
-        double* p = light->GetPosition();
-        px = p[0];
-        py = p[1];
-        pz = p[2];
-        p = light->GetFocalPoint();
-        fx = p[0];
-        fy = p[1];
-        fz = p[2];
+        light->TransformVector(direction, direction);
       }
-      double direction[3];
-      direction[0] = fx - px;
-      direction[1] = fy - py;
-      direction[2] = fz - pz;
+
+      if (!light->LightTypeIsSceneLight() && userLightTransfo)
+      {
+        camTransfo->MultiplyPoint(direction, direction);
+        userLightTransfo->TransformNormal(direction, direction);
+        invCamTransfo->MultiplyPoint(direction, direction);
+      }
+
       ospLight = ospNewLight3("DirectionalLight");
       ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI =
         static_cast<float>(vtkOSPRayLightNode::LightScale * light->GetIntensity() * vtkMath::Pi());
       ospSet1f(ospLight, "intensity", fI);
-      vtkMath::Normalize(direction);
       ospSet3f(ospLight, "direction", direction[0], direction[1], direction[2]);
       float r = static_cast<float>(vtkOSPRayLightNode::GetRadius(light));
       ospSet1f(ospLight, "angularDiameter", r);

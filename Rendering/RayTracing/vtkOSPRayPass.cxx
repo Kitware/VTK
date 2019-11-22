@@ -17,6 +17,7 @@
 
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkLightsPass.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"
@@ -214,20 +215,37 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 
   if (this->SceneGraph)
   {
+    vtkRenderer* ren = s->GetRenderer();
+
+    vtkFrameBufferObjectBase* fbo = s->GetFrameBuffer();
+    int viewportX, viewportY;
+    int viewportWidth, viewportHeight;
+    if (fbo)
+    {
+      viewportX = 0;
+      viewportY = 0;
+      fbo->GetLastSize(viewportWidth, viewportHeight);
+    }
+    else
+    {
+      ren->GetTiledSizeAndOrigin(&viewportWidth, &viewportHeight, &viewportX, &viewportY);
+    }
+
+    vtkOSPRayRendererNode* oren =
+      vtkOSPRayRendererNode::SafeDownCast(this->SceneGraph->GetViewNodeFor(ren));
+
+    oren->SetSize(viewportWidth, viewportHeight);
 
     this->SceneGraph->TraverseAllPasses();
 
-    vtkRenderer* ren = s->GetRenderer();
-    vtkOSPRayRendererNode* oren =
-      vtkOSPRayRendererNode::SafeDownCast(this->SceneGraph->GetViewNodeFor(ren));
     if (oren->GetBackend() == nullptr)
+    {
       return;
+    }
+
     // copy the result to the window
 
     vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
-    int viewportX, viewportY;
-    int viewportWidth, viewportHeight;
-    ren->GetTiledSizeAndOrigin(&viewportWidth, &viewportHeight, &viewportX, &viewportY);
 
     const int colorTexGL = this->SceneGraph->GetColorBufferTextureGL();
     const int depthTexGL = this->SceneGraph->GetDepthBufferTextureGL();

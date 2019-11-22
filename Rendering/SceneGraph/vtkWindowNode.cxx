@@ -14,11 +14,13 @@
 =========================================================================*/
 #include "vtkWindowNode.h"
 
+#include "vtkCollectionIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkRendererNode.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewNodeCollection.h"
 
@@ -107,5 +109,16 @@ void vtkWindowNode::Synchronize(bool prepass)
       GetTileViewport()       vtkWindow       virtual
       GetUseConstantFDOffsets()       vtkRenderWindow virtual
     */
+
+    vtkViewNodeCollection* renderers = this->GetChildren();
+    vtkCollectionIterator* it = renderers->NewIterator();
+    it->InitTraversal();
+    while (!it->IsDoneWithTraversal())
+    {
+      vtkRendererNode* child = vtkRendererNode::SafeDownCast(it->GetCurrentObject());
+      child->SetSize(this->Size);
+      it->GoToNextItem();
+    }
+    it->Delete();
   }
 }

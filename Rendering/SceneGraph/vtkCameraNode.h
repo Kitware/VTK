@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkCameraNode();
-  ~vtkCameraNode();
+  ~vtkCameraNode() override;
 
 private:
   vtkCameraNode(const vtkCameraNode&) = delete;

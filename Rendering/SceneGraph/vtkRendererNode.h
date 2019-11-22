@@ -37,16 +37,17 @@ public:
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
-   * Synchronize our state
+   * Get/Set the framebuffer size
    */
-  virtual void Synchronize(bool prepass) override;
+  vtkGetVector2Macro(Size, int);
+  vtkSetVector2Macro(Size, int);
 
 protected:
   vtkRendererNode();
-  ~vtkRendererNode();
+  ~vtkRendererNode() override;
 
   int Size[2];
 

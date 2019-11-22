@@ -279,3 +279,27 @@ vtkViewNode* vtkViewNode::GetViewNodeFor(vtkObject* obj)
   it->Delete();
   return owner;
 }
+
+//----------------------------------------------------------------------------
+vtkViewNode* vtkViewNode::GetFirstChildOfType(const char* type)
+{
+  if (this->IsA(type))
+  {
+    return this;
+  }
+
+  vtkCollectionIterator* it = this->Children->NewIterator();
+  it->InitTraversal();
+  while (!it->IsDoneWithTraversal())
+  {
+    vtkViewNode* child = vtkViewNode::SafeDownCast(it->GetCurrentObject());
+    if (child->IsA(type))
+    {
+      it->Delete();
+      return child;
+    }
+    it->GoToNextItem();
+  }
+  it->Delete();
+  return nullptr;
+}

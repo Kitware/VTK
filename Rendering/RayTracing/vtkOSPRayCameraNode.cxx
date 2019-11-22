@@ -64,9 +64,6 @@ void vtkOSPRayCameraNode::Render(bool prepass)
         stereo = true;
       }
     }
-    int tiledSize[2];
-    int tiledOrigin[2];
-    ren->GetTiledSizeAndOrigin(&tiledSize[0], &tiledSize[1], &tiledOrigin[0], &tiledOrigin[1]);
 
     vtkWindow* win = ren->GetVTKWindow();
     double* vp = win->GetTileViewport();
@@ -113,6 +110,8 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     }
 
     ospSetObject(orn->GetORenderer(), "camera", ospCamera);
+    int tiledSize[2];
+    orn->GetSize(tiledSize);
     ospSetf(ospCamera, "aspect", float(tiledSize[0]) / float(tiledSize[1]));
     double* pos = cam->GetPosition();
 

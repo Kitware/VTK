@@ -104,6 +104,11 @@ public:
   vtkViewNode* GetFirstAncestorOfType(const char* type);
 
   /**
+   * Find the first child of the desired type
+   */
+  vtkViewNode* GetFirstChildOfType(const char* type);
+
+  /**
    * Allow explicit setting of the renderable for a
    * view node.
    */

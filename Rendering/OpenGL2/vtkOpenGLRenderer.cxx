@@ -1027,11 +1027,19 @@ void vtkOpenGLRenderer::UpdateLightingUniforms(vtkShaderProgram* program)
   program->SetUniformGroupUpdateTime(vtkShaderProgram::LightingGroup, ltime);
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLRenderer::SetUserLightTransform(vtkTransform* transform)
 {
   this->UserLightTransform = transform;
 }
 
+// ----------------------------------------------------------------------------
+vtkTransform* vtkOpenGLRenderer::GetUserLightTransform()
+{
+  return this->UserLightTransform;
+}
+
+// ----------------------------------------------------------------------------
 void vtkOpenGLRenderer::SetEnvironmentCubeMap(vtkTexture* cubemap, bool isSRGB)
 {
   this->Superclass::SetEnvironmentCubeMap(cubemap);
