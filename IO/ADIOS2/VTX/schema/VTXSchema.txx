@@ -36,11 +36,14 @@ template <class T>
 void VTXSchema::GetDataArrayCommon(
   adios2::Variable<T> variable, types::DataArray& dataArray, const size_t step)
 {
+  dataArray.IsUpdated = true;
+
   if (dataArray.Persist)
   {
     const auto blocksInfo = this->Engine.BlocksInfo(variable, step);
     if (blocksInfo.empty())
     {
+      dataArray.IsUpdated = false;
       return;
     }
   }
@@ -93,6 +96,8 @@ void VTXSchema::GetDataArrayLocal(
   size_t components = 1;
   if (dataArray.HasTuples)
   {
+    // last one?
+    // TODO: check ordering here
     components = variable.Count().back();
   }
   else

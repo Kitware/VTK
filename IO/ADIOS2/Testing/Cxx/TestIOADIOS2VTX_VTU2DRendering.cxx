@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestIOADIOS2VTX_VTU3DRendering.cxx
+  Module:    TestIOADIOS2VTX_VTU2DRendering.cxx
 
 -------------------------------------------------------------------------
   Copyright 2008 Sandia Corporation.
@@ -20,8 +20,8 @@
 =========================================================================*/
 
 /*
- * TestIOADIOS2VTX_VTU3DRendering.cxx : simple rendering test for unstructured
- *                                      grid data
+ * TestIOADIOS2VTX_VTU2DRendering.cxx : simple rendering test for unstructured
+ *                                      grid data from 2D to 3D
  *
  *  Created on: Jun 19, 2019
  *      Author: William F Godoy godoywf@ornl.gov
@@ -85,38 +85,26 @@ void WriteBP(const std::string& fileName)
 {
 
   // clang-format off
-  const std::vector<std::uint64_t> connectivity = { 8, 0, 12, 32, 15, 20, 33, 43, 36, 8, 1, 24, 38, 13,
-    21, 39, 44, 34, 8, 12, 1, 13, 32, 33, 21, 34, 43, 8, 32, 13, 4, 14, 43, 34, 22, 35, 8, 15, 32,
-    14, 3, 36, 43, 35, 23, 8, 20, 33, 43, 36, 6, 16, 37, 19, 8, 33, 21, 34, 43, 16, 7, 17, 37, 8,
-    43, 34, 22, 35, 37, 17, 10, 18, 8, 36, 43, 35, 23, 19, 37, 18, 9, 8, 24, 2, 25, 38, 39, 30, 40,
-    44, 8, 38, 25, 5, 26, 44, 40, 31, 41, 8, 13, 38, 26, 4, 34, 44, 41, 22, 8, 21, 39, 44, 34, 7,
-    27, 42, 17, 8, 39, 30, 40, 44, 27, 8, 28, 42, 8, 44, 40, 31, 41, 42, 28, 11, 29, 8, 34, 44, 41,
-    22, 17, 42, 29, 10 };
+  const std::vector<std::uint64_t> connectivity = {
+          4, 0, 1, 2, 3,
+          4, 2, 3, 4, 5};
 
-  const std::vector<double> vertices = { 3.98975, -0.000438888, -0.0455599, 4.91756, -0.0080733,
-    -0.149567, 5.86422, -0.00533255, -0.38101, 3.98975, 1.00044, -0.0455599, 4.91756, 1.00807,
-    -0.149567, 5.86422, 1.00533, -0.38101, 4.01025, 0.000438888, 0.95444, 5.08244, 0.0080733,
-    0.850433, 6.13578, 0.00533255, 0.61899, 4.01025, 0.999561, 0.95444, 5.08244, 0.991927, 0.850433,
-    6.13578, 0.994667, 0.61899, 4.45173, -0.00961903, -0.0802818, 4.91711, 0.5, -0.153657, 4.45173,
-    1.00962, -0.0802818, 3.98987, 0.5, -0.0457531, 4.54827, 0.00961903, 0.919718, 5.08289, 0.5,
-    0.846343, 4.54827, 0.990381, 0.919718, 4.01013, 0.5, 0.954247, 4, 1.17739e-13, 0.454655, 5,
-    3.36224e-12, 0.354149, 5, 1, 0.354149, 4, 1, 0.454655, 5.38824, -0.00666013, -0.252066, 5.86382,
-    0.5, -0.383679, 5.38824, 1.00666, -0.252066, 5.61176, 0.00666013, 0.747934, 6.13618, 0.5,
-    0.616321, 5.61176, 0.99334, 0.747934, 6, -1.7895e-12, 0.121648, 6, 1, 0.121648, 4.4528, 0.5,
-    -0.0845428, 4.5, -1.95761e-12, 0.425493, 5, 0.5, 0.350191, 4.5, 1, 0.425493, 4, 0.5, 0.454445,
-    4.5472, 0.5, 0.915457, 5.38782, 0.5, -0.255387, 5.5, 6.97152e-13, 0.251323, 6, 0.5, 0.118984,
-    5.5, 1, 0.251323, 5.61218, 0.5, 0.744613, 4.5, 0.5, 0.421259, 5.5, 0.5, 0.247968 };
-
+  const std::vector<double> vertices = { 0, 0,
+                                         1, 0,
+                                         0, 1,
+                                         1, 1,
+                                         0, 2,
+                                         1, 2};
   // clang-format on
 
-  std::vector<double> sol(45);
+  std::vector<double> sol(6);
   std::iota(sol.begin(), sol.end(), 1.);
 
   adios2::fstream fs(fileName, adios2::fstream::out, MPI_COMM_SELF);
-  fs.write("types", 11);
-  fs.write("connectivity", connectivity.data(), {}, {}, { 16, 9 });
-  fs.write("vertices", vertices.data(), {}, {}, { 45, 3 });
-  fs.write("sol", sol.data(), {}, {}, { 45 });
+  fs.write("types", 8);
+  fs.write("connectivity", connectivity.data(), {}, {}, { 2, 5 });
+  fs.write("vertices", vertices.data(), {}, {}, { 6, 2 });
+  fs.write("sol", sol.data(), {}, {}, { 6 });
 
     const std::string vtuXML = R"(
   <VTKFile type="UnstructuredGrid">
@@ -142,7 +130,7 @@ void WriteBP(const std::string& fileName)
 
 } // end empty namespace
 
-int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
+int TestIOADIOS2VTX_VTU2DRendering(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> mpiController;
   mpiController->Initialize(&argc, &argv, 0);
@@ -151,7 +139,7 @@ int TestIOADIOS2VTX_VTU3DRendering(int argc, char* argv[])
 
   vtkNew<vtkTesting> testing;
   const std::string rootDirectory(testing->GetTempDirectory());
-  const std::string fileName = rootDirectory + "/testVTU3D.bp";
+  const std::string fileName = rootDirectory + "/testVTU2D.bp";
   if (rank == 0)
   {
     WriteBP(fileName);
