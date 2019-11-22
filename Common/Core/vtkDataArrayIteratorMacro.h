@@ -13,15 +13,12 @@
 
 =========================================================================*/
 /**
- * @class   vtkDataArrayIteratorMacro
- * @brief   A macro for obtaining iterators to
+ * @def   vtkDataArrayIteratorMacro
+ * @brief   (deprecated) A macro for obtaining iterators to
  * vtkDataArray data when the array implementation and type are unknown.
  *
- *
- *
- * NOTE: This macro is deprecated and should not be used any longer. Use
- * vtkArrayDispatch and the vtkGenericDataArray API instead of
- * vtkDataArrayIteratorMacro and vtkTypedDataArrayIterator.
+ * @deprecated This macro is deprecated and should not be used any longer. See
+ * vtkArrayDispatch.h and vtkDataArrayRange.h for replacements.
  *
  * See vtkTemplateMacro.
  * This macro is similar, but defines several additional typedefs and variables
@@ -85,6 +82,8 @@
 #ifndef vtkDataArrayIteratorMacro_h
 #define vtkDataArrayIteratorMacro_h
 
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkAOSDataArrayTemplate.h" // For classes referred to in the macro
 #include "vtkSetGet.h"               // For vtkTemplateMacro
 #include "vtkTypedDataArray.h"       // For classes referred to in the macro
@@ -131,6 +130,8 @@
       (void)vtkDAEnd;                                                                              \
       _call;                                                                                       \
     })
+
+#endif // legacy remove
 
 #endif // vtkDataArrayIteratorMacro_h
 

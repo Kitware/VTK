@@ -16,9 +16,10 @@
 #include "vtkGDALRasterConverter.h"
 
 // VTK includes
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayIteratorMacro.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
@@ -30,8 +31,10 @@
 
 #include <cpl_string.h>
 #include <gdal_priv.h>
+#include <memory>
 #include <ogr_spatialref.h>
 #include <sstream>
+#include <vector>
 
 // Preprocessor directive enable/disable row inversion (y-flip)
 // Although vtkImageData and GDALDataset have different origin position,
@@ -228,96 +231,85 @@ void vtkGDALRasterConverter::vtkGDALRasterConverterInternal::FindDataRange(
 
 //----------------------------------------------------------------------------
 // Copy vtkDataArray contents to GDAL raster bands
-template <class Iterator, typename VTK_TYPE>
-void StaticCopyToGDAL(
-  Iterator begin, Iterator, VTK_TYPE, vtkDataArray* vtkData, GDALDataset* gdalData)
+struct StaticCopyToGDAL
 {
-  // If data includes a lookup table, copy that
-  GDALColorTable* gdalColorTable = NULL;
-  vtkLookupTable* inputColorTable = vtkData->GetLookupTable();
-  if (inputColorTable)
+  template <typename ArrayT>
+  void operator()(ArrayT* array, GDALDataset* gdalData)
   {
-    gdalColorTable = new GDALColorTable;
-    vtkIdType tableSize = inputColorTable->GetNumberOfTableValues();
-    double inputColor[4] = { 0.0, 0.0, 0.0, 1.0 };
-    GDALColorEntry gdalColor;
-    for (vtkIdType i = 0; i < tableSize; ++i)
+    using T = vtk::GetAPIType<ArrayT>;
+
+    // If data includes a lookup table, copy that
+    std::unique_ptr<GDALColorTable> gdalColorTable;
+    vtkLookupTable* inputColorTable = array->GetLookupTable();
+    if (inputColorTable)
     {
-      inputColorTable->GetTableValue(i, inputColor);
-      gdalColor.c1 = static_cast<short>(inputColor[0] * 255.0);
-      gdalColor.c2 = static_cast<short>(inputColor[1] * 255.0);
-      gdalColor.c3 = static_cast<short>(inputColor[2] * 255.0);
-      gdalColor.c4 = static_cast<short>(inputColor[3] * 255.0);
-      gdalColorTable->SetColorEntry(i, &gdalColor);
-    }
-  }
-
-  // Create local buffer
-  int stride = vtkData->GetNumberOfComponents();
-  int numElements = vtkData->GetNumberOfTuples();
-  VTK_TYPE* buffer = new VTK_TYPE[numElements];
-  int xSize = gdalData->GetRasterXSize();
-  int ySize = gdalData->GetRasterYSize();
-
-  // Copy each vtk component to separate gdal band
-  for (int i = 0; i < stride; i++)
-  {
-    GDALRasterBand* band = gdalData->GetRasterBand(i + 1);
-    if (gdalColorTable)
-    {
-      band->SetColorTable(gdalColorTable);
-      band->SetColorInterpretation(GCI_PaletteIndex);
-    }
-
-    // Copy from iterator to buffer
-    Iterator iter = begin;
-
-    // Offset iterator to next element in the tuple
-    for (int j = 0; j < i; j++)
-    {
-      iter++;
-    }
-
-    // Copy data from vtk iterator to buffer
-    // Traverse by gdal row & column to make inversion easier
-    for (int row = 0; row < ySize; row++)
-    {
-#if INVERT_ROWS
-      // GDAL data starts at top-left, vtk at bottom-left
-      // So need to invert in the y direction
-      int targetRow = ySize - row - 1;
-#else
-      int targetRow = row;
-#endif
-      int offset = targetRow * xSize;
-      for (int col = 0; col < xSize; col++)
+      gdalColorTable.reset(new GDALColorTable);
+      vtkIdType tableSize = inputColorTable->GetNumberOfTableValues();
+      double inputColor[4] = { 0.0, 0.0, 0.0, 1.0 };
+      GDALColorEntry gdalColor;
+      for (vtkIdType i = 0; i < tableSize; ++i)
       {
-        buffer[offset + col] = *iter;
-
-        // Advance to next tuple
-        // Todo is this loop the same as "iter += stride"?
-        for (int k = 0; k < stride; k++)
-        {
-          iter++;
-        }
+        inputColorTable->GetTableValue(i, inputColor);
+        gdalColor.c1 = static_cast<short>(inputColor[0] * 255.0);
+        gdalColor.c2 = static_cast<short>(inputColor[1] * 255.0);
+        gdalColor.c3 = static_cast<short>(inputColor[2] * 255.0);
+        gdalColor.c4 = static_cast<short>(inputColor[3] * 255.0);
+        gdalColorTable.get()->SetColorEntry(i, &gdalColor);
       }
     }
 
-    // Copy from buffer to GDAL band
-    GDALDataType gdalDataType = band->GetRasterDataType();
-    CPLErr err =
-      band->RasterIO(GF_Write, 0, 0, xSize, ySize, buffer, xSize, ySize, gdalDataType, 0, 0);
-    if (err == CE_Failure)
+    // Create local buffer
+    int stride = array->GetNumberOfComponents();
+    vtkIdType numElements = array->GetNumberOfTuples();
+    std::vector<T> buffer(static_cast<size_t>(numElements));
+    int xSize = gdalData->GetRasterXSize();
+    int ySize = gdalData->GetRasterYSize();
+
+    // Copy each vtk component to separate gdal band
+    for (int i = 0; i < stride; i++)
     {
-      std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
-                << CPLGetLastErrorMsg() << std::endl;
-      return;
+      GDALRasterBand* band = gdalData->GetRasterBand(i + 1);
+      if (gdalColorTable)
+      {
+        band->SetColorTable(gdalColorTable.get());
+        band->SetColorInterpretation(GCI_PaletteIndex);
+      }
+
+      // Create a tuple range for the array:
+      const auto tuples = vtk::DataArrayTupleRange(array);
+      auto tupleIter = tuples.cbegin();
+
+      // Copy data from vtk iterator to buffer
+      // Traverse by gdal row & column to make inversion easier
+      for (int row = 0; row < ySize; row++)
+      {
+#if INVERT_ROWS
+        // GDAL data starts at top-left, vtk at bottom-left
+        // So need to invert in the y direction
+        int targetRow = ySize - row - 1;
+#else
+        int targetRow = row;
+#endif
+        int offset = targetRow * xSize;
+        for (int col = 0; col < xSize; col++)
+        {
+          buffer[offset + col] = (*tupleIter++)[i];
+        }
+      }
+
+      // Copy from buffer to GDAL band
+      GDALDataType gdalDataType = band->GetRasterDataType();
+      CPLErr err = band->RasterIO(
+        GF_Write, 0, 0, xSize, ySize, buffer.data(), xSize, ySize, gdalDataType, 0, 0);
+      if (err == CE_Failure)
+      {
+        std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n"
+                  << CPLGetLastErrorMsg() << std::endl;
+        return;
+      }
     }
   }
-
-  delete gdalColorTable;
-  delete[] buffer;
-}
+};
 
 //----------------------------------------------------------------------------
 vtkGDALRasterConverter::vtkGDALRasterConverter()
@@ -376,10 +368,11 @@ bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input, GDALDataset* output
 
   // Copy scalars to gdal bands
   array = input->GetCellData()->GetScalars();
-  switch (array->GetDataType())
-  {
-    vtkDataArrayIteratorMacro(
-      array, StaticCopyToGDAL(vtkDABegin, vtkDAEnd, vtkDAValueType(), array, output));
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+  StaticCopyToGDAL worker;
+  if (!Dispatcher::Execute(array, worker, output))
+  { // Fallback for unknown array types:
+    worker(array, output);
   }
 
   // Finis
