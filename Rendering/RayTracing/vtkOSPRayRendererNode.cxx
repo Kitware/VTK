@@ -420,11 +420,8 @@ vtkStandardNewMacro(vtkOSPRayRendererNode);
 //----------------------------------------------------------------------------
 vtkOSPRayRendererNode::vtkOSPRayRendererNode()
 {
-  this->Buffer = nullptr;
-  this->ZBuffer = nullptr;
   this->ColorBufferTex = 0;
   this->DepthBufferTex = 0;
-  this->ODepthBuffer = nullptr;
   this->OModel = nullptr;
   this->ORenderer = nullptr;
   this->OLightArray = nullptr;
@@ -451,9 +448,6 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
 //----------------------------------------------------------------------------
 vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
 {
-  delete[] this->Buffer;
-  delete[] this->ZBuffer;
-  delete[] this->ODepthBuffer;
   if (this->Internal->Backend != nullptr)
   {
     RTW::Backend* backend = this->Internal->Backend;
@@ -613,7 +607,7 @@ void vtkOSPRayRendererNode::SetVarianceThreshold(double value, vtkRenderer* rend
 //----------------------------------------------------------------------------
 double vtkOSPRayRendererNode::GetVarianceThreshold(vtkRenderer* renderer)
 {
-  constexpr int DEFAULT_VARIANCE_THRESHOLD = 0.3;
+  constexpr double DEFAULT_VARIANCE_THRESHOLD = 0.3;
   if (!renderer)
   {
     return DEFAULT_VARIANCE_THRESHOLD;
@@ -1253,14 +1247,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) |
           (this->Accumulate ? OSP_FB_ACCUM : 0));
 #pragma GCC diagnostic pop
-      delete[] this->Buffer;
-      this->Buffer = new unsigned char[this->Size[0] * this->Size[1] * 4];
-      delete[] this->ZBuffer;
-      this->ZBuffer = new float[this->Size[0] * this->Size[1]];
+      this->Buffer.resize(this->Size[0] * this->Size[1] * 4);
+      this->ZBuffer.resize(this->Size[0] * this->Size[1]);
       if (this->CompositeOnGL)
       {
-        delete[] this->ODepthBuffer;
-        this->ODepthBuffer = new float[this->Size[0] * this->Size[1]];
+        this->ODepthBuffer.resize(this->Size[0] * this->Size[1]);
       }
     }
     else if (this->Accumulate)
@@ -1443,7 +1434,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
       OSPTexture glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective(fovy, aspect,
         zNear, zFar, (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp, this->GetZBuffer(),
-        this->ODepthBuffer, viewportWidth, viewportHeight, this->Internal->Backend);
+        this->ODepthBuffer.data(), viewportWidth, viewportHeight, this->Internal->Backend);
 
       ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
     }
@@ -1510,7 +1501,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
 #ifdef VTKOSPRAY_ENABLE_DENOISER
       // std::copy(rgba, this->Size[0]*this->Size[1]*4*sizeof(float), &this->ColorBuffer[0]);
-      memcpy(&this->ColorBuffer[0], rgba, this->Size[0] * this->Size[1] * 4 * sizeof(float));
+      memcpy(this->ColorBuffer.data(), rgba, this->Size[0] * this->Size[1] * 4 * sizeof(float));
       if (useDenoiser)
       {
         this->Denoise();
@@ -1531,7 +1522,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 #else
       // std::copy((unsigned char*)rgba, this->Size[0]*this->Size[1]*4*sizeof(float),
       // &this->Buffer[0]);
-      memcpy((void*)this->Buffer, rgba, this->Size[0] * this->Size[1] * sizeof(char) * 4);
+      memcpy(this->Buffer.data(), rgba, this->Size[0] * this->Size[1] * sizeof(char) * 4);
 #endif
       ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
@@ -1541,7 +1532,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
         if (backendDepthNormalization)
         {
-          memcpy((void*)this->ZBuffer, Z, this->Size[0] * this->Size[1] * sizeof(float));
+          memcpy(this->ZBuffer.data(), Z, this->Size[0] * this->Size[1] * sizeof(float));
         }
         else
         {
@@ -1551,7 +1542,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
           double clipDiv = 1.0 / (clipMax - clipMin);
 
           float* s = (float*)Z;
-          float* d = this->ZBuffer;
+          float* d = this->ZBuffer.data();
           for (int i = 0; i < (this->Size[0] * this->Size[1]); i++, s++, d++)
           {
             *d = (*s < clipMin ? 1.0 : (*s - clipMin) * clipDiv);
@@ -1615,8 +1606,8 @@ void vtkOSPRayRendererNode::WriteLayer(
   {
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
     {
-      unsigned char* iptr = this->Buffer + j * this->Size[0] * 4;
-      float* zptr = this->ZBuffer + j * this->Size[0];
+      unsigned char* iptr = this->Buffer.data() + j * this->Size[0] * 4;
+      float* zptr = this->ZBuffer.data() + j * this->Size[0];
       unsigned char* optr = buffer + j * buffx * 4;
       float* ozptr = Z + j * buffx;
       for (int i = 0; i < buffx && i < this->Size[0]; i++)
@@ -1634,8 +1625,8 @@ void vtkOSPRayRendererNode::WriteLayer(
   {
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
     {
-      unsigned char* iptr = this->Buffer + j * this->Size[0] * 4;
-      float* zptr = this->ZBuffer + j * this->Size[0];
+      unsigned char* iptr = this->Buffer.data() + j * this->Size[0] * 4;
+      float* zptr = this->ZBuffer.data() + j * this->Size[0];
       unsigned char* optr = buffer + j * buffx * 4;
       float* ozptr = Z + j * buffx;
       for (int i = 0; i < buffx && i < this->Size[0]; i++)
@@ -1645,8 +1636,7 @@ void vtkOSPRayRendererNode::WriteLayer(
           if (this->CompositeOnGL)
           {
             // ospray is cooperating with GL (osprayvolumemapper)
-            unsigned char a = (*(iptr + 2));
-            float A = (float)a / 255;
+            float A = iptr[3] / 255.f;
             for (int h = 0; h < 3; h++)
             {
               *optr = (unsigned char)(((float)*iptr) * (1 - A) + ((float)*optr) * (A));
