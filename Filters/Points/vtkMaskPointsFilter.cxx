@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkMaskPointsFilter.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -32,76 +34,54 @@ namespace
 
 //----------------------------------------------------------------------------
 // The threaded core of the algorithm
-template <typename T>
 struct ExtractPoints
 {
-  unsigned char* Mask;
-  unsigned char EmptyValue;
-  const T* Points;
-  vtkIdType* PointMap;
-  double hX, hY, hZ; // internal data members for performance
-  double fX, fY, fZ, bX, bY, bZ;
-  vtkIdType xD, yD, zD, xyD;
-
-  ExtractPoints(unsigned char* mask, unsigned char ev, int dims[3], double origin[3],
-    double spacing[3], T* points, vtkIdType* map)
-    : Mask(mask)
-    , EmptyValue(ev)
-    , Points(points)
-    , PointMap(map)
+  template <typename PtArrayT>
+  void operator()(PtArrayT* ptArray, const unsigned char* mask, unsigned char emptyValue,
+    int dims[3], double origin[3], double spacing[3], vtkIdType* pointMap) const
   {
-    this->hX = spacing[0];
-    this->hY = spacing[1];
-    this->hZ = spacing[2];
-    this->fX = 1.0 / spacing[0];
-    this->fY = 1.0 / spacing[1];
-    this->fZ = 1.0 / spacing[2];
-    this->bX = origin[0] - 0.5 * this->hX;
-    this->bY = origin[1] - 0.5 * this->hY;
-    this->bZ = origin[2] - 0.5 * this->hZ;
-    this->xD = dims[0];
-    this->yD = dims[1];
-    this->zD = dims[2];
-    this->xyD = dims[0] * dims[1];
+    const vtkIdType numPts = ptArray->GetNumberOfTuples();
+
+    const double fX = 1.0 / spacing[0];
+    const double fY = 1.0 / spacing[1];
+    const double fZ = 1.0 / spacing[2];
+
+    const double bX = origin[0] - 0.5 * spacing[0];
+    const double bY = origin[1] - 0.5 * spacing[1];
+    const double bZ = origin[2] - 0.5 * spacing[2];
+
+    const vtkIdType xD = dims[0];
+    const vtkIdType yD = dims[1];
+    const vtkIdType zD = dims[2];
+    const vtkIdType xyD = dims[0] * dims[1];
+
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      const auto pts = vtk::DataArrayTupleRange<3>(ptArray, ptId, endPtId);
+      using PtCRefT = typename decltype(pts)::ConstTupleReferenceType;
+
+      vtkIdType* map = pointMap + ptId;
+
+      std::transform(pts.cbegin(), pts.cend(), map, [&](PtCRefT pt) -> vtkIdType {
+        const int i = static_cast<int>(((pt[0] - bX) * fX));
+        const int j = static_cast<int>(((pt[1] - bY) * fY));
+        const int k = static_cast<int>(((pt[2] - bZ) * fZ));
+
+        // If not inside image then skip
+        if (i < 0 || i >= xD || j < 0 || j >= yD || k < 0 || k >= zD)
+        {
+          return -1;
+        }
+        else if (mask[i + j * xD + k * xyD] != emptyValue)
+        {
+          return 1;
+        }
+        else
+        {
+          return -1;
+        }
+      });
+    });
   }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    const T* x = this->Points + 3 * ptId;
-    vtkIdType* map = this->PointMap + ptId;
-    const unsigned char* mask = this->Mask;
-    const unsigned char emptyValue = this->EmptyValue;
-    int i, j, k;
-
-    for (; ptId < endPtId; ++ptId, x += 3, ++map)
-    {
-      i = static_cast<int>(((x[0] - this->bX) * this->fX));
-      j = static_cast<int>(((x[1] - this->bY) * this->fY));
-      k = static_cast<int>(((x[2] - this->bZ) * this->fZ));
-
-      // If not inside image then skip
-      if (i < 0 || i >= this->xD || j < 0 || j >= this->yD || k < 0 || k >= this->zD)
-      {
-        *map = -1;
-      }
-      else if (mask[i + j * this->xD + k * this->xyD] != emptyValue)
-      {
-        *map = 1;
-      }
-      else
-      {
-        *map = -1;
-      }
-    }
-  }
-
-  static void Execute(unsigned char* mask, unsigned char ev, int dims[3], double origin[3],
-    double spacing[3], vtkIdType numPts, T* points, vtkIdType* map)
-  {
-    ExtractPoints extract(mask, ev, dims, origin, spacing, points, map);
-    vtkSMPTools::For(0, numPts, extract);
-  }
-
 }; // ExtractPoints
 
 } // anonymous namespace
@@ -176,12 +156,15 @@ int vtkMaskPointsFilter::FilterPoints(vtkPointSet* input)
 
   // Determine which points, if any, should be removed. We create a map
   // to keep track. The bulk of the algorithmic work is done in this pass.
-  vtkIdType numPts = input->GetNumberOfPoints();
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  switch (input->GetPoints()->GetDataType())
-  {
-    vtkTemplateMacro(ExtractPoints<VTK_TT>::Execute(
-      m, ev, dims, origin, spacing, numPts, (VTK_TT*)inPtr, this->PointMap));
+  vtkDataArray* ptArray = input->GetPoints()->GetData();
+
+  // Use a fast path for double/float points:
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  ExtractPoints worker;
+  if (!Dispatcher::Execute(ptArray, worker, m, ev, dims, origin, spacing, this->PointMap))
+  { // fallback for weird types
+    worker(ptArray, m, ev, dims, origin, spacing, this->PointMap);
   }
 
   return 1;
