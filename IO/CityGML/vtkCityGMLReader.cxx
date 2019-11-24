@@ -359,30 +359,56 @@ public:
   void ReadLinearRingPolygon(pugi::xml_node nodeRing, vtkPoints* points, vtkCellArray* polys)
   {
     vtkIdType i = 0;
-    vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
     vtkNew<vtkPolygon> poly;
-
-    poly->GetPointIds()->SetNumberOfIds(n - 1);
-    // go over all gml:pos children
-    for (pugi::xml_node pos : nodeRing.children())
+    vtkIdList* polyPointIds = poly->GetPointIds();
+    pugi::xml_node posList = nodeRing.child("gml:posList");
+    if (posList)
     {
-      // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the last point in a
-      // polygon (there are n points). We only read the first n - 1.
-      if (i == n - 1)
+      std::istringstream iss(posList.child_value());
+      while (1)
       {
-        break;
+        double p[3] = { 0, 0, 0 };
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+          if (!iss.good())
+            goto no_more_values;
+        }
+        points->InsertNextPoint(p);
+        polyPointIds->InsertId(i, points->GetNumberOfPoints() - 1);
+        ++i;
       }
-      std::istringstream iss(pos.child_value());
-      double p[3];
-      for (vtkIdType j = 0; j < 3; ++j)
-      {
-        iss >> p[j];
-      }
-      points->InsertNextPoint(p);
-      poly->GetPointIds()->SetId(i, points->GetNumberOfPoints() - 1);
-      ++i;
+    no_more_values:
+      // gml:posList repeates the last point in a
+      // polygon (there are n points). We only need the first n - 1.
+      polyPointIds->SetNumberOfIds(polyPointIds->GetNumberOfIds() - 1);
+      polys->InsertNextCell(poly);
     }
-    polys->InsertNextCell(poly);
+    else
+    {
+      vtkIdType n = std::distance(nodeRing.begin(), nodeRing.end());
+      polyPointIds->SetNumberOfIds(n - 1);
+      // go over all gml:pos children
+      for (pugi::xml_node pos : nodeRing.children())
+      {
+        // Part-1-Terrain-WaterBody-Vegetation-V2.gml repeates the last point in a
+        // polygon (there are n points). We only read the first n - 1.
+        if (i == n - 1)
+        {
+          break;
+        }
+        std::istringstream iss(pos.child_value());
+        double p[3];
+        for (vtkIdType j = 0; j < 3; ++j)
+        {
+          iss >> p[j];
+        }
+        points->InsertNextPoint(p);
+        polyPointIds->SetId(i, points->GetNumberOfPoints() - 1);
+        ++i;
+      }
+      polys->InsertNextCell(poly);
+    }
   }
 
   void ReadLinearRingLines(pugi::xml_node nodeRing, vtkPoints* points, vtkCellArray* lines)
