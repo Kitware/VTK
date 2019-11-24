@@ -41,14 +41,13 @@ Use the commands
 to introduce yourself to Git before committing.'
 
 # Ensure name and email are available.
-git config --get user.name > /dev/null &&
-git config --get user.email > /dev/null ||
+git var GIT_AUTHOR_IDENT > /dev/null ||
 die 'Identity not configured!' "$advice"
 
 # Validate the name and email.
-git config --get user.name | grep ' ' > /dev/null ||
+git var GIT_AUTHOR_IDENT | cut -d "<" -f1 | sed 's,\s$,,' | grep ' '  > /dev/null ||
 die 'Set user.name to your Real Name (with a space), not a userid.' "$advice"
-git config --get user.email | grep '^[^@]*@[^@]*$' > /dev/null ||
+git var GIT_AUTHOR_IDENT | cut -d ">" -f1 | cut -d "<" -f2 | grep '^[^@]*@[^@]*$' > /dev/null ||
 die 'Set user.email to an email address (userid@validdomain.com).' "$advice"
 
 #-----------------------------------------------------------------------------
