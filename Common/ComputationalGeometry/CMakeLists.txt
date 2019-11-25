@@ -1,4 +1,5 @@
 set(classes
+  vtkBilinearQuadIntersection
   vtkCardinalSpline
   vtkKochanekSpline
   vtkParametricBohemianDome
