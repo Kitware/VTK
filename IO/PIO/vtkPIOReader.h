@@ -14,7 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkPIOReader
- * @brief   class for reading PIO data files
+ * @brief   class for reading PIO (Parallel Input Output) data files
+ *
+ * This class reads in dump files generated from xRage, a LANL physics code.
+ * The PIO (Parallel Input Output) library is used to create the dump files.
  *
  * @sa
  * vtkMultiBlockReader
@@ -52,8 +55,13 @@ public:
   vtkGetStringMacro(FileName);
   //@}
 
+  //@{
+  /**
+   * Specify the timestep to be loaded
+   */
   vtkSetMacro(CurrentTimeStep, int);
   vtkGetMacro(CurrentTimeStep, int);
+  //@}
 
   //@{
   /**

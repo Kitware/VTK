@@ -61,14 +61,10 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BHTree_h
 #define BHTree_h
 
-#include <algorithm>
-#include <string>
 #include <vector>
 
 const int MAX_DIM = 3;
 const int MAX_CHILD = 8;
-
-using namespace std;
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -141,8 +137,8 @@ private:
   double minRange[MAX_DIM]; // Physical range of data
   double maxRange[MAX_DIM]; // Physical range of data
 
-  vector<BHLeaf*> bhLeaf;
-  vector<BHNode*> bhNode;
+  std::vector<BHLeaf*> bhLeaf;
+  std::vector<BHNode*> bhNode;
 };
 
 #endif

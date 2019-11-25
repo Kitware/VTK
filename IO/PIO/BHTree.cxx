@@ -235,7 +235,7 @@ int BHTree::insertLeaf(double* loc)
 
       // Get the index of leaf already in the node
       int pindx = this->bhNode[tindx]->child[oindx];
-      double* oldloc = this->bhLeaf[pindx]->location;
+      // double* oldloc = this->bhLeaf[pindx]->location;
 
       // If it is the same this is the index we return
       if (this->bhLeaf[pindx]->sameAs(this->dimension, loc))

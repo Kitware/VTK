@@ -83,15 +83,15 @@ public:
   void GetPIOData(const char*, const char*&);
   const double* GetPIOData(const char*);
   double GetPIOData(const char*, int);
-  void AddRealData(const char* name)
+  void AddRealData(const char* _name)
   {
-    if (RealData.find(name) == RealData.end())
-      RealData.insert(strdup(name));
+    if (RealData.find(_name) == RealData.end())
+      RealData.insert(strdup(_name));
   }
-  void AddCharData(const char* name)
+  void AddCharData(const char* _name)
   {
-    if (CharData.find(name) == CharData.end())
-      CharData.insert(strdup(name));
+    if (CharData.find(_name) == CharData.end())
+      CharData.insert(strdup(_name));
   }
   void FreePIOData(PIO_FIELD& pio_field);
   bool verbose;
@@ -157,7 +157,7 @@ private:
   inline void fstr2Cstr(char* s, size_t len) const
   {
     s[len] = '\0';
-    int i = len - 1;
+    size_t i = len - 1;
     do
     {
       if (s[i--] == ' ')

@@ -106,8 +106,8 @@ int vtkPIOReader::RequestInformation(vtkInformation* vtkNotUsed(reqInfo),
 
   // Get ParaView information and output pointers
   vtkInformation* outInfo = outVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output =
-    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  // vtkMultiBlockDataSet* output =
+  //  vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (this->pioAdaptor == 0)
   {

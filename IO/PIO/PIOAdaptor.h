@@ -22,8 +22,6 @@
 
 #include <vector>
 
-using namespace std;
-
 class PIOAdaptor
 {
 public:
@@ -49,47 +47,47 @@ protected:
 
   // Create the unstructured grid for AMR
   void create_amr_UG(vtkMultiBlockDataSet* grid, int numProc, int* global_numcell,
-    int numberOfCells,     // Number of cells all levels
-    int* cell_level,       // Level within AMR
-    long* cell_daughter,   // Daughter ID, 0 indicates no daughter
-    double** cell_center); // Cell center
+    int numberOfCells,      // Number of cells all levels
+    int* cell_level,        // Level within AMR
+    int64_t* cell_daughter, // Daughter ID, 0 indicates no daughter
+    double** cell_center);  // Cell center
 
   void create_amr_UG_1D(vtkMultiBlockDataSet* grid,
     int startCellIndx,       // Number of cells all levels
     int endCellIndx,         // Number of cells all levels
     int* cell_level,         // Level within AMR
-    long* cell_daughter,     // Daughter ID, 0 indicates no daughter
+    int64_t* cell_daughter,  // Daughter ID, 0 indicates no daughter
     double* cell_center[1]); // Cell center
 
   void create_amr_UG_2D(vtkMultiBlockDataSet* grid,
     int startCellIndx,       // Number of cells all levels
     int endCellIndx,         // Number of cells all levels
     int* cell_level,         // Level within AMR
-    long* cell_daughter,     // Daughter ID, 0 indicates no daughter
+    int64_t* cell_daughter,  // Daughter ID, 0 indicates no daughter
     double* cell_center[2]); // Cell center
 
   void create_amr_UG_3D(vtkMultiBlockDataSet* grid,
     int startCellIndx,       // Number of cells all levels
     int endCellIndx,         // Number of cells all levels
     int* cell_level,         // Level within AMR
-    long* cell_daughter,     // Daughter ID, 0 indicates no daughter
+    int64_t* cell_daughter,  // Daughter ID, 0 indicates no daughter
     double* cell_center[3]); // Cell center
 
   // Create the hypertree grid
   void create_amr_HTG(vtkMultiBlockDataSet* grid,
     int numberOfCells,       // Number of cells all levels
     int* cell_level,         // Level within AMR
-    long* cell_daughter,     // Daughter
+    int64_t* cell_daughter,  // Daughter
     double* cell_center[3]); // Cell center
 
-  int count_hypertree(long curIndex, long* daughter);
+  int count_hypertree(int64_t curIndex, int64_t* daughter);
 
   void build_hypertree(
-    vtkHyperTreeGridNonOrientedCursor* treeCursor, long curIndex, long* daughter);
+    vtkHyperTreeGridNonOrientedCursor* treeCursor, int64_t curIndex, int64_t* daughter);
 
   // Add variable data to the unstructured grid
   void add_amr_UG_scalar(vtkMultiBlockDataSet* grid, vtkStdString varName,
-    long* daughter,         // Indicates top level cell or not
+    int64_t* daughter,      // Indicates top level cell or not
     double* data[],         // Data for all cells
     int numberOfComponents, // Number of components in data
     int numberOfCells);     // Number of cells all levels
