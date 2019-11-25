@@ -164,7 +164,6 @@
 
 #include "vtkFrameBufferObjectBase.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkWeakPointer.h"            // needed for vtkWeakPointer.
 #include <map>                         // for the maps
 #include <vector>                      // for the lists of logical buffers.
 
@@ -490,7 +489,7 @@ protected:
   vtkOpenGLFramebufferObject();
   ~vtkOpenGLFramebufferObject() override;
 
-  vtkWeakPointer<vtkOpenGLRenderWindow> Context;
+  vtkOpenGLRenderWindow* Context;
 
   unsigned int FBOIndex;
 

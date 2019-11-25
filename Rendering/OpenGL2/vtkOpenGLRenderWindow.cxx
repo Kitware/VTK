@@ -178,6 +178,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   strcpy(this->WindowName, defaultWindowName);
 
   this->OffScreenFramebuffer = vtkOpenGLFramebufferObject::New();
+  this->OffScreenFramebuffer->SetContext(this);
 
   this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
@@ -1790,7 +1791,6 @@ int vtkOpenGLRenderWindow::CreateOffScreenFramebuffer(int width, int height)
       this->MultSamples = 0;
 #endif
     }
-    this->OffScreenFramebuffer->SetContext(this);
     this->GetState()->PushFramebufferBindings();
     this->OffScreenFramebuffer->PopulateFramebuffer(width, height,
       true,                 // textures
