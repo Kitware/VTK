@@ -984,7 +984,7 @@ void vtkOpenGLRenderWindow::StereoMidpoint()
     this->GetState()->PushFramebufferBindings();
     this->OffScreenFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->DefaultFrameBufferId);
-    this->GetState()->vtkglDrawBuffer(this->BackRightBuffer);
+    this->GetState()->vtkglDrawBuffer(this->GetBackLeftBuffer());
 
     int* fbsize = this->OffScreenFramebuffer->GetLastSize();
     // recall Blit upper right corner is exclusive of the range
@@ -1004,7 +1004,14 @@ void vtkOpenGLRenderWindow::Frame()
     this->GetState()->PushFramebufferBindings();
     this->OffScreenFramebuffer->Bind(GL_READ_FRAMEBUFFER);
     this->GetState()->vtkglBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->DefaultFrameBufferId);
-    this->GetState()->vtkglDrawBuffer(this->BackLeftBuffer);
+    if (this->StereoRender && this->StereoType == VTK_STEREO_CRYSTAL_EYES)
+    {
+      this->GetState()->vtkglDrawBuffer(this->GetBackRightBuffer());
+    }
+    else
+    {
+      this->GetState()->vtkglDrawBuffer(this->GetBackLeftBuffer());
+    }
 
     int* fbsize = this->OffScreenFramebuffer->GetLastSize();
     // recall Blit upper right corner is exclusive of the range

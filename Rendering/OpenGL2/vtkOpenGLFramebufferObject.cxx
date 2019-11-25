@@ -686,6 +686,11 @@ void vtkOpenGLFramebufferObject::SaveCurrentBindingsAndBuffers()
 
 void vtkOpenGLFramebufferObject::SaveCurrentBindingsAndBuffers(unsigned int mode)
 {
+  if (!this->Context)
+  {
+    vtkErrorMacro("Attempt to save bindings without a context");
+    return;
+  }
   if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
   {
     this->Context->GetState()->PushDrawFramebufferBinding();
@@ -705,6 +710,11 @@ void vtkOpenGLFramebufferObject::RestorePreviousBindingsAndBuffers()
 
 void vtkOpenGLFramebufferObject::RestorePreviousBindingsAndBuffers(unsigned int mode)
 {
+  if (!this->Context)
+  {
+    vtkErrorMacro("Attempt to restore bindings without a context");
+    return;
+  }
   if ((mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER) && this->DrawBindingSaved)
   {
     this->Context->GetState()->PopDrawFramebufferBinding();
