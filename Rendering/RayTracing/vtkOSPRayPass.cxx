@@ -23,13 +23,18 @@
 #include "vtkOSPRayViewNodeFactory.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpaquePass.h"
+#include "vtkOpenGLQuadHelper.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOverlayPass.h"
 #include "vtkRenderPassCollection.h"
 #include "vtkRenderState.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSequencePass.h"
+#include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 #include "vtkVolumetricPass.h"
 
 #include "RTWrapper/RTWrapper.h"
@@ -39,18 +44,41 @@ class vtkOSPRayPassInternals : public vtkRenderPass
 public:
   static vtkOSPRayPassInternals* New();
   vtkTypeMacro(vtkOSPRayPassInternals, vtkRenderPass);
-  vtkOSPRayPassInternals() { this->Factory = 0; }
-  ~vtkOSPRayPassInternals() { this->Factory->Delete(); }
+
+  vtkOSPRayPassInternals() = default;
+
+  ~vtkOSPRayPassInternals() override { delete this->QuadHelper; }
+
+  void Init(vtkOpenGLRenderWindow* context)
+  {
+    std::string FSSource = vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate();
+
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Decl",
+      "uniform sampler2D colorTexture;\n"
+      "uniform sampler2D depthTexture;\n");
+
+    vtkShaderProgram::Substitute(FSSource, "//VTK::FSQ::Impl",
+      "gl_FragData[0] = texture(colorTexture, texCoord);\n"
+      "gl_FragDepth = texture(depthTexture, texCoord).r;\n");
+
+    this->QuadHelper = new vtkOpenGLQuadHelper(context,
+      vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader().c_str(), FSSource.c_str(), "");
+
+    this->ColorTexture->SetContext(context);
+    this->ColorTexture->AutoParametersOff();
+    this->DepthTexture->SetContext(context);
+    this->DepthTexture->AutoParametersOff();
+  }
+
   void Render(const vtkRenderState* s) override { this->Parent->RenderInternal(s); }
 
-  vtkOSPRayViewNodeFactory* Factory;
-  vtkOSPRayPass* Parent;
+  vtkNew<vtkOSPRayViewNodeFactory> Factory;
+  vtkOSPRayPass* Parent = nullptr;
 
   // OpenGL-based display
-  GLuint fullscreenQuadProgram = 0;
-  GLuint fullscreenColorTextureLocation = 0;
-  GLuint fullscreenDepthTextureLocation = 0;
-  GLuint fullscreenVAO = 0;
+  vtkOpenGLQuadHelper* QuadHelper = nullptr;
+  vtkNew<vtkTextureObject> ColorTexture;
+  vtkNew<vtkTextureObject> DepthTexture;
 };
 
 int vtkOSPRayPass::RTDeviceRefCount = 0;
@@ -68,9 +96,7 @@ vtkOSPRayPass::vtkOSPRayPass()
 
   vtkOSPRayPass::RTInit();
 
-  vtkOSPRayViewNodeFactory* vnf = vtkOSPRayViewNodeFactory::New();
   this->Internal = vtkOSPRayPassInternals::New();
-  this->Internal->Factory = vnf;
   this->Internal->Parent = this;
 
   this->CameraPass = vtkCameraPass::New();
@@ -201,146 +227,88 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
     vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
     int viewportX, viewportY;
     int viewportWidth, viewportHeight;
-    int right = 0;
-    if (rwin)
-    {
-      if (rwin->GetStereoRender() == 1)
-      {
-        if (rwin->GetStereoType() == VTK_STEREO_CRYSTAL_EYES)
-        {
-          vtkCamera* camera = ren->GetActiveCamera();
-          if (camera)
-          {
-            if (!camera->GetLeftEye())
-            {
-              right = 1;
-            }
-          }
-        }
-      }
-    }
     ren->GetTiledSizeAndOrigin(&viewportWidth, &viewportHeight, &viewportX, &viewportY);
 
-    int layer = ren->GetLayer();
-    if (layer == 0)
+    const int colorTexGL = this->SceneGraph->GetColorBufferTextureGL();
+    const int depthTexGL = this->SceneGraph->GetDepthBufferTextureGL();
+
+    vtkOpenGLRenderWindow* windowOpenGL = vtkOpenGLRenderWindow::SafeDownCast(rwin);
+
+    if (!this->Internal->QuadHelper)
     {
-      const int colorTexGL = this->SceneGraph->GetColorBufferTextureGL();
-      const int depthTexGL = this->SceneGraph->GetDepthBufferTextureGL();
-
-      vtkOpenGLRenderWindow* windowOpenGL = vtkOpenGLRenderWindow::SafeDownCast(rwin);
-
-      if (colorTexGL != 0 && depthTexGL != 0 && windowOpenGL != nullptr)
-      {
-        windowOpenGL->MakeCurrent();
-
-        // Init OpenGL display resources
-        if (!this->Internal->fullscreenVAO)
-          glGenVertexArrays(1, &this->Internal->fullscreenVAO);
-
-        if (!this->Internal->fullscreenQuadProgram)
-        {
-          const GLchar* vertexShader = "#version 330\n"
-                                       "void main() {}";
-
-          const GLchar* geometryShader =
-            "#version 330 core\n"
-            "layout(points) in;"
-            "layout(triangle_strip, max_vertices = 4) out;"
-            "out vec2 texcoord;"
-            "void main() {"
-            "gl_Position = vec4( 1.0, 1.0, 0.0, 1.0 ); texcoord = vec2( 1.0, 1.0 ); EmitVertex();"
-            "gl_Position = vec4(-1.0, 1.0, 0.0, 1.0 ); texcoord = vec2( 0.0, 1.0 ); EmitVertex();"
-            "gl_Position = vec4( 1.0,-1.0, 0.0, 1.0 ); texcoord = vec2( 1.0, 0.0 ); EmitVertex();"
-            "gl_Position = vec4(-1.0,-1.0, 0.0, 1.0 ); texcoord = vec2( 0.0, 0.0 ); EmitVertex();"
-            "EndPrimitive();"
-            "}";
-
-          const GLchar* fragmentShader = "#version 330\n"
-                                         "uniform sampler2D colorTexture;"
-                                         "uniform sampler2D depthTexture;"
-                                         "in vec2 texcoord;"
-                                         "out vec4 color;"
-                                         "void main() {"
-                                         "	color = texture(colorTexture, texcoord);"
-                                         "   gl_FragDepth = texture(depthTexture, texcoord).r;"
-                                         "}";
-
-          GLuint vertexShaderHandle = glCreateShader(GL_VERTEX_SHADER);
-          glShaderSource(vertexShaderHandle, 1, &vertexShader, 0);
-          glCompileShader(vertexShaderHandle);
-
-          GLuint geometryShaderHandle = glCreateShader(GL_GEOMETRY_SHADER);
-          glShaderSource(geometryShaderHandle, 1, &geometryShader, 0);
-          glCompileShader(geometryShaderHandle);
-
-          GLuint fragmentShaderHandle = glCreateShader(GL_FRAGMENT_SHADER);
-          glShaderSource(fragmentShaderHandle, 1, &fragmentShader, 0);
-          glCompileShader(fragmentShaderHandle);
-
-          this->Internal->fullscreenQuadProgram = glCreateProgram();
-          glAttachShader(this->Internal->fullscreenQuadProgram, vertexShaderHandle);
-          glAttachShader(this->Internal->fullscreenQuadProgram, geometryShaderHandle);
-          glAttachShader(this->Internal->fullscreenQuadProgram, fragmentShaderHandle);
-          glLinkProgram(this->Internal->fullscreenQuadProgram);
-
-          this->Internal->fullscreenColorTextureLocation =
-            glGetUniformLocation(this->Internal->fullscreenQuadProgram, "colorTexture");
-          this->Internal->fullscreenDepthTextureLocation =
-            glGetUniformLocation(this->Internal->fullscreenQuadProgram, "depthTexture");
-        }
-
-        // Set viewport
-        glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
-
-        // Save previous program
-        int program;
-        glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-        // Display texture
-        glUseProgram(this->Internal->fullscreenQuadProgram);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, colorTexGL);
-        glUniform1i(this->Internal->fullscreenColorTextureLocation, 0);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthTexGL);
-        glUniform1i(this->Internal->fullscreenDepthTextureLocation, 1);
-
-        glBindVertexArray(this->Internal->fullscreenVAO);
-        glDrawArrays(GL_POINTS, 0, 1);
-
-        // Restore state
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glUseProgram(program);
-        glBindVertexArray(0);
-      }
-      else
-      {
-        rwin->SetZbufferData(viewportX, viewportY, viewportX + viewportWidth - 1,
-          viewportY + viewportHeight - 1, this->SceneGraph->GetZBuffer());
-        rwin->SetRGBACharPixelData(viewportX, viewportY, viewportX + viewportWidth - 1,
-          viewportY + viewportHeight - 1, this->SceneGraph->GetBuffer(), 0,
-          vtkOSPRayRendererNode::GetCompositeOnGL(ren), right);
-      }
+      this->Internal->Init(windowOpenGL);
     }
     else
     {
-      float* ontoZ = rwin->GetZbufferData(
-        viewportX, viewportY, viewportX + viewportWidth - 1, viewportY + viewportHeight - 1);
-      unsigned char* ontoRGBA = rwin->GetRGBACharPixelData(viewportX, viewportY,
-        viewportX + viewportWidth - 1, viewportY + viewportHeight - 1, 0, right);
-      oren->WriteLayer(ontoRGBA, ontoZ, viewportWidth, viewportHeight, layer);
-      rwin->SetZbufferData(
-        viewportX, viewportY, viewportX + viewportWidth - 1, viewportY + viewportHeight - 1, ontoZ);
-      rwin->SetRGBACharPixelData(viewportX, viewportY, viewportX + viewportWidth - 1,
-        viewportY + viewportHeight - 1, ontoRGBA, 0, vtkOSPRayRendererNode::GetCompositeOnGL(ren),
-        right);
-      delete[] ontoZ;
-      delete[] ontoRGBA;
+      windowOpenGL->GetShaderCache()->ReadyShaderProgram(this->Internal->QuadHelper->Program);
     }
+
+    if (!this->Internal->QuadHelper->Program || !this->Internal->QuadHelper->Program->GetCompiled())
+    {
+      vtkErrorMacro("Couldn't build the shader program.");
+      return;
+    }
+
+    if (colorTexGL != 0 && depthTexGL != 0 && windowOpenGL != nullptr)
+    {
+      // for visRTX, re-use existing OpenGL texture provided
+      windowOpenGL->MakeCurrent();
+
+      this->Internal->ColorTexture->AssignToExistingTexture(colorTexGL, GL_TEXTURE_2D);
+      this->Internal->DepthTexture->AssignToExistingTexture(depthTexGL, GL_TEXTURE_2D);
+    }
+    else
+    {
+      // upload to the texture
+      this->Internal->ColorTexture->Create2DFromRaw(
+        viewportWidth, viewportHeight, 4, VTK_UNSIGNED_CHAR, this->SceneGraph->GetBuffer());
+      this->Internal->DepthTexture->CreateDepthFromRaw(viewportWidth, viewportHeight,
+        vtkTextureObject::Float32, VTK_FLOAT, this->SceneGraph->GetZBuffer());
+    }
+
+    this->Internal->ColorTexture->Activate();
+    this->Internal->DepthTexture->Activate();
+
+    this->Internal->QuadHelper->Program->SetUniformi(
+      "colorTexture", this->Internal->ColorTexture->GetTextureUnit());
+    this->Internal->QuadHelper->Program->SetUniformi(
+      "depthTexture", this->Internal->DepthTexture->GetTextureUnit());
+
+    vtkOpenGLState* ostate = windowOpenGL->GetState();
+
+    vtkOpenGLState::ScopedglEnableDisable dsaver(ostate, GL_DEPTH_TEST);
+    vtkOpenGLState::ScopedglEnableDisable bsaver(ostate, GL_BLEND);
+    vtkOpenGLState::ScopedglDepthFunc dfsaver(ostate);
+    vtkOpenGLState::ScopedglBlendFuncSeparate bfsaver(ostate);
+
+    ostate->vtkglViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+    ostate->vtkglScissor(viewportX, viewportY, viewportWidth, viewportHeight);
+
+    ostate->vtkglEnable(GL_DEPTH_TEST);
+
+    if (ren->GetLayer() == 0)
+    {
+      ostate->vtkglDisable(GL_BLEND);
+      ostate->vtkglDepthFunc(GL_ALWAYS);
+    }
+    else
+    {
+      ostate->vtkglEnable(GL_BLEND);
+      ostate->vtkglDepthFunc(GL_LESS);
+      if (vtkOSPRayRendererNode::GetCompositeOnGL(ren))
+      {
+        ostate->vtkglBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+      }
+      else
+      {
+        ostate->vtkglBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+      }
+    }
+
+    this->Internal->QuadHelper->Render();
+
+    this->Internal->DepthTexture->Deactivate();
+    this->Internal->ColorTexture->Deactivate();
   }
 }
 
