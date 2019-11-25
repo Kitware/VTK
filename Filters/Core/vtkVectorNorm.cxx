@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkVectorNorm.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -27,114 +29,83 @@
 
 vtkStandardNewMacro(vtkVectorNorm);
 
+namespace
+{
 // The heart of the algorithm plus interface to the SMP tools. Double templated
 // over point and scalar types.
 template <class TV>
-class vtkVectorNormAlgorithm
+struct vtkVectorNormAlgorithm
 {
-public:
-  vtkIdType Num;
-  double Max;
-  const TV* Vectors;
-  float* Scalars;
-
-  // Constructor
-  vtkVectorNormAlgorithm();
-
-  // Interface between VTK and templated functions.
-  static void Norm(vtkVectorNorm* self, vtkIdType num, TV* vectors, float* scalars);
-
-  // Interface dot product computation to SMP tools.
-  template <class T>
-  class NormOp
+  TV* Vectors = nullptr;
+  float* Scalars = nullptr;
+};
+// Interface dot product computation to SMP tools.
+template <class T>
+struct NormOp
+{
+  vtkVectorNormAlgorithm<T>* Algo;
+  vtkSMPThreadLocal<double> Max;
+  NormOp(vtkVectorNormAlgorithm<T>* algo)
+    : Algo(algo)
+    , Max(VTK_DOUBLE_MIN)
   {
-  public:
-    vtkVectorNormAlgorithm* Algo;
-    vtkSMPThreadLocal<double> Max;
-    NormOp(vtkVectorNormAlgorithm<T>* algo)
-      : Algo(algo)
-      , Max(VTK_DOUBLE_MIN)
-    {
-    }
-    void operator()(vtkIdType k, vtkIdType end)
-    {
-      double& max = this->Max.Local();
-      const T* v = this->Algo->Vectors + 3 * k;
-      float* s = this->Algo->Scalars + k;
-      for (; k < end; ++k)
-      {
-        *s = static_cast<float>(sqrt(static_cast<double>(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])));
-        max = (*s > max ? *s : max);
-        s++;
-        v += 3;
-      }
-    }
-  };
-
-  // Interface normalize computation to SMP tools.
-  template <class T>
-  class MapOp
+  }
+  void operator()(vtkIdType k, vtkIdType end)
   {
-  public:
-    vtkVectorNormAlgorithm* Algo;
-    MapOp(vtkVectorNormAlgorithm<T>* algo) { this->Algo = algo; }
-    void operator()(vtkIdType k, vtkIdType end)
+    using ValueType = vtk::GetAPIType<T>;
+
+    double& max = this->Max.Local();
+    auto vectorRange = vtk::DataArrayTupleRange<3>(this->Algo->Vectors, k, end);
+    float* s = this->Algo->Scalars + k;
+    for (auto v : vectorRange)
     {
-      const double max = this->Algo->Max;
-      float* s = this->Algo->Scalars + k;
-      for (; k < end; ++k)
-      {
-        *s++ /= max;
-      }
+      const ValueType mag = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+      *s = static_cast<float>(sqrt(static_cast<double>(mag)));
+      max = (*s > max ? *s : max);
+      s++;
     }
-  };
+  }
 };
 
-//----------------------------------------------------------------------------
-// Initialized mainly to eliminate compiler warnings.
-template <class TV>
-vtkVectorNormAlgorithm<TV>::vtkVectorNormAlgorithm()
-  : Vectors(nullptr)
-  , Scalars(nullptr)
+struct vtkVectorNormDispatch // Interface between VTK and templated functions.
 {
-  this->Num = 0;
-  this->Max = 0.0;
-}
-
-//----------------------------------------------------------------------------
-// Templated class is glue between VTK and templated algorithms.
-template <class TV>
-void vtkVectorNormAlgorithm<TV>::Norm(
-  vtkVectorNorm* self, vtkIdType num, TV* vectors, float* scalars)
-{
-  // Populate data into local storage
-  vtkVectorNormAlgorithm<TV> algo;
-
-  algo.Num = num;
-  algo.Vectors = vectors;
-  algo.Scalars = scalars;
-
-  // Okay now generate samples using SMP tools
-  NormOp<TV> norm(&algo);
-  vtkSMPTools::For(0, algo.Num, norm);
-
-  // Have to roll up the thread local storage and get the overall range
-  double max = VTK_DOUBLE_MIN;
-  vtkSMPThreadLocal<double>::iterator itr;
-  for (itr = norm.Max.begin(); itr != norm.Max.end(); ++itr)
+  template <typename ArrayT>
+  void operator()(ArrayT* vectors, bool normalize, vtkIdType num, float* scalars) const
   {
-    if (*itr > max)
+
+    // Populate data into local storage
+    vtkVectorNormAlgorithm<ArrayT> algo;
+
+    algo.Vectors = vectors;
+    algo.Scalars = scalars;
+
+    // Okay now generate samples using SMP tools
+    NormOp<ArrayT> norm(&algo);
+    vtkSMPTools::For(0, num, norm);
+
+    // Have to roll up the thread local storage and get the overall range
+    double max = VTK_DOUBLE_MIN;
+    vtkSMPThreadLocal<double>::iterator itr;
+    for (itr = norm.Max.begin(); itr != norm.Max.end(); ++itr)
     {
-      *itr = max;
+      if (*itr > max)
+      {
+        *itr = max;
+      }
+    }
+
+    if (max > 0.0 && normalize)
+    {
+      vtkSMPTools::For(0, num, [&](vtkIdType i, vtkIdType end) {
+        float* s = algo.Scalars + i;
+        for (; i < end; ++i)
+        {
+          *s++ /= max;
+        }
+      });
     }
   }
-  algo.Max = max;
-
-  if (max > 0.0 && self->GetNormalize())
-  {
-    MapOp<TV> mapValues(&algo);
-    vtkSMPTools::For(0, algo.Num, mapValues);
-  }
+};
 }
 
 //=================================Begin class proper=========================
@@ -189,6 +160,10 @@ int vtkVectorNorm::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  // Needed for point and cell vector normals computation
+  vtkVectorNormDispatch normDispatch;
+  bool normalize = (this->GetNormalize() != 0);
+
   // Allocate / operate on point data
   if (computePtScalars)
   {
@@ -196,7 +171,11 @@ int vtkVectorNorm::RequestData(vtkInformation* vtkNotUsed(request),
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numVectors);
 
-    this->GenerateScalars(numVectors, ptVectors, newScalars);
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          ptVectors, normDispatch, normalize, numVectors, newScalars->GetPointer(0)))
+    {
+      normDispatch(ptVectors, normalize, numVectors, newScalars->GetPointer(0));
+    }
 
     int idx = outPD->AddArray(newScalars);
     outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
@@ -213,7 +192,11 @@ int vtkVectorNorm::RequestData(vtkInformation* vtkNotUsed(request),
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numVectors);
 
-    this->GenerateScalars(numVectors, cellVectors, newScalars);
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          cellVectors, normDispatch, normalize, numVectors, newScalars->GetPointer(0)))
+    {
+      normDispatch(cellVectors, normalize, numVectors, newScalars->GetPointer(0));
+    }
 
     int idx = outCD->AddArray(newScalars);
     outCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
@@ -226,21 +209,6 @@ int vtkVectorNorm::RequestData(vtkInformation* vtkNotUsed(request),
   outCD->PassData(cd);
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-// All this does it wrap up templated code.
-void vtkVectorNorm::GenerateScalars(vtkIdType num, vtkDataArray* v, vtkFloatArray* s)
-{
-  float* scalars = static_cast<float*>(s->GetVoidPointer(0));
-  void* vectors = v->GetVoidPointer(0);
-  switch (v->GetDataType())
-  {
-    vtkTemplateMacro(vtkVectorNormAlgorithm<VTK_TT>::Norm(this, num, (VTK_TT*)vectors, scalars));
-
-    default:
-      break;
-  }
 }
 
 //----------------------------------------------------------------------------

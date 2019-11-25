@@ -42,9 +42,6 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
-class vtkDataArray;
-class vtkFloatArray;
-
 class VTKFILTERSCORE_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm
 {
 public:
@@ -95,9 +92,6 @@ protected:
 private:
   vtkVectorNorm(const vtkVectorNorm&) = delete;
   void operator=(const vtkVectorNorm&) = delete;
-
-  // Helper function
-  void GenerateScalars(vtkIdType num, vtkDataArray* v, vtkFloatArray* s);
 };
 
 #endif
