@@ -1563,6 +1563,11 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
       return 0;
     }
   }
+  else if (this->FunctionFileName)
+  {
+    this->ReadArrays(
+        std::string(), piece, npieces, nghosts, output);
+  }
   // If no q filename is set, do nothing.
   return 1;
 }
