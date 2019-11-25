@@ -32,6 +32,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
@@ -1226,10 +1227,10 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
     this->ClearGeometries();
 
     vtkPolyData* poly = nullptr;
-    vtkMapper* mapper = act->GetMapper();
-    if (mapper)
+    vtkPolyDataMapper* mapper = vtkPolyDataMapper::SafeDownCast(act->GetMapper());
+    if (mapper && mapper->GetNumberOfInputPorts() > 0)
     {
-      poly = (vtkPolyData*)(mapper->GetInput());
+      poly = mapper->GetInput();
     }
     if (poly)
     {

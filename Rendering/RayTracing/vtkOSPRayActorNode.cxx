@@ -201,8 +201,11 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
         mtime = pwf->GetMTime();
       }
     }
-    dobj = mapper->GetInputDataObject(0, 0);
-    poly = vtkPolyData::SafeDownCast(dobj);
+    if (mapper->GetNumberOfInputPorts() > 0)
+    {
+      dobj = mapper->GetInputDataObject(0, 0);
+      poly = vtkPolyData::SafeDownCast(dobj);
+    }
   }
   if (poly)
   {

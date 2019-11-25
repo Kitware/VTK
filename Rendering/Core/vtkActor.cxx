@@ -505,7 +505,7 @@ vtkMTimeType vtkActor::GetRedrawMTime()
   {
     time = myMapper->GetMTime();
     mTime = (time > mTime ? time : mTime);
-    if (myMapper->GetInput() != nullptr)
+    if (myMapper->GetNumberOfInputPorts() > 0 && myMapper->GetInput() != nullptr)
     {
       myMapper->GetInputAlgorithm()->Update();
       time = myMapper->GetInput()->GetMTime();
