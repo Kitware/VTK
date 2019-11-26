@@ -1,5 +1,15 @@
+  if(VTK_LEGACY_REMOVE)
+  set(legacy_srcs)
+  else()
+  set(legacy_srcs
+    TestDataArrayDispatcher.cxx
+    TestDispatchers.cxx
+    )
+endif()
+
 vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
+  ${legacy_srcs}
   LagrangeHexahedron.cxx
   TestAngularPeriodicDataArray.cxx
   TestColor.cxx
@@ -11,10 +21,8 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestCompositeDataSets.cxx
   TestCompositeDataSetRange.cxx
   TestComputeBoundingSphere.cxx
-  TestDataArrayDispatcher.cxx
   TestDataObject.cxx
   TestDataObjectTreeRange.cxx
-  TestDispatchers.cxx
   TestFieldList.cxx
   TestGenericCell.cxx
   TestGraph.cxx

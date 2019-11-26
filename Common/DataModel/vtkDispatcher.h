@@ -73,6 +73,10 @@
 #ifndef vtkDispatcher_h
 #define vtkDispatcher_h
 
+#include "vtkConfigure.h"
+
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkDispatcher_Private.h" //needed for Functor,CastingPolicy,TypeInfo
 #include <map>                     //Required for the storage of template params to runtime params
 
@@ -99,6 +103,7 @@ public:
   template <class SomeLhs, class Functor>
   void Add(Functor fun)
   {
+    VTK_LEGACY_BODY(vtkDispatcher, "VTK 9.0");
     this->AddInternal<SomeLhs>(fun, 1);
   }
 
@@ -202,6 +207,8 @@ ReturnType vtkDispatcher<BaseLhs, ReturnType, CastingPolicy>::Go(BaseLhs* lhs)
   }
   return (i->second)(*lhs);
 }
+
+#endif // legacy
 
 #endif // vtkDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDispatcher.h
