@@ -132,11 +132,14 @@ public:
   // get the number of lights turned on
   vtkGetMacro(LightingCount, int);
 
+  //@{
   /**
    * Set the user light transform applied after the camera transform.
    * Can be null to disable it.
    */
   void SetUserLightTransform(vtkTransform* transform);
+  vtkTransform* GetUserLightTransform();
+  //@}
 
   //@{
   /**

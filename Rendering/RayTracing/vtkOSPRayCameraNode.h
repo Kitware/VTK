@@ -38,11 +38,11 @@ public:
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
 protected:
   vtkOSPRayCameraNode();
-  ~vtkOSPRayCameraNode();
+  ~vtkOSPRayCameraNode() override;
 
 private:
   vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) = delete;

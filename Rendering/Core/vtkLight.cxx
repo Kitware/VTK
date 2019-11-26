@@ -233,6 +233,54 @@ double* vtkLight::GetTransformedFocalPoint()
   return this->TransformedFocalPointReturn;
 }
 
+void vtkLight::TransformPoint(double a[3], double b[3])
+{
+  if (this->TransformMatrix)
+  {
+    double ha[4];
+    ha[0] = a[0];
+    ha[1] = a[1];
+    ha[2] = a[2];
+    ha[3] = 1.0;
+
+    this->TransformMatrix->MultiplyPoint(ha, ha);
+
+    b[0] = ha[0];
+    b[1] = ha[1];
+    b[2] = ha[2];
+  }
+  else
+  {
+    b[0] = a[0];
+    b[1] = a[1];
+    b[2] = a[2];
+  }
+}
+
+void vtkLight::TransformVector(double a[3], double b[3])
+{
+  if (this->TransformMatrix)
+  {
+    double ha[4];
+    ha[0] = a[0];
+    ha[1] = a[1];
+    ha[2] = a[2];
+    ha[3] = 0.0;
+
+    this->TransformMatrix->MultiplyPoint(ha, ha);
+
+    b[0] = ha[0];
+    b[1] = ha[1];
+    b[2] = ha[2];
+  }
+  else
+  {
+    b[0] = a[0];
+    b[1] = a[1];
+    b[2] = a[2];
+  }
+}
+
 void vtkLight::DeepCopy(vtkLight* light)
 {
   this->SetFocalPoint(light->GetFocalPoint());

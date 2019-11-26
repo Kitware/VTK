@@ -267,7 +267,6 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
   newCamera->SetPosition(oldCamera->GetPosition());
   newCamera->SetFocalPoint(oldCamera->GetFocalPoint());
   newCamera->SetViewUp(oldCamera->GetViewUp());
-  newCamera->OrthogonalizeViewUp();
 
   if (r->GetRenderWindow()->GetStereoRender())
   {
@@ -313,6 +312,9 @@ void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceI
     default:
       break;
   }
+
+  newCamera->SetViewAngle(90.0);
+  newCamera->OrthogonalizeViewUp();
 
   double range[2];
   oldCamera->GetClippingRange(range);
