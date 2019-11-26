@@ -70,6 +70,10 @@
 #ifndef vtkDoubleDispatcher_h
 #define vtkDoubleDispatcher_h
 
+#include "vtkConfigure.h"
+
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkDispatcher_Private.h" //needed for Functor,CastingPolicy,TypeInfo
 #include <map>                     //Required for the storage of template params to runtime params
 
@@ -94,6 +98,7 @@ public:
   template <class SomeLhs, class SomeRhs, class Functor>
   void Add(Functor fun)
   {
+    VTK_LEGACY_BODY(vtkDoubleDispatcher, "VTK 9.0");
     this->AddInternal<SomeLhs, SomeRhs>(fun, 1);
   }
 
@@ -211,5 +216,6 @@ ReturnType vtkDoubleDispatcher<BaseLhs, BaseRhs, ReturnType, CastingPolicy>::Go(
   return (i->second)(*lhs, *rhs);
 }
 
+#endif // legacy
 #endif // vtkDoubleDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDoubleDispatcher.h

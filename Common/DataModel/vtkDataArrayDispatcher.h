@@ -54,6 +54,10 @@
 #ifndef vtkDataArrayDispatcher_h
 #define vtkDataArrayDispatcher_h
 
+#include "vtkConfigure.h"
+
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkDataArray.h" //required for constructor of the vtkDataArrayFunctor
 #include "vtkType.h"      //Required for vtkIdType
 #include <map>            //Required for the storage of template params to runtime params
@@ -139,6 +143,7 @@ vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::vtkDataArrayDispatcher(
   : DefaultFunctor(&fun)
   , OwnsFunctor(false)
 {
+  VTK_LEGACY_BODY(vtkDataArrayDispatcher, "VTK 9.0");
 }
 
 //----------------------------------------------------------------------------
@@ -147,6 +152,7 @@ vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::vtkDataArrayDispatcher()
   : DefaultFunctor(new DefaultFunctorType())
   , OwnsFunctor(true)
 {
+  VTK_LEGACY_BODY(vtkDataArrayDispatcher, "VTK 9.0");
 }
 
 //----------------------------------------------------------------------------
@@ -170,5 +176,6 @@ ReturnType vtkDataArrayDispatcher<DefaultFunctorType, ReturnType>::Go(vtkDataArr
   return ReturnType();
 }
 
+#endif // legacy
 #endif // vtkDataArrayDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDataArrayDispatcher.h
