@@ -634,7 +634,7 @@ public:
    * returned. Requires the the cells have been built with BuildCells.
    * The @a pts pointer must not be modified.
    *
-   * @deprecated Internal cell storage has changed, and cell size is no longer
+   * @warning Internal cell storage has changed, and cell size is no longer
    * stored with the cell point ids. The `pts` array returned here no longer
    * exists in memory.
    */

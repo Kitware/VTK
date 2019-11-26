@@ -445,7 +445,7 @@ public:
    * Get the array of all the starting indices of cell definitions
    * in the cell array.
    *
-   * @deprecated vtkCellArray supports random access now. This array is no
+   * @warning vtkCellArray supports random access now. This array is no
    * longer used.
    */
   vtkIdTypeArray* GetCellLocationsArray();
@@ -464,7 +464,7 @@ public:
    * The functions use vtkPolyhedron::DecomposeAPolyhedronCell() to convert
    * polyhedron cells into standard format.
    *
-   * @deprecated The cellLocations array is no longer used; this information
+   * @warning The cellLocations array is no longer used; this information
    * is stored in vtkCellArray. Use the other SetCells overloads.
    */
   void SetCells(
