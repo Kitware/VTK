@@ -982,6 +982,9 @@ if (HDF5_FOUND)
         vtk_detect_library_type(_hdf5_libtype PATH "${_hdf5_location}")
         add_library("hdf5::${hdf5_target_name}" "${_hdf5_libtype}" IMPORTED)
         string(REPLACE "-D" "" _hdf5_definitions "${HDF5_${hdf5_lang}_DEFINITIONS}")
+        if (NOT HDF5_${hdf5_lang}_INCLUDE_DIRS)
+         set(HDF5_${hdf5_lang}_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
+        endif ()
         set_target_properties("hdf5::${hdf5_target_name}" PROPERTIES
           IMPORTED_LOCATION "${_hdf5_location}"
           IMPORTED_IMPLIB "${_hdf5_location}"
