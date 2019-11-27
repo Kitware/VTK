@@ -1,0 +1,8 @@
+NAME
+  VTKMY::Unsorted
+LIBRARY_NAME
+  vtkmyUnsorted
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::TestingCore

@@ -1,0 +1,9 @@
+NAME
+  VTKMY::Imaging
+LIBRARY_NAME
+  vtkmyImaging
+DEPENDS
+  VTKMY::Common
+  VTK::CommonExecutionModel
+TEST_DEPENDS
+  VTK::TestingCore

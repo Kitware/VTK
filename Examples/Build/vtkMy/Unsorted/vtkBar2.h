@@ -23,9 +23,9 @@
 #define vtkBar2_h
 
 #include "vtkObject.h"
-#include "vtkmyUnsortedWin32Header.h"
+#include "vtkmyUnsortedModule.h" // For export macro
 
-class VTK_MY_UNSORTED_EXPORT vtkBar2 : public vtkObject
+class VTKMYUNSORTED_EXPORT vtkBar2 : public vtkObject
 {
 public:
   static vtkBar2* New();
