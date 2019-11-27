@@ -56,6 +56,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestTexture16Bits.cxx,NO_DATA
   TestTexture32Bits.cxx,NO_DATA
   TestToneMappingPass.cxx,NO_DATA
+  TestSurfaceInterpolationSwitch.cxx
   TestUserShader.cxx
   TestUserShader2.cxx
   TestVBOPLYMapper.cxx

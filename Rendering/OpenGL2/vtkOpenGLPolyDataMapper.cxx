@@ -3199,6 +3199,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   }
 
   int representation = act->GetProperty()->GetRepresentation();
+  int interpolation = act->GetProperty()->GetInterpolation();
 
   vtkCellArray* prims[4];
   prims[0] = poly->GetVerts();
@@ -3217,6 +3218,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act
   this->TempState.Append(prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0, "prim2 mtime");
   this->TempState.Append(prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0, "prim3 mtime");
   this->TempState.Append(representation, "representation");
+  this->TempState.Append(interpolation, "interpolation");
   this->TempState.Append(this->LastSelectionState, "last selection state");
   this->TempState.Append(poly->GetMTime(), "polydata mtime");
   this->TempState.Append(this->GetMTime(), "this mtime");
