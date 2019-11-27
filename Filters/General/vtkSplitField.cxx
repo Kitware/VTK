@@ -14,8 +14,10 @@
 =========================================================================*/
 #include "vtkSplitField.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
@@ -269,15 +271,30 @@ int vtkSplitField::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-// fast pointer copy
-template <class T>
-void vtkSplitFieldCopyTuples(T* input, T* output, vtkIdType numTuples, int numComp, int component)
+namespace
 {
-  for (int i = 0; i < numTuples; i++)
+
+struct ExtractComponentWorker
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* input, vtkDataArray* outputDA, vtk::ComponentIdType comp)
   {
-    output[i] = input[numComp * i + component];
+    // We know these are the same array type:
+    ArrayT* output = vtkArrayDownCast<ArrayT>(outputDA);
+    assert(output);
+
+    const auto inTuples = vtk::DataArrayTupleRange(input);
+    auto outComps = vtk::DataArrayValueRange<1>(output);
+
+    using TupleCRefT = typename decltype(inTuples)::ConstTupleReferenceType;
+    using CompT = typename decltype(outComps)::ValueType;
+
+    std::transform(inTuples.cbegin(), inTuples.cend(), outComps.begin(),
+      [&](const TupleCRefT tuple) -> CompT { return tuple[comp]; });
   }
-}
+};
+
+} // end anon namespace
 
 vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
 {
@@ -289,28 +306,14 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
 
   vtkDataArray* output = da->NewInstance();
   output->SetNumberOfComponents(1);
-  int numTuples = da->GetNumberOfTuples();
+  vtkIdType numTuples = da->GetNumberOfTuples();
   output->SetNumberOfTuples(numTuples);
-  if (numTuples > 0)
-  {
-    switch (output->GetDataType())
-    {
-      vtkTemplateMacro(vtkSplitFieldCopyTuples((VTK_TT*)da->GetVoidPointer(0),
-        (VTK_TT*)output->GetVoidPointer(0), numTuples, da->GetNumberOfComponents(), component));
-      // This is not supported by the template macro.
-      // Switch to using the float interface.
-      case VTK_BIT:
-      {
-        for (int i = 0; i < numTuples; i++)
-        {
-          output->SetComponent(i, 0, da->GetComponent(i, component));
-        }
-      }
-      break;
-      default:
-        vtkErrorMacro(<< "Sanity check failed: Unsupported data type.");
-        return nullptr;
-    }
+
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+  ExtractComponentWorker worker;
+  if (!Dispatcher::Execute(da, worker, output, component))
+  { // fallback:
+    worker(da, output, component);
   }
 
   return output;

@@ -25,10 +25,12 @@
 
 #include "vtkTemporalStatistics.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
@@ -42,9 +44,13 @@
 #include "vtkSmartPointer.h"
 
 #include <algorithm>
+#include <functional>
 
 //=============================================================================
 vtkStandardNewMacro(vtkTemporalStatistics);
+
+namespace
+{
 
 //=============================================================================
 const char* const AVERAGE_SUFFIX = "average";
@@ -60,81 +66,111 @@ inline vtkStdString vtkTemporalStatisticsMangleName(const char* originalName, co
 }
 
 //-----------------------------------------------------------------------------
-// The interim stddev array keeps a sum of squares.
-template <class T>
-inline void vtkTemporalStatisticsInitializeStdDev(T* outArray, vtkIdType arraySize)
+struct AccumulateAverage
 {
-  for (vtkIdType i = 0; i < arraySize; i++)
+  template <typename InArrayT, typename OutArrayT>
+  void operator()(InArrayT* inArray, OutArrayT* outArray) const
   {
-    outArray[i] = 0;
-  }
-}
+    // These share APIType:
+    using T = vtk::GetAPIType<InArrayT>;
 
-//-----------------------------------------------------------------------------
-template <class T>
-inline void vtkTemporalStatisticsAccumulateAverage(
-  const T* inArray, T* outArray, vtkIdType arraySize)
-{
-  for (vtkIdType i = 0; i < arraySize; i++)
-  {
-    outArray[i] += inArray[i];
-  }
-}
+    const auto in = vtk::DataArrayValueRange(inArray);
+    auto out = vtk::DataArrayValueRange(outArray);
 
-template <class T>
-inline void vtkTemporalStatisticsAccumulateMinimum(
-  const T* inArray, T* outArray, vtkIdType arraySize)
-{
-  for (vtkIdType i = 0; i < arraySize; i++)
-  {
-    if (outArray[i] > inArray[i])
-      outArray[i] = inArray[i];
+    std::transform(in.cbegin(), in.cend(), out.cbegin(), out.begin(), std::plus<T>{});
   }
-}
+};
 
-template <class T>
-inline void vtkTemporalStatisticsAccumulateMaximum(
-  const T* inArray, T* outArray, vtkIdType arraySize)
+struct AccumulateMinimum
 {
-  for (vtkIdType i = 0; i < arraySize; i++)
+  template <typename InArrayT, typename OutArrayT>
+  void operator()(InArrayT* inArray, OutArrayT* outArray) const
   {
-    if (outArray[i] < inArray[i])
-      outArray[i] = inArray[i];
+    // These share APIType:
+    using T = vtk::GetAPIType<InArrayT>;
+
+    const auto in = vtk::DataArrayValueRange(inArray);
+    auto out = vtk::DataArrayValueRange(outArray);
+
+    std::transform(in.cbegin(), in.cend(), out.cbegin(), out.begin(),
+      [](T v1, T v2) -> T { return std::min(v1, v2); });
   }
-}
+};
+
+struct AccumulateMaximum
+{
+  template <typename InArrayT, typename OutArrayT>
+  void operator()(InArrayT* inArray, OutArrayT* outArray) const
+  {
+    // These share APIType:
+    using T = vtk::GetAPIType<InArrayT>;
+
+    const auto in = vtk::DataArrayValueRange(inArray);
+    auto out = vtk::DataArrayValueRange(outArray);
+
+    std::transform(in.cbegin(), in.cend(), out.cbegin(), out.begin(),
+      [](T v1, T v2) -> T { return std::max(v1, v2); });
+  }
+};
 
 // standard deviation one-pass algorithm from
 // http://www.cs.berkeley.edu/~mhoemmen/cs194/Tutorials/variance.pdf
 // this is numerically stable!
-template <class T>
-inline void vtkTemporalStatisticsAccumulateStdDev(
-  const T* inArray, T* outArray, const T* previousAverage, vtkIdType arraySize, int pass)
+struct AccumulateStdDev
 {
-  for (vtkIdType i = 0; i < arraySize; i++)
+  template <typename InArrayT, typename OutArrayT, typename PrevArrayT>
+  void operator()(InArrayT* inArray, OutArrayT* outArray, PrevArrayT* prevArray, int passIn) const
   {
-    double temp = inArray[i] - previousAverage[i] / static_cast<double>(pass);
-    outArray[i] = outArray[i] + static_cast<T>(pass * temp * temp / static_cast<double>(pass + 1));
+    // All arrays have the same valuetype:
+    using T = vtk::GetAPIType<InArrayT>;
+
+    const double pass = static_cast<double>(passIn);
+
+    const auto inValues = vtk::DataArrayValueRange(inArray);
+    const auto prevValues = vtk::DataArrayValueRange(prevArray);
+    auto outValues = vtk::DataArrayValueRange(outArray);
+
+    for (vtkIdType i = 0; i < inValues.size(); ++i)
+    {
+      const double temp = inValues[i] - (prevValues[i] / pass);
+      outValues[i] += static_cast<T>(pass * temp * temp / (pass + 1.));
+    }
   }
-}
+};
 
 //-----------------------------------------------------------------------------
-template <class T>
-inline void vtkTemporalStatisticsFinishAverage(T* outArray, vtkIdType arraySize, int sumSize)
+struct FinishAverage
 {
-  for (vtkIdType i = 0; i < arraySize; i++)
+  template <typename ArrayT>
+  void operator()(ArrayT* array, int sumSize) const
   {
-    outArray[i] /= sumSize;
+    auto range = vtk::DataArrayValueRange(array);
+    using RefT = typename decltype(range)::ReferenceType;
+    for (RefT ref : range)
+    {
+      ref /= sumSize;
+    }
   }
-}
+};
 
-template <class T>
-inline void vtkTemporalStatisticsFinishStdDev(T* outArray, vtkIdType arraySize, int sumSize)
+//-----------------------------------------------------------------------------
+struct FinishStdDev
 {
-  for (vtkIdType i = 0; i < arraySize; i++)
+  template <typename ArrayT>
+  void operator()(ArrayT* array, int sumSizeIn) const
   {
-    outArray[i] = static_cast<T>(sqrt(static_cast<double>(outArray[i]) / sumSize));
+    const double sumSize = static_cast<double>(sumSizeIn);
+    auto range = vtk::DataArrayValueRange(array);
+    using RefT = typename decltype(range)::ReferenceType;
+    using ValueT = typename decltype(range)::ValueType;
+    for (RefT ref : range)
+    {
+      ref = static_cast<ValueT>(std::sqrt(static_cast<double>(ref) / sumSize));
+    }
   }
-}
+};
+
+} // end anon namespace
 
 //=============================================================================
 vtkTemporalStatistics::vtkTemporalStatistics()
@@ -424,12 +460,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray* array, vtkFieldData* o
     newArray->CopyComponentNames(array);
 
     newArray->SetNumberOfTuples(array->GetNumberOfTuples());
-    switch (array->GetDataType())
-    {
-      vtkTemplateMacro(
-        vtkTemporalStatisticsInitializeStdDev(static_cast<VTK_TT*>(newArray->GetVoidPointer(0)),
-          array->GetNumberOfComponents() * array->GetNumberOfTuples()));
-    }
+    newArray->Fill(0.);
     outFd->AddArray(newArray);
   }
 }
@@ -497,7 +528,9 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData* inFd, vtkFieldData* o
     vtkDataArray* inArray = inFd->GetArray(i);
     vtkDataArray* outArray;
     if (!inArray)
+    {
       continue;
+    }
 
     outArray = this->GetArray(outFd, inArray, AVERAGE_SUFFIX);
     if (outArray)
@@ -506,28 +539,24 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData* inFd, vtkFieldData* o
       vtkDataArray* stdevOutArray = this->GetArray(outFd, inArray, STANDARD_DEVIATION_SUFFIX);
       if (stdevOutArray)
       {
-        switch (inArray->GetDataType())
-        {
-          // standard deviation must be called before average since the one-pass
-          // algorithm uses the average up to the previous time step
-          vtkTemplateMacro(vtkTemporalStatisticsAccumulateStdDev(
-            static_cast<const VTK_TT*>(inArray->GetVoidPointer(0)),
-            static_cast<VTK_TT*>(stdevOutArray->GetVoidPointer(0)),
-            static_cast<const VTK_TT*>(outArray->GetVoidPointer(0)),
-            inArray->GetNumberOfComponents() * inArray->GetNumberOfTuples(),
-            this->CurrentTimeIndex));
+        using Dispatcher = vtkArrayDispatch::Dispatch3SameValueType;
+        AccumulateStdDev worker;
+        if (!Dispatcher::Execute(inArray, stdevOutArray, outArray, worker, this->CurrentTimeIndex))
+        { // Fallback to slow path:
+          worker(inArray, stdevOutArray, outArray, this->CurrentTimeIndex);
         }
+
         // Alert change in data.
         stdevOutArray->DataChanged();
       }
 
-      switch (inArray->GetDataType())
-      {
-        vtkTemplateMacro(vtkTemporalStatisticsAccumulateAverage(
-          static_cast<const VTK_TT*>(inArray->GetVoidPointer(0)),
-          static_cast<VTK_TT*>(outArray->GetVoidPointer(0)),
-          inArray->GetNumberOfComponents() * inArray->GetNumberOfTuples()));
+      using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+      AccumulateAverage worker;
+      if (!Dispatcher::Execute(inArray, outArray, worker))
+      { // Fallback to slow path:
+        worker(inArray, stdevOutArray);
       }
+
       // Alert change in data.
       outArray->DataChanged();
     }
@@ -535,13 +564,13 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData* inFd, vtkFieldData* o
     outArray = this->GetArray(outFd, inArray, MINIMUM_SUFFIX);
     if (outArray)
     {
-      switch (inArray->GetDataType())
-      {
-        vtkTemplateMacro(vtkTemporalStatisticsAccumulateMinimum(
-          static_cast<const VTK_TT*>(inArray->GetVoidPointer(0)),
-          static_cast<VTK_TT*>(outArray->GetVoidPointer(0)),
-          inArray->GetNumberOfComponents() * inArray->GetNumberOfTuples()));
+      using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+      AccumulateMinimum worker;
+      if (!Dispatcher::Execute(inArray, outArray, worker))
+      { // Fallback to slow path:
+        worker(inArray, outArray);
       }
+
       // Alert change in data.
       outArray->DataChanged();
     }
@@ -549,12 +578,11 @@ void vtkTemporalStatistics::AccumulateArrays(vtkFieldData* inFd, vtkFieldData* o
     outArray = this->GetArray(outFd, inArray, MAXIMUM_SUFFIX);
     if (outArray)
     {
-      switch (inArray->GetDataType())
-      {
-        vtkTemplateMacro(vtkTemporalStatisticsAccumulateMaximum(
-          static_cast<const VTK_TT*>(inArray->GetVoidPointer(0)),
-          static_cast<VTK_TT*>(outArray->GetVoidPointer(0)),
-          inArray->GetNumberOfComponents() * inArray->GetNumberOfTuples()));
+      using Dispatcher = vtkArrayDispatch::Dispatch2SameValueType;
+      AccumulateMaximum worker;
+      if (!Dispatcher::Execute(inArray, outArray, worker))
+      { // Fallback to slow path:
+        worker(inArray, outArray);
       }
       // Alert change in data.
       outArray->DataChanged();
@@ -618,6 +646,8 @@ void vtkTemporalStatistics::PostExecute(vtkCompositeDataSet* input, vtkComposite
 //-----------------------------------------------------------------------------
 void vtkTemporalStatistics::FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd)
 {
+  using Dispatcher = vtkArrayDispatch::Dispatch;
+
   int numArrays = inFd->GetNumberOfArrays();
   for (int i = 0; i < numArrays; i++)
   {
@@ -629,11 +659,10 @@ void vtkTemporalStatistics::FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd
     outArray = this->GetArray(outFd, inArray, AVERAGE_SUFFIX);
     if (outArray)
     {
-      switch (inArray->GetDataType())
-      {
-        vtkTemplateMacro(vtkTemporalStatisticsFinishAverage(
-          static_cast<VTK_TT*>(outArray->GetVoidPointer(0)),
-          inArray->GetNumberOfComponents() * inArray->GetNumberOfTuples(), this->CurrentTimeIndex));
+      FinishAverage worker;
+      if (!Dispatcher::Execute(outArray, worker, this->CurrentTimeIndex))
+      { // fall-back to slow path
+        worker(outArray, this->CurrentTimeIndex);
       }
     }
     vtkDataArray* avgArray = outArray;
@@ -652,12 +681,10 @@ void vtkTemporalStatistics::FinishArrays(vtkFieldData* inFd, vtkFieldData* outFd
       }
       else
       {
-        switch (inArray->GetDataType())
-        {
-          vtkTemplateMacro(
-            vtkTemporalStatisticsFinishStdDev(static_cast<VTK_TT*>(outArray->GetVoidPointer(0)),
-              inArray->GetNumberOfComponents() * inArray->GetNumberOfTuples(),
-              this->CurrentTimeIndex));
+        FinishStdDev worker;
+        if (!Dispatcher::Execute(outArray, worker, this->CurrentTimeIndex))
+        { // fall-back to slow path
+          worker(outArray, this->CurrentTimeIndex);
         }
         if (!this->ComputeAverage)
         {

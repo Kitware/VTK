@@ -16,6 +16,7 @@
 #include "vtkQuadraturePointInterpolator.h"
 #include "vtkQuadratureSchemeDefinition.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
@@ -35,6 +36,8 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 
 #include <sstream>
+#include <vector>
+
 using std::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
@@ -134,9 +137,13 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOu
     return 0;
   }
 
+  if (offsets->GetNumberOfComponents() != 1)
+  {
+    vtkWarningMacro("expected Offset array to be single-component.");
+    return 0;
+  }
+
   const char* arrayOffsetName = offsets->GetName();
-  void* pOffsets = offsets->GetVoidPointer(0);
-  int O_Type = offsets->GetDataType();
 
   vtkInformation* info = offsets->GetInformation();
   vtkInformationQuadratureSchemeDefinitionVectorKey* key =
@@ -147,16 +154,14 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOu
     return 0;
   }
   int dictSize = key->Size(info);
-  vtkQuadratureSchemeDefinition** dict = new vtkQuadratureSchemeDefinition*[dictSize];
-  key->GetRange(info, dict, 0, 0, dictSize);
+  std::vector<vtkQuadratureSchemeDefinition*> dict(dictSize);
+  key->GetRange(info, dict.data(), 0, 0, dictSize);
 
   // interpolate the arrays
   for (int arrayId = 0; arrayId < nArrays; ++arrayId)
   {
     // Grab the next array
     vtkDataArray* V = usgOut->GetPointData()->GetArray(arrayId);
-    int V_type = V->GetDataType();
-    void* pV = V->GetVoidPointer(0);
 
     // Use two arrays, one with the interpolated values,
     // the other with offsets to the start of each cell's
@@ -175,18 +180,18 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOu
     interpolated->Delete();
 
     // For all cells interpolate.
-    switch (V_type)
-    {
-      vtkTemplateMacro(
-        if (!vtkQuadraturePointsUtilities::Interpolate(usgOut, nCells, static_cast<VTK_TT*>(pV),
-              nComps, dict, interpolated, pOffsets, O_Type)) {
-          vtkWarningMacro("Failed to interpolate fields "
-                          "to quadrature points. Aborting.");
-          return 0;
-        });
+    // Don't restrict the value array's type, but only use the fast path for
+    // integral offsets.
+    using vtkArrayDispatch::AllTypes;
+    using vtkArrayDispatch::Integrals;
+    using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<AllTypes, Integrals>;
+
+    vtkQuadraturePointsUtilities::InterpolateWorker worker;
+    if (!Dispatcher::Execute(V, offsets, worker, usgOut, nCells, dict, interpolated))
+    { // fall back to slow path:
+      worker(V, offsets, usgOut, nCells, dict, interpolated);
     }
   }
-  delete[] dict;
 
   return 1;
 }
