@@ -18,7 +18,7 @@
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkProperty.h"
@@ -86,17 +86,11 @@ struct AppendTrianglesWorker
   }
 
   // Generic API, on VS13 Rel this is about 80% slower than
-  // the AOS template above.
+  // the AOS template above. (We should retest this now that it uses ranges).
   template <typename PointArray>
-  void operator()(PointArray* points)
+  void operator()(PointArray* pointArray)
   {
-    // This allows the compiler to optimize for the AOS array stride.
-    VTK_ASSUME(points->GetNumberOfComponents() == 3);
-
-    // These allow this single worker function to be used with both
-    // the vtkDataArray 'double' API and the more efficient
-    // vtkGenericDataArray APIs, depending on the template parameters:
-    vtkDataArrayAccessor<PointArray> pt(points);
+    const auto points = vtk::DataArrayTupleRange<3>(pointArray);
 
     auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
 
@@ -108,17 +102,17 @@ struct AppendTrianglesWorker
 
       if (cellSize >= 3)
       {
-        vtkIdType id1 = cell[0];
+        const vtkIdType id1 = cell[0];
         for (int i = 1; i < cellSize - 1; i++)
         {
-          vtkIdType id2 = cell[i];
-          vtkIdType id3 = cell[i + 1];
-          if ((pt.Get(id1, 0) != pt.Get(id2, 0) || pt.Get(id1, 1) != pt.Get(id2, 1) ||
-                pt.Get(id1, 2) != pt.Get(id2, 2)) &&
-            (pt.Get(id1, 0) != pt.Get(id3, 0) || pt.Get(id1, 1) != pt.Get(id3, 1) ||
-              pt.Get(id1, 2) != pt.Get(id3, 2)) &&
-            (pt.Get(id3, 0) != pt.Get(id2, 0) || pt.Get(id3, 1) != pt.Get(id2, 1) ||
-              pt.Get(id3, 2) != pt.Get(id2, 2)))
+          const vtkIdType id2 = cell[i];
+          const vtkIdType id3 = cell[i + 1];
+
+          const auto pt1 = points[id1];
+          const auto pt2 = points[id2];
+          const auto pt3 = points[id3];
+
+          if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
           {
             indexArray->push_back(static_cast<unsigned int>(id1 + vOffset));
             indexArray->push_back(static_cast<unsigned int>(id2 + vOffset));

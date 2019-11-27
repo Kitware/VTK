@@ -17,7 +17,7 @@
 
 #include "vtkAssume.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkTypeTraits.h"
@@ -140,8 +140,7 @@ public:
   }
 };
 
-template <int NumComps, typename ArrayT,
-  typename APIType = typename vtkDataArrayAccessor<ArrayT>::APIType>
+template <int NumComps, typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
 class AllValuesMinAndMax : public MinAndMax<APIType, NumComps>
 {
 private:
@@ -159,23 +158,22 @@ public:
   void Reduce() { MinAndMaxT::Reduce(); }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    VTK_ASSUME(this->Array->GetNumberOfComponents() == NumComps);
-    vtkDataArrayAccessor<ArrayT> access(this->Array);
+    const auto tuples = vtk::DataArrayTupleRange<NumComps>(this->Array, begin, end);
     auto& range = MinAndMaxT::TLRange.Local();
-    for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
+    for (const auto tuple : tuples)
     {
-      for (int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j += 2)
+      size_t j = 0;
+      for (const APIType value : tuple)
       {
-        APIType value = access.Get(tupleIdx, compIdx);
         range[j] = detail::min(range[j], value);
         range[j + 1] = detail::max(range[j + 1], value);
+        j += 2;
       }
     }
   }
 };
 
-template <int NumComps, typename ArrayT,
-  typename APIType = typename vtkDataArrayAccessor<ArrayT>::APIType>
+template <int NumComps, typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
 class FiniteMinAndMax : public MinAndMax<APIType, NumComps>
 {
 private:
@@ -193,25 +191,25 @@ public:
   void Reduce() { MinAndMaxT::Reduce(); }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    VTK_ASSUME(this->Array->GetNumberOfComponents() == NumComps);
-    vtkDataArrayAccessor<ArrayT> access(this->Array);
+    const auto tuples = vtk::DataArrayTupleRange<NumComps>(this->Array, begin, end);
     auto& range = MinAndMaxT::TLRange.Local();
-    for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
+    for (const auto tuple : tuples)
     {
-      for (int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j += 2)
+      size_t j = 0;
+      for (const APIType value : tuple)
       {
-        APIType value = access.Get(tupleIdx, compIdx);
         if (!detail::isinf(value))
         {
           range[j] = detail::min(range[j], value);
           range[j + 1] = detail::max(range[j + 1], value);
         }
+        j += 2;
       }
     }
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtkDataArrayAccessor<ArrayT>::APIType>
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
 class MagnitudeAllValuesMinAndMax : public MinAndMax<APIType, 1>
 {
 private:
@@ -238,16 +236,14 @@ public:
   }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    const int NumComps = this->Array->GetNumberOfComponents();
-    vtkDataArrayAccessor<ArrayT> access(this->Array);
+    const auto tuples = vtk::DataArrayTupleRange(this->Array, begin, end);
     auto& range = MinAndMaxT::TLRange.Local();
-    for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
+    for (const auto tuple : tuples)
     {
       APIType squaredSum = 0.0;
-      for (int compIdx = 0; compIdx < NumComps; ++compIdx)
+      for (const APIType value : tuple)
       {
-        const APIType t = static_cast<APIType>(access.Get(tupleIdx, compIdx));
-        squaredSum += t * t;
+        squaredSum += value * value;
       }
       range[0] = detail::min(range[0], squaredSum);
       range[1] = detail::max(range[1], squaredSum);
@@ -255,7 +251,7 @@ public:
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtkDataArrayAccessor<ArrayT>::APIType>
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
 class MagnitudeFiniteMinAndMax : public MinAndMax<APIType, 1>
 {
 private:
@@ -282,16 +278,14 @@ public:
   }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    const int NumComps = this->Array->GetNumberOfComponents();
-    vtkDataArrayAccessor<ArrayT> access(this->Array);
+    const auto tuples = vtk::DataArrayTupleRange(this->Array, begin, end);
     auto& range = MinAndMaxT::TLRange.Local();
-    for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
+    for (const auto tuple : tuples)
     {
       APIType squaredSum = 0.0;
-      for (int compIdx = 0; compIdx < NumComps; ++compIdx)
+      for (const APIType value : tuple)
       {
-        const APIType t = static_cast<APIType>(access.Get(tupleIdx, compIdx));
-        squaredSum += t * t;
+        squaredSum += value * value;
       }
       if (!detail::isinf(squaredSum))
       {
@@ -375,7 +369,7 @@ public:
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtkDataArrayAccessor<ArrayT>::APIType>
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
 class AllValuesGenericMinAndMax : public GenericMinAndMax<ArrayT, APIType>
 {
 private:
@@ -391,21 +385,22 @@ public:
   void Reduce() { MinAndMaxT::Reduce(); }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    vtkDataArrayAccessor<ArrayT> access(MinAndMaxT::Array);
+    const auto tuples = vtk::DataArrayTupleRange(this->Array, begin, end);
     auto& range = MinAndMaxT::TLRange.Local();
-    for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
+    for (const auto tuple : tuples)
     {
-      for (int compIdx = 0, j = 0; compIdx < MinAndMaxT::NumComps; ++compIdx, j += 2)
+      size_t j = 0;
+      for (const APIType value : tuple)
       {
-        APIType value = access.Get(tupleIdx, compIdx);
         range[j] = detail::min(range[j], value);
         range[j + 1] = detail::max(range[j + 1], value);
+        j += 2;
       }
     }
   }
 };
 
-template <typename ArrayT, typename APIType = typename vtkDataArrayAccessor<ArrayT>::APIType>
+template <typename ArrayT, typename APIType = typename vtk::GetAPIType<ArrayT> >
 class FiniteGenericMinAndMax : public GenericMinAndMax<ArrayT, APIType>
 {
 private:
@@ -421,18 +416,19 @@ public:
   void Reduce() { MinAndMaxT::Reduce(); }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    vtkDataArrayAccessor<ArrayT> access(MinAndMaxT::Array);
+    const auto tuples = vtk::DataArrayTupleRange(this->Array, begin, end);
     auto& range = MinAndMaxT::TLRange.Local();
-    for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
+    for (const auto tuple : tuples)
     {
-      for (int compIdx = 0, j = 0; compIdx < MinAndMaxT::NumComps; ++compIdx, j += 2)
+      size_t j = 0;
+      for (const APIType value : tuple)
       {
-        APIType value = access.Get(tupleIdx, compIdx);
         if (!detail::isinf(value))
         {
           range[j] = detail::min(range[j], value);
           range[j + 1] = detail::max(range[j + 1], value);
         }
+        j += 2;
       }
     }
   }
@@ -460,7 +456,6 @@ bool GenericComputeScalarRange(ArrayT* array, RangeValueType* ranges, FiniteValu
 template <typename ArrayT, typename RangeValueType, typename ValueType>
 bool DoComputeScalarRange(ArrayT* array, RangeValueType* ranges, ValueType tag)
 {
-  vtkDataArrayAccessor<ArrayT> access(array);
   const int numComp = array->GetNumberOfComponents();
 
   // setup the initial ranges to be the max,min for double

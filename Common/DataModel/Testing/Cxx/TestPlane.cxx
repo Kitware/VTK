@@ -13,7 +13,6 @@
 
 =========================================================================*/
 
-#include "vtkDataArrayAccessor.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
@@ -129,7 +128,7 @@ int TestPlane(int, char*[])
     }
     assert(pos == nPoints);
 
-    vtkDataArray* input = points->GetData();
+    vtkFloatArray* input = vtkArrayDownCast<vtkFloatArray>(points->GetData());
     vtkNew<vtkFloatArray> arrayOutput;
     arrayOutput->SetNumberOfComponents(1);
     arrayOutput->SetNumberOfTuples(nPoints);
@@ -142,16 +141,14 @@ int TestPlane(int, char*[])
     vtkNew<vtkFloatArray> loopOutput;
     loopOutput->SetNumberOfComponents(1);
     loopOutput->SetNumberOfTuples(nPoints);
-    vtkDataArrayAccessor<vtkFloatArray> output(loopOutput);
-    vtkDataArrayAccessor<vtkFloatArray> pts(vtkFloatArray::SafeDownCast(input));
 
     for (vtkIdType pt = 0; pt < nPoints; ++pt)
     {
       double x[3];
-      x[0] = pts.Get(pt, 0);
-      x[1] = pts.Get(pt, 1);
-      x[2] = pts.Get(pt, 2);
-      output.Set(pt, 0, plane->FunctionValue(x));
+      x[0] = input->GetTypedComponent(pt, 0);
+      x[1] = input->GetTypedComponent(pt, 1);
+      x[2] = input->GetTypedComponent(pt, 2);
+      loopOutput->SetTypedComponent(pt, 0, plane->FunctionValue(x));
     }
 
     for (vtkIdType i = 0; i < nPoints; ++i)

@@ -15,8 +15,7 @@
 
 /**
  * @file vtkDataArrayRange.h
- * Provides STL-compatible iterable ranges that provide access vtkDataArray
- * elements.
+ * STL-compatible iterable ranges that provide access to vtkDataArray elements.
  *
  * @note Since the term 'range' is overloaded, it's worth pointing out that to
  * determine the value-range of an array's elements (an unrelated concept to
@@ -29,7 +28,6 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayMeta.h"
 #include "vtkDataArrayTupleRange_AOS.h"
 #include "vtkDataArrayTupleRange_Generic.h"

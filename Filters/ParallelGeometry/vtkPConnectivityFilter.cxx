@@ -19,7 +19,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkIdTypeArray.h"
@@ -138,12 +138,11 @@ struct FindMyNeighborsWorker : public WorkerBase
     // Output
     this->MyNeighbors = &myNeighbors;
 
-    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
-    return Dispatcher::Execute(this->AllBoundsArray, *this);
+    this->DoExecute();
+    return true;
   }
 
-  template <class TArray>
-  void operator()(TArray* allBounds)
+  void DoExecute()
   {
     this->MyNeighbors->clear();
 
@@ -161,13 +160,8 @@ struct FindMyNeighborsWorker : public WorkerBase
         continue;
       }
 
-      vtkDataArrayAccessor<TArray> accessor(allBounds);
-
       double potentialNeighborBounds[6];
-      for (int i = 0; i < 6; ++i)
-      {
-        potentialNeighborBounds[i] = static_cast<double>(accessor.Get(p, i));
-      }
+      this->AllBoundsArray->GetTuple(p, potentialNeighborBounds);
 
       vtkBoundingBox potentialNeighborBoundingBox(potentialNeighborBounds);
       if (myBoundingBox.Intersects(potentialNeighborBoundingBox))

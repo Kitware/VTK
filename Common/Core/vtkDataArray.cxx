@@ -18,8 +18,8 @@
 #include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayPrivate.txx"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericDataArray.h"
@@ -56,7 +56,8 @@ struct DeepCopyWorker
 {
   // AoS --> AoS same-type specialization:
   template <typename ValueType>
-  void operator()(vtkAOSDataArrayTemplate<ValueType>* src, vtkAOSDataArrayTemplate<ValueType>* dst)
+  void operator()(
+    vtkAOSDataArrayTemplate<ValueType>* src, vtkAOSDataArrayTemplate<ValueType>* dst) const
   {
     std::copy(src->Begin(), src->End(), dst->Begin());
   }
@@ -70,7 +71,8 @@ struct DeepCopyWorker
 
   // SoA --> SoA same-type specialization:
   template <typename ValueType>
-  void operator()(vtkSOADataArrayTemplate<ValueType>* src, vtkSOADataArrayTemplate<ValueType>* dst)
+  void operator()(
+    vtkSOADataArrayTemplate<ValueType>* src, vtkSOADataArrayTemplate<ValueType>* dst) const
   {
     vtkIdType numTuples = src->GetNumberOfTuples();
     for (int comp = 0; comp < src->GetNumberOfComponents(); ++comp)
@@ -108,45 +110,32 @@ struct DeepCopyWorker
 #endif
 #endif
 
-  // Generic implementations:
+  // Generic implementation:
+  template <typename SrcArrayT, typename DstArrayT>
+  void DoGenericCopy(SrcArrayT* src, DstArrayT* dst) const
+  {
+    const auto srcRange = vtk::DataArrayValueRange(src);
+    auto dstRange = vtk::DataArrayValueRange(dst);
+
+    using SrcT = typename decltype(srcRange)::ValueType;
+    using DstT = typename decltype(dstRange)::ValueType;
+
+    // use transform instead of copy to avoid -Wconversion warnings
+    std::transform(srcRange.cbegin(), srcRange.cend(), dstRange.begin(),
+      [](const SrcT v) -> DstT { return static_cast<DstT>(v); });
+  }
+
+  // These overloads are split so that the above specializations will be
+  // used properly.
   template <typename Array1DerivedT, typename Array1ValueT, typename Array2DerivedT,
     typename Array2ValueT>
   void operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT>* src,
-    vtkGenericDataArray<Array2DerivedT, Array2ValueT>* dst)
+    vtkGenericDataArray<Array2DerivedT, Array2ValueT>* dst) const
   {
-    using Array1T = vtkGenericDataArray<Array1DerivedT, Array1ValueT>;
-    using Array2T = vtkGenericDataArray<Array2DerivedT, Array2ValueT>;
-
-    vtkDataArrayAccessor<Array1T> s(src);
-    vtkDataArrayAccessor<Array2T> d(dst);
-
-    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
-
-    vtkIdType tuples = src->GetNumberOfTuples();
-    int comps = src->GetNumberOfComponents();
-
-    for (vtkIdType t = 0; t < tuples; ++t)
-    {
-      for (int c = 0; c < comps; ++c)
-      {
-        d.Set(t, c, static_cast<DestType>(s.Get(t, c)));
-      }
-    }
+    this->DoGenericCopy(src, dst);
   }
 
-  void operator()(vtkDataArray* src, vtkDataArray* dst)
-  {
-    vtkIdType tuples = src->GetNumberOfTuples();
-    int comps = src->GetNumberOfComponents();
-
-    for (vtkIdType t = 0; t < tuples; ++t)
-    {
-      for (int c = 0; c < comps; ++c)
-      {
-        dst->SetComponent(t, c, src->GetComponent(t, c));
-      }
-    }
-  }
+  void operator()(vtkDataArray* src, vtkDataArray* dst) const { this->DoGenericCopy(src, dst); }
 };
 
 //------------InterpolateTuple workers------------------------------------------
@@ -167,8 +156,10 @@ struct InterpolateMultiTupleWorker
   }
 
   template <typename Array1T, typename Array2T>
-  void operator()(Array1T* src, Array2T* dst)
+  void operator()(Array1T* src, Array2T* dst) const
   {
+    // Use vtkDataArrayAccessor here instead of a range, since we need to use
+    // Insert for legacy compat
     vtkDataArrayAccessor<Array1T> s(src);
     vtkDataArrayAccessor<Array2T> d(dst);
 
@@ -209,8 +200,10 @@ struct InterpolateTupleWorker
   }
 
   template <typename Array1T, typename Array2T, typename Array3T>
-  void operator()(Array1T* src1, Array2T* src2, Array3T* dst)
+  void operator()(Array1T* src1, Array2T* src2, Array3T* dst) const
   {
+    // Use accessor here instead of ranges since we need to use Insert for
+    // legacy compat
     vtkDataArrayAccessor<Array1T> s1(src1);
     vtkDataArrayAccessor<Array2T> s2(src2);
     vtkDataArrayAccessor<Array3T> d(dst);
@@ -242,26 +235,18 @@ struct GetTuplesFromListWorker
   }
 
   template <typename Array1T, typename Array2T>
-  void operator()(Array1T* src, Array2T* dst)
+  void operator()(Array1T* src, Array2T* dst) const
   {
-    vtkDataArrayAccessor<Array1T> s(src);
-    vtkDataArrayAccessor<Array2T> d(dst);
+    const auto srcTuples = vtk::DataArrayTupleRange(src);
+    auto dstTuples = vtk::DataArrayTupleRange(dst);
 
-    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
+    vtkIdType* srcTupleId = this->Ids->GetPointer(0);
+    vtkIdType* srcTupleIdEnd = this->Ids->GetPointer(Ids->GetNumberOfIds());
 
-    int numComps = src->GetNumberOfComponents();
-    vtkIdType* srcTuple = this->Ids->GetPointer(0);
-    vtkIdType* srcTupleEnd = this->Ids->GetPointer(Ids->GetNumberOfIds());
-    vtkIdType dstTuple = 0;
-
-    while (srcTuple != srcTupleEnd)
+    auto dstTupleIter = dstTuples.begin();
+    while (srcTupleId != srcTupleIdEnd)
     {
-      for (int c = 0; c < numComps; ++c)
-      {
-        d.Set(dstTuple, c, static_cast<DestType>(s.Get(*srcTuple, c)));
-      }
-      ++srcTuple;
-      ++dstTuple;
+      *dstTupleIter++ = srcTuples[*srcTupleId++];
     }
   }
 };
@@ -279,20 +264,14 @@ struct GetTuplesRangeWorker
   }
 
   template <typename Array1T, typename Array2T>
-  void operator()(Array1T* src, Array2T* dst)
+  void operator()(Array1T* src, Array2T* dst) const
   {
-    vtkDataArrayAccessor<Array1T> s(src);
-    vtkDataArrayAccessor<Array2T> d(dst);
+    const auto srcTuples = vtk::DataArrayTupleRange(src);
+    auto dstTuples = vtk::DataArrayTupleRange(dst);
 
-    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
-
-    int numComps = src->GetNumberOfComponents();
     for (vtkIdType srcT = this->Start, dstT = 0; srcT <= this->End; ++srcT, ++dstT)
     {
-      for (int c = 0; c < numComps; ++c)
-      {
-        d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-      }
+      dstTuples[dstT] = srcTuples[srcT];
     }
   }
 };
@@ -310,18 +289,12 @@ struct SetTupleArrayWorker
   }
 
   template <typename SrcArrayT, typename DstArrayT>
-  void operator()(SrcArrayT* src, DstArrayT* dst)
+  void operator()(SrcArrayT* src, DstArrayT* dst) const
   {
-    vtkDataArrayAccessor<SrcArrayT> s(src);
-    vtkDataArrayAccessor<DstArrayT> d(dst);
+    const auto srcTuples = vtk::DataArrayTupleRange(src);
+    auto dstTuples = vtk::DataArrayTupleRange(dst);
 
-    typedef typename vtkDataArrayAccessor<DstArrayT>::APIType DestType;
-
-    int numComps = src->GetNumberOfComponents();
-    for (int c = 0; c < numComps; ++c)
-    {
-      d.Set(this->DstTuple, c, static_cast<DestType>(s.Get(this->SrcTuple, c)));
-    }
+    dstTuples[this->DstTuple] = srcTuples[this->SrcTuple];
   }
 };
 
@@ -338,23 +311,18 @@ struct SetTuplesIdListWorker
   }
 
   template <typename SrcArrayT, typename DstArrayT>
-  void operator()(SrcArrayT* src, DstArrayT* dst)
+  void operator()(SrcArrayT* src, DstArrayT* dst) const
   {
-    vtkDataArrayAccessor<SrcArrayT> s(src);
-    vtkDataArrayAccessor<DstArrayT> d(dst);
-
-    typedef typename vtkDataArrayAccessor<DstArrayT>::APIType DestType;
+    const auto srcTuples = vtk::DataArrayTupleRange(src);
+    auto dstTuples = vtk::DataArrayTupleRange(dst);
 
     vtkIdType numTuples = this->SrcTuples->GetNumberOfIds();
-    int numComps = src->GetNumberOfComponents();
     for (vtkIdType t = 0; t < numTuples; ++t)
     {
       vtkIdType srcT = this->SrcTuples->GetId(t);
       vtkIdType dstT = this->DstTuples->GetId(t);
-      for (int c = 0; c < numComps; ++c)
-      {
-        d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-      }
+
+      dstTuples[dstT] = srcTuples[srcT];
     }
   }
 };
@@ -376,26 +344,18 @@ struct SetTuplesRangeWorker
   // Generic implementation. We perform the obvious optimizations for AOS/SOA
   // in the derived class implementations.
   template <typename SrcArrayT, typename DstArrayT>
-  void operator()(SrcArrayT* src, DstArrayT* dst)
+  void operator()(SrcArrayT* src, DstArrayT* dst) const
   {
-    vtkDataArrayAccessor<SrcArrayT> s(src);
-    vtkDataArrayAccessor<DstArrayT> d(dst);
+    const auto srcTuples = vtk::DataArrayTupleRange(src);
+    auto dstTuples = vtk::DataArrayTupleRange(dst);
 
-    typedef typename vtkDataArrayAccessor<DstArrayT>::APIType DestType;
-
-    int numComps = src->GetNumberOfComponents();
     vtkIdType srcT = this->SrcStartTuple;
     vtkIdType srcTEnd = srcT + this->NumTuples;
     vtkIdType dstT = this->DstStartTuple;
 
     while (srcT < srcTEnd)
     {
-      for (int c = 0; c < numComps; ++c)
-      {
-        d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
-      }
-      ++srcT;
-      ++dstT;
+      dstTuples[dstT++] = srcTuples[srcT++];
     }
   }
 };

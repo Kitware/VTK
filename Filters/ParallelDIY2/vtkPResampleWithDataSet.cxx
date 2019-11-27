@@ -21,7 +21,7 @@
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYUtilities.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
@@ -756,20 +756,22 @@ public:
   template <typename ArrayType>
   void operator()(ArrayType* array) const
   {
-    vtkDataArrayAccessor<ArrayType> accessor(array);
+    using T = vtk::GetAPIType<ArrayType>;
 
     this->Proxy->enqueue(this->Dest, std::string(array->GetName()));
     this->Proxy->enqueue(this->Dest, array->GetDataType());
     this->Proxy->enqueue(this->Dest, array->GetNumberOfComponents());
 
-    int numComponents = array->GetNumberOfComponents();
-    for (vtkIdType i = this->RBegin; i < this->REnd; ++i)
+    const auto range = vtk::DataArrayTupleRange(array, this->RBegin, this->REnd);
+    const char* mask = this->Masks + this->RBegin;
+
+    for (const auto tuple : range)
     {
-      if (this->Masks[i])
+      if (*mask++)
       {
-        for (int j = 0; j < numComponents; ++j)
+        for (const T comp : tuple)
         {
-          this->Proxy->enqueue(this->Dest, accessor.Get(i, j));
+          this->Proxy->enqueue(this->Dest, comp);
         }
       }
     }
@@ -957,14 +959,18 @@ public:
   template <typename ArrayType>
   void operator()(ArrayType* array) const
   {
-    vtkDataArrayAccessor<ArrayType> accessor(array);
-    for (size_t i = 0; i < this->PointIds->size(); ++i)
+    using T = vtk::GetAPIType<ArrayType>;
+    auto range = vtk::DataArrayTupleRange(array);
+
+    using CompRefT = typename decltype(range)::ComponentReferenceType;
+
+    for (const vtkIdType ptId : *this->PointIds)
     {
-      for (int j = 0; j < array->GetNumberOfComponents(); ++j)
+      for (CompRefT compRef : range[ptId])
       {
-        typename vtkDataArrayAccessor<ArrayType>::APIType val;
+        T val;
         this->Proxy->dequeue(this->SourceGID, val);
-        accessor.Set((*this->PointIds)[i], j, val);
+        compRef = val;
       }
     }
   }

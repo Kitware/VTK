@@ -16,7 +16,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -201,15 +201,12 @@ protected:
     void operator()(InputArrayType* darray)
     {
       VTK_ASSUME(darray->GetNumberOfComponents() == 3);
-      using ValueType = typename vtkDataArrayAccessor<InputArrayType>::APIType;
-      vtkDataArrayAccessor<InputArrayType> accessor(darray);
+      using ValueType = vtk::GetAPIType<InputArrayType>;
 
       vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType cc = begin; cc < end; ++cc)
+        auto drange = vtk::DataArrayTupleRange(darray, begin, end);
+        for (auto tuple : drange)
         {
-          vtkVector3<ValueType> tuple;
-          accessor.Get(cc, tuple.GetData());
-
           vtkVector4<ValueType> in, out;
           in[0] = tuple[0];
           in[1] = tuple[1];
@@ -221,7 +218,7 @@ protected:
           out[0] /= out[3];
           out[1] /= out[3];
           out[2] /= out[3];
-          accessor.Set(cc, out.GetData());
+          tuple.SetTuple(out.GetData());
         }
       });
     }
@@ -291,19 +288,14 @@ private:
     template <typename InputArrayType>
     void operator()(InputArrayType* darray)
     {
-      VTK_ASSUME(darray->GetNumberOfComponents() == 3);
-      using ValueType = typename vtkDataArrayAccessor<InputArrayType>::APIType;
-      vtkDataArrayAccessor<InputArrayType> accessor(darray);
+      using T = vtk::GetAPIType<InputArrayType>;
 
       vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType cc = begin; cc < end; ++cc)
+        for (auto tuple : vtk::DataArrayTupleRange<3>(darray, begin, end))
         {
-          vtkVector3<ValueType> tuple;
-          accessor.Get(cc, tuple.GetData());
-          tuple[0] += this->Displacement[0];
-          tuple[1] += this->Displacement[1];
-          tuple[2] += this->Displacement[2];
-          accessor.Set(cc, tuple.GetData());
+          tuple[0] += static_cast<T>(this->Displacement[0]);
+          tuple[1] += static_cast<T>(this->Displacement[1]);
+          tuple[2] += static_cast<T>(this->Displacement[2]);
         }
       });
     }

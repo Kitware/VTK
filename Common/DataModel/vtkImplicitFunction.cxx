@@ -16,10 +16,11 @@
 
 #include "vtkAbstractTransform.h"
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkTransform.h"
+
+#include <algorithm>
 
 vtkCxxSetObjectMacro(vtkImplicitFunction, Transform, vtkAbstractTransform);
 
@@ -49,23 +50,23 @@ struct FunctionWorker
   template <typename SourceArray, typename DestinationArray>
   void operator()(SourceArray* input, DestinationArray* output)
   {
-    VTK_ASSUME(input->GetNumberOfComponents() == 3);
-    VTK_ASSUME(output->GetNumberOfComponents() == 1);
-
     vtkIdType numTuples = input->GetNumberOfTuples();
     output->SetNumberOfTuples(numTuples);
 
-    vtkDataArrayAccessor<SourceArray> src(input);
-    vtkDataArrayAccessor<DestinationArray> dest(output);
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(input);
+    auto dstValues = vtk::DataArrayValueRange<1>(output);
 
-    for (vtkIdType tIdx = 0; tIdx < numTuples; ++tIdx)
-    {
-      double in[3];
-      in[0] = static_cast<double>(src.Get(tIdx, 0));
-      in[1] = static_cast<double>(src.Get(tIdx, 1));
-      in[2] = static_cast<double>(src.Get(tIdx, 2));
-      dest.Set(tIdx, 0, this->F(in));
-    }
+    using SrcTupleCRefT = typename decltype(srcTuples)::ConstTupleReferenceType;
+    using DstValueT = typename decltype(dstValues)::ValueType;
+
+    std::transform(srcTuples.cbegin(), srcTuples.cend(), dstValues.begin(),
+      [&](SrcTupleCRefT tuple) -> DstValueT {
+        double in[3];
+        in[0] = static_cast<double>(tuple[0]);
+        in[1] = static_cast<double>(tuple[1]);
+        in[2] = static_cast<double>(tuple[2]);
+        return static_cast<DstValueT>(this->F(in));
+      });
   }
 };
 

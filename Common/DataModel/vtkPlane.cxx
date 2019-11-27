@@ -15,8 +15,7 @@
 #include "vtkPlane.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
-#include "vtkDataArrayAccessor.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
@@ -234,30 +233,32 @@ namespace
 template <typename InputArrayType, typename OutputArrayType>
 struct CutWorker
 {
-  typedef typename vtkDataArrayAccessor<InputArrayType>::APIType InputValueType;
-  typedef typename vtkDataArrayAccessor<InputArrayType>::APIType OutputValueType;
+  using InputValueType = vtk::GetAPIType<InputArrayType>;
+  using OutputValueType = vtk::GetAPIType<OutputArrayType>;
+
+  InputArrayType* Input;
+  OutputArrayType* Output;
   OutputValueType Normal[3];
   OutputValueType Origin[3];
-  vtkDataArrayAccessor<InputArrayType> src;
-  vtkDataArrayAccessor<OutputArrayType> dest;
 
   CutWorker(InputArrayType* in, OutputArrayType* out)
-    : src(in)
-    , dest(out)
+    : Input(in)
+    , Output(out)
   {
   }
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    for (vtkIdType tIdx = begin; tIdx < end; ++tIdx)
-    {
-      OutputValueType x[3];
-      x[0] = static_cast<OutputValueType>(src.Get(tIdx, 0));
-      x[1] = static_cast<OutputValueType>(src.Get(tIdx, 1));
-      x[2] = static_cast<OutputValueType>(src.Get(tIdx, 2));
-      OutputValueType out = Normal[0] * (x[0] - Origin[0]) + Normal[1] * (x[1] - Origin[1]) +
-        Normal[2] * (x[2] - Origin[2]);
-      dest.Set(tIdx, 0, out);
-    }
+    const auto srcTuples = vtk::DataArrayTupleRange<3>(this->Input, begin, end);
+    auto dstValues = vtk::DataArrayValueRange<1>(this->Output, begin, end);
+
+    using DstTupleCRefType = typename decltype(srcTuples)::ConstTupleReferenceType;
+
+    std::transform(srcTuples.cbegin(), srcTuples.cend(), dstValues.begin(),
+      [&](DstTupleCRefType tuple) -> OutputValueType {
+        return this->Normal[0] * (static_cast<OutputValueType>(tuple[0]) - this->Origin[0]) +
+          this->Normal[1] * (static_cast<OutputValueType>(tuple[1]) - this->Origin[1]) +
+          this->Normal[2] * (static_cast<OutputValueType>(tuple[2]) - this->Origin[2]);
+      });
   }
 };
 

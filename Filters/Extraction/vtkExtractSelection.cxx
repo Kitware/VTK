@@ -14,13 +14,11 @@
 =========================================================================*/
 #include "vtkExtractSelection.h"
 
-#include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkBlockSelector.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkDataArrayAccessor.h"
 #include "vtkDataSet.h"
 #include "vtkFrustumSelector.h"
 #include "vtkIdTypeArray.h"
