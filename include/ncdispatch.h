@@ -17,8 +17,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#if defined(HDF5_PARALLEL) || defined(USE_PNETCDF)
-#include <mpi.h>
+#ifdef USE_HDF5
+#include <vtk_hdf5.h>
+#endif
+#if defined(H5_HAVE_PARALLEL) || defined(HDF5_PARALLEL) || defined(USE_PNETCDF)
+#include <vtk_mpi.h>
 #endif
 #include "netcdf.h"
 #include "ncmodel.h"
@@ -84,7 +87,7 @@
 /* Define an alias for int to indicate an error return */
 typedef int NCerror;
 
-#if !defined HDF5_PARALLEL && !defined USE_PNETCDF
+#if !defined H5_HAVE_PARALLEL && !defined HDF5_PARALLEL && !defined USE_PNETCDF
 typedef int MPI_Comm;
 typedef int MPI_Info;
 #define MPI_COMM_WORLD 0
