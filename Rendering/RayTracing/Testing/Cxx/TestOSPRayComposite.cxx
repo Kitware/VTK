@@ -20,7 +20,7 @@
 // the image results are depth composited to produce a correct image on the
 // root node.
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkActor.h"
 #include "vtkCamera.h"

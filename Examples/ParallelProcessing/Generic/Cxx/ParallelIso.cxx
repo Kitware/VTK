@@ -42,7 +42,7 @@
 
 #include "vtkDebugLeaks.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 static const float ISO_START = 4250.0;
 static const float ISO_STEP = -1250.0;

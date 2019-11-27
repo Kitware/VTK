@@ -19,11 +19,11 @@
 
 #ifndef USE_STDARG
 #define USE_STDARG
-#include "mpi.h"
 #include "vtkParallelMPIModule.h" // For export macro
+#include "vtk_mpi.h"
 #undef USE_STDARG
 #else
-#include "mpi.h"
+#include "vtk_mpi.h"
 #endif
 
 #include "vtkSystemIncludes.h"

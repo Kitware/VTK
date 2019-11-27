@@ -20,7 +20,7 @@
 */
 #include "vtkMPICommunicator.h"
 #include "vtkObjectFactory.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkMPIController.h"
 #include "vtkRegressionTestImage.h"

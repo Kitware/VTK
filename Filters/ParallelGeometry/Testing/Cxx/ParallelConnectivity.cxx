@@ -29,7 +29,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 int RunParallelConnectivity(
   const char* fname, vtkAlgorithm::DesiredOutputPrecision precision, vtkMPIController* contr)

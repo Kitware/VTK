@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkEdgeListIterator.h"
 #include "vtkGraphLayoutView.h"

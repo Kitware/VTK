@@ -34,7 +34,7 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkThresholdPoints.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 int AggregateDataSet(int argc, char* argv[])
 {

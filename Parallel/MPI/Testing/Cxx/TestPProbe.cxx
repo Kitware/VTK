@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkActor.h"
 #include "vtkCamera.h"

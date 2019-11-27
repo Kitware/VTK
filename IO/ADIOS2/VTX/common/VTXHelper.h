@@ -31,7 +31,7 @@
 #include <utility> // std::pair
 #include <vector>
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"

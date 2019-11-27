@@ -48,7 +48,7 @@
 #include "vtkTransmitImageDataPiece.h"
 #include "vtkVolumetricPass.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 namespace
 {

@@ -25,7 +25,7 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this test.
 // This class was extended to auto-correlative statistics by Philippe Pebay, Kitware 2013
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkCorrelativeStatistics.h"
 #include "vtkDescriptiveStatistics.h"

@@ -14,8 +14,12 @@
 =========================================================================*/
 
 #include "vtkMPIEventLog.h"
+
+// clang-format off
+#include "vtk_mpi.h" // required before "mpe.h" to avoid "C vs C++" conflicts
 #include "mpe.h"
-#include "mpi.h" // required before "mpe.h" to avoid "C vs C++" conflicts
+// clang-format on
+
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
 
