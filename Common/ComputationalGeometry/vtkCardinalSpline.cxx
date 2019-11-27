@@ -16,7 +16,9 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
+
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkCardinalSpline);
 
@@ -81,9 +83,9 @@ double vtkCardinalSpline::Evaluate(double t)
 void vtkCardinalSpline::Compute()
 {
   double *ts, *xs;
-  double* work;
+  std::vector<double> work;
+  std::vector<double> dependent;
   double* coefficients;
-  double* dependent;
   int size;
   int i;
 
@@ -111,14 +113,14 @@ void vtkCardinalSpline::Compute()
     }
 
     // allocate memory for work arrays
-    work = new double[size];
+    work.resize(size);
 
     // allocate memory for coefficients
     delete[] this->Coefficients;
     this->Coefficients = new double[4 * size];
 
     // allocate memory for dependent variables
-    dependent = new double[size];
+    dependent.resize(size);
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -127,10 +129,10 @@ void vtkCardinalSpline::Compute()
     xs = this->PiecewiseFunction->GetDataPointer() + 1;
     for (int j = 0; j < size; j++)
     {
-      *(dependent + j) = *(xs + 2 * j);
+      dependent[j] = xs[2 * j];
     }
 
-    this->Fit1D(size, this->Intervals, dependent, work, (double(*)[4])coefficients,
+    this->Fit1D(size, this->Intervals, dependent.data(), work.data(), (double(*)[4])coefficients,
       this->LeftConstraint, this->LeftValue, this->RightConstraint, this->RightValue);
   }
 
@@ -153,14 +155,14 @@ void vtkCardinalSpline::Compute()
     }
 
     // allocate memory for work arrays
-    work = new double[size];
+    work.resize(size);
 
     // allocate memory for coefficients
     delete[] this->Coefficients;
     this->Coefficients = new double[4 * size];
 
     // allocate memory for dependent variables
-    dependent = new double[size];
+    dependent.resize(size);
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -169,16 +171,13 @@ void vtkCardinalSpline::Compute()
     xs = this->PiecewiseFunction->GetDataPointer() + 1;
     for (int j = 0; j < size - 1; j++)
     {
-      *(dependent + j) = *(xs + 2 * j);
+      dependent[j] = xs[2 * j];
     }
-    dependent[size - 1] = *xs;
+    dependent[size - 1] = xs[0];
 
-    this->FitClosed1D(size, this->Intervals, dependent, work, (double(*)[4])coefficients);
+    this->FitClosed1D(
+      size, this->Intervals, dependent.data(), work.data(), (double(*)[4])coefficients);
   }
-
-  // free the work array and dependent variable storage
-  delete[] work;
-  delete[] dependent;
 
   // update compute time
   this->ComputeTime = this->GetMTime();

@@ -21,6 +21,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtk_tiff.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -185,15 +187,14 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
     // if number of scalar components is greater than 3, that means we assume
     // there is alpha.
     uint16 extra_samples = scomponents - 3;
-    uint16* sample_info = new uint16[scomponents - 3];
+    std::vector<uint16> sample_info(scomponents - 3);
     sample_info[0] = EXTRASAMPLE_ASSOCALPHA;
     int cc;
     for (cc = 1; cc < scomponents - 3; cc++)
     {
       sample_info[cc] = EXTRASAMPLE_UNSPECIFIED;
     }
-    TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, extra_samples, sample_info);
-    delete[] sample_info;
+    TIFFSetField(tif, TIFFTAG_EXTRASAMPLES, extra_samples, sample_info.data());
   }
 
   int compression;

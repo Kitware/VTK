@@ -27,6 +27,8 @@
 #include "vtkPointSet.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -218,8 +220,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   int activeTransforms, allLinear;
   int i, c, tidx;
   int pdComponents, cdComponents;
-  double** linearPtMtx;
-  double** linearNormMtx;
   double inVec[3], inPt[3], inNorm[3];
   double xformNorm[3], cumNorm[3];
   double xformPt[3], cumPt[3];
@@ -263,15 +263,13 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  linearPtMtx = new double*[this->NumberOfTransforms];
-  linearNormMtx = new double*[this->NumberOfTransforms];
+  std::vector<double*> linearPtMtx(this->NumberOfTransforms, nullptr);       // non-owning ptr
+  std::vector<std::vector<double> > linearNormMtx(this->NumberOfTransforms); // owns data
   allLinear = 1;
   for (c = 0; c < this->NumberOfTransforms; c++)
   {
     if (this->Transforms[c] == nullptr)
     {
-      linearPtMtx[c] = nullptr;
-      linearNormMtx[c] = nullptr;
       continue;
     }
 
@@ -279,17 +277,15 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (!this->Transforms[c]->IsA("vtkLinearTransform"))
     {
-      linearPtMtx[c] = nullptr;
-      linearNormMtx[c] = nullptr;
       allLinear = 0;
       continue;
     }
     linearTransform = vtkLinearTransform::SafeDownCast(this->Transforms[c]);
-    linearPtMtx[c] = (double*)linearTransform->GetMatrix()->Element;
-    linearNormMtx[c] = new double[16];
-    vtkMatrix4x4::DeepCopy(linearNormMtx[c], linearTransform->GetMatrix());
-    vtkMatrix4x4::Invert(linearNormMtx[c], linearNormMtx[c]);
-    vtkMatrix4x4::Transpose(linearNormMtx[c], linearNormMtx[c]);
+    linearPtMtx[c] = linearTransform->GetMatrix()->GetData();
+    linearNormMtx[c].resize(16);
+    vtkMatrix4x4::DeepCopy(linearNormMtx[c].data(), linearTransform->GetMatrix());
+    vtkMatrix4x4::Invert(linearNormMtx[c].data(), linearNormMtx[c].data());
+    vtkMatrix4x4::Transpose(linearNormMtx[c].data(), linearNormMtx[c].data());
   }
 
   pdArray = nullptr;
@@ -313,8 +309,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkErrorMacro(<< "WeightArray " << this->WeightArray << " "
                     << "doesn't exist");
-      delete[] linearNormMtx;
-      delete[] linearPtMtx;
       return 1;
     }
 
@@ -345,8 +339,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkErrorMacro(<< "TransformIndexArray " << this->TransformIndexArray << " "
                     << "doesn't exist");
-      delete[] linearNormMtx;
-      delete[] linearPtMtx;
       return 1;
     }
 
@@ -386,8 +378,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkErrorMacro(<< "CellDataWeightArray " << this->CellDataWeightArray << " "
                     << "doesn't exist");
-      delete[] linearNormMtx;
-      delete[] linearPtMtx;
       return 1;
     }
     cdComponents = cdArray->GetNumberOfComponents();
@@ -419,8 +409,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkErrorMacro(<< "CellDataTransformIndexArray " << this->CellDataTransformIndexArray << " "
                     << "doesn't exist");
-      delete[] linearNormMtx;
-      delete[] linearPtMtx;
       return 1;
     }
 
@@ -448,8 +436,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
   if (!inPts)
   {
     vtkErrorMacro(<< "No input data");
-    delete[] linearNormMtx;
-    delete[] linearPtMtx;
     return 1;
   }
 
@@ -576,7 +562,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
           if (inNormals)
           {
-            LinearTransformVector((double(*)[4])linearNormMtx[tidx], inNorm, xformNorm);
+            LinearTransformVector((double(*)[4])linearNormMtx[tidx].data(), inNorm, xformNorm);
             // normalize below
           }
         }
@@ -727,7 +713,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
         if (inCellNormals)
         {
-          LinearTransformVector((double(*)[4])linearNormMtx[tidx], inNorm, xformNorm);
+          LinearTransformVector((double(*)[4])linearNormMtx[tidx].data(), inNorm, xformNorm);
 
           vtkMath::Normalize(xformNorm);
           cumNorm[0] += xformNorm[0] * thisWeight;
@@ -757,16 +743,6 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
   }
-
-  // ----- cleanup ------
-  for (c = 0; c < this->NumberOfTransforms; c++)
-  {
-    delete[] linearNormMtx[c];
-  }
-  delete[] linearNormMtx;
-  delete[] linearPtMtx;
-
-  // ---------------------
 
   this->UpdateProgress(0.8);
 

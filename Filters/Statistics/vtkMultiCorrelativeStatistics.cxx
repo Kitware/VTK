@@ -705,7 +705,7 @@ void vtkMultiCorrelativeStatistics::Assess(
 
     // Create the outData columns
     int nv = this->AssessNames->GetNumberOfValues();
-    vtkStdString* names = new vtkStdString[nv];
+    std::vector<vtkStdString> names(nv);
     for (int v = 0; v < nv; ++v)
     {
       std::ostringstream assessColName;
@@ -743,7 +743,6 @@ void vtkMultiCorrelativeStatistics::Assess(
     assessResult->Delete();
 
     delete dfunc;
-    delete[] names;
   }
 }
 

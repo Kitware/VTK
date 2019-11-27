@@ -41,6 +41,7 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <cmath>
+#include <vector>
 
 #include "vtkExtentTranslator.h"
 #include "vtkMultiBlockDataSet.h"
@@ -268,7 +269,7 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D* self, int* exExt, vt
   PointIndexToPosition(data, exExt[1], exExt[3], exExt[5], bboxCorners[7]);
 
   // allocate storage array
-  vtkIdType* isect1 = new vtkIdType[xdim * ydim * 3 * 2];
+  std::vector<vtkIdType> isect1(xdim * ydim * 3 * 2);
   // set impossible edges to -1
   for (i = 0; i < ydim; i++)
   {
@@ -282,9 +283,9 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D* self, int* exExt, vt
   }
 
   // allocate scalar storage for two slices
-  T* scalars = new T[xdim * ydim * 2];
-  T* scalars1 = scalars;
-  T* scalars2 = scalars + xdim * ydim;
+  std::vector<T> scalars(xdim * ydim * 2);
+  T* scalars1 = scalars.data();
+  T* scalars2 = scalars.data() + xdim * ydim;
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -363,8 +364,8 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D* self, int* exExt, vt
         offsets[9] = (zstep - xdim) * 3 + 1;
         offsets[10] = (zstep - xdim) * 3 + 4;
         offsets[11] = zstep * 3;
-        isect1Ptr = isect1;
-        isect2Ptr = isect1 + xdim * ydim * 3;
+        isect1Ptr = isect1.data();
+        isect2Ptr = isect1.data() + xdim * ydim * 3;
       }
       else
       {
@@ -372,8 +373,8 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D* self, int* exExt, vt
         offsets[9] = (-zstep - xdim) * 3 + 1;
         offsets[10] = (-zstep - xdim) * 3 + 4;
         offsets[11] = -zstep * 3;
-        isect1Ptr = isect1 + xdim * ydim * 3;
-        isect2Ptr = isect1;
+        isect1Ptr = isect1.data() + xdim * ydim * 3;
+        isect2Ptr = isect1.data();
       }
 
       for (j = yMin; j <= yMax; j++)
@@ -602,9 +603,6 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D* self, int* exExt, vt
       inPtrZ += zIncFunc;
     }
   }
-  delete[] isect1;
-
-  delete[] scalars;
 }
 
 class DoThreadedCut

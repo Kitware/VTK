@@ -24,6 +24,8 @@
 #include "vtkSphereSource.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkMoleculeToAtomBallFilter);
 
 //----------------------------------------------------------------------------
@@ -131,14 +133,13 @@ int vtkMoleculeToAtomBallFilter::RequestData(
     spherePolys->InitTraversal();
     while (spherePolys->GetNextCell(numCellPoints, cellPoints) != 0)
     {
-      vtkIdType* newCellPoints = new vtkIdType[numCellPoints];
+      std::vector<vtkIdType> newCellPoints(numCellPoints);
       for (vtkIdType i = 0; i < numCellPoints; ++i)
       {
         // The new point ids should be offset by the pointOffset above
         newCellPoints[i] = cellPoints[i] + pointOffset;
       }
-      polys->InsertNextCell(numCellPoints, newCellPoints);
-      delete[] newCellPoints;
+      polys->InsertNextCell(numCellPoints, newCellPoints.data());
     }
   }
 

@@ -33,6 +33,7 @@
 
 #include <functional>
 #include <queue>
+#include <vector>
 
 vtkStandardNewMacro(vtkStaticCellLocator);
 
@@ -588,7 +589,6 @@ void CellProcessor<T>::FindCellsAlongLine(
   vtkIdType prod = ndivs[0] * ndivs[1];
   double* h = this->Binner->H;
   T i, numCellsInBin;
-  unsigned char* cellHasBeenVisited = nullptr;
   int ijk[3];
   vtkIdType idx, cId;
   double hitCellBoundsPosition[3], tHitCell;
@@ -597,8 +597,7 @@ void CellProcessor<T>::FindCellsAlongLine(
 
   // Initialize intersection query array if necessary. This is done
   // locally to ensure thread safety.
-  cellHasBeenVisited = new unsigned char[this->NumCells];
-  memset(cellHasBeenVisited, 0, this->NumCells);
+  std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
 
   // Get the i-j-k point of intersection and bin index. This is
   // clamped to the boundary of the locator.
@@ -695,9 +694,6 @@ void CellProcessor<T>::FindCellsAlongLine(
       idx = ijk[0] + ijk[1] * ndivs[0] + ijk[2] * prod;
     }
   } // while still in locator
-
-  // Clean up and get out
-  delete[] cellHasBeenVisited;
 }
 
 // This functor identifies candidate cells as to whether they may intersect
@@ -876,11 +872,10 @@ void CellProcessor<T>::FindCellsAlongPlane(
   // cells will be added (in serial) to the output list. cellHasBeenVisited
   // has three states: 0(not visited), 1(visited but not intersecting),
   // 2(visited and potential intersection candidate).
-  unsigned char* cellHasBeenVisited = new unsigned char[this->NumCells];
-  memset(cellHasBeenVisited, 0, this->NumCells);
+  std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
 
   // For now we will parallelize over z-slabs of bins.
-  CellPlaneCandidates<T> cellCandidates(this, this->Binner, o, n, cellHasBeenVisited);
+  CellPlaneCandidates<T> cellCandidates(this, this->Binner, o, n, cellHasBeenVisited.data());
   vtkSMPTools::For(0, this->Binner->Divisions[2], cellCandidates);
 
   // Populate the output list.
@@ -891,9 +886,6 @@ void CellProcessor<T>::FindCellsAlongPlane(
       cells->InsertNextId(cellId);
     }
   }
-
-  // Clean up
-  delete[] cellHasBeenVisited;
 }
 
 //
@@ -1107,7 +1099,6 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
   vtkIdType prod = ndivs[0] * ndivs[1];
   double* h = this->Binner->H;
   T i, numCellsInBin;
-  unsigned char* cellHasBeenVisited = nullptr;
   double rayDir[3];
   vtkMath::Subtract(a1, a0, rayDir);
   double curPos[3], curT, tMin = VTK_FLOAT_MAX;
@@ -1127,8 +1118,7 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
 
   // Initialize intersection query array if necessary. This is done
   // locally to ensure thread safety.
-  cellHasBeenVisited = new unsigned char[this->NumCells];
-  memset(cellHasBeenVisited, 0, this->NumCells);
+  std::vector<unsigned char> cellHasBeenVisited(this->NumCells, 0);
 
   // Get the i-j-k point of intersection and bin index. This is
   // clamped to the boundary of the locator.
@@ -1247,9 +1237,6 @@ int CellProcessor<T>::IntersectWithLine(const double a0[3], const double a1[3], 
     }
 
   } // for looking for valid intersected cell
-
-  // Clean up and get out
-  delete[] cellHasBeenVisited;
 
   // If a cell has been intersected, recover the information and return.
   // This information could be cached....

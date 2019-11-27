@@ -31,6 +31,8 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkVariantArray.h"
 
+#include <vector>
+
 //
 // Standard functions
 //
@@ -231,25 +233,25 @@ void vtkTable::SetRow(vtkIdType row, vtkVariantArray* values)
 vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
 {
   vtkIdType ncol = this->GetNumberOfColumns();
+  std::vector<double> tuple(32, default_num_val);
   for (vtkIdType i = 0; i < ncol; i++)
   {
     vtkAbstractArray* arr = this->GetColumn(i);
-    int comps = arr->GetNumberOfComponents();
+    const size_t comps = static_cast<size_t>(arr->GetNumberOfComponents());
     if (vtkArrayDownCast<vtkDataArray>(arr))
     {
-      vtkDataArray* data = vtkArrayDownCast<vtkDataArray>(arr);
-      double* tuple = new double[comps];
-      for (int j = 0; j < comps; j++)
-      {
-        tuple[j] = default_num_val;
+      if (comps > tuple.size())
+      { // We initialize this to 32 components, but just in case...
+        tuple.resize(comps, default_num_val);
       }
-      data->InsertNextTuple(tuple);
-      delete[] tuple;
+
+      vtkDataArray* data = vtkArrayDownCast<vtkDataArray>(arr);
+      data->InsertNextTuple(tuple.data());
     }
     else if (vtkArrayDownCast<vtkStringArray>(arr))
     {
       vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
-      for (int j = 0; j < comps; j++)
+      for (size_t j = 0; j < comps; j++)
       {
         data->InsertNextValue(vtkStdString(""));
       }
@@ -257,7 +259,7 @@ vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
     else if (vtkArrayDownCast<vtkVariantArray>(arr))
     {
       vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr);
-      for (int j = 0; j < comps; j++)
+      for (size_t j = 0; j < comps; j++)
       {
         data->InsertNextValue(vtkVariant());
       }
@@ -265,7 +267,7 @@ vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
     else if (vtkArrayDownCast<vtkUnicodeStringArray>(arr))
     {
       vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr);
-      for (int j = 0; j < comps; j++)
+      for (size_t j = 0; j < comps; j++)
       {
         data->InsertNextValue(vtkUnicodeString::from_utf8(""));
       }

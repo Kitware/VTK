@@ -28,6 +28,7 @@
 // STD includes
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCompositeTransferFunctionItem);
@@ -122,8 +123,9 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   const bool logY = this->GetYAxis()->GetLogScaleActive();
 
   const int dimension = this->GetTextureWidth();
-  double* values = new double[dimension];
-  this->OpacityFunction->GetTable(dataBounds[0], dataBounds[1], dimension, values, 1, logX ? 1 : 0);
+  std::vector<double> values(dimension);
+  this->OpacityFunction->GetTable(
+    dataBounds[0], dataBounds[1], dimension, values.data(), 1, logX ? 1 : 0);
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
 
   // TBD: maybe the shape should be defined somewhere else...
@@ -160,5 +162,4 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
       ptr += 4;
     }
   }
-  delete[] values;
 }

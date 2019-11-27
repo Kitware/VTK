@@ -484,7 +484,7 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
   this->data[var]->SetNumberOfTuples(this->NumberOfTuples);
 
   // For each component of the requested variable load data
-  float* block = new float[this->NumberOfGhostTuples];
+  std::vector<float> block(this->NumberOfGhostTuples);
   float* varData = this->data[var]->GetPointer(0);
 
   for (int comp = 0; comp < numberOfComponents; comp++)
@@ -492,18 +492,18 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 
     // Fetch the data for a single component into temporary storage
     this->vpicData->loadVariableData(
-      block, this->ghostLevel0, this->GhostDimension, timeStep, var, comp);
+      block.data(), this->ghostLevel0, this->GhostDimension, timeStep, var, comp);
 
     // Exchange the single component block retrieved from files to get ghosts
     if (this->TotalRank > 1)
     {
-      this->exchanger->exchangeGrid(block);
+      this->exchanger->exchangeGrid(block.data());
     }
 
     // Load the ghost component block into ParaView array
     if (this->VariableStruct[var] != TENSOR)
     {
-      LoadComponent(varData, block, comp, numberOfComponents);
+      LoadComponent(varData, block.data(), comp, numberOfComponents);
     }
 
     else
@@ -513,30 +513,29 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
       switch (comp)
       {
         case 0:
-          LoadComponent(varData, block, 0, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 0, TENSOR9_DIMENSION);
           break;
         case 1:
-          LoadComponent(varData, block, 4, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 4, TENSOR9_DIMENSION);
           break;
         case 2:
-          LoadComponent(varData, block, 8, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 8, TENSOR9_DIMENSION);
           break;
         case 3:
-          LoadComponent(varData, block, 5, TENSOR9_DIMENSION);
-          LoadComponent(varData, block, 7, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 5, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 7, TENSOR9_DIMENSION);
           break;
         case 4:
-          LoadComponent(varData, block, 2, TENSOR9_DIMENSION);
-          LoadComponent(varData, block, 6, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 2, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 6, TENSOR9_DIMENSION);
           break;
         case 5:
-          LoadComponent(varData, block, 1, TENSOR9_DIMENSION);
-          LoadComponent(varData, block, 3, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 1, TENSOR9_DIMENSION);
+          LoadComponent(varData, block.data(), 3, TENSOR9_DIMENSION);
           break;
       }
     }
   }
-  delete[] block;
 }
 
 //----------------------------------------------------------------------------

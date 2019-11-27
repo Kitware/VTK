@@ -63,6 +63,7 @@
 #include <algorithm>
 #include <cctype>
 #include <sstream>
+#include <vector>
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
@@ -1633,22 +1634,21 @@ vtkAbstractArray* vtkDataReader::ReadArray(
     // currently writing vtkIdType as int.
     array = vtkIdTypeArray::New();
     array->SetNumberOfComponents(numComp);
-    int* ptr = new int[numTuples * numComp];
+    std::vector<int> buffer(numTuples * numComp);
     if (this->FileType == VTK_BINARY)
     {
-      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
-      vtkByteSwap::Swap4BERange(ptr, numTuples * numComp);
+      vtkReadBinaryData(this->IS, buffer.data(), numTuples, numComp);
+      vtkByteSwap::Swap4BERange(buffer.data(), numTuples * numComp);
     }
     else
     {
-      vtkReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, buffer.data(), numTuples, numComp);
     }
     vtkIdType* ptr2 = ((vtkIdTypeArray*)array)->WritePointer(0, numTuples * numComp);
     for (vtkIdType idx = 0; idx < numTuples * numComp; idx++)
     {
-      ptr2[idx] = ptr[idx];
+      ptr2[idx] = buffer[idx];
     }
-    delete[] ptr;
   }
 
   else if (!strncmp(type, "int", 3))
@@ -1845,11 +1845,10 @@ vtkAbstractArray* vtkDataReader::ReadArray(
             vtkByteSwap::Swap4BE(&length);
             stringLength = length;
           }
-          char* str = new char[stringLength];
-          IS->read(str, stringLength);
-          vtkStdString s(str, stringLength);
+          std::vector<char> str(stringLength);
+          IS->read(str.data(), stringLength);
+          vtkStdString s(str.data(), stringLength);
           ((vtkStringArray*)array)->InsertNextValue(s);
-          delete[] str;
         }
       }
     }
@@ -1865,11 +1864,10 @@ vtkAbstractArray* vtkDataReader::ReadArray(
         {
           my_getline(*(this->IS), s);
           int length = static_cast<int>(s.length());
-          char* decoded = new char[length + 1];
-          int decodedLength = this->DecodeString(decoded, s.c_str());
-          vtkStdString decodedStr(decoded, decodedLength);
+          std::vector<char> decoded(length + 1);
+          int decodedLength = this->DecodeString(decoded.data(), s.c_str());
+          vtkStdString decodedStr(decoded.data(), decodedLength);
           ((vtkStringArray*)array)->InsertNextValue(decodedStr);
-          delete[] decoded;
         }
       }
     }
@@ -1926,11 +1924,10 @@ vtkAbstractArray* vtkDataReader::ReadArray(
             vtkByteSwap::Swap4BE(&length);
             stringLength = length;
           }
-          char* str = new char[stringLength];
-          IS->read(str, stringLength);
-          vtkUnicodeString s = vtkUnicodeString::from_utf8(str, str + stringLength);
+          std::vector<char> str(stringLength);
+          IS->read(str.data(), stringLength);
+          vtkUnicodeString s = vtkUnicodeString::from_utf8(str.data(), str.data() + stringLength);
           ((vtkUnicodeStringArray*)array)->InsertNextValue(s);
-          delete[] str;
         }
       }
     }
@@ -1946,12 +1943,11 @@ vtkAbstractArray* vtkDataReader::ReadArray(
         {
           my_getline(*(this->IS), s);
           int length = static_cast<int>(s.length());
-          char* decoded = new char[length + 1];
-          int decodedLength = this->DecodeString(decoded, s.c_str());
+          std::vector<char> decoded(length + 1);
+          int decodedLength = this->DecodeString(decoded.data(), s.c_str());
           vtkUnicodeString decodedStr =
-            vtkUnicodeString::from_utf8(decoded, decoded + decodedLength);
+            vtkUnicodeString::from_utf8(decoded.data(), decoded.data() + decodedLength);
           ((vtkUnicodeStringArray*)array)->InsertNextValue(decodedStr);
-          delete[] decoded;
         }
       }
     }
@@ -1967,10 +1963,9 @@ vtkAbstractArray* vtkDataReader::ReadArray(
         int t;
         vtkStdString str;
         *(this->IS) >> t >> str;
-        char* decoded = new char[str.length() + 1];
-        int decodedLength = this->DecodeString(decoded, str.c_str());
-        vtkStdString decodedStr(decoded, decodedLength);
-        delete[] decoded;
+        std::vector<char> decoded(str.length() + 1);
+        int decodedLength = this->DecodeString(decoded.data(), str.c_str());
+        vtkStdString decodedStr(decoded.data(), decodedLength);
         vtkVariant sv(decodedStr);
         vtkVariant v;
         switch (t)
@@ -3250,6 +3245,8 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data, int skip1, int rea
   char line[256];
   int i, numCellPts, junk, *tmp, *pTmp;
 
+  std::vector<int> tmpStorage;
+
   if (this->FileType == VTK_BINARY)
   {
     // suck up newline
@@ -3261,7 +3258,8 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data, int skip1, int rea
     }
     else
     {
-      tmp = new int[size];
+      tmpStorage.resize(size);
+      tmp = tmpStorage.data();
     }
     this->IS->read((char*)tmp, sizeof(int) * size);
     if (this->IS->eof())
@@ -3269,10 +3267,6 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data, int skip1, int rea
       const char* fname = this->CurrentFileName.c_str();
       vtkErrorMacro(<< "Error reading binary cell data!"
                     << " for file: " << (fname ? fname : "(Null FileName)"));
-      if (tmp != data)
-      {
-        delete[] tmp;
-      }
       return 0;
     }
     vtkByteSwap::Swap4BERange(tmp, size);
@@ -3301,8 +3295,6 @@ int vtkDataReader::ReadCellsLegacy(vtkIdType size, int* data, int skip1, int rea
       }
       --read2;
     }
-    // delete the temporary array
-    delete[] tmp;
   }
   else // ascii
   {

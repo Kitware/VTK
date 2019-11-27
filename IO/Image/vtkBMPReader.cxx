@@ -373,7 +373,6 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
   int inExtent[6];
   int dataExtent[6];
   int pixelSkip;
-  unsigned char* inPtr;
   unsigned char* Colors;
   unsigned long count = 0;
   unsigned long target;
@@ -439,7 +438,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
   }
 
   // create a buffer to hold a row of the data
-  unsigned char* buf = new unsigned char[streamRead];
+  std::vector<unsigned char> buf(streamRead);
 
   // read the data row by row
   for (idx2 = dataExtent[4]; idx2 <= dataExtent[5]; ++idx2)
@@ -448,7 +447,6 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
     {
       if (!self->OpenAndSeekFile(dataExtent, idx2))
       {
-        delete[] buf;
         return;
       }
     }
@@ -463,7 +461,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
       outPtr0 = outPtr1;
 
       // read the row.
-      if (!self->GetFile()->read((char*)buf, streamRead))
+      if (!self->GetFile()->read(reinterpret_cast<char*>(buf.data()), streamRead))
       {
         vtkErrorWithObjectMacro(self,
           "File operation failed. row = "
@@ -471,12 +469,11 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
             << streamSkip1 << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg())
             << ", FileName = " << self->GetInternalFileName());
         self->GetFile()->close();
-        delete[] buf;
         return;
       }
 
       // copy the bytes into the typed data
-      inPtr = buf;
+      auto inPtr = buf.cbegin();
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
       {
         // Copy pixel into the output.
@@ -512,7 +509,6 @@ void vtkBMPReaderUpdate2(vtkBMPReader* self, vtkImageData* data, OT* outPtr)
   self->GetFile()->close();
 
   // delete the temporary buffer
-  delete[] buf;
 }
 
 //----------------------------------------------------------------------------

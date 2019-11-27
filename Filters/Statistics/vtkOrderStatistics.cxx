@@ -384,7 +384,7 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
     // The CDF will be used for quantiles calculation (effectively as a reverse look-up table)
     vtkIdType nRowHist = histogramTab->GetNumberOfRows();
-    vtkIdType* cdf = new vtkIdType[nRowHist];
+    std::vector<vtkIdType> cdf(nRowHist);
 
     // Calculate variable cardinality and CDF
     vtkIdType c;
@@ -615,8 +615,6 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       continue;
     } // else
 
-    // Clean up
-    delete[] cdf;
   } // for ( unsigned int b = 0; b < nBlocks; ++ b )
 
   // Resize output meta so cardinality and quantile tables can be appended
@@ -681,7 +679,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
 
   // Prepare storage for quantiles and model CDFs
   vtkIdType nQuant = quantileTab->GetNumberOfRows();
-  vtkStdString* quantiles = new vtkStdString[nQuant];
+  std::vector<vtkStdString> quantiles(nQuant);
 
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
@@ -800,7 +798,6 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   outMeta->AddColumn(statCol);
 
   // Clean up
-  delete[] quantiles;
   nameCol->Delete();
   distCol->Delete();
   statCol->Delete();

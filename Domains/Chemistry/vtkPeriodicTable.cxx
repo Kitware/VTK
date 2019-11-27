@@ -30,6 +30,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstring>
+#include <string>
 
 // Setup static variables
 vtkNew<vtkBlueObeliskData> vtkPeriodicTable::BlueObeliskData;
@@ -116,14 +117,11 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
     return static_cast<unsigned short>(atoi_num);
   }
 
-  // Convert str to lowercase
-  int i = 0;
-  char* lowerStr = new char[strlen(str) + 1];
-  strcpy(lowerStr, str);
-  while (char& c = lowerStr[i++])
-  {
-    c = tolower(c);
-  }
+  // Convert str to lowercase (see note about casts in
+  // https://en.cppreference.com/w/cpp/string/byte/tolower)
+  std::string lowerStr(str);
+  std::transform(lowerStr.cbegin(), lowerStr.cend(), lowerStr.begin(),
+    [](unsigned char c) -> char { return static_cast<char>(std::tolower(c)); });
 
   // Cache pointers:
   vtkStringArray* lnames = this->BlueObeliskData->GetLowerNames();
@@ -136,32 +134,27 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
     if (lnames->GetValue(ind).compare(lowerStr) == 0 ||
       lsymbols->GetValue(ind).compare(lowerStr) == 0)
     {
-      delete[] lowerStr;
       return ind;
     }
   }
 
   // Manually test some non-standard names:
   // - Deuterium
-  if (strcmp(lowerStr, "d") == 0 || strcmp(lowerStr, "deuterium") == 0)
+  if (lowerStr == "d" || lowerStr == "deuterium")
   {
-    delete[] lowerStr;
     return 1;
   }
   // - Tritium
-  else if (strcmp(lowerStr, "t") == 0 || strcmp(lowerStr, "tritium") == 0)
+  else if (lowerStr == "t" || lowerStr == "tritium")
   {
-    delete[] lowerStr;
     return 1;
   }
   // - Aluminum (vs. Aluminium)
-  else if (strcmp(lowerStr, "aluminum") == 0)
+  else if (lowerStr == "aluminum")
   {
-    delete[] lowerStr;
     return 13;
   }
 
-  delete[] lowerStr;
   return 0;
 }
 

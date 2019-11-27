@@ -27,6 +27,7 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 // VTK includes
 #include "vtkAMRGaussianPulseSource.h"
@@ -114,10 +115,9 @@ void ComputeCellCenter(vtkUniformGrid* grid, vtkIdType cellIdx, double centroid[
   vtkCell* myCell = grid->vtkImageData::GetCell(cellIdx);
 
   double pcenter[3];
-  double* weights = new double[myCell->GetNumberOfPoints()];
+  std::vector<double> weights(myCell->GetNumberOfPoints());
   int subId = myCell->GetParametricCenter(pcenter);
-  myCell->EvaluateLocation(subId, pcenter, centroid, weights);
-  delete[] weights;
+  myCell->EvaluateLocation(subId, pcenter, centroid, weights.data());
 }
 
 //------------------------------------------------------------------------------

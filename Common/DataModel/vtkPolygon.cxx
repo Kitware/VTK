@@ -30,6 +30,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkPolygon);
 
 //----------------------------------------------------------------------------
@@ -465,8 +467,8 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
   }
 
   // create local array for storing point-to-vertex vectors and distances
-  double* dist = new double[numPts];
-  double* uVec = new double[3 * numPts];
+  std::vector<double> dist(numPts);
+  std::vector<double> uVec(3 * numPts);
   static const double eps = 0.00000001;
   for (int i = 0; i < numPts; i++)
   {
@@ -479,14 +481,12 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
     uVec[3 * i + 2] = pt[2] - x[2];
 
     // distance
-    dist[i] = vtkMath::Norm(uVec + 3 * i);
+    dist[i] = vtkMath::Norm(uVec.data() + 3 * i);
 
     // handle special case when the point is really close to a vertex
     if (dist[i] < eps)
     {
       weights[i] = 1.0;
-      delete[] dist;
-      delete[] uVec;
       return;
     }
 
@@ -500,7 +500,7 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
   // To do consider the simplification of
   // tan(alpha/2) = (1-cos(alpha))/sin(alpha)
   //              = (d0*d1 - cross(u0, u1))/(2*dot(u0,u1))
-  double* tanHalfTheta = new double[numPts];
+  std::vector<double> tanHalfTheta(numPts);
   for (int i = 0; i < numPts; i++)
   {
     int i1 = i + 1;
@@ -509,8 +509,8 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
       i1 = 0;
     }
 
-    double* u0 = uVec + 3 * i;
-    double* u1 = uVec + 3 * i1;
+    double* u0 = uVec.data() + 3 * i;
+    double* u1 = uVec.data() + 3 * i1;
 
     double l = sqrt(vtkMath::Distance2BetweenPoints(u0, u1));
     double theta = 2.0 * asin(l / 2.0);
@@ -520,9 +520,6 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
     {
       weights[i] = dist[i1] / (dist[i] + dist[i1]);
       weights[i1] = 1 - weights[i];
-      delete[] dist;
-      delete[] uVec;
-      delete[] tanHalfTheta;
       return;
     }
 
@@ -540,11 +537,6 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
 
     weights[i] = (tanHalfTheta[i] + tanHalfTheta[i1]) / dist[i];
   }
-
-  // clear memory
-  delete[] dist;
-  delete[] uVec;
-  delete[] tanHalfTheta;
 
   // normalize weight
   double sum = 0.0;
@@ -1042,13 +1034,15 @@ int vtkPolygon::BoundedTriangulate(vtkIdList* outTris, double tolerance)
   // For most polygons, there should be fewer than VTK_CELL_SIZE points. In
   // the event that we have a huge polygon, dynamically allocate an
   // appropriately sized array.
+  std::vector<double> area_dynamic;
   if (numPts - 2 <= VTK_CELL_SIZE)
   {
     area = &area_static[0];
   }
   else
   {
-    area = new double[numPts - 2];
+    area_dynamic.resize(numPts - 2);
+    area = area_dynamic.data();
   }
 
   for (i = 0; i < numPts; i++)
@@ -1089,12 +1083,6 @@ int vtkPolygon::BoundedTriangulate(vtkIdList* outTris, double tolerance)
   }
 
   outTris->DeepCopy(this->Tris);
-
-  // If we dynamically allocated our area array, delete it here.
-  if (numPts - 2 > VTK_CELL_SIZE)
-  {
-    delete[] area;
-  }
 
   return success;
 }
@@ -1506,13 +1494,13 @@ int vtkPolygon::UnbiasedEarCutTriangulation(int seed)
 int vtkPolygon::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtkIdList* pts)
 {
   int i, numPts = this->PointIds->GetNumberOfIds();
-  double x[3], *weights;
+  double x[3];
   int closestPoint = 0, previousPoint, nextPoint;
   double largestWeight = 0.0;
   double p0[3], p10[3], l10, p20[3], l20, n[3];
 
   pts->Reset();
-  weights = new double[numPts];
+  std::vector<double> weights(numPts);
 
   // determine global coordinates given parametric coordinates
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
@@ -1523,7 +1511,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtk
 
   // find edge with largest and next largest weight values. This will be
   // the closest edge.
-  this->InterpolateFunctions(x, weights);
+  this->InterpolateFunctions(x, weights.data());
   for (i = 0; i < numPts; i++)
   {
     if (weights[i] > largestWeight)
@@ -1554,7 +1542,6 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], vtk
   {
     pts->InsertId(1, this->PointIds->GetId(nextPoint));
   }
-  delete[] weights;
 
   // determine whether point is inside of polygon
   if (pcoords[0] >= 0.0 && pcoords[0] <= 1.0 && pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
@@ -1654,7 +1641,6 @@ int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double
   double closestPoint[3];
   double dist2;
   int npts = this->GetNumberOfPoints();
-  double* weights;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -1673,16 +1659,14 @@ int vtkPolygon::IntersectWithLine(const double p1[3], const double p2[3], double
 
   // Evaluate position
   //
-  weights = new double[npts];
-  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) >= 0)
+  std::vector<double> weights(npts);
+  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights.data()) >= 0)
   {
     if (dist2 <= tol2)
     {
-      delete[] weights;
       return 1;
     }
   }
-  delete[] weights;
   return 0;
 }
 
@@ -1768,8 +1752,8 @@ void vtkPolygon::Derivatives(
   }
 
   int numVerts = this->PointIds->GetNumberOfIds();
-  double* weights = new double[numVerts];
-  double* sample = new double[dim * 3];
+  std::vector<double> weights(numVerts);
+  std::vector<double> sample(dim * 3);
 
   // compute positions of three sample points
   for (i = 0; i < 3; i++)
@@ -1782,7 +1766,7 @@ void vtkPolygon::Derivatives(
   // for each sample point, sample data values
   for (idx = 0, k = 0; k < 3; k++) // loop over three sample points
   {
-    this->InterpolateFunctions(x[k], weights);
+    this->InterpolateFunctions(x[k], weights.data());
     for (j = 0; j < dim; j++, idx++) // over number of derivates requested
     {
       sample[idx] = 0.0;
@@ -1814,9 +1798,6 @@ void vtkPolygon::Derivatives(
     derivs[3 * j + 1] = ddx * v1[1] + ddy * v2[1];
     derivs[3 * j + 2] = ddx * v1[2] + ddy * v2[2];
   }
-
-  delete[] weights;
-  delete[] sample;
 }
 
 //----------------------------------------------------------------------------

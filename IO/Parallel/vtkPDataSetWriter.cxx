@@ -24,6 +24,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 vtkCxxSetObjectMacro(vtkPDataSetWriter, Controller, vtkMultiProcessController);
@@ -72,8 +74,6 @@ int vtkPDataSetWriter::Write()
 {
   int i;
   int length;
-  char* fileRoot;
-  char* fileName;
 
   ostream* fptr;
   vtkDataSet* input = this->GetInput();
@@ -104,17 +104,17 @@ int vtkPDataSetWriter::Write()
 
   // Lets compute the file root from the file name supplied by the user.
   length = static_cast<int>(strlen(this->FileName));
-  fileRoot = new char[length + 1];
+  std::vector<char> fileRoot(length + 1);
   size_t fileNameSize = length + strlen(this->FilePattern) + 20;
-  fileName = new char[fileNameSize];
-  strncpy(fileRoot, this->FileName, length);
+  std::vector<char> fileName(fileNameSize);
+  strncpy(fileRoot.data(), this->FileName, length);
   fileRoot[length] = '\0';
   // Trim off the pvtk extension.
-  if (strncmp(fileRoot + length - 5, ".pvtk", 5) == 0)
+  if (strncmp(fileRoot.data() + length - 5, ".pvtk", 5) == 0)
   {
     fileRoot[length - 5] = '\0';
   }
-  if (strncmp(fileRoot + length - 4, ".vtk", 4) == 0)
+  if (strncmp(fileRoot.data() + length - 4, ".vtk", 4) == 0)
   {
     fileRoot[length - 4] = '\0';
   }
@@ -124,7 +124,7 @@ int vtkPDataSetWriter::Write()
     char *tmp, *slash;
     // Find the last / or \ in the file name.
     slash = nullptr;
-    tmp = fileRoot;
+    tmp = fileRoot.data();
     while (*tmp != '\0')
     {
       if (*tmp == '/' || *tmp == '\\')
@@ -137,7 +137,7 @@ int vtkPDataSetWriter::Write()
     if (slash)
     {
       ++slash;
-      tmp = fileRoot;
+      tmp = fileRoot.data();
       while (*slash != '\0')
       {
         *tmp++ = *slash++;
@@ -147,14 +147,14 @@ int vtkPDataSetWriter::Write()
   }
 
   // Restore the fileRoot to the full path.
-  strncpy(fileRoot, this->FileName, length);
+  strncpy(fileRoot.data(), this->FileName, length);
   fileRoot[length] = '\0';
   // Trim off the pvtk extension.
-  if (strncmp(fileRoot + length - 5, ".pvtk", 5) == 0)
+  if (strncmp(fileRoot.data() + length - 5, ".pvtk", 5) == 0)
   {
     fileRoot[length - 5] = '\0';
   }
-  if (strncmp(fileRoot + length - 4, ".vtk", 4) == 0)
+  if (strncmp(fileRoot.data() + length - 4, ".vtk", 4) == 0)
   {
     fileRoot[length - 4] = '\0';
   }
@@ -167,8 +167,8 @@ int vtkPDataSetWriter::Write()
   vtkDataObject* copy;
   for (i = this->StartPiece; i <= this->EndPiece; ++i)
   {
-    snprintf(fileName, fileNameSize, this->FilePattern, fileRoot, i);
-    writer->SetFileName(fileName);
+    snprintf(fileName.data(), fileNameSize, this->FilePattern, fileRoot.data(), i);
+    writer->SetFileName(fileName.data());
     inputAlg->UpdatePiece(i, this->NumberOfPieces, this->GhostLevel);
 
     // Store the extent of this piece in Extents. This is later used
@@ -211,8 +211,6 @@ int vtkPDataSetWriter::Write()
     fptr = this->OpenFile();
     if (fptr == nullptr)
     {
-      delete[] fileRoot;
-      delete[] fileName;
       return 0;
     }
     // Write a tag so that we know this file type.
@@ -223,8 +221,6 @@ int vtkPDataSetWriter::Write()
       vtkErrorMacro(<< "Unable to write to file: " << this->FileName);
       this->CloseVTKFile(fptr);
       remove(this->FileName);
-      delete[] fileRoot;
-      delete[] fileName;
       delete fptr;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return 0;
@@ -234,12 +230,11 @@ int vtkPDataSetWriter::Write()
     {
       case VTK_POLY_DATA:
       case VTK_UNSTRUCTURED_GRID:
-        if (!this->WriteUnstructuredMetaData(input, fileRoot, fileName, fileNameSize, fptr))
+        if (!this->WriteUnstructuredMetaData(
+              input, fileRoot.data(), fileName.data(), fileNameSize, fptr))
         {
           this->CloseVTKFile(fptr);
           remove(this->FileName);
-          delete[] fileRoot;
-          delete[] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
           return 0;
@@ -247,12 +242,11 @@ int vtkPDataSetWriter::Write()
         break;
       case VTK_IMAGE_DATA:
       case VTK_STRUCTURED_POINTS:
-        if (!this->WriteImageMetaData((vtkImageData*)input, fileRoot, fileName, fileNameSize, fptr))
+        if (!this->WriteImageMetaData(
+              (vtkImageData*)input, fileRoot.data(), fileName.data(), fileNameSize, fptr))
         {
           this->CloseVTKFile(fptr);
           remove(this->FileName);
-          delete[] fileRoot;
-          delete[] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
           return 0;
@@ -260,12 +254,10 @@ int vtkPDataSetWriter::Write()
         break;
       case VTK_RECTILINEAR_GRID:
         if (!this->WriteRectilinearGridMetaData(
-              (vtkRectilinearGrid*)input, fileRoot, fileName, fileNameSize, fptr))
+              (vtkRectilinearGrid*)input, fileRoot.data(), fileName.data(), fileNameSize, fptr))
         {
           this->CloseVTKFile(fptr);
           remove(this->FileName);
-          delete[] fileRoot;
-          delete[] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
           return 0;
@@ -273,12 +265,10 @@ int vtkPDataSetWriter::Write()
         break;
       case VTK_STRUCTURED_GRID:
         if (!this->WriteStructuredGridMetaData(
-              (vtkStructuredGrid*)input, fileRoot, fileName, fileNameSize, fptr))
+              (vtkStructuredGrid*)input, fileRoot.data(), fileName.data(), fileNameSize, fptr))
         {
           this->CloseVTKFile(fptr);
           remove(this->FileName);
-          delete[] fileRoot;
-          delete[] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
           return 0;
@@ -289,9 +279,6 @@ int vtkPDataSetWriter::Write()
     // fptr->close();
     delete fptr;
   }
-
-  delete[] fileName;
-  delete[] fileRoot;
 
   return 1;
 }
@@ -360,16 +347,16 @@ int vtkPDataSetWriter::WriteImageMetaData(
     int nPiecesTotal = 0;
     vtkIdType nPieces = static_cast<vtkIdType>(this->Extents.size());
 
-    vtkIdType* offsets = nullptr;
-    vtkIdType* nPiecesAll = nullptr;
-    vtkIdType* recvLengths = nullptr;
+    std::vector<vtkIdType> offsets;
+    std::vector<vtkIdType> nPiecesAll;
+    std::vector<vtkIdType> recvLengths;
     if (rank == 0)
     {
-      nPiecesAll = new vtkIdType[nRanks];
-      recvLengths = new vtkIdType[nRanks];
-      offsets = new vtkIdType[nRanks];
+      offsets.resize(nRanks);
+      nPiecesAll.resize(nRanks);
+      recvLengths.resize(nRanks);
     }
-    this->Controller->Gather(&nPieces, nPiecesAll, 1, 0);
+    this->Controller->Gather(&nPieces, nPiecesAll.data(), 1, 0);
     if (rank == 0)
     {
       for (int i = 0; i < nRanks; i++)
@@ -379,24 +366,25 @@ int vtkPDataSetWriter::WriteImageMetaData(
         recvLengths[i] = nPiecesAll[i] * 7;
       }
     }
-    int* sendBuffer = nullptr;
+    std::vector<int> sendBuffer;
     int sendSize = nPieces * 7;
     if (nPieces > 0)
     {
-      sendBuffer = new int[sendSize];
+      sendBuffer.resize(sendSize);
       ExtentsType::iterator iter = this->Extents.begin();
       for (int count = 0; iter != this->Extents.end(); ++iter, ++count)
       {
         sendBuffer[count * 7] = iter->first;
-        memcpy(&sendBuffer[count * 7 + 1], &iter->second[0], 6 * sizeof(int));
+        memcpy(sendBuffer.data() + count * 7 + 1, &iter->second[0], 6 * sizeof(int));
       }
     }
-    int* recvBuffer = nullptr;
+    std::vector<int> recvBuffer;
     if (rank == 0)
     {
-      recvBuffer = new int[nPiecesTotal * 7];
+      recvBuffer.resize(nPiecesTotal * 7);
     }
-    this->Controller->GatherV(sendBuffer, recvBuffer, sendSize, recvLengths, offsets, 0);
+    this->Controller->GatherV(
+      sendBuffer.data(), recvBuffer.data(), sendSize, recvLengths.data(), offsets.data(), 0);
 
     if (rank == 0)
     {
@@ -406,17 +394,11 @@ int vtkPDataSetWriter::WriteImageMetaData(
       {
         for (int j = 0; j < nPiecesAll[i]; j++)
         {
-          int* buffer = recvBuffer + offsets[i] + j * 7;
+          int* buffer = recvBuffer.data() + offsets[i] + j * 7;
           this->Extents[*buffer] = std::vector<int>(buffer + 1, buffer + 7);
         }
       }
     }
-
-    delete[] nPiecesAll;
-    delete[] recvBuffer;
-    delete[] offsets;
-    delete[] recvLengths;
-    delete[] sendBuffer;
   }
 
   for (int i = 0; i < this->NumberOfPieces; ++i)
@@ -528,18 +510,18 @@ void vtkPDataSetWriter::DeleteFiles()
 {
   int i;
   int length = static_cast<int>(strlen(this->FileName));
-  char* fileRoot = new char[length + 1];
+  std::vector<char> fileRoot(length + 1);
   size_t fileNameSize = length + strlen(this->FilePattern) + 20;
-  char* fileName = new char[fileNameSize];
+  std::vector<char> fileName(fileNameSize);
 
-  strncpy(fileRoot, this->FileName, length);
+  strncpy(fileRoot.data(), this->FileName, length);
   fileRoot[length] = '\0';
   // Trim off the pvtk extension.
-  if (strncmp(fileRoot + length - 5, ".pvtk", 5) == 0)
+  if (strncmp(fileRoot.data() + length - 5, ".pvtk", 5) == 0)
   {
     fileRoot[length - 5] = '\0';
   }
-  if (strncmp(fileRoot + length - 4, ".vtk", 4) == 0)
+  if (strncmp(fileRoot.data() + length - 4, ".vtk", 4) == 0)
   {
     fileRoot[length - 4] = '\0';
   }
@@ -549,7 +531,7 @@ void vtkPDataSetWriter::DeleteFiles()
     char *tmp, *slash;
     // Find the last / or \ in the file name.
     slash = nullptr;
-    tmp = fileRoot;
+    tmp = fileRoot.data();
     while (*tmp != '\0')
     {
       if (*tmp == '/' || *tmp == '\\')
@@ -562,7 +544,7 @@ void vtkPDataSetWriter::DeleteFiles()
     if (slash)
     {
       ++slash;
-      tmp = fileRoot;
+      tmp = fileRoot.data();
       while (*slash != '\0')
       {
         *tmp++ = *slash++;
@@ -573,14 +555,11 @@ void vtkPDataSetWriter::DeleteFiles()
 
   for (i = this->StartPiece; i <= this->EndPiece; i++)
   {
-    snprintf(fileName, fileNameSize, this->FilePattern, fileRoot, i);
-    remove(fileName);
+    snprintf(fileName.data(), fileNameSize, this->FilePattern, fileRoot.data(), i);
+    remove(fileName.data());
   }
 
   remove(this->FileName);
-
-  delete[] fileName;
-  delete[] fileRoot;
 }
 
 //----------------------------------------------------------------------------

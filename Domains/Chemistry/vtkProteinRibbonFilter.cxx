@@ -36,6 +36,7 @@
 #include "vtkVectorOperators.h"
 
 #include <map>
+#include <vector>
 
 vtkStandardNewMacro(vtkProteinRibbonFilter);
 
@@ -309,14 +310,13 @@ void vtkProteinRibbonFilter::CreateAtomAsSphere(vtkPolyData* poly,
   spherePolys->InitTraversal();
   while (spherePolys->GetNextCell(numCellPoints, cellPoints) != 0)
   {
-    vtkIdType* newCellPoints = new vtkIdType[numCellPoints];
+    std::vector<vtkIdType> newCellPoints(numCellPoints);
     for (vtkIdType i = 0; i < numCellPoints; ++i)
     {
       // The new point ids should be offset by the pointOffset above
       newCellPoints[i] = cellPoints[i] + pointOffset;
     }
-    poly->InsertNextCell(VTK_TRIANGLE_STRIP, numCellPoints, newCellPoints);
-    delete[] newCellPoints;
+    poly->InsertNextCell(VTK_TRIANGLE_STRIP, numCellPoints, newCellPoints.data());
   }
 }
 

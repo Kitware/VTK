@@ -233,24 +233,19 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
 
   // Create two matrices
   int msize = n + ndim + 1;
-  double** X = new double*[ndim];
-  double** L = new double*[msize];
   int storagelen = ndim * msize + msize * msize;
-  double* storage = new double[storagelen];
-
-  for (i = 0; i < storagelen; i++)
-  {
-    storage[i] = 0.0;
-  }
+  std::vector<double> storage(storagelen); // actual data
+  std::vector<double*> X(ndim);            // pointers into storage
+  std::vector<double*> L(msize);           // pointers into storage
 
   // Create the X and L matrices
   for (i = 0; i < ndim; i++)
   {
-    X[i] = &storage[i * msize];
+    X[i] = storage.data() + i * msize;
   }
   for (i = 0; i < msize; i++)
   {
-    L[i] = &storage[ndim * msize + i * msize];
+    L[i] = storage.data() + ndim * msize + i * msize;
   }
 
   // Fill in L matrix
@@ -292,15 +287,15 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   }
 
   // Solve to make X into the thin-plate spline matrix
-  int* pivots = new int[msize];
-  double* tmpstore = new double[msize];
-  vtkMath::LUFactorLinearSystem(L, pivots, msize, tmpstore);
-  for (i = 0; i < ndim; i++)
   {
-    vtkMath::LUSolveLinearSystem(L, pivots, X[i], msize);
+    std::vector<int> pivots(msize);
+    std::vector<double> tmpstore(msize);
+    vtkMath::LUFactorLinearSystem(L.data(), pivots.data(), msize, tmpstore.data());
+    for (i = 0; i < ndim; i++)
+    {
+      vtkMath::LUSolveLinearSystem(L.data(), pivots.data(), X[i], msize);
+    }
   }
-  delete[] tmpstore;
-  delete[] pivots;
 
   // Write out the matrix as "Displacements"
   outfile << "Displacements =";
@@ -318,10 +313,6 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
   }
 
   outfile << ";\n";
-
-  delete[] storage;
-  delete[] L;
-  delete[] X;
 
   return 1;
 }

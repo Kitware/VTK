@@ -38,6 +38,7 @@
 #include <limits>
 #include <set>
 #include <sstream>
+#include <vector>
 
 vtkObjectFactoryNewMacro(vtkDescriptiveStatistics);
 
@@ -384,7 +385,7 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   }
 
   // Storage for standard deviation, variance, skewness,  kurtosis, sum
-  double* derivedVals = new double[numDoubles];
+  std::vector<double> derivedVals(numDoubles);
 
   for (int i = 0; i < nRow; ++i)
   {
@@ -457,7 +458,6 @@ void vtkDescriptiveStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
   // Clean up
   derivedTab->Delete();
-  delete[] derivedVals;
 }
 
 // ----------------------------------------------------------------------

@@ -20,6 +20,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
@@ -131,11 +133,9 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
   vtkIdType numCells = data->GetNumberOfCells();
   int j;
   vtkIdType cellId;
-  vtkIdType* linkLoc;
 
   // fill out lists with number of references to cells
-  linkLoc = new vtkIdType[numPts];
-  memset(linkLoc, 0, numPts * sizeof(vtkIdType));
+  std::vector<vtkIdType> linkLoc(numPts, 0);
 
   // Use fast path if polydata
   if (data->GetDataObjectType() == VTK_POLY_DATA)
@@ -200,8 +200,6 @@ void vtkCellLinks::BuildLinks(vtkDataSet* data)
     }
     cell->Delete();
   } // end else
-
-  delete[] linkLoc;
 }
 
 //----------------------------------------------------------------------------

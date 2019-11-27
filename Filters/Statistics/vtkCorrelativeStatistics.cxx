@@ -38,6 +38,7 @@
 
 #include <set>
 #include <sstream>
+#include <vector>
 
 vtkObjectFactoryNewMacro(vtkCorrelativeStatistics);
 
@@ -371,7 +372,7 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   }
 
   // Storage for stdv x, stdv y, var x, var y, cov, slope y/x, int. y/x, slope x/y, int. x/y, r, D
-  double* derivedVals = new double[numDoubles]; //
+  std::vector<double> derivedVals(numDoubles);
 
   for (int i = 0; i < nRow; ++i)
   {
@@ -456,7 +457,6 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 
   // Clean up
   derivedTab->Delete();
-  delete[] derivedVals;
 }
 
 // ----------------------------------------------------------------------

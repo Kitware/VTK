@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkImageWriter.h"
 
+#include "vtkAssume.h"
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
@@ -515,26 +516,25 @@ void vtkImageWriter::DeleteFiles()
     if (this->FilePrefix)
     {
       size_t fileNameLength = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
-      char* fileName = new char[fileNameLength];
+      std::vector<char> fileName(fileNameLength);
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
-        snprintf(fileName, fileNameLength, this->FilePattern, this->FilePrefix, i);
-        vtksys::SystemTools::RemoveFile(fileName);
+        VTK_ASSUME(fileName.data() != nullptr); // silence warning.
+        snprintf(fileName.data(), fileNameLength, this->FilePattern, this->FilePrefix, i);
+        vtksys::SystemTools::RemoveFile(fileName.data());
       }
-      delete[] fileName;
     }
     else
     {
       size_t fileNameLength = strlen(this->FilePattern) + 10;
-      char* fileName = new char[fileNameLength];
+      std::vector<char> fileName(fileNameLength);
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
-        snprintf(fileName, fileNameLength, this->FilePattern, i);
-        vtksys::SystemTools::RemoveFile(fileName);
+        snprintf(fileName.data(), fileNameLength, this->FilePattern, i);
+        vtksys::SystemTools::RemoveFile(fileName.data());
       }
-      delete[] fileName;
     }
   }
   this->FilesDeleted = 1;

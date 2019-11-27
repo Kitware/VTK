@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkAMRFlashReaderInternal.h"
 
+#include <vector>
+
 //-----------------------------------------------------------------------------
 void vtkFlashReaderInternal::GetBlockAttribute(
   const char* attribute, int blockIdx, vtkDataSet* pDataSet)
@@ -108,36 +110,30 @@ void vtkFlashReaderInternal::GetBlockAttribute(
   }
   else if (H5Tequal(dataType, H5T_NATIVE_FLOAT))
   {
-    float* dataFlts = new float[numTupls];
-    H5Dread(dataIndx, dataType, memSpace, filSpace, H5P_DEFAULT, dataFlts);
+    std::vector<float> dataFlts(numTupls);
+    H5Dread(dataIndx, dataType, memSpace, filSpace, H5P_DEFAULT, dataFlts.data());
     for (i = 0; i < numTupls; i++)
     {
       arrayPtr[i] = dataFlts[i];
     }
-    delete[] dataFlts;
-    dataFlts = nullptr;
   }
   else if (H5Tequal(dataType, H5T_NATIVE_INT))
   {
-    int* dataInts = new int[numTupls];
-    H5Dread(dataIndx, dataType, memSpace, filSpace, H5P_DEFAULT, dataInts);
+    std::vector<int> dataInts(numTupls);
+    H5Dread(dataIndx, dataType, memSpace, filSpace, H5P_DEFAULT, dataInts.data());
     for (i = 0; i < numTupls; i++)
     {
       arrayPtr[i] = dataInts[i];
     }
-    delete[] dataInts;
-    dataInts = nullptr;
   }
   else if (H5Tequal(dataType, H5T_NATIVE_UINT))
   {
-    unsigned int* unsgnInt = new unsigned int[numTupls];
-    H5Dread(dataIndx, dataType, memSpace, filSpace, H5P_DEFAULT, unsgnInt);
+    std::vector<unsigned int> unsgnInt(numTupls);
+    H5Dread(dataIndx, dataType, memSpace, filSpace, H5P_DEFAULT, unsgnInt.data());
     for (i = 0; i < numTupls; i++)
     {
       arrayPtr[i] = unsgnInt[i];
     }
-    delete[] unsgnInt;
-    unsgnInt = nullptr;
   }
   else
   {
@@ -340,8 +336,8 @@ void vtkFlashReaderInternal::ReadProcessorIds()
     hid_t procnum_raw_data_type = H5Dget_type(procnumId);
     hid_t procnum_data_type = H5Tget_native_type(procnum_raw_data_type, H5T_DIR_ASCEND);
 
-    int* procnum_array = new int[this->NumberOfBlocks];
-    H5Dread(procnumId, procnum_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, procnum_array);
+    std::vector<int> procnum_array(this->NumberOfBlocks);
+    H5Dread(procnumId, procnum_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, procnum_array.data());
 
     int highProcessor = -1;
     for (int b = 0; b < this->NumberOfBlocks; b++)
@@ -359,9 +355,6 @@ void vtkFlashReaderInternal::ReadProcessorIds()
     H5Tclose(procnum_raw_data_type);
     H5Sclose(procnumSpaceId);
     H5Dclose(procnumId);
-
-    delete[] procnum_array;
-    procnum_array = nullptr;
   }
   else
   {
@@ -414,8 +407,8 @@ void vtkFlashReaderInternal::ReadDoubleScalars(hid_t fileIndx)
   H5Tinsert(datatype, "name", HOFFSET(FlashReaderDoubleScalar, Name), string20);
   H5Tinsert(datatype, "value", HOFFSET(FlashReaderDoubleScalar, Value), H5T_NATIVE_DOUBLE);
 
-  FlashReaderDoubleScalar* rs = new FlashReaderDoubleScalar[nScalars];
-  H5Dread(realScalarsId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, rs);
+  std::vector<FlashReaderDoubleScalar> rs(nScalars);
+  H5Dread(realScalarsId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, rs.data());
 
   for (int i = 0; i < nScalars; i++)
   {
@@ -424,9 +417,6 @@ void vtkFlashReaderInternal::ReadDoubleScalars(hid_t fileIndx)
       this->SimulationParameters.Time = rs[i].Value;
     }
   }
-
-  delete[] rs;
-  rs = nullptr;
 
   H5Tclose(string20);
   H5Tclose(datatype);
@@ -473,8 +463,8 @@ void vtkFlashReaderInternal::ReadIntegerScalars(hid_t fileIndx)
   H5Tinsert(datatype, "name", HOFFSET(FlashReaderIntegerScalar, Name), string20);
   H5Tinsert(datatype, "value", HOFFSET(FlashReaderIntegerScalar, Value), H5T_NATIVE_INT);
 
-  FlashReaderIntegerScalar* is = new FlashReaderIntegerScalar[nScalars];
-  H5Dread(intScalarsId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, is);
+  std::vector<FlashReaderIntegerScalar> is(nScalars);
+  H5Dread(intScalarsId, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, is.data());
 
   for (int i = 0; i < nScalars; i++)
   {
@@ -499,9 +489,6 @@ void vtkFlashReaderInternal::ReadIntegerScalars(hid_t fileIndx)
       this->SimulationParameters.NumberOfTimeSteps = is[i].Value;
     }
   }
-
-  delete[] is;
-  is = nullptr;
 
   H5Tclose(string20);
   H5Tclose(datatype);
@@ -754,8 +741,8 @@ void vtkFlashReaderInternal::ReadBlockTypes()
   hid_t nodetype_raw_data_type = H5Dget_type(nodetypeId);
   hid_t nodetype_data_type = H5Tget_native_type(nodetype_raw_data_type, H5T_DIR_ASCEND);
 
-  int* nodetype_array = new int[this->NumberOfBlocks];
-  H5Dread(nodetypeId, nodetype_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, nodetype_array);
+  std::vector<int> nodetype_array(this->NumberOfBlocks);
+  H5Dread(nodetypeId, nodetype_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, nodetype_array.data());
 
   this->NumberOfLeafBlocks = 0;
   for (int b = 0; b < this->NumberOfBlocks; b++)
@@ -768,9 +755,6 @@ void vtkFlashReaderInternal::ReadBlockTypes()
       this->LeafBlocks.push_back(b);
     }
   }
-
-  delete[] nodetype_array;
-  nodetype_array = nullptr;
 
   H5Tclose(nodetype_data_type);
   H5Tclose(nodetype_raw_data_type);
@@ -805,8 +789,8 @@ void vtkFlashReaderInternal::ReadBlockBounds()
       return;
     }
 
-    double* bbox_array = new double[this->NumberOfBlocks * this->NumberOfDimensions * 2];
-    H5Dread(bboxId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, bbox_array);
+    std::vector<double> bbox_array(this->NumberOfBlocks * this->NumberOfDimensions * 2);
+    H5Dread(bboxId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, bbox_array.data());
 
     this->MinBounds[0] = VTK_DOUBLE_MAX;
     this->MinBounds[1] = VTK_DOUBLE_MAX;
@@ -817,7 +801,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
 
     for (int b = 0; b < this->NumberOfBlocks; b++)
     {
-      double* bbox_line = &bbox_array[this->NumberOfDimensions * 2 * b];
+      double* bbox_line = bbox_array.data() + this->NumberOfDimensions * 2 * b;
       for (int d = 0; d < 3; d++)
       {
         if (d + 1 <= this->NumberOfDimensions)
@@ -864,9 +848,6 @@ void vtkFlashReaderInternal::ReadBlockBounds()
 
       bbox_line = nullptr;
     }
-
-    delete[] bbox_array;
-    bbox_array = nullptr;
   }
   else if (this->FileFormatVersion == FLASH_READER_FLASH3_FFV9)
   {
@@ -879,8 +860,8 @@ void vtkFlashReaderInternal::ReadBlockBounds()
       return;
     }
 
-    double* bbox_array = new double[this->NumberOfBlocks * FLASH_READER_MAX_DIMS * 2];
-    H5Dread(bboxId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, bbox_array);
+    std::vector<double> bbox_array(this->NumberOfBlocks * FLASH_READER_MAX_DIMS * 2);
+    H5Dread(bboxId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, bbox_array.data());
 
     this->MinBounds[0] = VTK_DOUBLE_MAX;
     this->MinBounds[1] = VTK_DOUBLE_MAX;
@@ -891,7 +872,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
 
     for (int b = 0; b < this->NumberOfBlocks; b++)
     {
-      double* bbox_line = &bbox_array[FLASH_READER_MAX_DIMS * 2 * b];
+      double* bbox_line = bbox_array.data() + FLASH_READER_MAX_DIMS * 2 * b;
 
       for (int d = 0; d < 3; d++)
       {
@@ -931,9 +912,6 @@ void vtkFlashReaderInternal::ReadBlockBounds()
 
       bbox_line = nullptr;
     }
-
-    delete[] bbox_array;
-    bbox_array = nullptr;
   }
 
   H5Sclose(bboxSpaceId);
@@ -968,12 +946,13 @@ void vtkFlashReaderInternal::ReadBlockCenters()
       return;
     }
 
-    double* coordinates_array = new double[this->NumberOfBlocks * this->NumberOfDimensions];
-    H5Dread(coordinatesId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, coordinates_array);
+    std::vector<double> coordinates_array(this->NumberOfBlocks * this->NumberOfDimensions);
+    H5Dread(
+      coordinatesId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, coordinates_array.data());
 
     for (int b = 0; b < this->NumberOfBlocks; b++)
     {
-      double* coords = &coordinates_array[this->NumberOfDimensions * b];
+      double* coords = coordinates_array.data() + this->NumberOfDimensions * b;
 
       if (this->NumberOfDimensions == 1)
       {
@@ -996,9 +975,6 @@ void vtkFlashReaderInternal::ReadBlockCenters()
 
       coords = nullptr;
     }
-
-    delete[] coordinates_array;
-    coordinates_array = nullptr;
   }
   else if (this->FileFormatVersion == FLASH_READER_FLASH3_FFV9)
   {
@@ -1010,20 +986,18 @@ void vtkFlashReaderInternal::ReadBlockCenters()
       return;
     }
 
-    double* coordinates_array = new double[this->NumberOfBlocks * FLASH_READER_MAX_DIMS];
-    H5Dread(coordinatesId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, coordinates_array);
+    std::vector<double> coordinates_array(this->NumberOfBlocks * FLASH_READER_MAX_DIMS);
+    H5Dread(
+      coordinatesId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, coordinates_array.data());
 
     for (int b = 0; b < this->NumberOfBlocks; b++)
     {
-      double* coords = &coordinates_array[FLASH_READER_MAX_DIMS * b];
+      double* coords = coordinates_array.data() + FLASH_READER_MAX_DIMS * b;
       this->Blocks[b].Center[0] = coords[0];
       this->Blocks[b].Center[1] = coords[1];
       this->Blocks[b].Center[2] = coords[2];
       coords = nullptr;
     }
-
-    delete[] coordinates_array;
-    coordinates_array = nullptr;
   }
 
   H5Sclose(coordinatesSpaceId);
@@ -1091,14 +1065,14 @@ void vtkFlashReaderInternal::ReadBlockStructures()
   hid_t gid_raw_data_type = H5Dget_type(gidId);
   hid_t gid_data_type = H5Tget_native_type(gid_raw_data_type, H5T_DIR_ASCEND);
 
-  int* gid_array = new int[this->NumberOfBlocks * gid_dims[1]];
-  H5Dread(gidId, gid_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, gid_array);
+  std::vector<int> gid_array(this->NumberOfBlocks * gid_dims[1]);
+  H5Dread(gidId, gid_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, gid_array.data());
 
   // convert to an easier-to-grok format
   this->Blocks.resize(this->NumberOfBlocks);
   for (int b = 0; b < this->NumberOfBlocks; b++)
   {
-    int* gid_line = &gid_array[gid_dims[1] * b];
+    int* gid_line = gid_array.data() + gid_dims[1] * b;
     int pos = 0;
     int n;
 
@@ -1128,9 +1102,6 @@ void vtkFlashReaderInternal::ReadBlockStructures()
 
     gid_line = nullptr;
   }
-
-  delete[] gid_array;
-  gid_array = nullptr;
 
   H5Tclose(gid_data_type);
   H5Tclose(gid_raw_data_type);
@@ -1164,8 +1135,9 @@ void vtkFlashReaderInternal::ReadRefinementLevels()
   hid_t refinement_raw_data_type = H5Dget_type(refinementId);
   hid_t refinement_data_type = H5Tget_native_type(refinement_raw_data_type, H5T_DIR_ASCEND);
 
-  int* refinement_array = new int[this->NumberOfBlocks];
-  H5Dread(refinementId, refinement_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, refinement_array);
+  std::vector<int> refinement_array(this->NumberOfBlocks);
+  H5Dread(
+    refinementId, refinement_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, refinement_array.data());
 
   for (int b = 0; b < this->NumberOfBlocks; b++)
   {
@@ -1176,9 +1148,6 @@ void vtkFlashReaderInternal::ReadRefinementLevels()
       this->NumberOfLevels = level;
     }
   }
-
-  delete[] refinement_array;
-  refinement_array = nullptr;
 
   H5Tclose(refinement_data_type);
   H5Tclose(refinement_raw_data_type);
@@ -1210,12 +1179,12 @@ void vtkFlashReaderInternal::ReadDataAttributeNames()
   int length = (int)(H5Tget_size(unk_raw_data_type));
 
   int nvars = unk_dims[0];
-  char* unk_array = new char[nvars * length];
+  std::vector<char> unk_array(nvars * length);
 
-  H5Dread(unknownsId, unk_raw_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, unk_array);
+  H5Dread(unknownsId, unk_raw_data_type, H5S_ALL, H5S_ALL, H5P_DEFAULT, unk_array.data());
 
   this->AttributeNames.resize(nvars);
-  char* tmpstring = new char[length + 1];
+  std::vector<char> tmpstring(length + 1);
   for (int v = 0; v < nvars; v++)
   {
     for (int c = 0; c < length; c++)
@@ -1224,13 +1193,8 @@ void vtkFlashReaderInternal::ReadDataAttributeNames()
     }
     tmpstring[length] = '\0';
 
-    this->AttributeNames[v] = tmpstring;
+    this->AttributeNames[v] = tmpstring.data();
   }
-
-  delete[] unk_array;
-  delete[] tmpstring;
-  unk_array = nullptr;
-  tmpstring = nullptr;
 
   H5Tclose(unk_raw_data_type);
   H5Sclose(unkSpaceId);
@@ -1415,13 +1379,11 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
   // create the right-size string, and a char array to read the data into
   hid_t string24 = H5Tcopy(H5T_C_S1);
   H5Tset_size(string24, 24);
-  char* cnames = new char[24 * numNames];
-  H5Dread(pnameId, string24, H5S_ALL, H5S_ALL, H5P_DEFAULT, cnames);
+  std::vector<char> cnames(24 * numNames);
+  H5Dread(pnameId, string24, H5S_ALL, H5S_ALL, H5P_DEFAULT, cnames.data());
 
   // Convert the single string to individual variable names.
-  std::string snames(cnames);
-  delete[] cnames;
-  cnames = nullptr;
+  std::string snames(cnames.data());
 
   for (int i = 0; i < numNames; i++)
   {

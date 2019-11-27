@@ -28,6 +28,8 @@
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter, LookupTable, vtkScalarsToColors);
@@ -1157,18 +1159,14 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray* vtkNotUsed(po
   vtkIdType cellId;
   int numPolyPts, p1, p2;
   vtkIdType ncells, ncells2;
-  unsigned char *polyVisited, *ptr;
+  unsigned char* ptr;
   vtkCellArray* newPolys;
 
   // Make sure we can topological info
   edges->BuildLinks();
 
   // Mark all polygons as unvisited
-  polyVisited = new unsigned char[numPolys];
-  for (i = 0; i < numPolys; i++)
-  {
-    polyVisited[i] = 0;
-  }
+  std::vector<unsigned char> polyVisited(numPolys, 0);
 
   // Create connectivity array for polygon definition
   newPolys = vtkCellArray::New();
@@ -1181,7 +1179,6 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray* vtkNotUsed(po
     if (ncells < 2)
     {
       vtkErrorMacro(<< "Bad mojo");
-      delete[] polyVisited;
       return;
     }
     // for each edge, walk around polygon (if not visited before)
@@ -1243,7 +1240,6 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray* vtkNotUsed(po
   edges->SetPolys(newPolys);
   newPolys->Delete();
   this->EdgeUses->Delete();
-  delete[] polyVisited;
 }
 
 void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray* pointDescr, vtkPolyData* edges)

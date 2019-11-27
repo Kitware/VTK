@@ -632,7 +632,7 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
 
   vtkIdType nv = this->AssessNames->GetNumberOfValues();
   int numRuns = kmfunc->GetNumberOfRuns();
-  vtkStdString* names = new vtkStdString[nv * numRuns];
+  std::vector<vtkStdString> names(nv * numRuns);
   vtkIdType nRow = inData->GetNumberOfRows();
   for (int i = 0; i < numRuns; ++i)
   {
@@ -673,7 +673,6 @@ void vtkKMeansStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta,
   assessResult->Delete();
 
   delete dfunc;
-  delete[] names;
 }
 
 // ----------------------------------------------------------------------

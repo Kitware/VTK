@@ -231,16 +231,19 @@ int vtkClipConvexPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPoints* outPoints = vtkPoints::New();
   vtkCellArray* outPolys = vtkCellArray::New();
 
+  std::vector<vtkIdType> polyPts(32);
   for (i = 0; i < this->Internal->Polygons.size(); i++)
   {
     size_t numPoints = this->Internal->Polygons[i]->Vertices.size();
-    vtkIdType* polyPts = new vtkIdType[numPoints];
+    if (numPoints > polyPts.size())
+    {
+      polyPts.resize(numPoints);
+    }
     for (j = 0; j < numPoints; j++)
     {
       polyPts[j] = outPoints->InsertNextPoint(this->Internal->Polygons[i]->Vertices[j]->Point);
     }
-    outPolys->InsertNextCell(static_cast<vtkIdType>(numPoints), polyPts);
-    delete[] polyPts;
+    outPolys->InsertNextCell(static_cast<vtkIdType>(numPoints), polyPts.data());
   }
 
   // Set the output vertices and polygons

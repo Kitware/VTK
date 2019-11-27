@@ -191,7 +191,6 @@ int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
 int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
 {
   int recMarkBeg, recMarkEnd, numGrids = 1, nMax, totPts;
-  int* jmax;
 
   rewind(fp);
   if (this->Settings.MultiGrid)
@@ -207,10 +206,9 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
     return 0;
   }
   nMax = this->Settings.NumberOfDimensions * numGrids;
-  jmax = new int[numGrids * 3]; // allocate memory for jmax
-  if (!this->ReadInts(fp, nMax, jmax) || !this->ReadInts(fp, 1, &recMarkEnd))
+  std::vector<int> jmax(numGrids * 3); // allocate memory for jmax
+  if (!this->ReadInts(fp, nMax, jmax.data()) || !this->ReadInts(fp, 1, &recMarkEnd))
   {
-    delete[] jmax;
     return 0;
   }
   totPts = 1;
@@ -224,7 +222,6 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
   {
     this->Settings.Precision = 4;
     this->Settings.IBlanking = 1;
-    delete[] jmax;
     return 1;
   }
   // double precision, with iblanking
@@ -232,7 +229,6 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
   {
     this->Settings.Precision = 8;
     this->Settings.IBlanking = 1;
-    delete[] jmax;
     return 1;
   }
   // single precision, no iblanking
@@ -240,7 +236,6 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
   {
     this->Settings.Precision = 4;
     this->Settings.IBlanking = 0;
-    delete[] jmax;
     return 1;
   }
   // double precision, no iblanking
@@ -248,7 +243,6 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
   {
     this->Settings.Precision = 8;
     this->Settings.IBlanking = 0;
-    delete[] jmax;
     return 1;
   }
   return 0;
@@ -304,10 +298,9 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
   {
     return 0;
   }
-  int* gridDims2 = new int[3 * nGrids];
-  if (this->ReadInts(fp, nGrids * 3, gridDims2) != nGrids * 3)
+  std::vector<int> gridDims2(3 * nGrids);
+  if (this->ReadInts(fp, nGrids * 3, gridDims2.data()) != nGrids * 3)
   {
-    delete[] gridDims2;
     return 0;
   }
 
@@ -324,19 +317,17 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
         if (fileSize ==
           this->CalculateFileSize(true, precision, blanking, dimension,
             false, // always
-            nGrids, gridDims2))
+            nGrids, gridDims2.data()))
         {
           this->Settings.MultiGrid = 1;
           this->Settings.Precision = precision;
           this->Settings.IBlanking = blanking;
           this->Settings.NumberOfDimensions = dimension;
-          delete[] gridDims2;
           return 1;
         }
       }
     }
   }
-  delete[] gridDims2;
   return 0;
 }
 

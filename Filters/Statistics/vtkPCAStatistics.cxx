@@ -163,14 +163,13 @@ void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenv
   vtkSmartPointer<vtkDoubleArray> eigenvectors = vtkSmartPointer<vtkDoubleArray>::New();
   this->GetEigenvectors(request, eigenvectors);
 
-  double* evec = new double[eigenvectors->GetNumberOfComponents()];
-  eigenvectors->GetTypedTuple(i, evec);
+  std::vector<double> evec(eigenvectors->GetNumberOfComponents());
+  eigenvectors->GetTypedTuple(i, evec.data());
 
   eigenvector->Reset();
   eigenvector->Squeeze();
   eigenvector->SetNumberOfComponents(eigenvectors->GetNumberOfComponents());
-  eigenvector->InsertNextTypedTuple(evec);
-  delete[] evec;
+  eigenvector->InsertNextTypedTuple(evec.data());
 }
 
 // ----------------------------------------------------------------------
@@ -813,8 +812,8 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
     }
 
     // Create and fill entries of name and mean vectors
-    vtkStdString* varNameX = new vtkStdString[p];
-    double* mX = new double[p];
+    std::vector<vtkStdString> varNameX(p);
+    std::vector<double> mX(p);
     for (int i = 0; i < p; ++i)
     {
       varNameX[i] = derivedTab->GetValueByName(i, "Column").ToString();
@@ -822,8 +821,8 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
     }
 
     // Create and fill entries of eigenvalue vector and change of basis matrix
-    double* wX = new double[p];
-    double* P = new double[p * p];
+    std::vector<double> wX(p);
+    std::vector<double> P(p * p);
     for (int i = 0; i < p; ++i)
     {
       // Skip p + 1 (Means and Cholesky) rows and 1 column (Column)
@@ -838,9 +837,9 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
 
     // Now iterate over all observations
     double tmp, t;
-    double* x = new double[p];
-    double* sum3 = new double[p];
-    double* sum4 = new double[p];
+    std::vector<double> x(p);
+    std::vector<double> sum3(p);
+    std::vector<double> sum4(p);
     for (int i = 0; i < p; ++i)
     {
       sum3[i] = 0.;
@@ -897,15 +896,6 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
     bS2Col->InsertNextTuple1(bS2);
     statCol->InsertNextTuple1(jbs);
     dimCol->InsertNextTuple1(p + 1);
-
-    // Clean up
-    delete[] sum3;
-    delete[] sum4;
-    delete[] x;
-    delete[] P;
-    delete[] wX;
-    delete[] mX;
-    delete[] varNameX;
   } // b
 
   // Now, add the already prepared columns to the output table

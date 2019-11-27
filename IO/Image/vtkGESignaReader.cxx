@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkGESignaReader);
 
@@ -616,13 +617,14 @@ static void vtkGESignaReaderUpdate2(
   }
   vtkByteSwap::Swap4BE(&compression);
 
-  short* leftMap = nullptr;
-  short* widthMap = nullptr;
+  std::vector<short> leftMap;
+  std::vector<short> widthMap;
 
   if (compression == 2 || compression == 4)
   { // packed/compacked
-    leftMap = new short[height];
-    widthMap = new short[height];
+
+    leftMap.resize(height);
+    widthMap.resize(height);
 
     fseek(fp, 64, SEEK_SET);
     int packHdrOffset;
@@ -631,8 +633,6 @@ static void vtkGESignaReaderUpdate2(
       vtkGenericWarningMacro("GESignaReader error reading file: "
         << self->GetInternalFileName() << " Premature EOF while reading packHdrOffset.");
       fclose(fp);
-      delete[] leftMap;
-      delete[] widthMap;
       return;
     }
     vtkByteSwap::Swap4BE(&packHdrOffset);
@@ -643,22 +643,22 @@ static void vtkGESignaReaderUpdate2(
     int i;
     for (i = 0; i < height; i++)
     {
-      if (fread(leftMap + i, 2, 1, fp) != 1)
+      if (fread(leftMap.data() + i, 2, 1, fp) != 1)
       {
         vtkGenericWarningMacro("GESignaReader error reading file: "
           << self->GetInternalFileName() << " Premature EOF while reading maps.");
         fclose(fp);
         return;
       }
-      vtkByteSwap::Swap2BE(leftMap + i);
-      if (fread(widthMap + i, 2, 1, fp) != 1)
+      vtkByteSwap::Swap2BE(leftMap.data() + i);
+      if (fread(widthMap.data(), 2, 1, fp) != 1)
       {
         vtkGenericWarningMacro("GESignaReader error reading file: "
           << self->GetInternalFileName() << " Premature EOF while reading maps.");
         fclose(fp);
         return;
       }
-      vtkByteSwap::Swap2BE(widthMap + i);
+      vtkByteSwap::Swap2BE(widthMap.data() + i);
     }
   }
 
@@ -666,22 +666,19 @@ static void vtkGESignaReaderUpdate2(
   fseek(fp, offset, SEEK_SET);
 
   // read in the pixels
-  unsigned short* tmp = new unsigned short[width * height];
+  std::vector<unsigned short> tmp(width * height);
   int* dext = self->GetDataExtent();
-  vtkcopygenesisimage(fp, dext[1] + 1, dext[3] + 1, compression, leftMap, widthMap, tmp);
+  vtkcopygenesisimage(
+    fp, dext[1] + 1, dext[3] + 1, compression, leftMap.data(), widthMap.data(), tmp.data());
 
   // now copy into desired extent
   int yp;
   for (yp = outExt[2]; yp <= outExt[3]; ++yp)
   {
     int ymod = height - yp - 1;
-    memcpy(outPtr, tmp + ymod * width + outExt[0], 2 * width);
+    memcpy(outPtr, tmp.data() + ymod * width + outExt[0], 2 * width);
     outPtr = outPtr + width;
   }
-
-  delete[] tmp;
-  delete[] leftMap;
-  delete[] widthMap;
 
   fclose(fp);
 }

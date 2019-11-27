@@ -246,19 +246,18 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 
       if (attrType == H5T_NATIVE_DOUBLE)
       {
-        double* data = new double[this->Internal->NumberOfParticles];
-        assert(data != nullptr);
+        std::vector<double> data(this->Internal->NumberOfParticles);
 
         if (this->Internal->FileFormatVersion < FLASH_READER_FLASH3_FFV8)
         {
           hid_t dataType = H5Tcreate(H5T_COMPOUND, sizeof(double));
           H5Tinsert(dataType, name, 0, H5T_NATIVE_DOUBLE);
-          H5Dread(dataIdx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+          H5Dread(dataIdx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data.data());
           H5Tclose(dataType);
         }
         else
         {
-          this->Internal->ReadParticlesComponent(dataIdx, name, data);
+          this->Internal->ReadParticlesComponent(dataIdx, name, data.data());
         }
 
         vtkDataArray* array = vtkDoubleArray::New();
@@ -273,16 +272,14 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
           array->SetComponent(pidx, 0, data[particleIdx]);
         } // END for all ids of loaded particles
         pdata->AddArray(array);
-        delete[] data;
       }
       else if (attrType == H5T_NATIVE_INT)
       {
         hid_t dataType = H5Tcreate(H5T_COMPOUND, sizeof(int));
         H5Tinsert(dataType, name, 0, H5T_NATIVE_INT);
 
-        int* data = new int[this->Internal->NumberOfParticles];
-        assert(data != nullptr);
-        H5Dread(dataIdx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+        std::vector<int> data(this->Internal->NumberOfParticles);
+        H5Dread(dataIdx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data.data());
 
         vtkDataArray* array = vtkIntArray::New();
         array->SetName(name);
@@ -296,7 +293,6 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
           array->SetComponent(pidx, 0, data[particleIdx]);
         } // END for all ids of loaded particles
         pdata->AddArray(array);
-        delete[] data;
       }
       else
       {

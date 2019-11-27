@@ -28,6 +28,7 @@
 #include "vtkUniformGrid.h"
 
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkAMRGaussianPulseSource);
 
@@ -69,10 +70,9 @@ void vtkAMRGaussianPulseSource::ComputeCellCenter(
   assert("ERROR: Cell is nullptr" && (myCell != nullptr));
 
   double pcenter[3];
-  double* weights = new double[myCell->GetNumberOfPoints()];
+  std::vector<double> weights(myCell->GetNumberOfPoints());
   int subId = myCell->GetParametricCenter(pcenter);
-  myCell->EvaluateLocation(subId, pcenter, centroid, weights);
-  delete[] weights;
+  myCell->EvaluateLocation(subId, pcenter, centroid, weights.data());
 }
 
 //------------------------------------------------------------------------------

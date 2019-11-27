@@ -21,6 +21,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkToolkits.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkOpenSlideReader);
 
 void vtkOpenSlideReader::ExecuteInformation()
@@ -81,10 +83,10 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
 
   int w = inExtent[1] - inExtent[0] + 1;
   int h = inExtent[3] - inExtent[2] + 1;
-  unsigned char* buffer = new unsigned char[w * h * 4];
+  std::vector<unsigned char> buffer(w * h * 4);
 
-  openslide_read_region(this->openslide_handle, (unsigned int*)buffer, inExtent[0],
-    this->DataExtent[3] - inExtent[3],
+  openslide_read_region(this->openslide_handle, reinterpret_cast<unsigned int*>(buffer.data()),
+    inExtent[0], this->DataExtent[3] - inExtent[3],
     0, // level
     w, h);
 
@@ -97,14 +99,13 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
   }
 
   unsigned char* outputPtr = (unsigned char*)(data->GetScalarPointer());
-  unsigned char* bufPtr = (unsigned char*)buffer;
 
   // Order = RGBA
   for (long y = 0; y < h; y++)
   {
     for (long x = 0; x < w; x++)
     {
-      unsigned char* rgba = &bufPtr[((h - 1 - y) * w + x) * 4];
+      unsigned char* rgba = buffer.data() + ((h - 1 - y) * w + x) * 4;
       unsigned char* rgb = &outputPtr[(y * w + x) * 3];
       // Convert from BGRA to RGB
       rgb[2] = rgba[0];
@@ -112,8 +113,6 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
       rgb[0] = rgba[2];
     }
   }
-
-  delete[] buffer;
   // openslide_close(this->openslide_handle);
 }
 

@@ -51,8 +51,8 @@
 #endif
 
 #include <cassert>
-
 #include <cmath>
+#include <vector>
 
 namespace
 {
@@ -76,14 +76,14 @@ vtkSmartPointer<vtkLagrangeTetra> CreateTetra(int nPoints)
 int TestInterpolationFunction(vtkSmartPointer<vtkLagrangeTetra> cell, double eps = VTK_EPSILON)
 {
   int numPts = cell->GetNumberOfPoints();
-  double* sf = new double[numPts];
+  std::vector<double> sf(numPts);
   double* coords = cell->GetParametricCoords();
   int r = 0;
   for (int i = 0; i < numPts; ++i)
   {
     double* point = coords + 3 * i;
     double sum = 0.;
-    cell->InterpolateFunctions(point, sf); // virtual function
+    cell->InterpolateFunctions(point, sf.data()); // virtual function
     for (int j = 0; j < numPts; j++)
     {
       sum += sf[j];
@@ -114,7 +114,7 @@ int TestInterpolationFunction(vtkSmartPointer<vtkLagrangeTetra> cell, double eps
   // Let's test unity condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  cell->InterpolateFunctions(center, sf); // virtual function
+  cell->InterpolateFunctions(center, sf.data()); // virtual function
   double sum = 0.;
   for (int j = 0; j < numPts; j++)
   {
@@ -126,7 +126,6 @@ int TestInterpolationFunction(vtkSmartPointer<vtkLagrangeTetra> cell, double eps
     ++r;
   }
 
-  delete[] sf;
   return r;
 }
 
@@ -134,8 +133,8 @@ void InterpolateDerivsNumeric(vtkSmartPointer<vtkLagrangeTetra> cell, double pco
   double* derivs, double eps = VTK_EPSILON)
 {
   vtkIdType nPoints = cell->GetPoints()->GetNumberOfPoints();
-  double* valp = new double[nPoints];
-  double* valm = new double[nPoints];
+  std::vector<double> valm(nPoints);
+  std::vector<double> valp(nPoints);
 
   double pcoordsp[3], pcoordsm[3];
 
@@ -144,10 +143,10 @@ void InterpolateDerivsNumeric(vtkSmartPointer<vtkLagrangeTetra> cell, double pco
     pcoordsp[i] = pcoordsm[i] = pcoords[i];
   }
   pcoordsp[0] += eps;
-  cell->InterpolateFunctions(pcoordsp, valp);
+  cell->InterpolateFunctions(pcoordsp, valp.data());
 
   pcoordsm[0] -= eps;
-  cell->InterpolateFunctions(pcoordsm, valm);
+  cell->InterpolateFunctions(pcoordsm, valm.data());
 
   for (vtkIdType idx = 0; idx < nPoints; idx++)
   {
@@ -159,10 +158,10 @@ void InterpolateDerivsNumeric(vtkSmartPointer<vtkLagrangeTetra> cell, double pco
     pcoordsp[i] = pcoordsm[i] = pcoords[i];
   }
   pcoordsp[1] += eps;
-  cell->InterpolateFunctions(pcoordsp, valp);
+  cell->InterpolateFunctions(pcoordsp, valp.data());
 
   pcoordsm[1] -= eps;
-  cell->InterpolateFunctions(pcoordsm, valm);
+  cell->InterpolateFunctions(pcoordsm, valm.data());
 
   for (vtkIdType idx = 0; idx < nPoints; idx++)
   {
@@ -176,35 +175,32 @@ void InterpolateDerivsNumeric(vtkSmartPointer<vtkLagrangeTetra> cell, double pco
       pcoordsp[i] = pcoordsm[i] = pcoords[i];
     }
     pcoordsp[2] += eps;
-    cell->InterpolateFunctions(pcoordsp, valp);
+    cell->InterpolateFunctions(pcoordsp, valp.data());
 
     pcoordsm[2] -= eps;
-    cell->InterpolateFunctions(pcoordsm, valm);
+    cell->InterpolateFunctions(pcoordsm, valm.data());
 
     for (vtkIdType idx = 0; idx < nPoints; idx++)
     {
       derivs[2 * nPoints + idx] = (valp[idx] - valm[idx]) / (2. * eps);
     }
   }
-
-  delete[] valp;
-  delete[] valm;
 }
 
 int TestInterpolationDerivs(vtkSmartPointer<vtkLagrangeTetra> cell, double eps = VTK_EPSILON)
 {
   int numPts = cell->GetNumberOfPoints();
   int dim = cell->GetCellDimension();
-  double* derivs = new double[dim * numPts];
-  double* derivs_n = new double[dim * numPts];
+  std::vector<double> derivs(dim * numPts);
+  std::vector<double> derivs_n(dim * numPts);
   double* coords = cell->GetParametricCoords();
   int r = 0;
   for (int i = 0; i < numPts; ++i)
   {
     double* point = coords + 3 * i;
     double sum = 0.;
-    cell->InterpolateDerivs(point, derivs);
-    InterpolateDerivsNumeric(cell, point, derivs_n, 1.e-10);
+    cell->InterpolateDerivs(point, derivs.data());
+    InterpolateDerivsNumeric(cell, point, derivs_n.data(), 1.e-10);
     for (int j = 0; j < dim * numPts; j++)
     {
       sum += derivs[j];
@@ -226,7 +222,7 @@ int TestInterpolationDerivs(vtkSmartPointer<vtkLagrangeTetra> cell, double eps =
   // Let's test zero condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  cell->InterpolateDerivs(center, derivs);
+  cell->InterpolateDerivs(center, derivs.data());
   double sum = 0.;
   for (int j = 0; j < dim * numPts; j++)
   {
@@ -238,8 +234,6 @@ int TestInterpolationDerivs(vtkSmartPointer<vtkLagrangeTetra> cell, double eps =
     ++r;
   }
 
-  delete[] derivs;
-  delete[] derivs_n;
   return r;
 }
 
