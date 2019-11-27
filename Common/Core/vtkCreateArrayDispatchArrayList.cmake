@@ -62,7 +62,7 @@
 # namespace vtkArrayDispatch {
 #
 # typedef vtkTypeList::Unique<
-#   vtkTypeList_Create_21(
+#   vtkTypeList::Create<
 #     MyCustomArray1<float>,
 #     MyCustomArray1<double>,
 #     MyCustomArray2<int>,
@@ -84,7 +84,7 @@
 #     ExtraArray1,
 #     ExtraArray2<float>,
 #     ExtraArray2<char>
-#   )
+#   >
 # >::Result Arrays;
 #
 # } // end namespace vtkArrayDispatch

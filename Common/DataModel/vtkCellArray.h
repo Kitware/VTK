@@ -178,7 +178,7 @@ public:
    *
    * @sa vtkCellArray::Visit() for a simpler mechanism.
    */
-  using StorageArrayList = vtkTypeList_Create_2(ArrayType32, ArrayType64);
+  using StorageArrayList = vtkTypeList::Create<ArrayType32, ArrayType64>;
 
   /**
    * List of possible ArrayTypes that are compatible with internal storage.
@@ -189,8 +189,8 @@ public:
    * check input arrays before assigning them to a cell array.
    */
   using InputArrayList =
-    typename vtkTypeList::Unique<vtkTypeList_Create_3(vtkAOSDataArrayTemplate<int>,
-      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>)>::Result;
+    typename vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
+      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long> > >::Result;
 
   /**
    * Instantiate cell array (connectivity list).
