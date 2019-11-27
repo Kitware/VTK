@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkExtractEnclosedPoints.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkExecutive.h"
 #include "vtkFeatureEdges.h"
@@ -37,6 +39,8 @@
 #include "vtkStaticCellLocator.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkExtractEnclosedPoints);
 
 //----------------------------------------------------------------------------
@@ -47,11 +51,10 @@ namespace
 
 //----------------------------------------------------------------------------
 // The threaded core of the algorithm. Thread on point type.
-template <typename T>
+template <typename ArrayT>
 struct ExtractInOutCheck
 {
-  vtkIdType NumPts;
-  T* Points;
+  ArrayT* Points;
   vtkPolyData* Surface;
   double Bounds[6];
   double Length;
@@ -66,15 +69,16 @@ struct ExtractInOutCheck
   vtkSMPThreadLocalObject<vtkIdList> CellIds;
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
-  ExtractInOutCheck(vtkIdType numPts, T* pts, vtkPolyData* surface, double bds[6], double tol,
+  ExtractInOutCheck(ArrayT* pts, vtkPolyData* surface, double bds[6], double tol,
     vtkStaticCellLocator* loc, vtkIdType* map)
-    : NumPts(numPts)
-    , Points(pts)
+    : Points(pts)
     , Surface(surface)
     , Tolerance(tol)
     , Locator(loc)
     , PointMap(map)
   {
+    const vtkIdType numPts = pts->GetNumberOfTuples();
+
     this->Bounds[0] = bds[0];
     this->Bounds[1] = bds[1];
     this->Bounds[2] = bds[2];
@@ -86,7 +90,7 @@ struct ExtractInOutCheck
 
     // Precompute a sufficiently large enough random sequence
     this->Sequence = vtkRandomPool::New();
-    this->Sequence->SetSize((numPts > 1500 ? numPts : 1500));
+    this->Sequence->SetSize(std::max(numPts, vtkIdType{ 1500 }));
     this->Sequence->GeneratePool();
   }
 
@@ -103,18 +107,20 @@ struct ExtractInOutCheck
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     double x[3];
-    const T* pts = this->Points + 3 * ptId;
+    const auto points = vtk::DataArrayTupleRange(this->Points);
     vtkIdType* map = this->PointMap + ptId;
     vtkGenericCell*& cell = this->Cell.Local();
     vtkIdList*& cellIds = this->CellIds.Local();
     vtkIdType hit;
     vtkIntersectionCounter& counter = this->Counter.Local();
 
-    for (; ptId < endPtId; ++ptId, pts += 3)
+    for (; ptId < endPtId; ++ptId)
     {
-      x[0] = static_cast<double>(pts[0]);
-      x[1] = static_cast<double>(pts[1]);
-      x[2] = static_cast<double>(pts[2]);
+      const auto pt = points[ptId];
+
+      x[0] = static_cast<double>(pt[0]);
+      x[1] = static_cast<double>(pt[1]);
+      x[2] = static_cast<double>(pt[2]);
 
       hit = vtkSelectEnclosedPoints::IsInsideSurface(x, this->Surface, this->Bounds, this->Length,
         this->Tolerance, this->Locator, cellIds, cell, counter, this->Sequence, ptId);
@@ -123,14 +129,18 @@ struct ExtractInOutCheck
   }
 
   void Reduce() {}
+}; // ExtractInOutCheck
 
-  static void Execute(vtkIdType numPts, T* pts, vtkPolyData* surface, double bds[6], double tol,
+struct ExtractLauncher
+{
+  template <typename ArrayT>
+  void operator()(ArrayT* pts, vtkPolyData* surface, double bds[6], double tol,
     vtkStaticCellLocator* loc, vtkIdType* hits)
   {
-    ExtractInOutCheck inOut(numPts, pts, surface, bds, tol, loc, hits);
-    vtkSMPTools::For(0, numPts, inOut);
+    ExtractInOutCheck<ArrayT> inOut(pts, surface, bds, tol, loc, hits);
+    vtkSMPTools::For(0, pts->GetNumberOfTuples(), inOut);
   }
-}; // ExtractInOutCheck
+};
 
 } // anonymous namespace
 
@@ -194,12 +204,14 @@ int vtkExtractEnclosedPoints::FilterPoints(vtkPointSet* input)
   locator->BuildLocator();
 
   // Loop over all input points determining inside/outside
-  vtkIdType numPts = input->GetNumberOfPoints();
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  switch (input->GetPoints()->GetDataType())
-  {
-    vtkTemplateMacro(ExtractInOutCheck<VTK_TT>::Execute(
-      numPts, (VTK_TT*)inPtr, surface, bds, this->Tolerance, locator, this->PointMap));
+  // Use fast path for float/double points:
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  ExtractLauncher worker;
+  vtkDataArray* ptArray = input->GetPoints()->GetData();
+  if (!Dispatcher::Execute(ptArray, worker, surface, bds, this->Tolerance, locator, this->PointMap))
+  { // fallback for other arrays:
+    worker(ptArray, surface, bds, this->Tolerance, locator, this->PointMap);
   }
 
   // Clean up and get out

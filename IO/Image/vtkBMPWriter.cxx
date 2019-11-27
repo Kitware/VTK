@@ -197,7 +197,7 @@ void vtkBMPWriter::MemoryWrite(int dim, vtkImageData* input, int wExt[6], vtkInf
   r->SetNumberOfComponents(1);
   size_t alen = oss->str().length();
   r->SetNumberOfTuples(static_cast<vtkIdType>(alen));
-  unsigned char* buff = static_cast<unsigned char*>(r->GetVoidPointer(0));
+  unsigned char* buff = r->GetPointer(0);
   memcpy(buff, oss->str().data(), alen);
   this->SetResult(r);
   r->Delete();

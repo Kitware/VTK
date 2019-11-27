@@ -15,8 +15,10 @@
 #include "vtkPointCloudFilter.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -36,102 +38,60 @@ namespace
 
 //----------------------------------------------------------------------------
 // Map input points to output. Basically the third pass of the algorithm.
-template <typename T>
 struct MapPoints
 {
-  T* InPoints;
-  T* OutPoints;
-  const vtkIdType* PointMap;
-  ArrayList Arrays;
-
-  MapPoints(vtkIdType, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map, vtkPointData* inPD,
-    vtkPointData* outPD)
-    : InPoints(inPts)
-    , OutPoints(outPts)
-    , PointMap(map)
-  {
-    this->Arrays.AddArrays(numOutPts, inPD, outPD, 0.0, false);
-  }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    T *inP, *outP;
-    const vtkIdType* map = this->PointMap;
-    vtkIdType outPtId;
-
-    for (; ptId < endPtId; ++ptId)
-    {
-      outPtId = map[ptId];
-      if (outPtId != -1)
-      {
-        inP = this->InPoints + 3 * ptId;
-        outP = this->OutPoints + 3 * outPtId;
-        *outP++ = *inP++;
-        *outP++ = *inP++;
-        *outP = *inP;
-        this->Arrays.Copy(ptId, outPtId);
-      }
-    }
-  }
-
-  static void Execute(vtkIdType numInPts, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map,
+  template <typename InPointsT, typename OutPointsT>
+  void operator()(InPointsT* inPointsArray, OutPointsT* outPointsArray, vtkIdType* map,
     vtkPointData* inPD, vtkPointData* outPD)
   {
-    MapPoints copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD);
-    vtkSMPTools::For(0, numInPts, copy);
-  }
+    const auto inPts = vtk::DataArrayTupleRange<3>(inPointsArray);
+    auto outPts = vtk::DataArrayTupleRange<3>(outPointsArray);
 
-}; // MapPoints
+    ArrayList arrays;
+    arrays.AddArrays(outPts.size(), inPD, outPD, 0.0, false);
+
+    vtkSMPTools::For(0, inPts.size(), [&](vtkIdType ptId, vtkIdType endPtId) {
+      for (; ptId < endPtId; ++ptId)
+      {
+        const vtkIdType outPtId = map[ptId];
+        if (outPtId != -1)
+        {
+          outPts[outPtId] = inPts[ptId];
+          arrays.Copy(ptId, outPtId);
+        }
+      }
+    });
+  }
+};
 
 //----------------------------------------------------------------------------
 // Map outlier points to second output. This is an optional pass of the
 // algorithm.
-template <typename T>
 struct MapOutliers
 {
-  T* InPoints;
-  T* OutPoints;
-  const vtkIdType* PointMap;
-  ArrayList Arrays;
-
-  MapOutliers(vtkIdType, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map,
-    vtkPointData* inPD, vtkPointData* outPD2)
-    : InPoints(inPts)
-    , OutPoints(outPts)
-    , PointMap(map)
+  template <typename InPointsT, typename OutPointsT>
+  void operator()(InPointsT* inPtArray, OutPointsT* outPtArray, vtkIdType* map, vtkPointData* inPD,
+    vtkPointData* outPD)
   {
-    this->Arrays.AddArrays(numOutPts, inPD, outPD2, 0.0, false);
-  }
+    const auto inPts = vtk::DataArrayTupleRange<3>(inPtArray);
+    auto outPts = vtk::DataArrayTupleRange<3>(outPtArray);
 
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    T *inP, *outP;
-    const vtkIdType* map = this->PointMap;
-    vtkIdType outPtId;
+    ArrayList arrays;
+    arrays.AddArrays(outPts.size(), inPD, outPD, 0.0, false);
 
-    for (; ptId < endPtId; ++ptId)
-    {
-      outPtId = map[ptId];
-      if (outPtId < 0)
+    vtkSMPTools::For(0, inPts.size(), [&](vtkIdType ptId, vtkIdType endPtId) {
+      for (; ptId < endPtId; ++ptId)
       {
-        outPtId = (-outPtId) - 1;
-        inP = this->InPoints + 3 * ptId;
-        outP = this->OutPoints + 3 * outPtId;
-        *outP++ = *inP++;
-        *outP++ = *inP++;
-        *outP = *inP;
-        this->Arrays.Copy(ptId, outPtId);
+        vtkIdType outPtId = map[ptId];
+        if (outPtId < 0)
+        {
+          outPtId = (-outPtId) - 1;
+          outPts[outPtId] = inPts[ptId];
+          arrays.Copy(ptId, outPtId);
+        }
       }
-    }
+    });
   }
-
-  static void Execute(vtkIdType numInPts, T* inPts, vtkIdType numOutPts, T* outPts, vtkIdType* map,
-    vtkPointData* inPD, vtkPointData* outPD2)
-  {
-    MapOutliers copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD2);
-    vtkSMPTools::For(0, numInPts, copy);
-  }
-
 }; // MapOutliers
 
 } // anonymous namespace
@@ -245,12 +205,15 @@ int vtkPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
   points->SetNumberOfPoints(count);
   output->SetPoints(points);
 
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  void* outPtr = output->GetPoints()->GetVoidPointer(0);
-  switch (output->GetPoints()->GetDataType())
-  {
-    vtkTemplateMacro(MapPoints<VTK_TT>::Execute(
-      numPts, (VTK_TT*)inPtr, count, (VTK_TT*)outPtr, this->PointMap, inPD, outPD));
+  // Use fast path for float/double points:
+  using vtkArrayDispatch::Reals;
+  using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<Reals>;
+  MapPoints worker;
+  vtkDataArray* inPtArray = input->GetPoints()->GetData();
+  vtkDataArray* outPtArray = output->GetPoints()->GetData();
+  if (!Dispatcher::Execute(inPtArray, outPtArray, worker, this->PointMap, inPD, outPD))
+  { // fallback for weird types:
+    worker(inPtArray, outPtArray, this->PointMap, inPD, outPD);
   }
 
   // Generate poly vertex cell if requested
@@ -287,11 +250,14 @@ int vtkPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
     points2->SetDataType(input->GetPoints()->GetDataType());
     points2->SetNumberOfPoints(count - 1);
     output2->SetPoints(points2);
-    void* outPtr2 = output2->GetPoints()->GetVoidPointer(0);
-    switch (output->GetPoints()->GetDataType())
-    {
-      vtkTemplateMacro(MapOutliers<VTK_TT>::Execute(
-        numPts, (VTK_TT*)inPtr, (count - 1), (VTK_TT*)outPtr2, this->PointMap, inPD, outPD2));
+
+    MapOutliers outliersWorker;
+    inPtArray = input->GetPoints()->GetData();
+    outPtArray = output2->GetPoints()->GetData();
+    // Fast path for float/double:
+    if (!Dispatcher::Execute(inPtArray, outPtArray, outliersWorker, this->PointMap, inPD, outPD2))
+    { // fallback for weird types:
+      outliersWorker(inPtArray, outPtArray, this->PointMap, inPD, outPD2);
     }
     points2->Delete();
 
