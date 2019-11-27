@@ -28,6 +28,8 @@
 #include "vtkObject.h"
 #include "vtkObjectFactory.h" // New() implementation
 
+#include <algorithm> // for std::min and std::copy
+
 template <class ScalarTypeT>
 class vtkBuffer : public vtkObject
 {
