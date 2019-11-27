@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkTemporalInterpolator.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -561,31 +563,32 @@ vtkDataSet* vtkTemporalInterpolator ::InterpolateDataSet(
   return output;
 }
 
-//----------------------------------------------------------------------------
-// This templated function executes the filter for any type of data.
-template <class T>
-void vtkTemporalInterpolatorExecute(vtkTemporalInterpolator*, double ratio, vtkDataArray* output,
-  vtkDataArray** arrays, int numComp, int numTuple, T*)
+namespace
 {
-  T* outData = static_cast<T*>(output->GetVoidPointer(0));
-  T* inData0 = static_cast<T*>(arrays[0]->GetVoidPointer(0));
-  T* inData1 = static_cast<T*>(arrays[1]->GetVoidPointer(0));
-
-  double oneMinusRatio = 1.0 - ratio;
-
-  unsigned long idx;
-  for (idx = 0; idx < static_cast<unsigned long>(numTuple * numComp); ++idx)
+struct vtkTemporalExecute
+{
+  //----------------------------------------------------------------------------
+  // This templated function executes the filter for any type of data.
+  template <typename ArrayIn1, typename ArrayIn2, typename ArrayOut>
+  void operator()(ArrayIn1* input1, ArrayIn2* input2, ArrayOut* output, double ratio) const
   {
-    *outData = static_cast<T>((*inData0) * oneMinusRatio + (*inData1) * ratio);
-    outData++;
-    inData0++;
-    inData1++;
+    using T = vtk::GetAPIType<ArrayIn1>;
+    const double oneMinusRatio = 1.0 - ratio;
+    auto in1 = vtk::DataArrayValueRange(input1);
+    auto in2 = vtk::DataArrayValueRange(input2);
+    auto out = vtk::DataArrayValueRange(output);
+
+    for (vtkIdType i = 0; i < in1.size(); i++)
+    {
+      out[i] = static_cast<T>(in1[i] * oneMinusRatio + in2[i] * ratio);
+    }
   }
+};
 }
 
 //----------------------------------------------------------------------------
 vtkDataArray* vtkTemporalInterpolator ::InterpolateDataArray(
-  double ratio, vtkDataArray** arrays, vtkIdType N)
+  double ratio, vtkDataArray** arrays, vtkIdType numTuples)
 {
   //
   // Create the output
@@ -593,23 +596,19 @@ vtkDataArray* vtkTemporalInterpolator ::InterpolateDataArray(
   vtkAbstractArray* aa = arrays[0]->CreateArray(arrays[0]->GetDataType());
   vtkDataArray* output = vtkArrayDownCast<vtkDataArray>(aa);
 
-  int Nc = arrays[0]->GetNumberOfComponents();
+  int numComp = arrays[0]->GetNumberOfComponents();
 
   //
   // initialize the output
   //
-  output->SetNumberOfComponents(Nc);
-  output->SetNumberOfTuples(N);
+  output->SetNumberOfComponents(numComp);
+  output->SetNumberOfTuples(numTuples);
   output->SetName(arrays[0]->GetName());
 
-  // now do the interpolation
-  switch (arrays[0]->GetDataType())
+  if (!vtkArrayDispatch::Dispatch3SameValueType::Execute(
+        arrays[0], arrays[1], output, vtkTemporalExecute{}, ratio))
   {
-    vtkTemplateMacro(vtkTemporalInterpolatorExecute(
-      this, ratio, output, arrays, Nc, N, static_cast<VTK_TT*>(nullptr)));
-    default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return nullptr;
+    vtkTemporalExecute{}(arrays[0], arrays[1], output, ratio);
   }
 
   return output;
