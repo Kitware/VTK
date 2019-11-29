@@ -103,3 +103,8 @@ option(BUILD_EXAMPLES "Build examples." ON)
 if(BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif()
+
+#
+# Utilities folder creates doxygen documentation
+#
+add_subdirectory(Utilities)
