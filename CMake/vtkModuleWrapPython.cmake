@@ -243,11 +243,6 @@ function (_vtk_module_wrap_python_library name)
     _vtk_module_get_module_property("${_vtk_python_module}"
       PROPERTY  "library_name"
       VARIABLE  _vtk_python_library_name)
-    set(_vtk_python_module_file
-      "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}/${_vtk_python_library_name}.py")
-
-    set(_vtk_python_module_contents
-      "from __future__ import absolute_import\n")
 
     _vtk_module_get_module_property("${_vtk_python_module}"
       PROPERTY  "depends"
@@ -267,40 +262,28 @@ function (_vtk_module_wrap_python_library name)
       _vtk_module_get_module_property("${_vtk_python_module_depend}"
         PROPERTY  "library_name"
         VARIABLE  _vtk_python_depend_library_name)
-      if (_vtk_python_depend_module_package STREQUAL _vtk_python_PYTHON_PACKAGE)
-        set(_vtk_python_depend_import ".")
-      else ()
-        set(_vtk_python_depend_import "${_vtk_python_depend_module_package}")
-      endif ()
-      string(APPEND _vtk_python_module_contents
-        "from ${_vtk_python_depend_import} import ${_vtk_python_depend_library_name}\n")
 
       # XXX(kits): This doesn't work for kits.
       list(APPEND _vtk_python_module_load_depends
-        "${_vtk_python_depend_module_package}.${_vtk_python_depend_library_name}Python")
+        "${_vtk_python_depend_module_package}.${_vtk_python_depend_library_name}")
     endforeach ()
 
+    if (_vtk_python_BUILD_STATIC)
+      # If static, we use .py modules that grab the contents from the baked-in modules.
+      set(_vtk_python_module_file
+        "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}/${_vtk_python_library_name}.py")
+      set(_vtk_python_module_contents
+          "from ${_vtk_python_import_prefix}${_vtk_python_library_name} import *\n")
 
-    string(APPEND _vtk_python_module_contents
-        "from ${_vtk_python_import_prefix}${name} import *\n")
+      file(GENERATE
+        OUTPUT  "${_vtk_python_module_file}"
+        CONTENT "${_vtk_python_module_contents}")
 
-    file(GENERATE
-      OUTPUT  "${_vtk_python_module_file}"
-      CONTENT "${_vtk_python_module_contents}")
-
-    # Set `python_modules` to provide the list of python files that go along with
-    # this module
-    _vtk_module_set_module_property("${_vtk_python_module}" APPEND
-      PROPERTY  "python_modules"
-      VALUE     "${_vtk_python_module_file}")
-
-    if (NOT _vtk_python_BUILD_STATIC)
-      # TODO: Strip the `$<CONFIGURATION>` from the module destination for
-      # installs.
-      install(
-        FILES       "${_vtk_python_module_file}"
-        DESTINATION "${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}"
-        COMPONENT   "${_vtk_python_COMPONENT}")
+      # Set `python_modules` to provide the list of python files that go along with
+      # this module
+      _vtk_module_set_module_property("${_vtk_python_module}" APPEND
+        PROPERTY  "python_modules"
+        VALUE     "${_vtk_python_module_file}")
     endif ()
   endforeach ()
 
@@ -312,7 +295,7 @@ function (_vtk_module_wrap_python_library name)
 
   file(GENERATE
     OUTPUT  "${_vtk_python_init_data_file}"
-    CONTENT "${name}\n$<JOIN:${_vtk_python_classes},\n>\nDEPENDS\n$<JOIN:${_vtk_python_module_load_depends},\n>\n")
+    CONTENT "${_vtk_python_library_name}\n$<JOIN:${_vtk_python_classes},\n>\nDEPENDS\n$<JOIN:${_vtk_python_module_load_depends},\n>\n")
 
   set(_vtk_python_init_output
     "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Init.cxx")
@@ -356,9 +339,9 @@ function (_vtk_module_wrap_python_library name)
 extern \"C\" {
 #endif
 #if PY_VERSION_HEX < 0x03000000
-extern void init${name}();
+extern void init${_vtk_python_library_name}();
 #else
-extern PyObject* PyInit_${name}();
+extern PyObject* PyInit_${_vtk_python_library_name}();
 #endif
 #ifdef __cplusplus
 }
@@ -425,9 +408,11 @@ extern PyObject* PyInit_${name}();
             "LIBRARY_OUTPUT_DIRECTORY_${_vtk_python_config_upper}" "${CMAKE_BINARY_DIR}/${_vtk_python_MODULE_DESTINATION}/${_vtk_python_package_path}")
       endforeach ()
     endif ()
-    set_property(TARGET "${name}"
-      PROPERTY
-        PREFIX "")
+    set_target_properties("${name}"
+      PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "${_vtk_python_library_name}"
+        ARCHIVE_OUTPUT_NAME "${name}")
   endif ()
 
   vtk_module_autoinit(
@@ -595,7 +580,6 @@ function (vtk_module_wrap_python)
   endif ()
   string(REPLACE "." "/" _vtk_python_package_path "${_vtk_python_PYTHON_PACKAGE}")
 
-
   if(_vtk_python_BUILD_STATIC)
     # When doing static builds we want the statically initialized built-ins to be
     # used. It is unclear in the Python-C API how to construct `namespace.module`
@@ -748,9 +732,14 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     if (_vtk_python_BUILD_STATIC)
       string(APPEND _vtk_python_all_modules_include_content
         "  int do_import = Py_IsInitialized();\n")
-      foreach (_vtk_python_module IN LISTS _vtk_python_all_modules)
-        string(APPEND _vtk_python_all_modules_include_content
-          "  PY_APPEND_INIT_OR_IMPORT(${_vtk_python_module}, do_import);\n")
+      foreach (_vtk_python_module IN LISTS _vtk_python_sorted_modules_filtered)
+        _vtk_module_get_module_property("${_vtk_python_module}"
+          PROPERTY  "library_name"
+          VARIABLE  _vtk_python_library_name)
+        if (TARGET "${_vtk_python_library_name}Python")
+          string(APPEND _vtk_python_all_modules_include_content
+            "  PY_APPEND_INIT_OR_IMPORT(${_vtk_python_library_name}, do_import);\n")
+        endif ()
       endforeach ()
     endif ()
 
