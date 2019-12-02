@@ -256,10 +256,20 @@ vtkOpenVRModel* vtkOpenVRRenderWindow::FindOrLoadRenderModel(const char* pchRend
   pRenderModel->SetName(pchRenderModelName);
 
   // start loading the model
-  if (vr::VRRenderModels()->LoadRenderModel_Async(pRenderModel->GetName().c_str(),
-        &pRenderModel->RawModel) > vr::EVRRenderModelError::VRRenderModelError_Loading)
+  auto status = vr::VRRenderModels()->LoadRenderModel_Async(
+    pRenderModel->GetName().c_str(), &pRenderModel->RawModel);
+  if (status == vr::EVRRenderModelError::VRRenderModelError_NoShapes)
   {
-    vtkErrorMacro("Unable to load render model " << pRenderModel->GetName());
+    pRenderModel->SetVisibility(false);
+    this->VTKRenderModels.push_back(pRenderModel);
+
+    return pRenderModel;
+  }
+
+  if (status > vr::EVRRenderModelError::VRRenderModelError_Loading)
+  {
+    vtkErrorMacro(
+      "Unable to load render model " << pRenderModel->GetName() << " with status " << status);
     pRenderModel->Delete();
     return nullptr; // move on to the next tracked device
   }
