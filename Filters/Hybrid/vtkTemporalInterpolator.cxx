@@ -72,12 +72,14 @@ int vtkTemporalInterpolator::FillInputPortInformation(int port, vtkInformation* 
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkTemporalInterpolator::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkTemporalInterpolator::RequestDataObject(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
