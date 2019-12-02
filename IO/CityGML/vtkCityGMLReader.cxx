@@ -757,7 +757,8 @@ public:
     const char* gmlNamespace, const char* feature)
   {
     std::ostringstream ostr;
-    ostr << "//" << gmlNamespace << ":" << feature;
+    std::string element = std::string(gmlNamespace) + ":" + feature;
+    ostr << "//" << element;
 
     auto xFeature = doc.select_nodes(ostr.str().c_str());
     for (auto itFeature = xFeature.begin(); itFeature != xFeature.end(); ++itFeature)
@@ -778,7 +779,7 @@ public:
       if (groupBlock->GetNumberOfBlocks())
       {
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
-        this->SetField(groupBlock, "element", ostr.str().c_str());
+        this->SetField(groupBlock, "element", element.c_str());
       }
     }
   }
