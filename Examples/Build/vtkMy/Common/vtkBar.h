@@ -23,9 +23,9 @@
 #define vtkBar_h
 
 #include "vtkObject.h"
-#include "vtkmyCommonWin32Header.h"
+#include "vtkmyCommonModule.h" // For export macro
 
-class VTK_MY_COMMON_EXPORT vtkBar : public vtkObject
+class VTKMYCOMMON_EXPORT vtkBar : public vtkObject
 {
 public:
   static vtkBar* New();

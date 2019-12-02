@@ -3,14 +3,12 @@
 #
 # Here is where you can add the name of your local common classes.
 #
-
-set (Common_SRCS
-  vtkBar.cxx
+set(classes
+  vtkBar
 )
 
-# --------------------------------------------------------------------------
-# You probably do not need to modify anything below this line
-
+#
 # Create the vtkmyCommon C++ library.
-add_library (vtkmyCommon ${Common_SRCS})
-target_link_libraries (vtkmyCommon ${VTK_LIBRARIES})
+#
+vtk_module_add_module(VTKMY::Common
+  CLASSES ${classes})

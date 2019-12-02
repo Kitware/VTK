@@ -23,11 +23,11 @@
 #define vtkImageFoo_h
 
 #include "vtkThreadedImageAlgorithm.h"
-#include "vtkmyImagingWin32Header.h"
+#include "vtkmyImagingModule.h" // For export macro
 
 class vtkBar;
 
-class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
+class VTKMYIMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageFoo* New();
