@@ -354,6 +354,7 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
 {
   this->MakeCurrent();
   this->Superclass::Frame();
+
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
     // If this check is not enforced, we crash in offscreen rendering
@@ -550,8 +551,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     return;
   }
 
-  // First we try to use the newer wglChoosePixelFormatARB which enables
-  // features like multisamples.
+  // First we try to use the newer wglChoosePixelFormatARB
   PIXELFORMATDESCRIPTOR pfd;
   int pixelFormat = 0;
   if (wglChoosePixelFormatARB)
@@ -575,18 +575,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       stereoAttributeIndex = n + 1;
       n += 2;
     }
-    unsigned int multiSampleAttributeIndex = 0;
-    unsigned int multiSampleBuffersIndex = 0;
-    if (this->MultiSamples > 1 && wglewIsSupported("WGL_ARB_multisample"))
-    {
-      attrib[n] = WGL_SAMPLE_BUFFERS_ARB;
-      attrib[n + 1] = 1;
-      attrib[n + 2] = WGL_SAMPLES_ARB;
-      attrib[n + 3] = this->MultiSamples;
-      multiSampleBuffersIndex = n + 1;
-      multiSampleAttributeIndex = n + 3;
-      n += 4;
-    }
     if (this->UseSRGBColorSpace && WGLEW_EXT_framebuffer_sRGB)
     {
       attrib[n++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT;
@@ -601,32 +589,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     unsigned int numFormats;
     if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats) || numFormats == 0)
     {
-      // if we are trying for stereo and multisamples
-      // then drop stereo first if we cannot get a context
-      if (stereoAttributeIndex && multiSampleAttributeIndex)
-      {
-        attrib[stereoAttributeIndex] = FALSE;
-        wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
-      }
-      // Next try dropping multisamples if requested
-      if (multiSampleAttributeIndex && numFormats == 0)
-      {
-        while (numFormats == 0 && attrib[multiSampleAttributeIndex] > 0)
-        {
-          attrib[multiSampleAttributeIndex] /= 2;
-          if (attrib[multiSampleAttributeIndex] < 2)
-          {
-            // try disabling multisampling altogether
-            attrib[multiSampleAttributeIndex] = 0;
-            if (multiSampleBuffersIndex)
-            {
-              attrib[multiSampleBuffersIndex] = 0;
-            }
-          }
-          wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
-        }
-      }
-      // finally try dropping stereo when requested without multisamples
+      // try dropping stereo when requested
       if (stereoAttributeIndex && numFormats == 0)
       {
         attrib[stereoAttributeIndex] = FALSE;

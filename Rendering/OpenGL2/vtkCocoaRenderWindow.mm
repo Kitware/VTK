@@ -937,15 +937,6 @@ void vtkCocoaRenderWindow::CreateGLContext()
     attribs[i++] = NSOpenGLPFADepthSize;
     attribs[i++] = (NSOpenGLPixelFormatAttribute)32;
 
-    if (this->MultiSamples != 0)
-    {
-      attribs[i++] = NSOpenGLPFASampleBuffers;
-      attribs[i++] = (NSOpenGLPixelFormatAttribute)1;
-      attribs[i++] = NSOpenGLPFASamples;
-      attribs[i++] = (NSOpenGLPixelFormatAttribute)(this->MultiSamples);
-      attribs[i++] = NSOpenGLPFAMultisample;
-    }
-
     if (this->DoubleBuffer != 0)
     {
       attribs[i++] = NSOpenGLPFADoubleBuffer;
@@ -980,20 +971,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
         // Try falling back to the software renderer
         hardware = 0;
       }
-      else if (this->MultiSamples == 0)
-      {
-        // after trying with no multisamples, we are done
-        vtkWarningMacro(<< "No OpenGL context whatsoever could be created!");
-        break;
-      }
-      else if (this->MultiSamples < 4)
-      {
-        // next time try with no multisamples
-        this->MultiSamples = 0;
-      }
       else
       {
-        this->MultiSamples /= 2;
+        vtkWarningMacro(<< "No OpenGL context whatsoever could be created!");
+        break;
       }
     }
   }
@@ -1273,7 +1254,6 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "MultiSamples: " << this->MultiSamples << endl;
   os << indent << "CocoaManager: " << this->GetCocoaManager() << endl;
   os << indent << "RootWindow (NSWindow): " << this->GetRootWindow() << endl;
   os << indent << "WindowId (NSView): " << this->GetWindowId() << endl;

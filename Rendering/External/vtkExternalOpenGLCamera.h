@@ -36,11 +36,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Implement base class method.
-   */
-  void Render(vtkRenderer* ren) override;
-
-  /**
    * Set the view transform matrix
    */
   void SetViewTransformMatrix(const double elements[16]);

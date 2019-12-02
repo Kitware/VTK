@@ -83,6 +83,7 @@ vtkOpenVRRenderWindow::vtkOpenVRRenderWindow()
 
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
+  this->UseOffScreenBuffers = 1;
   this->Size[0] = 640;
   this->Size[1] = 720;
   this->Position[0] = 100;
@@ -484,10 +485,7 @@ void vtkOpenVRRenderWindow::Render()
   this->Superclass::Render();
 }
 
-void vtkOpenVRRenderWindow::StereoUpdate()
-{
-  this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, this->GetLeftRenderBufferId());
-}
+void vtkOpenVRRenderWindow::StereoUpdate() {}
 
 void vtkOpenVRRenderWindow::StereoMidpoint()
 {
@@ -498,8 +496,7 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
 
   if (this->HMD && this->SwapBuffers) // picking does not swap and we don't show it
   {
-    this->GetState()->vtkglBindFramebuffer(
-      GL_READ_FRAMEBUFFER, this->LeftEyeDesc.m_nRenderFramebufferId);
+    this->GetState()->PushDrawFramebufferBinding();
     this->GetState()->vtkglBindFramebuffer(
       GL_DRAW_FRAMEBUFFER, this->LeftEyeDesc.m_nResolveFramebufferId);
 
@@ -509,8 +506,8 @@ void vtkOpenVRRenderWindow::StereoMidpoint()
     vr::Texture_t leftEyeTexture = { (void*)(long)this->LeftEyeDesc.m_nResolveTextureId,
       vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+    this->GetState()->PopDrawFramebufferBinding();
   }
-  this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, this->GetRightRenderBufferId());
 }
 
 void vtkOpenVRRenderWindow::StereoRenderComplete()
@@ -531,8 +528,7 @@ void vtkOpenVRRenderWindow::StereoRenderComplete()
   // for now as fast as possible
   if (this->HMD && this->SwapBuffers) // picking does not swap and we don't show it
   {
-    this->GetState()->vtkglBindFramebuffer(
-      GL_READ_FRAMEBUFFER, this->RightEyeDesc.m_nRenderFramebufferId);
+    this->GetState()->PushDrawFramebufferBinding();
     this->GetState()->vtkglBindFramebuffer(
       GL_DRAW_FRAMEBUFFER, this->RightEyeDesc.m_nResolveFramebufferId);
 
@@ -542,44 +538,13 @@ void vtkOpenVRRenderWindow::StereoRenderComplete()
     vr::Texture_t rightEyeTexture = { (void*)(long)this->RightEyeDesc.m_nResolveTextureId,
       vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+    this->GetState()->PopDrawFramebufferBinding();
   }
 }
 
 bool vtkOpenVRRenderWindow::CreateFrameBuffer(
   int nWidth, int nHeight, FramebufferDesc& framebufferDesc)
 {
-  glGenFramebuffers(1, &framebufferDesc.m_nRenderFramebufferId);
-  this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nRenderFramebufferId);
-
-  glGenRenderbuffers(1, &framebufferDesc.m_nDepthBufferId);
-  glBindRenderbuffer(GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId);
-  if (this->GetMultiSamples())
-  {
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, nWidth, nHeight);
-  }
-  else
-  {
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, nWidth, nHeight);
-  }
-  glFramebufferRenderbuffer(
-    GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, framebufferDesc.m_nDepthBufferId);
-
-  glGenTextures(1, &framebufferDesc.m_nRenderTextureId);
-  if (this->GetMultiSamples())
-  {
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, framebufferDesc.m_nRenderTextureId);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, nWidth, nHeight, true);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE,
-      framebufferDesc.m_nRenderTextureId, 0);
-  }
-  else
-  {
-    glBindTexture(GL_TEXTURE_2D, framebufferDesc.m_nRenderTextureId);
-    glTexImage2D(
-      GL_TEXTURE_2D, 0, GL_RGBA8, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glFramebufferTexture2D(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferDesc.m_nRenderTextureId, 0);
-  }
   glGenFramebuffers(1, &framebufferDesc.m_nResolveFramebufferId);
   this->GetState()->vtkglBindFramebuffer(GL_FRAMEBUFFER, framebufferDesc.m_nResolveFramebufferId);
 
@@ -671,13 +636,6 @@ void vtkOpenVRRenderWindow::Initialize(void)
   this->CreateFrameBuffer(this->Size[0], this->Size[1], this->LeftEyeDesc);
   this->CreateFrameBuffer(this->Size[0], this->Size[1], this->RightEyeDesc);
 
-  // use right eye render buffer for generic read pixel ops
-  this->DefaultFrameBufferId = this->LeftEyeDesc.m_nRenderFramebufferId;
-  this->BackLeftBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
-  this->BackRightBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
-  this->FrontLeftBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
-  this->FrontRightBuffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0);
-
   if (!vr::VRCompositor())
   {
     vtkErrorMacro("Compositor initialization failed.");
@@ -738,8 +696,7 @@ void vtkOpenVRRenderWindow::Start(void)
     this->Initialize();
   }
 
-  // set the current window
-  this->MakeCurrent();
+  this->Superclass::Start();
 }
 
 void vtkOpenVRRenderWindow::RenderOverlay()

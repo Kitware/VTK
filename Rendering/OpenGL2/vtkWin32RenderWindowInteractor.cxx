@@ -183,6 +183,7 @@ void vtkWin32RenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   ren = (vtkWin32OpenGLRenderWindow*)(this->RenderWindow);
   ren->Start();
+  ren->End();
   size = ren->GetSize();
   ren->GetPosition();
   this->WindowId = ren->GetWindowId();

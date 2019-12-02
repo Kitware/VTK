@@ -212,6 +212,19 @@ public:
     this->Attachment = attachment;
   }
 
+  int GetSamples()
+  {
+    if (this->Texture)
+    {
+      return this->Texture->GetSamples();
+    }
+    if (this->Renderbuffer)
+    {
+      return this->Renderbuffer->GetSamples();
+    }
+    return 0;
+  }
+
   void GetSize(int (&size)[2])
   {
     if (this->Texture)
@@ -286,6 +299,7 @@ vtkOpenGLFramebufferObject::~vtkOpenGLFramebufferObject()
     delete i->second;
   }
   this->ColorBuffers.clear();
+  this->Context = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -333,22 +347,21 @@ unsigned int vtkOpenGLFramebufferObject::GetBothMode()
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::CreateFBO()
 {
-  this->FBOIndex = 0;
-  GLuint temp;
-  glGenFramebuffers(1, &temp);
-  vtkOpenGLCheckErrorMacro("failed at glGenFramebuffers");
-  this->FBOIndex = temp;
+  if (!this->FBOIndex)
+  {
+    this->ResourceCallback->RegisterGraphicsResources(this->Context);
+    this->FBOIndex = 0;
+    GLuint temp;
+    glGenFramebuffers(1, &temp);
+    vtkOpenGLCheckErrorMacro("failed at glGenFramebuffers");
+    this->FBOIndex = temp;
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLFramebufferObject::DestroyFBO()
 {
-  // because we don't hold a reference to the render
-  // context we don't have any control on when it is
-  // destroyed. In fact it may be destroyed before
-  // we are(eg smart pointers), in which case we should
-  // do nothing.
-  if (this->Context && (this->FBOIndex != 0))
+  if (this->FBOIndex != 0)
   {
     GLuint fbo = static_cast<GLuint>(this->FBOIndex);
     glDeleteFramebuffers(1, &fbo);
@@ -369,7 +382,6 @@ void vtkOpenGLFramebufferObject::ReleaseGraphicsResources(vtkWindow* win)
   this->DestroyDepthBuffer(win);
   this->DestroyColorBuffers(win);
   this->DestroyFBO();
-  this->Context = nullptr;
   this->Modified();
 }
 
@@ -384,8 +396,6 @@ void vtkOpenGLFramebufferObject::SetContext(vtkRenderWindow* rw)
     return;
   }
 
-  this->ResourceCallback->RegisterGraphicsResources(renWin);
-
   // all done if assigned null
   if (!renWin)
   {
@@ -399,8 +409,6 @@ void vtkOpenGLFramebufferObject::SetContext(vtkRenderWindow* rw)
   }
   // initialize
   this->Context = renWin;
-  this->Context->MakeCurrent();
-  this->CreateFBO();
 }
 
 //----------------------------------------------------------------------------
@@ -562,6 +570,7 @@ bool vtkOpenGLFramebufferObject::Start(int width, int height)
 void vtkOpenGLFramebufferObject::ActivateBuffers()
 {
   GLint maxbuffers;
+  // todo move to cache
   glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
 
   GLenum* buffers = new GLenum[maxbuffers];
@@ -672,6 +681,11 @@ void vtkOpenGLFramebufferObject::SaveCurrentBindingsAndBuffers()
 
 void vtkOpenGLFramebufferObject::SaveCurrentBindingsAndBuffers(unsigned int mode)
 {
+  if (!this->Context)
+  {
+    vtkErrorMacro("Attempt to save bindings without a context");
+    return;
+  }
   if (mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER)
   {
     this->Context->GetState()->PushDrawFramebufferBinding();
@@ -691,6 +705,11 @@ void vtkOpenGLFramebufferObject::RestorePreviousBindingsAndBuffers()
 
 void vtkOpenGLFramebufferObject::RestorePreviousBindingsAndBuffers(unsigned int mode)
 {
+  if (!this->Context)
+  {
+    vtkErrorMacro("Attempt to restore bindings without a context");
+    return;
+  }
   if ((mode == GL_FRAMEBUFFER || mode == GL_DRAW_FRAMEBUFFER) && this->DrawBindingSaved)
   {
     this->Context->GetState()->PopDrawFramebufferBinding();
@@ -713,6 +732,13 @@ void vtkOpenGLFramebufferObject::Bind()
 
 void vtkOpenGLFramebufferObject::Bind(unsigned int mode)
 {
+  if (!this->Context)
+  {
+    vtkErrorMacro("Attempt to bind framebuffer without a context");
+    return;
+  }
+  this->Context->MakeCurrent();
+  this->CreateFBO();
   if (this->FBOIndex != 0)
   {
     // note this also changes the draw/read buffers as they are
@@ -1438,6 +1464,12 @@ void vtkOpenGLFramebufferObject::Download(
   pbo->UnBind();
 }
 
+int vtkOpenGLFramebufferObject::GetMultiSamples()
+{
+  int abuff = this->ActiveBuffers[0];
+  return this->ColorBuffers[abuff]->GetSamples();
+}
+
 bool vtkOpenGLFramebufferObject::PopulateFramebuffer(int width, int height)
 {
   return this->PopulateFramebuffer(width, height, true, 1, VTK_UNSIGNED_CHAR, true, 24, 0);
@@ -1489,7 +1521,7 @@ bool vtkOpenGLFramebufferObject::PopulateFramebuffer(int width, int height, bool
             depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed16);
             break;
           case 32:
-            depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Float32);
+            depth->AllocateDepth(this->LastSize[0], this->LastSize[1], vtkTextureObject::Fixed32);
             break;
           case 24:
           default:

@@ -21,6 +21,7 @@
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLResourceFreeCallback.h"
@@ -1836,11 +1837,57 @@ void vtkTextureObject::CopyFromFrameBuffer(
 {
   assert("pre: is2D" && this->GetNumberOfDimensions() == 2);
 
-  // Todo: if the framebuffer is multisampled we need to resolve first
-  // as the CopyTexImage will not work.
-  this->Activate();
+  // make assumption on the need to resolve
+  // based on MultiSample setting
+  if (this->Context->GetMultiSamples())
+  {
+    vtkNew<vtkOpenGLFramebufferObject> resolvedFBO;
+    resolvedFBO->SetContext(this->Context);
+    this->Context->GetState()->PushFramebufferBindings();
+    resolvedFBO->PopulateFramebuffer(width, height,
+      /* useTextures = */ true,
+      /* numberOfColorAttachments = */ 1,
+      /* colorDataType = */ VTK_UNSIGNED_CHAR,
+      /* wantDepthAttachment = */ true,
+      /* depthBitplanes = */ 24,
+      /* multisamples = */ 0);
 
-  glCopyTexImage2D(this->Target, 0, this->InternalFormat, srcXmin, srcYmin, width, height, 0);
+    // PopulateFramebuffer changes active read/write buffer bindings,
+    // hence we restore the read buffer bindings to read from the original
+    // frame buffer.
+    this->Context->GetState()->PopReadFramebufferBinding();
+
+    vtkOpenGLState::ScopedglViewport vsaver(this->Context->GetState());
+    this->Context->GetState()->vtkglViewport(0, 0, width, height);
+    vtkOpenGLState::ScopedglScissor ssaver(this->Context->GetState());
+    this->Context->GetState()->vtkglScissor(0, 0, width, height);
+
+    // Now blit to resolve the MSAA and get an anti-aliased rendering in
+    // resolvedFBO.
+    // Note: extents are (x-min, x-max, y-min, y-max).
+    const int srcExtents[4] = { srcXmin, srcXmin + width, srcYmin, srcYmin + height };
+    const int destExtents[4] = { 0, width, 0, height };
+    vtkOpenGLFramebufferObject::Blit(
+      srcExtents, destExtents, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    // Now make the resolvedFBO the read buffer and read from it.
+    this->Context->GetState()->PushReadFramebufferBinding();
+    resolvedFBO->Bind(GL_READ_FRAMEBUFFER);
+    resolvedFBO->ActivateReadBuffer(0);
+
+    this->Activate();
+
+    glCopyTexImage2D(this->Target, 0, this->InternalFormat, 0, 0, width, height, 0);
+
+    // restore bindings and release the resolvedFBO.
+    this->Context->GetState()->PopFramebufferBindings();
+  }
+  else
+  {
+    this->Activate();
+    glCopyTexImage2D(this->Target, 0, this->InternalFormat, srcXmin, srcYmin, width, height, 0);
+  }
+
   vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->InternalFormat);
 }
 

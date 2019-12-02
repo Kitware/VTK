@@ -148,8 +148,13 @@ void vtkPanoramicProjectionPass::InitOpenGLResources(vtkOpenGLRenderWindow* renW
   if (this->FrameBufferObject == nullptr)
   {
     this->FrameBufferObject = vtkOpenGLFramebufferObject::New();
+  }
+
+  if (!this->FrameBufferObject->GetFBOIndex())
+  {
     this->FrameBufferObject->SetContext(renWin);
     renWin->GetState()->PushFramebufferBindings();
+    this->FrameBufferObject->Bind();
     this->FrameBufferObject->Resize(this->CubeResolution, this->CubeResolution);
     this->FrameBufferObject->AddDepthAttachment();
     renWin->GetState()->PopFramebufferBindings();

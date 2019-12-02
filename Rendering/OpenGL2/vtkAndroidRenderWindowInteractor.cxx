@@ -335,7 +335,6 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
       {
         LOGW("Creating Window");
         this->RenderWindow->SetWindowId(this->AndroidApplication->window);
-        this->RenderWindow->Start();
         LOGW("Done Creating Window start");
         this->RenderWindow->Render();
         LOGW("Done first render");

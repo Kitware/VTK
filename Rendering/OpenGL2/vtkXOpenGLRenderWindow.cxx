@@ -95,7 +95,7 @@ vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #define MAX_LIGHTS 8
 
 GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawable_type,
-  vtkTypeBool doublebuff, vtkTypeBool stereo, int multisamples, vtkTypeBool stencil, bool srgb)
+  vtkTypeBool doublebuff, vtkTypeBool stereo, vtkTypeBool stencil, bool srgb)
 {
   int index;
   static int attributes[50];
@@ -132,15 +132,6 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawabl
     attributes[index++] = GLX_STEREO;
     attributes[index++] = True;
   }
-  if (multisamples)
-  {
-#ifdef GLX_SAMPLE_BUFFERS_SGIS
-    attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
-    attributes[index++] = 1;
-    attributes[index++] = GLX_SAMPLES_SGIS;
-    attributes[index++] = multisamples;
-#endif
-  }
 
   if (srgb)
   {
@@ -155,7 +146,6 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawabl
   //      << "     drawable_type : " << drawable_type << endl
   //      << "        doublebuff : " << doublebuff << endl
   //      << "            stereo : " << stereo << endl
-  //      << "      multisamples : " << multisamples << endl
   //      << "    alphaBitPlanes : " << alphaBitPlanes << endl
   //      << "           stencil : " << stencil << endl;
   int tmp;
@@ -176,13 +166,11 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawabl
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 vtkTypeBool doublebuff,
                                                 vtkTypeBool stereo,
-                                                int multisamples,
                                                 int stencil, bool srgb)
 {
   GLXFBConfig fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
        GLX_WINDOW_BIT,
-       doublebuff,
-       stereo, multisamples,
+       doublebuff, stereo,
        stencil, srgb);
 
   XVisualInfo *v = glXGetVisualFromFBConfig( DisplayId, fbc);
@@ -192,47 +180,37 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
 #endif
 
 GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(Display* DisplayId, vtkTypeBool& win_stereo,
-  int& win_multisamples, vtkTypeBool& win_doublebuffer, int drawable_type, vtkTypeBool& stencil,
-  bool srgb)
+  vtkTypeBool& win_doublebuffer, int drawable_type, vtkTypeBool& stencil, bool srgb)
 {
   GLXFBConfig fbc = None;
-  int multi;
   int stereo = 0;
 
   // try every possibility stopping when we find one that works
-  // start by adjusting stereo and multisamples
+  // start by adjusting stereo
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
   {
-    for (multi = win_multisamples; !fbc && multi >= 0; multi--)
+    fbc = vtkXOpenGLRenderWindowTryForFBConfig(
+      DisplayId, drawable_type, win_doublebuffer, stereo, stencil, srgb);
+    if (fbc)
     {
-      fbc = vtkXOpenGLRenderWindowTryForFBConfig(
-        DisplayId, drawable_type, win_doublebuffer, stereo, multi, stencil, srgb);
-      if (fbc)
-      {
-        // found a valid config
-        win_stereo = stereo;
-        win_multisamples = multi;
-        return fbc;
-      }
+      // found a valid config
+      win_stereo = stereo;
+      return fbc;
     }
   }
 
-  // OK adjusting stereo and multisamples did not work
+  // OK adjusting stereo did not work
   // try flipping the double buffer requirement and try again
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
   {
-    for (multi = win_multisamples; !fbc && multi >= 0; multi--)
+    fbc = vtkXOpenGLRenderWindowTryForFBConfig(
+      DisplayId, drawable_type, !win_doublebuffer, stereo, stencil, srgb);
+    // we found a valid result
+    if (fbc)
     {
-      fbc = vtkXOpenGLRenderWindowTryForFBConfig(
-        DisplayId, drawable_type, !win_doublebuffer, stereo, multi, stencil, srgb);
-      // we found a valid result
-      if (fbc)
-      {
-        win_doublebuffer = !win_doublebuffer;
-        win_stereo = stereo;
-        win_multisamples = multi;
-        return fbc;
-      }
+      win_doublebuffer = !win_doublebuffer;
+      win_stereo = stereo;
+      return fbc;
     }
   }
 
@@ -264,9 +242,9 @@ XVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 
     this->OwnDisplay = 1;
   }
-  this->Internal->FBConfig = vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId,
-    this->StereoCapableWindow, this->MultiSamples, this->DoubleBuffer, GLX_WINDOW_BIT,
-    this->StencilCapable, this->UseSRGBColorSpace);
+  this->Internal->FBConfig =
+    vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId, this->StereoCapableWindow,
+      this->DoubleBuffer, GLX_WINDOW_BIT, this->StencilCapable, this->UseSRGBColorSpace);
 
   if (!this->Internal->FBConfig)
   {

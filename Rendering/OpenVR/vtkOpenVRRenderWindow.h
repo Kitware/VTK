@@ -114,9 +114,7 @@ public:
   /**
    * Get the frame buffers used for rendering
    */
-  GLuint GetLeftRenderBufferId() { return this->LeftEyeDesc.m_nRenderFramebufferId; }
   GLuint GetLeftResolveBufferId() { return this->LeftEyeDesc.m_nResolveFramebufferId; }
-  GLuint GetRightRenderBufferId() { return this->RightEyeDesc.m_nRenderFramebufferId; }
   GLuint GetRightResolveBufferId() { return this->RightEyeDesc.m_nResolveFramebufferId; }
   void GetRenderBufferSize(int& width, int& height)
   {
@@ -403,9 +401,6 @@ protected:
 
   struct FramebufferDesc
   {
-    GLuint m_nDepthBufferId;
-    GLuint m_nRenderTextureId;
-    GLuint m_nRenderFramebufferId;
     GLuint m_nResolveTextureId;
     GLuint m_nResolveFramebufferId;
   };

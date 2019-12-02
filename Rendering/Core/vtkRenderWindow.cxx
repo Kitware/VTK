@@ -109,6 +109,22 @@ vtkRenderWindow::~vtkRenderWindow()
   }
 }
 
+void vtkRenderWindow::SetMultiSamples(int val)
+{
+  if (val == 1)
+  {
+    val = 0;
+  }
+
+  if (val == this->MultiSamples)
+  {
+    return;
+  }
+
+  this->MultiSamples = val;
+  this->Modified();
+}
+
 //----------------------------------------------------------------------------
 // Create an interactor that will work with this renderer.
 vtkRenderWindowInteractor* vtkRenderWindow::MakeRenderWindowInteractor()
@@ -275,15 +291,18 @@ void vtkRenderWindow::Render()
     this->Interactor->Initialize();
   }
 
+  this->Start(); // Ensure context exists
   vtkRenderTimerLog::ScopedEventLogger event;
   if (this->RenderTimer->GetLoggingEnabled())
   {
-    this->Start(); // Ensure context exists
     this->RenderTimer->MarkFrame();
     event = this->RenderTimer->StartScopedEvent("vtkRenderWindow::Render");
   }
 
   this->DoStereoRender();
+
+  this->End(); // restores original bindings
+
   this->CopyResultFrame();
 
   // reset the buffer size without freeing any memory.
@@ -302,7 +321,6 @@ void vtkRenderWindow::DoStereoRender()
 {
   vtkCollectionSimpleIterator rsit;
 
-  this->Start();
   this->StereoUpdate();
 
   if (!this->StereoRender || (this->StereoType != VTK_STEREO_RIGHT))

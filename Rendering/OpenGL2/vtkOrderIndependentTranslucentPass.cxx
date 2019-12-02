@@ -241,7 +241,7 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState* s)
     if (dbits == 32)
     {
       this->TranslucentZTexture->AllocateDepth(
-        this->ViewportWidth, this->ViewportHeight, vtkTextureObject::Float32);
+        this->ViewportWidth, this->ViewportHeight, vtkTextureObject::Fixed32);
     }
     else
     {
