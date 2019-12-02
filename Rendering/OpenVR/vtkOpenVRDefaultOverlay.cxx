@@ -125,7 +125,7 @@ void handleSaveCamera(vtkObject* caller, unsigned long eid, void* clientdata, vo
     if (vr::VROverlay()->ShowMessageOverlay(s.str().c_str(), "Confirmation", "Yes", "No", nullptr,
           nullptr) == vr::VRMessageOverlayResponse_ButtonPress_0)
     {
-      ovl->SaveCameraPose(option - 1);
+      ovl->SaveCameraPose(option);
     }
   }
 }
@@ -137,7 +137,7 @@ void handleLoadCamera(vtkObject* caller, unsigned long eid, void* clientdata, vo
     vtkOpenVRDefaultOverlay* ovl = static_cast<vtkOpenVRDefaultOverlay*>(caller);
     //    ovl->ReadCameraPoses();
     int option = *(reinterpret_cast<int*>(&clientdata));
-    ovl->LoadCameraPose(option - 1);
+    ovl->LoadCameraPose(option);
   }
 }
 
