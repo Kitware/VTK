@@ -55,55 +55,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 /* Get the header file for the specified class */
 static const char* vtkWrapPython_ClassHeader(HierarchyInfo* hinfo, const char* classname)
 {
-  /* to allow special types to be used when "hinfo" is not available
-   * (this is necessary until VTK exports the hierarchy files) */
-  static const char* headers[][2] = {
-    { "vtkArrayCoordinates", "vtkArrayCoordinates.h" },
-    { "vtkArrayExtents", "vtkArrayExtents.h" },
-    { "vtkArrayExtentsList", "vtkArrayExtentsList.h" },
-    { "vtkArrayRange", "vtkArrayRange.h" },
-    { "vtkArraySort", "vtkArraySort.h" },
-    { "vtkArrayWeights", "vtkArrayWeights.h" },
-    { "vtkAtom", "vtkAtom.h" },
-    { "vtkBond", "vtkBond.h" },
-    { "vtkTimeStamp", "vtkTimeStamp.h" },
-    { "vtkVariant", "vtkVariant.h" },
-    { "vtkStdString", "vtkStdString.h" },
-    { "vtkUnicodeString", "vtkUnicodeString.h" },
-    { "vtkTuple", "vtkVector.h" },
-    { "vtkVector", "vtkVector.h" },
-    { "vtkVector2", "vtkVector.h" },
-    { "vtkVector2i", "vtkVector.h" },
-    { "vtkVector2f", "vtkVector.h" },
-    { "vtkVector2d", "vtkVector.h" },
-    { "vtkVector3", "vtkVector.h" },
-    { "vtkVector3i", "vtkVector.h" },
-    { "vtkVector3f", "vtkVector.h" },
-    { "vtkVector3d", "vtkVector.h" },
-    { "vtkRect", "vtkRect.h" },
-    { "vtkRecti", "vtkRect.h" },
-    { "vtkRectf", "vtkRect.h" },
-    { "vtkRectd", "vtkRect.h" },
-    { "vtkColor", "vtkColor.h" },
-    { "vtkColor3", "vtkColor.h" },
-    { "vtkColor3ub", "vtkColor.h" },
-    { "vtkColor3f", "vtkColor.h" },
-    { "vtkColor3d", "vtkColor.h" },
-    { "vtkColor4", "vtkColor.h" },
-    { "vtkColor4ub", "vtkColor.h" },
-    { "vtkColor4f", "vtkColor.h" },
-    { "vtkColor4d", "vtkColor.h" },
-    { "vtkAMRBox", "vtkAMRBox.h" },
-    { "vtkEdgeBase", "vtkGraph.h" },
-    { "vtkEdgeType", "vtkGraph.h" },
-    { "vtkInEdgeType", "vtkGraph.h" },
-    { "vtkOutEdgeType", "vtkGraph.h" },
-    { NULL, NULL },
-  };
-
   HierarchyEntry* entry;
-  int i;
-  size_t n;
 
   /* if "hinfo" is present, use it to find the file */
   if (hinfo)
@@ -112,16 +64,6 @@ static const char* vtkWrapPython_ClassHeader(HierarchyInfo* hinfo, const char* c
     if (entry)
     {
       return entry->HeaderFile;
-    }
-  }
-
-  /* otherwise, use the hard-coded entries */
-  n = vtkParse_IdentifierLength(classname);
-  for (i = 0; headers[i][0]; i++)
-  {
-    if (strlen(headers[i][0]) == n && strncmp(classname, headers[i][0], n) == 0)
-    {
-      return headers[i][1];
     }
   }
 
