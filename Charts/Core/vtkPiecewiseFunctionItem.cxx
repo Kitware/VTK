@@ -25,6 +25,7 @@
 #include "vtkPoints2D.h"
 
 #include <cassert>
+#include <vector>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkPiecewiseFunctionItem);
@@ -110,12 +111,12 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
   }
 
   const int dimension = this->GetTextureWidth();
-  double* values = new double[dimension];
+  std::vector<double> values(dimension);
   // should depends on the true size on screen
   this->Texture->SetExtent(0, dimension - 1, 0, 0, 0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
-  this->PiecewiseFunction->GetTable(bounds[0], bounds[1], dimension, values);
+  this->PiecewiseFunction->GetTable(bounds[0], bounds[1], dimension, values.data());
   unsigned char* ptr = reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0, 0, 0));
   if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::NO_PEN)
   {
@@ -141,5 +142,4 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
       ptr += 4;
     }
   }
-  delete[] values;
 }

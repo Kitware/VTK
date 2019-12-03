@@ -458,13 +458,13 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
   png_read_update_info(png_ptr, info_ptr);
 
   size_t rowbytes = png_get_rowbytes(png_ptr, info_ptr);
-  unsigned char* tempImage = new unsigned char[rowbytes * height];
-  png_bytep* row_pointers = new png_bytep[height];
+  std::vector<unsigned char> tempImage(rowbytes * height);
+  std::vector<png_bytep> row_pointers(height);
   for (ui = 0; ui < height; ++ui)
   {
-    row_pointers[ui] = tempImage + rowbytes * ui;
+    row_pointers[ui] = tempImage.data() + rowbytes * ui;
   }
-  png_read_image(png_ptr, row_pointers);
+  png_read_image(png_ptr, row_pointers.data());
 
   // copy the data into the outPtr
   OT* outPtr2;
@@ -475,8 +475,6 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
     memcpy(outPtr2, row_pointers[height - i - 1] + outExt[0] * pixSize, outSize);
     outPtr2 += outInc[1];
   }
-  delete[] tempImage;
-  delete[] row_pointers;
 
   png_read_end(png_ptr, nullptr);
   png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);

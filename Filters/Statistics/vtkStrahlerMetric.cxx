@@ -50,11 +50,13 @@ vtkStrahlerMetric::~vtkStrahlerMetric()
 
 float vtkStrahlerMetric::CalculateStrahler(vtkIdType root, vtkFloatArray* metric, vtkTree* tree)
 {
-  float strahler, maxStrahler, *childStrahler;
+  float strahler, maxStrahler;
   bool same;
   vtkSmartPointer<vtkOutEdgeIterator> children = vtkSmartPointer<vtkOutEdgeIterator>::New();
 
   vtkIdType nrChildren = tree->GetNumberOfChildren(root);
+
+  std::vector<float> childStrahler(nrChildren);
 
   // A leaf node has a Strahler value of 1.
   if (nrChildren == 0)
@@ -64,7 +66,6 @@ float vtkStrahlerMetric::CalculateStrahler(vtkIdType root, vtkFloatArray* metric
   else
   {
     // Non-leaf node: find the Strahler values of the children.
-    childStrahler = new float[nrChildren];
     tree->GetOutEdges(root, children);
     for (vtkIdType i = 0; i < nrChildren; i++)
     {
@@ -83,8 +84,6 @@ float vtkStrahlerMetric::CalculateStrahler(vtkIdType root, vtkFloatArray* metric
     }
     // Calculate the strahler value for this node
     strahler = (same) ? maxStrahler + nrChildren - 1 : maxStrahler + nrChildren - 2;
-
-    delete[] childStrahler;
   }
   // Record the strahler value within the array.
   metric->InsertValue(root, strahler);

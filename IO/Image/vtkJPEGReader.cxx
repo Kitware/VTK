@@ -21,6 +21,8 @@
 #include "vtkToolkits.h"
 #include <vtksys/SystemTools.hxx>
 
+#include <vector>
+
 extern "C"
 {
 #include "vtk_jpeg.h"
@@ -278,18 +280,18 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
     maxChunk = 4096;
   }
   vtkIdType rowbytes = cinfo.output_components * cinfo.output_width;
-  unsigned char* tempImage = new unsigned char[rowbytes * maxChunk];
-  JSAMPROW* row_pointers = new JSAMPROW[maxChunk];
+  std::vector<unsigned char> tempImage(rowbytes * maxChunk);
+  std::vector<JSAMPROW> row_pointers(maxChunk);
   for (unsigned int ui = 0; ui < maxChunk; ++ui)
   {
-    row_pointers[ui] = tempImage + rowbytes * ui;
+    row_pointers[ui] = tempImage.data() + rowbytes * ui;
   }
 
   // read the bulk data
   long outSize = cinfo.output_components * (outExt[1] - outExt[0] + 1);
   while (cinfo.output_scanline < cinfo.output_height)
   {
-    JDIMENSION linesRead = jpeg_read_scanlines(&cinfo, row_pointers, maxChunk);
+    JDIMENSION linesRead = jpeg_read_scanlines(&cinfo, row_pointers.data(), maxChunk);
 
     // copy the data into the outPtr
     long destLine = cinfo.output_height - cinfo.output_scanline;
@@ -310,9 +312,6 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
 
   // destroy the decompression object
   jpeg_destroy_decompress(&cinfo);
-
-  delete[] tempImage;
-  delete[] row_pointers;
 
   // close the file
   if (jerr.fp)

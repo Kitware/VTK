@@ -510,7 +510,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
   offsets[11] = zstep * 3;
 
   // allocate storage array
-  int* isect1 = new int[xdim * ydim * 3 * 2];
+  std::vector<int> isect1(xdim * ydim * 3 * 2);
   // set impossible edges to -1
   for (i = 0; i < ydim; i++)
   {
@@ -546,8 +546,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
         offsets[9] = (zstep - xdim) * 3 + 1;
         offsets[10] = (zstep - xdim) * 3 + 4;
         offsets[11] = zstep * 3;
-        isect1Ptr = isect1;
-        isect2Ptr = isect1 + xdim * ydim * 3;
+        isect1Ptr = isect1.data();
+        isect2Ptr = isect1.data() + xdim * ydim * 3;
       }
       else
       {
@@ -555,8 +555,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
         offsets[9] = (-zstep - xdim) * 3 + 1;
         offsets[10] = (-zstep - xdim) * 3 + 4;
         offsets[11] = -zstep * 3;
-        isect1Ptr = isect1 + xdim * ydim * 3;
-        isect2Ptr = isect1;
+        isect1Ptr = isect1.data() + xdim * ydim * 3;
+        isect2Ptr = isect1.data();
       }
 
       inPtPtrY = inPtPtrZ;
@@ -828,8 +828,6 @@ void ContourGrid(vtkGridSynchronizedTemplates3D* self, int* exExt, T* scalars,
     newNormals->Delete();
     newNormals = nullptr;
   }
-
-  delete[] isect1;
 }
 
 template <class T>

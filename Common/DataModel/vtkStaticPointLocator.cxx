@@ -1064,7 +1064,7 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
   level = 0;
   double maxDistance = 0.0;
   int currentCount = 0;
-  IdTuple* res = new IdTuple[N];
+  std::vector<IdTuple> res(N);
 
   this->GetBucketNeighbors(&buckets, ijk, this->Divisions, level);
   while (buckets.GetNumberOfNeighbors() && currentCount < N)
@@ -1093,14 +1093,14 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
             currentCount++;
             if (currentCount == N)
             {
-              std::sort(res, res + currentCount);
+              std::sort(res.begin(), res.begin() + currentCount);
             }
           }
           else if (dist2 < maxDistance)
           {
             res[N - 1].Dist2 = dist2;
             res[N - 1].PtId = ptId;
-            std::sort(res, res + N);
+            std::sort(res.begin(), res.begin() + N);
             maxDistance = res[N - 1].Dist2;
           }
         }
@@ -1111,7 +1111,7 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
   }
 
   // do a sort
-  std::sort(res, res + currentCount);
+  std::sort(res.begin(), res.begin() + currentCount);
 
   // Now do the refinement
   this->GetOverlappingBuckets(&buckets, x, ijk, sqrt(maxDistance), level - 1);
@@ -1133,7 +1133,7 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
         {
           res[N - 1].Dist2 = dist2;
           res[N - 1].PtId = ptId;
-          std::sort(res, res + N);
+          std::sort(res.begin(), res.begin() + N);
           maxDistance = res[N - 1].Dist2;
         }
       }
@@ -1146,8 +1146,6 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
   {
     result->SetId(i, res[i].PtId);
   }
-
-  delete[] res;
 }
 
 //-----------------------------------------------------------------------------
@@ -1240,15 +1238,13 @@ int BucketList<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol, 
   vtkIdType idx, pId, bestPtId = (-1);
   double step[3], next[3], tMax[3], tDelta[3];
   double tol2 = tol * tol;
-  unsigned char* bucketHasBeenVisited = nullptr;
 
   // Make sure the bounding box of the locator is hit
   if (vtkBox::IntersectBox(bounds, a0, rayDir, curPos, curT))
   {
     // Initialize intersection query array if necessary. This is done
     // locally to ensure thread safety.
-    bucketHasBeenVisited = new unsigned char[this->NumBuckets];
-    memset(bucketHasBeenVisited, 0, this->NumBuckets);
+    std::vector<unsigned char> bucketHasBeenVisited(this->NumBuckets, 0);
 
     // Get the i-j-k point of intersection and bin index. This is
     // clamped to the boundary of the locator.
@@ -1377,9 +1373,6 @@ int BucketList<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol, 
 
     } // for looking for valid intersected point
   }   // if (vtkBox::IntersectBox(...))
-
-  // Clean up and get out
-  delete[] bucketHasBeenVisited;
 
   // If a point has been intersected, recover the information and return.
   // This information could be cached....

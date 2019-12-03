@@ -42,6 +42,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <vector>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -119,10 +120,10 @@ static vtkStdString odbcGetString(SQLHANDLE statement, int column, int columnSiz
     ++columnSize;
   }
 
-  char* buffer = new char[columnSize];
+  std::vector<char> buffer(columnSize);
   while (true)
   {
-    status = SQLGetData(statement, column + 1, SQL_C_CHAR, static_cast<SQLPOINTER>(buffer),
+    status = SQLGetData(statement, column + 1, SQL_C_CHAR, static_cast<SQLPOINTER>(buffer.data()),
       columnSize, &lengthIndicator);
     if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO)
     {
@@ -143,7 +144,7 @@ static vtkStdString odbcGetString(SQLHANDLE statement, int column, int columnSiz
         resultSize = lengthIndicator;
       }
       buffer[resultSize] = 0;
-      returnString += buffer;
+      returnString += buffer.data();
     }
     else if (status == SQL_NO_DATA)
     {
@@ -158,7 +159,6 @@ static vtkStdString odbcGetString(SQLHANDLE statement, int column, int columnSiz
     }
   }
 
-  delete[] buffer;
   return returnString;
 }
 

@@ -1140,9 +1140,9 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(
   double* x, vtkLagrangianParticle* particle, vtkDataSet*& dataset, vtkIdType& cellId)
 {
   vtkAbstractCellLocator* loc;
-  double* weights = new double[this->WeightsSize];
-  bool ret = this->FindInLocators(x, particle, dataset, cellId, loc, weights);
-  delete[] weights;
+  std::vector<double> weights(this->WeightsSize);
+  double* wPtr = weights.data(); // FindInLocators expects a double*&, though it doesn't modify?
+  bool ret = this->FindInLocators(x, particle, dataset, cellId, loc, wPtr);
   return ret;
 }
 
@@ -1561,14 +1561,13 @@ vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues
   for (it = this->SurfaceArrayDescriptions.begin(); it != this->SurfaceArrayDescriptions.end();
        ++it)
   {
-    double* defaultValues = new double[it->second.nComp];
+    std::vector<double> defaultValues(it->second.nComp);
     for (size_t iDs = 0; iDs < this->Surfaces->size(); iDs++)
     {
       this->ComputeSurfaceDefaultValues(
-        it->first.c_str(), (*this->Surfaces)[iDs].second, it->second.nComp, defaultValues);
-      this->SurfaceArrayDefaultValues->InsertNextTuple(defaultValues);
+        it->first.c_str(), (*this->Surfaces)[iDs].second, it->second.nComp, defaultValues.data());
+      this->SurfaceArrayDefaultValues->InsertNextTuple(defaultValues.data());
     }
-    delete[] defaultValues;
   }
   return this->SurfaceArrayDefaultValues;
 }

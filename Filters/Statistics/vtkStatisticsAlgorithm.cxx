@@ -35,6 +35,7 @@
 #include "vtkVariantArray.h"
 
 #include <sstream>
+#include <vector>
 
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm, AssessNames, vtkStringArray);
 
@@ -342,7 +343,7 @@ void vtkStatisticsAlgorithm::Assess(
 
     // Store names to be able to use SetValueByName, and create the outData columns
     vtkIdType nAssessments = this->AssessNames->GetNumberOfValues();
-    vtkStdString* names = new vtkStdString[nAssessments];
+    std::vector<vtkStdString> names(nAssessments);
     vtkIdType nRowData = inData->GetNumberOfRows();
     for (vtkIdType a = 0; a < nAssessments; ++a)
     {
@@ -398,6 +399,5 @@ void vtkStatisticsAlgorithm::Assess(
     }
 
     delete dfunc;
-    delete[] names;
   }
 }

@@ -1213,7 +1213,7 @@ void vtkContingencyStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     contingencyTab->SetValueByName(0, derivedNames[i], -1.);
   }
 
-  vtkDoubleArray** derivedCols = new vtkDoubleArray*[nDerivedVals];
+  std::vector<vtkDoubleArray*> derivedCols(nDerivedVals);
 
   for (int j = 0; j < nDerivedVals; ++j)
   {
@@ -1223,50 +1223,45 @@ void vtkContingencyStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     if (!derivedCols[j])
     {
       vtkErrorWithObjectMacro(contingencyTab, "Empty model column(s). Cannot derive model.\n");
-      delete[] derivedCols;
       return;
     }
   }
 
   // Container for information entropies
-  Entropies* H = new Entropies[nEntropy];
+  std::vector<Entropies> entropies(nEntropy);
 
   if (dataX == nullptr || dataY == nullptr)
   {
     ContingencyImpl<vtkStdString, vtkStringArray> impl;
     impl.ComputeMarginals(keys, varX, varY, valsX, valsY, card, contingencyTab);
     impl.ComputePDFs(inMeta, contingencyTab);
-    impl.ComputeDerivedValues(
-      keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
+    impl.ComputeDerivedValues(keys, varX, varY, valsX, valsY, card, contingencyTab,
+      derivedCols.data(), nDerivedVals, entropies.data(), nEntropy);
   }
   else if (dataX->GetDataType() == VTK_DOUBLE)
   {
     ContingencyImpl<double, vtkDoubleArray> impl;
     impl.ComputeMarginals(keys, varX, varY, valsX, valsY, card, contingencyTab);
     impl.ComputePDFs(inMeta, contingencyTab);
-    impl.ComputeDerivedValues(
-      keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
+    impl.ComputeDerivedValues(keys, varX, varY, valsX, valsY, card, contingencyTab,
+      derivedCols.data(), nDerivedVals, entropies.data(), nEntropy);
   }
   else
   {
     ContingencyImpl<long, vtkLongArray> impl;
     impl.ComputeMarginals(keys, varX, varY, valsX, valsY, card, contingencyTab);
     impl.ComputePDFs(inMeta, contingencyTab);
-    impl.ComputeDerivedValues(
-      keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
+    impl.ComputeDerivedValues(keys, varX, varY, valsX, valsY, card, contingencyTab,
+      derivedCols.data(), nDerivedVals, entropies.data(), nEntropy);
   }
 
   // Store information entropies
-  for (Entropies::iterator eit = H[0].begin(); eit != H[0].end(); ++eit)
+  for (Entropies::iterator eit = entropies[0].begin(); eit != entropies[0].end(); ++eit)
   {
-    summaryTab->SetValueByName(eit->first, entropyNames[0], eit->second);      // H(X,Y)
-    summaryTab->SetValueByName(eit->first, entropyNames[1], H[1][eit->first]); // H(Y|X)
-    summaryTab->SetValueByName(eit->first, entropyNames[2], H[2][eit->first]); // H(X|Y)
+    summaryTab->SetValueByName(eit->first, entropyNames[0], eit->second);              // H(X,Y)
+    summaryTab->SetValueByName(eit->first, entropyNames[1], entropies[1][eit->first]); // H(Y|X)
+    summaryTab->SetValueByName(eit->first, entropyNames[2], entropies[2][eit->first]); // H(X|Y)
   }
-
-  // Clean up
-  delete[] H;
-  delete[] derivedCols;
 }
 
 // ----------------------------------------------------------------------
@@ -1344,7 +1339,7 @@ void vtkContingencyStatistics::Assess(
 
     // Store names to be able to use SetValueByName which is faster than SetValue
     vtkIdType nv = this->AssessNames->GetNumberOfValues();
-    vtkStdString* names = new vtkStdString[nv];
+    std::vector<vtkStdString> names(nv);
     int columnOffset = outData->GetNumberOfColumns();
     for (vtkIdType v = 0; v < nv; ++v)
     {
@@ -1369,7 +1364,6 @@ void vtkContingencyStatistics::Assess(
       // Functor selection did not work. Do nothing.
       vtkWarningMacro("AssessFunctors could not be allocated for column pair ("
         << varNameX << "," << varNameY << "). Ignoring it.");
-      delete[] names;
       continue;
     }
     else
@@ -1390,7 +1384,6 @@ void vtkContingencyStatistics::Assess(
 
     // Clean up
     delete dfunc;
-    delete[] names;
     varNames->Delete(); // Do not delete earlier! Otherwise, dfunc will be wrecked
   }                     // rit
 }

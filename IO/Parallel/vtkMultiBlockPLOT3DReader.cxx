@@ -43,6 +43,8 @@
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
 #include "vtkSMPTools.h"
 
+#include <vector>
+
 vtkObjectFactoryNewMacro(vtkMultiBlockPLOT3DReader);
 vtkInformationKeyMacro(vtkMultiBlockPLOT3DReader, INTERMEDIATE_RESULT, Integer);
 vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader, Controller, vtkMultiProcessController);
@@ -1322,18 +1324,17 @@ public:
     memset(vector, 0, n * 3 * sizeof(DataType));
 
     vtkIdType retVal = 0;
-    DataType* buffer = new DataType[n];
+    std::vector<DataType> buffer(n);
     for (int component = 0; component < numDims; component++)
     {
       vtkIdType preskip, postskip;
       vtkMultiBlockPLOT3DReaderInternals::CalculateSkips(extent, wextent, preskip, postskip);
-      retVal += this->ReadScalar(fp, preskip, n, postskip, buffer, record);
+      retVal += this->ReadScalar(fp, preskip, n, postskip, buffer.data(), record);
       for (vtkIdType i = 0; i < n; i++)
       {
         vector[3 * i + component] = buffer[i];
       }
     }
-    delete[] buffer;
     return retVal;
   }
 
@@ -1565,8 +1566,7 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
   }
   else if (this->FunctionFileName)
   {
-    this->ReadArrays(
-        std::string(), piece, npieces, nghosts, output);
+    this->ReadArrays(std::string(), piece, npieces, nghosts, output);
   }
   // If no q filename is set, do nothing.
   return 1;

@@ -1268,7 +1268,7 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray* vda, XdmfArray* xda, vtkIdTyp
   vtkIdType* dims, int allocStrategy, const char* heavyprefix)
 {
   XdmfInt32 lRank = rank;
-  XdmfInt64* lDims = new XdmfInt64[rank + 1];
+  std::vector<XdmfInt64> lDims(rank + 1);
   for (vtkIdType i = 0; i < rank; i++)
   {
     lDims[i] = dims[i];
@@ -1353,7 +1353,7 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray* vda, XdmfArray* xda, vtkIdTyp
   {
     // Do not let xdmf allocate its own buffer. xdmf just borrows vtk's and doesn't double mem size.
     xda->SetAllowAllocate(0);
-    xda->SetShape(lRank, lDims);
+    xda->SetShape(lRank, lDims.data());
     xda->SetDataPointer(vda->GetVoidPointer(0));
   }
   else //(allocStrategy==0 && this->TopTemporalGrid) || allocStrategy==2)
@@ -1361,10 +1361,8 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray* vda, XdmfArray* xda, vtkIdTyp
     // Unfortunately data doesn't stick around with temporal updates, which is exactly when you want
     // it most.
     xda->SetAllowAllocate(1);
-    xda->SetShape(lRank, lDims);
+    xda->SetShape(lRank, lDims.data());
     memcpy(xda->GetDataPointer(), vda->GetVoidPointer(0),
       vda->GetNumberOfTuples() * vda->GetNumberOfComponents() * vda->GetElementComponentSize());
   }
-
-  delete[] lDims;
 }

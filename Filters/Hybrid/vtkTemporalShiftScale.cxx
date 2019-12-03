@@ -21,6 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cassert>
+#include <vector>
 
 vtkStandardNewMacro(vtkTemporalShiftScale);
 
@@ -233,7 +234,6 @@ int vtkTemporalShiftScale::RequestInformation(vtkInformation* vtkNotUsed(request
     double* inTimes = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     int numTimes = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     double range = this->PeriodicRange[1] - this->PeriodicRange[0];
-    double* outTimes;
     int numOutTimes = numTimes;
     this->PeriodicN = numTimes;
     if (this->Periodic && this->PeriodicEndCorrection)
@@ -244,7 +244,7 @@ int vtkTemporalShiftScale::RequestInformation(vtkInformation* vtkNotUsed(request
     {
       numOutTimes = static_cast<int>(this->PeriodicN * this->MaximumNumberOfPeriods);
     }
-    outTimes = new double[numOutTimes];
+    std::vector<double> outTimes(numOutTimes);
     int i;
     for (i = 0; i < numOutTimes; ++i)
     {
@@ -265,8 +265,7 @@ int vtkTemporalShiftScale::RequestInformation(vtkInformation* vtkNotUsed(request
         outTimes[i] = outTimes[o] + m * range;
       }
     }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTimes, numOutTimes);
-    delete[] outTimes;
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTimes.data(), numOutTimes);
   }
 
   return 1;

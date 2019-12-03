@@ -17,6 +17,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkKochanekSpline);
 
 //----------------------------------------------------------------------------
@@ -89,7 +91,7 @@ void vtkKochanekSpline::Compute()
 {
   double *ts, *xs;
   double* coefficients;
-  double* dependent;
+  std::vector<double> dependent;
   int size;
   int i;
 
@@ -118,7 +120,7 @@ void vtkKochanekSpline::Compute()
     this->Coefficients = new double[4 * size];
 
     // allocate memory for dependent variables
-    dependent = new double[size];
+    dependent.resize(size);
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -127,7 +129,7 @@ void vtkKochanekSpline::Compute()
     xs = this->PiecewiseFunction->GetDataPointer() + 1;
     for (int j = 0; j < size; j++)
     {
-      *(dependent + j) = *(xs + 2 * j);
+      dependent[j] = xs[2 * j];
     }
   }
   else // spline is closed, create extra "fictitious" point
@@ -155,7 +157,7 @@ void vtkKochanekSpline::Compute()
     this->Coefficients = new double[4 * size];
 
     // allocate memory for dependent variables
-    dependent = new double[size];
+    dependent.resize(size);
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -164,17 +166,14 @@ void vtkKochanekSpline::Compute()
     xs = this->PiecewiseFunction->GetDataPointer() + 1;
     for (int j = 0; j < size - 1; j++)
     {
-      *(dependent + j) = *(xs + 2 * j);
+      dependent[j] = xs[2 * j];
     }
-    dependent[size - 1] = *xs;
+    dependent[size - 1] = xs[0];
   }
 
-  this->Fit1D(size, this->Intervals, dependent, this->DefaultTension, this->DefaultBias,
+  this->Fit1D(size, this->Intervals, dependent.data(), this->DefaultTension, this->DefaultBias,
     this->DefaultContinuity, (double(*)[4])coefficients, this->LeftConstraint, this->LeftValue,
     this->RightConstraint, this->RightValue);
-
-  // free the dependent variable storage
-  delete[] dependent;
 
   // update compute time
   this->ComputeTime = this->GetMTime();

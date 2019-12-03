@@ -27,12 +27,15 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <vector>
 
 vtkStandardNewMacro(vtkPDataSetReader);
 
@@ -885,7 +888,6 @@ int vtkPDataSetReader::ImageDataExecute(
   vtkStructuredPointsReader* reader;
   int uExt[6];
   int ext[6];
-  int* pieceMask;
   int i, j;
 
   // Allocate the data object.
@@ -903,12 +905,8 @@ int vtkPDataSetReader::ImageDataExecute(
   output->AllocateScalars(info);
 
   // Get the pieces that will be read.
-  pieceMask = new int[this->NumberOfPieces];
-  for (i = 0; i < this->NumberOfPieces; ++i)
-  {
-    pieceMask[i] = 0;
-  }
-  this->CoverExtent(uExt, pieceMask);
+  std::vector<int> pieceMask(this->NumberOfPieces, 0);
+  this->CoverExtent(uExt, pieceMask.data());
 
   // Now read and append
   reader = vtkStructuredPointsReader::New();
@@ -960,7 +958,6 @@ int vtkPDataSetReader::ImageDataExecute(
     }
   }
 
-  delete[] pieceMask;
   reader->Delete();
 
   if (ghostLevels > 0)
@@ -985,13 +982,11 @@ int vtkPDataSetReader::StructuredGridExecute(
     vtkStructuredGrid::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkStructuredGrid* tmp;
-  vtkStructuredGrid** pieces;
   int count = 0;
   vtkStructuredGridReader* reader;
   vtkPoints* newPts;
   int uExt[6];
   int ext[6];
-  int* pieceMask;
   int i;
   int pIncY, pIncZ, cIncY, cIncZ;
   int ix, iy, iz;
@@ -1000,11 +995,7 @@ int vtkPDataSetReader::StructuredGridExecute(
   vtkIdType numPts, numCells;
 
   // Get the pieces that will be read.
-  pieceMask = new int[this->NumberOfPieces];
-  for (i = 0; i < this->NumberOfPieces; ++i)
-  {
-    pieceMask[i] = 0;
-  }
+  std::vector<int> pieceMask(this->NumberOfPieces, 0);
   int wUExt[6];
   info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wUExt);
   vtkNew<vtkExtentTranslator> et;
@@ -1015,10 +1006,10 @@ int vtkPDataSetReader::StructuredGridExecute(
   et->SetGhostLevel(ghostLevels);
   et->PieceToExtent();
   et->GetExtent(uExt);
-  this->CoverExtent(uExt, pieceMask);
+  this->CoverExtent(uExt, pieceMask.data());
 
   // Now read the pieces.
-  pieces = new vtkStructuredGrid*[this->NumberOfPieces];
+  std::vector<vtkSmartPointer<vtkStructuredGrid> > pieces;
   reader = vtkStructuredGridReader::New();
   reader->ReadAllScalarsOn();
   reader->ReadAllVectorsOn();
@@ -1037,8 +1028,7 @@ int vtkPDataSetReader::StructuredGridExecute(
       tmp = reader->GetOutput();
       if (tmp->GetNumberOfCells() > 0)
       {
-        pieces[count] = tmp;
-        tmp->Register(this);
+        pieces.emplace_back(tmp);
         // Sanity check: extent is correct.  Ignore electric slide.
         tmp->GetExtent(ext);
         if (ext[1] - ext[0] != this->PieceExtents[i][1] - this->PieceExtents[i][0] ||
@@ -1060,8 +1050,6 @@ int vtkPDataSetReader::StructuredGridExecute(
   // Anything could happen with files.
   if (count <= 0)
   {
-    delete[] pieces;
-    delete[] pieceMask;
     reader->Delete();
     return 1;
   }
@@ -1132,14 +1120,6 @@ int vtkPDataSetReader::StructuredGridExecute(
   }
   output->SetPoints(newPts);
   newPts->Delete();
-
-  for (i = 0; i < count; ++i)
-  {
-    pieces[i]->Delete();
-    pieces[i] = nullptr;
-  }
-  delete[] pieces;
-  delete[] pieceMask;
 
   reader->Delete();
 

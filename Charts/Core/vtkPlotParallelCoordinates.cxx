@@ -118,7 +118,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
 
   size_t cols = this->Storage->size();
   size_t rows = this->Storage->at(0).size();
-  vtkVector2f* line = new vtkVector2f[cols];
+  std::vector<vtkVector2f> line(cols);
 
   // Update the axis positions
   vtkChartParallelCoordinates* parent = vtkChartParallelCoordinates::SafeDownCast(this->Parent);
@@ -185,8 +185,6 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
       painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
     }
   }
-
-  delete[] line;
 
   return true;
 }

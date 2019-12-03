@@ -1322,7 +1322,6 @@ bool vtkODBCQuery::CacheDoubleColumn(int column)
 bool vtkODBCQuery::CacheStringColumn(int column)
 {
   SQLRETURN status;
-  char* buffer;
   SQLLEN bufferLength;
   SQLLEN indicator;
   vtkStdString result;
@@ -1331,12 +1330,12 @@ bool vtkODBCQuery::CacheStringColumn(int column)
   bufferLength = 65536; // this is a pretty reasonable compromise
                         // between the expense of ODBC requests and
                         // application memory usage
-  buffer = new char[bufferLength];
+  std::vector<char> buffer(bufferLength);
 
   while (true)
   {
     status = SQLGetData(this->Internals->Statement, column + 1, SQL_C_CHAR,
-      static_cast<SQLPOINTER>(buffer), bufferLength, &indicator);
+      static_cast<SQLPOINTER>(buffer.data()), bufferLength, &indicator);
     /*
         cerr << "once around the read loop for column " << column << ": status "
         << status << ", indicator " << indicator << "\n";
@@ -1376,7 +1375,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
         // eat the null terminator
         bytesToWrite -= 1;
       }
-      outbuf.write(buffer, bytesToWrite);
+      outbuf.write(buffer.data(), bytesToWrite);
       if (status == SQL_SUCCESS)
       {
         // we retrieved everything in one pass
@@ -1391,20 +1390,17 @@ bool vtkODBCQuery::CacheStringColumn(int column)
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
       this->SetLastErrorText(errbuf.str().c_str());
       cerr << errbuf.str() << "\n";
-      delete[] buffer;
       this->Internals->CurrentRow->SetValue(column, vtkVariant());
       return false;
     }
     else if (status == SQL_INVALID_HANDLE)
     {
       this->SetLastErrorText("CacheWideStringColumn: Attempted to read from invalid handle!");
-      delete[] buffer;
       this->Internals->CurrentRow->SetValue(column, vtkVariant());
       return false;
     }
   }
 
-  delete[] buffer;
   this->Internals->CurrentRow->SetValue(column, vtkVariant(outbuf.str()));
   return true;
 }
@@ -1414,7 +1410,6 @@ bool vtkODBCQuery::CacheStringColumn(int column)
 bool vtkODBCQuery::CacheBinaryColumn(int column)
 {
   SQLRETURN status;
-  char* buffer;
   vtkStdString result;
 
   SQLSMALLINT nameLength;
@@ -1448,7 +1443,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
   {
     columnSize = 65536; // read in 64k chunks
   }
-  buffer = new char[columnSize];
+  std::vector<char> buffer(columnSize);
 
   this->SetLastErrorText(nullptr);
 
@@ -1457,7 +1452,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
   while (true)
   {
     status = SQLGetData(this->Internals->Statement, column + 1, SQL_C_CHAR,
-      static_cast<SQLPOINTER>(buffer), columnSize, &indicator);
+      static_cast<SQLPOINTER>(buffer.data()), columnSize, &indicator);
     /*
         cerr << "once around the read loop for column " << column << ": status "
         << status << ", indicator " << indicator << "\n";
@@ -1497,7 +1492,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
         // eat the null terminator
         bytesToWrite -= 1;
       }
-      outbuf.write(buffer, bytesToWrite);
+      outbuf.write(buffer.data(), bytesToWrite);
       if (status == SQL_SUCCESS)
       {
         // we retrieved everything in one pass
@@ -1512,20 +1507,17 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
       this->SetLastErrorText(errbuf.str().c_str());
       cerr << errbuf.str() << "\n";
-      delete[] buffer;
       this->Internals->CurrentRow->SetValue(column, vtkVariant());
       return false;
     }
     else if (status == SQL_INVALID_HANDLE)
     {
       this->SetLastErrorText("CacheWideStringColumn: Attempted to read from invalid handle!");
-      delete[] buffer;
       this->Internals->CurrentRow->SetValue(column, vtkVariant());
       return false;
     }
   }
 
-  delete[] buffer;
   this->Internals->CurrentRow->SetValue(column, vtkVariant(outbuf.str()));
   return true;
 }

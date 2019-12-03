@@ -41,6 +41,7 @@
 #include "vtkUnsignedShortArray.h"
 
 #include <cmath>
+#include <vector>
 
 #include "vtkExtentTranslator.h"
 #include "vtkNew.h"
@@ -341,7 +342,7 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D* self, int* exExt, vtkImage
   offsets[11] = zstep * 3;
 
   // allocate storage array
-  vtkIdType* isect1 = new vtkIdType[xdim * ydim * 3 * 2];
+  std::vector<vtkIdType> isect1(xdim * ydim * 3 * 2);
   // set impossible edges to -1
   for (i = 0; i < ydim; i++)
   {
@@ -375,8 +376,8 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D* self, int* exExt, vtkImage
         offsets[9] = (zstep - xdim) * 3 + 1;
         offsets[10] = (zstep - xdim) * 3 + 4;
         offsets[11] = zstep * 3;
-        isect1Ptr = isect1;
-        isect2Ptr = isect1 + xdim * ydim * 3;
+        isect1Ptr = isect1.data();
+        isect2Ptr = isect1.data() + xdim * ydim * 3;
       }
       else
       {
@@ -384,8 +385,8 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D* self, int* exExt, vtkImage
         offsets[9] = (-zstep - xdim) * 3 + 1;
         offsets[10] = (-zstep - xdim) * 3 + 4;
         offsets[11] = -zstep * 3;
-        isect1Ptr = isect1 + xdim * ydim * 3;
-        isect2Ptr = isect1;
+        isect1Ptr = isect1.data() + xdim * ydim * 3;
+        isect2Ptr = isect1.data();
       }
 
       inPtrY = inPtrZ;
@@ -618,7 +619,6 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D* self, int* exExt, vtkImage
       inPtrZ += zInc;
     }
   }
-  delete[] isect1;
 }
 
 static void vtkThreadedSynchronizedTemplates3DFinalizeOutput(vtkDataArray* inScalars,

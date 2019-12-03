@@ -327,18 +327,18 @@ extern "C"
     }
 
     // Extract the data, and reset the block
-    unsigned char* photobuffer = new unsigned char[block.width * block.height * components];
+    std::vector<unsigned char> photobuffer(block.width * block.height * components);
     double shift, scale;
     shift = window / 2.0 - level;
     scale = 255.0 / window;
     switch (image->GetScalarType())
     {
-      vtkTemplateMacro(vtkExtractImageData(photobuffer, static_cast<VTK_TT*>(TempPointer), shift,
-        scale, block.width, block.height, block.pitch, block.pixelSize, components));
+      vtkTemplateMacro(vtkExtractImageData(photobuffer.data(), static_cast<VTK_TT*>(TempPointer),
+        shift, scale, block.width, block.height, block.pitch, block.pixelSize, components));
     }
     block.pitch = block.width * components;
     block.pixelSize = components;
-    block.pixelPtr = photobuffer;
+    block.pixelPtr = photobuffer.data();
 
     block.offset[0] = 0;
     block.offset[1] = 1;
@@ -361,7 +361,6 @@ extern "C"
     }
     Tk_PhotoSetSize(photo, block.width, block.height);
     Tk_PhotoPutBlock(photo, &block, 0, 0, block.width, block.height);
-    delete[] photobuffer;
     return TCL_OK;
   }
 }

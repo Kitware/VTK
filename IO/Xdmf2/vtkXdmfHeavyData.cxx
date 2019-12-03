@@ -47,6 +47,7 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
+#include <numeric>
 #include <type_traits>
 #include <vector>
 
@@ -568,8 +569,8 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
 
     /* Create Cell Type Array */
     XdmfInt64 conn_length = xmfConnectivity->GetNumberOfElements();
-    XdmfInt64* xmfConnections = new XdmfInt64[conn_length];
-    xmfConnectivity->GetValues(0, xmfConnections, conn_length);
+    std::vector<XdmfInt64> xmfConnections(conn_length);
+    xmfConnectivity->GetValues(0, xmfConnections.data(), conn_length);
 
     vtkIdType numCells = xmfTopology->GetShapeDesc()->GetNumberOfElements();
 
@@ -590,7 +591,8 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     // Fill connections (just copy xmfConnections)
     { // Need to convert explicitly to silence warnings:
       auto range = vtk::DataArrayValueRange<1>(conn);
-      std::transform(xmfConnections, xmfConnections + (numPointsPerCell * numCells), range.begin(),
+      std::transform(xmfConnections.cbegin(),
+        xmfConnections.cbegin() + (numPointsPerCell * numCells), range.begin(),
         [](XdmfInt64 val) -> vtkIdType { return static_cast<vtkIdType>(val); });
     }
 
@@ -598,8 +600,6 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     vtkNew<vtkCellArray> cells;
     cells->SetData(offsets, conn);
     ugData->SetCells(vtk_cell_type, cells);
-
-    delete[] xmfConnections;
   }
   else
   {
@@ -962,8 +962,8 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(
   else
   {
     // treating the points as structured points
-    XdmfFloat64* tempPoints = new XdmfFloat64[numGeometryPoints * 3];
-    xmfPoints->GetValues(0, tempPoints, numGeometryPoints * 3);
+    std::vector<XdmfFloat64> tempPoints(numGeometryPoints * 3);
+    xmfPoints->GetValues(0, tempPoints.data(), numGeometryPoints * 3);
     vtkIdType pointId = 0;
     int xdmf_dims[3];
     vtkGetDims(whole_extents, xdmf_dims);
@@ -997,7 +997,6 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(
         }
       }
     }
-    delete[] tempPoints;
   }
 
   points->Register(0);
@@ -1293,8 +1292,8 @@ bool vtkXdmfHeavyData::ReadGhostSets(
 
     XdmfArray* xmfIds = xmfSet->GetIds();
     XdmfInt64 numIds = xmfIds->GetNumberOfElements();
-    XdmfInt64* ids = new XdmfInt64[numIds + 1];
-    xmfIds->GetValues(0, ids, numIds);
+    std::vector<XdmfInt64> ids(numIds + 1);
+    xmfIds->GetValues(0, ids.data(), numIds);
 
     // release the heavy data that was read.
     xmfSet->Release();
@@ -1308,7 +1307,6 @@ bool vtkXdmfHeavyData::ReadGhostSets(
       }
       ptrGhosts[ids[kk]] = ghostFlag;
     }
-    delete[] ids;
   }
   return true;
 }
@@ -1403,8 +1401,8 @@ vtkDataSet* vtkXdmfHeavyData::ExtractPoints(XdmfSet* xmfSet, vtkDataSet* dataSet
 
   XdmfArray* xmfIds = xmfSet->GetIds();
   XdmfInt64 numIds = xmfIds->GetNumberOfElements();
-  XdmfInt64* ids = new XdmfInt64[numIds + 1];
-  xmfIds->GetValues(0, ids, numIds);
+  std::vector<XdmfInt64> ids(numIds + 1);
+  xmfIds->GetValues(0, ids.data(), numIds);
 
   // release heavy data.
   xmfSet->Release();
@@ -1427,8 +1425,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractPoints(XdmfSet* xmfSet, vtkDataSet* dataSet
     dataSet->GetPoint(ids[kk], point_location);
     outputPoints->SetPoint(kk, point_location);
   }
-  delete[] ids;
-  ids = nullptr;
+  ids.clear(); // done with ids
 
   // Read node-centered attributes that may be defined on this set.
   int numAttributes = xmfSet->GetNumberOfAttributes();
@@ -1450,14 +1447,9 @@ vtkDataSet* vtkXdmfHeavyData::ExtractPoints(XdmfSet* xmfSet, vtkDataSet* dataSet
     }
   }
 
-  vtkIdType* vtk_cell_ids = new vtkIdType[numIds];
-  for (vtkIdType cc = 0; cc < numIds; cc++)
-  {
-    vtk_cell_ids[cc] = cc;
-  }
-  output->InsertNextCell(VTK_POLY_VERTEX, numIds, vtk_cell_ids);
-  delete[] vtk_cell_ids;
-  vtk_cell_ids = nullptr;
+  std::vector<vtkIdType> vtk_cell_ids(numIds);
+  std::iota(vtk_cell_ids.begin(), vtk_cell_ids.end(), 0);
+  output->InsertNextCell(VTK_POLY_VERTEX, numIds, vtk_cell_ids.data());
 
   return output;
 }
@@ -1578,13 +1570,12 @@ vtkDataSet* vtkXdmfHeavyData::ExtractFaces(XdmfSet* xmfSet, vtkDataSet* dataSet)
     // Now insert this face a new cell in the output dataset.
     vtkIdType numPoints = face->GetNumberOfPoints();
     vtkPoints* facePoints = face->GetPoints();
-    vtkIdType* outputPts = new vtkIdType[numPoints + 1];
+    std::vector<vtkIdType> outputPts(numPoints + 1);
     for (vtkIdType kk = 0; kk < numPoints; kk++)
     {
       mergePoints->InsertUniquePoint(facePoints->GetPoint(kk), outputPts[kk]);
     }
-    polys->InsertNextCell(numPoints, outputPts);
-    delete[] outputPts;
+    polys->InsertNextCell(numPoints, outputPts.data());
   }
 
   ids->Delete();
@@ -1673,13 +1664,12 @@ vtkDataSet* vtkXdmfHeavyData::ExtractEdges(XdmfSet* xmfSet, vtkDataSet* dataSet)
     // Now insert this edge as a new cell in the output dataset.
     vtkIdType numPoints = edge->GetNumberOfPoints();
     vtkPoints* edgePoints = edge->GetPoints();
-    vtkIdType* outputPts = new vtkIdType[numPoints + 1];
+    std::vector<vtkIdType> outputPts(numPoints + 1);
     for (vtkIdType kk = 0; kk < numPoints; kk++)
     {
       mergePoints->InsertUniquePoint(edgePoints->GetPoint(kk), outputPts[kk]);
     }
-    lines->InsertNextCell(numPoints, outputPts);
-    delete[] outputPts;
+    lines->InsertNextCell(numPoints, outputPts.data());
   }
 
   ids->Delete();

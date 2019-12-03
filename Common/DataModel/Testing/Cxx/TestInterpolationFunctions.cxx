@@ -56,19 +56,21 @@
 #include "vtkQuadraticLinearWedge.h"
 #include "vtkTriQuadraticHexahedron.h"
 
+#include <vector>
+
 template <class TCell>
 int TestOneInterpolationFunction(double eps = VTK_EPSILON)
 {
   TCell* cell = TCell::New();
   int numPts = cell->GetNumberOfPoints();
-  double* sf = new double[numPts];
+  std::vector<double> sf(numPts);
   double* coords = cell->GetParametricCoords();
   int r = 0;
   for (int i = 0; i < numPts; ++i)
   {
     double* point = coords + 3 * i;
     double sum = 0.;
-    cell->InterpolateFunctions(point, sf); // virtual function
+    cell->InterpolateFunctions(point, sf.data()); // virtual function
     for (int j = 0; j < numPts; j++)
     {
       sum += sf[j];
@@ -98,7 +100,7 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
   // Let's test unity condition on the center point:
   double center[3];
   cell->GetParametricCenter(center);
-  cell->InterpolateFunctions(center, sf); // virtual function
+  cell->InterpolateFunctions(center, sf.data()); // virtual function
   double sum = 0.;
   for (int j = 0; j < numPts; j++)
   {
@@ -110,7 +112,6 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
   }
 
   cell->Delete();
-  delete[] sf;
   return r;
 }
 

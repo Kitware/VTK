@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 vtkInformationKeyMacro(vtkOTDensityMap, DENSITY, Double);
 vtkStandardNewMacro(vtkOTDensityMap);
@@ -215,7 +216,7 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   int numContours = this->ContourValues->GetNumberOfContours();
   contour->SetNumberOfContours(numContours);
   double* contourValues = this->ContourValues->GetValues();
-  double* densityPDFContourValues = new double[numContours];
+  std::vector<double> densityPDFContourValues(numContours);
 
   for (int i = 0; i < numContours; i++)
   {
@@ -233,8 +234,8 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   std::multimap<double, vtkSmartPointer<vtkTable> > contoursMap;
 
   // Build contours tables
-  this->BuildContours(contourPd, numContours, contourValues, densityPDFContourValues, xArrayName,
-    yArrayName, contoursMap);
+  this->BuildContours(contourPd, numContours, contourValues, densityPDFContourValues.data(),
+    xArrayName, yArrayName, contoursMap);
 
   // Recover iterator to cache by creating the multiblock tree output
   // Initialize to maximum number of blocks
@@ -280,7 +281,6 @@ int vtkOTDensityMap::RequestData(vtkInformation* vtkNotUsed(request),
   // Store Build Time for cache
   this->BuildTime.Modified();
 
-  delete[] densityPDFContourValues;
   delete input;
   return 1;
 }

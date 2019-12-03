@@ -1683,19 +1683,20 @@ int vtkMINCImageWriter::WriteMINCData(
 
   // Create a buffer for intermediate results.
   int fileType = this->FileDataType;
-  void* buffer = nullptr;
+  size_t bufferSize = 0;
   switch (fileType)
   {
-    vtkMINCImageWriterTemplateMacro(buffer = (void*)(new VTK_TT[chunkSize]));
+    vtkMINCImageWriterTemplateMacro(bufferSize = sizeof(VTK_TT) * chunkSize;);
   }
+  std::vector<unsigned char> buffer(bufferSize);
 
   // Create arrays for image-min and image-max
-  double* minPtr = nullptr;
-  double* maxPtr = nullptr;
+  std::vector<double> minPtr;
+  std::vector<double> maxPtr;
   if (rescale)
   {
-    minPtr = new double[nchunks];
-    maxPtr = new double[nchunks];
+    minPtr.resize(nchunks);
+    maxPtr.resize(nchunks);
   }
 
   // Initialize the start and count to use for each chunk.
@@ -1740,8 +1741,8 @@ int vtkMINCImageWriter::WriteMINCData(
       switch (scalarType)
       {
         vtkMINCImageWriterTemplateMacro(
-          vtkMINCImageWriterExecuteChunk((VTK_TT*)inPtr, (VTK_TT*)buffer, chunkRange, validRange,
-            ncid, varid, ndims, start2, count2, permutedInc, rescale));
+          vtkMINCImageWriterExecuteChunk((VTK_TT*)inPtr, reinterpret_cast<VTK_TT*>(buffer.data()),
+            chunkRange, validRange, ncid, varid, ndims, start2, count2, permutedInc, rescale));
       }
     }
     else if (scalarType == VTK_FLOAT)
@@ -1750,8 +1751,8 @@ int vtkMINCImageWriter::WriteMINCData(
       switch (fileType)
       {
         vtkMINCImageWriterTemplateMacro(
-          vtkMINCImageWriterExecuteChunk((float*)inPtr, (VTK_TT*)buffer, chunkRange, validRange,
-            ncid, varid, ndims, start2, count2, permutedInc, rescale));
+          vtkMINCImageWriterExecuteChunk((float*)inPtr, reinterpret_cast<VTK_TT*>(buffer.data()),
+            chunkRange, validRange, ncid, varid, ndims, start2, count2, permutedInc, rescale));
       }
     }
     else if (scalarType == VTK_DOUBLE)
@@ -1760,8 +1761,8 @@ int vtkMINCImageWriter::WriteMINCData(
       switch (fileType)
       {
         vtkMINCImageWriterTemplateMacro(
-          vtkMINCImageWriterExecuteChunk((double*)inPtr, (VTK_TT*)buffer, chunkRange, validRange,
-            ncid, varid, ndims, start2, count2, permutedInc, rescale));
+          vtkMINCImageWriterExecuteChunk((double*)inPtr, reinterpret_cast<VTK_TT*>(buffer.data()),
+            chunkRange, validRange, ncid, varid, ndims, start2, count2, permutedInc, rescale));
       }
     }
 
@@ -1787,10 +1788,7 @@ int vtkMINCImageWriter::WriteMINCData(
     inPtr = (void*)(((char*)inPtr) + chunkInc * scalarSize);
   }
 
-  switch (fileType)
-  {
-    vtkMINCImageWriterTemplateMacro(delete[]((VTK_TT*)buffer));
-  }
+  buffer.clear();
 
   // Sync the data to disk.
   status = nc_sync(ncid);
@@ -1805,15 +1803,12 @@ int vtkMINCImageWriter::WriteMINCData(
     // Write out to the image-min and image-max variables
     if (status == NC_NOERR)
     {
-      status = nc_put_vara_double(ncid, minid, start, count, minPtr);
+      status = nc_put_vara_double(ncid, minid, start, count, minPtr.data());
     }
     if (status == NC_NOERR)
     {
-      nc_put_vara_double(ncid, maxid, start, count, maxPtr);
+      nc_put_vara_double(ncid, maxid, start, count, maxPtr.data());
     }
-
-    delete[] minPtr;
-    delete[] maxPtr;
   }
 
   if (status != NC_NOERR)

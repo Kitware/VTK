@@ -33,6 +33,8 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkSphereTree);
 vtkCxxSetObjectMacro(vtkSphereTree, DataSet, vtkDataSet);
 
@@ -1344,7 +1346,7 @@ void vtkSphereTree::BuildUnstructuredHierarchy(vtkDataSet* input, double* tree)
 
   // Now it's time to create a sphere per bucket, and adjust the spheres
   // to fit all of the cell spheres contained within it.
-  double** tmpSpheres = new double*[maxNumSpheres];
+  std::vector<double*> tmpSpheres(maxNumSpheres);
   h->GridSpheres = new double[4 * gridSize];
   double* gs = h->GridSpheres;
   vtkIdType nSph;
@@ -1362,14 +1364,11 @@ void vtkSphereTree::BuildUnstructuredHierarchy(vtkDataSet* input, double* tree)
           cellId = *(cellMap + offsets[idx] + ii);
           tmpSpheres[ii] = tree + 4 * cellId;
         }
-        vtkSphere::ComputeBoundingSphere(tmpSpheres, nSph, gs, nullptr);
+        vtkSphere::ComputeBoundingSphere(tmpSpheres.data(), nSph, gs, nullptr);
         gs += 4;
       } // i
     }   // j
   }     // k
-
-  // Cleanup
-  delete[] tmpSpheres;
 }
 
 //----------------------------------------------------------------------------

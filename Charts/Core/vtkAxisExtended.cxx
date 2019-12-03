@@ -19,10 +19,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
-#include <sstream>
-
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include <vector>
 
 vtkStandardNewMacro(vtkAxisExtended);
 
@@ -274,7 +274,7 @@ double vtkAxisExtended::Legibility(
   double lmin, double lmax, double lstep, double scaling, vtkVector<int, 3>& parameters)
 {
   int numTicks = static_cast<int>((lmax - lmin) / lstep);
-  double* tickPositions = new double[numTicks];
+  std::vector<double> tickPositions(numTicks);
   int fontSizes[8] = { 8, 9, 10, 12, 14, 18, 20, 24 };
   for (int i = 0; i < numTicks; ++i)
   {
@@ -393,7 +393,6 @@ double vtkAxisExtended::Legibility(
   parameters[0] = bestFormat;
   parameters[1] = bestFontSize;
   parameters[2] = bestOrientation;
-  delete[] tickPositions;
   return bestLegScore;
 }
 
