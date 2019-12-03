@@ -533,7 +533,8 @@ public:
       std::string tcoordsString;
       size_t materialIndex = 0;
       pugi::xml_node nodeExteriorRing = nodePolygon.child("gml:exterior").child("gml:LinearRing");
-      exteriorId = nodeExteriorRing.attribute("gml:id").value();
+      pugi::xml_attribute gmlIdAttribute = nodeExteriorRing.attribute("gml:id");
+      exteriorId = gmlIdAttribute.value();
 
       // fill in texture coordinates for the this polygon
       PolygonType polygonType =
@@ -545,7 +546,10 @@ public:
         vtkNew<vtkPoints> points;
         points->SetDataType(VTK_DOUBLE);
         vtkNew<vtkCellArray> cells;
-        this->SetField(polyData, "gml_id", exteriorId);
+        if (gmlIdAttribute)
+        {
+          this->SetField(polyData, "gml_id", exteriorId);
+        }
         polyData->SetPoints(points);
         nodeInterior ? polyData->SetLines(cells) : polyData->SetPolys(cells);
         switch (polygonType)
