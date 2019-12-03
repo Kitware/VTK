@@ -58,7 +58,7 @@ public:
   void SetRayLength(double length);
   vtkOpenVRRay* GetRay() { return this->Ray; }
 
-  void ReleaseGraphicsResources(vtkRenderWindow* win);
+  void ReleaseGraphicsResources(vtkWindow* win);
 
   // the tracked device this model represents if any
   vr::TrackedDeviceIndex_t TrackedDevice;

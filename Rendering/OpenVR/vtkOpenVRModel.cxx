@@ -60,7 +60,7 @@ void vtkOpenVRModel::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Loaded " << (this->Loaded ? "On\n" : "Off\n");
 }
 
-void vtkOpenVRModel::ReleaseGraphicsResources(vtkRenderWindow* win)
+void vtkOpenVRModel::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->ModelVBO->ReleaseGraphicsResources();
   this->ModelHelper.ReleaseGraphicsResources(win);
