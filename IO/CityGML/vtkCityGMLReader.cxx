@@ -782,8 +782,15 @@ public:
       }
       if (groupBlock->GetNumberOfBlocks())
       {
+        pugi::xml_node featureNode = itFeature->node();
+        pugi::xml_node nameNode = featureNode.child("gml:name");
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
         this->SetField(groupBlock, "element", element.c_str());
+        if (nameNode)
+        {
+          const char* name = nameNode.child_value();
+          this->SetField(groupBlock, "name", name);
+        }
       }
     }
   }
