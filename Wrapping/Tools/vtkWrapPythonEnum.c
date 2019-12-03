@@ -185,7 +185,7 @@ void vtkWrapPython_GenerateEnumType(
   fprintf(fp,
     "static PyTypeObject Py%s_Type = {\n"
     "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
-    "  \"%s.%s\", // tp_name\n"
+    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
     "  sizeof(PyIntObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  nullptr, // tp_dealloc\n"

@@ -432,6 +432,14 @@ int main(int argc, char* argv[])
   /* the header file for the wrapped class */
   fprintf(fp, "#include \"%s.h\"\n\n", name);
 
+  /* capture the PYTHON_PACKAGE name, if defined */
+  fprintf(fp,
+    "#if defined(PYTHON_PACKAGE)\n"
+    "#define PYTHON_PACKAGE_SCOPE PYTHON_PACKAGE \".\"\n"
+    "#else\n"
+    "#define PYTHON_PACKAGE_SCOPE\n"
+    "#endif\n\n");
+
   /* do the export of the main entry point */
   fprintf(
     fp, "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *dict); }\n", "VTK_ABI_EXPORT", name);

@@ -419,6 +419,11 @@ extern PyObject* PyInit_${_vtk_python_library_name}();
     MODULES ${ARGN}
     TARGETS "${name}")
 
+  # The wrapper code will expand PYTHON_PACKAGE as needed
+  target_compile_definitions("${name}"
+    PRIVATE
+      "-DPYTHON_PACKAGE=\"${_vtk_python_PYTHON_PACKAGE}\"")
+
   target_link_libraries("${name}"
     PRIVATE
       ${ARGN}

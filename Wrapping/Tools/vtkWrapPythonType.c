@@ -678,7 +678,7 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   fprintf(fp,
     "static PyTypeObject Py%s_Type = {\n"
     "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
-    "  \"%s.%s\", // tp_name\n"
+    "  PYTHON_PACKAGE_SCOPE \"%s.%s\", // tp_name\n"
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  Py%s_Delete, // tp_dealloc\n"
