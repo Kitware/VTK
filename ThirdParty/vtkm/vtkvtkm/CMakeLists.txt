@@ -57,6 +57,7 @@ endif ()
 set(BUILD_SHARED_LIBS OFF)
 
 add_subdirectory(vtk-m)
+vtkm_setup_job_pool()
 
 vtk_module_add_module(VTK::vtkm
   HEADER_ONLY)
