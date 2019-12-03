@@ -3,8 +3,6 @@ NAME
 LIBRARY_NAME
   vtkRenderingLICOpenGL2
 IMPLEMENTABLE
-KIT
-  VTK::OpenGL
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
