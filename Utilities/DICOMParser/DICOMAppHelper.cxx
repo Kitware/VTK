@@ -90,6 +90,8 @@ struct gt_pair_float_string
 
 DICOMAppHelper::DICOMAppHelper()
 {
+  this->HeaderFile = new dicom_stream::ofstream();
+
   this->BitsAllocated = 8;
   this->ByteSwapData = false;
   this->PixelSpacing[0] = this->PixelSpacing[1] = this->PixelSpacing[2] = 1.0;
@@ -136,7 +138,8 @@ DICOMAppHelper::~DICOMAppHelper()
 {
   this->Clear();
 
-  this->HeaderFile.close();
+  this->HeaderFile->close();
+  delete this->HeaderFile;
 
   //
   // Fix warning here.
@@ -372,26 +375,26 @@ void DICOMAppHelper::ArrayCallback(DICOMParser* parser, doublebyte group, double
   char ct2 = static_cast<char>(t2);
   char ct1 = static_cast<char>(t1);
 
-  HeaderFile << "(0x";
+  *this->HeaderFile << "(0x";
 
-  HeaderFile.width(4);
-  char prev = HeaderFile.fill('0');
+  this->HeaderFile->width(4);
+  char prev = this->HeaderFile->fill('0');
 
-  HeaderFile << dicom_stream::hex << group;
-  HeaderFile << ",0x";
+  *this->HeaderFile << dicom_stream::hex << group;
+  *this->HeaderFile << ",0x";
 
-  HeaderFile.width(4);
-  HeaderFile.fill('0');
+  this->HeaderFile->width(4);
+  this->HeaderFile->fill('0');
 
-  HeaderFile << dicom_stream::hex << element;
-  HeaderFile << ") ";
+  *this->HeaderFile << dicom_stream::hex << element;
+  *this->HeaderFile << ") ";
 
-  HeaderFile.fill(prev);
-  HeaderFile << dicom_stream::dec;
-  HeaderFile << " " << ct1 << ct2 << " ";
-  HeaderFile << "[" << len << " bytes] ";
+  this->HeaderFile->fill(prev);
+  *this->HeaderFile << dicom_stream::dec;
+  *this->HeaderFile << " " << ct1 << ct2 << " ";
+  *this->HeaderFile << "[" << len << " bytes] ";
 
-  HeaderFile << desc << " : ";
+  *this->HeaderFile << desc << " : ";
 
   unsigned int uival = 0;
   float fval = 0;
@@ -421,48 +424,48 @@ void DICOMAppHelper::ArrayCallback(DICOMParser* parser, doublebyte group, double
       case DICOMParser::VR_SQ: // sequence
       case DICOMParser::VR_SH: // strings
       case DICOMParser::VR_IS:
-        HeaderFile << val;
+        *this->HeaderFile << val;
         break;
       case DICOMParser::VR_FL: // float
         fval = static_cast<float>(atof(reinterpret_cast<char*>(val)));
-        HeaderFile << fval;
+        *this->HeaderFile << fval;
         break;
       case DICOMParser::VR_FD: // float double
         dval = static_cast<double>(atof(reinterpret_cast<char*>(val)));
-        HeaderFile << dval;
+        *this->HeaderFile << dval;
         break;
       case DICOMParser::VR_UL: // unsigned long
       case DICOMParser::VR_SL: // signed long
       case DICOMParser::VR_AT:
-        HeaderFile << uival;
+        *this->HeaderFile << uival;
         break;
       // case DICOMParser::VR_IS:
       //  ival = DICOMFile::ReturnAsSignedLong(val,
-      //  parser->GetDICOMFile()->GetPlatformIsBigEndian()); HeaderFile << ival; break;
+      //  parser->GetDICOMFile()->GetPlatformIsBigEndian()); this->HeaderFile << ival; break;
       case DICOMParser::VR_SS:
         ival =
           DICOMFile::ReturnAsSignedShort(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
-        HeaderFile << ival;
+        *this->HeaderFile << ival;
         break;
       case DICOMParser::VR_US: // unsigned short
         uival =
           DICOMFile::ReturnAsUnsignedShort(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
-        HeaderFile << uival;
+        *this->HeaderFile << uival;
         break;
       case DICOMParser::VR_UNKNOWN:
       case DICOMParser::VR_AW:
       default:
-        HeaderFile << val << dicom_stream::endl;
+        *this->HeaderFile << val << dicom_stream::endl;
         break;
     }
   }
   else
   {
-    HeaderFile << "NULL";
+    *this->HeaderFile << "NULL";
   }
 
-  HeaderFile << dicom_stream::dec << dicom_stream::endl;
-  HeaderFile.fill(prev);
+  *this->HeaderFile << dicom_stream::dec << dicom_stream::endl;
+  this->HeaderFile->fill(prev);
 
   delete[] val;
 }

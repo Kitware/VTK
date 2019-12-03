@@ -356,7 +356,7 @@ protected:
   typedef dicom_stl::map<dicom_stl::pair<doublebyte, doublebyte>, DICOMTagInfo> TagMapType;
   // TagMapType TagMap;
 
-  dicom_stream::ofstream HeaderFile;
+  dicom_stream::ofstream* HeaderFile;
 
   // 0 unsigned
   // 1 2s complement (signed)
