@@ -23,11 +23,11 @@
 
 //--------------------------------------------------------------------
 // Add a wrapped enum type
-PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype)
+PyTypeObject* PyVTKEnum_Add(PyTypeObject* pytype, const char* name)
 {
   // do not allow direct instantiation
   pytype->tp_new = nullptr;
-  vtkPythonUtil::AddEnumToMap(pytype);
+  vtkPythonUtil::AddEnumToMap(pytype, name);
   return pytype;
 }
 

@@ -468,15 +468,15 @@ const char* vtkPythonUtil::PythonicClassName(const char* classname)
 const char* vtkPythonUtil::StripModule(const char* tpname)
 {
   const char* cp = tpname;
-  while (*cp != '.' && *cp != '\0')
+  const char* strippedname = tpname;
+  while (*cp != '\0')
   {
-    cp++;
+    if (*cp++ == '.')
+    {
+      strippedname = cp;
+    }
   }
-  if (*cp == '.')
-  {
-    return ++cp;
-  }
-  return tpname;
+  return strippedname;
 }
 
 //--------------------------------------------------------------------
@@ -836,16 +836,15 @@ PyObject* vtkPythonUtil::FindNamespace(const char* name)
 }
 
 //--------------------------------------------------------------------
-void vtkPythonUtil::AddEnumToMap(PyTypeObject* enumtype)
+void vtkPythonUtil::AddEnumToMap(PyTypeObject* enumtype, const char* name)
 {
   vtkPythonUtilCreateIfNeeded();
 
   // Only add to map if it isn't already there
-  const char* enumname = vtkPythonUtil::StripModule(enumtype->tp_name);
-  vtkPythonEnumMap::iterator i = vtkPythonMap->EnumMap->find(StripModule(enumname));
+  vtkPythonEnumMap::iterator i = vtkPythonMap->EnumMap->find(name);
   if (i == vtkPythonMap->EnumMap->end())
   {
-    (*vtkPythonMap->EnumMap)[enumname] = enumtype;
+    (*vtkPythonMap->EnumMap)[name] = enumtype;
   }
 }
 
