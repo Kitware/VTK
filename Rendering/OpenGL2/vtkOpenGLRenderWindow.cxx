@@ -281,7 +281,7 @@ const char* vtkOpenGLRenderWindow::ReportCapabilities()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow* renWin)
+void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   this->PushContext();
 

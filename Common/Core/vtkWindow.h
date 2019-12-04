@@ -146,6 +146,13 @@ public:
    */
   virtual void Render() = 0;
 
+  /**
+   * Release any graphics resources that are being consumed by this texture.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  virtual void ReleaseGraphicsResources(vtkWindow*) {}
+
   //@{
   /**
    * Get the pixel data of an image, transmitted as RGBRGBRGB. The

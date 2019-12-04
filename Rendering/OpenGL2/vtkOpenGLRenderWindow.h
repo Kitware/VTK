@@ -428,6 +428,12 @@ public:
   // does VTKs framebuffer require resolving for reading pixels
   bool GetBufferNeedsResolving();
 
+  /**
+   * Free up any graphics resources associated with this window
+   * a value of NULL means the context may already be destroyed
+   */
+  void ReleaseGraphicsResources(vtkWindow*) override;
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -461,12 +467,6 @@ protected:
    * Destroy a not-off-screen window.
    */
   virtual void DestroyWindow() = 0;
-
-  /**
-   * Free up any graphics resources associated with this window
-   * a value of NULL means the context may already be destroyed
-   */
-  virtual void ReleaseGraphicsResources(vtkRenderWindow*);
 
   /**
    * Query and save OpenGL state

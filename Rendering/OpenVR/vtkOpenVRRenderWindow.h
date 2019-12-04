@@ -381,15 +381,15 @@ public:
   // OpenGL state
   vtkOpenGLState* GetState() override;
 
-protected:
-  vtkOpenVRRenderWindow();
-  ~vtkOpenVRRenderWindow();
-
   /**
    * Free up any graphics resources associated with this window
    * a value of nullptr means the context may already be destroyed
    */
-  virtual void ReleaseGraphicsResources(vtkRenderWindow*);
+  void ReleaseGraphicsResources(vtkWindow*) override;
+
+protected:
+  vtkOpenVRRenderWindow();
+  ~vtkOpenVRRenderWindow();
 
   virtual void CreateAWindow() {}
   virtual void DestroyWindow() {}

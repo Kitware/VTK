@@ -133,7 +133,7 @@ vtkOpenVRRenderWindow::~vtkOpenVRRenderWindow()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkRenderWindow* renWin)
+void vtkOpenVRRenderWindow::ReleaseGraphicsResources(vtkWindow* renWin)
 {
   // this->HelperWindow->ReleaseGraphicsResources(renWin);
   this->Superclass::ReleaseGraphicsResources(renWin);
