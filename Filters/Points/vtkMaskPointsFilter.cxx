@@ -38,7 +38,7 @@ struct ExtractPoints
 {
   template <typename PtArrayT>
   void operator()(PtArrayT* ptArray, const unsigned char* mask, unsigned char emptyValue,
-    int dims[3], double origin[3], double spacing[3], vtkIdType* pointMap) const
+    const int dims[3], const double origin[3], const double spacing[3], vtkIdType* pointMap) const
   {
     const vtkIdType numPts = ptArray->GetNumberOfTuples();
 
@@ -61,7 +61,10 @@ struct ExtractPoints
 
       vtkIdType* map = pointMap + ptId;
 
-      std::transform(pts.cbegin(), pts.cend(), map, [&](PtCRefT pt) -> vtkIdType {
+      // MSVC 2015 x64 ICEs when this loop is written using std::transform,
+      // so we'll work around that by using a for-range loop:
+      for (PtCRefT pt : pts)
+      {
         const int i = static_cast<int>(((pt[0] - bX) * fX));
         const int j = static_cast<int>(((pt[1] - bY) * fY));
         const int k = static_cast<int>(((pt[2] - bZ) * fZ));
@@ -69,17 +72,17 @@ struct ExtractPoints
         // If not inside image then skip
         if (i < 0 || i >= xD || j < 0 || j >= yD || k < 0 || k >= zD)
         {
-          return -1;
+          *map++ = -1;
         }
         else if (mask[i + j * xD + k * xyD] != emptyValue)
         {
-          return 1;
+          *map++ = 1;
         }
         else
         {
-          return -1;
+          *map++ = -1;
         }
-      });
+      }
     });
   }
 }; // ExtractPoints
