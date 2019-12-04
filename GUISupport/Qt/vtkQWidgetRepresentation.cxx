@@ -27,6 +27,7 @@
 #include "vtkProperty.h"
 #include "vtkQWidgetTexture.h"
 #include "vtkRenderer.h"
+#include "vtkVectorOperators.h"
 #include <QtWidgets/QWidget>
 
 #include "vtk_glew.h"
@@ -64,7 +65,6 @@ vtkQWidgetRepresentation::vtkQWidgetRepresentation()
   // Initial creation of the widget, serves to initialize it
   this->PlaceWidget(bounds);
 
-  // Manage the picking stuff
   this->Picker = vtkCellPicker::New();
   this->Picker->SetTolerance(0.005);
   this->Picker->AddPickList(this->PlaneActor);
@@ -99,15 +99,38 @@ int vtkQWidgetRepresentation::ComputeComplexInteractionState(
   vtkEventDataDevice3D* edd = edata->GetAsEventDataDevice3D();
   if (edd)
   {
-    double pos[3];
-    double ori[4];
-    edd->GetWorldPosition(pos);
-    edd->GetWorldOrientation(ori);
+    // compute intersection point using math, faster better
+    vtkVector3d origin;
+    this->PlaneSource->GetOrigin(origin.GetData());
+    vtkVector3d axis0;
+    this->PlaneSource->GetPoint1(axis0.GetData());
+    vtkVector3d axis1;
+    this->PlaneSource->GetPoint2(axis1.GetData());
 
-    // does the ray hit the widget rep?
-    if (!this->Picker->Pick3DRay(pos, ori, this->Renderer))
+    axis0 = axis0 - origin;
+    axis1 = axis1 - origin;
+
+    vtkVector3d rpos;
+    edd->GetWorldPosition(rpos.GetData());
+    rpos = rpos - origin;
+
+    vtkVector3d rdir;
+    edd->GetWorldDirection(rdir.GetData());
+
+    double lengtha0 = vtkMath::Normalize(axis0.GetData());
+    double lengtha1 = vtkMath::Normalize(axis1.GetData());
+
+    vtkVector3d pnorm;
+    pnorm = axis0.Cross(axis1);
+    pnorm.Normalize();
+    double dist = rpos.Dot(pnorm) / rdir.Dot(pnorm);
+    rpos = rpos - rdir * dist;
+    double wCoords[2] = { 0.0, 0.0 };
+    wCoords[0] = rpos.Dot(axis0) / lengtha0;
+    wCoords[1] = rpos.Dot(axis1) / lengtha1;
+
+    if (wCoords[0] < 0.0 || wCoords[0] > 1.0 || wCoords[1] < 0.0 || wCoords[1] > 1.0)
     {
-      // if not just return
       this->InteractionState = vtkQWidgetRepresentation::Outside;
       return this->InteractionState;
     }
@@ -116,34 +139,9 @@ int vtkQWidgetRepresentation::ComputeComplexInteractionState(
     this->ValidPick = 1;
     this->InteractionState = vtkQWidgetRepresentation::Inside;
 
-    // compute the widget coordinates
-    vtkPoints* pp = this->Picker->GetPickedPositions();
-    double ppos[3];
-    pp->GetPoint(0, ppos);
-
-    double origin[3];
-    this->PlaneSource->GetOrigin(origin);
-    double axis0[3];
-    this->PlaneSource->GetPoint1(axis0);
-    double axis1[3];
-    this->PlaneSource->GetPoint2(axis1);
-    for (int i = 0; i < 3; ++i)
-    {
-      ppos[i] -= origin[i];
-      axis0[i] -= origin[i];
-      axis1[i] -= origin[i];
-    }
-    double lengtha0 = vtkMath::Normalize(axis0);
-    double lengtha1 = vtkMath::Normalize(axis1);
-    double wCoords[2] = { 0.0, 0.0 };
-    for (int i = 0; i < 3; ++i)
-    {
-      wCoords[0] += ppos[i] * axis0[i];
-      wCoords[1] += ppos[i] * axis1[i];
-    }
     QWidget* widget = this->QWidgetTexture->GetWidget();
-    this->WidgetCoordinates[0] = wCoords[0] * widget->width() / lengtha0;
-    this->WidgetCoordinates[1] = wCoords[1] * widget->height() / lengtha1;
+    this->WidgetCoordinates[0] = wCoords[0] * widget->width();
+    this->WidgetCoordinates[1] = wCoords[1] * widget->height();
     this->WidgetCoordinates[1] = widget->height() - this->WidgetCoordinates[1];
   }
 
