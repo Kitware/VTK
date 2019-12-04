@@ -1,0 +1,13 @@
+NAME
+  VTK::IOFides
+LIBRARY_NAME
+  vtkIOFides
+DESCRIPTION
+  The base Fides reader library
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::AcceleratorsVTKmCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::fides
