@@ -127,31 +127,18 @@ inline void InitializeFieldData(
 }
 
 //----------------------------------------------------------------------------
-class SerializeWorklet
+struct SerializeWorklet
 {
-public:
-  SerializeWorklet(vtkIdType tuple, int numComponents, diy::MemoryBuffer& buffer)
-    : Tuple(tuple)
-    , NumComponents(numComponents)
-    , Buffer(&buffer)
-  {
-  }
-
   template <typename ArrayType>
-  void operator()(ArrayType* array) const
+  void operator()(ArrayType* array, vtkIdType tupleIdx, diy::MemoryBuffer& buffer) const
   {
-    using T = vtk::GetAPIType<ArrayType>;
-    const auto tuple = vtk::DataArrayTupleRange(array)[this->Tuple];
+    using T = vtk::GetAPIType<ArrayType>; // Need value type for diy::save template resolution
+    const auto tuple = vtk::DataArrayTupleRange(array)[tupleIdx];
     for (const T comp : tuple)
     {
-      diy::save(*this->Buffer, comp);
+      diy::save(buffer, comp);
     }
   }
-
-private:
-  vtkIdType Tuple;
-  int NumComponents;
-  diy::MemoryBuffer* Buffer;
 };
 
 inline void SerializeFieldData(vtkFieldData* field, vtkIdType tuple, diy::MemoryBuffer& bb)
@@ -160,44 +147,30 @@ inline void SerializeFieldData(vtkFieldData* field, vtkIdType tuple, diy::Memory
   for (int i = 0; i < numFields; ++i)
   {
     vtkDataArray* da = field->GetArray(i);
-    int numComponents = da->GetNumberOfComponents();
-    SerializeWorklet worklet(tuple, numComponents, bb);
-    if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
+    if (!vtkArrayDispatch::Dispatch::Execute(da, SerializeWorklet{}, tuple, bb))
     {
       vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
-      worklet(da);
+      SerializeWorklet{}(da, tuple, bb);
     }
   }
 }
 
-class DeserializeWorklet
+struct DeserializeWorklet
 {
-public:
-  DeserializeWorklet(vtkIdType tuple, int numComponents, diy::MemoryBuffer& buffer)
-    : Tuple(tuple)
-    , NumComponents(numComponents)
-    , Buffer(&buffer)
-  {
-  }
-
   template <typename ArrayType>
-  void operator()(ArrayType* array) const
+  void operator()(ArrayType* array, vtkIdType tupleIdx, diy::MemoryBuffer& buffer) const
   {
-    auto tuple = vtk::DataArrayTupleRange(array)[this->Tuple];
+    auto tuple = vtk::DataArrayTupleRange(array)[tupleIdx];
     using CompRefT = typename std::iterator_traits<decltype(tuple.begin())>::reference;
+    // Need value type for diy::load template resolution
     using ValueT = typename std::iterator_traits<decltype(tuple.begin())>::value_type;
     for (CompRefT compRef : tuple)
     {
       ValueT val;
-      diy::load(*this->Buffer, val);
+      diy::load(buffer, val);
       compRef = val;
     }
   }
-
-private:
-  vtkIdType Tuple;
-  int NumComponents;
-  diy::MemoryBuffer* Buffer;
 };
 
 inline void DeserializeFieldData(diy::MemoryBuffer& bb, vtkFieldData* field, vtkIdType tuple)
@@ -206,12 +179,10 @@ inline void DeserializeFieldData(diy::MemoryBuffer& bb, vtkFieldData* field, vtk
   for (int i = 0; i < numFields; ++i)
   {
     vtkDataArray* da = field->GetArray(i);
-    int numComponents = da->GetNumberOfComponents();
-    DeserializeWorklet worklet(tuple, numComponents, bb);
-    if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
+    if (!vtkArrayDispatch::Dispatch::Execute(da, DeserializeWorklet{}, tuple, bb))
     {
       vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
-      worklet(da);
+      DeserializeWorklet{}(da, tuple, bb);
     }
   }
 }
