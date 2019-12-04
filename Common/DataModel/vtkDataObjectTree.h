@@ -52,7 +52,7 @@ public:
   /**
    * Return a new iterator (the iterator has to be deleted by user).
    */
-  virtual vtkDataObjectTreeIterator* NewTreeIterator();
+  VTK_NEWINSTANCE virtual vtkDataObjectTreeIterator* NewTreeIterator();
 
   /**
    * Return a new iterator (the iterator has to be deleted by user).
