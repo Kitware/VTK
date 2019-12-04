@@ -24,6 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
+#include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
@@ -365,20 +366,46 @@ public:
     if (posList)
     {
       std::istringstream iss(posList.child_value());
-      while (1)
+      bool validPoint = true;
+      do
       {
-        double p[3] = { 0, 0, 0 };
+        double p[3] = { 0., 0., 0. };
         for (vtkIdType j = 0; j < 3; ++j)
         {
           iss >> p[j];
           if (!iss.good())
-            goto no_more_values;
+          {
+            if (j)
+            {
+              vtkWarningWithObjectMacro(
+                this->Reader, << "Number of points have to be multiple of three. "
+                              << "See point in gml:posList after " << p[0] << " point value");
+            }
+            else
+            {
+              double* pFirst = points->GetPoint(0);
+              double* pLast = points->GetPoint(polyPointIds->GetNumberOfIds() - 1);
+              if (!vtkMathUtilities::FuzzyCompare(pFirst[0], pLast[0]) ||
+                !vtkMathUtilities::FuzzyCompare(pFirst[1], pLast[1]) ||
+                !vtkMathUtilities::FuzzyCompare(pFirst[2], pLast[2]))
+              {
+                vtkWarningWithObjectMacro(this->Reader,
+                  << "gml:posList: First point (" << pFirst[0] << ", " << pFirst[1] << ", "
+                  << pFirst[2] << ") is not equal with last point (" << pLast[0] << ", " << pLast[1]
+                  << ", " << pLast[2] << "). File may be corrupted.");
+              }
+            }
+            validPoint = false;
+            break;
+          }
         }
-        points->InsertNextPoint(p);
-        polyPointIds->InsertId(i, points->GetNumberOfPoints() - 1);
-        ++i;
-      }
-    no_more_values:
+        if (validPoint)
+        {
+          points->InsertNextPoint(p);
+          polyPointIds->InsertId(i, points->GetNumberOfPoints() - 1);
+          ++i;
+        }
+      } while (validPoint);
       // gml:posList repeates the last point in a
       // polygon (there are n points). We only need the first n - 1.
       polyPointIds->SetNumberOfIds(polyPointIds->GetNumberOfIds() - 1);
