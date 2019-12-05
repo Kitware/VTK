@@ -17,6 +17,7 @@
 #include <vtkCellCenters.h>
 #include <vtkCellData.h>
 #include <vtkCellTypeSource.h>
+#include <vtkImageData.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkUnstructuredGrid.h>
@@ -43,7 +44,7 @@ int TestAppendLocationAttributes(int, char*[])
   locationAttributes->SetInputConnection(cellTypeSource->GetOutputPort());
   locationAttributes->Update();
 
-  vtkPointSet* appendLocationOutput = locationAttributes->GetOutput();
+  vtkPointSet* appendLocationOutput = vtkPointSet::SafeDownCast(locationAttributes->GetOutput());
 
   vtkIdType numCells = appendLocationOutput->GetNumberOfCells();
   vtkIdType numPoints = appendLocationOutput->GetNumberOfPoints();
@@ -94,6 +95,29 @@ int TestAppendLocationAttributes(int, char*[])
       std::cerr << "Point location mismatch for point " << i << std::endl;
       return EXIT_FAILURE;
     }
+  }
+
+  // Test with vtkImageData
+  vtkNew<vtkImageData> image;
+  image->SetDimensions(10, 10, 10);
+  image->AllocateScalars(VTK_FLOAT, 1);
+
+  locationAttributes->SetInputData(image);
+  locationAttributes->Update();
+  vtkImageData* imageWithLocations = locationAttributes->GetImageDataOutput();
+
+  vtkPointData* imagePD = imageWithLocations->GetPointData();
+  if (imagePD == nullptr)
+  {
+    std::cerr << "'PointLocations' array not added to vtkImageData point data" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  vtkCellData* imageCD = imageWithLocations->GetCellData();
+  if (imageCD == nullptr)
+  {
+    std::cerr << "'CellCenters' array not added to vtkImageData cell data" << std::endl;
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;

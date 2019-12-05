@@ -33,13 +33,13 @@
 #define vtkAppendLocationAttributes_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
-#include "vtkPointSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
-class VTKFILTERSGENERAL_EXPORT vtkAppendLocationAttributes : public vtkPointSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkAppendLocationAttributes : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkAppendLocationAttributes* New();
-  vtkTypeMacro(vtkAppendLocationAttributes, vtkPointSetAlgorithm);
+  vtkTypeMacro(vtkAppendLocationAttributes, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

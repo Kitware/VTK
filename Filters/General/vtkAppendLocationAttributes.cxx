@@ -35,12 +35,10 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // get the input and output
-  vtkPointSet* input = vtkPointSet::GetData(inputVector[0]);
-  vtkPointSet* output = vtkPointSet::GetData(outputVector);
+  vtkDataSet* input = vtkDataSet::GetData(inputVector[0]);
+  vtkDataSet* output = vtkDataSet::GetData(outputVector);
 
   output->ShallowCopy(input);
-
-  vtkTypeBool abort = 0;
 
   // Create cell centers array
   vtkNew<vtkDoubleArray> cellCenterArray;
@@ -52,29 +50,43 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
     cellCenterArray->SetNumberOfTuples(numCells);
 
     vtkCellCenters::ComputeCellCenters(input, cellCenterArray);
-  }
 
-  if (abort)
-  {
-    vtkWarningMacro(<< "Aborting execution");
-    return 0;
+    vtkCellData* outCD = output->GetCellData();
+    outCD->AddArray(cellCenterArray);
+
+    this->UpdateProgress(0.66);
   }
 
   if (this->AppendPointLocations)
   {
     vtkPointData* outPD = output->GetPointData();
-    vtkDataArray* pointArray = output->GetPoints()->GetData();
-    vtkSmartPointer<vtkDataArray> arrayCopy;
-    arrayCopy.TakeReference(pointArray->NewInstance());
-    arrayCopy->ShallowCopy(pointArray);
-    arrayCopy->SetName("PointLocations");
-    outPD->AddArray(arrayCopy);
-  }
-
-  if (this->AppendCellCenters)
-  {
-    vtkCellData* outCD = output->GetCellData();
-    outCD->AddArray(cellCenterArray);
+    vtkPointSet* outPointSet = vtkPointSet::SafeDownCast(output);
+    if (outPointSet)
+    {
+      // Access point data array and shallow copy it to a point data array
+      vtkDataArray* pointArray = outPointSet->GetPoints()->GetData();
+      vtkSmartPointer<vtkDataArray> arrayCopy;
+      arrayCopy.TakeReference(pointArray->NewInstance());
+      arrayCopy->ShallowCopy(pointArray);
+      arrayCopy->SetName("PointLocations");
+      outPD->AddArray(arrayCopy);
+    }
+    else
+    {
+      // Use slower API to get point positions
+      vtkNew<vtkDoubleArray> pointArray;
+      pointArray->SetName("PointLocations");
+      pointArray->SetNumberOfComponents(3);
+      vtkIdType numPoints = input->GetNumberOfPoints();
+      pointArray->SetNumberOfTuples(numPoints);
+      for (vtkIdType id = 0; id < numPoints; ++id)
+      {
+        double x[3];
+        input->GetPoint(id, x);
+        pointArray->SetTypedTuple(id, x);
+      }
+      outPD->AddArray(pointArray);
+    }
   }
 
   this->UpdateProgress(1.0);
@@ -84,7 +96,7 @@ int vtkAppendLocationAttributes::RequestData(vtkInformation* vtkNotUsed(request)
 //----------------------------------------------------------------------------
 int vtkAppendLocationAttributes::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 
