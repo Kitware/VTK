@@ -59,6 +59,8 @@
 
 #ifndef __VTK_WRAP__ // Don't wrap this class.
 
+#include "vtkCommonDataModelModule.h" // For export macro
+
 #include "vtkCellType.h"
 #include "vtkObject.h"
 #include "vtkType.h"
@@ -140,7 +142,7 @@ static constexpr unsigned char TargetVarTable[10] = {
 
 // Thin wrapper around a vtkTypeUInt64 that encodes a target cell array,
 // cell type, deleted status, and 60-bit cell id.
-struct TaggedCellId
+struct VTKCOMMONDATAMODEL_EXPORT TaggedCellId
 {
   // Encode a cell id and a VTK cell type (eg. VTK_TRIANGLE) into a
   // vtkTypeUInt64.
@@ -198,7 +200,7 @@ private:
 };
 
 // Thin wrapper around a std::vector<TaggedCellId> to allow shallow copying, etc
-class CellMap : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT CellMap : public vtkObject
 {
 public:
   static CellMap* New();
