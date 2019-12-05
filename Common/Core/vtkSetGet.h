@@ -350,7 +350,7 @@
       this->Modified();                                                                            \
     }                                                                                              \
   }                                                                                                \
-  void Set##name(type _arg[2]) { this->Set##name(_arg[0], _arg[1]); }
+  void Set##name(const type _arg[2]) { this->Set##name(_arg[0], _arg[1]); }
 
 #define vtkGetVector2Macro(name, type)                                                             \
   virtual type* Get##name() VTK_SIZEHINT(2)                                                        \
@@ -383,7 +383,7 @@
       this->Modified();                                                                            \
     }                                                                                              \
   }                                                                                                \
-  virtual void Set##name(type _arg[3]) { this->Set##name(_arg[0], _arg[1], _arg[2]); }
+  virtual void Set##name(const type _arg[3]) { this->Set##name(_arg[0], _arg[1], _arg[2]); }
 
 #define vtkGetVector3Macro(name, type)                                                             \
   virtual type* Get##name() VTK_SIZEHINT(3)                                                        \
@@ -419,7 +419,10 @@
       this->Modified();                                                                            \
     }                                                                                              \
   }                                                                                                \
-  virtual void Set##name(type _arg[4]) { this->Set##name(_arg[0], _arg[1], _arg[2], _arg[3]); }
+  virtual void Set##name(const type _arg[4])                                                       \
+  {                                                                                                \
+    this->Set##name(_arg[0], _arg[1], _arg[2], _arg[3]);                                           \
+  }
 
 #define vtkGetVector4Macro(name, type)                                                             \
   virtual type* Get##name() VTK_SIZEHINT(4)                                                        \
@@ -459,7 +462,7 @@
       this->Modified();                                                                            \
     }                                                                                              \
   }                                                                                                \
-  virtual void Set##name(type _arg[6])                                                             \
+  virtual void Set##name(const type _arg[6])                                                       \
   {                                                                                                \
     this->Set##name(_arg[0], _arg[1], _arg[2], _arg[3], _arg[4], _arg[5]);                         \
   }
@@ -497,7 +500,7 @@
 // Examples: void SetColor(c,3)
 //
 #define vtkSetVectorMacro(name, type, count)                                                       \
-  virtual void Set##name(type data[])                                                              \
+  virtual void Set##name(const type data[])                                                        \
   {                                                                                                \
     int i;                                                                                         \
     for (i = 0; i < count; i++)                                                                    \

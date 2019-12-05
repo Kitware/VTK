@@ -112,7 +112,7 @@ public:
    */
   void SetCroppingRegionPlanes(
     double arg1, double arg2, double arg3, double arg4, double arg5, double arg6) override;
-  void SetCroppingRegionPlanes(double* planes) override;
+  void SetCroppingRegionPlanes(const double* planes) override;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionFlags

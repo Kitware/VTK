@@ -191,7 +191,7 @@ public:
    * Overridden to pass the NanColor to the internal vtkLookupTable.
    */
   void SetNanColor(double r, double g, double b) override;
-  void SetNanColor(double rgb[3]) override { this->SetNanColor(rgb[0], rgb[1], rgb[2]); }
+  void SetNanColor(const double rgb[3]) override { this->SetNanColor(rgb[0], rgb[1], rgb[2]); }
   //@}
 
   /**
