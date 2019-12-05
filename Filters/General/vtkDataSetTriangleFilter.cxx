@@ -221,6 +221,8 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
 
   if (numCells == 0)
   {
+    outCD->CopyAllocate(inCD, 0);
+    output->GetPointData()->CopyAllocate(input->GetPointData(), 0);
     return;
   }
 
