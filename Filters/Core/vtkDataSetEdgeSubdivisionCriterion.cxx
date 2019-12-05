@@ -68,7 +68,7 @@ void vtkDataSetEdgeSubdivisionCriterion::SetMesh(vtkDataSet* mesh)
 
 void vtkDataSetEdgeSubdivisionCriterion::SetCellId(vtkIdType cell)
 {
-  if (cell == this->CurrentCellId)
+  if ((cell == this->CurrentCellId) && (!this->CurrentMesh->GetMTime() >= this->GetMTime()))
     return;
 
   this->CurrentCellId = cell;
