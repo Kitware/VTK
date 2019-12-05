@@ -554,18 +554,24 @@ int vtkDelimitedTextReader::RequestData(
 {
   vtkTable* const output_table = vtkTable::GetData(outputVector);
 
+  // This reader always retrieves a single piece. It ignore request on
+  // additional ones.
+  vtkInformation* const outInfo = outputVector->GetInformationObject(0);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
+  {
+    return 1;
+  }
+
+  return this->ReadData(output_table);
+}
+
+int vtkDelimitedTextReader::ReadData(vtkTable* const output_table)
+{
   this->LastError = "";
 
   try
   {
-    // We only retrieve one piece ...
-    vtkInformation* const outInfo = outputVector->GetInformationObject(0);
-    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) &&
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-    {
-      return 1;
-    }
-
     if (!this->PedigreeIdArrayName)
     {
       throw std::runtime_error("You must specify a pedigree id array name");

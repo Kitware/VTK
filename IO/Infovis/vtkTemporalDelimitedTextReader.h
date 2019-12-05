@@ -27,11 +27,10 @@
  * output, a RemoveTimeStepColumn option is available. If no time step
  * indicator column is given by the user, the whole file it outputted.
  *
- * The FileName, FieldDelimiterCharacters, HaveHeaders,
- * MergeConsecutiveDelimiters and AddTabFieldDelimiter options of the
- * vtkDelimitedTextReader are directly exposed by this reader. If you need to
- * specify other options of the delimited text reader, you can access the
- * internal reader using the GetCSVReader.
+ * This reader assume the time step column is numeric. A warning is
+ * set otherwise. The DetectNumericColumns field is set to on,
+ * do not change this field unless you really know what you are
+ * doing.
  *
  * @see vtkDelimitedTextReader
  */
@@ -39,32 +38,28 @@
 #ifndef vtkTemporalDelimitedTextReader_h
 #define vtkTemporalDelimitedTextReader_h
 
-#include "vtkIOInfovisModule.h"
-#include "vtkTableAlgorithm.h"
+#include "vtkDelimitedTextReader.h"
 
-#include "vtkSetGet.h"       // For field macros
-#include "vtkSmartPointer.h" // For the InternalReader field
-#include "vtkStringArray.h"  // Fot the GetAllVariableArrayNames
+#include "vtkIOInfovisModule.h" // module export
+#include "vtkNew.h"             // For ReadTable field
 
-#include <map> // To store the TimeMap
+#include <map>    // To store the TimeMap
+#include <vector> // To store the TimeMap
 
-class vtkDelimitedTextReader;
-
-class VTKIOINFOVIS_EXPORT vtkTemporalDelimitedTextReader : public vtkTableAlgorithm
+class VTKIOINFOVIS_EXPORT vtkTemporalDelimitedTextReader : public vtkDelimitedTextReader
 {
 public:
   static vtkTemporalDelimitedTextReader* New();
-  vtkTypeMacro(vtkTemporalDelimitedTextReader, vtkTableAlgorithm);
+  vtkTypeMacro(vtkTemporalDelimitedTextReader, vtkDelimitedTextReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
-   * Get/Set the column to use as time
-   * default to empty string: this field is not used to retrieve the time step
-   * column.
-   * Using this setter also reset the TimeColumnId to -1.
-   * If neither TimeColumnName nor TimeColumnId are set, the whole data set is
-   * outputted.
+   * Get/Set the name of the column to use as time indicator.
+   * Ignored if TimeColumnId is not equal to -1.
+   * If no column has been chosen using either the TimeColumnId or the
+   * TimeColumnName the whole input file is outputted.
+   * Default to empty string.
    */
   vtkGetMacro(TimeColumnName, std::string);
   void SetTimeColumnName(const std::string name);
@@ -72,11 +67,12 @@ public:
 
   //@{
   /**
-   * Get/Set the column to use as time
-   * default to -1: this field is not used to retrieve the time step column.
-   * Using this setter also reset the TimeColumnName to empty string.
-   * If neither TimeColumnName nor TimeColumnId are set, the whole data set is
-   * outputted.
+   * Get/Set the column to use as time indicator.
+   * It the TimeColumnId is equal to -1, the TimeColumnName will be used
+   * instead.
+   * If no column has been chosen using either the TimeColumnId or the
+   * TimeColumnName the whole input file is outputted.
+   * Default to -1.
    */
   vtkGetMacro(TimeColumnId, int);
   void SetTimeColumnId(const int idx);
@@ -86,112 +82,61 @@ public:
   /**
    * Set the RemoveTimeStepColumn flag
    * If this boolean is true, the output will not contain the Time step column.
+   * Default to true.
    */
   vtkGetMacro(RemoveTimeStepColumn, bool);
-  vtkSetMacro(RemoveTimeStepColumn, bool);
-  vtkBooleanMacro(RemoveTimeStepColumn, bool);
+  void SetRemoveTimeStepColumn(bool rts);
   //@}
 
-  /**
-   * Get the internal reader used to parse the CSV.
-   * This function may be used to change reader settings not
-   * exposed by this reader (like unicode ...)
-   * Note, you should not change the DetectNumericColumns parameter of the
-   * internal reader.
+  /** Internal fields of this reader use a specific MTime (InternalMTime).
+   * This mechamism ensure the actual data is only re-read when necessary.
+   * Here, we ensure the GetMTime of this reader stay consistent by returning
+   * the latest between the MTime of this reader and the internal one.
+   *
+   * @see InternalModified
    */
-  vtkGetSmartPointerMacro(InternalReader, vtkDelimitedTextReader);
-
-  //@{
-  /**
-   * Get/Set the FileName of the input CSV / TCSV file
-   */
-  vtkGetMacro(FileName, std::string);
-  vtkSetMacro(FileName, std::string);
-  //@}
-
-  //@{
-  /**
-   * Get/Set the separator to use when parsing the file
-   * default: ","
-   */
-  vtkSetMacro(FieldDelimiterCharacters, std::string);
-  vtkGetMacro(FieldDelimiterCharacters, std::string);
-  //@}
-
-  //@{
-  /**
-   * Get/Set the HaveHeaders flag that drive if the first
-   * line of the CSV file should be considered as the name
-   * of the column (default false)
-   */
-  vtkGetMacro(HaveHeaders, bool);
-  vtkSetMacro(HaveHeaders, bool);
-  vtkBooleanMacro(HaveHeaders, bool);
-  //@}
-
-  //@{
-  /**
-   * Get/Set the MergeConsecutiveDelimiters flag.
-   * Default: false;
-   */
-  vtkGetMacro(MergeConsecutiveDelimiters, bool);
-  vtkSetMacro(MergeConsecutiveDelimiters, bool);
-  vtkBooleanMacro(MergeConsecutiveDelimiters, bool);
-  //@}
-
-  //@{
-  /**
-   * Get/Set the AddTabFieldDelimiter flag.
-   * This add the tab character to the FieldDelimiterCharacters. It is a
-   * convenience method for GUI application to set the tab character. Default:
-   * false;
-   */
-  vtkGetMacro(AddTabFieldDelimiter, bool);
-  vtkSetMacro(AddTabFieldDelimiter, bool);
-  vtkBooleanMacro(AddTabFieldDelimiter, bool);
-  //@}
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkTemporalDelimitedTextReader();
   ~vtkTemporalDelimitedTextReader() override = default;
 
-  // In order to fill the TIME_STEPS and TIME_RANGE keys, this method call
-  // update on the internal csv reader and so read all the data.
+  /**
+   * In order to fill the TIME_STEPS and TIME_RANGE keys, this method call the
+   * ReadData function that actually read the full input file content (may be
+   * slow!). Custom MTime management is used to ensure we do not re-read the
+   * input file uselessly.
+   */
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
   /**
-   * This function check if a user specified column
-   * has been set and check if this input is valid.
-   * If none have been given or an invalid input has
-   * been detected, return false. If a valid input
-   * was found, TimeColumnName will be set to the
-   * corresponding value after the call.
+   * This function checks if a user specified column has been set and check if
+   * this input is valid. If an invalid input has been detected, return false.
+   * Otherwise, InternalColumnName will be set to the name of the time column
+   * or empty if none has been given by the user.
    */
-  bool EnforceColumnName(vtkTable* inputTable);
+  bool EnforceColumnName();
 
   /**
-   * Setup the InternalReader with the given parameters
-   * and call Update on it to read the input file.
+   * When parameters specific of this reader are modified, we do not want to
+   * re-read the input file. Keep an internal time stamp to track them.
    */
-  void ReadInputFile();
+  void InternalModified();
 
   // Time column fields
   std::string TimeColumnName = "";
+  std::string InternalColumnName = "";
   vtkIdType TimeColumnId = -1;
   bool RemoveTimeStepColumn = true;
-  vtkNew<vtkStringArray> ColumnNames;
   std::map<double, std::vector<vtkIdType> > TimeMap;
 
-  // Reader fields
-  vtkNew<vtkDelimitedTextReader> InternalReader;
-  std::string FileName = "";
-  std::string FieldDelimiterCharacters = "";
-  bool HaveHeaders = false;
-  bool MergeConsecutiveDelimiters = false;
-  bool AddTabFieldDelimiter = false;
+  // Input file content and update
+  vtkNew<vtkTable> ReadTable;
+  vtkMTimeType LastReadTime = 0;
+  vtkTimeStamp InternalMTime;
 
 private:
   vtkTemporalDelimitedTextReader(const vtkTemporalDelimitedTextReader&) = delete;

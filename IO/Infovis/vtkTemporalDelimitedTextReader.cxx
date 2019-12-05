@@ -16,24 +16,22 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDelimitedTextReader.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkSetGet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
-
-#include <algorithm>
+#include <string>
+#include <vector>
 
 vtkStandardNewMacro(vtkTemporalDelimitedTextReader);
 
 //----------------------------------------------------------------------------
 vtkTemporalDelimitedTextReader::vtkTemporalDelimitedTextReader()
 {
-  this->SetNumberOfInputPorts(0);
-  this->ColumnNames->SetNumberOfComponents(1);
-  this->InternalReader->DetectNumericColumnsOn();
+  this->DetectNumericColumnsOn();
 }
 
 //----------------------------------------------------------------------------
@@ -41,11 +39,10 @@ void vtkTemporalDelimitedTextReader::SetTimeColumnName(const std::string name)
 {
   if (this->TimeColumnName.compare(name) != 0)
   {
-    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting TimeColumnName to " << name
-                  << " and TimeColumnId to -1");
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting TimeColumnName to "
+                  << name);
     this->TimeColumnName = name;
-    this->TimeColumnId = -1;
-    this->Modified();
+    this->InternalModified();
   }
 }
 
@@ -54,19 +51,35 @@ void vtkTemporalDelimitedTextReader::SetTimeColumnId(const int idx)
 {
   if (idx != this->TimeColumnId)
   {
-    vtkDebugMacro(<< this->GetClassName() << " (" << this
-                  << "): setting TimeColumnName to '' and TimeColumnId to" << idx);
-    this->TimeColumnName = "";
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting TimeColumnId to" << idx);
     this->TimeColumnId = idx;
-    this->Modified();
+    this->InternalModified();
   }
 }
 
 //----------------------------------------------------------------------------
-int vtkTemporalDelimitedTextReader::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+void vtkTemporalDelimitedTextReader::SetRemoveTimeStepColumn(bool rts)
 {
-  if (this->FieldDelimiterCharacters.empty())
+  if (rts != this->RemoveTimeStepColumn)
+  {
+    vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting RemoveTimeStepColumn to "
+                  << rts);
+    this->RemoveTimeStepColumn = rts;
+    this->InternalModified();
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkTemporalDelimitedTextReader::GetMTime()
+{
+  return std::max(this->MTime, this->InternalMTime);
+}
+
+//----------------------------------------------------------------------------
+int vtkTemporalDelimitedTextReader::RequestInformation(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (strlen(this->FieldDelimiterCharacters) == 0)
   {
     // This reader does not give any output as long as the
     // FieldDelimiterCharacters is not set by the user as we need to parse the
@@ -75,24 +88,36 @@ int vtkTemporalDelimitedTextReader::RequestInformation(vtkInformation* vtkNotUse
     return 1;
   }
 
-  this->ReadInputFile();
-
-  vtkTable* inputTable = vtkTable::SafeDownCast(this->InternalReader->GetOutputDataObject(0));
-  if (!this->EnforceColumnName(inputTable))
+  if (this->MTime > this->LastReadTime)
   {
-    // The filter simply read the CSV, the output will not be temporal in this case
-    return 1;
+    // fill the ReadTable with the actual input
+    // only if modified has been called
+    this->ReadTable->Initialize();
+    this->ReadData(this->ReadTable);
+    this->LastReadTime = this->GetMTime();
+  }
+
+  if (!this->EnforceColumnName())
+  {
+    // Bad user input
+    return 0;
+  }
+
+  if (this->InternalColumnName.empty())
+  {
+    // Output the whole input data, not temporal
+    return this->Superclass::RequestInformation(request, inputVector, outputVector);
   }
 
   // Store each line id in the TimeMap, at the given time step
-  vtkAbstractArray* inputColumnRead = inputTable->GetColumnByName(this->TimeColumnName.c_str());
-  vtkDataArray* inputColumn = vtkDataArray::SafeDownCast(inputColumnRead);
+  vtkDataArray* inputColumn =
+    vtkDataArray::SafeDownCast(this->ReadTable->GetColumnByName(this->InternalColumnName.c_str()));
   const vtkIdType nbRows = inputColumn->GetNumberOfTuples();
   this->TimeMap.clear();
   for (vtkIdType r = 0; r < nbRows; r++)
   {
     double v = inputColumn->GetTuple1(r);
-    if (std::isnan(v))
+    if (vtkMath::IsNan(v))
     {
       vtkWarningMacro("The time step indicator column has a nan value at line: " << r);
     }
@@ -114,61 +139,75 @@ int vtkTemporalDelimitedTextReader::RequestInformation(vtkInformation* vtkNotUse
   {
     timeStepsArray.emplace_back(mapEl.first);
   }
-  outInfo->Set(
-    vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeStepsArray.data(), timeStepsArray.size());
-  return 1;
+  const int nbTimeSteps = static_cast<int>(timeStepsArray.size());
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timeStepsArray.data(), nbTimeSteps);
+
+  return this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
 int vtkTemporalDelimitedTextReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  if (this->FieldDelimiterCharacters.empty())
+  if (strlen(this->FieldDelimiterCharacters) == 0)
   {
     vtkErrorMacro(
       "You need to set the FieldDelimiterCharacters before requesting data with this reader");
     return 0;
   }
 
-  vtkTable* inputTable = vtkTable::SafeDownCast(this->InternalReader->GetOutputDataObject(0));
-  if (inputTable == nullptr)
+  if (!this->EnforceColumnName())
   {
-    vtkErrorMacro("Unable to parse the input file.");
+    vtkErrorMacro("Invalid user input for the Time step indicator.");
     return 0;
   }
 
-  if (!this->EnforceColumnName(inputTable))
+  if (this->InternalColumnName.empty())
   {
     // Shallow copy the internal reader's output as the time column
-    // is either not set or invalid.
+    // has not been set
     vtkTable* outputTable = vtkTable::GetData(outputVector, 0);
-    outputTable->ShallowCopy(this->InternalReader->GetOutputDataObject(0));
+    outputTable->ShallowCopy(this->ReadTable);
     this->UpdateProgress(1);
     return 1;
   }
 
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): process column "
-                << this->TimeColumnName);
+                << this->InternalColumnName);
 
-  // Retreive the current time step
+  // Retrieve the current time step
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  double updateTimeStep = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  double updateTimeStep = 0;
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+  {
+    updateTimeStep = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  }
 
   this->UpdateProgress(0.5);
 
-  // Generate an empty output with the same structure
-  vtkTable* outputTable = vtkTable::GetData(outputVector, 0);
-  vtkDataSetAttributes* outAttributes = outputTable->GetRowData();
-  outAttributes->CopyAllocate(inputTable->GetRowData(), this->TimeMap[updateTimeStep].size());
-  for (auto r : this->TimeMap[updateTimeStep])
+  if (this->TimeMap.size())
   {
-    outputTable->InsertNextRow(inputTable->GetRow(r));
-  }
+    // Generate an empty output with the same structure
+    vtkTable* outputTable = vtkTable::GetData(outputVector, 0);
+    vtkDataSetAttributes* outAttributes = outputTable->GetRowData();
+    auto timeStepDataIt = this->TimeMap.lower_bound(updateTimeStep);
+    if (timeStepDataIt == this->TimeMap.end())
+    {
+      // update time is too high, take last element.
+      --timeStepDataIt;
+    }
+    vtkIdType nbRow = static_cast<vtkIdType>(timeStepDataIt->second.size());
+    outAttributes->CopyAllocate(this->ReadTable->GetRowData(), nbRow);
+    for (auto r : timeStepDataIt->second)
+    {
+      outputTable->InsertNextRow(this->ReadTable->GetRow(r));
+    }
 
-  // Get rid of the time column in the result
-  if (this->RemoveTimeStepColumn)
-  {
-    outputTable->RemoveColumnByName(this->TimeColumnName.c_str());
+    // Get rid of the time column in the result
+    if (this->RemoveTimeStepColumn)
+    {
+      outputTable->RemoveColumnByName(this->InternalColumnName.c_str());
+    }
   }
 
   this->UpdateProgress(1);
@@ -177,35 +216,39 @@ int vtkTemporalDelimitedTextReader::RequestData(vtkInformation* vtkNotUsed(reque
 }
 
 //----------------------------------------------------------------------------
-bool vtkTemporalDelimitedTextReader::EnforceColumnName(vtkTable* inputTable)
+bool vtkTemporalDelimitedTextReader::EnforceColumnName()
 {
+  this->InternalColumnName = "";
+
   if (this->TimeColumnName.empty() && this->TimeColumnId == -1)
   {
-    // No user specified input, the reader simply output the CSV.
-    return 0;
+    // No user specified input, the reader simply output the whole content of
+    // the input file.
+    return 1;
   }
 
   // Set TimeColumnName from user input
   if (this->TimeColumnId != -1)
   {
     // use id to retrieve column
-    if (this->TimeColumnId >= 0 && this->TimeColumnId < inputTable->GetNumberOfColumns())
+    if (this->TimeColumnId >= 0 && this->TimeColumnId < this->ReadTable->GetNumberOfColumns())
     {
-      this->TimeColumnName = inputTable->GetColumnName(this->TimeColumnId);
+      this->InternalColumnName = this->ReadTable->GetColumnName(this->TimeColumnId);
     }
     else
     {
       vtkErrorMacro("Invalid column id: " << this->TimeColumnId);
+      return 0;
     }
   }
-  if (!this->TimeColumnName.empty())
+  else if (!this->TimeColumnName.empty())
   {
     // use name to retrieve column
-    vtkAbstractArray* arr = inputTable->GetColumnByName(this->TimeColumnName.c_str());
+    vtkAbstractArray* arr = this->ReadTable->GetColumnByName(this->TimeColumnName.c_str());
     if (arr == nullptr)
     {
-      vtkWarningMacro("Invalid column name: " << this->TimeColumnName);
-      this->TimeColumnName = "";
+      vtkErrorMacro("Invalid column name: " << this->TimeColumnName);
+      return 0;
     }
     else
     {
@@ -213,39 +256,31 @@ bool vtkTemporalDelimitedTextReader::EnforceColumnName(vtkTable* inputTable)
       vtkDataArray* numArr = vtkDataArray::SafeDownCast(arr);
       if (numArr == nullptr)
       {
-        vtkWarningMacro("Not a numerical column: " << this->TimeColumnName);
-        this->TimeColumnName = "";
+        vtkErrorMacro("Not a numerical column: " << this->TimeColumnName);
+        return 0;
       }
       else if (numArr->GetNumberOfComponents() != 1)
       {
         vtkErrorMacro("The time column must have only one component: " << this->TimeColumnName);
-        this->TimeColumnName = "";
+        return 0;
       }
     }
+    this->InternalColumnName = this->TimeColumnName;
   }
 
-  return !this->TimeColumnName.empty();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkTemporalDelimitedTextReader::ReadInputFile()
+void vtkTemporalDelimitedTextReader::InternalModified()
 {
-  // We need the input data set to be available here
-  // as we will read the column
-  this->InternalReader->SetFileName(this->FileName.c_str());
-  this->InternalReader->SetFieldDelimiterCharacters(this->FieldDelimiterCharacters.c_str());
-  this->InternalReader->SetHaveHeaders(this->HaveHeaders);
-  this->InternalReader->SetMergeConsecutiveDelimiters(this->MergeConsecutiveDelimiters);
-  this->InternalReader->SetAddTabFieldDelimiter(this->AddTabFieldDelimiter);
-  this->InternalReader->Update();
+  this->InternalMTime.Modified();
 }
 
 //----------------------------------------------------------------------------
 void vtkTemporalDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << "Internal vtkDelimitedTextReader: ";
-  this->InternalReader->PrintSelf(os, indent.GetNextIndent());
   os << "TimeColumnName: " << this->TimeColumnName << endl;
   os << "TimeColumnId: " << this->TimeColumnId << endl;
   os << "RemoveTimeStepColumn: " << this->RemoveTimeStepColumn << endl;
