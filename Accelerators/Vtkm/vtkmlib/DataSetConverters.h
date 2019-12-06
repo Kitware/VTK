@@ -25,10 +25,12 @@
 
 #include <vtkm/cont/DataSet.h>
 
-class vtkImageData;
-class vtkStructuredGrid;
-class vtkPoints;
 class vtkDataSet;
+class vtkDataSetAttributes;
+class vtkImageData;
+class vtkPoints;
+class vtkRectilinearGrid;
+class vtkStructuredGrid;
 
 namespace tovtkm
 {
@@ -44,6 +46,20 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields = Fields
 // determine the type and call the proper Convert routine
 VTKACCELERATORSVTKM_EXPORT
 vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields = FieldsFlag::None);
+}
+
+namespace fromvtkm
+{
+
+VTKACCELERATORSVTKM_EXPORT
+void PassAttributesInformation(vtkDataSetAttributes* input, vtkDataSetAttributes* output);
+
+VTKACCELERATORSVTKM_EXPORT
+bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtkDataSet* input);
+
+VTKACCELERATORSVTKM_EXPORT
+bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkStructuredGrid* output, vtkDataSet* input);
+
 }
 
 #endif // vtkmlib_DataSetConverters_h

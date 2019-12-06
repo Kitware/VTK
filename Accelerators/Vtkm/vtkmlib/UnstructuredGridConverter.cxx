@@ -22,6 +22,7 @@
 
 // datasets we support
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCellTypes.h"
 #include "vtkDataObject.h"
 #include "vtkDataObjectTypes.h"
@@ -112,15 +113,8 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vt
   const bool arraysConverted = fromvtkm::ConvertArrays(voutput, output);
 
   // Pass information about attributes.
-  for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES; attributeType++)
-  {
-    vtkDataArray* attribute = input->GetPointData()->GetAttribute(attributeType);
-    if (attribute == nullptr)
-    {
-      continue;
-    }
-    output->GetPointData()->SetActiveAttribute(attribute->GetName(), attributeType);
-  }
+  PassAttributesInformation(input->GetPointData(), output->GetPointData());
+  PassAttributesInformation(input->GetCellData(), output->GetCellData());
 
   return arraysConverted;
 }
