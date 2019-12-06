@@ -975,14 +975,18 @@ PyTypeObject PyVTKReference_Type = { PyVarObject_HEAD_INIT(
   sizeof(PyVTKReference), // tp_basicsize
   0,                      // tp_itemsize
   PyVTKReference_Delete,  // tp_dealloc
-  0,                      // tp_vectorcall_offset
-  nullptr,                // tp_getattr
-  nullptr,                // tp_setattr
-  nullptr,                // tp_compare
-  PyVTKReference_Repr,    // tp_repr
-  nullptr,                // tp_as_number
-  nullptr,                // tp_as_sequence
-  nullptr,                // tp_as_mapping
+#if PY_VERSION_HEX >= 0x03080000
+  0, // tp_vectorcall_offset
+#else
+  nullptr, // tp_print
+#endif
+  nullptr,             // tp_getattr
+  nullptr,             // tp_setattr
+  nullptr,             // tp_compare
+  PyVTKReference_Repr, // tp_repr
+  nullptr,             // tp_as_number
+  nullptr,             // tp_as_sequence
+  nullptr,             // tp_as_mapping
 #if PY_VERSION_HEX >= 0x02060000
   PyObject_HashNotImplemented, // tp_hash
 #else
@@ -1027,10 +1031,14 @@ PyTypeObject PyVTKReference_Type = { PyVarObject_HEAD_INIT(
 //--------------------------------------------------------------------
 PyTypeObject PyVTKNumberReference_Type = { PyVarObject_HEAD_INIT(&PyType_Type,
                                              0) "vtkCommonCorePython.number_reference", // tp_name
-  sizeof(PyVTKReference),   // tp_basicsize
-  0,                        // tp_itemsize
-  PyVTKReference_Delete,    // tp_dealloc
-  0,                        // tp_vectorcall_offset
+  sizeof(PyVTKReference), // tp_basicsize
+  0,                      // tp_itemsize
+  PyVTKReference_Delete,  // tp_dealloc
+#if PY_VERSION_HEX >= 0x03080000
+  0, // tp_vectorcall_offset
+#else
+  nullptr, // tp_print
+#endif
   nullptr,                  // tp_getattr
   nullptr,                  // tp_setattr
   nullptr,                  // tp_compare
@@ -1082,10 +1090,14 @@ PyTypeObject PyVTKNumberReference_Type = { PyVarObject_HEAD_INIT(&PyType_Type,
 //--------------------------------------------------------------------
 PyTypeObject PyVTKStringReference_Type = { PyVarObject_HEAD_INIT(&PyType_Type,
                                              0) "vtkCommonCorePython.string_reference", // tp_name
-  sizeof(PyVTKReference),         // tp_basicsize
-  0,                              // tp_itemsize
-  PyVTKReference_Delete,          // tp_dealloc
-  0,                              // tp_vectorcall_offset
+  sizeof(PyVTKReference), // tp_basicsize
+  0,                      // tp_itemsize
+  PyVTKReference_Delete,  // tp_dealloc
+#if PY_VERSION_HEX >= 0x03080000
+  0, // tp_vectorcall_offset
+#else
+  nullptr, // tp_print
+#endif
   nullptr,                        // tp_getattr
   nullptr,                        // tp_setattr
   nullptr,                        // tp_compare
@@ -1137,10 +1149,14 @@ PyTypeObject PyVTKStringReference_Type = { PyVarObject_HEAD_INIT(&PyType_Type,
 //--------------------------------------------------------------------
 PyTypeObject PyVTKTupleReference_Type = { PyVarObject_HEAD_INIT(&PyType_Type,
                                             0) "vtkCommonCorePython.tuple_reference", // tp_name
-  sizeof(PyVTKReference),     // tp_basicsize
-  0,                          // tp_itemsize
-  PyVTKReference_Delete,      // tp_dealloc
-  0,                          // tp_vectorcall_offset
+  sizeof(PyVTKReference), // tp_basicsize
+  0,                      // tp_itemsize
+  PyVTKReference_Delete,  // tp_dealloc
+#if PY_VERSION_HEX >= 0x03080000
+  0, // tp_vectorcall_offset
+#else
+  nullptr, // tp_print
+#endif
   nullptr,                    // tp_getattr
   nullptr,                    // tp_setattr
   nullptr,                    // tp_compare

@@ -730,8 +730,8 @@ void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction)
     {
       noneDone = 0;
 
-      fprintf(
-        fp, "    ap.Save(%.*stemp%d, %.*ssave%d, ", (n - 1), asterisks, i, (n - 1), asterisks, i);
+      fprintf(fp, "    vtkPythonArgs::Save(%.*stemp%d, %.*ssave%d, ", (n - 1), asterisks, i,
+        (n - 1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
       {
@@ -994,8 +994,8 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
                vtkWrap_IsCharPointer(arg)) &&
       !vtkWrap_IsConst(arg) && !vtkWrap_IsSetVectorMethod(currentFunction))
     {
-      fprintf(fp, "    if (ap.HasChanged(%.*stemp%d, %.*ssave%d, ", (n - 1), asterisks, i, (n - 1),
-        asterisks, i);
+      fprintf(fp, "    if (vtkPythonArgs::HasChanged(%.*stemp%d, %.*ssave%d, ", (n - 1), asterisks,
+        i, (n - 1), asterisks, i);
 
       if (vtkWrap_IsNArray(arg))
       {
@@ -1035,7 +1035,7 @@ static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInf
         "    {\n"
         "      PyObject *vec = (temp%d.size() == 0 ?\n"
         "        PyTuple_New(0) :\n"
-        "        ap.BuildTuple(temp%d.data(), temp%d.size()));\n"
+        "        vtkPythonArgs::BuildTuple(temp%d.data(), temp%d.size()));\n"
         "      ap.SetContents(%d, vec);\n"
         "      Py_DECREF(vec);\n"
         "    }\n"
