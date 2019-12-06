@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
-#include "vtkOpenGLRenderWindow.h"
+#import "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 
 #import "vtkCocoaRenderWindow.h"
@@ -29,9 +29,9 @@
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
-void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void*) = (void (*)(void*))nullptr;
-void* vtkCocoaRenderWindowInteractor::ClassExitMethodArg = (void*)nullptr;
-void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = (void (*)(void*))nullptr;
+void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void*) = nullptr;
+void* vtkCocoaRenderWindowInteractor::ClassExitMethodArg = nullptr;
+void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void*) = nullptr;
 
 //----------------------------------------------------------------------------
 // This is a private class and an implementation detail, do not use it.
@@ -265,7 +265,7 @@ void vtkCocoaRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   vtkCocoaRenderWindow* renWin = (vtkCocoaRenderWindow*)(this->RenderWindow);
   renWin->Start();
-  int* size = renWin->GetSize();
+  const int* size = renWin->GetSize();
 
   renWin->GetPosition(); // update values of this->Position[2]
 
