@@ -449,10 +449,12 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
   // Generate depth
   {
-    // Attache texture every time, since it will be swapped out during smoothing
-    this->FBFluidEyeZ->AddColorAttachment(0, this->TexBuffer[FluidEyeZ]);
+    // Attach texture every time, since it will be swapped out during smoothing
     this->FBFluidEyeZ->SaveCurrentBindingsAndBuffers();
-    this->FBFluidEyeZ->Bind();
+    this->FBFluidEyeZ->Bind(GL_FRAMEBUFFER);
+    this->FBFluidEyeZ->AddColorAttachment(0U, this->TexBuffer[FluidEyeZ]);
+    this->FBFluidEyeZ->ActivateDrawBuffers(1);
+    this->FBFluidEyeZ->CheckFrameBufferStatus(GL_FRAMEBUFFER);
     glState->vtkglDisable(GL_SCISSOR_TEST);
     glState->vtkglClearDepth(1.0);
     glState->vtkglColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -470,6 +472,8 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     this->RenderParticles(renderer, vol);
     this->InDepthPass = false;
     this->TexBuffer[OpaqueZ]->Deactivate();
+    this->FBFluidEyeZ->RemoveColorAttachment(0U);
+    this->FBFluidEyeZ->DeactivateDrawBuffers();
     this->FBFluidEyeZ->RestorePreviousBindingsAndBuffers();
   }
 
@@ -477,12 +481,15 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
   {
     // Attache texture every time, since it will be swapped out during smoothing
     this->FBThickness->SaveCurrentBindingsAndBuffers();
-    this->FBThickness->Bind();
-    this->FBThickness->AddColorAttachment(0, this->TexBuffer[FluidThickness]);
+    this->FBThickness->Bind(GL_FRAMEBUFFER);
+    this->FBThickness->AddColorAttachment(0U, this->TexBuffer[FluidThickness]);
+    this->FBThickness->ActivateDrawBuffers(1);
+    this->FBThickness->CheckFrameBufferStatus(GL_FRAMEBUFFER);
     if (this->HasVertexColor)
     {
       this->FBThickness->AddColorAttachment(1, this->OptionalTexBuffer[Color]);
       this->FBThickness->ActivateDrawBuffers(2);
+      this->FBThickness->CheckFrameBufferStatus(GL_FRAMEBUFFER);
     }
     glState->vtkglDisable(GL_SCISSOR_TEST);
     glState->vtkglClearDepth(1.0);
@@ -499,6 +506,12 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     glState->vtkglDepthFunc(GL_ALWAYS);
     this->RenderParticles(renderer, vol);
     this->TexBuffer[OpaqueZ]->Deactivate();
+    this->FBThickness->DeactivateDrawBuffers();
+    if (this->HasVertexColor)
+    {
+      this->FBThickness->RemoveColorAttachment(1U);
+    }
+    this->FBThickness->RemoveColorAttachment(0U);
     this->FBThickness->RestorePreviousBindingsAndBuffers();
   }
 
@@ -523,13 +536,19 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
     // Attache texture every time, since it will be swapped out during smoothing
     this->FBFilterThickness->SaveCurrentBindingsAndBuffers();
-    this->FBFilterThickness->Bind();
 
     for (uint32_t iter = 0; iter < this->ThicknessAndVolumeColorFilterIterations;
          ++iter)
     {
+      this->FBFilterThickness->Bind(GL_FRAMEBUFFER);
       this->FBFilterThickness->AddColorAttachment(
-        0, this->TexBuffer[SmoothedFluidThickness]);
+        0U, this->TexBuffer[SmoothedFluidThickness]);
+      this->FBFilterThickness->ActivateDrawBuffers(1);
+      this->FBFilterThickness->CheckFrameBufferStatus(GL_FRAMEBUFFER);
+      glState->vtkglClearDepth(1.0);
+      glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+      glState->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+      glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       if (this->HasVertexColor)
       {
         this->FBFilterThickness->AddColorAttachment(
@@ -553,6 +572,8 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
       this->QuadThicknessFilter->Render();
       this->TexBuffer[FluidThickness]->Deactivate();
+      this->FBFilterThickness->DeactivateDrawBuffers();
+      this->FBFilterThickness->RemoveColorAttachment(0U);
 
       std::swap(this->TexBuffer[FluidThickness],
                 this->TexBuffer[SmoothedFluidThickness]);
@@ -603,19 +624,25 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
         this->QuadFluidDepthFilter[SurfaceFilterMethod]->Program;
       assert(program);
       this->FBFilterDepth->SaveCurrentBindingsAndBuffers();
-      this->FBFilterDepth->Bind();
 
       program->SetUniformi("viewportHeight", this->ViewportHeight);
       program->SetUniformi("viewportWidth", this->ViewportWidth);
       program->SetUniformi("filterRadius",
                             static_cast<int>(this->SurfaceFilterRadius));
       program->SetUniformf("particleRadius", this->ParticleRadius);
+      program->SetUniformf("farZValue", -crange[1]);
 
       for (uint32_t iter = 0; iter < this->SurfaceFilterIterations; ++iter)
       {
+        this->FBFilterDepth->Bind(GL_FRAMEBUFFER);
         this->FBFilterDepth->AddColorAttachment(
-          0, this->TexBuffer[SmoothedFluidEyeZ]); // Replace color attachement
-        program->SetUniformf("farZValue", -crange[1]);
+          0U, this->TexBuffer[SmoothedFluidEyeZ]); // Replace color attachement
+        this->FBFilterDepth->ActivateDrawBuffers(1);
+        this->FBFilterDepth->CheckFrameBufferStatus(GL_FRAMEBUFFER);
+        glState->vtkglClearDepth(1.0);
+        glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+        glState->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+        glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         switch (SurfaceFilterMethod)
         {
@@ -638,6 +665,8 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
         this->QuadFluidDepthFilter[SurfaceFilterMethod]->Render();
         this->TexBuffer[FluidEyeZ]->Deactivate();
+        this->FBFilterDepth->DeactivateDrawBuffers();
+        this->FBFilterDepth->RemoveColorAttachment(0);
 
         // Swap the filtered buffers
         std::swap(this->TexBuffer[FluidEyeZ],
@@ -666,7 +695,9 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     assert(program);
 
     this->FBCompNormal->SaveCurrentBindingsAndBuffers();
-    this->FBCompNormal->Bind();
+    this->FBCompNormal->Bind(GL_FRAMEBUFFER);
+    this->FBCompNormal->ActivateDrawBuffers(1);
+    this->FBCompNormal->CheckFrameBufferStatus(GL_FRAMEBUFFER);
 
     this->TexBuffer[FluidEyeZ]->Activate();
     program->SetUniformi("fluidZTexture",
@@ -681,9 +712,12 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     glState->vtkglDepthMask(GL_FALSE);
     glState->vtkglDisable(GL_DEPTH_TEST);
     glState->vtkglDepthFunc(GL_ALWAYS);
+    glState->vtkglClearColor(0.0, 0.0, 0.0, 0.0);
+    glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->QuadFluidNormal->Render();
     this->TexBuffer[FluidEyeZ]->Deactivate();
+    this->FBCompNormal->DeactivateDrawBuffers();
     this->FBCompNormal->RestorePreviousBindingsAndBuffers();
   }
 
