@@ -26,8 +26,8 @@
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLQuadHelper.h"
-#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLTexture.h"
@@ -42,7 +42,6 @@
 #include "vtkTextureObject.h"
 #include "vtkVolumeProperty.h"
 
-
 #include "vtkFluidMapperDepthFilterBiGaussFS.h"
 #include "vtkFluidMapperDepthFilterNarrowRangeFS.h"
 #include "vtkFluidMapperFS.h"
@@ -51,7 +50,6 @@
 #include "vtkFluidMapperSurfaceNormalFS.h"
 #include "vtkFluidMapperThicknessAndVolumeColorFilterFS.h"
 #include "vtkFluidMapperVS.h"
-
 
 #include "vtk_glew.h"
 
@@ -62,9 +60,9 @@
 vtkStandardNewMacro(vtkOpenGLFluidMapper)
 
 //-----------------------------------------------------------------------------
-vtkOpenGLFluidMapper::vtkOpenGLFluidMapper() :
-  VBOs(vtkOpenGLVertexBufferObjectGroup::New()),
-  TempMatrix4(vtkMatrix4x4::New())
+vtkOpenGLFluidMapper::vtkOpenGLFluidMapper()
+  : VBOs(vtkOpenGLVertexBufferObjectGroup::New())
+  , TempMatrix4(vtkMatrix4x4::New())
 {
   for (int i = 0; i < NumTexBuffers; ++i)
   {
@@ -96,17 +94,16 @@ vtkOpenGLFluidMapper::~vtkOpenGLFluidMapper()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLFluidMapper::SetInputData(vtkPolyData *input)
+void vtkOpenGLFluidMapper::SetInputData(vtkPolyData* input)
 {
   this->SetInputDataInternal(0, input);
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
-vtkPolyData *vtkOpenGLFluidMapper::GetInput()
+vtkPolyData* vtkOpenGLFluidMapper::GetInput()
 {
-  return vtkPolyData::SafeDownCast(
-    this->GetExecutive()->GetInputData(0, 0));
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0));
 }
 
 //-----------------------------------------------------------------------------
@@ -201,8 +198,8 @@ void vtkOpenGLFluidMapper::SetDepthThicknessColorShaderParameters(
   if (!this->InDepthPass)
   {
     // based on clipping range
-    program->SetUniformf("minThickness",
-      ren->GetActiveCamera()->GetClippingRange()[1]*1.0e-9);
+    program->SetUniformf(
+      "minThickness", ren->GetActiveCamera()->GetClippingRange()[1] * 1.0e-9);
   }
   if (this->HasVertexColor)
   {
@@ -395,8 +392,7 @@ void vtkOpenGLFluidMapper::SetupBuffers(
 void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 {
   // make sure we have data
-  vtkPolyData* input =
-    vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
   if (input == nullptr || input->GetPoints() == nullptr)
   {
     return;
@@ -404,14 +400,16 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
   // check to see if we are using vertex coloring
   int cellFlag = 0;
-  vtkDataArray* scalars =
-    this->GetScalars(input, this->ScalarMode, this->ArrayAccessMode,
-      this->ArrayId, this->ArrayName, cellFlag);
+  vtkDataArray* scalars = this->GetScalars(input,
+                                           this->ScalarMode,
+                                           this->ArrayAccessMode,
+                                           this->ArrayId,
+                                           this->ArrayName,
+                                           cellFlag);
 
   this->HasVertexColor = false;
-  if (scalars && cellFlag == 0
-      && scalars->GetNumberOfComponents() == 3
-      && this->ScalarVisibility)
+  if (scalars && cellFlag == 0 && scalars->GetNumberOfComponents() == 3 &&
+      this->ScalarVisibility)
   {
     this->HasVertexColor = true;
   }
@@ -424,7 +422,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
   // Get the camera parameters
   const auto cam = static_cast<vtkOpenGLCamera*>(renderer->GetActiveCamera());
-  vtkMatrix3x3 *tmpNormMat;
+  vtkMatrix3x3* tmpNormMat;
   cam->GetKeyMatrices(
     renderer, this->CamWCVC, tmpNormMat, this->CamVCDC, this->CamWCDC);
   this->CamDCVC->DeepCopy(this->CamVCDC);
@@ -445,7 +443,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
   glState->vtkglDisable(GL_MULTISAMPLE);
 #endif
 
-  double *crange = cam->GetClippingRange();
+  double* crange = cam->GetClippingRange();
 
   // Generate depth
   {
@@ -459,8 +457,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     glState->vtkglClearDepth(1.0);
     glState->vtkglColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_FALSE);
     // Set a clear color value to be slightly past the far clipping plane
-    glState->vtkglClearColor(
-      -1.1*crange[1], 0.0, 0.0, 0.0);
+    glState->vtkglClearColor(-1.1 * crange[1], 0.0, 0.0, 0.0);
     glState->vtkglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render the spheres to get the eye coordinate z values
@@ -537,7 +534,8 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     // Attache texture every time, since it will be swapped out during smoothing
     this->FBFilterThickness->SaveCurrentBindingsAndBuffers();
 
-    for (uint32_t iter = 0; iter < this->ThicknessAndVolumeColorFilterIterations;
+    for (uint32_t iter = 0;
+         iter < this->ThicknessAndVolumeColorFilterIterations;
          ++iter)
     {
       this->FBFilterThickness->Bind(GL_FRAMEBUFFER);
@@ -628,7 +626,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
       program->SetUniformi("viewportHeight", this->ViewportHeight);
       program->SetUniformi("viewportWidth", this->ViewportWidth);
       program->SetUniformi("filterRadius",
-                            static_cast<int>(this->SurfaceFilterRadius));
+                           static_cast<int>(this->SurfaceFilterRadius));
       program->SetUniformf("particleRadius", this->ParticleRadius);
       program->SetUniformf("farZValue", -crange[1]);
 
@@ -661,7 +659,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
         glState->vtkglEnable(GL_DEPTH_TEST);
         this->TexBuffer[FluidEyeZ]->Activate();
         program->SetUniformi("fluidZTexture",
-          this->TexBuffer[FluidEyeZ]->GetTextureUnit());
+                             this->TexBuffer[FluidEyeZ]->GetTextureUnit());
 
         this->QuadFluidDepthFilter[SurfaceFilterMethod]->Render();
         this->TexBuffer[FluidEyeZ]->Deactivate();
@@ -701,7 +699,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 
     this->TexBuffer[FluidEyeZ]->Activate();
     program->SetUniformi("fluidZTexture",
-      this->TexBuffer[FluidEyeZ]->GetTextureUnit());
+                         this->TexBuffer[FluidEyeZ]->GetTextureUnit());
 
     program->SetUniformi("viewportHeight", this->ViewportHeight);
     program->SetUniformi("viewportWidth", this->ViewportWidth);
@@ -721,7 +719,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     this->FBCompNormal->RestorePreviousBindingsAndBuffers();
   }
 
-  vtkOpenGLRenderer *oren = static_cast<vtkOpenGLRenderer *>(renderer);
+  vtkOpenGLRenderer* oren = static_cast<vtkOpenGLRenderer*>(renderer);
 
   // Restore the original viewport properties
   glState->vtkglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -733,7 +731,8 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
                        : glState->vtkglDisable(GL_SCISSOR_TEST);
 
   {
-    bool useIBL = oren->GetUseImageBasedLighting() && oren->GetEnvironmentCubeMap();
+    bool useIBL =
+      oren->GetUseImageBasedLighting() && oren->GetEnvironmentCubeMap();
 
     // Final blend, render everything
     if (!this->QuadFinalBlend)
@@ -743,96 +742,127 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
       // todo this needs to be done when the lighting code changes
       // if the light complexity changed then update the shader code
       std::string fssource = vtkFluidMapperFinalFS;
-      vtkShaderProgram::Substitute(fssource,"//VTK::Light::Dec", oren->GetLightingUniforms());
+      vtkShaderProgram::Substitute(
+        fssource, "//VTK::Light::Dec", oren->GetLightingUniforms());
       switch (oren->GetLightingComplexity())
       {
         // no lighting
         case 0:
-          vtkShaderProgram::Substitute(fssource, "//VTK::Light::Impl",
+          vtkShaderProgram::Substitute(
+            fssource,
+            "//VTK::Light::Impl",
             "  accumulatedLightSpecularColor = vec3(1.0,1.0,1.0);",
-            false
-            );
+            false);
           break;
 
         // headlight
         case 1:
-          vtkShaderProgram::Substitute(fssource, "//VTK::Light::Impl",
+          vtkShaderProgram::Substitute(
+            fssource,
+            "//VTK::Light::Impl",
             "  float df = max(0.0,N.z);\n"
             "  float sf = pow(df, fluidShininess);\n"
             "  accumulatedLightDiffuseColor = df * lightColor0;\n"
             "  accumulatedLightSpecularColor = sf * lightColor0;\n"
             "  //VTK::Light::Impl\n",
-            false
-            );
+            false);
           break;
         case 2:
-          toString <<
-            "  float df;\n"
-            "  float sf;\n";
+          toString << "  float df;\n"
+                      "  float sf;\n";
           for (int i = 0; i < oren->GetLightingCount(); ++i)
           {
-            toString <<
-              "  df = max(0.0, dot(N, -lightDirectionVC" << i << "));\n"
-              "  accumulatedLightDiffuseColor += (df * lightColor" << i << ");\n" <<
-              "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC" <<i <<
-              "     , N), normalize(-position))), fluidShininess);\n"
-              "  accumulatedLightSpecularColor += (sf * lightColor" << i << ");\n";
+            toString
+              << "  df = max(0.0, dot(N, -lightDirectionVC" << i
+              << "));\n"
+                 "  accumulatedLightDiffuseColor += (df * lightColor"
+              << i << ");\n"
+              << "  sf = sign(df)*pow(max(0.0, dot( reflect(lightDirectionVC"
+              << i
+              << "     , N), normalize(-position))), fluidShininess);\n"
+                 "  accumulatedLightSpecularColor += (sf * lightColor"
+              << i << ");\n";
           }
-          vtkShaderProgram::Substitute(fssource,"//VTK::Light::Impl",
-            toString.str(), false);
+          vtkShaderProgram::Substitute(
+            fssource, "//VTK::Light::Impl", toString.str(), false);
           break;
         case 3:
-          toString <<
-            "  vec3 vertLightDirectionVC;\n"
-            "  float attenuation;\n"
-            "  float df;\n"
-            "  float sf;\n"
-            ;
+          toString << "  vec3 vertLightDirectionVC;\n"
+                      "  float attenuation;\n"
+                      "  float df;\n"
+                      "  float sf;\n";
           for (int i = 0; i < oren->GetLightingCount(); ++i)
           {
-            toString <<
-              "    attenuation = 1.0;\n"
-              "    if (lightPositional" << i << " == 0) {\n"
-              "      vertLightDirectionVC = lightDirectionVC" << i << "; }\n"
-              "    else {\n"
-              "      vertLightDirectionVC = position - lightPositionVC" << i << ";\n"
-              "      float distanceVC = length(vertLightDirectionVC);\n"
-              "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
-              "      attenuation = 1.0 /\n"
-              "        (lightAttenuation" << i << ".x\n"
-              "         + lightAttenuation" << i << ".y * distanceVC\n"
-              "         + lightAttenuation" << i << ".z * distanceVC * distanceVC);\n"
-              "      // per OpenGL standard cone angle is 90 or less for a spot light\n"
-              "      if (lightConeAngle" << i << " <= 90.0) {\n"
-              "        float coneDot = dot(vertLightDirectionVC, lightDirectionVC" << i << ");\n"
-              "        // if inside the cone\n"
-              "        if (coneDot >= cos(radians(lightConeAngle" << i << "))) {\n"
-              "          attenuation = attenuation * pow(coneDot, lightExponent" << i << "); }\n"
-              "        else {\n"
-              "          attenuation = 0.0; }\n"
-              "        }\n"
-              "      }\n" <<
-              "    df = max(0.0,attenuation*dot(N, -vertLightDirectionVC));\n"
-              "    accumulatedLightDiffuseColor += (df * lightColor" << i << ");\n" <<
-              "    sf = sign(df)*attenuation*pow( max(0.0, dot( reflect(vertLightDirectionVC, N), normalize(-position))), fluidShininess);\n"
-              "    accumulatedLightSpecularColor += (sf * lightColor" << i << ");\n";
+            toString
+              << "    attenuation = 1.0;\n"
+                 "    if (lightPositional"
+              << i
+              << " == 0) {\n"
+                 "      vertLightDirectionVC = lightDirectionVC"
+              << i
+              << "; }\n"
+                 "    else {\n"
+                 "      vertLightDirectionVC = position - lightPositionVC"
+              << i
+              << ";\n"
+                 "      float distanceVC = length(vertLightDirectionVC);\n"
+                 "      vertLightDirectionVC = "
+                 "normalize(vertLightDirectionVC);\n"
+                 "      attenuation = 1.0 /\n"
+                 "        (lightAttenuation"
+              << i
+              << ".x\n"
+                 "         + lightAttenuation"
+              << i
+              << ".y * distanceVC\n"
+                 "         + lightAttenuation"
+              << i
+              << ".z * distanceVC * distanceVC);\n"
+                 "      // per OpenGL standard cone angle is 90 or less for a "
+                 "spot light\n"
+                 "      if (lightConeAngle"
+              << i
+              << " <= 90.0) {\n"
+                 "        float coneDot = dot(vertLightDirectionVC, "
+                 "lightDirectionVC"
+              << i
+              << ");\n"
+                 "        // if inside the cone\n"
+                 "        if (coneDot >= cos(radians(lightConeAngle"
+              << i
+              << "))) {\n"
+                 "          attenuation = attenuation * pow(coneDot, "
+                 "lightExponent"
+              << i
+              << "); }\n"
+                 "        else {\n"
+                 "          attenuation = 0.0; }\n"
+                 "        }\n"
+                 "      }\n"
+              << "    df = max(0.0,attenuation*dot(N, "
+                 "-vertLightDirectionVC));\n"
+                 "    accumulatedLightDiffuseColor += (df * lightColor"
+              << i << ");\n"
+              << "    sf = sign(df)*attenuation*pow( max(0.0, dot( "
+                 "reflect(vertLightDirectionVC, N), normalize(-position))), "
+                 "fluidShininess);\n"
+                 "    accumulatedLightSpecularColor += (sf * lightColor"
+              << i << ");\n";
           }
 
-          vtkShaderProgram::Substitute(fssource,"//VTK::Light::Impl",
-            toString.str(), false);
+          vtkShaderProgram::Substitute(
+            fssource, "//VTK::Light::Impl", toString.str(), false);
           break;
       }
 
       if (useIBL)
       {
-        vtkShaderProgram::Substitute(fssource, "//VTK::UseIBL::Dec",
-          "#define UseIBL",
-          false
-          );
+        vtkShaderProgram::Substitute(
+          fssource, "//VTK::UseIBL::Dec", "#define UseIBL", false);
       }
 
-      this->QuadFinalBlend = new vtkOpenGLQuadHelper(
-        renderWindow, nullptr, fssource.c_str(), "");
+      this->QuadFinalBlend =
+        new vtkOpenGLQuadHelper(renderWindow, nullptr, fssource.c_str(), "");
     }
     else
     {
@@ -848,7 +878,8 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     // Add IBL textures
     if (useIBL)
     {
-      program->SetUniformi("prefilterTex", oren->GetEnvMapPrefiltered()->GetTextureUnit());
+      program->SetUniformi("prefilterTex",
+                           oren->GetEnvMapPrefiltered()->GetTextureUnit());
       program->SetUniformMatrix("invNormalMatrix", this->CamInvertedNorms);
     }
 
@@ -899,11 +930,11 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     }
 
     program->SetUniformi("displayModeOpaqueSurface",
-      this->DisplayMode == UnfilteredOpaqueSurface ||
-        this->DisplayMode == FilteredOpaqueSurface);
+                         this->DisplayMode == UnfilteredOpaqueSurface ||
+                           this->DisplayMode == FilteredOpaqueSurface);
     program->SetUniformi("displayModeSurfaceNormal",
-      this->DisplayMode == UnfilteredSurfaceNormal ||
-        this->DisplayMode == FilteredSurfaceNormal);
+                         this->DisplayMode == UnfilteredSurfaceNormal ||
+                           this->DisplayMode == FilteredSurfaceNormal);
     program->SetUniformf("attenuationScale", this->AttenuationScale);
     program->SetUniformf("additionalReflection", this->AdditionalReflection);
     program->SetUniformf("refractiveIndex", this->RefractiveIndex);
@@ -936,8 +967,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
 void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer,
                                            vtkVolume* vol)
 {
-  vtkPolyData* input =
-    vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
+  vtkPolyData* input = vtkPolyData::SafeDownCast(GetInputDataObject(0, 0));
   if (input == nullptr || input->GetPoints() == nullptr)
   {
     return;
@@ -951,11 +981,13 @@ void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer,
     if (this->HasVertexColor)
     {
       int cellFlag = 0;
-      vtkDataArray* scalars =
-        this->GetScalars(input, this->ScalarMode, this->ArrayAccessMode,
-          this->ArrayId, this->ArrayName, cellFlag);
-      this->VBOs->CacheDataArray(
-        "vertexColor", scalars, renderer, VTK_FLOAT);
+      vtkDataArray* scalars = this->GetScalars(input,
+                                               this->ScalarMode,
+                                               this->ArrayAccessMode,
+                                               this->ArrayId,
+                                               this->ArrayName,
+                                               cellFlag);
+      this->VBOs->CacheDataArray("vertexColor", scalars, renderer, VTK_FLOAT);
     }
     this->VBOs->BuildAllVBOs(renderer);
 
@@ -978,7 +1010,7 @@ void vtkOpenGLFluidMapper::RenderParticles(vtkRenderer* renderer,
 //-----------------------------------------------------------------------------
 // Description:
 // Destructor. Delete SourceCode if any.
-void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow *w)
+void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow* w)
 {
   if (this->FBFluidEyeZ != nullptr)
   {
@@ -986,7 +1018,7 @@ void vtkOpenGLFluidMapper::ReleaseGraphicsResources(vtkWindow *w)
     this->FBFluidEyeZ->UnRegister(this);
     this->FBFluidEyeZ = nullptr;
   }
-  if (this->FBThickness !=nullptr)
+  if (this->FBThickness != nullptr)
   {
     this->FBThickness->ReleaseGraphicsResources(w);
     this->FBThickness->UnRegister(this);

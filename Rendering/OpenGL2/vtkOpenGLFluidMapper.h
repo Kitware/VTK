@@ -23,10 +23,11 @@
 #ifndef vtkOpenGLFluidMapper_h
 #define vtkOpenGLFluidMapper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkAbstractVolumeMapper.h"
-#include "vtkShader.h"                 // for methods
+
 #include "vtkOpenGLHelper.h"           // used for ivars
+#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkShader.h"                 // for methods
 #include "vtkSmartPointer.h"           // for ivars
 
 #include <map> //for methods
@@ -41,18 +42,20 @@ class vtkOpenGLVertexBufferObjectGroup;
 class vtkPolyData;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFluidMapper : public vtkAbstractVolumeMapper {
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFluidMapper
+  : public vtkAbstractVolumeMapper
+{
 public:
   static vtkOpenGLFluidMapper* New();
-  vtkTypeMacro(vtkOpenGLFluidMapper, vtkAbstractVolumeMapper)
+  vtkTypeMacro(vtkOpenGLFluidMapper, vtkAbstractVolumeMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Specify the input data to map.
    */
-  void SetInputData(vtkPolyData *in);
-  vtkPolyData *GetInput();
+  void SetInputData(vtkPolyData* in);
+  vtkPolyData* GetInput();
   //@}
 
   //@{
@@ -69,10 +72,11 @@ public:
    * Set/Get the particle radius, must be explicitly set by user
    * To fuse the gaps between particles and obtain a smooth surface,
    * this parameter need to be slightly larger than the actual particle radius,
-   * (particle radius is the half distance between two consecutive particles in regular pattern sampling)
+   * (particle radius is the half distance between two consecutive particles in
+   * regular pattern sampling)
    */
-  vtkSetMacro(ParticleRadius, float)
-  vtkGetMacro(ParticleRadius, float)
+  vtkSetMacro(ParticleRadius, float);
+  vtkGetMacro(ParticleRadius, float);
   //@}
 
   //@{
@@ -82,17 +86,17 @@ public:
    * Usually set this to around 3-5
    * Too many filter iterations will over-smooth the surface
    */
-  vtkSetMacro(SurfaceFilterIterations, uint32_t)
-  vtkGetMacro(SurfaceFilterIterations, uint32_t)
+  vtkSetMacro(SurfaceFilterIterations, uint32_t);
+  vtkGetMacro(SurfaceFilterIterations, uint32_t);
   //@}
 
   //@{
   /**
-   * Get/Set the number of filter iterations to filter the volume thickness and particle color
-   * This is an optional parameter, default value is 3
+   * Get/Set the number of filter iterations to filter the volume thickness
+   * and particle color This is an optional parameter, default value is 3
    */
-  vtkSetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t)
-  vtkGetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t)
+  vtkSetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t);
+  vtkGetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t);
   //@}
 
   //@{
@@ -100,25 +104,27 @@ public:
    * Get/Set the filter radius for smoothing the depth surface
    * This is an optional parameter, default value is 5
    * This is not exactly the radius in pixels,
-   * instead it is just a parameter used for computing the actual filter radius in the screen space filtering
+   * instead it is just a parameter used for computing the actual filter
+   * radius in the screen space filtering
    */
-  vtkSetMacro(SurfaceFilterRadius, uint32_t)
-  vtkGetMacro(SurfaceFilterRadius, uint32_t)
+  vtkSetMacro(SurfaceFilterRadius, uint32_t);
+  vtkGetMacro(SurfaceFilterRadius, uint32_t);
   //@}
 
   //@{
   /**
-   * Get/Set the filter radius to filter the volume thickness and particle color
-   * This is an optional parameter, default value is 10 (pixels)
+   * Get/Set the filter radius to filter the volume thickness and particle
+   * color This is an optional parameter, default value is 10 (pixels)
    */
-  vtkSetMacro(ThicknessAndVolumeColorFilterRadius, float)
-  vtkGetMacro(ThicknessAndVolumeColorFilterRadius, float)
+  vtkSetMacro(ThicknessAndVolumeColorFilterRadius, float);
+  vtkGetMacro(ThicknessAndVolumeColorFilterRadius, float);
   //@}
 
   /**
    * Filter method to filter the depth buffer
    */
-  enum FluidSurfaceFilterMethod {
+  enum FluidSurfaceFilterMethod
+  {
     BilateralGaussian = 0,
     NarrowRange,
     // New filter method can be added here,
@@ -129,8 +135,10 @@ public:
   /**
    * Get/Set the filter method for filtering fluid surface
    */
-  vtkSetMacro(SurfaceFilterMethod, vtkOpenGLFluidMapper::FluidSurfaceFilterMethod)
-  vtkGetMacro(SurfaceFilterMethod, vtkOpenGLFluidMapper::FluidSurfaceFilterMethod)
+  vtkSetMacro(SurfaceFilterMethod,
+              vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
+  vtkGetMacro(SurfaceFilterMethod,
+              vtkOpenGLFluidMapper::FluidSurfaceFilterMethod);
   //@}
 
   /**
@@ -138,20 +146,26 @@ public:
    * The first parameter is to control smoothing between surface depth values
    * The second parameter is to control curvature of the surface edges
    */
-  void SetNarrowRangeFilterParameters(float lambda, float mu) {
-    this->NRFilterLambda = lambda; this->NRFilterMu = mu; }
+  void SetNarrowRangeFilterParameters(float lambda, float mu)
+  {
+    this->NRFilterLambda = lambda;
+    this->NRFilterMu = mu;
+  }
 
   /**
    * Optional parameters, exclusively for bilateral gaussian filter
    * The parameter is for controlling smoothing between surface depth values
    */
-  void SetBilateralGaussianFilterParameter(float sigmaDepth) {
-    this->BiGaussFilterSigmaDepth = sigmaDepth; }
+  void SetBilateralGaussianFilterParameter(float sigmaDepth)
+  {
+    this->BiGaussFilterSigmaDepth = sigmaDepth;
+  }
 
   /**
    * Display mode for the fluid, default value is TransparentFluidVolume
    */
-  enum FluidDisplayMode {
+  enum FluidDisplayMode
+  {
     UnfilteredOpaqueSurface = 0,
     FilteredOpaqueSurface,
     UnfilteredSurfaceNormal,
@@ -164,17 +178,18 @@ public:
   /**
    * Get/Set the display mode
    */
-  vtkSetMacro(DisplayMode, vtkOpenGLFluidMapper::FluidDisplayMode)
-  vtkGetMacro(DisplayMode, vtkOpenGLFluidMapper::FluidDisplayMode)
+  vtkSetMacro(DisplayMode, vtkOpenGLFluidMapper::FluidDisplayMode);
+  vtkGetMacro(DisplayMode, vtkOpenGLFluidMapper::FluidDisplayMode);
   //@}
 
   //@{
   /**
    * Get/Set the fluid attenuation color
-   * (color that will be absorpted exponentially when going through the fluid volume)
+   * (color that will be absorpted exponentially when going through the fluid
+   * volume)
    */
-  vtkSetVector3Macro(AttenuationColor, float)
-  vtkGetVector3Macro(AttenuationColor, float)
+  vtkSetVector3Macro(AttenuationColor, float);
+  vtkGetVector3Macro(AttenuationColor, float);
   //@}
 
   //@{
@@ -182,28 +197,30 @@ public:
    * Get/Set the fluid surface color if rendered in opaque surface mode
    * without particle color
    */
-  vtkSetVector3Macro(OpaqueColor, float)
-  vtkGetVector3Macro(OpaqueColor, float)
+  vtkSetVector3Macro(OpaqueColor, float);
+  vtkGetVector3Macro(OpaqueColor, float);
   //@}
 
   //@{
   /**
-   * Get/Set the power value for particle color if input data has particle color
-   * Default value is 0.1, and can be set to any non-negative number
-   * The particle color is then recomputed as newColor = pow(oldColor, power) * scale
+   * Get/Set the power value for particle color if input data has particle
+   * color Default value is 0.1, and can be set to any non-negative number The
+   * particle color is then recomputed as newColor = pow(oldColor, power) *
+   * scale
    */
-  vtkSetMacro(ParticleColorPower, float)
-  vtkGetMacro(ParticleColorPower, float)
+  vtkSetMacro(ParticleColorPower, float);
+  vtkGetMacro(ParticleColorPower, float);
   //@}
 
   //@{
   /**
-   * Get/Set the scale value for particle color if input data has particle color
-   * Default value is 1.0, and can be set to any non-negative number
-   * The particle color is then recomputed as newColor = pow(oldColor, power) * scale
+   * Get/Set the scale value for particle color if input data has particle
+   * color Default value is 1.0, and can be set to any non-negative number The
+   * particle color is then recomputed as newColor = pow(oldColor, power) *
+   * scale
    */
-  vtkSetMacro(ParticleColorScale, float)
-  vtkGetMacro(ParticleColorScale, float)
+  vtkSetMacro(ParticleColorScale, float);
+  vtkGetMacro(ParticleColorScale, float);
   //@}
 
   //@{
@@ -213,8 +230,8 @@ public:
    * non-negative number The larger attennuation scale, the darker fluid
    * color
    */
-  vtkSetMacro(AttenuationScale, float)
-  vtkGetMacro(AttenuationScale, float)
+  vtkSetMacro(AttenuationScale, float);
+  vtkGetMacro(AttenuationScale, float);
   //@}
 
   //@{
@@ -224,8 +241,8 @@ public:
    * equation, and 1 means using reflection color as [1, 1, 1] Default value
    * is 0
    */
-  vtkSetMacro(AdditionalReflection, float)
-  vtkGetMacro(AdditionalReflection, float)
+  vtkSetMacro(AdditionalReflection, float);
+  vtkGetMacro(AdditionalReflection, float);
   //@}
 
   //@{
@@ -235,16 +252,16 @@ public:
    * volume having diameter of 100.0 will refract light much more than
    * volume with diameter 1.0 This value is in [0, 1], default value is 1.0
    */
-  vtkSetMacro(RefractionScale, float)
-  vtkGetMacro(RefractionScale, float)
+  vtkSetMacro(RefractionScale, float);
+  vtkGetMacro(RefractionScale, float);
   //@}
 
   //@{
   /**
    * Get/Set the fluid refraction index. The default value is 1.33 (water)
    */
-  vtkSetMacro(RefractiveIndex, float)
-  vtkGetMacro(RefractiveIndex, float)
+  vtkSetMacro(RefractiveIndex, float);
+  vtkGetMacro(RefractiveIndex, float);
   //@}
 
   /**
@@ -257,7 +274,7 @@ public:
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) override;
+  void ReleaseGraphicsResources(vtkWindow* w) override;
 
 protected:
   vtkOpenGLFluidMapper();
@@ -266,13 +283,16 @@ protected:
   /**
    * Perform string replacements on the shader templates
    */
-  void UpdateDepthThicknessColorShaders(
-    vtkOpenGLHelper& glHelper, vtkRenderer* renderer, vtkVolume* vol);
+  void UpdateDepthThicknessColorShaders(vtkOpenGLHelper& glHelper,
+                                        vtkRenderer* renderer,
+                                        vtkVolume* vol);
 
   /**
    * Set the shader parameters related to the actor/mapper/camera
    */
-  void SetDepthThicknessColorShaderParameters(vtkOpenGLHelper& glHelper, vtkRenderer* renderer, vtkVolume* vol);
+  void SetDepthThicknessColorShaderParameters(vtkOpenGLHelper& glHelper,
+                                              vtkRenderer* renderer,
+                                              vtkVolume* vol);
 
   /**
    * Setup the texture buffers
@@ -284,29 +304,31 @@ protected:
    */
   void RenderParticles(vtkRenderer* renderer, vtkVolume* vol);
 
-  // Public parameters, their usage are stated at their Get/Set functions ======>>>>>
+  // Public parameters, their usage are stated at their Get/Set functions
+  // ======>>>>>
   float ParticleRadius = 1.0f;
 
-  FluidSurfaceFilterMethod SurfaceFilterMethod     = FluidSurfaceFilterMethod::NarrowRange;
-  uint32_t                 SurfaceFilterIterations = 3u;
-  uint32_t                 SurfaceFilterRadius     = 5u;
-  float                    NRFilterLambda          = 10.0f;
-  float                    NRFilterMu = 1.0f;
-  float                    BiGaussFilterSigmaDepth = 10.0f;
+  FluidSurfaceFilterMethod SurfaceFilterMethod =
+    FluidSurfaceFilterMethod::NarrowRange;
+  uint32_t SurfaceFilterIterations = 3u;
+  uint32_t SurfaceFilterRadius = 5u;
+  float NRFilterLambda = 10.0f;
+  float NRFilterMu = 1.0f;
+  float BiGaussFilterSigmaDepth = 10.0f;
 
   uint32_t ThicknessAndVolumeColorFilterIterations = 3u;
-  uint32_t ThicknessAndVolumeColorFilterRadius     = 10u;
+  uint32_t ThicknessAndVolumeColorFilterRadius = 10u;
 
   FluidDisplayMode DisplayMode = FluidDisplayMode::TransparentFluidVolume;
 
-  float OpaqueColor[3]      { 0.0f, 0.0f, 0.95f };
-  float AttenuationColor[3] { 0.5f, 0.2f, 0.05f };
-  float ParticleColorPower   = 0.1f;
-  float ParticleColorScale   = 1.0f;
-  float AttenuationScale     = 1.0f;
+  float OpaqueColor[3]{ 0.0f, 0.0f, 0.95f };
+  float AttenuationColor[3]{ 0.5f, 0.2f, 0.05f };
+  float ParticleColorPower = 0.1f;
+  float ParticleColorScale = 1.0f;
+  float AttenuationScale = 1.0f;
   float AdditionalReflection = 0.0f;
-  float RefractionScale      = 1.0f;
-  float RefractiveIndex      = 1.33f;
+  float RefractionScale = 1.0f;
+  float RefractiveIndex = 1.33f;
 
   bool ScalarVisibility = false;
   bool InDepthPass = true;
@@ -328,7 +350,7 @@ protected:
   vtkMatrix4x4* CamVCDC;
   vtkMatrix4x4* CamWCDC;
   vtkMatrix4x4* CamDCVC;
-  vtkTypeBool   CamParallelProjection;
+  vtkTypeBool CamParallelProjection;
 
   // Frame buffers
   vtkSmartPointer<vtkOpenGLFramebufferObject> FBFluidEyeZ;
@@ -338,18 +360,20 @@ protected:
   vtkSmartPointer<vtkOpenGLFramebufferObject> FBFilterDepth;
 
   // Screen quad render
-  vtkOpenGLQuadHelper* QuadFluidDepthFilter[NumFilterMethods] { nullptr, nullptr };
+  vtkOpenGLQuadHelper* QuadFluidDepthFilter[NumFilterMethods]{ nullptr,
+                                                               nullptr };
   vtkOpenGLQuadHelper* QuadThicknessFilter = nullptr;
-  vtkOpenGLQuadHelper* QuadFluidNormal     = nullptr;
-  vtkOpenGLQuadHelper* QuadFinalBlend      = nullptr;
+  vtkOpenGLQuadHelper* QuadFluidNormal = nullptr;
+  vtkOpenGLQuadHelper* QuadFinalBlend = nullptr;
 
   // The VBO and its layout for rendering particles
   vtkSmartPointer<vtkOpenGLVertexBufferObjectGroup> VBOs;
-  vtkTimeStamp    VBOBuildTime; // When was the OpenGL VBO updated?
+  vtkTimeStamp VBOBuildTime; // When was the OpenGL VBO updated?
   vtkOpenGLHelper GLHelperDepthThickness;
 
   // Texture buffers
-  enum TextureBuffers {
+  enum TextureBuffers
+  {
     OpaqueZ = 0,
     OpaqueRGBA,
     FluidZ,
@@ -362,7 +386,8 @@ protected:
   };
 
   // These are optional texture buffers
-  enum OptionalTextureBuffers {
+  enum OptionalTextureBuffers
+  {
     Color = 0,
     SmoothedColor,
     NumOptionalTexBuffers
@@ -370,7 +395,7 @@ protected:
 
   vtkTextureObject* TexBuffer[NumTexBuffers];
   vtkTextureObject* OptionalTexBuffer[NumOptionalTexBuffers];
-  vtkMatrix4x4*     TempMatrix4;
+  vtkMatrix4x4* TempMatrix4;
 
 private:
   vtkOpenGLFluidMapper(const vtkOpenGLFluidMapper&) = delete;
