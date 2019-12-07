@@ -25,7 +25,7 @@
 #include <vector>
 
 // MPI include
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 // VTK includes
 #include "vtkCellData.h"

@@ -29,7 +29,7 @@
 #include <cassert>
 
 // MPI
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 void FillArray(const int rank, const int size, double array[])
 {

@@ -5,10 +5,14 @@ vtk_module_third_party_internal(
   VERSION       "3.5.0")
 
 if (TARGET VTK::mpi)
+  vtk_module_link(VTK::diy2
+    INTERFACE
+      VTK::mpi)
+
   set(DIY_NO_MPI FALSE)
-else()
+else ()
   set(DIY_NO_MPI TRUE)
-endif()
+endif ()
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_diy2.h.in"

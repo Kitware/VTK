@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 // Thanks to Philippe Pebay and Ajith Mascarenhas from Sandia National Laboratories
 // for implementing this test.
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkPDescriptiveStatistics.h"
 

@@ -20,7 +20,7 @@
 
 #ifdef VTK_COMPILED_USING_MPI
 #include "vtkMPIController.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 #endif // VTK_COMPILED_USING_MPI
 
 #include "vtkOutputWindow.h"

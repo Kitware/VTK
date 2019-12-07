@@ -26,7 +26,7 @@
 #include "vtkTestErrorObserver.h"
 
 // MPI include
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include <algorithm>
 #include <cstdio>

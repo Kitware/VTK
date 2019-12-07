@@ -24,7 +24,7 @@
 // Thanks to Janine Bennett, Philippe Pebay, and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkPKMeansStatistics.h"
 

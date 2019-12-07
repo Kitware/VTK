@@ -13,7 +13,7 @@
 #ifndef NETCDF_PAR_H
 #define NETCDF_PAR_H 1
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #if defined(__cplusplus)
 extern "C" {

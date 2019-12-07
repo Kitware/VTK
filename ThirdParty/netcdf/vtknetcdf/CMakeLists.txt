@@ -280,6 +280,16 @@ target_include_directories(netcdf
     "${CMAKE_CURRENT_SOURCE_DIR}/libsrc"
     "${CMAKE_CURRENT_SOURCE_DIR}/libsrc4"
     "${CMAKE_CURRENT_BINARY_DIR}/include")
+if (HDF5_PARALLEL)
+  if (NOT TARGET VTK::mpi)
+    message(FATAL_ERROR
+      "HDF5 is parallel, but VTK's MPI support was not available; this is not "
+      "supported.")
+  endif ()
+  vtk_module_link(VTK::netcdf
+    INTERFACE
+      VTK::mpi)
+endif ()
 
 if (UNIX)
   # link against the math library.

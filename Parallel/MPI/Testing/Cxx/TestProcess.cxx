@@ -14,7 +14,7 @@
 =========================================================================*/
 // This test covers the vtkProcess abstract class.
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"

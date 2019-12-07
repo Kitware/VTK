@@ -29,7 +29,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRTAnalyticSource.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 int PCellDataToPointData(int argc, char* argv[])
 {

@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // Thanks to Philippe Pebay for implementing this test.
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkContingencyStatistics.h"
 #include "vtkPContingencyStatistics.h"

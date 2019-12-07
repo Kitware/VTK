@@ -34,7 +34,7 @@
 #include "vtkProcess.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkTestUtilities.h"
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 namespace
 {

@@ -15,7 +15,7 @@
 // This test exercises xdmf3 reading and writing in parallel.
 //
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"

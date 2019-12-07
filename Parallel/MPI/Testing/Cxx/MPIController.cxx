@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 #include "vtkMPIController.h"
 #include "vtkProcessGroup.h"

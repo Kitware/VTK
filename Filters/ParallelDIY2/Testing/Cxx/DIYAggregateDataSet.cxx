@@ -30,7 +30,7 @@
 #include "vtkRTAnalyticSource.h"
 #include "vtkTransformFilter.h"
 
-#include <mpi.h>
+#include <vtk_mpi.h>
 
 int DIYAggregateDataSet(int argc, char* argv[])
 {
