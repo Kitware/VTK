@@ -278,13 +278,10 @@ int vtkTemporalDataSetCache::RequestData(vtkInformation* vtkNotUsed(request),
   // otherwise it better be in the input
   else
   {
-    if (input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()))
+    if (input->GetInformation()->Has(vtkDataObject::DATA_TIME_STEP()) && (inTime == upTime))
     {
-      if (inTime == upTime)
-      {
-        output.TakeReference(input->NewInstance());
-        output->ShallowCopy(input);
-      }
+      output.TakeReference(input->NewInstance());
+      output->ShallowCopy(input);
     }
     else
     {
