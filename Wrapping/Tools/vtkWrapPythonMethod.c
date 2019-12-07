@@ -603,7 +603,7 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
       fprintf(fp,
         "      if (result && PyVTKObject_Check(result))\n"
         "      {\n"
-        "        PyVTKObject_GetObject(result)->UnRegister(0);\n"
+        "        PyVTKObject_GetObject(result)->UnRegister(nullptr);\n"
         "        PyVTKObject_SetFlag(result, VTK_PYTHON_IGNORE_UNREGISTER, 1);\n"
         "      }\n");
     }
@@ -632,7 +632,7 @@ void vtkWrapPython_ReturnValue(FILE* fp, ClassInfo* data, ValueInfo* val, int st
   }
   else if (vtkWrap_IsArray(val))
   {
-    fprintf(fp, "      result = %sBuildTuple(tempr, sizer);\n", prefix);
+    fprintf(fp, "      result = vtkPythonArgs::BuildTuple(tempr, sizer);\n");
   }
   else if (vtkWrap_IsStdVector(val))
   {
