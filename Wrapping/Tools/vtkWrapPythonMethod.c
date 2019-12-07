@@ -1140,7 +1140,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
         "Py%s_%s%s(PyObject *%s, PyObject *args)\n"
         "{\n",
         classname, theOccurrence->Name, occSuffix,
-        ((theOccurrence->IsStatic | do_constructors) ? "" : "self"));
+        ((theOccurrence->IsStatic | do_constructors) ? " /*unused*/" : "self"));
 
       /* Use vtkPythonArgs to convert python args to C args */
       if (is_vtkobject && !theOccurrence->IsStatic)
