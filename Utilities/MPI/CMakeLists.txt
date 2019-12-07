@@ -8,7 +8,7 @@ vtk_module_third_party_external(
   STANDARD_INCLUDE_DIRS)
 
 vtk_module_install_headers(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_mpi.h")
+  FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtk_mpi.h")
 
 vtk_module_definitions(VTK::mpi
   INTERFACE
