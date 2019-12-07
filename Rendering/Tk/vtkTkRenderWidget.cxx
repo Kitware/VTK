@@ -39,6 +39,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
