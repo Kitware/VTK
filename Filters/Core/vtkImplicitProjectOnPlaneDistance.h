@@ -93,18 +93,18 @@ public:
    * L0: 0 when the projection is inside the input polygon, 1 otherwise
    * L2: Euclidean distance between the projection and the polygon (default)
    */
-  // The Java wrappers don't work with enums perfectly yet.
-  // https://gitlab.kitware.com/vtk/vtk/issues/17744
-#ifndef __VTK_WRAP_JAVA__
   NormType GetNorm() const { return Norm; }
-  void SetNorm(int n)
-  {
-    Norm = static_cast<NormType>(n);
-    Modified();
-  }
   void SetNorm(NormType n)
   {
     Norm = n;
+    Modified();
+  }
+#ifndef __VTK_WRAP_JAVA__
+  // The Java wrappers cannot resolve this signature from the one above,
+  // see https://gitlab.kitware.com/vtk/vtk/issues/17744
+  void SetNorm(int n)
+  {
+    Norm = static_cast<NormType>(n);
     Modified();
   }
 #endif

@@ -106,7 +106,7 @@ void output_proto_vars(FILE* fp, int i)
     case VTK_PARSE_OBJECT:
       fprintf(fp, "jobject ");
       break;
-    case VTK_PARSE_UNKNOWN:
+    case VTK_PARSE_UNKNOWN: /* enum */
       fprintf(fp, "jint ");
       break;
   }
@@ -218,7 +218,7 @@ void return_result(FILE* fp)
     case VTK_PARSE_UNSIGNED_LONG:
     case VTK_PARSE_UNSIGNED_LONG_LONG:
     case VTK_PARSE_UNSIGNED___INT64:
-    case VTK_PARSE_UNKNOWN:
+    case VTK_PARSE_UNKNOWN: /* enum */
       fprintf(fp, "jint ");
       break;
     case VTK_PARSE_BOOL:
@@ -530,6 +530,12 @@ void do_return(FILE* fp)
     case VTK_PARSE_BOOL_PTR:
       use_hints(fp);
       break;
+
+    /* handle enums, they are the only 'UNKNOWN' these wrappers use */
+    case VTK_PARSE_UNKNOWN:
+      fprintf(fp, "  return static_cast<jint>(temp%i);\n", MAX_ARGS);
+      break;
+
     default:
       fprintf(fp, "  return temp%i;\n", MAX_ARGS);
       break;
