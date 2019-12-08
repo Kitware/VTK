@@ -433,7 +433,8 @@ int main(int argc, char* argv[])
   fprintf(fp, "#include \"%s.h\"\n\n", name);
 
   /* do the export of the main entry point */
-  fprintf(fp, "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *); }\n", "VTK_ABI_EXPORT", name);
+  fprintf(
+    fp, "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *dict); }\n", "VTK_ABI_EXPORT", name);
 
   /* get the module that is being wrapped */
   data = file_info->MainClass;
